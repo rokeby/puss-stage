@@ -1,0 +1,481 @@
+{
+  "args": {
+    "ack_records": [
+      "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\fx_smoke_place_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p04_atmos_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\fence_stack_750_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\hangar_exit_doors_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_looks_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\opening_own_rail_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\p04_glint_practical_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\p04_rig_pattern_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\p04_window_shadows_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\passage_slow_walk_record_P04.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P04.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P04_LOOKS.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\rig_tubes_everywhere_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\structure_refit_record_REFIT-20261006-021730.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\tubes_tweak_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\underpass_fence_record_04.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\underpass_phase_b_record_04.json",
+      "E:\\PussStage\\Saved\\CodexFlatV3\\fence\\fb_recorded_p04_fixture.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\blink_spots_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\board_material_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\groove_material_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\groove_width_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\portal_border_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\portal_enable_revert_record.json"
+    ],
+    "allow_dirty": [],
+    "anchor_warn_cm": 1.0,
+    "bulb_anchor": "LIGHT",
+    "bulb_pool": [
+      "SM_Bulb_A60_Clear",
+      "SM_Bulb_A60_Frost",
+      "SM_Bulb_A60_Opal",
+      "SM_Bulb_A60_Worn",
+      "SM_Bulb_C35_Clear",
+      "SM_Bulb_G95_Clear",
+      "SM_Bulb_ST64_Cage"
+    ],
+    "bulb_scale": "MATCH_SPHERE",
+    "bulb_scale_clamp": [
+      0.75,
+      4.0
+    ],
+    "bulb_seed": "20261007",
+    "confirm": "REVERT MESHYSWAP P04",
+    "disable_caps": true,
+    "expected_bulbs": null,
+    "expected_caps": null,
+    "housing": "AUTO",
+    "housing_scale": 1.0,
+    "label_regex": null,
+    "mode": "REVERT",
+    "passage": "P04",
+    "plan_sha256": null
+  },
+  "backup": {
+    "packages": [
+      {
+        "backup": "E:/PussStage/Backups\\PreMeshySwapP04Revert-20261007-082718\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+        "bytes": 25223474,
+        "package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
+        "sha256": "dcf62923934f8f470647cd9f1bbd34ea5e0ebc13409df11463d3872d9fec2c48",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset"
+      },
+      {
+        "backup": "E:/PussStage/Backups\\PreMeshySwapP04Revert-20261007-082718\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 18524133,
+        "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+        "sha256": "40331c8af568019741c04a6063248be63d4a99720b9a367949fa608b7730fc31",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+      }
+    ],
+    "root": "E:/PussStage/Backups\\PreMeshySwapP04Revert-20261007-082718"
+  },
+  "context": {
+    "census": {
+      "content": [],
+      "maps": []
+    },
+    "pie": false,
+    "project_ok": true,
+    "sequencer_open": false,
+    "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+    "world_ok": true,
+    "zz_actors": []
+  },
+  "derived_left_on_disk": [],
+  "foreign_records": [
+    {
+      "guids": [
+        "84958F43DA441BCC978C7BBE1E154DF6",
+        "CDF8F937C64C300A9B8F3A99112AEAE0"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\fx_smoke_place_record.json",
+      "sha256": "581e464c8d525054d4b9dfc3aa0370b8be881c818746803928fe2ea9a23f30c2",
+      "status": "applied"
+    },
+    {
+      "guids": [
+        "612B5D6540B892974C2EDDBBEE679652",
+        "84958F43DA441BCC978C7BBE1E154DF6"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p04_atmos_record.json",
+      "sha256": "bcf5758d856a276bd48510fc5e19a3b82170cc50391b66012818608f0d254069",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "1546A5664D00B90BCCFF4CB1A1912899",
+        "32BA67E93346CDC7558A6DA92615B584",
+        "612B5D6540B892974C2EDDBBEE679652",
+        "72B3443644BF02C0C5C5B68704095950",
+        "84958F43DA441BCC978C7BBE1E154DF6",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "CDF8F937C64C300A9B8F3A99112AEAE0",
+        "E1C787FD4EE6C9E72788AC8DFC1DA337"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
+      "sha256": "ea0b717cdcf5b8d9b60c783ed8bd5cb006fe11d880f369e677296faeee1b15e8",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "2848FDB97F4179561CEC1FB5EE69BF34",
+        "32BA67E93346CDC7558A6DA92615B584",
+        "4B9A3DDEF84C3119562E01AB624237AA",
+        "51127A0ADA4FEED69D4CE693D1A650C0",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "7245B7F6604BD9C95E74BF9DFD673085",
+        "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "84958F43DA441BCC978C7BBE1E154DF6",
+        "8EB9785B5A4911719CF9A0A0EF3A2379",
+        "9D804A48624083D26A5686843F704E51",
+        "A0D78885A34FEF7A5AF08C9E7B2BBBC1",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "BDE7FD771240B4DAA44D92A37719D450",
+        "CDF8F937C64C300A9B8F3A99112AEAE0",
+        "D84BDBAEDF4EE4A952894D82ECD2841F"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_looks_revert_record.json",
+      "sha256": "6544e9f1b6894ab36f87575e58850f449b05fcd323e6cbdfb468d419a7593286",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "0D08B2E5409FE5776925BA9E47EE845E",
+        "1546A5664D00B90BCCFF4CB1A1912899",
+        "2848FDB97F4179561CEC1FB5EE69BF34",
+        "32BA67E93346CDC7558A6DA92615B584",
+        "3D5E292E4144FFDFEF6C25B75629B052",
+        "3FE127204559036B342ED6AA7A5BAFD3",
+        "4B9A3DDEF84C3119562E01AB624237AA",
+        "5038AD1F46BBB1D71958F3942F26B6FA",
+        "51127A0ADA4FEED69D4CE693D1A650C0",
+        "60F176534263D9003F78448657B2358F",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "612B5D6540B892974C2EDDBBEE679652",
+        "7245B7F6604BD9C95E74BF9DFD673085",
+        "72B3443644BF02C0C5C5B68704095950",
+        "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "7E4135534D8D718BDABD8B88E4D8EFB0",
+        "82662A464B15AB4FFF9F23A0EDCA7D8C",
+        "84958F43DA441BCC978C7BBE1E154DF6",
+        "8EB9785B5A4911719CF9A0A0EF3A2379",
+        "9D804A48624083D26A5686843F704E51",
+        "A0D78885A34FEF7A5AF08C9E7B2BBBC1",
+        "A23A021F44701BBD6E6C3DA51461AD98",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "BDE7FD771240B4DAA44D92A37719D450",
+        "C247FE3B4B01BED75EB056BBA46A69B2",
+        "CDF8F937C64C300A9B8F3A99112AEAE0",
+        "D27383C945BB38FD6F35DB863B605761",
+        "D84BDBAEDF4EE4A952894D82ECD2841F",
+        "E1C787FD4EE6C9E72788AC8DFC1DA337",
+        "E4BAD29C4EA984262E15AB9EA6A0987A"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+      "sha256": "aa2cdce1095b073e4a2ec2219bdf9dff94b180feb353a332e8e833066963dc72",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "2848FDB97F4179561CEC1FB5EE69BF34",
+        "32BA67E93346CDC7558A6DA92615B584",
+        "4B9A3DDEF84C3119562E01AB624237AA",
+        "51127A0ADA4FEED69D4CE693D1A650C0",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "7245B7F6604BD9C95E74BF9DFD673085",
+        "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "84958F43DA441BCC978C7BBE1E154DF6",
+        "8EB9785B5A4911719CF9A0A0EF3A2379",
+        "9D804A48624083D26A5686843F704E51",
+        "A0D78885A34FEF7A5AF08C9E7B2BBBC1",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "BDE7FD771240B4DAA44D92A37719D450",
+        "CDF8F937C64C300A9B8F3A99112AEAE0",
+        "D84BDBAEDF4EE4A952894D82ECD2841F"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\opening_own_rail_record.json",
+      "sha256": "f52bcfc834ab9c9402c81430e870f1806e12a5a22112798f2410bbcf10a4b7d4",
+      "status": null
+    },
+    {
+      "guids": [
+        "5038AD1F46BBB1D71958F3942F26B6FA",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "D84BDBAEDF4EE4A952894D82ECD2841F"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p04_glint_practical_record.json",
+      "sha256": "ff1bf488f2f277e2a52c8ba17eb5bee2581904538ebcb906e424982e74e418c8",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "1546A5664D00B90BCCFF4CB1A1912899",
+        "2848FDB97F4179561CEC1FB5EE69BF34",
+        "32BA67E93346CDC7558A6DA92615B584",
+        "4B9A3DDEF84C3119562E01AB624237AA",
+        "5038AD1F46BBB1D71958F3942F26B6FA",
+        "51127A0ADA4FEED69D4CE693D1A650C0",
+        "60F176534263D9003F78448657B2358F",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "612B5D6540B892974C2EDDBBEE679652",
+        "7245B7F6604BD9C95E74BF9DFD673085",
+        "72B3443644BF02C0C5C5B68704095950",
+        "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "7E4135534D8D718BDABD8B88E4D8EFB0",
+        "82662A464B15AB4FFF9F23A0EDCA7D8C",
+        "84958F43DA441BCC978C7BBE1E154DF6",
+        "8EB9785B5A4911719CF9A0A0EF3A2379",
+        "9D804A48624083D26A5686843F704E51",
+        "A0D78885A34FEF7A5AF08C9E7B2BBBC1",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "BDE7FD771240B4DAA44D92A37719D450",
+        "C247FE3B4B01BED75EB056BBA46A69B2",
+        "CDF8F937C64C300A9B8F3A99112AEAE0",
+        "D84BDBAEDF4EE4A952894D82ECD2841F",
+        "E1C787FD4EE6C9E72788AC8DFC1DA337",
+        "E4BAD29C4EA984262E15AB9EA6A0987A"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p04_rig_pattern_record.json",
+      "sha256": "06b97ff7bb966a83fd60f19367dbb692491e8d95f02d70f0076b50e6f4bee652",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "4B9A3DDEF84C3119562E01AB624237AA",
+        "5038AD1F46BBB1D71958F3942F26B6FA",
+        "60F176534263D9003F78448657B2358F",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "7245B7F6604BD9C95E74BF9DFD673085",
+        "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "82662A464B15AB4FFF9F23A0EDCA7D8C",
+        "8EB9785B5A4911719CF9A0A0EF3A2379",
+        "9D804A48624083D26A5686843F704E51",
+        "A23A021F44701BBD6E6C3DA51461AD98",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "C247FE3B4B01BED75EB056BBA46A69B2",
+        "D84BDBAEDF4EE4A952894D82ECD2841F",
+        "E1C787FD4EE6C9E72788AC8DFC1DA337",
+        "E4BAD29C4EA984262E15AB9EA6A0987A"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p04_window_shadows_record.json",
+      "sha256": "fbd69c43487f557e36c636a92bce181c0667be7e27bfc1846094d889fb54df4c",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "2848FDB97F4179561CEC1FB5EE69BF34",
+        "32BA67E93346CDC7558A6DA92615B584",
+        "4B9A3DDEF84C3119562E01AB624237AA",
+        "51127A0ADA4FEED69D4CE693D1A650C0",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "7245B7F6604BD9C95E74BF9DFD673085",
+        "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "84958F43DA441BCC978C7BBE1E154DF6",
+        "8EB9785B5A4911719CF9A0A0EF3A2379",
+        "9D804A48624083D26A5686843F704E51",
+        "A0D78885A34FEF7A5AF08C9E7B2BBBC1",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "BDE7FD771240B4DAA44D92A37719D450",
+        "CDF8F937C64C300A9B8F3A99112AEAE0",
+        "D84BDBAEDF4EE4A952894D82ECD2841F"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\passage_slow_walk_record_P04.json",
+      "sha256": "ab18fd30bfd5b48c5f13c26a4c83675190984b0b0d89543ca8426a80b8dd51a7",
+      "status": null
+    },
+    {
+      "guids": [
+        "32BA67E93346CDC7558A6DA92615B584",
+        "4B9A3DDEF84C3119562E01AB624237AA",
+        "51127A0ADA4FEED69D4CE693D1A650C0",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "7245B7F6604BD9C95E74BF9DFD673085",
+        "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "84958F43DA441BCC978C7BBE1E154DF6",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "CDF8F937C64C300A9B8F3A99112AEAE0",
+        "D84BDBAEDF4EE4A952894D82ECD2841F"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P04.json",
+      "sha256": "7959360fc3077cea722d834dd3b753937fb7b7fac2407a0a5b32552d5c92d8cf",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "8EB9785B5A4911719CF9A0A0EF3A2379"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexFlatV3\\fence\\fb_recorded_p04_fixture.json",
+      "sha256": "84b104e8e6a83b1efd50018eb24528950ef87e2eb8fcaceef98bedc5ccc9a17e",
+      "status": null
+    },
+    {
+      "guids": [
+        "51127A0ADA4FEED69D4CE693D1A650C0"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\blink_spots_revert_record.json",
+      "sha256": "31d032d059a3dc5723f7424891aed99a9aa1e365cd81e0565d8d7d82ae85048a",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\fence_stack_750_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\hangar_exit_doors_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_looks_revert_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p04_glint_practical_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p04_rig_pattern_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p04_window_shadows_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P04.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P04_LOOKS.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\rig_tubes_everywhere_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\structure_refit_record_REFIT-20261006-021730.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\tubes_tweak_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\underpass_fence_record_04.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\underpass_phase_b_record_04.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p04_atmos_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\board_material_revert_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\groove_material_revert_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\groove_width_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\portal_border_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 04"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\portal_enable_revert_record.json",
+      "status": null
+    }
+  ],
+  "mode": "REVERT",
+  "ok": true,
+  "passage": "P04",
+  "record_archived": "E:\\PussStage\\Saved\\CodexConductor\\MeshyFixtures_20261007\\meshy_swap_record_P04.json.reverted-20261007-082718",
+  "run": "20261007-082718",
+  "saved": true,
+  "unacknowledged_foreign_records": []
+}

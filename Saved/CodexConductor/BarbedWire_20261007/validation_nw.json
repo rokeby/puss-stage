@@ -1,0 +1,219 @@
+{
+ "status": "PASS",
+ "blender": "4.4.0",
+ "assets": [
+  {
+   "path": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_FenceBay_short_open_nw.fbx",
+   "bay": "SM_FenceBay_short_open",
+   "checks": {
+    "lod_count": true,
+    "triangulated": true,
+    "slots": true,
+    "uv_layers": true,
+    "bounds_x": true,
+    "bottom_z": true,
+    "top_z": true,
+    "y_centre": true,
+    "lod1_inside_lod0": true,
+    "identical_minus_coil": true,
+    "no_coil": true,
+    "chain_uv_physical": true,
+    "chain_plane": true,
+    "chain_to_top": true
+   },
+   "metrics": {
+    "bounds_lod0": [
+     [
+      -1.6799999475479126,
+      -0.0659991204738617,
+      6.51682707797363e-09
+     ],
+     [
+      1.6799999475479126,
+      0.059506382793188095,
+      3.026763439178467
+     ]
+    ],
+    "source_bounds_lod0": [
+     [
+      -1.6799999475479126,
+      -0.0928683876991272,
+      3.258413538986815e-09
+     ],
+     [
+      1.6799999475479126,
+      0.08637472242116928,
+      3.026763439178467
+     ]
+    ],
+    "delta_mm": {
+     "min": [
+      0.0,
+      26.869,
+      0.0
+     ],
+     "max": [
+      0.0,
+      -26.868,
+      0.0
+     ]
+    },
+    "new_top_z_m": 3.026763439178467,
+    "y_centre_m": -0.0032463688403367996,
+    "lods": {
+     "0": {
+      "tris": 20,
+      "missing_kept": 0,
+      "added_metal": 8,
+      "added_chain": 2,
+      "coil_tris_present": 0,
+      "metal_islands": 2,
+      "straight_bars": 2
+     },
+     "1": {
+      "tris": 20,
+      "missing_kept": 0,
+      "added_metal": 8,
+      "added_chain": 2,
+      "coil_tris_present": 0,
+      "metal_islands": 2,
+      "straight_bars": 2
+     }
+    },
+    "chain_top_z_m": 3.026763439178467
+   },
+   "status": "PASS",
+   "failed": [],
+   "asset": "SM_FenceBay_short_open_nw",
+   "sha256_matches_build": true,
+   "source_sha256_matches": true
+  },
+  {
+   "path": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_FenceBay_short_door_gap_nw.fbx",
+   "bay": "SM_FenceBay_short_door_gap",
+   "checks": {
+    "lod_count": true,
+    "triangulated": true,
+    "slots": true,
+    "uv_layers": true,
+    "bounds_x": true,
+    "bottom_z": true,
+    "top_z": true,
+    "y_centre": true,
+    "lod1_inside_lod0": true,
+    "identical_minus_coil": true,
+    "no_coil": true,
+    "chain_uv_physical": true,
+    "chain_plane": true,
+    "chain_to_top": true
+   },
+   "metrics": {
+    "bounds_lod0": [
+     [
+      -1.6799999475479126,
+      -0.0690000057220459,
+      6.51682707797363e-09
+     ],
+     [
+      1.6799999475479126,
+      0.06250683218240738,
+      3.026763439178467
+     ]
+    ],
+    "source_bounds_lod0": [
+     [
+      -1.6799999475479126,
+      -0.0928683876991272,
+      3.258413538986815e-09
+     ],
+     [
+      1.6799999475479126,
+      0.08637472242116928,
+      3.026763439178467
+     ]
+    ],
+    "delta_mm": {
+     "min": [
+      0.0,
+      23.868,
+      0.0
+     ],
+     "max": [
+      0.0,
+      -23.868,
+      0.0
+     ]
+    },
+    "new_top_z_m": 3.026763439178467,
+    "y_centre_m": -0.0032465867698192596,
+    "lods": {
+     "0": {
+      "tris": 48,
+      "missing_kept": 0,
+      "added_metal": 8,
+      "added_chain": 2,
+      "coil_tris_present": 0,
+      "metal_islands": 5,
+      "straight_bars": 5
+     },
+     "1": {
+      "tris": 48,
+      "missing_kept": 0,
+      "added_metal": 8,
+      "added_chain": 2,
+      "coil_tris_present": 0,
+      "metal_islands": 5,
+      "straight_bars": 5
+     }
+    },
+    "chain_top_z_m": 3.026763439178467
+   },
+   "status": "PASS",
+   "failed": [],
+   "asset": "SM_FenceBay_short_door_gap_nw",
+   "sha256_matches_build": true,
+   "source_sha256_matches": true
+  }
+ ],
+ "controls": {
+  "negctl_keeps_coil": {
+   "expected_failures": [
+    "identical_minus_coil",
+    "no_coil"
+   ],
+   "observed_failures": [
+    "y_centre",
+    "lod1_inside_lod0",
+    "identical_minus_coil",
+    "no_coil"
+   ],
+   "ok": true
+  },
+  "negctl_unlifted": {
+   "expected_failures": [
+    "top_z",
+    "y_centre"
+   ],
+   "observed_failures": [
+    "top_z",
+    "y_centre",
+    "identical_minus_coil",
+    "no_coil",
+    "chain_to_top"
+   ],
+   "ok": true
+  },
+  "current_bay_with_coil": {
+   "expected_failures": [
+    "no_coil"
+   ],
+   "observed_failures": [
+    "lod1_inside_lod0",
+    "identical_minus_coil",
+    "no_coil",
+    "chain_to_top"
+   ],
+   "ok": true
+  }
+ }
+}

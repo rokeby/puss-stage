@@ -49,6 +49,14 @@ expect(t["fence_variant_a.top_row_mesh"] == SM + "SM_FenceBay_short_open_bwc"
        and t["fence_variant_d.top_row_mesh"] == SM + "SM_FenceBay_short_door_gap_bw"
        and t["fence_post_joints"] == "LINE_END" and t["fence_post_mesh"] == SM + "SM_FencePost_short_bw",
        "plan maps A-C to _open_bwc, D to _door_gap_bw, LINE_END posts")
+expect(all(t["fence_variant_%s.mesh" % k] == SM + "SM_FenceBay_short_open_nw" for k in "abc")
+       and t["fence_variant_d.mesh"] == SM + "SM_FenceBay_short_door_gap_nw",
+       "plan: every built variant's Mesh -> its no-wire twin (A-C _open_nw, D _door_gap_nw)")
+v0 = copy.deepcopy(variants)
+v0["fence_variant_c"]["weight"] = 0.0
+t0 = A["plan_targets"](v0, off)
+expect(t0["fence_variant_c.mesh"] == SM + "SM_FenceBay_short_open" and t0["fence_variant_c.top_row_mesh"] is None,
+       "plan: an unbuilt variant (weight 0) is written back unchanged")
 for k, v, why in (("fence_variant_b", {"mesh": SM + "SM_FenceBay_open_v2", "weight": 0.2, "top_row_mesh": None}, "unmapped mesh"),
                   ("fence_variant_c", {"mesh": SM + "SM_FenceBay_short_open", "weight": 0.2, "top_row_mesh": "x"}, "already set")):
     vv = copy.deepcopy(variants)
@@ -84,7 +92,7 @@ def fence(top_row):
                 v = "D" if (tile == 1 and row == 0) else "A"
                 plain = SM + ("SM_FenceBay_short_door_gap" if v == "D" else "SM_FenceBay_short_open")
                 is_top = top_row and row == 1
-                mesh = A["MESH_MAP"][plain] if is_top else plain
+                mesh = (A["MESH_MAP"][plain] if is_top else A["NW_MAP"][plain]) if top_row else plain
                 out.append(panel(side, tile, row, mesh, v, is_top))
     return out
 
@@ -111,12 +119,30 @@ expect(any("post foot" in x for x in A["check_apply"](before, bad, t_a, 2, 2, of
 bad = copy.deepcopy(after)
 bad["posts"] = [post(-1)]
 expect(any("posts 1" in x for x in A["check_apply"](before, bad, t_a, 2, 2, off, bounds)[0]), "control: a missing post fails")
+# Gary 7 Oct: wire on the top row ONLY. Three ways a lower row can still carry wire; each must fail.
+for label, mesh in (("a _bwc wire bay", SM + "SM_FenceBay_short_open_bwc"),
+                    ("the old coil bay (the 7 Oct bug: Mesh left alone)", SM + "SM_FenceBay_short_open"),
+                    ("a _bw wire bay", SM + "SM_FenceBay_short_door_gap_bw")):
+    bad = copy.deepcopy(after)
+    for e in bad["panels"]:
+        if not e["top"] and e["variant"] == "A":
+            e["mesh"] = mesh
+            break
+    expect(any("carries wire" in x for x in A["check_apply"](before, bad, t_a, 2, 2, off, bounds)[0]),
+           "control: a lower row on %s FAILS" % label)
+bad = copy.deepcopy(after)
+for e in bad["panels"]:
+    if not e["top"]:
+        e["mesh"] = e["mesh"].replace("_nw", "")  # the previous barbed_apply.py plan: lower rows left on their old Mesh
+expect(sum("carries wire" in x for x in A["check_apply"](before, bad, t_a, 2, 2, off, bounds)[0]) >= 2,
+       "control: the previous plan (lower rows on the old coil bays) FAILS")
 bad = copy.deepcopy(after)
 for e in bad["panels"]:
     if not e["top"] and e["variant"] == "A":
-        e["mesh"] = SM + "SM_FenceBay_short_open_bwc"
+        e["mesh"] = SM + "SM_FenceBay_short_door_gap_nw"
         break
-expect(any("plain panel mesh" in x for x in A["check_apply"](before, bad, t_a, 2, 2, off, bounds)[0]), "control: wire on a lower row fails")
+expect(any("plain panel mesh" in x for x in A["check_apply"](before, bad, t_a, 2, 2, off, bounds)[0]),
+       "control: a lower row on the wrong no-wire twin FAILS")
 bad = copy.deepcopy(after)
 bad["panels"][0]["loc"][2] += 3.0
 expect(any("no old twin" in x for x in A["check_apply"](before, bad, t_a, 2, 2, off, bounds)[0]), "control: a moved panel fails")
@@ -139,6 +165,34 @@ pts = [(-162.92 + 5.08 * math.cos(a), 0.3247 + 5.08 * math.sin(a), z, 0.0)
 ax = I["axis_from"](pts, xpred=lambda x: x < -100.0)
 expect(abs(ax[0] + 162.92) < 1e-6 and abs(ax[1] - 0.3247) < 1e-6, "axis_from: ring mean = axis")
 expect(abs(I["least_squares"]([0, 1, 2], [1, -1, -3]) + 2.0) < 1e-9, "least_squares slope")
+
+# ---- set "nw": offline gate on the REAL build_manifest_nw.json / validation_nw.json, and the bounds gates
+import json
+MAN_NW = json.load(open(os.path.join(HERE, "build_manifest_nw.json"), encoding="utf-8"))
+VAL_NW = json.load(open(os.path.join(HERE, "validation_nw.json"), encoding="utf-8"))
+expect(not I["nw_offline_ok"](MAN_NW, VAL_NW), "nw offline gate: the real build + validation pass (%s)" % I["nw_offline_ok"](MAN_NW, VAL_NW))
+bad = copy.deepcopy(VAL_NW)
+bad["controls"]["negctl_keeps_coil"]["ok"] = False
+expect(I["nw_offline_ok"](MAN_NW, bad), "control: nw offline gate FAILS when a negative control did not fail")
+bad = copy.deepcopy(VAL_NW)
+bad["assets"][0]["sha256_matches_build"] = False
+expect(I["nw_offline_ok"](MAN_NW, bad), "control: nw offline gate FAILS on an FBX that is not the validated build")
+for name in I["NW_TARGETS"]:
+    expect(name in [a["asset"] for a in MAN_NW["assets"]], "nw build has " + name)
+# live twin as read on 7 Oct (barbed_import_record.json facts.ref_bay_bounds_cm)
+TWIN = {"min": [-168.0, -8.637472152709961, 0.0], "max": [168.0, 9.286839485168457, 302.67633056640625]}
+for name in I["NW_TARGETS"]:
+    ey = I["nw_expected_y"](VAL_NW, name)
+    mn, mx = next(r for r in VAL_NW["assets"] if r["asset"] == name)["metrics"]["bounds_lod0"]
+    good = {"min": [mn[0] * 100, ey[0], mn[2] * 100], "max": [mx[0] * 100, ey[1], mx[2] * 100]}
+    expect(not I["nw_gate_bounds"](good, TWIN, ey), "nw gate: %s as built passes vs the live twin (%s)" % (name, I["nw_gate_bounds"](good, TWIN, ey)))
+    short = copy.deepcopy(good); short["max"][2] = 270.1
+    expect(any("NW_BOUNDS_Z" in x for x in I["nw_gate_bounds"](short, TWIN, ey)), "control: %s cut to the rail top (270.1 cm) FAILS" % name)
+    mirrored = copy.deepcopy(good); mirrored["min"][1], mirrored["max"][1] = -good["max"][1], -good["min"][1]
+    expect(any("NW_HANDEDNESS" in x or "NW_Y_CENTRE" in x for x in I["nw_gate_bounds"](mirrored, TWIN, ey)),
+           "control: %s mirrored in Y FAILS" % name)
+    off_c = copy.deepcopy(good); off_c["max"][1] += 1.0
+    expect(any("NW_Y_CENTRE" in x for x in I["nw_gate_bounds"](off_c, TWIN, ey)), "control: %s Y centre 0.5 cm off FAILS" % name)
 
 # ---- post UV / axis on a TWO-RING tube (live DRY 7 Oct: POST_UV_FEW|SM_FencePost_short|0)
 def two_ring_post(v_of_z, sides=16, r=5.08, cx=0.0, cy=-6.5, z1=287.0, flat=True):

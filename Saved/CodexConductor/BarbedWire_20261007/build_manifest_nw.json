@@ -1,0 +1,179 @@
+{
+ "assets": [
+  {
+   "source_fbx": "E:\\PussStage\\DerivedAssets\\FlatV3\\FenceBay\\short\\SM_FenceBay_short_open.fbx",
+   "source_sha256": "2e53f1851b0d579a32546740dcbf02f62ca1f628ff53c056259f1d69a0bb33fc",
+   "source_bounds_lod0": [
+    [
+     -1.6799999475479126,
+     -0.0928683876991272,
+     3.258413538986815e-09
+    ],
+    [
+     1.6799999475479126,
+     0.08637472242116928,
+     3.026763439178467
+    ]
+   ],
+   "lods": {
+    "0": {
+     "source_tris": 3298,
+     "kept_tris": 10,
+     "dropped_tris": 3288,
+     "added_tris": 10,
+     "out_tris": 20
+    },
+    "1": {
+     "source_tris": 1386,
+     "kept_tris": 10,
+     "dropped_tris": 1376,
+     "added_tris": 10,
+     "out_tris": 20
+    }
+   },
+   "top_rail_shift_m": [
+    0.0,
+    0.08350545912981033,
+    0.325763463973999
+   ],
+   "target_y_centre": -0.003246832638978958,
+   "asset": "SM_FenceBay_short_open_nw",
+   "fbx": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_FenceBay_short_open_nw.fbx",
+   "sha256": "8e6f2b3dd41114f16eb7c8a48c1df0e2e27ba3799b7af1d2a30105b4fc70c57e",
+   "opts": {}
+  },
+  {
+   "source_fbx": "E:\\PussStage\\DerivedAssets\\FlatV3\\FenceBay\\short\\SM_FenceBay_short_door_gap.fbx",
+   "source_sha256": "71ac0ad5644df36d93e5ead002ef85d4b23c83eba980fe4ea64f2dd7c20c576c",
+   "source_bounds_lod0": [
+    [
+     -1.6799999475479126,
+     -0.0928683876991272,
+     3.258413538986815e-09
+    ],
+    [
+     1.6799999475479126,
+     0.08637472242116928,
+     3.026763439178467
+    ]
+   ],
+   "lods": {
+    "0": {
+     "source_tris": 3326,
+     "kept_tris": 38,
+     "dropped_tris": 3288,
+     "added_tris": 10,
+     "out_tris": 48
+    },
+    "1": {
+     "source_tris": 1414,
+     "kept_tris": 38,
+     "dropped_tris": 1376,
+     "added_tris": 10,
+     "out_tris": 48
+    }
+   },
+   "top_rail_shift_m": [
+    0.0,
+    0.08650590479373932,
+    0.325763463973999
+   ],
+   "target_y_centre": -0.003246832638978958,
+   "asset": "SM_FenceBay_short_door_gap_nw",
+   "fbx": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_FenceBay_short_door_gap_nw.fbx",
+   "sha256": "a53c024ccaa039af45373b6aa7047bd96bd06c7dc0d990b9326269fa04e363cd",
+   "opts": {}
+  }
+ ],
+ "controls": {
+  "negctl_keeps_coil": {
+   "source_fbx": "E:\\PussStage\\DerivedAssets\\FlatV3\\FenceBay\\short\\SM_FenceBay_short_open.fbx",
+   "source_sha256": "2e53f1851b0d579a32546740dcbf02f62ca1f628ff53c056259f1d69a0bb33fc",
+   "source_bounds_lod0": [
+    [
+     -1.6799999475479126,
+     -0.0928683876991272,
+     3.258413538986815e-09
+    ],
+    [
+     1.6799999475479126,
+     0.08637472242116928,
+     3.026763439178467
+    ]
+   ],
+   "lods": {
+    "0": {
+     "source_tris": 3298,
+     "kept_tris": 218,
+     "dropped_tris": 3288,
+     "added_tris": 10,
+     "out_tris": 228
+    },
+    "1": {
+     "source_tris": 1386,
+     "kept_tris": 106,
+     "dropped_tris": 1376,
+     "added_tris": 10,
+     "out_tris": 116
+    }
+   },
+   "top_rail_shift_m": [
+    0.0,
+    0.08350545912981033,
+    0.325763463973999
+   ],
+   "target_y_centre": -0.003246832638978958,
+   "asset": "SM_FenceBay_short_open_nw",
+   "fbx": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx_negctl\\negctl_keeps_coil\\SM_FenceBay_short_open_nw.fbx",
+   "sha256": "2805bf279202e8e8cd542f01c8d6673524b28fab064d6f2c9cfb0552aee9dc63",
+   "opts": {
+    "keep_coil_island": true
+   }
+  },
+  "negctl_unlifted": {
+   "source_fbx": "E:\\PussStage\\DerivedAssets\\FlatV3\\FenceBay\\short\\SM_FenceBay_short_open.fbx",
+   "source_sha256": "2e53f1851b0d579a32546740dcbf02f62ca1f628ff53c056259f1d69a0bb33fc",
+   "source_bounds_lod0": [
+    [
+     -1.6799999475479126,
+     -0.0928683876991272,
+     3.258413538986815e-09
+    ],
+    [
+     1.6799999475479126,
+     0.08637472242116928,
+     3.026763439178467
+    ]
+   ],
+   "lods": {
+    "0": {
+     "source_tris": 3298,
+     "kept_tris": 10,
+     "dropped_tris": 3288,
+     "added_tris": 8,
+     "out_tris": 18
+    },
+    "1": {
+     "source_tris": 1386,
+     "kept_tris": 10,
+     "dropped_tris": 1376,
+     "added_tris": 8,
+     "out_tris": 18
+    }
+   },
+   "top_rail_shift_m": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "target_y_centre": -0.003246832638978958,
+   "asset": "SM_FenceBay_short_open_nw",
+   "fbx": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx_negctl\\negctl_unlifted\\SM_FenceBay_short_open_nw.fbx",
+   "sha256": "3f6de371b234d38c3f71b1763ff52f196d3167aab0852643f15501e12d0ce7c1",
+   "opts": {
+    "lift": false,
+    "centre": false
+   }
+  }
+ }
+}

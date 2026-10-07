@@ -2,10 +2,10 @@
  "mode": "APPLY",
  "confirm": "APPLY MESHYSWAP P06",
  "passage": "P06",
- "bulb_scale": "REAL",
+ "bulb_scale": 3.2,
  "bulb_anchor": "LIGHT",
  "housing": "AUTO",
- "plan_sha256": "6989bbd7908f1b4c8e7b354e7ad10abc1e4a144530be0d653cc5363cdb757188",
+ "plan_sha256": "49ed4fdbd6b0d2b735e4a483e90402c5dbc9a94a792388fc6a6062d3e3a05155",
  "ack_records": [
   "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p06_atmos_record.json",
   "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",

@@ -2433,9 +2433,9 @@
         "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear.SM_Bulb_G95_Clear",
         "relative_transform": {
           "location": [
-            -9.98,
-            699.92,
-            123.325
+            -9.936,
+            699.744,
+            141.64
           ],
           "rotation_xyzw": [
             0.0,
@@ -2444,9 +2444,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -5722,9 +5722,9 @@
         "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Opal.SM_Bulb_A60_Opal",
         "relative_transform": {
           "location": [
-            -41.2161,
-            683.7615,
-            126.2709
+            -41.0841,
+            683.4095,
+            141.3959
           ],
           "rotation_xyzw": [
             0.0,
@@ -5733,9 +5733,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -8839,8 +8839,8 @@
         "relative_transform": {
           "location": [
             -20.0,
-            699.98,
-            122.15
+            699.936,
+            137.88
           ],
           "rotation_xyzw": [
             0.0,
@@ -8849,9 +8849,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -12474,8 +12474,8 @@
         "relative_transform": {
           "location": [
             -20.0,
-            699.98,
-            122.15
+            699.936,
+            137.88
           ],
           "rotation_xyzw": [
             0.0,
@@ -12484,9 +12484,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -15589,9 +15589,9 @@
         "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost.SM_Bulb_A60_Frost",
         "relative_transform": {
           "location": [
-            -19.96,
-            699.995,
-            121.965
+            -19.872,
+            699.984,
+            137.288
           ],
           "rotation_xyzw": [
             0.0,
@@ -15600,9 +15600,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -18878,9 +18878,9 @@
         "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage.SM_Bulb_ST64_Cage",
         "relative_transform": {
           "location": [
-            -20.155,
-            699.795,
-            123.4
+            -20.496,
+            699.344,
+            141.88
           ],
           "rotation_xyzw": [
             0.0,
@@ -18889,9 +18889,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -22340,9 +22340,9 @@
         "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage.SM_Bulb_ST64_Cage",
         "relative_transform": {
           "location": [
-            -10.155,
-            -680.205,
-            123.4
+            -10.496,
+            -680.656,
+            141.88
           ],
           "rotation_xyzw": [
             0.0,
@@ -22351,9 +22351,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -25802,9 +25802,9 @@
         "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_C35_Clear.SM_Bulb_C35_Clear",
         "relative_transform": {
           "location": [
-            -28.9989,
-            698.1154,
-            136.6885
+            -28.9219,
+            698.0604,
+            150.8015
           ],
           "rotation_xyzw": [
             0.0,
@@ -25813,9 +25813,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -28400,8 +28400,8 @@
         "relative_transform": {
           "location": [
             -10.0,
-            699.98,
-            122.15
+            699.936,
+            137.88
           ],
           "rotation_xyzw": [
             0.0,
@@ -28410,9 +28410,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -30823,9 +30823,9 @@
         "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage.SM_Bulb_ST64_Cage",
         "relative_transform": {
           "location": [
-            -10.155,
-            699.795,
-            123.4
+            -10.496,
+            699.344,
+            141.88
           ],
           "rotation_xyzw": [
             0.0,
@@ -30834,9 +30834,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -33420,9 +33420,9 @@
         "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear.SM_Bulb_G95_Clear",
         "relative_transform": {
           "location": [
-            -9.98,
-            699.92,
-            123.325
+            -9.936,
+            699.744,
+            141.64
           ],
           "rotation_xyzw": [
             0.0,
@@ -33431,9 +33431,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -36709,9 +36709,9 @@
         "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn.SM_Bulb_A60_Worn",
         "relative_transform": {
           "location": [
-            -0.888,
-            710.2995,
-            140.6941
+            -0.965,
+            710.3325,
+            156.2261
           ],
           "rotation_xyzw": [
             0.0,
@@ -36720,9 +36720,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -38960,9 +38960,9 @@
         "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_C35_Clear.SM_Bulb_C35_Clear",
         "relative_transform": {
           "location": [
-            -9.965,
-            699.975,
-            121.415
+            -9.888,
+            699.92,
+            135.528
           ],
           "rotation_xyzw": [
             0.0,
@@ -38971,9 +38971,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -42249,9 +42249,9 @@
         "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage.SM_Bulb_ST64_Cage",
         "relative_transform": {
           "location": [
-            -44.3914,
-            697.5069,
-            153.1575
+            -44.7324,
+            697.0559,
+            171.6375
           ],
           "rotation_xyzw": [
             0.0,
@@ -42260,9 +42260,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -45538,9 +45538,9 @@
         "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn.SM_Bulb_A60_Worn",
         "relative_transform": {
           "location": [
-            -20.035,
-            700.015,
-            122.06
+            -20.112,
+            700.048,
+            137.592
           ],
           "rotation_xyzw": [
             0.0,
@@ -45549,9 +45549,9 @@
             1.0
           ],
           "scale": [
-            1.0,
-            1.0,
-            1.0
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -46118,7 +46118,7 @@
       "SM_Bulb_G95_Clear",
       "SM_Bulb_ST64_Cage"
     ],
-    "bulb_scale": "REAL",
+    "bulb_scale": 3.2,
     "bulb_scale_clamp": [
       0.75,
       4.0
@@ -46133,26 +46133,26 @@
     "label_regex": null,
     "mode": "APPLY",
     "passage": "P04",
-    "plan_sha256": "b76fe6464188bbb8be9d82f069107ddbc69d9a59e9765f4baefe6a79237b2692"
+    "plan_sha256": "73dd63a29515c335d844a20611f5e36adad4743473542c9d7ec34adefe88948b"
   },
   "backup": {
     "packages": [
       {
-        "backup": "E:/PussStage/Backups\\PreMeshySwapP04-20261007-081503\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
-        "bytes": 25222666,
+        "backup": "E:/PussStage/Backups\\PreMeshySwapP04-20261007-082746\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+        "bytes": 25223474,
         "package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
-        "sha256": "5cf08a658e0bc1c939b0960416ec7d82150a9d124650258f7f5c0addb7356f58",
+        "sha256": "da51f19a87cde35ff1632fbc4082eeaca0442ecfb43da0722d23cd590c29f553",
         "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset"
       },
       {
-        "backup": "E:/PussStage/Backups\\PreMeshySwapP04-20261007-081503\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
-        "bytes": 18661279,
+        "backup": "E:/PussStage/Backups\\PreMeshySwapP04-20261007-082746\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 18525142,
         "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
-        "sha256": "fee0eaea873cd2270db6ec303f63154f47ecf36ca15282f3e63593f637f231eb",
+        "sha256": "da953358fd3cb0c318565d446acd7becad0c20628464570cf4d3f3045fc1b8dc",
         "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
       }
     ],
-    "root": "E:/PussStage/Backups\\PreMeshySwapP04-20261007-081503"
+    "root": "E:/PussStage/Backups\\PreMeshySwapP04-20261007-082746"
   },
   "before_rows": {
     "2848FDB97F4179561CEC1FB5EE69BF34": [
@@ -92206,7 +92206,7 @@
   },
   "derived_created": [],
   "derived_reused": [],
-  "export_hash_before": "078175513258bd36dc840f6aed226f361ef4032ee56f91296dc34f4342ae7892",
+  "export_hash_before": "47c0b0e7377fc54226f2a44adeeb8eb558dc51bec0cb7af6b6e4c02e68047091",
   "housing_verified": {
     "instances": 128,
     "scale": 1.0
@@ -92262,7 +92262,7 @@
         "SM_Bulb_G95_Clear",
         "SM_Bulb_ST64_Cage"
       ],
-      "bulb_scale": "REAL",
+      "bulb_scale": 3.2,
       "bulb_scale_clamp": [
         0.75,
         4.0
@@ -92526,8 +92526,8 @@
               "relative_transform": {
                 "location": [
                   -10.0,
-                  699.98,
-                  122.15
+                  699.936,
+                  137.88
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -92536,9 +92536,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -92551,7 +92551,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 20.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_A60_Clear"
           }
         ],
@@ -92691,9 +92691,9 @@
               "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost.SM_Bulb_A60_Frost",
               "relative_transform": {
                 "location": [
-                  -19.96,
-                  699.995,
-                  121.965
+                  -19.872,
+                  699.984,
+                  137.288
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -92702,9 +92702,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -92717,7 +92717,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 20.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_A60_Frost"
           }
         ],
@@ -92857,9 +92857,9 @@
               "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn.SM_Bulb_A60_Worn",
               "relative_transform": {
                 "location": [
-                  -20.035,
-                  700.015,
-                  122.06
+                  -20.112,
+                  700.048,
+                  137.592
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -92868,9 +92868,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -92883,7 +92883,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 20.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_A60_Worn"
           }
         ],
@@ -93023,9 +93023,9 @@
               "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear.SM_Bulb_G95_Clear",
               "relative_transform": {
                 "location": [
-                  -9.98,
-                  699.92,
-                  123.325
+                  -9.936,
+                  699.744,
+                  141.64
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -93034,9 +93034,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -93049,7 +93049,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 20.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_G95_Clear"
           }
         ],
@@ -93189,9 +93189,9 @@
               "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_C35_Clear.SM_Bulb_C35_Clear",
               "relative_transform": {
                 "location": [
-                  -28.9989,
-                  698.1154,
-                  136.6885
+                  -28.9219,
+                  698.0604,
+                  150.8015
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -93200,9 +93200,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -93215,7 +93215,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_C35_Clear",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 18.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_C35_Clear"
           }
         ],
@@ -93355,9 +93355,9 @@
               "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage.SM_Bulb_ST64_Cage",
               "relative_transform": {
                 "location": [
-                  -10.155,
-                  -680.205,
-                  123.4
+                  -10.496,
+                  -680.656,
+                  141.88
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -93366,9 +93366,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -93381,7 +93381,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 22.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_ST64_Cage"
           }
         ],
@@ -93521,9 +93521,9 @@
               "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage.SM_Bulb_ST64_Cage",
               "relative_transform": {
                 "location": [
-                  -10.155,
-                  699.795,
-                  123.4
+                  -10.496,
+                  699.344,
+                  141.88
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -93532,9 +93532,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -93547,7 +93547,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 20.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_ST64_Cage"
           }
         ],
@@ -93687,9 +93687,9 @@
               "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_C35_Clear.SM_Bulb_C35_Clear",
               "relative_transform": {
                 "location": [
-                  -9.965,
-                  699.975,
-                  121.415
+                  -9.888,
+                  699.92,
+                  135.528
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -93698,9 +93698,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -93713,7 +93713,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_C35_Clear",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 18.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_C35_Clear"
           }
         ],
@@ -93853,9 +93853,9 @@
               "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Opal.SM_Bulb_A60_Opal",
               "relative_transform": {
                 "location": [
-                  -41.2161,
-                  683.7615,
-                  126.2709
+                  -41.0841,
+                  683.4095,
+                  141.3959
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -93864,9 +93864,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -93879,7 +93879,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Opal",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 18.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_A60_Opal"
           }
         ],
@@ -94020,8 +94020,8 @@
               "relative_transform": {
                 "location": [
                   -20.0,
-                  699.98,
-                  122.15
+                  699.936,
+                  137.88
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -94030,9 +94030,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -94045,7 +94045,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 20.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_A60_Clear"
           }
         ],
@@ -94186,8 +94186,8 @@
               "relative_transform": {
                 "location": [
                   -20.0,
-                  699.98,
-                  122.15
+                  699.936,
+                  137.88
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -94196,9 +94196,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -94211,7 +94211,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 20.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_A60_Clear"
           }
         ],
@@ -94351,9 +94351,9 @@
               "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage.SM_Bulb_ST64_Cage",
               "relative_transform": {
                 "location": [
-                  -44.3914,
-                  697.5069,
-                  153.1575
+                  -44.7324,
+                  697.0559,
+                  171.6375
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -94362,9 +94362,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -94377,7 +94377,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 18.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_ST64_Cage"
           }
         ],
@@ -94517,9 +94517,9 @@
               "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear.SM_Bulb_G95_Clear",
               "relative_transform": {
                 "location": [
-                  -9.98,
-                  699.92,
-                  123.325
+                  -9.936,
+                  699.744,
+                  141.64
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -94528,9 +94528,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -94543,7 +94543,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 20.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_G95_Clear"
           }
         ],
@@ -94683,9 +94683,9 @@
               "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn.SM_Bulb_A60_Worn",
               "relative_transform": {
                 "location": [
-                  -0.888,
-                  710.2995,
-                  140.6941
+                  -0.965,
+                  710.3325,
+                  156.2261
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -94694,9 +94694,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -94709,7 +94709,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 18.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_A60_Worn"
           }
         ],
@@ -94849,9 +94849,9 @@
               "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage.SM_Bulb_ST64_Cage",
               "relative_transform": {
                 "location": [
-                  -20.155,
-                  699.795,
-                  123.4
+                  -20.496,
+                  699.344,
+                  141.88
                 ],
                 "rotation_xyzw": [
                   0.0,
@@ -94860,9 +94860,9 @@
                   1.0
                 ],
                 "scale": [
-                  1.0,
-                  1.0,
-                  1.0
+                  3.2,
+                  3.2,
+                  3.2
                 ]
               },
               "trigger_distance_cm": 800.0
@@ -94875,7 +94875,7 @@
             "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage",
             "mesh_before": "/Engine/BasicShapes/Sphere",
             "old_diameter_cm": 20.0,
-            "scale": 1.0,
+            "scale": 3.2,
             "variant": "SM_Bulb_ST64_Cage"
           }
         ],
@@ -94895,8 +94895,8 @@
       "SM_Bulb_ST64_Cage": 4
     }
   },
-  "plan_sha256": "b76fe6464188bbb8be9d82f069107ddbc69d9a59e9765f4baefe6a79237b2692",
-  "run": "20261007-081503",
+  "plan_sha256": "73dd63a29515c335d844a20611f5e36adad4743473542c9d7ec34adefe88948b",
+  "run": "20261007-082746",
   "saved_census": {
     "content": [],
     "maps": []

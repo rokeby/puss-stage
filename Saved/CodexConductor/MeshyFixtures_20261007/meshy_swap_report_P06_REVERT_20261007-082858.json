@@ -1,0 +1,465 @@
+{
+  "args": {
+    "ack_records": [
+      "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p06_atmos_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\fence_stack_750_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\hangar_exit_doors_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_events_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P06.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\opening_own_rail_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\p06_rig_pattern_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P06.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\rig_tubes_everywhere_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\structure_refit_record_REFIT-20261006-021730.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\tubes_tweak_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\underpass_fence_record_06.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\underpass_phase_b_record_06.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\blink_spots_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\board_material_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\groove_material_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\groove_width_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\portal_border_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\portal_enable_revert_record.json"
+    ],
+    "allow_dirty": [],
+    "anchor_warn_cm": 1.0,
+    "bulb_anchor": "LIGHT",
+    "bulb_pool": [
+      "SM_Bulb_A60_Clear",
+      "SM_Bulb_A60_Frost",
+      "SM_Bulb_A60_Opal",
+      "SM_Bulb_A60_Worn",
+      "SM_Bulb_C35_Clear",
+      "SM_Bulb_G95_Clear",
+      "SM_Bulb_ST64_Cage"
+    ],
+    "bulb_scale": "MATCH_SPHERE",
+    "bulb_scale_clamp": [
+      0.75,
+      4.0
+    ],
+    "bulb_seed": "20261007",
+    "confirm": "REVERT MESHYSWAP P06",
+    "disable_caps": true,
+    "expected_bulbs": null,
+    "expected_caps": null,
+    "housing": "AUTO",
+    "housing_scale": 1.0,
+    "label_regex": null,
+    "mode": "REVERT",
+    "passage": "P06",
+    "plan_sha256": null
+  },
+  "backup": {
+    "packages": [
+      {
+        "backup": "E:/PussStage/Backups\\PreMeshySwapP06Revert-20261007-082858\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+        "bytes": 25223474,
+        "package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
+        "sha256": "543f55066e8db95a92084c9d5fb80b6b8ec251072f91cc47d1670e9b2893874f",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset"
+      },
+      {
+        "backup": "E:/PussStage/Backups\\PreMeshySwapP06Revert-20261007-082858\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 18530996,
+        "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+        "sha256": "ac14a362f5d07e5080a1ca8c3956941d34a9284fbf40e76771d88da234f56e36",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+      }
+    ],
+    "root": "E:/PussStage/Backups\\PreMeshySwapP06Revert-20261007-082858"
+  },
+  "context": {
+    "census": {
+      "content": [],
+      "maps": []
+    },
+    "pie": false,
+    "project_ok": true,
+    "sequencer_open": false,
+    "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+    "world_ok": true,
+    "zz_actors": []
+  },
+  "derived_left_on_disk": [],
+  "foreign_records": [
+    {
+      "guids": [
+        "1D2D86BCE74A910A13CC588B0D451795",
+        "8F6355EE44F6DF3B2763208B2AACBE7D",
+        "9786D2EB4CEEAD0F4D2195A0A7A4040C",
+        "AF5BA4F3452543D8A5EA778299C99B7D",
+        "DFD138DA78440386500FEC8E57AE3BA9",
+        "E9850E1D8D4473A298BEA0A87E7AC60A"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p06_atmos_record.json",
+      "sha256": "b3c7ae7b8b22ccaaff6d69dddb1579ab750e669c6d663956471297e8457ff71e",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "008D989B20485276BC8D0493439D39EA",
+        "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+        "0F8098924A16C384ECF7E29693BCBE5F",
+        "11F403689E45D226B3298AAF16790170",
+        "1D2D86BCE74A910A13CC588B0D451795",
+        "1F61520446CF6E25E7BF43910B802444",
+        "2018137743551ADFC08D2AA37963BC99",
+        "254B9CB84C3FEE339B514F8498F75C07",
+        "2A9DAA414052FA158067FE8DF6051A48",
+        "2C9C4A30466204C2890815B6C777DACF",
+        "2E73ED55452CE7466A0F74840C0D7964",
+        "30450225EE4DB0B28CEF8FA67FD430D4",
+        "3643727448220BBA053BB59FA4F896F2",
+        "3F1CEC91DE4164DCF2F0698A885CBD14",
+        "4927CDF2454CE3EC567E4C8BBB58AFB0",
+        "4AA16A12224559F4375C89AF372F0857",
+        "4DAD567145E3D507DB3810B0C0E27245",
+        "4E4FD68E4F2A02A168D9F686F4FABAB1",
+        "53409887498EDB35B732D2BB0C599B5F",
+        "5F0DC90346F2397CA15999910FC50C63",
+        "6C060F41144F94D9214DF3BF039C7E99",
+        "6DB7C86FE7463FB8ED5143833DF28400",
+        "735A7090BC4094A56E9818B65CD531B7",
+        "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+        "821E817A714533C8BFDB38B63581F33F",
+        "873F9B634F1844AD0CEC3098096E4664",
+        "884761C04271AFF58AF47B8B8AE5CD64",
+        "88A3B6EF6F43524F0A057A84271187B7",
+        "8F6355EE44F6DF3B2763208B2AACBE7D",
+        "9786D2EB4CEEAD0F4D2195A0A7A4040C",
+        "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+        "AA62A3AC5C432FCBE3A672B23443FA6A",
+        "AF5BA4F3452543D8A5EA778299C99B7D",
+        "AF6EB4EB57431F88F4BFC0957DA0E395",
+        "BD36902543E4A7DDB721E38AA97AEC76",
+        "CC3403E5418809B2A1D9328EFC64C048",
+        "D6EF563F41D61813865C21A632038D67",
+        "DFD138DA78440386500FEC8E57AE3BA9",
+        "E2C08AD44B58594445B26A99EE6DDBF7",
+        "E9850E1D8D4473A298BEA0A87E7AC60A",
+        "EBCB30CC477A3A8C283D13A57716B815",
+        "EF42AAF942DD4D0B2E9B78B93EF51BCD",
+        "F060763E471ABBB50FE986831AFBAC59",
+        "F35328184AF1ED0F15A1E483FA72CE31",
+        "F7CDD52B43F08F61470BFFB26074FAD4",
+        "FAAF47C54731A67102BCBFB33B93470C"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
+      "sha256": "ea0b717cdcf5b8d9b60c783ed8bd5cb006fe11d880f369e677296faeee1b15e8",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "DFD138DA78440386500FEC8E57AE3BA9"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+      "sha256": "aa2cdce1095b073e4a2ec2219bdf9dff94b180feb353a332e8e833066963dc72",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "008D989B20485276BC8D0493439D39EA",
+        "07E24048F24647AA7D5992AB6A8A0770",
+        "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+        "0F8098924A16C384ECF7E29693BCBE5F",
+        "11F403689E45D226B3298AAF16790170",
+        "1D2D86BCE74A910A13CC588B0D451795",
+        "1F61520446CF6E25E7BF43910B802444",
+        "2018137743551ADFC08D2AA37963BC99",
+        "254B9CB84C3FEE339B514F8498F75C07",
+        "2A9DAA414052FA158067FE8DF6051A48",
+        "2C9C4A30466204C2890815B6C777DACF",
+        "2E73ED55452CE7466A0F74840C0D7964",
+        "30450225EE4DB0B28CEF8FA67FD430D4",
+        "3643727448220BBA053BB59FA4F896F2",
+        "3F1CEC91DE4164DCF2F0698A885CBD14",
+        "4927CDF2454CE3EC567E4C8BBB58AFB0",
+        "4AA16A12224559F4375C89AF372F0857",
+        "4DAD567145E3D507DB3810B0C0E27245",
+        "4E4FD68E4F2A02A168D9F686F4FABAB1",
+        "53409887498EDB35B732D2BB0C599B5F",
+        "5F0DC90346F2397CA15999910FC50C63",
+        "6C060F41144F94D9214DF3BF039C7E99",
+        "6DB7C86FE7463FB8ED5143833DF28400",
+        "735A7090BC4094A56E9818B65CD531B7",
+        "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+        "7667C84046C4F66CA98D33887147B4DE",
+        "821E817A714533C8BFDB38B63581F33F",
+        "8549115A442A7EBB8BA717819FC8E158",
+        "873F9B634F1844AD0CEC3098096E4664",
+        "884761C04271AFF58AF47B8B8AE5CD64",
+        "88A3B6EF6F43524F0A057A84271187B7",
+        "8F6355EE44F6DF3B2763208B2AACBE7D",
+        "9786D2EB4CEEAD0F4D2195A0A7A4040C",
+        "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+        "AA62A3AC5C432FCBE3A672B23443FA6A",
+        "AF5BA4F3452543D8A5EA778299C99B7D",
+        "AF6EB4EB57431F88F4BFC0957DA0E395",
+        "BD36902543E4A7DDB721E38AA97AEC76",
+        "CC3403E5418809B2A1D9328EFC64C048",
+        "D6EF563F41D61813865C21A632038D67",
+        "D92313E04C50AB918446E1A5C1A766D6",
+        "DFD138DA78440386500FEC8E57AE3BA9",
+        "E2C08AD44B58594445B26A99EE6DDBF7",
+        "E9850E1D8D4473A298BEA0A87E7AC60A",
+        "EBCB30CC477A3A8C283D13A57716B815",
+        "EF42AAF942DD4D0B2E9B78B93EF51BCD",
+        "F060763E471ABBB50FE986831AFBAC59",
+        "F35328184AF1ED0F15A1E483FA72CE31",
+        "F7CDD52B43F08F61470BFFB26074FAD4",
+        "FAAF47C54731A67102BCBFB33B93470C"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P06.json",
+      "sha256": "46010d0be1853166663f23bc39c06f5cc0c9c483c0154fb5c851cd218acad4d4",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "008D989B20485276BC8D0493439D39EA",
+        "07E24048F24647AA7D5992AB6A8A0770",
+        "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+        "11F403689E45D226B3298AAF16790170",
+        "1D2D86BCE74A910A13CC588B0D451795",
+        "2C9C4A30466204C2890815B6C777DACF",
+        "30450225EE4DB0B28CEF8FA67FD430D4",
+        "3F1CEC91DE4164DCF2F0698A885CBD14",
+        "4927CDF2454CE3EC567E4C8BBB58AFB0",
+        "4AA16A12224559F4375C89AF372F0857",
+        "6C060F41144F94D9214DF3BF039C7E99",
+        "6DB7C86FE7463FB8ED5143833DF28400",
+        "735A7090BC4094A56E9818B65CD531B7",
+        "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+        "821E817A714533C8BFDB38B63581F33F",
+        "884761C04271AFF58AF47B8B8AE5CD64",
+        "88A3B6EF6F43524F0A057A84271187B7",
+        "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+        "AA62A3AC5C432FCBE3A672B23443FA6A",
+        "AF6EB4EB57431F88F4BFC0957DA0E395",
+        "CC3403E5418809B2A1D9328EFC64C048",
+        "D92313E04C50AB918446E1A5C1A766D6",
+        "DFD138DA78440386500FEC8E57AE3BA9",
+        "E9850E1D8D4473A298BEA0A87E7AC60A",
+        "F060763E471ABBB50FE986831AFBAC59"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\opening_own_rail_record.json",
+      "sha256": "f52bcfc834ab9c9402c81430e870f1806e12a5a22112798f2410bbcf10a4b7d4",
+      "status": null
+    },
+    {
+      "guids": [
+        "008D989B20485276BC8D0493439D39EA",
+        "07E24048F24647AA7D5992AB6A8A0770",
+        "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+        "0F8098924A16C384ECF7E29693BCBE5F",
+        "11F403689E45D226B3298AAF16790170",
+        "1D2D86BCE74A910A13CC588B0D451795",
+        "1F61520446CF6E25E7BF43910B802444",
+        "2018137743551ADFC08D2AA37963BC99",
+        "254B9CB84C3FEE339B514F8498F75C07",
+        "2A9DAA414052FA158067FE8DF6051A48",
+        "2C9C4A30466204C2890815B6C777DACF",
+        "2E73ED55452CE7466A0F74840C0D7964",
+        "30450225EE4DB0B28CEF8FA67FD430D4",
+        "3643727448220BBA053BB59FA4F896F2",
+        "3F1CEC91DE4164DCF2F0698A885CBD14",
+        "4927CDF2454CE3EC567E4C8BBB58AFB0",
+        "4AA16A12224559F4375C89AF372F0857",
+        "4DAD567145E3D507DB3810B0C0E27245",
+        "53409887498EDB35B732D2BB0C599B5F",
+        "5F0DC90346F2397CA15999910FC50C63",
+        "6C060F41144F94D9214DF3BF039C7E99",
+        "6DB7C86FE7463FB8ED5143833DF28400",
+        "735A7090BC4094A56E9818B65CD531B7",
+        "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+        "821E817A714533C8BFDB38B63581F33F",
+        "873F9B634F1844AD0CEC3098096E4664",
+        "884761C04271AFF58AF47B8B8AE5CD64",
+        "88A3B6EF6F43524F0A057A84271187B7",
+        "8F6355EE44F6DF3B2763208B2AACBE7D",
+        "9786D2EB4CEEAD0F4D2195A0A7A4040C",
+        "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+        "AA62A3AC5C432FCBE3A672B23443FA6A",
+        "AF5BA4F3452543D8A5EA778299C99B7D",
+        "AF6EB4EB57431F88F4BFC0957DA0E395",
+        "BD36902543E4A7DDB721E38AA97AEC76",
+        "CC3403E5418809B2A1D9328EFC64C048",
+        "D6EF563F41D61813865C21A632038D67",
+        "D92313E04C50AB918446E1A5C1A766D6",
+        "DFD138DA78440386500FEC8E57AE3BA9",
+        "E2C08AD44B58594445B26A99EE6DDBF7",
+        "E9850E1D8D4473A298BEA0A87E7AC60A",
+        "EBCB30CC477A3A8C283D13A57716B815",
+        "EF42AAF942DD4D0B2E9B78B93EF51BCD",
+        "F060763E471ABBB50FE986831AFBAC59",
+        "F7CDD52B43F08F61470BFFB26074FAD4",
+        "FAAF47C54731A67102BCBFB33B93470C"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p06_rig_pattern_record.json",
+      "sha256": "5cacb61b09033b8b5f59527e0e8f3cadf886acf0e78f8ded0508382b593821ba",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "008D989B20485276BC8D0493439D39EA",
+        "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+        "1D2D86BCE74A910A13CC588B0D451795",
+        "3F1CEC91DE4164DCF2F0698A885CBD14",
+        "4927CDF2454CE3EC567E4C8BBB58AFB0",
+        "6DB7C86FE7463FB8ED5143833DF28400",
+        "884761C04271AFF58AF47B8B8AE5CD64",
+        "88A3B6EF6F43524F0A057A84271187B7",
+        "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+        "DFD138DA78440386500FEC8E57AE3BA9",
+        "E9850E1D8D4473A298BEA0A87E7AC60A",
+        "F060763E471ABBB50FE986831AFBAC59"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P06.json",
+      "sha256": "e377a498948b2e104c120c3c475f1426eb6448429323497e7f62d5a7ddeecc2f",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "AF6EB4EB57431F88F4BFC0957DA0E395"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\blink_spots_revert_record.json",
+      "sha256": "31d032d059a3dc5723f7424891aed99a9aa1e365cd81e0565d8d7d82ae85048a",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\fence_stack_750_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\hangar_exit_doors_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_events_revert_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P06.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p06_rig_pattern_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P06.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\rig_tubes_everywhere_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\structure_refit_record_REFIT-20261006-021730.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\tubes_tweak_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\underpass_fence_record_06.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\underpass_phase_b_record_06.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p06_atmos_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\board_material_revert_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\groove_material_revert_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\groove_width_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\portal_border_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\portal_enable_revert_record.json",
+      "status": null
+    }
+  ],
+  "mode": "REVERT",
+  "ok": true,
+  "passage": "P06",
+  "record_archived": "E:\\PussStage\\Saved\\CodexConductor\\MeshyFixtures_20261007\\meshy_swap_record_P06.json.reverted-20261007-082858",
+  "run": "20261007-082858",
+  "saved": true,
+  "unacknowledged_foreign_records": []
+}

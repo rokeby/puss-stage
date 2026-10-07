@@ -3,27 +3,38 @@
 NEEDS, in this order:
   1. barbed_import.py IMPORT done (barbed_import_record.json state "imported"): SM_FenceBay_short_open_bwc,
      SM_FenceBay_short_door_gap_bw, SM_FencePost_short_bw, MI_BarbedWire, plus the measured post axes.
+  1b. barbed_import.py IMPORT with {"set": "nw"} done (barbed_import_nw_record.json state "imported"):
+     SM_FenceBay_short_open_nw, SM_FenceBay_short_door_gap_nw (barbed_nowire.py: the current bays minus the
+     concertina, same X/Z bounds and Y centre, so every panel keeps its transform and the Stack rows their height).
   2. The BW build: held patch Scripts/patches/2026-10-07_fence_top_row_wire_and_posts.patch compiled.
      FInfinityStageFenceVariant::TopRowMesh, FInfinityStageUnderpassSettings::FencePostJoints / FencePostMesh /
      FencePostMaterial / FencePostOffsetCm, EInfinityFencePostJoints and the actor's UnderpassFenceTopRowPanelCount /
      UnderpassFencePostCount exist only after it. Without them DRY reports BUILD_MISSING_BW and APPLY/REVERT stop.
 
-Why TopRowMesh and not a Mesh swap: in Stack mode (FENCE750, 2 whole rows on every Passage) the C++ repeats the variant's
-Mesh on every row (InfinityStageStructureActor.cpp BuildUnderpassFence), so swapping Mesh would put wire mid-wall.
-The patch draws TopRowMesh on the last row only, from the SAME variant draw, so no tile re-rolls.
+Why Mesh -> _nw AND TopRowMesh -> wire bay (Gary 7 Oct: "the wire only needs to appear at the top of the fence"): in
+Stack mode the C++ repeats the variant's Mesh on every row (InfinityStageStructureActor.cpp BuildUnderpassFence), and
+the CURRENT bays carry the concertina baked in (Tools/FlatV3/build_fence_bay.py coil()), so leaving Mesh alone showed
+the coil at every row joint. Mesh becomes the no-wire twin (all rows plain); the patch draws TopRowMesh on the last
+row only, from the SAME variant draw, so no tile re-rolls. The Stack row height is the tallest built Mesh's bounds Z
+(cpp:596-602): the _nw bays keep 302.676 cm (a lifted copy of the rail holds the top), so rows, tubes and the
+top-row fit are unchanged.
 
 Per fenced structure APPLY writes exactly (recording every BEFORE value):
+  fence_variant_X.mesh          = the no-wire twin of that variant's Mesh (NW_MAP; short_open -> _open_nw,
+                                  short_door_gap -> _door_gap_nw)
   fence_variant_X.top_row_mesh  = the bw twin of that variant's Mesh (MESH_MAP; A/B/C short_open -> _open_bwc,
                                   D short_door_gap -> _door_gap_bw); a weighted variant on any other mesh -> refuse
+                                  (variants with no mesh or weight <= 0 are left exactly as they are)
   fence_post_joints   = LINE_END   (one post per side at the line's far end; every other joint carries the bay's own post)
   fence_post_mesh     = SM_FencePost_short_bw;  fence_post_material = None (its own MI_FenceBay_Metal)
   fence_post_offset_cm = mirror of the bays' baked post, from the import's MEASURED axes (post_offset_cm below)
-Variant Mesh, weights, overlays, materials, heights, tubes: untouched.
+Weights, overlays, materials, heights, tubes: untouched.
 
 Verification after MaterializeStructure, by instance transforms (never component bounds): every non-fence layer
 identical (tubes, lights, columns...: the stack top is set by Mesh, so tubes must not move); every panel and overlay at
-its old transform (0.5 cm: the bw bays' bounds centre equals the plain bay's - import gate BAY_Y_CENTRE); panels on
-the top row in FenceTopRow layers with the mapped mesh, all others plain with their old mesh; top-row count = panels /
+its old transform (0.5 cm: the bw and nw bays' bounds centre equals the plain bay's - import gates BAY_Y_CENTRE /
+NW_Y_CENTRE); panels on the top row in FenceTopRow layers with the mapped wire mesh, every other panel on its _nw
+twin, and NO lower-row panel on a wire-carrying mesh (bw/bwc or the old coil bay); top-row count = panels /
 rows; posts = sides, each foot on a top-row panel's end joint; C++ counts agree. Then census = the level only -> save
 the level -> census clean -> umap changed -> fields read back -> record "applied" -> BW_APPLY_OK|run=..
 REVERT: record "applied" and live fields as applied -> restore recorded fields -> materialize -> every fence layer back to
@@ -49,6 +60,10 @@ CONFIRM_TAIL = "BARBEDAPPLY"
 SM = "/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/"
 MESH_MAP = {SM + "SM_FenceBay_short_open": SM + "SM_FenceBay_short_open_bwc",
             SM + "SM_FenceBay_short_door_gap": SM + "SM_FenceBay_short_door_gap_bw"}
+NW_MAP = {SM + "SM_FenceBay_short_open": SM + "SM_FenceBay_short_open_nw",
+          SM + "SM_FenceBay_short_door_gap": SM + "SM_FenceBay_short_door_gap_nw"}
+# Every mesh that draws wire: the bw twins AND the current bays (their concertina is baked in).
+WIRE_MESHES = set(MESH_MAP) | set(MESH_MAP.values())
 POST_MESH = SM + "SM_FencePost_short_bw"
 VARIANTS = ("fence_variant_a", "fence_variant_b", "fence_variant_c", "fence_variant_d")
 TAG_PANEL = "InfinityStage.Structure.Underpass.Fence."
@@ -89,7 +104,10 @@ def post_offset_cm(import_record):
 
 
 def plan_targets(variants, offset):
-    """variants: {key: {"mesh", "weight", "top_row_mesh"}} -> the fields APPLY writes, or raises."""
+    """variants: {key: {"mesh", "weight", "top_row_mesh"}} -> the fields APPLY writes, or raises.
+
+    A built variant (mesh and weight > 0) gets Mesh = its no-wire twin and TopRowMesh = its wire twin; any other
+    variant is written back exactly as it is."""
     t = {"fence_post_joints": "LINE_END", "fence_post_mesh": POST_MESH, "fence_post_material": None,
          "fence_post_offset_cm": [round(v, 4) for v in offset]}
     for k in VARIANTS:
@@ -97,10 +115,12 @@ def plan_targets(variants, offset):
         if v["top_row_mesh"] is not None:
             raise BWApplyError("TOP_ROW_ALREADY_SET|%s=%s" % (k, v["top_row_mesh"]))
         if v["mesh"] is None or v["weight"] <= 0.0:
+            t[k + ".mesh"] = v["mesh"]
             t[k + ".top_row_mesh"] = None
             continue
-        if v["mesh"] not in MESH_MAP:
+        if v["mesh"] not in MESH_MAP or v["mesh"] not in NW_MAP:
             raise BWApplyError("UNMAPPED_VARIANT_MESH|%s=%s" % (k, v["mesh"]))
+        t[k + ".mesh"] = NW_MAP[v["mesh"]]
         t[k + ".top_row_mesh"] = MESH_MAP[v["mesh"]]
     return t
 
@@ -173,8 +193,14 @@ def check_apply(before, after, targets, rows, sides, offset, bounds):
             want = targets.get("fence_variant_%s.top_row_mesh" % a["variant"].lower())
             if a["mesh"] != want:
                 p.append("top-row panel %s mesh %s, want %s" % (a["variant"], a["mesh"], want))
-        elif a["mesh"] != b["mesh"]:
-            p.append("plain panel mesh %s -> %s" % (b["mesh"], a["mesh"]))
+        else:
+            # Gary 7 Oct: wire on the TOP row only. A lower-row panel on any wire-carrying mesh fails,
+            # whatever the targets say; otherwise it must sit on its variant's planned Mesh (the _nw twin).
+            if a["mesh"] in WIRE_MESHES:
+                p.append("lower-row panel %s at z %.1f carries wire (%s)" % (a["variant"], a["loc"][2], a["mesh"]))
+            want = targets.get("fence_variant_%s.mesh" % a["variant"].lower(), NW_MAP.get(b["mesh"]))
+            if a["mesh"] != want:
+                p.append("plain panel mesh %s -> %s, want %s" % (b["mesh"], a["mesh"], want))
     # The top row: above every plain panel at the same plan point.
     for a in after["panels"]:
         if a["top"]:
@@ -262,6 +288,7 @@ class Ctx:
         self.run = datetime.datetime.now().strftime("BWAPPLY-%Y%m%d-%H%M%S")
         self.record = os.path.join(self.here, "barbed_apply_record.json")
         self.import_record = os.path.join(self.here, "barbed_import_record.json")
+        self.import_nw_record = os.path.join(self.here, "barbed_import_nw_record.json")
         self.umap = os.path.join(self.repo, *UMAP_REL)
         self.past_backup = False
 
@@ -353,7 +380,9 @@ def read_fields(c, s):
            "fence_post_material": _path(under.get_editor_property("fence_post_material")),
            "fence_post_offset_cm": [float(o.x), float(o.y), float(o.z)]}
     for k in VARIANTS:
-        out[k + ".top_row_mesh"] = _path(under.get_editor_property(k).get_editor_property("top_row_mesh"))
+        v = under.get_editor_property(k)
+        out[k + ".mesh"] = _path(v.get_editor_property("mesh"))
+        out[k + ".top_row_mesh"] = _path(v.get_editor_property("top_row_mesh"))
     return out
 
 
@@ -411,6 +440,8 @@ def set_fields(c, s, t):
     under = s.get_editor_property("underpass")
     for k in VARIANTS:
         v = under.get_editor_property(k)
+        mesh = t[k + ".mesh"]
+        v.set_editor_property("mesh", u.load_asset(mesh) if mesh else None)
         mp = t[k + ".top_row_mesh"]
         v.set_editor_property("top_row_mesh", u.load_asset(mp) if mp else None)
         under.set_editor_property(k, v)
@@ -434,7 +465,12 @@ def load_import(c):
     rec = json.load(open(c.import_record, encoding="utf-8"))
     if rec.get("state") != "imported":
         c.fail("IMPORT_RECORD_STATE|%s" % rec.get("state"))
-    for p in list(MESH_MAP.values()) + [POST_MESH]:
+    if not os.path.exists(c.import_nw_record):
+        c.fail("IMPORT_NW_NOT_DONE|run barbed_import.py IMPORT with set nw first")
+    nw = json.load(open(c.import_nw_record, encoding="utf-8"))
+    if nw.get("state") != "imported" or nw.get("set") != "nw":
+        c.fail("IMPORT_NW_RECORD_STATE|%s" % nw.get("state"))
+    for p in list(MESH_MAP.values()) + list(NW_MAP.values()) + [POST_MESH]:
         if not c.u.EditorAssetLibrary.does_asset_exist(p):
             c.fail("ASSET_MISSING|" + p)
     bounds = {SM + n: rec["readback"][n]["bounds_cm"] for n in ("SM_FenceBay_short_open_bwc", "SM_FenceBay_short_door_gap_bw")}

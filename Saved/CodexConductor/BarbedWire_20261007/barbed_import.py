@@ -39,6 +39,18 @@ Args barbed_import_args.json {"mode": "DRY"|"IMPORT"|"REVERT", "confirm": "<MODE
   REVERT  record state "imported"; refuses while any package outside the 4 references them (run barbed_apply REVERT
           first); deletes the 3 meshes then the MI; census clean -> BW_IMPORT_REVERT_OK.
 Run via the guarded MCP route: barbed_import_request.json (ExecuteProjectPythonFile). Markers carry run=<id>.
+
+SET "nw" (args {"set": "nw", "mode": ..., "confirm": "<MODE> BARBEDNOWIRE"}; Gary 7 Oct "the wire only needs to
+appear at the top of the fence"): imports the two NO-WIRE bays built and validated by barbed_nowire.py
+(build_manifest_nw.json, validation_nw.json PASS with every control ok):
+  SM_FenceBay_short_open_nw       twin of SM_FenceBay_short_open      minus the concertina
+  SM_FenceBay_short_door_gap_nw   twin of SM_FenceBay_short_door_gap  minus the concertina
+Same gates as the bw set, against the LIVE twin (the C++ stacks and fits by bounds): LOD count == the twin's (2),
+slot names == the twin's, X bounds == the twin's, Z bounds within 0.05 cm (the Z size IS the Stack row height),
+Y centre within 0.05 cm (the bounds centre is put on the fence line), Y extents == the Blender ones FLIPPED
+(handedness), and the materials bound are the twin's own, slot by slot. No MI is created. Strays are diffed in
+StaticMeshes AND Materials. Own record barbed_import_nw_record.json; the bw record is never touched.
+Markers BW_IMPORT_NW_DRY_OK / BW_IMPORT_NW_OK / BW_IMPORT_NW_REVERT_OK.
 """
 import datetime
 import hashlib
@@ -72,6 +84,14 @@ POST_Y_FLIPPED = (-20.631, 33.631)         # Blender y in [-0.33631, 0.20631]
 REF_BAY = "SM_FenceBay_short_open"
 REF_POST = "SM_FencePost_short"
 CONFIRM_TAIL = "BARBEDWIRE"
+
+# ---- set "nw": no-wire lower-row bays (barbed_nowire.py) ----
+NW_TARGETS = {"SM_FenceBay_short_open_nw": "SM_FenceBay_short_open",
+              "SM_FenceBay_short_door_gap_nw": "SM_FenceBay_short_door_gap"}
+NW_RECORD = os.path.join(HERE, "barbed_import_nw_record.json")
+NW_CONFIRM_TAIL = "BARBEDNOWIRE"
+NW_Z_TOL = 0.05   # cm: the bay's Z size is the Stack row height
+NW_YC_TOL = 0.05  # cm: the bounds centre is put on the fence line
 
 
 class BWError(RuntimeError):
@@ -434,15 +454,193 @@ def phase_revert(c, _args):
     c.log("BW_IMPORT_REVERT_OK|run=%s|deleted=%d" % (c.run, len(order)))
 
 
+# ============================================================================ set "nw"
+def nw_expected_y(validation, asset):
+    """Unreal Y bounds (cm) of a no-wire bay = its Blender LOD0 Y bounds x 100, NEGATED and swapped."""
+    row = next(r for r in validation["assets"] if r["asset"] == asset)
+    mn, mx = row["metrics"]["bounds_lod0"]
+    return (-mx[1] * 100.0, -mn[1] * 100.0)
+
+
+def nw_offline_ok(manifest, validation):
+    """Pure: the offline build/validation gate for the nw set. Returns a list of problems (empty = pass)."""
+    p = []
+    if validation.get("status") != "PASS":
+        p.append("VALIDATION_STATUS|%s" % validation.get("status"))
+    ctl = validation.get("controls", {})
+    if not ctl or not all(v.get("ok") is True for v in ctl.values()):
+        p.append("CONTROLS_NOT_OK|%s" % {k: v.get("ok") for k, v in ctl.items()})
+    rows = {r["asset"]: r for r in validation.get("assets", [])}
+    built = {a["asset"]: a for a in manifest.get("assets", [])}
+    for name in NW_TARGETS:
+        r, b = rows.get(name), built.get(name)
+        if not r or not b:
+            p.append("NOT_BUILT|" + name)
+            continue
+        if r.get("status") != "PASS" or r.get("sha256_matches_build") is not True or r.get("source_sha256_matches") is not True:
+            p.append("NOT_VALIDATED|%s|%s" % (name, r.get("failed")))
+    return p
+
+
+def nw_gate_bounds(b, ref, exp_y):
+    """Pure: bounds gates of an imported no-wire bay `b` against its live twin `ref` (both {"min","max"} cm)."""
+    p = []
+    if not (near(b["min"][0], ref["min"][0]) and near(b["max"][0], ref["max"][0])):
+        p.append("NW_BOUNDS_X|%.3f..%.3f vs twin %.3f..%.3f" % (b["min"][0], b["max"][0], ref["min"][0], ref["max"][0]))
+    if not (near(b["min"][2], ref["min"][2], NW_Z_TOL) and near(b["max"][2], ref["max"][2], NW_Z_TOL)):
+        p.append("NW_BOUNDS_Z|%.4f..%.4f vs twin %.4f..%.4f (Z size = Stack row height)"
+                 % (b["min"][2], b["max"][2], ref["min"][2], ref["max"][2]))
+    yc, ryc = (b["min"][1] + b["max"][1]) * 0.5, (ref["min"][1] + ref["max"][1]) * 0.5
+    if not near(yc, ryc, NW_YC_TOL):
+        p.append("NW_Y_CENTRE|%.4f vs twin %.4f" % (yc, ryc))
+    if not (near(b["min"][1], exp_y[0], 0.2) and near(b["max"][1], exp_y[1], 0.2)):
+        p.append("NW_HANDEDNESS|y=%.3f..%.3f want %.3f..%.3f (mirrored = top rail on the walkway side)"
+                 % (b["min"][1], b["max"][1], exp_y[0], exp_y[1]))
+    return p
+
+
+def nw_preflight(c):
+    u = c.u
+    c.check(u.get_editor_subsystem(u.UnrealEditorSubsystem).get_game_world() is None, "PIE_ACTIVE")  # refuses; never ends PIE
+    manifest = json.load(open(os.path.join(HERE, "build_manifest_nw.json"), encoding="utf-8"))
+    validation = json.load(open(os.path.join(HERE, "validation_nw.json"), encoding="utf-8"))
+    p = nw_offline_ok(manifest, validation)
+    c.check(not p, "NW_OFFLINE|%s" % p)
+    hashes = {a["asset"]: a["sha256"] for a in manifest["assets"]}
+    twins = {}
+    for name, twin in NW_TARGETS.items():
+        fbx = os.path.join(FBX_DIR, name + ".fbx")
+        c.check(os.path.isfile(fbx) and _sha(fbx) == hashes.get(name), "FBX_HASH|" + name)
+        ref = u.EditorAssetLibrary.load_asset(MESHES + "/" + twin)
+        c.check(isinstance(ref, u.StaticMesh), "TWIN_MISSING|" + twin)
+        sms = ref.get_editor_property("static_materials")
+        mats = [sm.get_editor_property("material_interface") for sm in sms]
+        twins[name] = {"twin": MESHES + "/" + twin, "bounds_cm": bounds_cm(ref), "lods": ref.get_num_lods(),
+                       "slots": [str(sm.get_editor_property("material_slot_name")) for sm in sms],
+                       "materials": [_pkg(m) if m else None for m in mats],
+                       "expected_y_flipped": nw_expected_y(validation, name)}
+        c.check(all(twins[name]["materials"]), "TWIN_MATERIAL_NONE|%s|%s" % (twin, twins[name]["materials"]))
+        ref = sms = mats = None
+    targets = [MESHES + "/" + n for n in NW_TARGETS]
+    existing = [t for t in targets if u.EditorAssetLibrary.does_asset_exist(t)]
+    return targets, {"existing_targets": existing, "twins": twins}
+
+
+def nw_gate_mesh(c, name, mesh, facts):
+    t = facts["twins"][name]
+    c.check(isinstance(mesh, c.u.StaticMesh), "IMPORT_CLASS|" + name)
+    c.check(mesh.get_num_lods() == t["lods"], "LOD_COUNT|%s|%d vs twin %d" % (name, mesh.get_num_lods(), t["lods"]))
+    slots = [str(sm.get_editor_property("material_slot_name")) for sm in mesh.get_editor_property("static_materials")]
+    c.check(slots == t["slots"], "SLOT_NAMES|%s|%s vs twin %s" % (name, slots, t["slots"]))
+    b = bounds_cm(mesh)
+    p = nw_gate_bounds(b, t["bounds_cm"], t["expected_y_flipped"])
+    c.check(not p, "NW_GATE|%s|%s" % (name, p))
+    return {"lods": mesh.get_num_lods(), "slots": slots, "bounds_cm": b, "twin": t["twin"],
+            "y_centre_cm": (b["min"][1] + b["max"][1]) * 0.5}
+
+
+def nw_phase_dry(c, _args):
+    before = census(c.u)
+    targets, facts = nw_preflight(c)
+    c.check(census(c.u) == before, "DRY_DIRTIED|%s" % (census(c.u),))
+    blockers = []
+    if facts["existing_targets"]:
+        blockers.append("TARGETS_EXIST|%s" % facts["existing_targets"])
+    if before != ([], []):
+        blockers.append("EDITOR_DIRTY|%s" % (before,))
+    if os.path.exists(NW_RECORD):
+        blockers.append("RECORD_EXISTS")
+    c.log("BW_IMPORT_NW_DRY_%s|run=%s|targets=%s|twins=%s|blockers=%s|mutated=0"
+          % ("OK" if not blockers else "REFUSED", c.run, targets,
+             {k: (v["lods"], v["slots"], round(v["bounds_cm"]["max"][2], 4)) for k, v in facts["twins"].items()}, blockers))
+
+
+def nw_phase_import(c, _args):
+    u = c.u
+    c.check(census(u) == ([], []), "DIRTY_AT_START|%s" % (census(u),))
+    c.check(not os.path.exists(NW_RECORD), "RECORD_EXISTS|REVERT first")
+    targets, facts = nw_preflight(c)
+    c.check(not facts["existing_targets"], "TARGETS_EXIST|%s" % facts["existing_targets"])
+    helpers = pilot(c)
+    before, before_mats = folder(u, MESHES), folder(u, MATS)
+    c.past_import = True
+    for name in NW_TARGETS:
+        task = helpers.import_task(os.path.join(FBX_DIR, name + ".fbx"), MESHES + "/" + name, helpers.fbx_options(True))
+        u.AssetToolsHelpers.get_asset_tools().import_asset_tasks([task])
+    content_dir = u.Paths.convert_relative_path_to_full(u.Paths.project_content_dir())
+    deleted = []
+    for stray in sorted((folder(u, MESHES) - before - set(targets)) | (folder(u, MATS) - before_mats)):
+        c.check(not os.path.exists(os.path.join(content_dir, stray[len("/Game/"):] + ".uasset")), "STRAY_ON_DISK|" + stray)
+        c.check(u.EditorAssetLibrary.delete_asset(stray), "STRAY_DELETE|" + stray)
+        deleted.append(stray)
+    c.check(folder(u, MESHES) - before == set(targets), "IMPORT_CENSUS|%s" % sorted(folder(u, MESHES) - before))
+    c.check(not [p for p in folder(u, MESHES) if "_LOD" in p.rsplit("/", 1)[-1] and p not in before], "LOD_SPLIT_STRAYS")
+    readback = {}
+    for name in NW_TARGETS:
+        readback[name] = nw_gate_mesh(c, name, u.EditorAssetLibrary.load_asset(MESHES + "/" + name), facts)
+    for name in NW_TARGETS:
+        mesh = u.EditorAssetLibrary.load_asset(MESHES + "/" + name)
+        want = facts["twins"][name]["materials"]
+        mesh.modify()
+        for index, mi_path in enumerate(want):
+            mesh.set_material(index, u.EditorAssetLibrary.load_asset(mi_path))
+        bound = [_pkg(sm.get_editor_property("material_interface")) for sm in mesh.get_editor_property("static_materials")]
+        c.check(bound == want, "MATERIAL_READBACK|%s|%s vs twin %s" % (name, bound, want))
+        readback[name]["materials"] = bound
+        mesh = None
+    content, maps = census(u)
+    c.check(not maps and set(content) == set(targets), "DIRTY_SCOPE|%s|%s" % (content, maps))
+    for path in targets:
+        c.check(u.EditorAssetLibrary.save_asset(path, only_if_is_dirty=False), "SAVE_FAIL|" + path)
+    c.check(census(u) == ([], []), "DIRTY_AFTER_SAVE|%s" % (census(u),))
+    for path in targets:
+        c.check(os.path.isfile(os.path.join(content_dir, path[len("/Game/"):] + ".uasset")), "NOT_ON_DISK|" + path)
+        c.check(u.EditorAssetLibrary.does_asset_exist(path), "SAVED_READBACK|" + path)
+    rec = {"run": c.run, "set": "nw", "state": "imported", "written": datetime.datetime.now().isoformat(timespec="seconds"),
+           "packages": targets, "strays_deleted": deleted, "facts": facts, "readback": readback}
+    with open(NW_RECORD, "x", encoding="utf-8") as fh:
+        json.dump(rec, fh, indent=1)
+        fh.flush()
+        os.fsync(fh.fileno())
+    c.log("BW_IMPORT_NW_OK|run=%s|packages=%d|lods=%s|z_top=%s|strays_deleted=%d|record=%s"
+          % (c.run, len(targets), [r["lods"] for r in readback.values()],
+             [round(r["bounds_cm"]["max"][2], 4) for r in readback.values()], len(deleted), NW_RECORD))
+
+
+def nw_phase_revert(c, _args):
+    u = c.u
+    c.check(u.get_editor_subsystem(u.UnrealEditorSubsystem).get_game_world() is None, "PIE_ACTIVE")
+    c.check(census(u) == ([], []), "DIRTY_AT_START|%s" % (census(u),))
+    c.check(os.path.exists(NW_RECORD), "NO_RECORD")
+    rec = json.load(open(NW_RECORD, encoding="utf-8"))
+    c.check(rec.get("state") == "imported" and rec.get("set") == "nw", "RECORD_STATE|%s" % rec.get("state"))
+    ours = set(rec["packages"])
+    for path in ours:
+        refs = {_pkg(str(r)) for r in u.EditorAssetLibrary.find_package_referencers_for_asset(path, False)}
+        foreign = sorted(refs - ours)
+        c.check(not foreign, "STILL_REFERENCED|%s|%s (run barbed_apply.py REVERT first)" % (path, foreign))
+    for path in rec["packages"]:
+        c.check(u.EditorAssetLibrary.delete_asset(path), "DELETE_FAIL|" + path)
+        c.check(not u.EditorAssetLibrary.does_asset_exist(path), "STILL_EXISTS|" + path)
+    c.check(census(u) == ([], []), "DIRTY_AFTER_REVERT|%s" % (census(u),))
+    os.replace(NW_RECORD, NW_RECORD.replace(".json", ".reverted-%s.json" % c.run))
+    c.log("BW_IMPORT_NW_REVERT_OK|run=%s|deleted=%d" % (c.run, len(rec["packages"])))
+
+
 def main():
     args = json.load(open(ARGS, encoding="utf-8")) if os.path.exists(ARGS) else {}
     mode = str(args.get("mode", "DRY")).upper()
+    kit = str(args.get("set", "bw")).lower()
     c = Ctx(mode)
-    phases = {"DRY": phase_dry, "IMPORT": phase_import, "REVERT": phase_revert}
+    c.check(kit in ("bw", "nw"), "UNKNOWN_SET|%s" % kit)
+    if kit == "nw":
+        phases, tail = {"DRY": nw_phase_dry, "IMPORT": nw_phase_import, "REVERT": nw_phase_revert}, NW_CONFIRM_TAIL
+    else:
+        phases, tail = {"DRY": phase_dry, "IMPORT": phase_import, "REVERT": phase_revert}, CONFIRM_TAIL
     c.check(mode in phases, "UNKNOWN_MODE|%s" % mode)
-    c.check(mode == "DRY" or args.get("confirm") == "%s %s" % (mode, CONFIRM_TAIL),
-            "CONFIRM_MISSING|want '%s %s'" % (mode, CONFIRM_TAIL))
-    c.log("BW_IMPORT_START|run=%s|mode=%s" % (c.run, mode))
+    c.check(mode == "DRY" or args.get("confirm") == "%s %s" % (mode, tail),
+            "CONFIRM_MISSING|want '%s %s'" % (mode, tail))
+    c.log("BW_IMPORT_START|run=%s|mode=%s|set=%s" % (c.run, mode, kit))
     try:
         phases[mode](c, args)
     except BWError:

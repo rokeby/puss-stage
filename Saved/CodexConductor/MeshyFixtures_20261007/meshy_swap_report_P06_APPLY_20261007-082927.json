@@ -1,0 +1,4885 @@
+{
+  "active_record": null,
+  "args": {
+    "ack_records": [
+      "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p06_atmos_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\fence_stack_750_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\hangar_exit_doors_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_events_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P06.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\opening_own_rail_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\p06_rig_pattern_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P06.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\rig_tubes_everywhere_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\structure_refit_record_REFIT-20261006-021730.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\tubes_tweak_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\underpass_fence_record_06.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\underpass_phase_b_record_06.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\blink_spots_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\board_material_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\groove_material_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\groove_width_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\portal_border_record.json",
+      "E:\\PussStage\\Saved\\CodexStructure\\portal_enable_revert_record.json"
+    ],
+    "allow_dirty": [],
+    "anchor_warn_cm": 1.0,
+    "bulb_anchor": "LIGHT",
+    "bulb_pool": [
+      "SM_Bulb_A60_Clear",
+      "SM_Bulb_A60_Frost",
+      "SM_Bulb_A60_Opal",
+      "SM_Bulb_A60_Worn",
+      "SM_Bulb_C35_Clear",
+      "SM_Bulb_G95_Clear",
+      "SM_Bulb_ST64_Cage"
+    ],
+    "bulb_scale": 3.2,
+    "bulb_scale_clamp": [
+      0.75,
+      4.0
+    ],
+    "bulb_seed": "20261007",
+    "confirm": "APPLY MESHYSWAP P06",
+    "disable_caps": true,
+    "expected_bulbs": null,
+    "expected_caps": null,
+    "housing": "AUTO",
+    "housing_scale": 1.0,
+    "label_regex": null,
+    "mode": "APPLY",
+    "passage": "P06",
+    "plan_sha256": "49ed4fdbd6b0d2b735e4a483e90402c5dbc9a94a792388fc6a6062d3e3a05155"
+  },
+  "backup": {
+    "packages": [
+      {
+        "backup": "E:/PussStage/Backups\\PreMeshySwapP06-20261007-082927\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+        "bytes": 25223474,
+        "package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
+        "sha256": "a5b473b99b3186d3ec76255cebf44aca1d87a331793026a316e6a5214cc1472f",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset"
+      },
+      {
+        "backup": "E:/PussStage/Backups\\PreMeshySwapP06-20261007-082927\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 18532585,
+        "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+        "sha256": "3fff8cec263ddaadf32b189f3a14dda725f1307fb0ceabc7083b76c4a42dbc1a",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+      }
+    ],
+    "root": "E:/PussStage/Backups\\PreMeshySwapP06-20261007-082927"
+  },
+  "context": {
+    "census": {
+      "content": [],
+      "maps": []
+    },
+    "pie": false,
+    "project_ok": true,
+    "sequencer_open": false,
+    "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+    "world_ok": true,
+    "zz_actors": []
+  },
+  "fixtures_needed": [
+    "SM_Bulb_A60_Clear",
+    "SM_Bulb_A60_Frost",
+    "SM_Bulb_A60_Opal",
+    "SM_Bulb_A60_Worn",
+    "SM_Bulb_C35_Clear",
+    "SM_Bulb_G95_Clear",
+    "SM_Bulb_ST64_Cage",
+    "SM_Lantern_ParCan"
+  ],
+  "foreign_records": [
+    {
+      "guids": [
+        "1D2D86BCE74A910A13CC588B0D451795",
+        "8F6355EE44F6DF3B2763208B2AACBE7D",
+        "9786D2EB4CEEAD0F4D2195A0A7A4040C",
+        "AF5BA4F3452543D8A5EA778299C99B7D",
+        "DFD138DA78440386500FEC8E57AE3BA9",
+        "E9850E1D8D4473A298BEA0A87E7AC60A"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p06_atmos_record.json",
+      "sha256": "b3c7ae7b8b22ccaaff6d69dddb1579ab750e669c6d663956471297e8457ff71e",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "008D989B20485276BC8D0493439D39EA",
+        "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+        "0F8098924A16C384ECF7E29693BCBE5F",
+        "11F403689E45D226B3298AAF16790170",
+        "1D2D86BCE74A910A13CC588B0D451795",
+        "1F61520446CF6E25E7BF43910B802444",
+        "2018137743551ADFC08D2AA37963BC99",
+        "254B9CB84C3FEE339B514F8498F75C07",
+        "2A9DAA414052FA158067FE8DF6051A48",
+        "2C9C4A30466204C2890815B6C777DACF",
+        "2E73ED55452CE7466A0F74840C0D7964",
+        "30450225EE4DB0B28CEF8FA67FD430D4",
+        "3643727448220BBA053BB59FA4F896F2",
+        "3F1CEC91DE4164DCF2F0698A885CBD14",
+        "4927CDF2454CE3EC567E4C8BBB58AFB0",
+        "4AA16A12224559F4375C89AF372F0857",
+        "4DAD567145E3D507DB3810B0C0E27245",
+        "4E4FD68E4F2A02A168D9F686F4FABAB1",
+        "53409887498EDB35B732D2BB0C599B5F",
+        "5F0DC90346F2397CA15999910FC50C63",
+        "6C060F41144F94D9214DF3BF039C7E99",
+        "6DB7C86FE7463FB8ED5143833DF28400",
+        "735A7090BC4094A56E9818B65CD531B7",
+        "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+        "821E817A714533C8BFDB38B63581F33F",
+        "873F9B634F1844AD0CEC3098096E4664",
+        "884761C04271AFF58AF47B8B8AE5CD64",
+        "88A3B6EF6F43524F0A057A84271187B7",
+        "8F6355EE44F6DF3B2763208B2AACBE7D",
+        "9786D2EB4CEEAD0F4D2195A0A7A4040C",
+        "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+        "AA62A3AC5C432FCBE3A672B23443FA6A",
+        "AF5BA4F3452543D8A5EA778299C99B7D",
+        "AF6EB4EB57431F88F4BFC0957DA0E395",
+        "BD36902543E4A7DDB721E38AA97AEC76",
+        "CC3403E5418809B2A1D9328EFC64C048",
+        "D6EF563F41D61813865C21A632038D67",
+        "DFD138DA78440386500FEC8E57AE3BA9",
+        "E2C08AD44B58594445B26A99EE6DDBF7",
+        "E9850E1D8D4473A298BEA0A87E7AC60A",
+        "EBCB30CC477A3A8C283D13A57716B815",
+        "EF42AAF942DD4D0B2E9B78B93EF51BCD",
+        "F060763E471ABBB50FE986831AFBAC59",
+        "F35328184AF1ED0F15A1E483FA72CE31",
+        "F7CDD52B43F08F61470BFFB26074FAD4",
+        "FAAF47C54731A67102BCBFB33B93470C"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
+      "sha256": "ea0b717cdcf5b8d9b60c783ed8bd5cb006fe11d880f369e677296faeee1b15e8",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "DFD138DA78440386500FEC8E57AE3BA9"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+      "sha256": "aa2cdce1095b073e4a2ec2219bdf9dff94b180feb353a332e8e833066963dc72",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "008D989B20485276BC8D0493439D39EA",
+        "07E24048F24647AA7D5992AB6A8A0770",
+        "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+        "0F8098924A16C384ECF7E29693BCBE5F",
+        "11F403689E45D226B3298AAF16790170",
+        "1D2D86BCE74A910A13CC588B0D451795",
+        "1F61520446CF6E25E7BF43910B802444",
+        "2018137743551ADFC08D2AA37963BC99",
+        "254B9CB84C3FEE339B514F8498F75C07",
+        "2A9DAA414052FA158067FE8DF6051A48",
+        "2C9C4A30466204C2890815B6C777DACF",
+        "2E73ED55452CE7466A0F74840C0D7964",
+        "30450225EE4DB0B28CEF8FA67FD430D4",
+        "3643727448220BBA053BB59FA4F896F2",
+        "3F1CEC91DE4164DCF2F0698A885CBD14",
+        "4927CDF2454CE3EC567E4C8BBB58AFB0",
+        "4AA16A12224559F4375C89AF372F0857",
+        "4DAD567145E3D507DB3810B0C0E27245",
+        "4E4FD68E4F2A02A168D9F686F4FABAB1",
+        "53409887498EDB35B732D2BB0C599B5F",
+        "5F0DC90346F2397CA15999910FC50C63",
+        "6C060F41144F94D9214DF3BF039C7E99",
+        "6DB7C86FE7463FB8ED5143833DF28400",
+        "735A7090BC4094A56E9818B65CD531B7",
+        "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+        "7667C84046C4F66CA98D33887147B4DE",
+        "821E817A714533C8BFDB38B63581F33F",
+        "8549115A442A7EBB8BA717819FC8E158",
+        "873F9B634F1844AD0CEC3098096E4664",
+        "884761C04271AFF58AF47B8B8AE5CD64",
+        "88A3B6EF6F43524F0A057A84271187B7",
+        "8F6355EE44F6DF3B2763208B2AACBE7D",
+        "9786D2EB4CEEAD0F4D2195A0A7A4040C",
+        "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+        "AA62A3AC5C432FCBE3A672B23443FA6A",
+        "AF5BA4F3452543D8A5EA778299C99B7D",
+        "AF6EB4EB57431F88F4BFC0957DA0E395",
+        "BD36902543E4A7DDB721E38AA97AEC76",
+        "CC3403E5418809B2A1D9328EFC64C048",
+        "D6EF563F41D61813865C21A632038D67",
+        "D92313E04C50AB918446E1A5C1A766D6",
+        "DFD138DA78440386500FEC8E57AE3BA9",
+        "E2C08AD44B58594445B26A99EE6DDBF7",
+        "E9850E1D8D4473A298BEA0A87E7AC60A",
+        "EBCB30CC477A3A8C283D13A57716B815",
+        "EF42AAF942DD4D0B2E9B78B93EF51BCD",
+        "F060763E471ABBB50FE986831AFBAC59",
+        "F35328184AF1ED0F15A1E483FA72CE31",
+        "F7CDD52B43F08F61470BFFB26074FAD4",
+        "FAAF47C54731A67102BCBFB33B93470C"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P06.json",
+      "sha256": "46010d0be1853166663f23bc39c06f5cc0c9c483c0154fb5c851cd218acad4d4",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "008D989B20485276BC8D0493439D39EA",
+        "07E24048F24647AA7D5992AB6A8A0770",
+        "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+        "11F403689E45D226B3298AAF16790170",
+        "1D2D86BCE74A910A13CC588B0D451795",
+        "2C9C4A30466204C2890815B6C777DACF",
+        "30450225EE4DB0B28CEF8FA67FD430D4",
+        "3F1CEC91DE4164DCF2F0698A885CBD14",
+        "4927CDF2454CE3EC567E4C8BBB58AFB0",
+        "4AA16A12224559F4375C89AF372F0857",
+        "6C060F41144F94D9214DF3BF039C7E99",
+        "6DB7C86FE7463FB8ED5143833DF28400",
+        "735A7090BC4094A56E9818B65CD531B7",
+        "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+        "821E817A714533C8BFDB38B63581F33F",
+        "884761C04271AFF58AF47B8B8AE5CD64",
+        "88A3B6EF6F43524F0A057A84271187B7",
+        "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+        "AA62A3AC5C432FCBE3A672B23443FA6A",
+        "AF6EB4EB57431F88F4BFC0957DA0E395",
+        "CC3403E5418809B2A1D9328EFC64C048",
+        "D92313E04C50AB918446E1A5C1A766D6",
+        "DFD138DA78440386500FEC8E57AE3BA9",
+        "E9850E1D8D4473A298BEA0A87E7AC60A",
+        "F060763E471ABBB50FE986831AFBAC59"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\opening_own_rail_record.json",
+      "sha256": "f52bcfc834ab9c9402c81430e870f1806e12a5a22112798f2410bbcf10a4b7d4",
+      "status": null
+    },
+    {
+      "guids": [
+        "008D989B20485276BC8D0493439D39EA",
+        "07E24048F24647AA7D5992AB6A8A0770",
+        "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+        "0F8098924A16C384ECF7E29693BCBE5F",
+        "11F403689E45D226B3298AAF16790170",
+        "1D2D86BCE74A910A13CC588B0D451795",
+        "1F61520446CF6E25E7BF43910B802444",
+        "2018137743551ADFC08D2AA37963BC99",
+        "254B9CB84C3FEE339B514F8498F75C07",
+        "2A9DAA414052FA158067FE8DF6051A48",
+        "2C9C4A30466204C2890815B6C777DACF",
+        "2E73ED55452CE7466A0F74840C0D7964",
+        "30450225EE4DB0B28CEF8FA67FD430D4",
+        "3643727448220BBA053BB59FA4F896F2",
+        "3F1CEC91DE4164DCF2F0698A885CBD14",
+        "4927CDF2454CE3EC567E4C8BBB58AFB0",
+        "4AA16A12224559F4375C89AF372F0857",
+        "4DAD567145E3D507DB3810B0C0E27245",
+        "53409887498EDB35B732D2BB0C599B5F",
+        "5F0DC90346F2397CA15999910FC50C63",
+        "6C060F41144F94D9214DF3BF039C7E99",
+        "6DB7C86FE7463FB8ED5143833DF28400",
+        "735A7090BC4094A56E9818B65CD531B7",
+        "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+        "821E817A714533C8BFDB38B63581F33F",
+        "873F9B634F1844AD0CEC3098096E4664",
+        "884761C04271AFF58AF47B8B8AE5CD64",
+        "88A3B6EF6F43524F0A057A84271187B7",
+        "8F6355EE44F6DF3B2763208B2AACBE7D",
+        "9786D2EB4CEEAD0F4D2195A0A7A4040C",
+        "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+        "AA62A3AC5C432FCBE3A672B23443FA6A",
+        "AF5BA4F3452543D8A5EA778299C99B7D",
+        "AF6EB4EB57431F88F4BFC0957DA0E395",
+        "BD36902543E4A7DDB721E38AA97AEC76",
+        "CC3403E5418809B2A1D9328EFC64C048",
+        "D6EF563F41D61813865C21A632038D67",
+        "D92313E04C50AB918446E1A5C1A766D6",
+        "DFD138DA78440386500FEC8E57AE3BA9",
+        "E2C08AD44B58594445B26A99EE6DDBF7",
+        "E9850E1D8D4473A298BEA0A87E7AC60A",
+        "EBCB30CC477A3A8C283D13A57716B815",
+        "EF42AAF942DD4D0B2E9B78B93EF51BCD",
+        "F060763E471ABBB50FE986831AFBAC59",
+        "F7CDD52B43F08F61470BFFB26074FAD4",
+        "FAAF47C54731A67102BCBFB33B93470C"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p06_rig_pattern_record.json",
+      "sha256": "5cacb61b09033b8b5f59527e0e8f3cadf886acf0e78f8ded0508382b593821ba",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "008D989B20485276BC8D0493439D39EA",
+        "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+        "1D2D86BCE74A910A13CC588B0D451795",
+        "3F1CEC91DE4164DCF2F0698A885CBD14",
+        "4927CDF2454CE3EC567E4C8BBB58AFB0",
+        "6DB7C86FE7463FB8ED5143833DF28400",
+        "884761C04271AFF58AF47B8B8AE5CD64",
+        "88A3B6EF6F43524F0A057A84271187B7",
+        "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+        "DFD138DA78440386500FEC8E57AE3BA9",
+        "E9850E1D8D4473A298BEA0A87E7AC60A",
+        "F060763E471ABBB50FE986831AFBAC59"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P06.json",
+      "sha256": "e377a498948b2e104c120c3c475f1426eb6448429323497e7f62d5a7ddeecc2f",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "AF6EB4EB57431F88F4BFC0957DA0E395"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\blink_spots_revert_record.json",
+      "sha256": "31d032d059a3dc5723f7424891aed99a9aa1e365cd81e0565d8d7d82ae85048a",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\fence_stack_750_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\hangar_exit_doors_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_events_revert_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P06.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p06_rig_pattern_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P06.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\rig_tubes_everywhere_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\structure_refit_record_REFIT-20261006-021730.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\tubes_tweak_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\underpass_fence_record_06.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\underpass_phase_b_record_06.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p06_atmos_record.json",
+      "status": "saved_readback_verified"
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\board_material_revert_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\groove_material_revert_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\groove_width_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\portal_border_record.json",
+      "status": null
+    },
+    {
+      "needles": [
+        "Infinity Stage - Structure 06"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexStructure\\portal_enable_revert_record.json",
+      "status": null
+    }
+  ],
+  "mode": "APPLY",
+  "ok": true,
+  "passage": "P06",
+  "plan": {
+    "counts": {
+      "anchor_warnings": 21,
+      "bulbs": 25,
+      "caps": 0,
+      "cues": 25,
+      "skipped": 24
+    },
+    "derived_meshes": {},
+    "housing": {
+      "body_material": null,
+      "body_size_cm": [
+        40.0,
+        30.94,
+        44.72
+      ],
+      "chosen_by": "majority:LOW_SIDE=37",
+      "housed_role_counts": {
+        "BEAM": 9,
+        "LOW_SIDE": 37,
+        "OTHER": 8,
+        "PRACTICAL": 49,
+        "TOP": 17
+      },
+      "lantern": "SM_Lantern_ParCan",
+      "lens_offset_cm": [
+        -2.88,
+        -0.01,
+        -7.45
+      ],
+      "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan",
+      "mode": "STRUCTURE",
+      "practical_bulbs_that_get_a_lantern": 49
+    },
+    "opts": {
+      "anchor_warn_cm": 1.0,
+      "bulb_anchor": "LIGHT",
+      "bulb_pool": [
+        "SM_Bulb_A60_Clear",
+        "SM_Bulb_A60_Frost",
+        "SM_Bulb_A60_Opal",
+        "SM_Bulb_A60_Worn",
+        "SM_Bulb_C35_Clear",
+        "SM_Bulb_G95_Clear",
+        "SM_Bulb_ST64_Cage"
+      ],
+      "bulb_scale": 3.2,
+      "bulb_scale_clamp": [
+        0.75,
+        4.0
+      ],
+      "bulb_seed": "20261007",
+      "disable_caps": true,
+      "housing": "AUTO",
+      "housing_scale": 1.0,
+      "label_regex": null
+    },
+    "passage": "P06",
+    "skipped": [
+      {
+        "cue": "P06 Wing 001",
+        "guid": "42D4183E4352AF7E0C1E7EB35FED0A30",
+        "label": "P06 SCORE B01 P06_GRAND_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 OLD 06 - gauze_lattice",
+        "guid": "6BB5E0744000700A4CEB399F9FAF822C",
+        "label": "P06 SCORE B12 GAP PRACTICAL_GLIMMER_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 041",
+        "guid": "5454F9D040D5BCCBA7597CB58B29EFE5",
+        "label": "P06 SCORE B20 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 014",
+        "guid": "A2273CDE4E050599E1CAAC9291B6486F",
+        "label": "P06 SCORE B27 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 033",
+        "guid": "EAA4511041E59F0E740D20B05EA35FE3",
+        "label": "P06 SCORE B14 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 040",
+        "guid": "65990FAC4B9B3D09F5AC4FBF68D034FB",
+        "label": "P06 SCORE B36 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 OLD 13 - covered_pillar",
+        "guid": "F5C5B65943C2D611549198BC63DE999C",
+        "label": "P06 SCORE B26 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 OLD 09 - bamboo_scaffold",
+        "guid": "095133234597406905CDCEB1FD4B33E8",
+        "label": "P06 SCORE B18 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 047",
+        "guid": "A9B875344697668EEBC7B0AD2E0C9C16",
+        "label": "P06 SCORE B22 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 OLD 19 - ceramic_totem",
+        "guid": "8C69E6254E97B8474AC4EBAF88C2D6DC",
+        "label": "P06 SCORE B38 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 050",
+        "guid": "4EA0466A4249B49F6226AC992FC4F34A",
+        "label": "P06 SCORE B54 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 007",
+        "guid": "2160C0AC4C19839866BFA4A651EF22CA",
+        "label": "P06 SCORE B13 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 012",
+        "guid": "926306C1434B261EE9E5BB85CC3B5A76",
+        "label": "P06 SCORE B23 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 045",
+        "guid": "2C847F6F447965A968DA0798D7B1E84D",
+        "label": "P06 SCORE B28 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 046",
+        "guid": "329DF6D245A77F03726995A71520BB84",
+        "label": "P06 SCORE B34 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 016",
+        "guid": "825E824045AF0EF484D975ACAA2B287C",
+        "label": "P06 SCORE B31 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 053",
+        "guid": "714A81AD45707CCC0B74B0845A8AB72E",
+        "label": "P06 SCORE B40 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 052",
+        "guid": "D57C119A4B0A817A515BB89DD5C00F76",
+        "label": "P06 SCORE B56 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 022",
+        "guid": "5C9FCDF3415731D078A097A145C56E59",
+        "label": "P06 SCORE B43 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 048",
+        "guid": "855C90F04B9F445158748B8348002AE9",
+        "label": "P06 SCORE B42 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 OLD 23 - steel_scaffold",
+        "guid": "1E5527294990DBBA3C1A04A3E4AA4388",
+        "label": "P06 SCORE B46 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 025",
+        "guid": "25CD0F1A4C9EE6A4B68A7EA705D16190",
+        "label": "P06 SCORE B49 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 044",
+        "guid": "CE3255A942E76815D9E321836FD5E172",
+        "label": "P06 SCORE B44 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      },
+      {
+        "cue": "P06 Wing 049",
+        "guid": "D9E5E5904834EFD0F525CBB071ACC629",
+        "label": "P06 SCORE B50 P06_FAILING_GOLD PRACTICAL_CLAMP_BODY",
+        "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Wall",
+        "why": "NOT_A_SPHERE_BULB"
+      }
+    ],
+    "structure_before": {
+      "body_material": null,
+      "body_mesh": "/Engine/BasicShapes/Cube",
+      "body_size_cm": [
+        45.0,
+        32.0,
+        32.0
+      ],
+      "current": true,
+      "fixture_body_count": 120,
+      "other": {
+        "enabled": true,
+        "hang_from_grid": true,
+        "line_material": null,
+        "line_mesh": "/Engine/BasicShapes/Cube",
+        "line_thickness_cm": 3.0,
+        "max_drop_cm": 900.0
+      }
+    },
+    "targets": [
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "AF5BA4F3452543D8A5EA778299C99B7D",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B01 P06_GRAND_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_C35_Clear.SM_Bulb_C35_Clear",
+              "relative_transform": {
+                "location": [
+                  -10.2655,
+                  698.9399,
+                  129.9141
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 18.367,
+            "guid": "AF5BA4F3452543D8A5EA778299C99B7D",
+            "label": "P06 SCORE B01 P06_GRAND_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "D9F1C03C4B4230EBD2F4798CD183C971",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_C35_Clear",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_C35_Clear"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "DFD138DA78440386500FEC8E57AE3BA9",
+        "cue_label": "P06 Wing 001",
+        "show_index": 217
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "7667C84046C4F66CA98D33887147B4DE",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B12 GAP PRACTICAL_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear.SM_Bulb_A60_Clear",
+              "relative_transform": {
+                "location": [
+                  -10.0,
+                  699.936,
+                  137.88
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": false,
+            "body_to_light_cm": 0.0,
+            "guid": "7667C84046C4F66CA98D33887147B4DE",
+            "label": "P06 SCORE B12 GAP PRACTICAL_DEAD_BODY",
+            "light_guid": "D6F56944477CF281F55493B13486BF71",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 20.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Clear"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "D92313E04C50AB918446E1A5C1A766D6",
+        "cue_label": "P06 OLD 06 - gauze_lattice",
+        "show_index": 219
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "D6EF563F41D61813865C21A632038D67",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B20 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_C35_Clear.SM_Bulb_C35_Clear",
+              "relative_transform": {
+                "location": [
+                  -55.984,
+                  715.298,
+                  199.9432
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1416.883,
+            "guid": "D6EF563F41D61813865C21A632038D67",
+            "label": "P06 SCORE B20 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "7295480242AC792950DEFC91AA075583",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_C35_Clear",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_C35_Clear"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+        "cue_label": "P06 Wing 041",
+        "show_index": 220
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "9786D2EB4CEEAD0F4D2195A0A7A4040C",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B27 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost.SM_Bulb_A60_Frost",
+              "relative_transform": {
+                "location": [
+                  -23.9354,
+                  718.8772,
+                  126.243
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 28.572,
+            "guid": "9786D2EB4CEEAD0F4D2195A0A7A4040C",
+            "label": "P06 SCORE B27 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "CCFC03FE45F44886F97EA2B7EDA9D5A2",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Frost"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "E9850E1D8D4473A298BEA0A87E7AC60A",
+        "cue_label": "P06 Wing 014",
+        "show_index": 221
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "2018137743551ADFC08D2AA37963BC99",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B14 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear.SM_Bulb_A60_Clear",
+              "relative_transform": {
+                "location": [
+                  -63.5047,
+                  695.176,
+                  208.4913
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1397.233,
+            "guid": "2018137743551ADFC08D2AA37963BC99",
+            "label": "P06 SCORE B14 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "3248FE51445DB95EBAECFAABF9578B6E",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Clear"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+        "cue_label": "P06 Wing 033",
+        "show_index": 222
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "5F0DC90346F2397CA15999910FC50C63",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B36 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear.SM_Bulb_A60_Clear",
+              "relative_transform": {
+                "location": [
+                  -63.5802,
+                  682.3566,
+                  235.5289
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1385.882,
+            "guid": "5F0DC90346F2397CA15999910FC50C63",
+            "label": "P06 SCORE B36 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "6705DDF147CED3E4D94DFA82A5F8F1CD",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Clear"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "735A7090BC4094A56E9818B65CD531B7",
+        "cue_label": "P06 Wing 040",
+        "show_index": 224
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "2A9DAA414052FA158067FE8DF6051A48",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B26 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear.SM_Bulb_G95_Clear",
+              "relative_transform": {
+                "location": [
+                  -32.1203,
+                  685.759,
+                  241.6235
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1388.986,
+            "guid": "2A9DAA414052FA158067FE8DF6051A48",
+            "label": "P06 SCORE B26 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "E3BEBFC7456975165CBF42B613DEB1F4",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_G95_Clear"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "F060763E471ABBB50FE986831AFBAC59",
+        "cue_label": "P06 OLD 13 - covered_pillar",
+        "show_index": 225
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "2E73ED55452CE7466A0F74840C0D7964",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B18 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn.SM_Bulb_A60_Worn",
+              "relative_transform": {
+                "location": [
+                  -22.8827,
+                  724.7533,
+                  214.2395
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1426.266,
+            "guid": "2E73ED55452CE7466A0F74840C0D7964",
+            "label": "P06 SCORE B18 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "6D01C288438A1D8707218B8B08EE2EA2",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Worn"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "884761C04271AFF58AF47B8B8AE5CD64",
+        "cue_label": "P06 OLD 09 - bamboo_scaffold",
+        "show_index": 226
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "254B9CB84C3FEE339B514F8498F75C07",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B22 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost.SM_Bulb_A60_Frost",
+              "relative_transform": {
+                "location": [
+                  -22.7504,
+                  708.5325,
+                  222.2126
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1410.543,
+            "guid": "254B9CB84C3FEE339B514F8498F75C07",
+            "label": "P06 SCORE B22 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "5A8F2EC64859A6FD926ACCB41FA3040A",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Frost"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "008D989B20485276BC8D0493439D39EA",
+        "cue_label": "P06 Wing 047",
+        "show_index": 229
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "EBCB30CC477A3A8C283D13A57716B815",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B38 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_C35_Clear.SM_Bulb_C35_Clear",
+              "relative_transform": {
+                "location": [
+                  -42.9105,
+                  710.3632,
+                  222.929
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1412.753,
+            "guid": "EBCB30CC477A3A8C283D13A57716B815",
+            "label": "P06 SCORE B38 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "6ED6248948435A50EA6E0AADE26FFD88",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_C35_Clear",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_C35_Clear"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "2C9C4A30466204C2890815B6C777DACF",
+        "cue_label": "P06 OLD 19 - ceramic_totem",
+        "show_index": 230
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "4E4FD68E4F2A02A168D9F686F4FABAB1",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B54 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear.SM_Bulb_G95_Clear",
+              "relative_transform": {
+                "location": [
+                  -19.936,
+                  -700.256,
+                  151.64
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": false,
+            "body_to_light_cm": 0.0,
+            "guid": "4E4FD68E4F2A02A168D9F686F4FABAB1",
+            "label": "P06 SCORE B54 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "48841B0D46519E25A98E638CEB53AE48",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_G95_Clear"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "AA62A3AC5C432FCBE3A672B23443FA6A",
+        "cue_label": "P06 Wing 050",
+        "show_index": 231
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "53409887498EDB35B732D2BB0C599B5F",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B13 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Opal.SM_Bulb_A60_Opal",
+              "relative_transform": {
+                "location": [
+                  -33.321,
+                  686.4587,
+                  157.5249
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 21.521,
+            "guid": "53409887498EDB35B732D2BB0C599B5F",
+            "label": "P06 SCORE B13 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "B8834AC34DC18FA5A1400E8B93D8AA22",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Opal",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Opal"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "6DB7C86FE7463FB8ED5143833DF28400",
+        "cue_label": "P06 Wing 007",
+        "show_index": 232
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "8F6355EE44F6DF3B2763208B2AACBE7D",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B23 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear.SM_Bulb_A60_Clear",
+              "relative_transform": {
+                "location": [
+                  -18.0832,
+                  687.5099,
+                  157.7243
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 15.969,
+            "guid": "8F6355EE44F6DF3B2763208B2AACBE7D",
+            "label": "P06 SCORE B23 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "7FE182864882A381AC918BA8FD692B6C",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Clear"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "1D2D86BCE74A910A13CC588B0D451795",
+        "cue_label": "P06 Wing 012",
+        "show_index": 233
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "1F61520446CF6E25E7BF43910B802444",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B28 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost.SM_Bulb_A60_Frost",
+              "relative_transform": {
+                "location": [
+                  -38.9982,
+                  712.3921,
+                  217.8526
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1414.299,
+            "guid": "1F61520446CF6E25E7BF43910B802444",
+            "label": "P06 SCORE B28 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "2462C5E64A9E77C8E2E51892B9A95C8F",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Frost"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "3F1CEC91DE4164DCF2F0698A885CBD14",
+        "cue_label": "P06 Wing 045",
+        "show_index": 234
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "FAAF47C54731A67102BCBFB33B93470C",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B34 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost.SM_Bulb_A60_Frost",
+              "relative_transform": {
+                "location": [
+                  -63.8707,
+                  715.026,
+                  207.1984
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1416.993,
+            "guid": "FAAF47C54731A67102BCBFB33B93470C",
+            "label": "P06 SCORE B34 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "6AC8480F44057C89124D3582D7A16094",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Frost"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "4927CDF2454CE3EC567E4C8BBB58AFB0",
+        "cue_label": "P06 Wing 046",
+        "show_index": 235
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "4DAD567145E3D507DB3810B0C0E27245",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B31 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage.SM_Bulb_ST64_Cage",
+              "relative_transform": {
+                "location": [
+                  -1.2247,
+                  679.5213,
+                  158.8938
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 28.522,
+            "guid": "4DAD567145E3D507DB3810B0C0E27245",
+            "label": "P06 SCORE B31 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "5487A895421E9E5B64F55B87F2E2F7C3",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_ST64_Cage"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "88A3B6EF6F43524F0A057A84271187B7",
+        "cue_label": "P06 Wing 016",
+        "show_index": 236
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "3643727448220BBA053BB59FA4F896F2",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B40 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear.SM_Bulb_G95_Clear",
+              "relative_transform": {
+                "location": [
+                  -56.1614,
+                  697.7863,
+                  206.1967
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1399.575,
+            "guid": "3643727448220BBA053BB59FA4F896F2",
+            "label": "P06 SCORE B40 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "DE9D1CD04BAB62FDBAD0F4B6F3493579",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_G95_Clear"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "6C060F41144F94D9214DF3BF039C7E99",
+        "cue_label": "P06 Wing 053",
+        "show_index": 237
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "F35328184AF1ED0F15A1E483FA72CE31",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B56 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Opal.SM_Bulb_A60_Opal",
+              "relative_transform": {
+                "location": [
+                  -19.808,
+                  -700.512,
+                  147.0
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": false,
+            "body_to_light_cm": 0.0,
+            "guid": "F35328184AF1ED0F15A1E483FA72CE31",
+            "label": "P06 SCORE B56 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "D03DA22F42725789AF03899ECC281DEC",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Opal",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Opal"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "11F403689E45D226B3298AAF16790170",
+        "cue_label": "P06 Wing 052",
+        "show_index": 238
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "F7CDD52B43F08F61470BFFB26074FAD4",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B43 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn.SM_Bulb_A60_Worn",
+              "relative_transform": {
+                "location": [
+                  -33.2681,
+                  691.1527,
+                  147.5396
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 15.881,
+            "guid": "F7CDD52B43F08F61470BFFB26074FAD4",
+            "label": "P06 SCORE B43 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "B79F54CA41EB93CBA9E61B9CA0F18ACC",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Worn"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "4AA16A12224559F4375C89AF372F0857",
+        "cue_label": "P06 Wing 022",
+        "show_index": 239
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "E2C08AD44B58594445B26A99EE6DDBF7",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B42 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage.SM_Bulb_ST64_Cage",
+              "relative_transform": {
+                "location": [
+                  -26.9367,
+                  724.0005,
+                  230.0216
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1426.812,
+            "guid": "E2C08AD44B58594445B26A99EE6DDBF7",
+            "label": "P06 SCORE B42 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "B7058948443B3F00533B0686AFA6061B",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_ST64_Cage"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "821E817A714533C8BFDB38B63581F33F",
+        "cue_label": "P06 Wing 048",
+        "show_index": 240
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "0F8098924A16C384ECF7E29693BCBE5F",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B46 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Opal.SM_Bulb_A60_Opal",
+              "relative_transform": {
+                "location": [
+                  -59.6238,
+                  684.5616,
+                  226.4649
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1387.922,
+            "guid": "0F8098924A16C384ECF7E29693BCBE5F",
+            "label": "P06 SCORE B46 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "36B6233A47ACDD0E1CAC70B75DECAFE8",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Opal",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Opal"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "CC3403E5418809B2A1D9328EFC64C048",
+        "cue_label": "P06 OLD 23 - steel_scaffold",
+        "show_index": 241
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "BD36902543E4A7DDB721E38AA97AEC76",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B49 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage.SM_Bulb_ST64_Cage",
+              "relative_transform": {
+                "location": [
+                  -6.7915,
+                  681.7164,
+                  150.9603
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 22.347,
+            "guid": "BD36902543E4A7DDB721E38AA97AEC76",
+            "label": "P06 SCORE B49 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "2ABEC5AA416F5AE2C7521DAD687F9418",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_ST64_Cage"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+        "cue_label": "P06 Wing 025",
+        "show_index": 242
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "EF42AAF942DD4D0B2E9B78B93EF51BCD",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B44 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn.SM_Bulb_A60_Worn",
+              "relative_transform": {
+                "location": [
+                  -36.8755,
+                  714.0358,
+                  241.7675
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1417.22,
+            "guid": "EF42AAF942DD4D0B2E9B78B93EF51BCD",
+            "label": "P06 SCORE B44 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "12EE7F364D4E07600B20E1BE955C75AA",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Worn"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "AF6EB4EB57431F88F4BFC0957DA0E395",
+        "cue_label": "P06 Wing 044",
+        "show_index": 243
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "873F9B634F1844AD0CEC3098096E4664",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B50 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear.SM_Bulb_G95_Clear",
+              "relative_transform": {
+                "location": [
+                  -38.9345,
+                  695.8499,
+                  232.5893
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": true,
+            "body_to_light_cm": 1398.58,
+            "guid": "873F9B634F1844AD0CEC3098096E4664",
+            "label": "P06 SCORE B50 P06_FAILING_GOLD PRACTICAL_BULB_DEAD_BODY",
+            "light_guid": "20762B0B457AF47007B4239E1F5818E5",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_G95_Clear"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "30450225EE4DB0B28CEF8FA67FD430D4",
+        "cue_label": "P06 Wing 049",
+        "show_index": 244
+      },
+      {
+        "bulbs": [
+          {
+            "after": {
+              "actor_class": null,
+              "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+              "effect": {
+                "active_radius_cm": 6000.0,
+                "burn_span_cm": 4000.0,
+                "burn_start_ahead_cm": 3000.0,
+                "burn_u_axis": [
+                  0.0,
+                  0.0
+                ],
+                "burn_uv_measured_mesh": null,
+                "burn_v_axis": [
+                  0.0,
+                  0.0
+                ],
+                "feeds_local_medium": true,
+                "flicker_amount": 0.25,
+                "ignition_uv": [
+                  0.5,
+                  1.0
+                ],
+                "linked_light_attachment_guid": "00000000000000000000000000000000",
+                "medium_density": 0.15000000596046448,
+                "medium_height_falloff": 1000.0,
+                "medium_offset_cm": [
+                  250.0,
+                  0.0,
+                  150.0
+                ],
+                "medium_radius_cm": 400.0,
+                "motes_extent_cm": [
+                  250.0,
+                  400.0,
+                  500.0
+                ],
+                "output": 0.5,
+                "pulse_duty": 0.3499999940395355,
+                "pulse_period_seconds": 6.0,
+                "replicated_from_attachment_guid": "00000000000000000000000000000000",
+                "tint": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "type": "<InfinityStageEffectType.HAZE: 0>"
+              },
+              "enabled": true,
+              "guid": "8549115A442A7EBB8BA717819FC8E158",
+              "kind": "<InfinityAttachmentKind.PROP: 0>",
+              "label": "P06 SCORE B64 VOID PRACTICAL_DEAD_BODY",
+              "lighting": {
+                "affect_global_illumination": true,
+                "affect_reflection": true,
+                "affect_translucent_lighting": true,
+                "attenuation_radius_cm": 5000.0,
+                "cast_shadows": true,
+                "cast_volumetric_shadow": true,
+                "color": [
+                  1.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "diffuse_scale": 1.0,
+                "drama": {
+                  "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+                  "after_pass_distance_cm": 600.0,
+                  "decay_distance_cm": 1500.0,
+                  "ignition_stutter": 0.6000000238418579,
+                  "pan_amplitude_degrees": 6.0,
+                  "period_seconds": 14.0,
+                  "phase_cycles": 0.0,
+                  "phase_from_identity": true,
+                  "slow_move": false,
+                  "strike_distance_cm": 2500.0,
+                  "strike_on_approach": false,
+                  "strike_ramp_cm": 250.0,
+                  "tilt_amplitude_degrees": 3.0,
+                  "unstruck_intensity_scale": 0.0
+                },
+                "force_cached_shadows_for_movable_primitives": false,
+                "ies_brightness_scale": 1.0,
+                "ies_texture": null,
+                "indirect_lighting_intensity": 1.0,
+                "inner_cone_angle_degrees": 18.0,
+                "intensity": 5000.0,
+                "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+                "inverse_exposure_blend": 0.0,
+                "light_falloff_exponent": 8.0,
+                "light_function_disabled_brightness": 0.0,
+                "light_function_fade_distance_cm": 100000.0,
+                "light_function_material": null,
+                "light_function_scale": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
+                "lighting_channel0": true,
+                "lighting_channel1": false,
+                "lighting_channel2": false,
+                "max_distance_fade_range_cm": 0.0,
+                "max_draw_distance_cm": 0.0,
+                "outer_cone_angle_degrees": 42.0,
+                "rect_barn_door_angle_degrees": 88.0,
+                "rect_barn_door_length_cm": 20.0,
+                "rect_source_height_cm": 100.0,
+                "rect_source_texture": null,
+                "rect_source_width_cm": 100.0,
+                "shadow_bias": 0.5,
+                "shadow_slope_bias": 0.5,
+                "soft_source_radius_cm": 0.0,
+                "source_length_cm": 0.0,
+                "source_radius_cm": 0.0,
+                "specular_scale": 1.0,
+                "temperature_kelvin": 6500.0,
+                "transmission": false,
+                "type": "<InfinityStageLightType.SPOT: 0>",
+                "use_ies_brightness": false,
+                "use_inverse_squared_falloff": true,
+                "use_ray_traced_distance_field_shadows": false,
+                "use_temperature": false,
+                "volumetric_scattering_intensity": 1.0
+              },
+              "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn.SM_Bulb_A60_Worn",
+              "relative_transform": {
+                "location": [
+                  -10.112,
+                  700.048,
+                  137.592
+                ],
+                "rotation_xyzw": [
+                  0.0,
+                  -0.0,
+                  0.0,
+                  1.0
+                ],
+                "scale": [
+                  3.2,
+                  3.2,
+                  3.2
+                ]
+              },
+              "trigger_distance_cm": 800.0
+            },
+            "anchor_warning": false,
+            "body_to_light_cm": 0.0,
+            "guid": "8549115A442A7EBB8BA717819FC8E158",
+            "label": "P06 SCORE B64 VOID PRACTICAL_DEAD_BODY",
+            "light_guid": "FD2FFC084FA503828339BB9BCD0912F9",
+            "mesh_after": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn",
+            "mesh_before": "/Engine/BasicShapes/Sphere",
+            "old_diameter_cm": 18.0,
+            "scale": 3.2,
+            "variant": "SM_Bulb_A60_Worn"
+          }
+        ],
+        "caps": [],
+        "cue_guid": "07E24048F24647AA7D5992AB6A8A0770",
+        "cue_label": "P06 Wing 055",
+        "show_index": 245
+      }
+    ],
+    "variants": {
+      "SM_Bulb_A60_Clear": 4,
+      "SM_Bulb_A60_Frost": 4,
+      "SM_Bulb_A60_Opal": 3,
+      "SM_Bulb_A60_Worn": 4,
+      "SM_Bulb_C35_Clear": 3,
+      "SM_Bulb_G95_Clear": 4,
+      "SM_Bulb_ST64_Cage": 3
+    }
+  },
+  "plan_sha256": "49ed4fdbd6b0d2b735e4a483e90402c5dbc9a94a792388fc6a6062d3e3a05155",
+  "record": "E:\\PussStage\\Saved\\CodexConductor\\MeshyFixtures_20261007\\meshy_swap_record_P06.json",
+  "run": "20261007-082927",
+  "saved": true,
+  "unacknowledged_foreign_records": []
+}
