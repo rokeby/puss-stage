@@ -1,0 +1,250 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCelestialRig.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCelestialRig.cpp
+index 1ba7a27..549c722 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCelestialRig.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCelestialRig.cpp
+@@ -8,6 +8,8 @@
+ #include "Components/StaticMeshComponent.h"
+ #include "Components/VolumetricCloudComponent.h"
+ #include "Engine/DirectionalLight.h"
++#include "Engine/Level.h"
++#include "Engine/LevelStreaming.h"
+ #include "Engine/ExponentialHeightFog.h"
+ #include "Engine/SkyLight.h"
+ #include "Engine/StaticMesh.h"
+@@ -251,6 +253,28 @@ void AInfinityStageCelestialRig::SetUseManualEditorLighting(const bool bEnabled)
+     }
+ }
+ 
++bool AInfinityStageCelestialRig::IsExemptLevelPackage(
++    const FString& LevelPackageName,
++    const FString& StreamingWorldAssetPackage,
++    const TArray<TSoftObjectPtr<UWorld>>& ExemptLevels)
++{
++    const FString SourceLevelPackage = UWorld::RemovePIEPrefix(LevelPackageName);
++    for (const TSoftObjectPtr<UWorld>& ExemptLevel : ExemptLevels)
++    {
++        const FString ExemptPackage = ExemptLevel.ToSoftObjectPath().GetLongPackageName();
++        if (ExemptPackage.IsEmpty())
++        {
++            continue;
++        }
++        if (SourceLevelPackage.Equals(ExemptPackage, ESearchCase::IgnoreCase)
++            || StreamingWorldAssetPackage.Equals(ExemptPackage, ESearchCase::IgnoreCase))
++        {
++            return true;
++        }
++    }
++    return false;
++}
++
+ bool AInfinityStageCelestialRig::SuppressIfForeign(AActor* Actor)
+ {
+     if (!Actor)
+@@ -266,8 +290,10 @@ bool AInfinityStageCelestialRig::SuppressIfForeign(AActor* Actor)
+             return false;
+         }
+     }
+-    bool bForeign = false;
++    // Find the exterior-lighting components first, without touching anything:
++    // most actors have none, and they leave here before any exemption lookup.
+     TInlineComponentArray<UActorComponent*> Components(Actor);
++    TArray<USceneComponent*, TInlineAllocator<4>> ExteriorComponents;
+     for (UActorComponent* Component : Components)
+     {
+         const bool bExteriorLight = Component->IsA<UDirectionalLightComponent>() || Component->IsA<USkyLightComponent>()
+@@ -276,16 +302,46 @@ bool AInfinityStageCelestialRig::SuppressIfForeign(AActor* Actor)
+             || (Component->IsA<UStaticMeshComponent>() && Actor->GetActorNameOrLabel().Contains(TEXT("SkySphere")));
+         if (bExteriorLight)
+         {
+-            // Lights keep their authored values; a hidden light simply stops
+-            // contributing. Re-hiding an already hidden component is a no-op.
+-            Cast<USceneComponent>(Component)->SetVisibility(false, true);
+-            bForeign = true;
++            ExteriorComponents.Add(Cast<USceneComponent>(Component));
+         }
+     }
+-    if (!bForeign)
++    if (ExteriorComponents.IsEmpty())
+     {
+         return false;
+     }
++    // Exempt levels (empty by default) keep their own lighting. Checked before
++    // any mutation, and only for actors that carry exterior lighting.
++    if (!ForeignLightingExemptLevels.IsEmpty())
++    {
++        const ULevel* ActorLevel = Actor->GetLevel();
++        FString LevelPackageName;
++        FString StreamingWorldAssetPackage;
++        if (ActorLevel)
++        {
++            LevelPackageName = ActorLevel->GetOutermost()->GetName();
++            if (const UWorld* World = GetWorld())
++            {
++                for (const ULevelStreaming* StreamingLevel : World->GetStreamingLevels())
++                {
++                    if (StreamingLevel && StreamingLevel->GetLoadedLevel() == ActorLevel)
++                    {
++                        StreamingWorldAssetPackage = StreamingLevel->GetWorldAssetPackageFName().ToString();
++                        break;
++                    }
++                }
++            }
++        }
++        if (IsExemptLevelPackage(LevelPackageName, StreamingWorldAssetPackage, ForeignLightingExemptLevels))
++        {
++            return false;
++        }
++    }
++    for (USceneComponent* Component : ExteriorComponents)
++    {
++        // Lights keep their authored values; a hidden light simply stops
++        // contributing. Re-hiding an already hidden component is a no-op.
++        Component->SetVisibility(false, true);
++    }
+     Actor->SetActorHiddenInGame(true);
+     bool bAlreadySuppressed = false;
+     SuppressedForeignActors.Add(Actor, &bAlreadySuppressed);
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCelestialRig.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCelestialRig.h
+index c44bc8c..5f6851a 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCelestialRig.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCelestialRig.h
+@@ -10,6 +10,7 @@ class ASkyLight;
+ class UInfinityStageShowAsset;
+ class USceneComponent;
+ class UStaticMeshComponent;
++class UWorld;
+ 
+ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+     FInfinityCelestialPhaseEvaluated,
+@@ -110,6 +111,15 @@ public:
+         meta = (DisplayName = "Suppress Foreign Environment Lighting"))
+     bool bSuppressForeignEnvironmentLighting = true;
+ 
++    /**
++     * Actors in these levels are never treated as foreign. The default is empty,
++     * which means no behaviour change. World-global lights from an exempt level
++     * also light everything else while visible, so hide them via sequence outside
++     * their window.
++     */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Celestial|Lighting")
++    TArray<TSoftObjectPtr<UWorld>> ForeignLightingExemptLevels;
++
+     /** The safety-net interval for re-hiding already-silenced actors during phase applies; 0 turns the safety net off. */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Celestial|Lighting",
+         meta = (ClampMin = "0.0", Units = "s", EditCondition = "bSuppressForeignEnvironmentLighting"))
+@@ -119,6 +129,12 @@ public:
+     UFUNCTION(BlueprintCallable, CallInEditor, Category = "Infinity Stage|Celestial|Lighting")
+     int32 SuppressForeignEnvironmentLighting();
+ 
++    /** Pure package-name test used by foreign-lighting suppression and its automation coverage. */
++    static bool IsExemptLevelPackage(
++        const FString& LevelPackageName,
++        const FString& StreamingWorldAssetPackage,
++        const TArray<TSoftObjectPtr<UWorld>>& ExemptLevels);
++
+     /** How many full-world walks the suppression has made: for measurement and tests. */
+     UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Infinity Stage|Celestial|Lighting")
+     int32 ForeignLightingWalkCount = 0;
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCelestialRigTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCelestialRigTests.cpp
+index 797959f..f91deb3 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCelestialRigTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCelestialRigTests.cpp
+@@ -6,6 +6,7 @@
+ #include "Engine/World.h"
+ #include "HAL/PlatformProcess.h"
+ #include "Misc/AutomationTest.h"
++#include "UObject/SoftObjectPath.h"
+ 
+ #if WITH_DEV_AUTOMATION_TESTS
+ 
+@@ -28,6 +29,44 @@ AInfinityStageCelestialRig* SpawnBegunCelestialRig(UWorld& World, int32* OutWalk
+     Rig->DispatchBeginPlay();
+     return Rig;
+ }
++
++TSoftObjectPtr<UWorld> MakeCelestialTestWorldReference(const FString& ObjectPath)
++{
++    return TSoftObjectPtr<UWorld>(FSoftObjectPath(ObjectPath));
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageCelestialExemptPackageTest,
++    "InfinityStage.Celestial.ForeignLightingExemptPackageNames",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageCelestialExemptPackageTest::RunTest(const FString& Parameters)
++{
++    TArray<TSoftObjectPtr<UWorld>> Exempt;
++    Exempt.Add(TSoftObjectPtr<UWorld>()); // Null entries are ignored.
++    Exempt.Add(MakeCelestialTestWorldReference(TEXT("/Game/KK_S1_Animals/L_Animals.L_Animals")));
++
++    TestTrue(TEXT("An exempt long package name matches case-insensitively"),
++        AInfinityStageCelestialRig::IsExemptLevelPackage(
++            TEXT("/game/kk_s1_animals/l_animals"), FString(), Exempt));
++    TestTrue(TEXT("A PIE-prefixed level package resolves to the exempt source package"),
++        AInfinityStageCelestialRig::IsExemptLevelPackage(
++            TEXT("/Game/KK_S1_Animals/UEDPIE_0_L_Animals"), FString(), Exempt));
++    TestTrue(TEXT("A level instance matches through its streaming world asset package"),
++        AInfinityStageCelestialRig::IsExemptLevelPackage(
++            TEXT("/Game/KK_S1_Animals/L_Animals_LevelInstance_1"),
++            TEXT("/Game/KK_S1_Animals/L_Animals"),
++            Exempt));
++    TestFalse(TEXT("A non-exempt package does not match"),
++        AInfinityStageCelestialRig::IsExemptLevelPackage(
++            TEXT("/Game/KK_S4_Children/L_KK_children"), FString(), Exempt));
++    TestFalse(TEXT("An empty exemption list never matches"),
++        AInfinityStageCelestialRig::IsExemptLevelPackage(
++            TEXT("/Game/KK_S1_Animals/L_Animals"),
++            TEXT("/Game/KK_S1_Animals/L_Animals"),
++            TArray<TSoftObjectPtr<UWorld>>()));
++    return true;
+ }
+ 
+ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+@@ -55,6 +94,45 @@ bool FInfinityStageCelestialForeignArrivalTest::RunTest(const FString& Parameter
+     return true;
+ }
+ 
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageCelestialForeignArrivalExemptionTest,
++    "InfinityStage.Celestial.ForeignSkyRespectsLevelExemption",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageCelestialForeignArrivalExemptionTest::RunTest(const FString& Parameters)
++{
++    // One real level per test world. The arrival fixture runs once with that
++    // level exempt and once with an unrelated package in the exemption list.
++    for (const bool bExempt : {true, false})
++    {
++        UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++        AInfinityStageCelestialRig* Rig = SpawnBegunCelestialRig(*World);
++        if (bExempt)
++        {
++            const FString WorldObjectPath = FString::Printf(
++                TEXT("%s.%s"), *World->GetOutermost()->GetName(), *World->GetName());
++            Rig->ForeignLightingExemptLevels.Add(MakeCelestialTestWorldReference(WorldObjectPath));
++        }
++        else
++        {
++            Rig->ForeignLightingExemptLevels.Add(MakeCelestialTestWorldReference(
++                TEXT("/Game/InfinityStage/Tests/L_Different.L_Different")));
++        }
++
++        ADirectionalLight* Foreign = World->SpawnActor<ADirectionalLight>();
++        const TCHAR* CaseName = bExempt ? TEXT("Exempt") : TEXT("Non-exempt");
++        TestEqual(*FString::Printf(TEXT("%s level: foreign visibility"), CaseName),
++            Foreign->GetLightComponent()->IsVisible(), bExempt);
++        TestEqual(*FString::Printf(TEXT("%s level: actor hidden-in-game"), CaseName),
++            Foreign->IsHidden(), !bExempt);
++        TestEqual(*FString::Printf(TEXT("%s level: suppressed count"), CaseName),
++            Rig->ForeignLightingSuppressedCount, bExempt ? 0 : 1);
++
++        World->DestroyWorld(false);
++    }
++    return true;
++}
++
+ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+     FInfinityStageCelestialPhaseDoesNotWalkTest,
+     "InfinityStage.Celestial.PhaseAppliesDoNotWalkTheWorld",
