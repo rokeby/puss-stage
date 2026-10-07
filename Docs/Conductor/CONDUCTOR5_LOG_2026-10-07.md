@@ -137,3 +137,7 @@
   the prints up); strips → 500 cd, softer edges. Dune pass running offline (A/B/C heights + implied print line;
   previews from the main S3 camera first). Marble C_soft (500 cd + feathered SourceTexture) being added.
   Hand-print re-placement → the hand-print stream once Gary picks a height.
+- **P01 note lamps APPLIED** 20261007-160203 (Gary's go): 30 notes / 29 lamps; Show + level saved, read back; tests green.
+  The two earlier failures (014342, 155531) were a tool bug [meas diff]: normalize_export stripped an owned last field
+  but left its leading comma ("Stutter=0.45,)" vs "Stutter=0.45)") on all 29 targets → false EXPORT_OUTSIDE_SCOPE_CHANGED.
+  Fixed (_TRAILING_COMMA, +/- control; harness 78/0). One more Don't-Save restart by the conductor after 155531.

@@ -1,11 +1,13 @@
 {
- "mode": "APPLY",
- "confirm": "APPLY P01NOTELAMPS",
+ "mode": "DRY",
+ "confirm": "",
  "expected_plan_sha256": "f1d79dcc127630e98b89ebe9fcd88fc247269e5210622f0a58dd337ebc76a110",
  "ack_records": [
   "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P01.json",
   "E:\\PussStage\\Saved\\CodexConductor\\p01_rig_pattern_record.json",
-  "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P01.json"
+  "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P01.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p01_atmos_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\MeshyFixtures_20261007\\meshy_swap_record_P01.json"
  ],
  "allow_dirty": []
 }

@@ -800,6 +800,7 @@ def check_record(record):
 # --------------------------------------------------------------------------
 _OWN_GUID = re.compile(r"[(,]AttachmentGuid=([0-9A-Fa-f]{32})")
 _WRITABLE_KEY = re.compile(r"(?<![A-Za-z])(%s)=(\([^()]*\)|[^,()]*),?" % "|".join(EXPORT_KEYS))
+_TRAILING_COMMA = re.compile(r",\s*\)")
 
 
 def normalize_export(texts, target_guids):
@@ -815,7 +816,10 @@ def normalize_export(texts, target_guids):
                 continue
             end = marks[index + 1].start() if index + 1 < len(marks) else len(text)
             pieces.append(text[cursor:match.start()])
-            pieces.append(_WRITABLE_KEY.sub("", text[match.start():end]))
+            # Conductor 7 Oct: when an owned key is the LAST field (newly exported after the write) the strip leaves
+            # the preceding comma: "Stutter=0.45,Owned=X)" -> "Stutter=0.45,)" vs before "Stutter=0.45)" -> false
+            # EXPORT_OUTSIDE_SCOPE_CHANGED on all 29 targets (APPLY 20261007-155531). UE never exports ",)".
+            pieces.append(_TRAILING_COMMA.sub(")", _WRITABLE_KEY.sub("", text[match.start():end])))
             cursor = end
             seen[guid] += 1
         pieces.append(text[cursor:])
