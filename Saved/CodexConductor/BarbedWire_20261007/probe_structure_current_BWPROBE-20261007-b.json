@@ -1,0 +1,118 @@
+{
+ "run": "BWPROBE-20261007-b",
+ "current": {
+  "Infinity Stage - Structure 01": true,
+  "Infinity Stage - Structure 02": true,
+  "Infinity Stage - Structure 03": true,
+  "Infinity Stage - Structure 04": true,
+  "Infinity Stage - Structure 05": true,
+  "Infinity Stage - Structure 06": true
+ },
+ "rematerialize": {
+  "target": "Infinity Stage - Structure 02",
+  "materialize_ok": true,
+  "current_after": true,
+  "diff": {
+   "others/tube_lights": {
+    "before_n": 45,
+    "after_n": 45,
+    "changed": 44,
+    "max_dt_cm": 10003.41027411606,
+    "first_changed": [
+     {
+      "loc": [
+       2743.7843346666646,
+       88825.71575306612,
+       1967.5
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "scale": [
+       112.5,
+       1.0,
+       1.0
+      ]
+     },
+     {
+      "loc": [
+       9759.913420202824,
+       85319.4130478578,
+       617.8526604811298
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "scale": [
+       112.5,
+       1.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   "panels/all": {
+    "before_n": 132,
+    "after_n": 132,
+    "changed": 132,
+    "max_dt_cm": 8713.976712949458,
+    "first_changed": [
+     {
+      "loc": [
+       954.1120336560065,
+       87524.89117412134,
+       302.6763299147235
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.3711451761255239,
+       0.9285748533310355
+      ],
+      "scale": [
+       0.9226190542074185,
+       0.9999999999999999,
+       1.0
+      ],
+      "variant": "A",
+      "mesh": "/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceBay_short_open",
+      "top": false
+     },
+     {
+      "loc": [
+       6707.869047775029,
+       82050.92192473794,
+       -3.2584136988589307e-07
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.3711451761255226,
+       0.9285748533310361
+      ],
+      "scale": [
+       0.9920639149731129,
+       0.9999999999999999,
+       1.0
+      ],
+      "variant": "D",
+      "mesh": "/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceBay_short_door_gap",
+      "top": false
+     }
+    ]
+   }
+  },
+  "snapshot_keys": [
+   "others",
+   "overlays",
+   "panels",
+   "posts"
+  ]
+ }
+}

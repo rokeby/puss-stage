@@ -165,15 +165,48 @@ def match(before, after, what):
     return pairs, problems
 
 
+def _same_multiset(b, a):
+    """Every instance of b has its own distinct same_xf partner in a (order-free). Conductor 5, 7 Oct: a plain
+    re-materialize REORDERS ISM instances without moving them (BWPROBE-20261007-c: 120 panels + 15 tube lights all
+    changed by index, nearest partner 0.0 cm, no rot/scale mismatch), so the old in-order compare failed APPLY
+    BWAPPLY-20261007-151052 on Structure 01's portal/tubes/tube_lights falsely."""
+    if len(b) != len(a):
+        return False
+    buckets = {}
+    for j, y in enumerate(a):
+        buckets.setdefault(tuple(int(round(v / 10.0)) for v in y["loc"]), []).append(j)
+    used = set()
+    for x in b:
+        kx = tuple(int(round(v / 10.0)) for v in x["loc"])
+        hit = None
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                for dz in (-1, 0, 1):
+                    for j in buckets.get((kx[0] + dx, kx[1] + dy, kx[2] + dz), ()):
+                        if j not in used and same_xf(x, a[j]):
+                            hit = j
+                            break
+                    if hit is not None:
+                        break
+                if hit is not None:
+                    break
+            if hit is not None:
+                break
+        if hit is None:
+            return False
+        used.add(hit)
+    return True
+
+
 def check_others(before, after):
-    """Non-fence layers: same keys, same instances in order."""
+    """Non-fence layers: same keys, same instances (order-free; each instance its own distinct partner)."""
     p = []
     if sorted(before) != sorted(after):
         p.append("layers %s -> %s" % (sorted(set(before) - set(after)), sorted(set(after) - set(before))))
     for k in before:
         if k in after:
             b, a = before[k], after[k]
-            if len(b) != len(a) or not all(same_xf(x, y) for x, y in zip(b, a)):
+            if not _same_multiset(b, a):
                 p.append("layer %s changed (%d -> %d instances)" % (k, len(b), len(a)))
     return p
 

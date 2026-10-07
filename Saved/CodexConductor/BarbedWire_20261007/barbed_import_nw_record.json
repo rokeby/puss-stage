@@ -1,0 +1,124 @@
+{
+ "run": "BWIMP-20261007-151030",
+ "set": "nw",
+ "state": "imported",
+ "written": "2026-10-07T15:10:31",
+ "packages": [
+  "/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceBay_short_open_nw",
+  "/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceBay_short_door_gap_nw"
+ ],
+ "strays_deleted": [],
+ "facts": {
+  "existing_targets": [],
+  "twins": {
+   "SM_FenceBay_short_open_nw": {
+    "twin": "/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceBay_short_open",
+    "bounds_cm": {
+     "min": [
+      -168.0,
+      -8.637472152709961,
+      3.2584134146418364e-07
+     ],
+     "max": [
+      168.0,
+      9.286839485168457,
+      302.67633056640625
+     ]
+    },
+    "lods": 2,
+    "slots": [
+     "M_FenceChain_Masked",
+     "M_FenceMetal"
+    ],
+    "materials": [
+     "/Game/InfinityStage/RigAtmos/FenceBay/Materials/MI_FenceBay_open",
+     "/Game/InfinityStage/RigAtmos/FenceBay/Materials/MI_FenceBay_Metal"
+    ],
+    "expected_y_flipped": [
+     -5.9506382793188095,
+     6.599912047386169
+    ]
+   },
+   "SM_FenceBay_short_door_gap_nw": {
+    "twin": "/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceBay_short_door_gap",
+    "bounds_cm": {
+     "min": [
+      -168.0,
+      -8.637472152709961,
+      3.2584134146418364e-07
+     ],
+     "max": [
+      168.0,
+      9.286839485168457,
+      302.67633056640625
+     ]
+    },
+    "lods": 2,
+    "slots": [
+     "M_FenceChain_Masked",
+     "M_FenceMetal"
+    ],
+    "materials": [
+     "/Game/InfinityStage/RigAtmos/FenceBay/Materials/MI_FenceBay_open",
+     "/Game/InfinityStage/RigAtmos/FenceBay/Materials/MI_FenceBay_Metal"
+    ],
+    "expected_y_flipped": [
+     -6.250683218240738,
+     6.90000057220459
+    ]
+   }
+  }
+ },
+ "readback": {
+  "SM_FenceBay_short_open_nw": {
+   "lods": 2,
+   "slots": [
+    "M_FenceChain_Masked",
+    "M_FenceMetal"
+   ],
+   "bounds_cm": {
+    "min": [
+     -168.0,
+     -5.950638294219971,
+     6.516826829283673e-07
+    ],
+    "max": [
+     168.0,
+     6.599912166595459,
+     302.67633056640625
+    ]
+   },
+   "twin": "/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceBay_short_open",
+   "y_centre_cm": 0.32463693618774414,
+   "materials": [
+    "/Game/InfinityStage/RigAtmos/FenceBay/Materials/MI_FenceBay_open",
+    "/Game/InfinityStage/RigAtmos/FenceBay/Materials/MI_FenceBay_Metal"
+   ]
+  },
+  "SM_FenceBay_short_door_gap_nw": {
+   "lods": 2,
+   "slots": [
+    "M_FenceChain_Masked",
+    "M_FenceMetal"
+   ],
+   "bounds_cm": {
+    "min": [
+     -168.0,
+     -6.250682830810547,
+     6.516826829283673e-07
+    ],
+    "max": [
+     168.0,
+     6.90000057220459,
+     302.67633056640625
+    ]
+   },
+   "twin": "/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceBay_short_door_gap",
+   "y_centre_cm": 0.3246588706970215,
+   "materials": [
+    "/Game/InfinityStage/RigAtmos/FenceBay/Materials/MI_FenceBay_open",
+    "/Game/InfinityStage/RigAtmos/FenceBay/Materials/MI_FenceBay_Metal"
+   ]
+  }
+ }
+}

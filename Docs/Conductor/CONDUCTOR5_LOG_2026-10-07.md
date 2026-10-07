@@ -113,3 +113,10 @@
   Import refused DIRTY_AT_START: Gary editing the level (his, keep) → waiting for his save.
 - Shore PIE bench (7a8c9d4, 41/41) borrows the PIE deck copy; marble bench reworked to an editor-world pool
   (009efb6, 67/67) — begin_deferred_actor_spawn_from_class absent in 5.8 Python [meas, 3 + 5 Oct AttributeErrors].
+- **Barbed wire:** IMPORT nw BWIMP-20261007-151030 OK (2 packages, z_top 302.68). APPLY BWAPPLY-20261007-151052
+  FAILED at verify (LAYERS Structure 01: portal cubes / tubes / tube_lights "changed", same counts) — NOTHING SAVED;
+  level dirty in memory → Gary Don't-Save restart; failed record moved to .failed-BWAPPLY-20261007-151052.
+  Cause [meas]: a plain re-materialize REORDERS ISM instances without moving them (BWPROBE-20261007-c, Structure 03:
+  120 panels + 15 tube lights changed by index, nearest partner 0.0 cm, 0 rot/scale mismatch; all six
+  is_structure_current=true). check_others compared "in order" → false fail. Fixed: order-free strict multiset match
+  (controls: reorder passes; 5 cm move / duplicate / rotation fail; harness ALL PASS). Re-run DRY→APPLY after restart.
