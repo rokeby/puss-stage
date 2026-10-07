@@ -137,7 +137,7 @@ def _():
     assert M.backup_prefix() == "PreP01RigPattern-" and M.backup_prefix(True) == "PreP01RigPatternRevert-"
     assert M.report_path("DRY", "x") == os.path.join(HERE, "p01_rig_pattern_report_DRY_x.json")
     seen = {c1["record_path"]}
-    for key, n in (("P02", 2), ("P03", 3), ("P04", 4)):
+    for key, n in (("P02", 2), ("P03", 3), ("P04", 4), ("P06", 6)):
         c = M.passage_config(key)
         assert c["record_path"] == os.path.join(HERE, "p%02d_rig_pattern_record.json" % n) and c["record_path"] not in seen
         seen.add(c["record_path"])
@@ -196,10 +196,10 @@ def _():
 
 @case("args/request/run files: P02, P03, P04 parse, DRY, right target, right token, P01 files untouched in shape")
 def _():
-    for key, n in (("P02", 2), ("P03", 3), ("P04", 4)):
+    for key, n in (("P02", 2), ("P03", 3), ("P04", 4), ("P06", 6)):
         with open(os.path.join(HERE, "p%02d_rig_pattern_args.json" % n), encoding="utf-8") as handle:
             a = M.check_args(json.load(handle))
-        assert a["intensity_scale"] is None
+        assert a["intensity_scale"] is None and a["cast_shadows"] is (key == "P06")
         assert a["mode"] == "DRY" and a["target_passage"] == key and a["template_passage"] == "P01"
         assert a["templates"] == M.DEFAULT_TEMPLATES and a["skip"] == [] and a["exclude_cues"] == []
         assert a["roles"] == list(M.DEFAULT_ROLES) and a["jitter"] == M.DEFAULT_JITTER
@@ -601,6 +601,171 @@ def _():
     assert "lighting_scores_record_P04.json" in REAL["ack_P04"]
 
 
+# ---------------------------------------------------------------- P06 (Gary 7 Oct: rigs + shadows)
+def make_show_p06():
+    plain = make_show_p02()
+    plain["cues"] = [c for c in plain["cues"] if not c["label"].startswith("P02 ")]
+    black = [_row("P06 BLACK B02 EVENT KEY", LIGHT, [0, 0, 900], _q(0), intensity=50.0)]
+    black_score = warm("P06", "03", "-")        # a protected bay that even carries score-looking rows
+    spec = [("P06 Wing 001", warm("P06", "01", "-")), ("P06 Wing 037", black), ("P06 Wing 002", black_score),
+            ("P06 OLD 09 - bamboo_scaffold", warm("P06", "11", "+")),
+            ("P06 Wing 026", drop_roles(warm("P06", "41", "-"), ["TOP_L", "TOP_R", "LOW_SIDE_L_KEY",
+                                                                  "LOW_SIDE_R_FILL", "BEAM_R"]))]
+    base = len(plain["cues"])
+    for offset, (label, rows) in enumerate(spec):
+        plain["cues"].append({"show_index": base + offset, "guid": "%032X" % (0xF000 + offset), "label": label,
+                              "attachments": rows})
+    plain["bay_guids"] = [c["guid"] for c in plain["cues"] if c["label"].startswith("P06 ")]
+    for cue in plain["cues"]:
+        for r in cue["attachments"]:
+            if r["kind"] == LIGHT:
+                r["lighting"]["cast_shadows"] = "LOW_SIDE" in r["label"]      # record shape: LOW_SIDE True, rest False
+    return plain
+
+
+PROTECTED6 = ["%032X" % 0xF001, "%032X" % 0xF002]
+
+
+def plan6(plain=None, **over):
+    plain = plain or make_show_p06()
+    over.setdefault("protected_cue_guids", list(PROTECTED6))
+    return plain, M.build_plan(plain, opts2(target_passage="P06", **over), H.aims_for(plain))
+
+
+@case("P06 protected BLACK bays never targets (even with score rows); unprotected control would be; practical-only NO_PARITY")
+def _():
+    plain, plan = plan6(cast_shadows=True)
+    st = {b["cue_label"]: b["status"] for b in plan["bays"]}
+    assert st["P06 Wing 037"] == "PROTECTED" and st["P06 Wing 002"] == "PROTECTED", st
+    assert st["P06 Wing 001"] == "TARGET" and st["P06 OLD 09 - bamboo_scaffold"] == "TARGET"
+    assert st["P06 Wing 026"] == "NO_PARITY"
+    assert not set(plan["target_cue_guids"]) & set(PROTECTED6)
+    before = H.all_rows(plain)
+    after = M.apply_plain(before, plan, "after")
+    M.check_scope(TOOL, before, after, plan, "after")
+    for g in PROTECTED6:
+        assert before[g] == after[g]
+    bad = copy.deepcopy(after)   # (-) touching a protected cue fails scope
+    bad[PROTECTED6[0]][0]["lighting"]["cast_shadows"] = True
+    refuses("OUTSIDE_TARGET_SCOPE_CHANGED", M.check_scope, TOOL, before, bad, plan, "after")
+    unused, open_plan = plan6(protected_cue_guids=[])   # (-) control: unprotected, B02's score rows would move
+    assert "P06 Wing 002" in open_plan["target_bays"]
+
+
+@case("P06 cast_shadows: ON for moved TOP/LOW_SIDE/BEAM only; practicals untouched; scope allows it on those rows only")
+def _():
+    plain, plan = plan6(cast_shadows=True)
+    before = H.all_rows(plain)
+    after = M.apply_plain(before, plan, "after")
+    M.check_scope(TOOL, before, after, plan, "after")
+    sh = {t["attachment_guid"]: t for t in plan["targets"] if "cast_shadows_after" in t}
+    assert sh and sorted(sh) == plan["shadow_guids"]
+    assert {M.base_role(t["role"]) for t in sh.values()} <= set(M.SHADOW_ROLES)
+    assert all(t["cast_shadows_after"] is True for t in sh.values())
+    assert any(t["cast_shadows_before"] is False for t in sh.values())       # TOP/BEAM were False
+    for t in plan["targets"]:
+        if t["role"].startswith("PRACTICAL"):
+            assert "cast_shadows_after" not in t
+            row = next(r for r in after[t["cue_guid"]] if r["guid"] == t["attachment_guid"])
+            assert row["lighting"]["cast_shadows"] is False
+    t = next(x for x in plan["targets"] if x["role"] == "PRACTICAL_CLAMP")
+    bad = copy.deepcopy(after)   # (-) shadows switched on a practical
+    next(r for r in bad[t["cue_guid"]] if r["guid"] == t["attachment_guid"])["lighting"]["cast_shadows"] = True
+    refuses("SCOPE_CHANGED", M.check_scope, TOOL, before, bad, plan, "after")
+    bad = copy.deepcopy(after)   # (-) a shadow row left off
+    g = plan["shadow_guids"][0]
+    tt = sh[g]
+    next(r for r in bad[tt["cue_guid"]] if r["guid"] == g)["lighting"]["cast_shadows"] = False
+    if tt["cast_shadows_before"] is False:
+        refuses("SCOPE_CHANGED", M.check_scope, TOOL, before, bad, plan, "after")
+    unused, no_sh = plan6(plain)   # (-) cast_shadows off: a shadow change is out of scope
+    assert no_sh["shadow_guids"] == []
+    bad = M.apply_plain(before, no_sh, "after")
+    t = next(x for x in no_sh["targets"] if x["role"] == "TOP_L")
+    next(r for r in bad[t["cue_guid"]] if r["guid"] == t["attachment_guid"])["lighting"]["cast_shadows"] = True
+    refuses("SCOPE_CHANGED", M.check_scope, TOOL, before, bad, no_sh, "after")
+
+
+@case("P06 cast_shadows REVERT restores before values; drift on the field listed; readback checks it")
+def _():
+    plain, plan = plan6(cast_shadows=True, jitter=dict(H.JIT), intensity_scale=0.5)
+    before = H.all_rows(plain)
+    record = {"status": "saved_readback_verified", "passage": "P06", "plan": plan,
+              "before_target_rows": M.target_rows(before, plan)}
+    live = M.apply_plain(before, plan, "after")
+    assert M.revert_drifts(live, record) == [] and all(r["ok"] for r in M.readback_rows(live, plan, "after"))
+    reverted = M.revert_plain(TOOL, live, record)
+    for g, rows in before.items():
+        for o, r in zip(rows, reverted[g]):
+            assert o == r, o["label"]
+    g = plan["shadow_guids"][0]
+    t = next(x for x in plan["targets"] if x["attachment_guid"] == g)
+    next(r for r in live[t["cue_guid"]] if r["guid"] == g)["lighting"]["cast_shadows"] = False
+    assert [d["field"] for d in M.revert_drifts(live, record)] == ["lighting.cast_shadows"]
+    refuses("READBACK_ROWS", M.readback_rows, live, plan, "after")
+
+
+@case("P06 args/guards: cast_shadows only true|null, not on P01; protected guids validated; load_protected reads P06 record")
+def _():
+    refuses("CAST_SHADOWS_NOT_FOR_P01", M.check_args, {"cast_shadows": True})
+    refuses("CAST_SHADOWS_INVALID", M.check_args, {"target_passage": "P06", "cast_shadows": False})
+    refuses("PROTECTED_CUE_GUIDS_INVALID", M.check_args, {"target_passage": "P06", "protected_cue_guids": ["x"]})
+    refuses("PROTECTED_CUE_GUIDS_NOT_FOR_P01", M.check_args, {"protected_cue_guids": PROTECTED6})
+    got = M.load_protected(M.passage_config("P06")["scores_record"])
+    assert len(got) == 9, got
+    refuses("PROTECTED_SOURCE_EMPTY", M.load_protected, M.passage_config("P02")["scores_record"])
+    assert "P06" in M.PROTECTED_FROM_SCORES
+
+
+@case("export hash: shadow rows' bCastShadows masked; bCastVolumetricShadow and unshadowed rows still counted")
+def _():
+    plain, plan = plan6(cast_shadows=True)
+    before = H.all_rows(plain)
+    after = M.apply_plain(before, plan, "after")
+
+    def ex(rows):
+        parts = []
+        for r in rows:
+            loc, rot = r["relative_transform"]["location"], r["relative_transform"]["rotation_xyzw"]
+            parts.append('(AttachmentGuid=%s,RelativeTransform=(Rotation=(X=%r,Y=%r,Z=%r,W=%r),Translation=(X=%r,Y=%r,Z=%r)),'
+                         'Lighting=(Intensity=%r,bCastShadows=%s,bCastVolumetricShadow=False))'
+                         % ((r["guid"],) + tuple(rot) + tuple(loc) + (r["lighting"]["intensity"],
+                                                                     r["lighting"].get("cast_shadows"))))
+        return "(" + ",".join(parts) + ")"
+    guids, sg = plan["target_attachment_guids"], plan["shadow_guids"]
+    tb, ta = [ex(before[g]) for g in sorted(before)], [ex(after[g]) for g in sorted(after)]
+    assert M.export_hash(ta, guids, (), sg) == M.export_hash(tb, guids, (), sg)
+    assert M.export_hash(ta, guids) != M.export_hash(tb, guids)
+    tx = [t.replace("bCastVolumetricShadow=False", "bCastVolumetricShadow=True") for t in ta]
+    assert M.export_hash(tx, guids, (), sg) != M.export_hash(tb, guids, (), sg)
+    refuses("EXPORT_SHADOWS_NOT_TARGET", M.normalize_export, tb, guids[:1], (), ["F" * 32])
+
+
+@case("REAL P06 (scores record + P01 templates + protected from record): role counts, parity, foreign hits")
+def _():
+    plain, aims = _real_plain("P06")
+    protected = M.load_protected(M.passage_config("P06")["scores_record"])
+    with open(os.path.join(HERE, "p06_rig_pattern_args.json"), encoding="utf-8") as handle:
+        a = json.load(handle)
+    a["protected_cue_guids"] = protected
+    plan = M.build_plan(plain, M.check_args(a), aims)
+    REAL["P06"] = plan
+    st = {}
+    for b in plan["bays"]:
+        st[b["status"]] = st.get(b["status"], 0) + 1
+    REAL["P06_status"] = st
+    REAL["P06_parity"] = {"-": sum(1 for b in plan["bays"] if b["status"] == "TARGET" and b["parity"] == "-"),
+                          "+": sum(1 for b in plan["bays"] if b["status"] == "TARGET" and b["parity"] == "+")}
+    REAL["P06_shadow_rows"] = len(plan["shadow_guids"])
+    assert st.get("PROTECTED") == 9 and not set(plan["target_cue_guids"]) & set(protected)
+    saved = os.path.dirname(HERE)
+    roots = [os.path.join(saved, n) for n in sorted(os.listdir(saved)) if n.startswith("Codex")]
+    hits = SCORES.scan_foreign_records(roots, plan["target_attachment_guids"],
+                                       exclude=[M.passage_config("P06")["record_path"]])
+    REAL["ack_P06"] = sorted(os.path.basename(h["path"]) for h in hits)
+    assert "lighting_scores_record_P06.json" in REAL["ack_P06"]
+
+
 def main():
     passed = sum(1 for r in RESULTS if r[1])
     failed = len(RESULTS) - passed
@@ -608,7 +773,7 @@ def main():
         print("%s  %s" % ("PASS" if ok else "FAIL", name))
         if not ok:
             print(detail)
-    for key in ("P02", "P03", "P03-", "P04"):
+    for key in ("P02", "P03", "P03-", "P04", "P06"):
         plan = REAL.get(key)
         if plan:
             print("EVIDENCE real %s: bays=%d rows=%d warnings=%d panel_band=%d role_moved=%s"
@@ -616,7 +781,9 @@ def main():
                      sum(1 for t in plan["targets"] if t["inside_panel_band"]),
                      {r: c["moved"] for r, c in plan["role_counts"].items()}))
     print("EVIDENCE real P04 bay status: %s" % REAL.get("P04_status"))
-    for key in ("P02", "P03", "P04"):
+    print("EVIDENCE real P06 bay status counts: %s parity: %s shadow_rows: %s"
+          % (REAL.get("P06_status"), REAL.get("P06_parity"), REAL.get("P06_shadow_rows")))
+    for key in ("P02", "P03", "P04", "P06"):
         print("EVIDENCE predicted foreign hits %s: %s" % (key, REAL.get("ack_" + key)))
     print("PASS %d/FAIL %d" % (passed, failed))
     return 0 if failed == 0 else 1

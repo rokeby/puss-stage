@@ -118,11 +118,21 @@ WRITTEN = ("location", "rotation_xyzw")
 # unaffected. Any other target gets its own record/report/marker/confirm/backup names and reads the templates LIVE
 # from the template passage's cues (default P01 Wing 003 / 004).
 # --------------------------------------------------------------------------
-VALID_PASSAGES = ("P01", "P02", "P03", "P04")
+VALID_PASSAGES = ("P01", "P02", "P03", "P04", "P06")
 # Off-P01 belt and braces (Gary 7 Oct: P04's moonlight key, strobe and p04_strobe_halo*/opening rows are his):
 # a target row's label must match "<P0N> SCORE B## <look> <ROLE>" (score_label) AND must not name any of these.
 FORBIDDEN_TARGET_LABEL = re.compile(r"strobe|moon|halo|opening|walkin|flare", re.IGNORECASE)
 INTENSITY_SCALE_MAX = 4.0
+# cast_shadows (Gary 7 Oct, P06: "shadows casting across the wide central space"): only these moved LIGHT roles.
+SHADOW_ROLES = ("TOP_L", "TOP_R", "LOW_SIDE_L_KEY", "LOW_SIDE_R_FILL", "BEAM_R")
+# Lighting fields this tool may write besides the transform: (row field, plan guid list, export name, UE property).
+# Python names as written live by lighting_looks_apply.py:1509-1511; export names = UPROPERTY names
+# (InfinityStageTypes.h:204 Intensity, :239 bCastShadows) - the export spelling is inferred until a live DRY/APPLY.
+LIGHTING_FIELDS = (("intensity", "intensity_guids", "Intensity", "intensity"),
+                   ("cast_shadows", "shadow_guids", "bCastShadows", "cast_shadows"))
+# Passages whose scores record names cues owned by another tool (P06 BLACK-mode bays 2-10, lighting_events_apply.py):
+# the guids are read from lighting_scores_record_P0N.json plan.yield_to_events.cue_guids and are never targets.
+PROTECTED_FROM_SCORES = ("P06",)
 INTENSITY_REL_TOL = 1.0e-6                         # FInfinityStageLightSettings::Intensity is float (InfinityStageTypes.h:204)
 PARITY_FALLBACK = (("LOW_SIDE_L_KEY", 1.0), ("LOW_SIDE_R_FILL", -1.0), ("BEAM_R", 1.0))   # role, sign factor
 
@@ -282,6 +292,13 @@ def check_args(args):
         require(not isinstance(scale, bool), "INTENSITY_SCALE_INVALID|%r" % (scale,))
         scale = _finite(scale, "INTENSITY_SCALE")
         require(0.0 < scale <= INTENSITY_SCALE_MAX, "INTENSITY_SCALE_RANGE|%s" % scale)
+    shadows = args.get("cast_shadows")
+    require(shadows in (None, True), "CAST_SHADOWS_INVALID|%r (only true or null)" % (shadows,))
+    require(not (p01 and shadows), "CAST_SHADOWS_NOT_FOR_P01")
+    protected = args.get("protected_cue_guids", []) or []
+    require(isinstance(protected, list) and all(isinstance(g, str) and len(g) == 32 for g in protected),
+            "PROTECTED_CUE_GUIDS_INVALID|%r" % (protected,))
+    require(not (p01 and protected), "PROTECTED_CUE_GUIDS_NOT_FOR_P01")
     allow_dirty = list(args.get("allow_dirty", []) or [])
     out = {"mode": mode, "confirm": args.get("confirm"),
            "jitter": {"loc_cm": loc, "rot_deg": rot, "seed": seed},
@@ -292,7 +309,8 @@ def check_args(args):
     if not p01:
         # Parity fallback (LOW_SIDE_R_FILL inverted, then BEAM_R) and the optional template for bays with no
         # parity role exist only off P01, so a P01 plan is identical to the one applied on 6 Oct.
-        out.update({"parity_fallback": True, "no_parity_template": no_parity, "intensity_scale": scale})
+        out.update({"parity_fallback": True, "no_parity_template": no_parity, "intensity_scale": scale,
+                    "cast_shadows": bool(shadows), "protected_cue_guids": sorted(g.upper() for g in protected)})
     return out
 
 
@@ -381,6 +399,8 @@ def build_plan(plain, options, aims_by_cue=None):
     fallback = bool(opts.get("parity_fallback")) and target_key != PASSAGE_KEY
     no_parity_template = opts.get("no_parity_template") if fallback else None
     intensity_scale = opts.get("intensity_scale") if fallback else None
+    cast_shadows = bool(opts.get("cast_shadows")) if fallback else False
+    protected = set(opts.get("protected_cue_guids") or []) if fallback else set()
     bays = sorted((by_guid[g] for g in bay_guids), key=lambda c: c["show_index"])
     wrong = [c["label"] for c in bays if not str(c["label"]).startswith(target_key + " ")]
     require(not wrong, "BAY_NOT_%s|%s" % (target_key, wrong))
@@ -428,6 +448,8 @@ def build_plan(plain, options, aims_by_cue=None):
             info["parity_source"] = parity_source
         if cue["label"] in template_labels:
             info["status"] = "TEMPLATE"
+        elif str(cue["guid"]).upper() in protected:
+            info["status"] = "PROTECTED"
         elif cue["label"] in opts["exclude_cues"]:
             info["status"] = "EXCLUDED"
         elif not roles:
@@ -517,6 +539,12 @@ def build_plan(plain, options, aims_by_cue=None):
                 target["intensity_before"] = before_i
                 target["intensity_after"] = f32(before_i * intensity_scale)
                 target["unchanged"] = target["unchanged"] and target["intensity_after"] == before_i
+            if cast_shadows and src["kind"] == "LIGHT" and base_role(role) in SHADOW_ROLES:
+                before_s = row["lighting"]["cast_shadows"]
+                require(isinstance(before_s, bool), "CAST_SHADOWS_NOT_BOOL|guid=%s|%r" % (row["guid"], before_s))
+                target["cast_shadows_before"] = before_s
+                target["cast_shadows_after"] = True
+                target["unchanged"] = target["unchanged"] and before_s is True
             if inside and src["kind"] == "LIGHT":
                 warnings.append("PANEL_BAND|cue=%s|role=%s|abs_y=%.1f|panel=%.1f"
                                 % (cue["label"], role, abs(loc_after[1]), panel))
@@ -536,6 +564,8 @@ def build_plan(plain, options, aims_by_cue=None):
         "passage": target_key, "template_passage": template_key, "parity_fallback": fallback,
         "no_parity_template": no_parity_template, "role_counts": role_counts, "intensity_scale": intensity_scale,
         "intensity_guids": sorted(t["attachment_guid"] for t in targets if "intensity_after" in t),
+        "cast_shadows": cast_shadows, "protected_cue_guids": sorted(protected),
+        "shadow_guids": sorted(t["attachment_guid"] for t in targets if "cast_shadows_after" in t),
         "roles": list(opts["roles"]), "jitter": dict(jitter),
         "skip": [list(s) for s in sorted(skip)], "exclude_cues": list(opts["exclude_cues"]),
         "templates": templates, "targets": targets,
@@ -564,6 +594,19 @@ def plan_intensity_guids(plan):
     return list(plan.get("intensity_guids") or [])
 
 
+def field_close(field, a, b):
+    return intensity_close(a, b) if field == "intensity" else a == b
+
+
+def row_fields(plan, guid):
+    """Lighting fields the plan writes on this attachment (from older records: none)."""
+    return tuple(f for f, key, unused, unused2 in LIGHTING_FIELDS if guid in set(plan.get(key) or []))
+
+
+def plan_field_guids(plan):
+    return {f: list(plan.get(key) or []) for f, key, unused, unused2 in LIGHTING_FIELDS}
+
+
 def _side_values(target, side):
     require(side in ("before", "after"), "SIDE_INVALID|" + str(side))
     return target["location_" + side], target["rotation_" + side]
@@ -578,8 +621,9 @@ def expected_rows(rows, plan, side):
             loc, rot = _side_values(target, side)
             row["relative_transform"]["location"] = list(loc)
             row["relative_transform"]["rotation_xyzw"] = list(rot)
-            if "intensity_" + side in target:
-                row["lighting"]["intensity"] = target["intensity_" + side]
+            for field, unused, unused2, unused3 in LIGHTING_FIELDS:
+                if field + "_" + side in target:
+                    row["lighting"][field] = target[field + "_" + side]
     return out
 
 
@@ -590,17 +634,17 @@ def apply_plain(all_rows, plan, side="after"):
     return result
 
 
-def row_differences(tool, want, got, written, intensity=False):
-    """Exact field differences, except a written row's location/rotation (tolerance; q ~ -q) and, when the plan
-    scales it, lighting.intensity (float32 relative tolerance)."""
+def row_differences(tool, want, got, written, fields=()):
+    """Exact field differences, except a written row's location/rotation (tolerance; q ~ -q) and the lighting
+    fields the plan writes on it (intensity: float32 relative tolerance; cast_shadows: exact)."""
     if not written:
         return tool._state_differences(want, got)
     a, b = copy.deepcopy(want), copy.deepcopy(got)
     out = []
-    if intensity:
-        ia, ib = a["lighting"].pop("intensity"), b["lighting"].pop("intensity")
-        if not intensity_close(ia, ib):
-            out.append({"path": "lighting.intensity", "before": ia, "after": ib})
+    for field in fields:
+        va, vb = a["lighting"].pop(field), b["lighting"].pop(field)
+        if not field_close(field, va, vb):
+            out.append({"path": "lighting." + field, "before": va, "after": vb})
     la, lb = a["relative_transform"].pop("location"), b["relative_transform"].pop("location")
     ra, rb = a["relative_transform"].pop("rotation_xyzw"), b["relative_transform"].pop("rotation_xyzw")
     if len(la) != 3 or len(lb) != 3 or max(abs(float(x) - float(y)) for x, y in zip(la, lb)) > LOC_TOL_CM:
@@ -618,14 +662,13 @@ def scope_differences(tool, base_all, live_all, plan, side):
     if tool._outside_hash(base_all, plan["target_cue_guids"]) != tool._outside_hash(live_all, plan["target_cue_guids"]):
         problems.append({"cue": "*", "problem": "OUTSIDE_TARGET_SCOPE_CHANGED"})
     targets = set(plan["target_attachment_guids"])
-    scaled = set(plan_intensity_guids(plan))
     for cue_guid in plan["target_cue_guids"]:
         want, got = expected_rows(base_all[cue_guid], plan, side), live_all[cue_guid]
         if [r["guid"] for r in want] != [r["guid"] for r in got]:
             problems.append({"cue": cue_guid, "problem": "ROW_SET_OR_ORDER_CHANGED"})
             continue
         for w, g in zip(want, got):
-            diffs = row_differences(tool, w, g, w["guid"] in targets, w["guid"] in scaled)
+            diffs = row_differences(tool, w, g, w["guid"] in targets, row_fields(plan, w["guid"]))
             if diffs:
                 problems.append({"cue": cue_guid, "guid": w["guid"], "label": w["label"], "differences": diffs})
     return problems
@@ -666,10 +709,11 @@ def revert_drifts(all_rows, record):
             drifts.append({"guid": target["attachment_guid"], "label": target["attachment_label"],
                            "field": "relative_transform.rotation_xyzw", "record_after": rot,
                            "live": live["rotation_xyzw"]})
-        if "intensity_after" in target and not intensity_close(hits[0]["lighting"]["intensity"], target["intensity_after"]):
-            drifts.append({"guid": target["attachment_guid"], "label": target["attachment_label"],
-                           "field": "lighting.intensity", "record_after": target["intensity_after"],
-                           "live": hits[0]["lighting"]["intensity"]})
+        for field, unused, unused2, unused3 in LIGHTING_FIELDS:
+            if field + "_after" in target and not field_close(field, hits[0]["lighting"][field], target[field + "_after"]):
+                drifts.append({"guid": target["attachment_guid"], "label": target["attachment_label"],
+                               "field": "lighting." + field, "record_after": target[field + "_after"],
+                               "live": hits[0]["lighting"][field]})
     return drifts
 
 
@@ -683,12 +727,12 @@ def revert_plain(tool, all_rows, record):
     result = apply_plain(all_rows, record["plan"], "before")
     restored = target_rows(result, record["plan"])
     before = record["before_target_rows"]
-    scaled = set(plan_intensity_guids(record["plan"]))
     for guid, row in restored.items():
-        diffs = [d for d in row_differences(tool, before[guid], row, True, guid in scaled)]
-        # Only location/rotation (and a scaled intensity) are restored; other fields keep any later (hand) value.
-        restored_paths = ("relative_transform.location", "relative_transform.rotation_xyzw") + (
-            ("lighting.intensity",) if guid in scaled else ())
+        fields = row_fields(record["plan"], guid)
+        diffs = [d for d in row_differences(tool, before[guid], row, True, fields)]
+        # Only location/rotation (and written lighting fields) are restored; other fields keep any later hand value.
+        restored_paths = ("relative_transform.location", "relative_transform.rotation_xyzw") + tuple(
+            "lighting." + f for f in fields)
         diffs = [d for d in diffs if d["path"] in restored_paths]
         require(not diffs, "REVERT_NOT_EXACT|guid=%s|%s" % (guid, _canonical(diffs)))
     return result
@@ -709,9 +753,10 @@ def readback_rows(read_all, plan, side):
         loc, rot = _side_values(target, side)
         ok = (max(abs(float(x) - float(y)) for x, y in zip(live["location"], loc)) <= LOC_TOL_CM
               and quat_close(live["rotation_xyzw"], rot))
-        if "intensity_" + side in target:
-            ok = ok and intensity_close(rows[target["attachment_guid"]]["lighting"]["intensity"],
-                                        target["intensity_" + side])
+        for field, unused, unused2, unused3 in LIGHTING_FIELDS:
+            if field + "_" + side in target:
+                ok = ok and field_close(field, rows[target["attachment_guid"]]["lighting"][field],
+                                        target[field + "_" + side])
         out.append({"guid": target["attachment_guid"], "label": target["attachment_label"], "ok": ok})
     bad = [r for r in out if not r["ok"]]
     require(not bad, "READBACK_ROWS|side=%s|bad=%d|%s" % (side, len(bad), _canonical(bad)[:2000]))
@@ -724,21 +769,19 @@ def readback_rows(read_all, plan, side):
 _OWN_GUID = re.compile(r"[(,]AttachmentGuid=([0-9A-Fa-f]{32})")
 _ROT_OR_TRANS = re.compile(r"(?<![A-Za-z])(Rotation|Translation)=\([^()]*\),?")
 _LIGHTING_OPEN = re.compile(r"(?<![A-Za-z])Lighting=\(")
-_INTENSITY = re.compile(r"(?<![A-Za-z])Intensity=[^,()]*,?")
-
-
-def _mask_intensity(segment, guid):
-    """Mask the one top-level Intensity= inside the segment's Lighting=(..) group (nested groups untouched)."""
+def _mask_intensity(segment, guid, name="Intensity"):
+    """Mask the one top-level <name>= inside the segment's Lighting=(..) group (nested groups untouched)."""
+    pattern = re.compile(r"(?<![A-Za-z])%s=[^,()]*,?" % re.escape(name))
     found = list(_LIGHTING_OPEN.finditer(segment))
     require(len(found) >= 1, "EXPORT_NO_LIGHTING|guid=" + guid)
     open_at = found[0].end() - 1
     close_at = _close_paren(segment, open_at)
     inner = segment[open_at + 1:close_at]
-    hits = [m for m in _INTENSITY.finditer(inner)
+    hits = [m for m in pattern.finditer(inner)
             if inner[:m.start()].count("(") == inner[:m.start()].count(")")]
-    require(len(hits) == 1, "EXPORT_INTENSITY_COUNT|guid=%s|count=%d" % (guid, len(hits)))
+    require(len(hits) == 1, "EXPORT_%s_COUNT|guid=%s|count=%d" % (name.upper(), guid, len(hits)))
     m = hits[0]
-    return segment[:open_at + 1] + inner[:m.start()] + "<I>" + inner[m.end():] + segment[close_at:]
+    return segment[:open_at + 1] + inner[:m.start()] + "<%s>" % name + inner[m.end():] + segment[close_at:]
 
 
 def _close_paren(text, open_index):
@@ -753,10 +796,12 @@ def _close_paren(text, open_index):
     raise P01RigPatternError("EXPORT_UNBALANCED")
 
 
-def normalize_export(texts, target_guids, intensity_guids=()):
+def normalize_export(texts, target_guids, intensity_guids=(), shadow_guids=()):
     wanted = {g.upper() for g in target_guids}
     scaled = {g.upper() for g in intensity_guids}
+    shadowed = {g.upper() for g in shadow_guids}
     require(scaled <= wanted, "EXPORT_INTENSITY_NOT_TARGET")
+    require(shadowed <= wanted, "EXPORT_SHADOWS_NOT_TARGET")
     seen = {g: 0 for g in wanted}
     out = []
     for text in texts:
@@ -777,9 +822,14 @@ def normalize_export(texts, target_guids, intensity_guids=()):
             pieces.append(text[cursor:open_at + 1])
             pieces.append("<RT>" + masked)
             cursor = close_at
-            if guid in scaled:
-                # the rest of this attachment's segment, Intensity masked; appended verbatim otherwise
-                pieces.append(_mask_intensity(text[close_at:end], guid))
+            if guid in scaled or guid in shadowed:
+                # the rest of this attachment's segment with the written lighting fields masked
+                rest = text[close_at:end]
+                if guid in scaled:
+                    rest = _mask_intensity(rest, guid, "Intensity")
+                if guid in shadowed:
+                    rest = _mask_intensity(rest, guid, "bCastShadows")
+                pieces.append(rest)
                 cursor = end
             seen[guid] += 1
         pieces.append(text[cursor:])
@@ -789,8 +839,8 @@ def normalize_export(texts, target_guids, intensity_guids=()):
     return out
 
 
-def export_hash(texts, target_guids, intensity_guids=()):
-    return _sha256_text("\n".join(normalize_export(texts, target_guids, intensity_guids)))
+def export_hash(texts, target_guids, intensity_guids=(), shadow_guids=()):
+    return _sha256_text("\n".join(normalize_export(texts, target_guids, intensity_guids, shadow_guids)))
 
 
 # --------------------------------------------------------------------------
@@ -815,6 +865,16 @@ def check_context(ctx, mode, allow_dirty=(), show_path=None, world_path=None):
 def check_apply_gate(unacked, record_file=RECORD_PATH):
     require(not os.path.exists(record_file), "ACTIVE_RECORD_EXISTS|" + record_file)
     require(not unacked, "FOREIGN_ACTIVE_RECORDS_OVERLAP|" + ";".join(unacked))
+
+
+def load_protected(path):
+    """plan.yield_to_events.cue_guids of a scores record (P06 BLACK-mode bays); refuses if absent or empty."""
+    require(os.path.isfile(path), "PROTECTED_SOURCE_MISSING|" + path)
+    with open(path, encoding="utf-8") as handle:
+        record = json.load(handle)
+    guids = ((record.get("plan") or {}).get("yield_to_events") or {}).get("cue_guids") or []
+    require(guids and all(isinstance(g, str) and len(g) == 32 for g in guids), "PROTECTED_SOURCE_EMPTY|" + path)
+    return [g.upper() for g in guids]
 
 
 def load_aims(path=SCORES_RECORD_P01):
@@ -1001,14 +1061,18 @@ def _write_transforms(tool, show, plan, side, check_side=None):
             transform.set_editor_property("rotation", unreal.Quat(float(rot[0]), float(rot[1]),
                                                                   float(rot[2]), float(rot[3])))
             attachment.set_editor_property("relative_transform", transform)
-            if "intensity_" + side in item:
-                # FInfinityCueAttachment::Lighting (InfinityStageTypes.h:466), set as lighting_looks_apply.py:1509
+            written = [(f, ue) for f, unused, unused2, ue in LIGHTING_FIELDS if f + "_" + side in item]
+            if written:
+                # FInfinityCueAttachment::Lighting (InfinityStageTypes.h:466), set as lighting_looks_apply.py:1509-1511
                 lighting = attachment.get_editor_property("lighting")
-                if check_side is not None:
-                    live_i = float(lighting.get_editor_property("intensity"))
-                    require(intensity_close(live_i, item["intensity_" + check_side]),
-                            "TARGET_INTENSITY_DRIFT|guid=%s|live=%s" % (item["attachment_guid"], live_i))
-                lighting.set_editor_property("intensity", float(item["intensity_" + side]))
+                for field, ue_name in written:
+                    if check_side is not None:
+                        live_v = lighting.get_editor_property(ue_name)
+                        live_v = float(live_v) if field == "intensity" else bool(live_v)
+                        require(field_close(field, live_v, item[field + "_" + check_side]),
+                                "TARGET_%s_DRIFT|guid=%s|live=%s" % (field.upper(), item["attachment_guid"], live_v))
+                    value = item[field + "_" + side]
+                    lighting.set_editor_property(ue_name, float(value) if field == "intensity" else bool(value))
                 attachment.set_editor_property("lighting", lighting)
         tool._set_pair_attachments(show, index, attachments)
 
@@ -1053,6 +1117,11 @@ def _run(args):
         check_context(ctx, mode, args["allow_dirty"], tool.SHOW_PATH, tool.EXPECTED_WORLD)
         census_before = ctx["census"]
         aims, record_passage_guid = load_aims(cfg["scores_record"])
+        if passage in PROTECTED_FROM_SCORES:
+            args = dict(args)
+            args["protected_cue_guids"] = sorted(set(args.get("protected_cue_guids") or [])
+                                                 | set(load_protected(cfg["scores_record"])))
+            report["protected_cue_guids"] = args["protected_cue_guids"]
         template = None
         if template_key != passage:
             template_cfg = passage_config(template_key)
@@ -1065,7 +1134,8 @@ def _run(args):
         if mode in ("DRY", "APPLY"):
             plan = build_plan(plain, args, aims)
             check_scope(tool, before_all, apply_plain(before_all, plan, "after"), plan, "after")   # model self-check
-            texts_hash = export_hash(_export_texts(show), plan["target_attachment_guids"], plan_intensity_guids(plan))
+            texts_hash = export_hash(_export_texts(show), plan["target_attachment_guids"], plan_intensity_guids(plan),
+                        plan.get("shadow_guids") or [])
             foreign = scan_foreign(scores, plan, record_path=RECORD_PATH)
             unacked = sorted({h["path"] for h in foreign} - set(args["ack_records"]))
             report.update({"plan": plan, "passage_guid": plain["passage_guid"], "foreign_records": foreign,
@@ -1111,7 +1181,8 @@ def _run(args):
                 _write_transforms(tool, show, plan, "after", check_side="before")
                 after_all = _all_rows(_runtime_plain(tool, show, record_passage_guid, cfg, template))
                 check_scope(tool, before_all, after_all, plan, "after")
-                require(export_hash(_export_texts(show), plan["target_attachment_guids"], plan_intensity_guids(plan)) == texts_hash,
+                require(export_hash(_export_texts(show), plan["target_attachment_guids"], plan_intensity_guids(plan),
+                        plan.get("shadow_guids") or []) == texts_hash,
                         "EXPORT_OUTSIDE_SCOPE_CHANGED")
             except Exception:
                 _write_transforms(tool, show, plan, "before")
@@ -1130,7 +1201,8 @@ def _run(args):
             read_all = _all_rows(_runtime_plain(tool, readback, record_passage_guid, cfg, template))
             check_scope(tool, before_all, read_all, plan, "after")
             rows_ok = readback_rows(read_all, plan, "after")
-            require(export_hash(_export_texts(readback), plan["target_attachment_guids"], plan_intensity_guids(plan)) == texts_hash,
+            require(export_hash(_export_texts(readback), plan["target_attachment_guids"], plan_intensity_guids(plan),
+                        plan.get("shadow_guids") or []) == texts_hash,
                     "READBACK_EXPORT_OUTSIDE_SCOPE_CHANGED")
             record.update({"status": "saved_readback_verified", "materialized": materialized,
                            "after_target_rows_live": target_rows(read_all, plan),
@@ -1152,14 +1224,16 @@ def _run(args):
         report["revert_drifts"] = drifts
         require(not drifts, "REVERT_DRIFT|count=%d|%s" % (len(drifts), _canonical(drifts)[:4000]))
         reverted_model = revert_plain(tool, before_all, record)
-        texts_hash = export_hash(_export_texts(show), plan["target_attachment_guids"], plan_intensity_guids(plan))
+        texts_hash = export_hash(_export_texts(show), plan["target_attachment_guids"], plan_intensity_guids(plan),
+                        plan.get("shadow_guids") or [])
         backup = tool._backup(backup_prefix(revert=True, passage=passage), run)
         try:
             _write_transforms(tool, show, plan, "before", check_side="after")
             after_all = _all_rows(_runtime_plain(tool, show, record_passage_guid, cfg, template))
             check_scope(tool, before_all, after_all, plan, "before")
             require(not scope_differences(tool, reverted_model, after_all, plan, "before"), "REVERT_MODEL_MISMATCH")
-            require(export_hash(_export_texts(show), plan["target_attachment_guids"], plan_intensity_guids(plan)) == texts_hash,
+            require(export_hash(_export_texts(show), plan["target_attachment_guids"], plan_intensity_guids(plan),
+                        plan.get("shadow_guids") or []) == texts_hash,
                     "REVERT_EXPORT_OUTSIDE_SCOPE_CHANGED")
         except Exception:
             _write_transforms(tool, show, plan, "after")
