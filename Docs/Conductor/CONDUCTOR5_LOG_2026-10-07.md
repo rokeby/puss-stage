@@ -263,3 +263,8 @@
   the allow-list. Hold re-applied to cover the clam reveal: REVERT 184135 → APPLY S3FLOATHOLD-20261007-184155 (63 tracks).
 - Gary: back backdrop "no longer really makes sense behind the ocean" (replace?); pearl "more iridescent, slightly less
   perfectly spherical". CD2 patch ready (stacks on CD1; c554a48).
+- Backdrop: Gary will direct the replacement in Blender/Fuser himself; conductor prepares the swap later.
+- Pearl v2 (irregular, nacre mask) delivered by the Blender session → PEARL_SWAP + iridescent M_PearlClam_Pearl_v2 being
+  written. Shore B import + APPLY being written (mesh_name SM_S3_ShoreGround_B, MI v2).
+- **Hand prints clamber** (6fe04ad, 752 decals, offline 11/11): Gary "Apply, with the dunes". Known follow-ups:
+  s3_marble_tiling_apply.py hard-codes 449 decals; grime bench geometry reads the old table.
