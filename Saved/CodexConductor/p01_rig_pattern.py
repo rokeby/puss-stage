@@ -779,9 +779,14 @@ def _mask_intensity(segment, guid, name="Intensity"):
     inner = segment[open_at + 1:close_at]
     hits = [m for m in pattern.finditer(inner)
             if inner[:m.start()].count("(") == inner[:m.start()].count(")")]
-    require(len(hits) == 1, "EXPORT_%s_COUNT|guid=%s|count=%d" % (name.upper(), guid, len(hits)))
+    # ExportText omits a field equal to its default (bCastShadows defaults true, InfinityStageTypes.h:239; measured
+    # 7 Oct: P06 DRY found count=0), so 0 or 1 hit is valid; the field is REMOVED (not placeholdered) so a before text
+    # without it and an after text with it normalise to the same string.
+    require(len(hits) <= 1, "EXPORT_%s_COUNT|guid=%s|count=%d" % (name.upper(), guid, len(hits)))
+    if not hits:
+        return segment
     m = hits[0]
-    return segment[:open_at + 1] + inner[:m.start()] + "<%s>" % name + inner[m.end():] + segment[close_at:]
+    return segment[:open_at + 1] + inner[:m.start()] + inner[m.end():] + segment[close_at:]
 
 
 def _close_paren(text, open_index):

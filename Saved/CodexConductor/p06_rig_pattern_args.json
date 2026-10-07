@@ -1,5 +1,5 @@
 {
-  "mode": "DRY",
+  "mode": "APPLY",
   "target_passage": "P06",
   "template_passage": "P01",
   "template_cues": {
@@ -23,10 +23,14 @@
     "PRACTICAL_BULB_DEAD"
   ],
   "no_parity_template": null,
-  "expected_targets": null,
-  "ack_records": [],
+  "expected_targets": 204,
+  "ack_records": [
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P06.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P06.json"
+  ],
   "allow_dirty": [],
   "intensity_scale": null,
   "cast_shadows": true,
-  "protected_cue_guids": []
+  "protected_cue_guids": [],
+  "confirm": "APPLY P06RIGPATTERN"
 }

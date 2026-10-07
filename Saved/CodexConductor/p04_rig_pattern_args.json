@@ -1,5 +1,5 @@
 {
-  "mode": "DRY",
+  "mode": "APPLY",
   "target_passage": "P04",
   "template_passage": "P01",
   "template_cues": {
@@ -23,8 +23,13 @@
     "PRACTICAL_BULB_DEAD"
   ],
   "no_parity_template": "-",
-  "expected_targets": null,
-  "ack_records": [],
+  "expected_targets": 50,
+  "ack_records": [
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\p04_glint_practical_record.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P04.json"
+  ],
   "allow_dirty": [],
-  "intensity_scale": null
+  "intensity_scale": null,
+  "confirm": "APPLY P04RIGPATTERN"
 }

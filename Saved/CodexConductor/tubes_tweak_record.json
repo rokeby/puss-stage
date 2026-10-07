@@ -1,0 +1,95 @@
+{
+ "run": "TT-20261006-223555",
+ "args": {
+  "mode": "APPLY",
+  "structures": [
+   "Infinity Stage - Structure 01",
+   "Infinity Stage - Structure 02",
+   "Infinity Stage - Structure 03",
+   "Infinity Stage - Structure 04",
+   "Infinity Stage - Structure 05",
+   "Infinity Stage - Structure 06"
+  ],
+  "set": {},
+  "glow_scale": 4.0,
+  "light_scale": 0.3,
+  "per_structure": {
+   "Infinity Stage - Structure 01": {
+    "tube_dead_fraction": 0.9,
+    "tube_blink_fraction": 0.35
+   }
+  },
+  "confirm": "APPLY tubes tweak"
+ },
+ "backup": "E:/PussStage/Backups/PreTubesTweak-TT-20261006-223555",
+ "before": {
+  "Infinity Stage - Structure 01": {
+   "tube_dead_fraction": 0.15,
+   "tube_blink_fraction": 0.2,
+   "tube_glow_level": 0.07000000029802322,
+   "tube_light_intensity": 375.0
+  },
+  "Infinity Stage - Structure 02": {
+   "tube_dead_fraction": 0.15,
+   "tube_blink_fraction": 0.2,
+   "tube_glow_level": 0.07000000029802322,
+   "tube_light_intensity": 375.0
+  },
+  "Infinity Stage - Structure 03": {
+   "tube_dead_fraction": 0.15,
+   "tube_blink_fraction": 0.2,
+   "tube_glow_level": 0.07000000029802322,
+   "tube_light_intensity": 375.0
+  },
+  "Infinity Stage - Structure 04": {
+   "tube_dead_fraction": 0.15,
+   "tube_blink_fraction": 0.2,
+   "tube_glow_level": 0.07000000029802322,
+   "tube_light_intensity": 375.0
+  },
+  "Infinity Stage - Structure 05": {
+   "tube_dead_fraction": 0.15,
+   "tube_blink_fraction": 0.2,
+   "tube_glow_level": 0.07000000029802322,
+   "tube_light_intensity": 375.0
+  },
+  "Infinity Stage - Structure 06": {
+   "tube_dead_fraction": 0.15,
+   "tube_blink_fraction": 0.2,
+   "tube_glow_level": 0.07000000029802322,
+   "tube_light_intensity": 375.0
+  }
+ },
+ "counts_before": {
+  "Infinity Stage - Structure 01": {
+   "tubes": 678,
+   "lights": 44,
+   "blinkers": 130
+  },
+  "Infinity Stage - Structure 02": {
+   "tubes": 262,
+   "lights": 45,
+   "blinkers": 45
+  },
+  "Infinity Stage - Structure 03": {
+   "tubes": 240,
+   "lights": 15,
+   "blinkers": 43
+  },
+  "Infinity Stage - Structure 04": {
+   "tubes": 240,
+   "lights": 14,
+   "blinkers": 41
+  },
+  "Infinity Stage - Structure 05": {
+   "tubes": 1104,
+   "lights": 44,
+   "blinkers": 189
+  },
+  "Infinity Stage - Structure 06": {
+   "tubes": 648,
+   "lights": 43,
+   "blinkers": 118
+  }
+ }
+}
