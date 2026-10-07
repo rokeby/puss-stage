@@ -1,0 +1,3645 @@
+{
+ "file": "E:/PussStage/Backups/PreS3HangarFloatHold-S3FLOATHOLD-20261007-132954/LS_DevScene_03.uasset",
+ "sha256": "776c2cc5946b87b8a4f2e078a03f701e3772ce22cdc982cee2eeb6d0dd24dc56",
+ "movie": {
+  "PlaybackRange": [
+   0,
+   6240000
+  ],
+  "TickResolution": {
+   "Numerator": 24000
+  },
+  "DisplayRate": {
+   "Numerator": 24
+  },
+  "EvaluationType": null,
+  "ClockSource": null
+ },
+ "bindings": {
+  "1aefe401a531c343b3623a656f938449": {
+   "name": "Cine Camera Actor 0",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Cine Camera Actor 0"
+  },
+  "eaf5ff143bc249dabebdd34176d1a95d": {
+   "name": "Scene 3 \u2014 External Sound \u2014 Exit Handoff Camera",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Scene 3 \u2014 External Sound \u2014 Exit Handoff Camera"
+  },
+  "92a5f918977109458309693ae7d9b59e": {
+   "name": "S3 Wave Row1 A",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Row1 A"
+  },
+  "675b221944e7fa4bb9944ff8383eb417": {
+   "name": "S3 Wave Split Row2 Piece2",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Split Row2 Piece2"
+  },
+  "b4cf7020f20f064789b6a7bb3c921630": {
+   "name": "S3 Wave Row3 A",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Row3 A"
+  },
+  "e424532f86bc61409066676c017c332f": {
+   "name": "Cine Camera Actor 8",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Cine Camera Actor 8"
+  },
+  "96818532aebc3e4bad4b5b14f521abbe": {
+   "name": "S3 Wave Row1 B",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Row1 B"
+  },
+  "96c0893f8a41034fa42f5863deab6360": {
+   "name": "S3 Wave Row2 B",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Row2 B"
+  },
+  "2b509c4350754f6abaf85b434062dfdc": {
+   "name": "ClamCam1",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "ClamCam1"
+  },
+  "ccf15f47daaafc4a871b703220e1d7de": {
+   "name": "S3 Hangar Roof Hinge",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Hangar Roof Hinge"
+  },
+  "2006194b3fb26c43abb93b2c11ac24d6": {
+   "name": "S3 Wave Split Row2 Piece3",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Split Row2 Piece3"
+  },
+  "5e37974bfed9664f8110d5eb1e5b0a88": {
+   "name": "S3 Wave Split Row3 Piece2",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Split Row3 Piece2"
+  },
+  "6e24a54ef9bafc41bfcef3c407eef063": {
+   "name": "S3 Wave Row3 B",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Row3 B"
+  },
+  "3de64a502136b7419b99f11a6d26fa13": {
+   "name": "S3 Wave Split Row2 Piece1",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Split Row2 Piece1"
+  },
+  "7494e05b6efcbe4198e19f80346456a6": {
+   "name": "S3 Hangar Lattice Fly",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Hangar Lattice Fly"
+  },
+  "d001765ff6dd574e84f691e51213d29f": {
+   "name": "S3 Wave Split Row3 Piece1",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Split Row3 Piece1"
+  },
+  "69f2ca74d90b9d458c52fe78c5cd3326": {
+   "name": "Cine Camera Actor 7",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Cine Camera Actor 7"
+  },
+  "fa6c368230807c4bb5c11f6b1f9dfc9e": {
+   "name": "S3 Wave Split Row1 Piece1",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Split Row1 Piece1"
+  },
+  "586619973ad48a4aaf1a352f23841651": {
+   "name": "Cine Camera Actor 5",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Cine Camera Actor 5"
+  },
+  "642d59990ff541489d491adca45c37f4": {
+   "name": "S3 Wave Split Row3 Piece3",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Split Row3 Piece3"
+  },
+  "5e07df9d5e961148b6f56bc8bf145b2a": {
+   "name": "Cine Camera Actor 9",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Cine Camera Actor 9"
+  },
+  "60d6bda01f3261479dcd5efe04dabb0b": {
+   "name": "Cine Camera Actor 6",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Cine Camera Actor 6"
+  },
+  "e64c7aa2b89a62498c87cbae5a26ee37": {
+   "name": "S3 Wave Split Row1 Piece3",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Split Row1 Piece3"
+  },
+  "6e46b2adb93c8a42a6c4b072994e2de2": {
+   "name": "Cine Camera Actor 2",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Cine Camera Actor 2"
+  },
+  "77ee7fb0a492744bbff8fa6fb295c746": {
+   "name": "Cine Camera Actor 1",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Cine Camera Actor 1"
+  },
+  "b2de79b374a718429a00d8c2f33f0f48": {
+   "name": "Cine Camera Actor 3",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Cine Camera Actor 3"
+  },
+  "a039aac298d644b7af46fb7933f9c8da": {
+   "name": "Scene 3 \u2014 External Sound \u2014 Entry Handoff Camera",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Scene 3 \u2014 External Sound \u2014 Entry Handoff Camera"
+  },
+  "39fc8dc70ce14448a48a784b9bca1647": {
+   "name": "S3 Wave Row2 A",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Row2 A"
+  },
+  "14f8e0cbb0813947b80899f3044e50a7": {
+   "name": "S3 Wave Split Row1 Piece2",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Wave Split Row1 Piece2"
+  },
+  "8bf112ceeb836945bd1414a3588ae38b": {
+   "name": "Cine Camera Actor 10",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Cine Camera Actor 10"
+  },
+  "fc28a3daa2fbe448bd7838d85b9ca548": {
+   "name": "Cine Camera Actor 4",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Cine Camera Actor 4"
+  },
+  "2f7a4ee091f2c740b1b1a37ab866687f": {
+   "name": "Cine Camera Actor 11",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "Cine Camera Actor 11"
+  },
+  "45e2bfe278da3c43a5b42f5e7188cee5": {
+   "name": "S3 Hangar Root",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S3 Hangar Root"
+  },
+  "0bed3deab0514edcb5b481f53be9d708": {
+   "name": "CameraComponent",
+   "kind": "poss",
+   "parent": "2b509c4350754f6abaf85b434062dfdc",
+   "full": "ClamCam1/CameraComponent"
+  }
+ },
+ "marked": [
+  {
+   "FrameNumber": 0,
+   "Label": "S3 B01 Arrive - strike",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 0,
+   "Label": "S3 1 Arrival to shore",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 360000,
+   "Label": "S3 B02 Figures sway - wide to figures",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 360000,
+   "Label": "S3 2 Swaying shore people",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 960000,
+   "Label": "S3 3 They whimper (narration)",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 960000,
+   "Label": "S3 B03 Clam on pedestal (shut)",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1440000,
+   "Label": "S3 B04 Agitation builds - waves",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1680000,
+   "Label": "S3 4 Cello soothes / clam opens",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 2880000,
+   "Label": "S3 5 Chorus / Puss takes the song (narration)",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 2880000,
+   "Label": "S3 B05 Clam opens slowly",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 3000000,
+   "Label": "S3 B06 Close-up of opening",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 3480000,
+   "Label": "S3 B07 Pearl glows - song of forgetting",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 3480000,
+   "Label": "InfinityStage.VampStart",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 4200000,
+   "Label": "S3 B08 Figures calm",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 4200000,
+   "Label": "InfinityStage.VampEnd",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 4320000,
+   "Label": "S3 6 Anguished crying",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 4680000,
+   "Label": "S3 B09 Calm swaying (animation start)",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 5040000,
+   "Label": "S3 B10 Defocus - Puss's thoughts",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 5520000,
+   "Label": "S3 7 Finish / out",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 5520000,
+   "Label": "S3 B11 Pearl rises to camera",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 5880000,
+   "Label": "S3 B12 Float out - to curtain",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  }
+ ],
+ "tracks": [
+  {
+   "owner": "Cine Camera Actor 0",
+   "cls": "MovieSceneSpawnTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneSpawnSection",
+     "range": null,
+     "props": {
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_1.MovieSceneSpawnSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_1",
+   "track_props": {}
+  },
+  {
+   "owner": "S3 Wave Row1 A",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "a4637ca31787",
+        "first": 3700.0002,
+        "last": 3700.0002,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "4584f344405f",
+        "first": -284.2,
+        "last": -370.8026,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_4.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_4",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "71c64d683e03",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "S3 Wave Split Row2 Piece2",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "896471e28ee3",
+        "first": 4500.0005,
+        "last": 4500.0005,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "7e897bfaff0e",
+        "first": 0.0,
+        "last": -6.9756,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Scale[1]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "d3e746a88449ea3f0100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_14.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_14",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "e8104f916d1b",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "S3 Wave Row3 A",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "533404ecb655",
+        "first": 5300.0005,
+        "last": 5300.0005,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "c37790b60f6e",
+        "first": -83.3,
+        "last": -104.0912,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_17.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_17",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "71c64d683e03",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "Cine Camera Actor 8",
+   "cls": "MovieSceneSpawnTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneSpawnSection",
+     "range": null,
+     "props": {
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_9.MovieSceneSpawnSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_9",
+   "track_props": {}
+  },
+  {
+   "owner": "S3 Wave Row1 B",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "a4637ca31787",
+        "first": 3700.0002,
+        "last": 3700.0002,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "0f4dac405c5a",
+        "first": 186.2,
+        "last": 99.5975,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_8.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_8",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "71c64d683e03",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "S3 Wave Row2 B",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "896471e28ee3",
+        "first": 4500.0005,
+        "last": 4500.0005,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "78d5629d2a0f",
+        "first": 269.6,
+        "last": 328.3785,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_15.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_15",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "71c64d683e03",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "ClamCam1",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      null,
+      null
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000609641c84001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000803c86034101000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "0000002055795d4001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "feffff9f26a5ecbf01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "0000002004fb01c001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000204e3234c001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Scale": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Scale[1]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Scale[2]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_2.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_2",
+   "track_props": {}
+  },
+  {
+   "owner": "S3 Hangar Roof Hinge",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      744000,
+      6240000
+     ],
+     "props": {
+      "Translation[2]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000070a7400100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "EvalOptions": {
+       "CompletionMode": "EMovieSceneCompletionMode::KeepState"
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_10.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_10",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "7b099825a22f",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "S3 Wave Split Row2 Piece3",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "fe0d1125a591",
+        "first": 4535.0005,
+        "last": 4535.0005,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "e9056342b7c8",
+        "first": 500.0,
+        "last": 430.5341,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Scale[1]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "314ca60a1111e93f0100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_18.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_18",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "e8104f916d1b",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "S3 Wave Split Row3 Piece2",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "533404ecb655",
+        "first": 5300.0005,
+        "last": 5300.0005,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "448f3002d521",
+        "first": 0.0,
+        "last": 46.9472,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Scale[1]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "57caa77859aeea3f0100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_23.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_23",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "e8104f916d1b",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "S3 Wave Row3 B",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "533404ecb655",
+        "first": 5300.0005,
+        "last": 5300.0005,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "244a12dfa18b",
+        "first": 280.4,
+        "last": 259.6088,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_19.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_19",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "71c64d683e03",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "S3 Wave Split Row2 Piece1",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "0b0baa9bc51e",
+        "first": 4465.0005,
+        "last": 4465.0005,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "4a273e80f911",
+        "first": -500.0,
+        "last": -441.2215,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Scale[1]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "314ca60a1111e93f0100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_11.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_11",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "e8104f916d1b",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "S3 Hangar Lattice Fly",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      744000,
+      6240000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000070a7400100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "0000000000c092400100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "EvalOptions": {
+       "CompletionMode": "EMovieSceneCompletionMode::KeepState"
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_5.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_5",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "7b099825a22f",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "S3 Wave Split Row3 Piece1",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "85c988e3eac3",
+        "first": 5265.0005,
+        "last": 5265.0005,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "26bbdf62b76b",
+        "first": -500.0,
+        "last": -520.7912,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Scale[1]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "fd4d3647b3f1e43f0100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_21.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_21",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "e8104f916d1b",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "Cine Camera Actor 7",
+   "cls": "MovieSceneSpawnTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneSpawnSection",
+     "range": null,
+     "props": {
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_8.MovieSceneSpawnSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_8",
+   "track_props": {}
+  },
+  {
+   "owner": "S3 Wave Split Row1 Piece1",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "e7fa213fa86a",
+        "first": 3665.0002,
+        "last": 3665.0002,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "f0ad6359d7bd",
+        "first": -500.0,
+        "last": -586.6025,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Scale[1]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "61ecad3049d2ea3f0100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_3.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_3",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "e8104f916d1b",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "Cine Camera Actor 5",
+   "cls": "MovieSceneSpawnTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneSpawnSection",
+     "range": null,
+     "props": {
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_6.MovieSceneSpawnSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_6",
+   "track_props": {}
+  },
+  {
+   "owner": "Cine Camera Actor 5",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      3480000,
+      4201000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 721,
+        "t": [
+         3480000,
+         4200000
+        ],
+        "times_h": "7125f4564446",
+        "vals_h": "d77a630188e8",
+        "first": 14221.9727,
+        "last": 14221.9727,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 721,
+        "t": [
+         3480000,
+         4200000
+        ],
+        "times_h": "7125f4564446",
+        "vals_h": "fffd151c4457",
+        "first": 160000.0,
+        "last": 160000.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 721,
+        "t": [
+         3480000,
+         4200000
+        ],
+        "times_h": "7125f4564446",
+        "vals_h": "5e50de8d525a",
+        "first": 120.0,
+        "last": 120.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 721,
+        "t": [
+         3480000,
+         4200000
+        ],
+        "times_h": "7125f4564446",
+        "vals_h": "7bd902d2811a",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 721,
+        "t": [
+         3480000,
+         4200000
+        ],
+        "times_h": "7125f4564446",
+        "vals_h": "4fbe11e6a594",
+        "first": -4.2892,
+        "last": -4.2892,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 721,
+        "t": [
+         3480000,
+         4200000
+        ],
+        "times_h": "7125f4564446",
+        "vals_h": "34919eb44623",
+        "first": 0.0,
+        "last": 360.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_1.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_1",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "cb102b037990",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "S3 Wave Split Row3 Piece3",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "c57db42664ad",
+        "first": 5335.0005,
+        "last": 5335.0005,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "fef60426b0a1",
+        "first": 500.0,
+        "last": 592.7184,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Scale[1]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "fd4d3647b3f1e43f0100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_25.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_25",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "e8104f916d1b",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "Cine Camera Actor 9",
+   "cls": "MovieSceneSpawnTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneSpawnSection",
+     "range": null,
+     "props": {
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_0.MovieSceneSpawnSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_0",
+   "track_props": {}
+  },
+  {
+   "owner": "Cine Camera Actor 6",
+   "cls": "MovieSceneSpawnTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneSpawnSection",
+     "range": null,
+     "props": {
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_7.MovieSceneSpawnSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_7",
+   "track_props": {}
+  },
+  {
+   "owner": "S3 Wave Split Row1 Piece3",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "00b708108043",
+        "first": 3735.0002,
+        "last": 3735.0002,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "73fae76f82d0",
+        "first": 500.0,
+        "last": 534.202,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Scale[1]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "61ecad3049d2ea3f0100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_9.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_9",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "e8104f916d1b",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "Cine Camera Actor 2",
+   "cls": "MovieSceneSpawnTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneSpawnSection",
+     "range": null,
+     "props": {
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_3.MovieSceneSpawnSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_3",
+   "track_props": {}
+  },
+  {
+   "owner": "Cine Camera Actor 1",
+   "cls": "MovieSceneSpawnTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneSpawnSection",
+     "range": null,
+     "props": {
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_2.MovieSceneSpawnSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_2",
+   "track_props": {}
+  },
+  {
+   "owner": "Cine Camera Actor 3",
+   "cls": "MovieSceneSpawnTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneSpawnSection",
+     "range": null,
+     "props": {
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_4.MovieSceneSpawnSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_4",
+   "track_props": {}
+  },
+  {
+   "owner": "S3 Wave Row2 A",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "896471e28ee3",
+        "first": 4500.0005,
+        "last": 4500.0005,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "b7bb03809d65",
+        "first": -234.0,
+        "last": -175.2215,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_12.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_12",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "71c64d683e03",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "S3 Wave Split Row1 Piece2",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      239000,
+      6241000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "a4637ca31787",
+        "first": 3700.0002,
+        "last": 3700.0002,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "a28b8ad5f882",
+        "first": 0.0,
+        "last": -34.202,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "28fee9288762",
+        "first": 115.0,
+        "last": 115.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Rotation[2]": {
+       "chan": {
+        "n": 2002,
+        "t": [
+         239000,
+         6240000
+        ],
+        "times_h": "656eded463f8",
+        "vals_h": "9b14e989115b",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": null,
+        "vals": null
+       }
+      },
+      "Scale[1]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "b92ad0edff97e73f0100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_6.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_6",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "e8104f916d1b",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "Cine Camera Actor 10",
+   "cls": "MovieSceneSpawnTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneSpawnSection",
+     "range": null,
+     "props": {
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_10.MovieSceneSpawnSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_10",
+   "track_props": {}
+  },
+  {
+   "owner": "Cine Camera Actor 4",
+   "cls": "MovieSceneSpawnTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneSpawnSection",
+     "range": null,
+     "props": {
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_5.MovieSceneSpawnSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_5",
+   "track_props": {}
+  },
+  {
+   "owner": "Cine Camera Actor 11",
+   "cls": "MovieSceneSpawnTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneSpawnSection",
+     "range": null,
+     "props": {
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_11.MovieSceneSpawnSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneSpawnTrack_11",
+   "track_props": {}
+  },
+  {
+   "owner": "S3 Hangar Root",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      744000,
+      6240000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "986e1283fc4ec6400100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Translation[1]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "00000000008803410100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "0000000000005ec00100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "EvalOptions": {
+       "CompletionMode": "EMovieSceneCompletionMode::KeepState"
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_16.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieScene3DTransformTrack_16",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "7b099825a22f",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "ClamCam1/CameraComponent",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "CurrentFocalLength",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      null,
+      null
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "00000c4201000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneFloatTrack_6.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneFloatTrack_6",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "319ce1a3a7f7",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "ClamCam1/CameraComponent",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "FocusSettings.ManualFocusDistance",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      null,
+      null
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "0050c34701000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneFloatTrack_7.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneFloatTrack_7",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "a23b02ddf80c",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "ClamCam1/CameraComponent",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "CurrentAperture",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      null,
+      null
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "3333334001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneFloatTrack_8.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneFloatTrack_8",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "86827f147282",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "<master>",
+   "cls": "MovieSceneCinematicShotTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneCinematicShotSection",
+     "range": [
+      -1000,
+      1454000
+     ],
+     "props": {
+      "Parameters": {
+       "StartFrameOffset": 32000
+      },
+      "SubSequence": "/Game/Scenes/LS_Clams.LS_Clams",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneCinematicShotTrack_0",
+   "track_props": {
+    "SortingOrder": 1
+   }
+  },
+  {
+   "owner": "<master>",
+   "cls": "MovieSceneSubTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneSubSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "SubSequence": "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise.LS_S3_HangarRise",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneSubTrack_0.MovieSceneSubSection_0"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneSubTrack_0",
+   "track_props": {
+    "DisplayName": {
+     "opaque": "d67cb83f7f03",
+     "type": "TextProperty"
+    }
+   }
+  },
+  {
+   "owner": "<master>",
+   "cls": "MovieSceneCameraCutTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      0,
+      95000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "a039aac298d644b7af46fb7933f9c8da",
+       "ResolveParentIndex": 0
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_1"
+    },
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      95000,
+      6216000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "5e07df9d5e961148b6f56bc8bf145b2a",
+       "ResolveParentIndex": 0
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_3"
+    },
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      6216000,
+      6240000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "eaf5ff143bc249dabebdd34176d1a95d",
+       "ResolveParentIndex": 0
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_2"
+    },
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      360000,
+      960000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "1aefe401a531c343b3623a656f938449",
+       "ResolveParentIndex": 0
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_4"
+    },
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      960000,
+      1440000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "77ee7fb0a492744bbff8fa6fb295c746",
+       "ResolveParentIndex": 0
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_5"
+    },
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      1440000,
+      2880000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "6e46b2adb93c8a42a6c4b072994e2de2",
+       "ResolveParentIndex": 0
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_6"
+    },
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      2880000,
+      3000000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "b2de79b374a718429a00d8c2f33f0f48",
+       "ResolveParentIndex": 0
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_7"
+    },
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      3000000,
+      3480000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "fc28a3daa2fbe448bd7838d85b9ca548",
+       "ResolveParentIndex": 0
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_8"
+    },
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      3480000,
+      4200000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "586619973ad48a4aaf1a352f23841651",
+       "ResolveParentIndex": 0
+      },
+      "InitialCameraCutTransform": {
+       "Rotation": {
+        "err": "error('unpack_from requires a buffer of at least 45 bytes for unpacking 4 bytes ",
+        "opaque": "4e340f703f94"
+       },
+       "Translation": {
+        "err": "IndexError('index out of range')",
+        "opaque": "ff461d4517d1"
+       }
+      },
+      "bHasInitialCameraCutTransform": {
+       "boolflags": 16
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_9"
+    },
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      4200000,
+      4680000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "60d6bda01f3261479dcd5efe04dabb0b",
+       "ResolveParentIndex": 0
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_10"
+    },
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      4680000,
+      5040000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "69f2ca74d90b9d458c52fe78c5cd3326",
+       "ResolveParentIndex": 0
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_11"
+    },
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      5040000,
+      5520000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "e424532f86bc61409066676c017c332f",
+       "ResolveParentIndex": 0
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_12"
+    },
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      5520000,
+      5880000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "8bf112ceeb836945bd1414a3588ae38b",
+       "ResolveParentIndex": 0
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_13"
+    },
+    {
+     "cls": "MovieSceneCameraCutSection",
+     "range": [
+      5880000,
+      6216000
+     ],
+     "props": {
+      "CameraBindingID": {
+       "Guid": "2f7a4ee091f2c740b1b1a37ab866687f",
+       "ResolveParentIndex": 0
+      },
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0.MovieSceneCameraCutSection_14"
+    }
+   ],
+   "export": "LS_DevScene_03.MovieScene_0.MovieSceneCameraCutTrack_0",
+   "track_props": {
+    "bAutoArrangeSections": {
+     "boolflags": 0
+    },
+    "SortingOrder": 0
+   }
+  }
+ ]
+}

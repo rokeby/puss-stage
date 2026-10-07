@@ -1,0 +1,135 @@
+MOVIE a {'PlaybackRange': [0, 6240000], 'TickResolution': {'Numerator': 24000}, 'DisplayRate': {'Numerator': 24}, 'EvaluationType': None, 'ClockSource': None}
+MOVIE b {'PlaybackRange': [0, 6240000], 'TickResolution': {'Numerator': 24000}, 'DisplayRate': {'Numerator': 24}, 'EvaluationType': None, 'ClockSource': None}
+BINDINGS removed: ['Cine Camera Actor 0']
+BINDINGS added: ['Cine Camera Actor 4/CameraComponent', 'Cine Camera Actor 5/CameraComponent', 'Cine Camera Actor 8/CameraComponent', 'S3 Shot B02']
+TRACK ADDED ('1055af879ce12146b1e3a8d5df81434b', 'MovieSceneFloatTrack', 'CurrentAperture') Cine Camera Actor 5/CameraComponent [[[null, null], {"FloatCurve": {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "cdcc4c3f01000000c05d00000100000000000000", "times": [], "vals": []}}, "Easing": {}}]]
+TRACK ADDED ('1055af879ce12146b1e3a8d5df81434b', 'MovieSceneFloatTrack', 'CurrentFocalLength') Cine Camera Actor 5/CameraComponent [[[null, null], {"FloatCurve": {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "71d1ba4101000000c05d00000100000000000000", "times": [], "vals": []}}, "Easing": {}}]]
+TRACK ADDED ('1055af879ce12146b1e3a8d5df81434b', 'MovieSceneFloatTrack', 'FocusSettings.ManualFocusDistance') Cine Camera Actor 5/CameraComponent [[[null, null], {"FloatCurve": {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "5414294301000000c05d00000100000000000000", "times": [], "vals": []}}, "Easing": {}}]]
+TRACK ADDED ('1aefe401a531c343b3623a656f938449', 'MovieScene3DTransformTrack', 'None') S3 Shot B02 [[[null, null], {"Translation": {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "76da049f12d5cb4001000000c05d00000100000000000000", "times": [], "vals": []}}, "Translation[1]": {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "c14b2b78d183034101000000c05d00000100000000000000", "times": [], "vals": []}}, "Translation[2]": {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "78c45390e31c654001000000c05d00000100000000000000", "times": [], "vals": []}}, "Rotation": {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "e5d0ded21ac2113d01000000c05d00000100000000000000", "times": [], "vals": []}}, "Rotation[1]": {"chan": {"n"
+OWNER RENAMED ('1aefe401a531c343b3623a656f938449', 'MovieSceneSpawnTrack', 'None') Cine Camera Actor 0 -> S3 Shot B02
+PROP ('2006194b3fb26c43abb93b2c11ac24d6', 'MovieScene3DTransformTrack', 'None') 0 Rotation 
+    was {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "9b14e989115b", "first": 0.0, "last": 0.0, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "9b14e989115b", "first": 0.0, "last": 0.0, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('2006194b3fb26c43abb93b2c11ac24d6', 'MovieScene3DTransformTrack', 'None') 0 Rotation[1] 
+    was {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "9b14e989115b", "first": 0.0, "last": 0.0, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "9b14e989115b", "first": 0.0, "last": 0.0, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('2006194b3fb26c43abb93b2c11ac24d6', 'MovieScene3DTransformTrack', 'None') 0 Rotation[2] 
+    was {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "9b14e989115b", "first": 0.0, "last": 0.0, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "9b14e989115b", "first": 0.0, "last": 0.0, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('2006194b3fb26c43abb93b2c11ac24d6', 'MovieScene3DTransformTrack', 'None') 0 Scale 
+    was null 
+    now {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "000000000000f03f01000000c05d00000100000000000000", "times": [], "vals": []}}
+PROP ('2006194b3fb26c43abb93b2c11ac24d6', 'MovieScene3DTransformTrack', 'None') 0 Scale[1] 
+    was {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "314ca60a1111e93f0100000060ea00000100000000000000", "times": [], "vals": []}} 
+    now {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "314ca60a1111e93f01000000c05d00000100000000000000", "times": [], "vals": []}}
+PROP ('2006194b3fb26c43abb93b2c11ac24d6', 'MovieScene3DTransformTrack', 'None') 0 Scale[2] 
+    was null 
+    now {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "000000000000f03f01000000c05d00000100000000000000", "times": [], "vals": []}}
+PROP ('2006194b3fb26c43abb93b2c11ac24d6', 'MovieScene3DTransformTrack', 'None') 0 Translation 
+    was {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "fe0d1125a591", "first": 4535.0005, "last": 4535.0005, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "fe0d1125a591", "first": 4535.0005, "last": 4535.0005, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('2006194b3fb26c43abb93b2c11ac24d6', 'MovieScene3DTransformTrack', 'None') 0 Translation[1] 
+    was {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "e9056342b7c8", "first": 500.0, "last": 430.5341, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "e9056342b7c8", "first": 500.0, "last": 430.5341, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('2006194b3fb26c43abb93b2c11ac24d6', 'MovieScene3DTransformTrack', 'None') 0 Translation[2] 
+    was {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "28fee9288762", "first": 115.0, "last": 115.0, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "28fee9288762", "first": 115.0, "last": 115.0, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+TRACK ADDED ('2f7a4ee091f2c740b1b1a37ab866687f', 'MovieScene3DTransformTrack', 'None') Cine Camera Actor 11 [[[null, null], {"Translation": {"chan": {"n": 2, "t": [5884000, 6219000], "times_h": "4def51a3eb34", "vals_h": "9c5457dececa", "first": 14341.9727, "last": 14341.9727, "tail": "8195438bfc02cc4001000000c05d00000100000000000000", "times": [5884000, 6219000], "vals": [14341.9727, 14341.9727]}}, "Translation[1]": {"chan": {"n": 2, "t": [5884000, 6219000], "times_h": "4def51a3eb34", "vals_h": "f89a361e77c3", "first": 160000.0, "last": 160000.0, "tail": "000000000088034101000000c05d00000100000000000000", "times": [5884000, 6219000], "vals": [160000.0, 160000.0]}}, "Translation[2]": {"chan": {"n": 2, "t": [5884000, 6219000], "times_h": "4def51a3eb34", "vals_h": "6406832c1997", "first": 105.0, "last": 105.0, "tail": "0000000000405a4001000000c05d00000100000000000000", "times": [5884000, 6219000], "vals": [105.0, 105.0]}}, "Rotation": {"chan": {"n": 2, "t": [5884000, 6219000], "times_h": "4def51a
+PROP ('586619973ad48a4aaf1a352f23841651', 'MovieScene3DTransformTrack', 'None') 0 Rotation 
+    was {"chan": {"n": 721, "t": [3480000, 4200000], "times_h": "7125f4564446", "vals_h": "7bd902d2811a", "first": 0.0, "last": 0.0, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 721, "t": [3480000, 4200000], "times_h": "7125f4564446", "vals_h": "7bd902d2811a", "first": 0.0, "last": 0.0, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('586619973ad48a4aaf1a352f23841651', 'MovieScene3DTransformTrack', 'None') 0 Rotation[1] 
+    was {"chan": {"n": 721, "t": [3480000, 4200000], "times_h": "7125f4564446", "vals_h": "4fbe11e6a594", "first": -4.2892, "last": -4.2892, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 721, "t": [3480000, 4200000], "times_h": "7125f4564446", "vals_h": "4fbe11e6a594", "first": -4.2892, "last": -4.2892, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('586619973ad48a4aaf1a352f23841651', 'MovieScene3DTransformTrack', 'None') 0 Rotation[2] 
+    was {"chan": {"n": 721, "t": [3480000, 4200000], "times_h": "7125f4564446", "vals_h": "34919eb44623", "first": 0.0, "last": 360.0, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 721, "t": [3480000, 4200000], "times_h": "7125f4564446", "vals_h": "34919eb44623", "first": 0.0, "last": 360.0, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('586619973ad48a4aaf1a352f23841651', 'MovieScene3DTransformTrack', 'None') 0 Scale 
+    was null 
+    now {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "000000000000f03f01000000c05d00000100000000000000", "times": [], "vals": []}}
+PROP ('586619973ad48a4aaf1a352f23841651', 'MovieScene3DTransformTrack', 'None') 0 Scale[1] 
+    was null 
+    now {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "000000000000f03f01000000c05d00000100000000000000", "times": [], "vals": []}}
+PROP ('586619973ad48a4aaf1a352f23841651', 'MovieScene3DTransformTrack', 'None') 0 Scale[2] 
+    was null 
+    now {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "000000000000f03f01000000c05d00000100000000000000", "times": [], "vals": []}}
+PROP ('586619973ad48a4aaf1a352f23841651', 'MovieScene3DTransformTrack', 'None') 0 Translation 
+    was {"chan": {"n": 721, "t": [3480000, 4200000], "times_h": "7125f4564446", "vals_h": "d77a630188e8", "first": 14221.9727, "last": 14221.9727, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 721, "t": [3480000, 4200000], "times_h": "7125f4564446", "vals_h": "d77a630188e8", "first": 14221.9727, "last": 14221.9727, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('586619973ad48a4aaf1a352f23841651', 'MovieScene3DTransformTrack', 'None') 0 Translation[1] 
+    was {"chan": {"n": 721, "t": [3480000, 4200000], "times_h": "7125f4564446", "vals_h": "fffd151c4457", "first": 160000.0, "last": 160000.0, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 721, "t": [3480000, 4200000], "times_h": "7125f4564446", "vals_h": "fffd151c4457", "first": 160000.0, "last": 160000.0, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('586619973ad48a4aaf1a352f23841651', 'MovieScene3DTransformTrack', 'None') 0 Translation[2] 
+    was {"chan": {"n": 721, "t": [3480000, 4200000], "times_h": "7125f4564446", "vals_h": "5e50de8d525a", "first": 120.0, "last": 120.0, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 721, "t": [3480000, 4200000], "times_h": "7125f4564446", "vals_h": "5e50de8d525a", "first": 120.0, "last": 120.0, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('609f3bc84fd2e0429388983381e05b46', 'MovieSceneFloatTrack', 'Intensity') 0 FloatCurve 
+    was {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "000000410100000060ea00000100000000000000", "times": [], "vals": []}} 
+    now {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "0000004101000000c05d00000100000000000000", "times": [], "vals": []}}
+TRACK ADDED ('6e46b2adb93c8a42a6c4b072994e2de2', 'MovieScene3DTransformTrack', 'None') Cine Camera Actor 2 [[[null, null], {"Translation": {"chan": {"n": 2, "t": [1442000, 2880000], "times_h": "ce343100a825", "vals_h": "836af7f6d74b", "first": 14327.9883, "last": 14327.9883, "tail": "a410c779fefbcb4001000000c05d00000100000000000000", "times": [1442000, 2880000], "vals": [14327.9883, 14327.9883]}}, "Translation[1]": {"chan": {"n": 2, "t": [1442000, 2880000], "times_h": "ce343100a825", "vals_h": "a5039e7a91ac", "first": 160008.8438, "last": 160008.8438, "tail": "0c51d7c84688034101000000c05d00000100000000000000", "times": [1442000, 2880000], "vals": [160008.8438, 160008.8438]}}, "Translation[2]": {"chan": {"n": 2, "t": [1442000, 2880000], "times_h": "ce343100a825", "vals_h": "31b0b6417fd7", "first": 94.4994, "last": 94.4994, "tail": "0a1f03cef69f574001000000c05d00000100000000000000", "times": [1442000, 2880000], "vals": [94.4994, 94.4994]}}, "Rotation": {"chan": {"n": 2, "t": [1442000, 2880000],
+TRACK ADDED ('749f4447b2992347b5fa02129d38ddec', 'MovieSceneFloatTrack', 'CurrentAperture') Cine Camera Actor 4/CameraComponent [[[null, null], {"FloatCurve": {"chan": {"n": 2, "t": [3230000, 3330000], "times_h": "204b0f288126", "vals_h": "365e0f696b67", "first": 2.8, "last": 17.439, "tail": "11838b4101000000c05d00000100000000000000", "times": [3230000, 3330000], "vals": [2.8, 17.439]}}, "Easing": {}}]]
+TRACK ADDED ('749f4447b2992347b5fa02129d38ddec', 'MovieSceneFloatTrack', 'CurrentFocalLength') Cine Camera Actor 4/CameraComponent [[[null, null], {"FloatCurve": {"chan": {"n": 2, "t": [3230000, 3330000], "times_h": "204b0f288126", "vals_h": "4ad340a2cd72", "first": 100.0, "last": 80.107, "tail": "c436a04201000000c05d00000100000000000000", "times": [3230000, 3330000], "vals": [100.0, 80.107]}}, "Easing": {}}]]
+TRACK ADDED ('749f4447b2992347b5fa02129d38ddec', 'MovieSceneFloatTrack', 'FocusSettings.ManualFocusDistance') Cine Camera Actor 4/CameraComponent [[[null, null], {"FloatCurve": {"chan": {"n": 2, "t": [3230000, 3353000], "times_h": "fefaf4b64bce", "vals_h": "1e4cecca06b7", "first": 102.1454, "last": 4163.0728, "tail": "724acc4201000000c05d00000100000000000000", "times": [3230000, 3353000], "vals": [102.1454, 4163.0728]}}, "Easing": {}}]]
+TRACK ADDED ('e424532f86bc61409066676c017c332f', 'MovieScene3DTransformTrack', 'None') Cine Camera Actor 8 [[[null, null], {"Translation": {"chan": {"n": 2, "t": [5045000, 5509000], "times_h": "f031add0d20e", "vals_h": "11d185f5641f", "first": 14479.2148, "last": 14532.0859, "tail": "d973cf839b47cc4001000000c05d00000100000000000000", "times": [5045000, 5509000], "vals": [14479.2148, 14532.0859]}}, "Translation[1]": {"chan": {"n": 2, "t": [5045000, 5509000], "times_h": "f031add0d20e", "vals_h": "5cc443e65135", "first": 160864.7969, "last": 160957.6719, "tail": "cc62115b06a3034101000000c05d00000100000000000000", "times": [5045000, 5509000], "vals": [160864.7969, 160957.6719]}}, "Translation[2]": {"chan": {"n": 2, "t": [5045000, 5509000], "times_h": "f031add0d20e", "vals_h": "134dbc77a389", "first": 270.9813, "last": 282.2658, "tail": "6d3ec950b3ef704001000000c05d00000100000000000000", "times": [5045000, 5509000], "vals": [270.9813, 282.2658]}}, "Rotation": {"chan": {"n": 2, "t": [5045000, 55090
+PROP ('e64c7aa2b89a62498c87cbae5a26ee37', 'MovieScene3DTransformTrack', 'None') 0 Rotation 
+    was {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "9b14e989115b", "first": 0.0, "last": 0.0, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "9b14e989115b", "first": 0.0, "last": 0.0, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('e64c7aa2b89a62498c87cbae5a26ee37', 'MovieScene3DTransformTrack', 'None') 0 Rotation[1] 
+    was {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "9b14e989115b", "first": 0.0, "last": 0.0, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "9b14e989115b", "first": 0.0, "last": 0.0, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('e64c7aa2b89a62498c87cbae5a26ee37', 'MovieScene3DTransformTrack', 'None') 0 Rotation[2] 
+    was {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "9b14e989115b", "first": 0.0, "last": 0.0, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "9b14e989115b", "first": 0.0, "last": 0.0, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('e64c7aa2b89a62498c87cbae5a26ee37', 'MovieScene3DTransformTrack', 'None') 0 Scale 
+    was null 
+    now {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "000000000000f03f01000000c05d00000100000000000000", "times": [], "vals": []}}
+PROP ('e64c7aa2b89a62498c87cbae5a26ee37', 'MovieScene3DTransformTrack', 'None') 0 Scale[1] 
+    was {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "61ecad3049d2ea3f0100000060ea00000100000000000000", "times": [], "vals": []}} 
+    now {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "61ecad3049d2ea3f01000000c05d00000100000000000000", "times": [], "vals": []}}
+PROP ('e64c7aa2b89a62498c87cbae5a26ee37', 'MovieScene3DTransformTrack', 'None') 0 Scale[2] 
+    was null 
+    now {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "000000000000f03f01000000c05d00000100000000000000", "times": [], "vals": []}}
+PROP ('e64c7aa2b89a62498c87cbae5a26ee37', 'MovieScene3DTransformTrack', 'None') 0 Translation 
+    was {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "00b708108043", "first": 3735.0002, "last": 3735.0002, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "00b708108043", "first": 3735.0002, "last": 3735.0002, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('e64c7aa2b89a62498c87cbae5a26ee37', 'MovieScene3DTransformTrack', 'None') 0 Translation[1] 
+    was {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "73fae76f82d0", "first": 500.0, "last": 534.202, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "73fae76f82d0", "first": 500.0, "last": 534.202, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+PROP ('e64c7aa2b89a62498c87cbae5a26ee37', 'MovieScene3DTransformTrack', 'None') 0 Translation[2] 
+    was {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "28fee9288762", "first": 115.0, "last": 115.0, "tail": "00000000000000000100000060ea00000100000000000000", "times": null, "vals": null}} 
+    now {"chan": {"n": 2002, "t": [239000, 6240000], "times_h": "656eded463f8", "vals_h": "28fee9288762", "first": 115.0, "last": 115.0, "tail": "000000000000000001000000c05d00000100000000000000", "times": null, "vals": null}}
+TRACK ADDED ('f2768af871f80c4d8cb74f406aca19b2', 'MovieSceneFloatTrack', 'FocusSettings.ManualFocusDistance') Cine Camera Actor 8/CameraComponent [[[null, null], {"FloatCurve": {"chan": {"n": 0, "t": null, "times_h": "da39a3ee5e6b", "vals_h": "97d170e1550e", "first": null, "last": null, "tail": "0cae38420100000060ea00000100000000000000", "times": [], "vals": []}}, "Easing": {}}]]
+TRACK ADDED ('fc28a3daa2fbe448bd7838d85b9ca548', 'MovieScene3DTransformTrack', 'None') Cine Camera Actor 4 [[[null, null], {"Translation": {"chan": {"n": 4, "t": [3002000, 3432000], "times_h": "792e4eceeb83", "vals_h": "3e79ee251c66", "first": 14072.5889, "last": 14866.1523, "tail": "6b5f136a4b7ccb4001000000c05d00000100000000000000", "times": [3002000, 3214000, 3338000, 3432000], "vals": [14072.5889, 14730.502, 14866.1523, 14866.1523]}}, "Translation[1]": {"chan": {"n": 4, "t": [3002000, 3432000], "times_h": "792e4eceeb83", "vals_h": "b1c4b7a5b2fd", "first": 160990.6094, "last": 160994.0312, "tail": "0ad9c8eef4a6034101000000c05d00000100000000000000", "times": [3002000, 3214000, 3338000, 3432000], "vals": [160990.6094, 160976.0312, 160994.0312, 160994.0312]}}, "Translation[2]": {"chan": {"n": 4, "t": [3002000, 3432000], "times_h": "792e4eceeb83", "vals_h": "b8eb0fdc8fc2", "first": 220.1756, "last": 188.8662, "tail": "1b43e2219e856b4001000000c05d00000100000000000000", "times": [3002000, 3214000
+PROP ('master', 'MovieSceneCameraCutTrack', 'None') 3 InitialCameraCutTransform 
+    was null 
+    now {"Rotation": {"err": "error('unpack_from requires a buffer of at least 36 bytes for unpacking 4 bytes ", "opaque": "216c68b970f2"}, "Translation": {"err": "IndexError('index out of range')", "opaque": "eb8ef096da87"}}
+PROP ('master', 'MovieSceneCameraCutTrack', 'None') 3 bHasInitialCameraCutTransform 
+    was null 
+    now {"boolflags": 16}
+PROP ('master', 'MovieSceneCameraCutTrack', 'None') 5 InitialCameraCutTransform 
+    was null 
+    now {"Rotation": {"err": "IndexError('index out of range')", "opaque": "cb3457cb11fe"}, "Translation": {"err": "IndexError('index out of range')", "opaque": "6b6b758be90e"}}
+PROP ('master', 'MovieSceneCameraCutTrack', 'None') 5 bHasInitialCameraCutTransform 
+    was null 
+    now {"boolflags": 16}
+PROP ('master', 'MovieSceneCameraCutTrack', 'None') 7 InitialCameraCutTransform 
+    was null 
+    now {"Rotation": {"err": "error('unpack_from requires a buffer of at least 36 bytes for unpacking 4 bytes ", "opaque": "09be5e2e9e4d"}, "Translation": {"err": "error('unpack_from requires a buffer of at least 28 bytes for unpacking 4 bytes ", "opaque": "30ab420f3937"}}
+PROP ('master', 'MovieSceneCameraCutTrack', 'None') 7 bHasInitialCameraCutTransform 
+    was null 
+    now {"boolflags": 16}
+PROP ('master', 'MovieSceneCameraCutTrack', 'None') 11 InitialCameraCutTransform 
+    was null 
+    now {"Rotation": {"err": "error('unpack_from requires a buffer of at least 36 bytes for unpacking 4 bytes ", "opaque": "403953ef08ce"}, "Translation": {"err": "error('unpack_from requires a buffer of at least 28 bytes for unpacking 4 bytes ", "opaque": "6a611b340fa3"}}
+PROP ('master', 'MovieSceneCameraCutTrack', 'None') 11 bHasInitialCameraCutTransform 
+    was null 
+    now {"boolflags": 16}
+PROP ('master', 'MovieSceneCameraCutTrack', 'None') 13 InitialCameraCutTransform 
+    was null 
+    now {"Rotation": {"err": "error('offset -1084600124 out of range for 32-byte buffer')", "opaque": "2739c69b2d7d"}, "Translation": {"err": "IndexError('index out of range')", "opaque": "74ad6fdcc362"}}
+PROP ('master', 'MovieSceneCameraCutTrack', 'None') 13 bHasInitialCameraCutTransform 
+    was null 
+    now {"boolflags": 16}
+TRACKPROPS ('master', 'MovieSceneSubTrack', 'None') {"DisplayName": {"opaque": "d67cb83f7f03", "type": "TextProperty"}} -> {"DisplayName": {"opaque": "d67cb83f7f03", "type": "TextProperty"}, "SortingOrder": 2}
+MARKED a n=21 b n=14
+  removed: [(360000, 'S3 B02 Figures sway - wide to figures'), (960000, 'S3 B03 Clam on pedestal (shut)'), (2880000, 'S3 5 Chorus / Puss takes the song (narration)'), (3000000, 'S3 B06 Close-up of opening'), (3480000, 'InfinityStage.VampStart'), (4200000, 'S3 B08 Figures calm'), (5040000, "S3 B10 Defocus - Puss's thoughts"), (5520000, 'S3 B11 Pearl rises to camera'), (5520000, 'S3 7 Finish / out')]
+  added: [(5045000, "S3 B10 Defocus - Puss's thoughts "), (5525000, 'S3 B11 Pearl rises to camera')]

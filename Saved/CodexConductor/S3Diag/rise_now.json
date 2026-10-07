@@ -1,0 +1,5146 @@
+{
+ "file": "E:/PussStage/Content/InfinityStage/RigAtmos/LS_S3_HangarRise.uasset",
+ "sha256": "817fec93e17b276d60f6f7b242ee6fa9d059b0bac7933b2269492801450d54a1",
+ "names": 180,
+ "exports": 260,
+ "rows": [
+  {
+   "i": 1,
+   "path": "LS_S3_HangarRise",
+   "cls": "LevelSequence",
+   "props": {
+    "MovieScene": "LS_S3_HangarRise.MovieScene_0",
+    "BindingReferences": {
+     "type": "StructProperty(UpgradedLevelSequenceBindingReferences(/Script/LevelSequence))",
+     "len": 40587,
+     "sha": "218dc29c0d20"
+    },
+    "MetaDataObjects": [
+     "LS_S3_HangarRise.MovieSceneMetaData_0"
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "be40950e2abe774385945b07cae51a7c"
+    }
+   }
+  },
+  {
+   "i": 2,
+   "path": "LS_S3_HangarRise.MovieScene_0",
+   "cls": "MovieScene",
+   "props": {
+    "Possessables": {
+     "type": "ArrayProperty(StructProperty(MovieScenePossessable(/Script/MovieScene)))",
+     "len": 49086,
+     "sha": "b62c6f944ed0"
+    },
+    "ObjectBindings": {
+     "type": "ArrayProperty(StructProperty(MovieSceneBinding(/Script/MovieScene)))",
+     "len": 21052,
+     "sha": "0d09c3a7e9cb"
+    },
+    "PlaybackRange": [
+     0,
+     744000
+    ],
+    "TickResolution": {
+     "type": "StructProperty(FrameRate(/Script/CoreUObject))",
+     "sub": {
+      "Numerator": "c05d0000"
+     },
+     "raw": "61000000000000004600000000000000000000000400000000c05d00006000000000000000"
+    },
+    "DisplayRate": {
+     "type": "StructProperty(FrameRate(/Script/CoreUObject))",
+     "sub": {
+      "Numerator": "1e000000"
+     },
+     "raw": "610000000000000046000000000000000000000004000000001e0000006000000000000000"
+    },
+    "ObjectsToDisplayNames": {
+     "type": "MapProperty(StrProperty,TextProperty)",
+     "len": 83,
+     "sha": "388c5fef001e"
+    },
+    "EditorData": {
+     "type": "StructProperty(MovieSceneEditorData(/Script/MovieScene))",
+     "sub": {},
+     "raw": "6000000000000000"
+    },
+    "NodeGroupCollection": "LS_S3_HangarRise.MovieScene_0.NodeGroupCollection",
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "20c03b7d24db1a439e87d4fcf6ed56e9"
+    }
+   }
+  },
+  {
+   "i": 3,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_1.MovieScene3DTransformSection_0",
+   "cls": "MovieScene3DTransformSection",
+   "props": {
+    "Translation": {
+     "type": "/Script/MovieScene",
+     "n": 0,
+     "span": null,
+     "times": null,
+     "sha": "878a629ca0bb"
+    },
+    "Translation[1]": {
+     "type": "/Script/MovieScene",
+     "n": 0,
+     "span": null,
+     "times": null,
+     "sha": "419b31dcc56a"
+    },
+    "Translation[2]": {
+     "type": "/Script/MovieScene",
+     "n": 0,
+     "span": null,
+     "times": null,
+     "sha": "890c803d3213"
+    },
+    "Rotation[1]": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "cfca61a4dbed"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "09000000",
+      "EaseOut": "0a000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "273d2699fde45a429ad386ea2d41dbb7"
+    }
+   }
+  },
+  {
+   "i": 4,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_3.MovieScene3DTransformSection_0",
+   "cls": "MovieScene3DTransformSection",
+   "props": {
+    "Translation[2]": {
+     "type": "/Script/MovieScene",
+     "n": 0,
+     "span": null,
+     "times": null,
+     "sha": "a7ef35fd89f0"
+    },
+    "Rotation[1]": {
+     "type": "/Script/MovieScene",
+     "n": 3,
+     "span": [
+      0,
+      207200
+     ],
+     "times": [
+      0,
+      99200,
+      207200
+     ],
+     "sha": "2279e79cbee0"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "0b000000",
+      "EaseOut": "0c000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "fcdad185a6da2c4088ffa874eb309ee3"
+    }
+   }
+  },
+  {
+   "i": 5,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_5.MovieScene3DTransformSection_0",
+   "cls": "MovieScene3DTransformSection",
+   "props": {
+    "Translation": {
+     "type": "/Script/MovieScene",
+     "n": 0,
+     "span": null,
+     "times": null,
+     "sha": "a7ef35fd89f0"
+    },
+    "Translation[2]": {
+     "type": "/Script/MovieScene",
+     "n": 3,
+     "span": [
+      0,
+      303200
+     ],
+     "times": [
+      0,
+      207200,
+      303200
+     ],
+     "sha": "de9d484593db"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "0d000000",
+      "EaseOut": "0e000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "8d63f41775661f4494db725dfc785e4c"
+    }
+   }
+  },
+  {
+   "i": 6,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_1",
+   "cls": "MovieScene3DTransformTrack",
+   "props": {
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_1.MovieScene3DTransformSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "2cd6eb6b1b6f8448a72b388147b204c0"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "613c8b619ecc"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "2cd6eb6b1b6f8448a72b388147b204c0"
+    }
+   }
+  },
+  {
+   "i": 7,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_3",
+   "cls": "MovieScene3DTransformTrack",
+   "props": {
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_3.MovieScene3DTransformSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "2564c7444227da4c9f41e24c6f9dd1ea"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "3d8cbfc8a3d7"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "2564c7444227da4c9f41e24c6f9dd1ea"
+    }
+   }
+  },
+  {
+   "i": 8,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_5",
+   "cls": "MovieScene3DTransformTrack",
+   "props": {
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_5.MovieScene3DTransformSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "99703a09d275fc45995e6f7fb272de71"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "5e894512bb89"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "99703a09d275fc45995e6f7fb272de71"
+    }
+   }
+  },
+  {
+   "i": 9,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_1.MovieScene3DTransformSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 10,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_1.MovieScene3DTransformSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 11,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_3.MovieScene3DTransformSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 12,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_3.MovieScene3DTransformSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 13,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_5.MovieScene3DTransformSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 14,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieScene3DTransformTrack_5.MovieScene3DTransformSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 15,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_1.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 16,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_1.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 17,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_10.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 18,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_10.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 19,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_11.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 20,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_11.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 21,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_12.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 22,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_12.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 23,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_13.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 24,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_13.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 25,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_14.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 26,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_14.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 27,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_15.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 28,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_15.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 29,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_17.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 30,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_17.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 31,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_18.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 32,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_18.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 33,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_19.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 34,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_19.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 35,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_2.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 36,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_2.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 37,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_21.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 38,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_21.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 39,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_22.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 40,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_22.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 41,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_23.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 42,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_23.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 43,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_25.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 44,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_25.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 45,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_26.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 46,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_26.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 47,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_27.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 48,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_27.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 49,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_29.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 50,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_29.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 51,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_3.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 52,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_3.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 53,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_31.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 54,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_31.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 55,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_33.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 56,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_33.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 57,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_35.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 58,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_35.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 59,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_37.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 60,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_37.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 61,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_39.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 62,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_39.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 63,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_4.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 64,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_4.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 65,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_41.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 66,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_41.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 67,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_43.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 68,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_43.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 69,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_45.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 70,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_45.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 71,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_47.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 72,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_47.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 73,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_49.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 74,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_49.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 75,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_5.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 76,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_5.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 77,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_51.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 78,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_51.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 79,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_53.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 80,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_53.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 81,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_55.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 82,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_55.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 83,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_57.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 84,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_57.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 85,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_59.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 86,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_59.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 87,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_6.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 88,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_6.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 89,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_61.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 90,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_61.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 91,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_63.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 92,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_63.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 93,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_65.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 94,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_65.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 95,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_67.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 96,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_67.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 97,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_69.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 98,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_69.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 99,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_7.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 100,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_7.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 101,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_71.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 102,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_71.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 103,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_73.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 104,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_73.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 105,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_75.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 106,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_75.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 107,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_77.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 108,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_77.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 109,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_79.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 110,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_79.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 111,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_81.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 112,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_81.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 113,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_9.MovieSceneFloatSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 114,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_9.MovieSceneFloatSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 115,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneGeometryCacheTrack_1.MovieSceneGeometryCacheSection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 116,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneGeometryCacheTrack_1.MovieSceneGeometryCacheSection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 117,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_1.MovieSceneVisibilitySection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 118,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_1.MovieSceneVisibilitySection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 119,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_11.MovieSceneVisibilitySection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 120,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_11.MovieSceneVisibilitySection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 121,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_13.MovieSceneVisibilitySection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 122,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_13.MovieSceneVisibilitySection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 123,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_15.MovieSceneVisibilitySection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 124,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_15.MovieSceneVisibilitySection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 125,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_17.MovieSceneVisibilitySection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 126,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_17.MovieSceneVisibilitySection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 127,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_2.MovieSceneVisibilitySection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 128,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_2.MovieSceneVisibilitySection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 129,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_3.MovieSceneVisibilitySection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 130,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_3.MovieSceneVisibilitySection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 131,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_5.MovieSceneVisibilitySection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 132,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_5.MovieSceneVisibilitySection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 133,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_7.MovieSceneVisibilitySection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 134,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_7.MovieSceneVisibilitySection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 135,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_9.MovieSceneVisibilitySection_0.EaseInFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 136,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_9.MovieSceneVisibilitySection_0.EaseOutFunction",
+   "cls": "MovieSceneBuiltInEasingFunction",
+   "props": {}
+  },
+  {
+   "i": 137,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_1.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "0f000000",
+      "EaseOut": "10000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "7d318fa36e7c8d4c8f5f40a88a436557"
+    }
+   }
+  },
+  {
+   "i": 138,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_10.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 3,
+     "span": [
+      0,
+      244800
+     ],
+     "times": [
+      0,
+      240000,
+      244800
+     ],
+     "sha": "78e44645ab86"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "11000000",
+      "EaseOut": "12000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "e6c97c5f06163d4cb905fbefa4c00b8c"
+    }
+   }
+  },
+  {
+   "i": 139,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_11.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "13000000",
+      "EaseOut": "14000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "7076c6c11e586544a9475bd4596ce952"
+    }
+   }
+  },
+  {
+   "i": 140,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_12.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 3,
+     "span": [
+      0,
+      244800
+     ],
+     "times": [
+      0,
+      240000,
+      244800
+     ],
+     "sha": "2c845ed1c363"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "15000000",
+      "EaseOut": "16000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "33c618581283804bb653c1bc1f3a14a4"
+    }
+   }
+  },
+  {
+   "i": 141,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_13.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "17000000",
+      "EaseOut": "18000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "efa634c3cd21b240ad48d37418b64b1d"
+    }
+   }
+  },
+  {
+   "i": 142,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_14.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 3,
+     "span": [
+      0,
+      244800
+     ],
+     "times": [
+      0,
+      240000,
+      244800
+     ],
+     "sha": "2b98e7390d97"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "19000000",
+      "EaseOut": "1a000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "c77094e6635f2f4ab0874db3adf493d7"
+    }
+   }
+  },
+  {
+   "i": 143,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_15.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "1b000000",
+      "EaseOut": "1c000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "1795cfd7c974b343a329f023f6de793a"
+    }
+   }
+  },
+  {
+   "i": 144,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_17.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "1d000000",
+      "EaseOut": "1e000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "eec2e981cd36464cbc8f56390d7174d9"
+    }
+   }
+  },
+  {
+   "i": 145,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_18.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 3,
+     "span": [
+      0,
+      244800
+     ],
+     "times": [
+      0,
+      240000,
+      244800
+     ],
+     "sha": "2b98e7390d97"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "1f000000",
+      "EaseOut": "20000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "e6edc59041c57a408ef9beaf827c93f5"
+    }
+   }
+  },
+  {
+   "i": 146,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_19.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "21000000",
+      "EaseOut": "22000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "654dd69f6352ce429a2b7e1f1ccf3ae9"
+    }
+   }
+  },
+  {
+   "i": 147,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_2.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 3,
+     "span": [
+      0,
+      244800
+     ],
+     "times": [
+      0,
+      240000,
+      244800
+     ],
+     "sha": "11164e9ca2df"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "23000000",
+      "EaseOut": "24000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "720fe11a24ba504bab96ddf4e6a45694"
+    }
+   }
+  },
+  {
+   "i": 148,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_21.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "25000000",
+      "EaseOut": "26000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "a952147835c7894ba8b88ffc6f0197f8"
+    }
+   }
+  },
+  {
+   "i": 149,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_22.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 3,
+     "span": [
+      0,
+      244800
+     ],
+     "times": [
+      0,
+      240000,
+      244800
+     ],
+     "sha": "2b98e7390d97"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "27000000",
+      "EaseOut": "28000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "1ee0b5f19fa0714a874a1de682650715"
+    }
+   }
+  },
+  {
+   "i": 150,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_23.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "29000000",
+      "EaseOut": "2a000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "db6f944cfea47c489f97525625bd0170"
+    }
+   }
+  },
+  {
+   "i": 151,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_25.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "2b000000",
+      "EaseOut": "2c000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "00213deb2d60c7428b48e45198885f40"
+    }
+   }
+  },
+  {
+   "i": 152,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_26.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "a67c794efc47"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "2d000000",
+      "EaseOut": "2e000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "83aba4ad81241a47a9abedb429384246"
+    }
+   }
+  },
+  {
+   "i": 153,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_27.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "2f000000",
+      "EaseOut": "30000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "ef3a4a4742cdc343af7c6aa45f006d33"
+    }
+   }
+  },
+  {
+   "i": 154,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_29.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 3,
+     "span": [
+      0,
+      244800
+     ],
+     "times": [
+      0,
+      240000,
+      244800
+     ],
+     "sha": "1b7bdf7da92f"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "31000000",
+      "EaseOut": "32000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "544737c1d3342f45b1d0d78b8e26b832"
+    }
+   }
+  },
+  {
+   "i": 155,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_3.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "33000000",
+      "EaseOut": "34000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "60d446da61bee34cbf9ae4aa93fdbff3"
+    }
+   }
+  },
+  {
+   "i": 156,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_31.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 3,
+     "span": [
+      0,
+      248000
+     ],
+     "times": [
+      0,
+      243200,
+      248000
+     ],
+     "sha": "5a4a845de82e"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "35000000",
+      "EaseOut": "36000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "693393d0e88e084eaeb66081068278c4"
+    }
+   }
+  },
+  {
+   "i": 157,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_33.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 3,
+     "span": [
+      0,
+      252000
+     ],
+     "times": [
+      0,
+      247200,
+      252000
+     ],
+     "sha": "896449687b68"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "37000000",
+      "EaseOut": "38000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "b67d68eab0c202428d55cc9f4244338b"
+    }
+   }
+  },
+  {
+   "i": 158,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_35.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "39000000",
+      "EaseOut": "3a000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "27a500b9c568364ab4abde8f46b53460"
+    }
+   }
+  },
+  {
+   "i": 159,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_37.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "3b000000",
+      "EaseOut": "3c000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "cc19887b281114428b251ae2a68a8e5a"
+    }
+   }
+  },
+  {
+   "i": 160,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_39.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "3d000000",
+      "EaseOut": "3e000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "f8ca32f65222d848836526713b419d14"
+    }
+   }
+  },
+  {
+   "i": 161,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_4.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 3,
+     "span": [
+      0,
+      244800
+     ],
+     "times": [
+      0,
+      240000,
+      244800
+     ],
+     "sha": "a1bfb97876df"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "3f000000",
+      "EaseOut": "40000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "b2aa0ad8a104b445b1787b17048f83be"
+    }
+   }
+  },
+  {
+   "i": 162,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_41.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "41000000",
+      "EaseOut": "42000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "4db0ab4f8da7d1409a7c9f18a92201df"
+    }
+   }
+  },
+  {
+   "i": 163,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_43.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "43000000",
+      "EaseOut": "44000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "4c4bb9a1662e1045b0898f3e0f83f977"
+    }
+   }
+  },
+  {
+   "i": 164,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_45.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "45000000",
+      "EaseOut": "46000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "71d344e437ac3440a68059fd481924cc"
+    }
+   }
+  },
+  {
+   "i": 165,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_47.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "47000000",
+      "EaseOut": "48000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "7551142df940124592d5829904f2dd3a"
+    }
+   }
+  },
+  {
+   "i": 166,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_49.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "49000000",
+      "EaseOut": "4a000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "24ba7f8886454e4b897e2c79b098ff9d"
+    }
+   }
+  },
+  {
+   "i": 167,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_5.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "4b000000",
+      "EaseOut": "4c000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "2c1b325c3d4c294fa856e0b6b68bda99"
+    }
+   }
+  },
+  {
+   "i": 168,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_51.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "4d000000",
+      "EaseOut": "4e000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "c6bdd36dff9ac54296707550e3acbdb8"
+    }
+   }
+  },
+  {
+   "i": 169,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_53.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "4f000000",
+      "EaseOut": "50000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "ab2216d625d2404ca3ccac0d000bfc78"
+    }
+   }
+  },
+  {
+   "i": 170,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_55.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "51000000",
+      "EaseOut": "52000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "9d365dc917b86f49847b2b392e908bc4"
+    }
+   }
+  },
+  {
+   "i": 171,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_57.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "53000000",
+      "EaseOut": "54000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "98a582d6d3d79f4f8c32421cb81ce89f"
+    }
+   }
+  },
+  {
+   "i": 172,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_59.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "55000000",
+      "EaseOut": "56000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "d3e712cf3e2d7d4abe6bcfa19b5dcfca"
+    }
+   }
+  },
+  {
+   "i": 173,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_6.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 3,
+     "span": [
+      0,
+      244800
+     ],
+     "times": [
+      0,
+      240000,
+      244800
+     ],
+     "sha": "78e44645ab86"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "57000000",
+      "EaseOut": "58000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "6af45fc1bfe7db4198eb3d77b1e1cb25"
+    }
+   }
+  },
+  {
+   "i": 174,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_61.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "59000000",
+      "EaseOut": "5a000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "3d7308202972c54896ccb9517c94b1ff"
+    }
+   }
+  },
+  {
+   "i": 175,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_63.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "5b000000",
+      "EaseOut": "5c000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "ca4504a28291e6469ec8b28fcbc02b77"
+    }
+   }
+  },
+  {
+   "i": 176,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_65.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "5d000000",
+      "EaseOut": "5e000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "31aef90d5e5a6d4495cabfaa92bcfdd1"
+    }
+   }
+  },
+  {
+   "i": 177,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_67.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "5f000000",
+      "EaseOut": "60000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "eee85fce0bee2549b4cabacd613b8fdb"
+    }
+   }
+  },
+  {
+   "i": 178,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_69.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "61000000",
+      "EaseOut": "62000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "f4cea7de5a897f4fb285e4bd48de27b5"
+    }
+   }
+  },
+  {
+   "i": 179,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_7.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "63000000",
+      "EaseOut": "64000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "dda35944394cb44d9abc154c684febdc"
+    }
+   }
+  },
+  {
+   "i": 180,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_71.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "65000000",
+      "EaseOut": "66000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "c2e6906bd687a542a4ca1241d78b6733"
+    }
+   }
+  },
+  {
+   "i": 181,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_73.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "67000000",
+      "EaseOut": "68000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "04dd31dc6aee0445ba434d7b3b785f9f"
+    }
+   }
+  },
+  {
+   "i": 182,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_75.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "69000000",
+      "EaseOut": "6a000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "ea4a37fd952e014f815925f6d69f77a0"
+    }
+   }
+  },
+  {
+   "i": 183,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_77.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "6b000000",
+      "EaseOut": "6c000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "bd65c26c39e17745a3de229a24bce68d"
+    }
+   }
+  },
+  {
+   "i": 184,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_79.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "6d000000",
+      "EaseOut": "6e000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "ff00b3b018554d46a0b68dcf0e22e9c2"
+    }
+   }
+  },
+  {
+   "i": 185,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_81.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "03c3b6ed77f4"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "6f000000",
+      "EaseOut": "70000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "5be35ba89af5c646a41a1c95efce76f0"
+    }
+   }
+  },
+  {
+   "i": 186,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_9.MovieSceneFloatSection_0",
+   "cls": "MovieSceneFloatSection",
+   "props": {
+    "FloatCurve": {
+     "type": "/Script/MovieScene",
+     "n": 2,
+     "span": [
+      -140800,
+      99200
+     ],
+     "times": [
+      -140800,
+      99200
+     ],
+     "sha": "ba79fd57bcae"
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "71000000",
+      "EaseOut": "72000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "bece5344f241c14b97cdbd05bae19648"
+    }
+   }
+  },
+  {
+   "i": 187,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_1",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_1.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "36aea4103b13af49b70879491b56bf5b"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "4cd65377dff5"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "36aea4103b13af49b70879491b56bf5b"
+    }
+   }
+  },
+  {
+   "i": 188,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_10",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_10.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "e20c7f89e939ce489224f353d6ca6283"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "b7042ef6f0b2"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "e20c7f89e939ce489224f353d6ca6283"
+    }
+   }
+  },
+  {
+   "i": 189,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_11",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_11.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "af215ad7d265f946b3cf8fe2b4bf2294"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "04febbf34b27"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "af215ad7d265f946b3cf8fe2b4bf2294"
+    }
+   }
+  },
+  {
+   "i": 190,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_12",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_12.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "baa31ff8573eec409239103d153077be"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "341f1b3b6e6c"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "baa31ff8573eec409239103d153077be"
+    }
+   }
+  },
+  {
+   "i": 191,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_13",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_13.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "4746be54da489049b96d0c6bc18b258b"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "a143176155dc"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "4746be54da489049b96d0c6bc18b258b"
+    }
+   }
+  },
+  {
+   "i": 192,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_14",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_14.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "f47154bd3bef884f89f568de817028ed"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "b053c998b204"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "f47154bd3bef884f89f568de817028ed"
+    }
+   }
+  },
+  {
+   "i": 193,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_15",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_15.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "e964374d2630784db225bb126d612c60"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "642e7d17d85f"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "e964374d2630784db225bb126d612c60"
+    }
+   }
+  },
+  {
+   "i": 194,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_17",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_17.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "f3641d76a5b2bb45bb3ef97f3c6b0f3e"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "264a76add1ea"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "f3641d76a5b2bb45bb3ef97f3c6b0f3e"
+    }
+   }
+  },
+  {
+   "i": 195,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_18",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_18.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "e695174c29859c479f4baf15ac75489f"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "f72fa1e0ae59"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "e695174c29859c479f4baf15ac75489f"
+    }
+   }
+  },
+  {
+   "i": 196,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_19",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_19.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "71f8b3a9e0cb9a448d1bcf7bd8dc114b"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "f5130b2cc0e3"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "71f8b3a9e0cb9a448d1bcf7bd8dc114b"
+    }
+   }
+  },
+  {
+   "i": 197,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_2",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_2.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "6732b07c5b9bb74d9e50293a7b7a858e"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "026c1d82da6d"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "6732b07c5b9bb74d9e50293a7b7a858e"
+    }
+   }
+  },
+  {
+   "i": 198,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_21",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_21.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "5e947341437a1a48892e5f0451491106"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "5f77e40cd6b0"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "5e947341437a1a48892e5f0451491106"
+    }
+   }
+  },
+  {
+   "i": 199,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_22",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_22.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "6ebdeed6d24e1a41bafca9566b767a53"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "af51ff1588c3"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "6ebdeed6d24e1a41bafca9566b767a53"
+    }
+   }
+  },
+  {
+   "i": 200,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_23",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_23.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "c130d3e9b403bd49972093b8ab06d553"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "3267f9c4bcaa"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "c130d3e9b403bd49972093b8ab06d553"
+    }
+   }
+  },
+  {
+   "i": 201,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_25",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_25.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "cfd7080ce2615a4c83bb759d0593b60a"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "c5c636457b45"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "cfd7080ce2615a4c83bb759d0593b60a"
+    }
+   }
+  },
+  {
+   "i": 202,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_26",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "1400000000000000",
+      "PropertyPath": "1400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_26.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "258cf7b21fa4284fae0270d446fe551a"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "1b497640c14a"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "258cf7b21fa4284fae0270d446fe551a"
+    }
+   }
+  },
+  {
+   "i": 203,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_27",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_27.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "cec95f7c868bc44eb3a1367bb9645fa1"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "cd1fe4bf3aec"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "cec95f7c868bc44eb3a1367bb9645fa1"
+    }
+   }
+  },
+  {
+   "i": 204,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_29",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_29.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "999ce72e9f38b54da5290ba23663b309"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "696f477d37c3"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "999ce72e9f38b54da5290ba23663b309"
+    }
+   }
+  },
+  {
+   "i": 205,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_3",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_3.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "7588ceb521d3fb40b928c3649ea36468"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "fe711bce0602"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "7588ceb521d3fb40b928c3649ea36468"
+    }
+   }
+  },
+  {
+   "i": 206,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_31",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_31.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "97deff36a170ed4f87be03fafe9d459a"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "de1a014ae4f0"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "97deff36a170ed4f87be03fafe9d459a"
+    }
+   }
+  },
+  {
+   "i": 207,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_33",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_33.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "2565f39e345ab643abd87beee04bbb0e"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "f83b741449bc"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "2565f39e345ab643abd87beee04bbb0e"
+    }
+   }
+  },
+  {
+   "i": 208,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_35",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_35.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "a0e1e2a12a9149418bcf91ae12c332fb"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "976bce78cb4a"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "a0e1e2a12a9149418bcf91ae12c332fb"
+    }
+   }
+  },
+  {
+   "i": 209,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_37",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_37.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "a0d4d71f1669d044b3ce0bb282893c9f"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "964f8f761c32"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "a0d4d71f1669d044b3ce0bb282893c9f"
+    }
+   }
+  },
+  {
+   "i": 210,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_39",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_39.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "e2d9cc50ef569c41b8064e3420cba3ae"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "fe2e67257f42"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "e2d9cc50ef569c41b8064e3420cba3ae"
+    }
+   }
+  },
+  {
+   "i": 211,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_4",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_4.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "dcd63015f1e62247a1710aa2280234f8"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "deee2ce8264a"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "dcd63015f1e62247a1710aa2280234f8"
+    }
+   }
+  },
+  {
+   "i": 212,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_41",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_41.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "8769d8852722d444877fa217a1cf38ab"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "01bf82f19e2d"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "8769d8852722d444877fa217a1cf38ab"
+    }
+   }
+  },
+  {
+   "i": 213,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_43",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_43.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "d69a0c97dcae7744afeae74255edb4b8"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "3ef397fa9d3d"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "d69a0c97dcae7744afeae74255edb4b8"
+    }
+   }
+  },
+  {
+   "i": 214,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_45",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_45.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "93dfc8e7478159468d40531b118cbb5d"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "d586ab553c1c"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "93dfc8e7478159468d40531b118cbb5d"
+    }
+   }
+  },
+  {
+   "i": 215,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_47",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_47.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "1376cb2313e2724b9cb786ecd2a1ceb8"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "b1beb2cb28c6"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "1376cb2313e2724b9cb786ecd2a1ceb8"
+    }
+   }
+  },
+  {
+   "i": 216,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_49",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_49.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "288114c51c8b5b46804c2f9c98c40d86"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "fce32c56e83e"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "288114c51c8b5b46804c2f9c98c40d86"
+    }
+   }
+  },
+  {
+   "i": 217,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_5",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_5.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "b138ac7284bf8840811dae9f5001e66d"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "c2935a4d0761"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "b138ac7284bf8840811dae9f5001e66d"
+    }
+   }
+  },
+  {
+   "i": 218,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_51",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_51.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "1ff7de553bfaab408ce0b3af99106f13"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "f09f4d29a404"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "1ff7de553bfaab408ce0b3af99106f13"
+    }
+   }
+  },
+  {
+   "i": 219,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_53",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_53.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "4c4502f1caae5c479559bb7bf32338e4"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "5bcb501315af"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "4c4502f1caae5c479559bb7bf32338e4"
+    }
+   }
+  },
+  {
+   "i": 220,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_55",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_55.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "a6ece6ef317398499f87fb1cdeefb1f9"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "a920ccf6edc9"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "a6ece6ef317398499f87fb1cdeefb1f9"
+    }
+   }
+  },
+  {
+   "i": 221,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_57",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_57.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "6e609abcb7b04a45976fdd7f0878f289"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "0590ba76329d"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "6e609abcb7b04a45976fdd7f0878f289"
+    }
+   }
+  },
+  {
+   "i": 222,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_59",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_59.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "89caeffa7acac345ac46eca867737d3c"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "d9486306ab35"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "89caeffa7acac345ac46eca867737d3c"
+    }
+   }
+  },
+  {
+   "i": 223,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_6",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_6.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "c793f2337f7fdf4da393f67874957799"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "38a0c4ba8e61"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "c793f2337f7fdf4da393f67874957799"
+    }
+   }
+  },
+  {
+   "i": 224,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_61",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_61.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "ac2d5586997e6f47a4dd990135408de5"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "b23ea44c9f83"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "ac2d5586997e6f47a4dd990135408de5"
+    }
+   }
+  },
+  {
+   "i": 225,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_63",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_63.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "5702afcb1d65d04884d22b395ffc07bf"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "00ecda325f4e"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "5702afcb1d65d04884d22b395ffc07bf"
+    }
+   }
+  },
+  {
+   "i": 226,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_65",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_65.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "b4b90fb40494434fb6ef85a3e6a26518"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "da2d5bbadfab"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "b4b90fb40494434fb6ef85a3e6a26518"
+    }
+   }
+  },
+  {
+   "i": 227,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_67",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_67.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "b2e6f07fd50d2e44b012d04a29467b12"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "fa2be56d46ae"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "b2e6f07fd50d2e44b012d04a29467b12"
+    }
+   }
+  },
+  {
+   "i": 228,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_69",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_69.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "d5b24ba46b382e40b6b87de2dbe3d0e6"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "8502ab2b76c1"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "d5b24ba46b382e40b6b87de2dbe3d0e6"
+    }
+   }
+  },
+  {
+   "i": 229,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_7",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_7.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "f1ad43d211a91f4ba476343aa10a6cd2"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "eb8c3ae1abae"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "f1ad43d211a91f4ba476343aa10a6cd2"
+    }
+   }
+  },
+  {
+   "i": 230,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_71",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_71.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "8c1ecf2fe685854c8e697d019379220f"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "64c94011ec79"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "8c1ecf2fe685854c8e697d019379220f"
+    }
+   }
+  },
+  {
+   "i": 231,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_73",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_73.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "438b426e6eed2f4c9aa1a5fd0d61fb2a"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "b31a486f1ebd"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "438b426e6eed2f4c9aa1a5fd0d61fb2a"
+    }
+   }
+  },
+  {
+   "i": 232,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_75",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_75.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "a416f0109adf1f4c858cfaaa84e2d990"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "9652eee75edf"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "a416f0109adf1f4c858cfaaa84e2d990"
+    }
+   }
+  },
+  {
+   "i": 233,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_77",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_77.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "e25c6b135affbe4bad6ff6e692964a84"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "c305ac8f1d17"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "e25c6b135affbe4bad6ff6e692964a84"
+    }
+   }
+  },
+  {
+   "i": 234,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_79",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_79.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "6154fb7285f9854fbc7113fc1fbf6bdc"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "af5fdc03d0bf"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "6154fb7285f9854fbc7113fc1fbf6bdc"
+    }
+   }
+  },
+  {
+   "i": 235,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_81",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_81.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "3e391727ce91984fb13b3ed38f2ed36c"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "70a29d6854ae"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "3e391727ce91984fb13b3ed38f2ed36c"
+    }
+   }
+  },
+  {
+   "i": 236,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_9",
+   "cls": "MovieSceneFloatTrack",
+   "props": {
+    "PropertyBinding": {
+     "type": "StructProperty(MovieScenePropertyBinding(/Script/MovieScene))",
+     "sub": {
+      "PropertyName": "4400000000000000",
+      "PropertyPath": "4400000000000000",
+      "bCanUseClassLookup": ""
+     },
+     "raw": null
+    },
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneFloatTrack_9.MovieSceneFloatSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "637775e745b786429659d5873b4119a7"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "c4c238d32cf9"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "637775e745b786429659d5873b4119a7"
+    }
+   }
+  },
+  {
+   "i": 237,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneGeometryCacheTrack_1.MovieSceneGeometryCacheSection_0",
+   "cls": "MovieSceneGeometryCacheSection",
+   "props": {
+    "Params": {
+     "type": "StructProperty(MovieSceneGeometryCacheParams(/Script/GeometryCacheTracks))",
+     "sub": {
+      "GeometryCacheAsset": "f2ffffff",
+      "StartFrameOffset": "a05a0000"
+     },
+     "raw": null
+    },
+    "EvalOptions": {
+     "type": "StructProperty(MovieSceneSectionEvalOptions(/Script/MovieScene))",
+     "sub": {
+      "CompletionMode": "2c00000000000000"
+     },
+     "raw": null
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "73000000",
+      "EaseOut": "74000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     -141600,
+     99200
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "1ffc89d88ed9774bae6e0fcf98c66a35"
+    }
+   }
+  },
+  {
+   "i": 238,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneGeometryCacheTrack_1",
+   "cls": "MovieSceneGeometryCacheTrack",
+   "props": {
+    "AnimationSections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneGeometryCacheTrack_1.MovieSceneGeometryCacheSection_0"
+    ],
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "4f4de45dc83a7549b5dd7af4748316aa"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "4c00b5887cf6"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "4f4de45dc83a7549b5dd7af4748316aa"
+    }
+   }
+  },
+  {
+   "i": 239,
+   "path": "LS_S3_HangarRise.MovieSceneMetaData_0",
+   "cls": "MovieSceneMetaData",
+   "props": {
+    "Author": "Administrator",
+    "Created": {
+     "type": "StructProperty(DateTime(/Script/CoreUObject))",
+     "raw": "20457b0bbd1edf08"
+    }
+   }
+  },
+  {
+   "i": 240,
+   "path": "LS_S3_HangarRise.MovieScene_0.NodeGroupCollection",
+   "cls": "MovieSceneNodeGroupCollection",
+   "props": {}
+  },
+  {
+   "i": 241,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_1.MovieSceneVisibilitySection_0",
+   "cls": "MovieSceneVisibilitySection",
+   "props": {
+    "BoolCurve": {
+     "type": "/Script/MovieScene",
+     "n": null,
+     "span": null,
+     "times": null,
+     "sha": "17e126823e60",
+     "vals": {
+      "err": "unpack_from requires a buffer of at least 4194318 bytes for unpacking 4 bytes at offset 4194314 (actual buffer size is 124)"
+     }
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "75000000",
+      "EaseOut": "76000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "915055bde648264bbc77d174a50e8503"
+    }
+   }
+  },
+  {
+   "i": 242,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_11.MovieSceneVisibilitySection_0",
+   "cls": "MovieSceneVisibilitySection",
+   "props": {
+    "BoolCurve": {
+     "type": "/Script/MovieScene",
+     "n": null,
+     "span": null,
+     "times": null,
+     "sha": "17e126823e60",
+     "vals": {
+      "err": "unpack_from requires a buffer of at least 4194318 bytes for unpacking 4 bytes at offset 4194314 (actual buffer size is 124)"
+     }
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "77000000",
+      "EaseOut": "78000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "64f5d923aa1f394788769452fdcf9686"
+    }
+   }
+  },
+  {
+   "i": 243,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_13.MovieSceneVisibilitySection_0",
+   "cls": "MovieSceneVisibilitySection",
+   "props": {
+    "BoolCurve": {
+     "type": "/Script/MovieScene",
+     "n": null,
+     "span": null,
+     "times": null,
+     "sha": "17e126823e60",
+     "vals": {
+      "err": "unpack_from requires a buffer of at least 4194318 bytes for unpacking 4 bytes at offset 4194314 (actual buffer size is 124)"
+     }
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "79000000",
+      "EaseOut": "7a000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "190dafc66295b445a19e7c6bce12e840"
+    }
+   }
+  },
+  {
+   "i": 244,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_15.MovieSceneVisibilitySection_0",
+   "cls": "MovieSceneVisibilitySection",
+   "props": {
+    "BoolCurve": {
+     "type": "/Script/MovieScene",
+     "n": null,
+     "span": null,
+     "times": null,
+     "sha": "17e126823e60",
+     "vals": {
+      "err": "unpack_from requires a buffer of at least 4194318 bytes for unpacking 4 bytes at offset 4194314 (actual buffer size is 124)"
+     }
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "7b000000",
+      "EaseOut": "7c000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "cadc402aaa50dd4597440724db2c2c3d"
+    }
+   }
+  },
+  {
+   "i": 245,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_17.MovieSceneVisibilitySection_0",
+   "cls": "MovieSceneVisibilitySection",
+   "props": {
+    "BoolCurve": {
+     "type": "/Script/MovieScene",
+     "n": null,
+     "span": null,
+     "times": null,
+     "sha": "17e126823e60",
+     "vals": {
+      "err": "unpack_from requires a buffer of at least 4194318 bytes for unpacking 4 bytes at offset 4194314 (actual buffer size is 124)"
+     }
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "7d000000",
+      "EaseOut": "7e000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "df47f3759fa82440a3352cc112bc592e"
+    }
+   }
+  },
+  {
+   "i": 246,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_2.MovieSceneVisibilitySection_0",
+   "cls": "MovieSceneVisibilitySection",
+   "props": {
+    "BoolCurve": {
+     "type": "/Script/MovieScene",
+     "n": null,
+     "span": null,
+     "times": null,
+     "sha": "17e126823e60",
+     "vals": {
+      "err": "unpack_from requires a buffer of at least 4194318 bytes for unpacking 4 bytes at offset 4194314 (actual buffer size is 124)"
+     }
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "7f000000",
+      "EaseOut": "80000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744001
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "6f37cfa50096b044af378381303199ac"
+    }
+   }
+  },
+  {
+   "i": 247,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_3.MovieSceneVisibilitySection_0",
+   "cls": "MovieSceneVisibilitySection",
+   "props": {
+    "BoolCurve": {
+     "type": "/Script/MovieScene",
+     "n": null,
+     "span": null,
+     "times": null,
+     "sha": "17e126823e60",
+     "vals": {
+      "err": "unpack_from requires a buffer of at least 4194318 bytes for unpacking 4 bytes at offset 4194314 (actual buffer size is 124)"
+     }
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "81000000",
+      "EaseOut": "82000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "6c40c3e8f5077342a749f544454e7d23"
+    }
+   }
+  },
+  {
+   "i": 248,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_5.MovieSceneVisibilitySection_0",
+   "cls": "MovieSceneVisibilitySection",
+   "props": {
+    "BoolCurve": {
+     "type": "/Script/MovieScene",
+     "n": null,
+     "span": null,
+     "times": null,
+     "sha": "17e126823e60",
+     "vals": {
+      "err": "unpack_from requires a buffer of at least 4194318 bytes for unpacking 4 bytes at offset 4194314 (actual buffer size is 124)"
+     }
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "83000000",
+      "EaseOut": "84000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "eaed1ed5c086fc42b38accd9711f70fa"
+    }
+   }
+  },
+  {
+   "i": 249,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_7.MovieSceneVisibilitySection_0",
+   "cls": "MovieSceneVisibilitySection",
+   "props": {
+    "BoolCurve": {
+     "type": "/Script/MovieScene",
+     "n": null,
+     "span": null,
+     "times": null,
+     "sha": "17e126823e60",
+     "vals": {
+      "err": "unpack_from requires a buffer of at least 4194318 bytes for unpacking 4 bytes at offset 4194314 (actual buffer size is 124)"
+     }
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "85000000",
+      "EaseOut": "86000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "d7d3689d3392f940a68d31b8b2f3d5e2"
+    }
+   }
+  },
+  {
+   "i": 250,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_9.MovieSceneVisibilitySection_0",
+   "cls": "MovieSceneVisibilitySection",
+   "props": {
+    "BoolCurve": {
+     "type": "/Script/MovieScene",
+     "n": null,
+     "span": null,
+     "times": null,
+     "sha": "17e126823e60",
+     "vals": {
+      "err": "unpack_from requires a buffer of at least 4194318 bytes for unpacking 4 bytes at offset 4194314 (actual buffer size is 124)"
+     }
+    },
+    "Easing": {
+     "type": "StructProperty(MovieSceneEasingSettings(/Script/MovieScene))",
+     "sub": {
+      "EaseIn": "87000000",
+      "EaseOut": "88000000"
+     },
+     "raw": null
+    },
+    "SectionRange": [
+     0,
+     744000
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "f5c1385b93a49c4e9d681230055a54aa"
+    }
+   }
+  },
+  {
+   "i": 251,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_1",
+   "cls": "MovieSceneVisibilityTrack",
+   "props": {
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_1.MovieSceneVisibilitySection_0"
+    ],
+    "DisplayName": {
+     "type": "TextProperty",
+     "len": 37,
+     "sha": "ef36b8335f57"
+    },
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "9b68236877042145872986a2043c4c02"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "f92838adf50c"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "9b68236877042145872986a2043c4c02"
+    }
+   }
+  },
+  {
+   "i": 252,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_11",
+   "cls": "MovieSceneVisibilityTrack",
+   "props": {
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_11.MovieSceneVisibilitySection_0"
+    ],
+    "DisplayName": {
+     "type": "TextProperty",
+     "len": 37,
+     "sha": "ef36b8335f57"
+    },
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "48067c7f105b3c45ba4e283281744c4e"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "dbcb2ceeac56"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "48067c7f105b3c45ba4e283281744c4e"
+    }
+   }
+  },
+  {
+   "i": 253,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_13",
+   "cls": "MovieSceneVisibilityTrack",
+   "props": {
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_13.MovieSceneVisibilitySection_0"
+    ],
+    "DisplayName": {
+     "type": "TextProperty",
+     "len": 37,
+     "sha": "ef36b8335f57"
+    },
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "85c9b38945a1124581534581e4ee54a0"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "0c3624a7cb8f"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "85c9b38945a1124581534581e4ee54a0"
+    }
+   }
+  },
+  {
+   "i": 254,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_15",
+   "cls": "MovieSceneVisibilityTrack",
+   "props": {
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_15.MovieSceneVisibilitySection_0"
+    ],
+    "DisplayName": {
+     "type": "TextProperty",
+     "len": 37,
+     "sha": "ef36b8335f57"
+    },
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "5a3d9f395094be439ad8ba46c567ab9d"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "12312daf358f"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "5a3d9f395094be439ad8ba46c567ab9d"
+    }
+   }
+  },
+  {
+   "i": 255,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_17",
+   "cls": "MovieSceneVisibilityTrack",
+   "props": {
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_17.MovieSceneVisibilitySection_0"
+    ],
+    "DisplayName": {
+     "type": "TextProperty",
+     "len": 37,
+     "sha": "ef36b8335f57"
+    },
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "d01d3ebbc346084da66509e5bec8cc6e"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "1c294896aa9c"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "d01d3ebbc346084da66509e5bec8cc6e"
+    }
+   }
+  },
+  {
+   "i": 256,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_2",
+   "cls": "MovieSceneVisibilityTrack",
+   "props": {
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_2.MovieSceneVisibilitySection_0"
+    ],
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "7d6ff390c31ede479da1bd39f41ea19b"
+    }
+   }
+  },
+  {
+   "i": 257,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_3",
+   "cls": "MovieSceneVisibilityTrack",
+   "props": {
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_3.MovieSceneVisibilitySection_0"
+    ],
+    "DisplayName": {
+     "type": "TextProperty",
+     "len": 37,
+     "sha": "ef36b8335f57"
+    },
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "441609b046a1ed42b41e3c7f9b95a718"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "655aaeda20c5"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "441609b046a1ed42b41e3c7f9b95a718"
+    }
+   }
+  },
+  {
+   "i": 258,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_5",
+   "cls": "MovieSceneVisibilityTrack",
+   "props": {
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_5.MovieSceneVisibilitySection_0"
+    ],
+    "DisplayName": {
+     "type": "TextProperty",
+     "len": 37,
+     "sha": "ef36b8335f57"
+    },
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "88e648a9cbf87e418daf86f18c656a3b"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "89c28fce1840"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "88e648a9cbf87e418daf86f18c656a3b"
+    }
+   }
+  },
+  {
+   "i": 259,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_7",
+   "cls": "MovieSceneVisibilityTrack",
+   "props": {
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_7.MovieSceneVisibilitySection_0"
+    ],
+    "DisplayName": {
+     "type": "TextProperty",
+     "len": 37,
+     "sha": "ef36b8335f57"
+    },
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "1399705de93c004ea91ea90742996934"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "59c90128d306"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "1399705de93c004ea91ea90742996934"
+    }
+   }
+  },
+  {
+   "i": 260,
+   "path": "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_9",
+   "cls": "MovieSceneVisibilityTrack",
+   "props": {
+    "Sections": [
+     "LS_S3_HangarRise.MovieScene_0.MovieSceneVisibilityTrack_9.MovieSceneVisibilitySection_0"
+    ],
+    "DisplayName": {
+     "type": "TextProperty",
+     "len": 37,
+     "sha": "ef36b8335f57"
+    },
+    "EvaluationFieldGuid": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "b695ac85a3412647823021973acb7d30"
+    },
+    "EvaluationField": {
+     "type": "StructProperty(MovieSceneTrackEvaluationField(/Script/MovieScene))",
+     "len": 650,
+     "sha": "775a771a8565"
+    },
+    "Signature": {
+     "type": "StructProperty(Guid(/Script/CoreUObject))",
+     "raw": "b695ac85a3412647823021973acb7d30"
+    }
+   }
+  }
+ ]
+}
