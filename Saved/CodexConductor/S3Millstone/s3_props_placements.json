@@ -1,0 +1,2 @@
+{"note": "EMPTY on purpose: no position chosen yet for the standing stone or the bones (Gary). Row shape: {prop, label, xy_world | xy_root_local, yaw_deg, burial_cm (pivot below the measured surface; HoledStandingStone pivot = its sand line, so 0 buries its 30 cm root; bones e.g. 2-5 cm for part-buried), floor_radius_cm, reveal: rise_track|none, mobility: STATIC}",
+ "placements": []}
