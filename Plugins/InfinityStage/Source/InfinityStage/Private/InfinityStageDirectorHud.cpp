@@ -18,6 +18,7 @@
 #include "LevelSequence.h"
 #include "LevelSequencePlayer.h"
 #include "MovieScene.h"
+#include "InfinityStageCueSheet.h"
 #include "SceneInterface.h"
 #include "SceneView.h"
 #include "Sections/MovieSceneSubSection.h"
@@ -31,6 +32,11 @@ TAutoConsoleVariable<int32> CVarInfinityStageDirectorHud(
     TEXT("Director's bottom-row HUD (cue, kind, bay, GO, Master/segment time, sub-sequence).\n")
     TEXT("-1: auto (default) - on in PIE, off in a packaged or standalone game.\n")
     TEXT("0: off. 1: on in any game world. Key H in the show viewport toggles it."));
+
+TAutoConsoleVariable<int32> CVarInfinityStageDirectorHudScript(
+    TEXT("InfinityStage.DirectorHudScript"),
+    0,
+    TEXT("1: show the script panel (current line, next lines, standby) above the Director HUD strip. H cycles it."));
 
 /** No Show Root in the world: look again at most this often (never a per-frame actor walk). */
 constexpr double RootSearchIntervalSeconds = 2.0;
@@ -101,10 +107,59 @@ bool IsEnabledForWorld(const UWorld* World)
     return World && IsEnabledFor(CVarInfinityStageDirectorHud.GetValueOnGameThread(), World->WorldType);
 }
 
+void NextMode(const bool bStripOn, const bool bScriptOn, bool& bOutStripOn, bool& bOutScriptOn)
+{
+    if (!bStripOn)
+    {
+        bOutStripOn = true;
+        bOutScriptOn = false;
+    }
+    else if (!bScriptOn)
+    {
+        bOutStripOn = true;
+        bOutScriptOn = true;
+    }
+    else
+    {
+        bOutStripOn = false;
+        bOutScriptOn = false;
+    }
+}
+
+bool IsScriptPanelEnabledForWorld(const UWorld* World)
+{
+    return IsEnabledForWorld(World) && CVarInfinityStageDirectorHudScript.GetValueOnGameThread() > 0;
+}
+
 void Toggle(const UWorld* World)
 {
-    const bool bNow = IsEnabledForWorld(World);
-    CVarInfinityStageDirectorHud->Set(bNow ? 0 : 1, ECVF_SetByConsole);
+    bool bStrip = false;
+    bool bScript = false;
+    NextMode(IsEnabledForWorld(World), IsScriptPanelEnabledForWorld(World), bStrip, bScript);
+    CVarInfinityStageDirectorHud->Set(bStrip ? 1 : 0, ECVF_SetByConsole);
+    CVarInfinityStageDirectorHudScript->Set(bScript ? 1 : 0, ECVF_SetByConsole);
+}
+
+TArray<FString> WrapText(const FString& Text, const int32 MaxChars)
+{
+    TArray<FString> Out;
+    TArray<FString> Words;
+    Text.Replace(TEXT("\n"), TEXT(" ")).ParseIntoArrayWS(Words);
+    FString Line;
+    for (const FString& Word : Words)
+    {
+        if (!Line.IsEmpty() && Line.Len() + 1 + Word.Len() > FMath::Max(8, MaxChars))
+        {
+            Out.Add(Line);
+            Line.Reset();
+        }
+        Line += Line.IsEmpty() ? Word : TEXT(" ") + Word;
+    }
+    if (!Line.IsEmpty())
+    {
+        Out.Add(Line);
+    }
+    return Out;
 }
 
 int32 NearestBay(const TArray<double>& SortedStationDistancesCm, const double DistanceCm)
@@ -468,6 +523,11 @@ void UInfinityStageDirectorHudSubsystem::Draw(UCanvas* Canvas, APlayerController
     Band.BlendMode = SE_BLEND_Translucent;
     Canvas->DrawItem(Band);
 
+    if (InfinityStageDirectorHud::IsScriptPanelEnabledForWorld(World))
+    {
+        DrawScriptPanel(Canvas, Font, TopY - 8.0f, State);
+    }
+
     FCanvasTextItem TopItem(FVector2D(Left, TopY), FText::FromString(Top), Font, FLinearColor(1.0f, 0.86f, 0.35f));
     TopItem.EnableShadow(FLinearColor::Black);
     Canvas->DrawItem(TopItem);
@@ -478,3 +538,105 @@ void UInfinityStageDirectorHudSubsystem::Draw(UCanvas* Canvas, APlayerController
         Canvas->DrawItem(BottomItem);
     }
 }
+
+void UInfinityStageDirectorHudSubsystem::DrawScriptPanel(
+    UCanvas* Canvas,
+    UFont* Font,
+    const float BottomOfPanel,
+    const FInfinityDirectorHudState& State)
+{
+    UInfinityStageCueDirectorSubsystem* Director = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageCueDirectorSubsystem>() : nullptr;
+    if (!Director)
+    {
+        return;
+    }
+    // Sheet segment k is the stage's segment k (Opening, P1, S1, I1, P2 ...): the stage moving on
+    // pulls the script cursor forward; it never pulls it back.
+    if (State.SegmentIndex != INDEX_NONE)
+    {
+        Director->SyncToSegment(State.SegmentIndex);
+    }
+    const FInfinityCueSheet& Sheet = Director->GetSheet();
+    struct FPanelLine
+    {
+        FString Text;
+        FLinearColor Color;
+    };
+    TArray<FPanelLine> Lines;
+    float CharWidth = 0.0f;
+    float CharHeight = 0.0f;
+    Canvas->StrLen(Font, TEXT("M"), CharWidth, CharHeight);
+    const int32 MaxChars = FMath::Max(40, FMath::FloorToInt32((Canvas->ClipX - 40.0f) / FMath::Max(1.0f, CharWidth * 0.62f)));
+    const FLinearColor Amber(1.0f, 0.62f, 0.2f);
+    const FLinearColor White(1.0f, 1.0f, 1.0f);
+    const FLinearColor Dim(0.62f, 0.66f, 0.72f);
+    const FLinearColor Cyan(0.45f, 0.9f, 1.0f);
+    const auto Add = [&Lines, MaxChars](const FString& Text, const FLinearColor& Color)
+    {
+        for (const FString& Wrapped : InfinityStageDirectorHud::WrapText(Text, MaxChars))
+        {
+            Lines.Add({Wrapped, Color});
+        }
+    };
+
+    if (Sheet.Rows.IsEmpty())
+    {
+        Add(Sheet.Warnings.IsEmpty() ? FString(TEXT("Cue sheet: no rows")) : Sheet.Warnings[0], Amber);
+    }
+    else
+    {
+        const int32 Current = FMath::Clamp(Director->GetCursor().Row, 0, Sheet.Rows.Num() - 1);
+        const FInfinityCueSheetRow& Row = Sheet.Rows[Current];
+        const FString StageLabel = State.SegmentLabel;
+        const FString SheetLabel = Row.Segment.IsEmpty() ? FString(TEXT("(pre-show)")) : Row.Segment;
+        const bool bAgree = Row.SegmentOrdinal == State.SegmentIndex;
+        Add(FString::Printf(TEXT("SCRIPT  sheet row %d%s   sheet: %s   stage: %s%s"),
+            Row.SourceRow, Row.Number.IsEmpty() ? TEXT("") : *FString::Printf(TEXT("  [cue %s]"), *Row.Number),
+            *SheetLabel, *StageLabel, bAgree ? TEXT("") : TEXT("   (script and stage differ)")),
+            bAgree ? Dim : Amber);
+        const FString Actions = InfinityStageCueSheet::DescribeActions(Row);
+        if (!Actions.IsEmpty())
+        {
+            Add(TEXT("> ") + Actions, Cyan);
+        }
+        for (const FString& Spoken : InfinityStageCueSheet::DescribeLines(Row))
+        {
+            Add(TEXT("> ") + Spoken, White);
+        }
+        int32 Shown = 0;
+        for (int32 R = Current + 1; R < Sheet.Rows.Num() && Shown < 2; ++R)
+        {
+            if (!Sheet.Rows[R].HasContent())
+            {
+                continue;
+            }
+            ++Shown;
+            const TArray<FString> Spoken = InfinityStageCueSheet::DescribeLines(Sheet.Rows[R]);
+            Add(TEXT("  next: ") + (Spoken.IsEmpty() ? InfinityStageCueSheet::DescribeActions(Sheet.Rows[R]) : Spoken[0]), Dim);
+        }
+        const int32 Standby = InfinityStageCueSheet::NextStandbyRow(Sheet, Current);
+        if (Standby != INDEX_NONE)
+        {
+            const FInfinityCueSheetRow& Next = Sheet.Rows[Standby];
+            Add(FString::Printf(TEXT("STANDBY%s  %s"),
+                Next.Number.IsEmpty() ? TEXT("") : *FString::Printf(TEXT(" [cue %s]"), *Next.Number),
+                *InfinityStageCueSheet::DescribeActions(Next)), Amber);
+        }
+    }
+
+    const float LineHeight = Font->GetMaxCharHeight() + 3.0f;
+    const float Height = Lines.Num() * LineHeight + 10.0f;
+    const float Top = BottomOfPanel - Height;
+    FCanvasTileItem Band(FVector2D(0.0f, Top), FVector2D(Canvas->ClipX, Height), FLinearColor(0.0f, 0.0f, 0.0f, 0.7f));
+    Band.BlendMode = SE_BLEND_Translucent;
+    Canvas->DrawItem(Band);
+    float Y = Top + 5.0f;
+    for (const FPanelLine& Line : Lines)
+    {
+        FCanvasTextItem Item(FVector2D(16.0f, Y), FText::FromString(Line.Text), Font, Line.Color);
+        Item.EnableShadow(FLinearColor::Black);
+        Canvas->DrawItem(Item);
+        Y += LineHeight;
+    }
+}
+

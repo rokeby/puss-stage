@@ -28,6 +28,9 @@ public:
     /** H: shows or hides the Director's bottom-row HUD (InfinityStage.DirectorHud). */
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     void ToggleDirectorHud();
+    void NextScriptLine();
+    void PreviousScriptLine();
+    void ReloadCueSheet();
 
 protected:
     virtual void SetupInputComponent() override;
