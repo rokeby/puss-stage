@@ -95,7 +95,10 @@
     },
     "strike_start_s": 0.0,
     "hold_after_glide_s": 1.0,
-    "strike_lights": "auto",
+    "strike_lights": "none",
+    "strike_lights_decided_by": "Gary 7 Oct ~18:00 (his own words, conductor session), asked about SpotLight/SpotLight2/SpotLight4 striking during the glide then dropping to 0 at the hard cut: 'oh, in that case maybe we don't strike up, we just arrive in the dark?' and 'stills first, then apply'. 'auto' (the previous default) is still supported.",
+    "preroll": "off",
+    "preroll_note": "PROPOSED (not Gary's): off = no pre-roll; nothing of hers is lit before the hard cut. Her env still ramps before the cut (DRY warns V5_PREROLL_OFF_ENV_RAMPS); fallback 'whole_glide'. 'from_first_strike' needs strikes.",
     "subjects": [
      "BP_MHC_Child",
      "SK_Pigeon",

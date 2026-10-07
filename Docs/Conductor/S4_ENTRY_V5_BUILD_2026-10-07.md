@@ -355,3 +355,180 @@ None of these numbers is his yet.
   s4_hangar_hold extension.
 - **The engine `.cpp` for GC sections and for events in sub-sequences.** It is not installed on D:, so KeepState,
   looping and nested-event firing are [inf] here.
+
+## 10. Addendum, 7 Oct evening: "arrive in the dark" (`strike_lights: "none"`) and a stills preview
+
+Still offline. Nothing ran in Unreal or over MCP, and nothing was committed. Same tiers as above.
+
+**Gary's call** (his own words, conductor session, ~18:00): asked about SpotLight, SpotLight2 and SpotLight4 striking
+during the glide and then dropping to 0 at the hard cut (§8.2), he said *"oh, in that case maybe we don't strike up,
+we just arrive in the dark?"* and *"stills first, then apply"*. [decl: the conductor's brief]
+
+### 10.1 What changed
+
+| File | Change |
+|---|---|
+| `klara_reveal.py` | `strike_lights: "none"` (`:2778`): no strikes, every one of her lights stays at 0 until the hard cut, and the plan does **not** refuse `V5_NO_CHARACTER_LIGHT_STRIKES` (`:2874`). An empty list `[]` still refuses. The new warning `V5_DARK_ARRIVAL` (`:2879`) lists her lights that come on *with* the cut. The new pre-roll modes are in `v5_preroll_mode` (`:2424`), the timeline at `:2508` and `:2523`, and the plan at `:2997-3026`. `validate_args` (`:1076-1080`) checks both fields. |
+| `klara_reveal_s4v5_args.json` | `scenes.4.v5.strike_lights` is now `"none"`, with `strike_lights_decided_by` quoting Gary. `preroll` is `"off"` (PROPOSED, not Gary's), with `preroll_note`. The mode is still `DRY` and `decided_by` is still empty. |
+| `klara_preroll_s4.py` | `preroll_plan` returns `PREROLL_OFF` with `skip` (`:126`), and the new `preroll_off_gate` (`:148`) acts on it. For **DRY**, `main` logs `KLARAPREROLL_SKIPPED\|run=..\|reason=PREROLL_OFF\|mutated=0` as a warning and never logs `DRY_OK` (`:625`). **APPLY** stops with `KLARAPREROLL_STOPPED\|..\|PREROLL_OFF`. **REVERT** is never gated, so an earlier pre-roll stays revertable. |
+| `klara_s4v5_preview.py` (new), `_args.json`, `_request.json` | The offline pose CLI and the PIE-only stills tool (§10.3). |
+| `klara_s4v5_preview_pose.json` (new, generated) | The pose, the frames, the live check and the 22-step call sequence. |
+| `test_klara_reveal_v5_offline.py` | The new classes `DarkArrival` and `Preview` (11 tests) and 11 new seeded mutations. |
+
+**What the pre-roll means with no strikes** [decl `v5_preroll_mode`]:
+- `from_first_strike` is the 7 Oct behaviour, `[first strike − lead, C)`. With no strikes it has no anchor, so it
+  refuses `V5_PREROLL_NEEDS_A_STRIKE` both in the plan and in `validate_args`.
+- `whole_glide` is `[glide start − lead, C)`.
+- `off` means no pre-roll: her animation starts at the hard cut, on her frame 6.
+- If the field is absent, the default is `off` with `"none"` and `from_first_strike` otherwise, so the auto plan is
+  unchanged.
+
+Why `off` is the recommendation: the pre-roll existed so that no static character is ever **lit**, and none of her
+lights is on before the cut. **The exception is her environment.** Sun 0→4.88, sky 0→1.0 and fog 0→0.0436 still ramp
+over [119, 366], before the cut at 376 [meas DRY `her_env`]. The plan warns `V5_PREROLL_OFF_ENV_RAMPS` about this.
+- Whether her characters show static in that light is an [inf] for the stills.
+- If they do, `preroll: "whole_glide"` is the fallback. Its plan passes with no refusals [harness].
+
+**Not changed:** `"auto"`, S1, v4, the glide-end framing, the glide, the cut rule and the env ramp.
+
+### 10.2 The v5 entry with `"none"` on the live S4 facts [harness: pure code on the DRY KLARAREVEAL-20261007-095026]
+
+| Quantity | Value |
+|---|---|
+| Strikes | **0**. Under `auto` there were 6. |
+| `V5_LIGHT_DROP_AT_HARD_CUT` | gone |
+| Glide | [119, 269], 6.0 s, 860 cm, peak 215 cm/s. This is the same as under `auto`. |
+| Glide-end pose | (11527.667, 240000.0, 211.0), roll/pitch/yaw (0, −4, 5), 24 mm, filmback 23.76 × 13.365 mm |
+| Her cut pose (her frame 6) | (12127.667, 240000.0, 91.0), roll/pitch/yaw (0, 6, 5), 35 mm |
+| Hard cut | 376: 15.04 s into Scene 4, or 360960 Master ticks after the Scene start. The camera rests [269, 376), 4.28 s. |
+| Lights that come on *with* the cut | Her own frame-6 values: Spot_MainLight_window 160, SpotLight3 160, SpotLight7 17.0, SpotLight5 8, SpotLight6 0.64. SpotLight, SpotLight2 and SpotLight4 stay at 0 because her shot opens with them off. |
+| Pre-roll | off |
+| Planned end | 4861, unchanged |
+
+**Refusals in this offline projection.** The only ones are `HER_CUT_PATHS_UNREAD` and `BACKCLOTH_STATE_UNREAD`. The
+preview CLI does not have those inputs; the DRY reads them live.
+- With the harness's bytes fixtures and the SYNTHETIC HELD backcloth, the plan has **no refusals** and
+  `apply_ready` is true.
+- The **real** gate result belongs to the live DRY. It still needs the backcloth hold (§5).
+
+### 10.3 The stills preview (`klara_s4v5_preview.py`)
+
+**Offline.** `python Saved/CodexConductor/KlaraIngest/klara_s4v5_preview.py` writes `klara_s4v5_preview_pose.json`
+and exits 0 only if the pose is valid live.
+- It builds the plan from the DRY facts with the args file, and refuses unless `strike_lights` is `"none"`.
+- The harness proves that this gives the **same pose and frames** as the full bytes-fixture plan.
+- It then reads `klara_reveal_record_S4.json` (the applied v4, run KLARAREVEAL-20261007-095043). The live
+  `level_transform_after` equals the v5 plan's to 0.0 cm, so **the v5 world pose is valid in PIE today** [meas].
+
+**PIE plays the live v4, not v5.** No live frame shows the v5 C−1 state exactly, where her lights are at 0 and her
+environment is up. The tool therefore shoots two brackets. Their states are evaluated from the record's written keys
+[meas]:
+
+| Shot | Live Scene-4 frame | Her lights | Her env | Glows / bulbs | Compared with v5 at C−1 |
+|---|---|---|---|---|---|
+| `dark` | 320 (live crossfade start) | all 0 | all 0 | glows 0, bulbs hidden | darker: the env is not up yet |
+| `env` | 404 (live cut − 1) | at her frame-6 values | at her values | 0 / hidden | brighter: her five lights are already on |
+| `her` | 405 (live cut, slot start) | her frame 6, through **her** camera | | | what the hard cut lands on |
+
+**Phases.** Each phase is one MCP call (`klara_s4v5_preview_request.json` runs the script directly; it imports nothing
+from `Saved/`):
+- `jump`: pauses, scrubs through `transport.scrub_to_master_frame`, and reads the frame back. Scene 4 is the
+  `segments` row of type SCENE. Ticks are 24000/s, and Scene 4 runs at 25 fps.
+  - `StartFrame` and `EndFrame` are declared at `InfinityStageTransportController.h:218-222` [decl].
+  - That StartFrame is the Scene's frame 0 is [inf]. It is the same assumption as `pie_jump_play.py`.
+- `camera`:
+  - It spawns `S4V5 Preview Camera (PIE only)` in the **PIE world**. It asserts the actor is not in the editor world,
+    using the deferred-spawn precedent in `st_pie_stills_driver.py:451-458`.
+  - It sets filmback, focal and manual focus, plus an optional `exposure_bias_ev`.
+  - It sets the view target and reads back every value it set.
+  - The previous view target is written to `klara_s4v5_preview_state.json` before anything changes.
+- `shot`: HighResShot 1600×900. It refuses if the file already exists, the Master frame has moved, or the view target
+  is not the one expected (`preview` or `show`).
+- `check`: run in a later call. It requires the file to exist and be at least 20 kB, then logs its SHA-256.
+- `cleanup`: restores the recorded view target, destroys the camera, and requires that none is left.
+
+**Safeguards in every phase.**
+- The dirty-package census before and after must be equal.
+- A refusal or exception logs `S4V5PREVIEW_FAILED|run=..|phase=..|reason=..`. There is exactly one `_OK` call, and it
+  comes after the census check.
+- The phases never save, never end PIE and never touch `get_sequence_player`.
+- No UE object is held in a module global [harness `Preview.test_pie_half_rules`].
+
+**[inf] in the PIE half, not testable offline:**
+- Whether the Show re-asserts its camera over our view target while paused. The `shot` view-target check would catch
+  it.
+- `exposure_bias_ev` **replaces** the volumes' bias rather than adding to it. The +6 EV still is for framing only.
+- `scrub_to_master_frame` may return `UNSAFE_EXTERNAL_CLOCK`, which is the performance interlock. The arg
+  `disable_performance_mode: true` turns that mode off in PIE, and `cleanup` restores it.
+
+**Call sequence for the conductor** (22 steps, in `klara_s4v5_preview_pose.json` → `call_sequence`):
+- For each step, write the step's object into `klara_s4v5_preview_args.json`, send the request, and wait for
+  `S4V5PREVIEW_OK|run=<run>|phase=<phase>`. Parse by marker and run id.
+- The run ids carry the CLI's timestamp, `S4V5PREVIEW-<yyyymmdd-hhmm>-<tag>`.
+- Every `jump` is sent **twice**: the second call re-poses the GeometryCache (memory
+  ue58-geometrycache-sequencer-traps).
+
+| # | Run tag | Steps | Frame | Camera | Bias |
+|---|---|---|---|---|---|
+| 1–6 | `dark_true` | jump, jump, camera, shot, check, cleanup | 320 | glide_end | none (true exposure) |
+| 7–12 | `dark_plus6ev` | jump, jump, camera, shot, check, cleanup | 320 | glide_end | +6 EV (framing) |
+| 13–18 | `env_true` | jump, jump, camera, shot, check, cleanup | 404 | glide_end | none |
+| 19–22 | `her_f6` | jump, jump, shot, check | 405 | the Show's own (her frame 6) | none |
+
+- Shots go to `Saved/CodexConductor/KlaraIngest/S4V5Preview/`.
+- Gary's PIE must be running S4. The tool never starts or ends PIE.
+- Afterwards, play on or jump: the transport stays paused.
+
+**Order after the stills:**
+1. Gary judges the framing.
+2. Then §7's run order, skipping step 6. The pre-roll DRY now logs `KLARAPREROLL_SKIPPED`, and there is nothing to
+   apply.
+3. The REVERT order is unchanged.
+
+**Git:** `klara_s4v5_preview_args.json` and `_pose.json` are ignored by `.gitignore:43` and need `git add -f`. The
+`.py` and `_request.json` are not ignored (`:45-46`) [meas `git check-ignore -v`].
+
+### 10.4 Harness results [harness, 7 Oct evening, `python <file>`]
+
+| Harness | Result |
+|---|---|
+| `test_klara_reveal_v5_offline.py` | **38/38 pass**: 27 existing + 11 new, with **25/25 seeded mutations caught** (14 + 11 new) |
+| `test_klara_reveal_offline.py` | **75/75 pass**, unchanged and not edited |
+
+**The checks the brief asked for.** Each has a control that fails.
+
+- **`"none"`:**
+  - 0 strikes and no refusals, both via `plan5(strike_lights="none")` and via the args file as it stands.
+  - Every one of her lights keeps `[[land, 0.0]]` until the cut.
+  - No `V5_LIGHT_DROP_AT_HARD_CUT`.
+  - Glide-end pose, glide and cut are identical to `auto`.
+  - Control: `[]` refuses `V5_NO_CHARACTER_LIGHT_STRIKES`.
+  - Control: `auto` still strikes 6.
+- **`auto` byte-identical.** The code and args pinned at **ae84495** produce the same plan JSON as the new code on
+  10 inputs: HELD and STANDING × {default, at_cut, explicit list, lead 3, strike_start 1.0}.
+  - `validate_args` is equal too.
+  - Control: on `"none"` the two codes differ, because the old code refuses `V5_STRIKE_LIGHTS_UNKNOWN`.
+  - S1 stays pinned to 8cb2830 (`S1Unchanged`, untouched).
+- **Pre-roll off:**
+  - `preroll_plan` → `PREROLL_OFF` + skip.
+  - `preroll_off_gate`: DRY → SKIP, APPLY → STOP, REVERT → None.
+  - Control: an `auto` record proceeds.
+  - A source check finds the gate before dispatch, and the one SKIPPED line is a `log_warning` with no `_OK`.
+- **Preview:**
+  - The pose and frames are equal to the full plan's.
+  - The live placement delta is 0.
+  - The live states are as tabled in §10.3.
+  - Control: an LT moved 100 cm makes the pose invalid.
+  - Control: `auto` args raise.
+  - The call sequence is checked for camera and cleanup pairing, `expect_view`, and unique shot paths.
+
+### 10.5 Open for Gary after the stills (none of these numbers is his)
+
+1. The glide-end framing (unchanged from §8.1).
+2. **Her environment during the glide.** Sun, sky and fog still ramp over the glide to her frame-6 values. That lifts
+   "the dark" before the cut. The options are to keep it, to step it at the cut (no tool option yet), or to use
+   `whole_glide` if static characters show.
+3. The 4.28 s rest in the dark before the cut (§8.3).
+
+**Searched, found nothing:** a PIE-world exposure override that **adds** to the volumes' bias. Neither the camera
+component nor the precedents (`pie_exposure_bench.py`, `st_pie_stills_driver.py`) have one.

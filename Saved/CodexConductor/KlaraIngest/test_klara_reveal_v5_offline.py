@@ -27,11 +27,20 @@ sys.path.insert(0, HERE)
 import klara_reveal as R            # noqa: E402  (importing without unreal runs nothing)
 import klara_preroll_s4 as P        # noqa: E402
 import klara_pendulum_s4 as PD      # noqa: E402
+import klara_s4v5_preview as PV     # noqa: E402  (offline half only; the PIE half runs only under unreal)
 import test_klara_reveal_offline as T   # noqa: E402  (bytes readers; defines tests but runs none on import)
 
 FPS = 25.0
 DRY4 = R.load_json(os.path.join(HERE, "klara_reveal_dry_S4.json"))
-V5ARGS = R.load_json(os.path.join(HERE, "klara_reveal_s4v5_args.json"))
+# The args FILE now carries Gary's 7 Oct evening call (strike_lights "none", preroll "off"). The pre-existing tests
+# below were written for the strike entry, so V5ARGS is the file with strike_lights "auto" and no preroll key (the
+# 7 Oct v5 default); DarkArrival / Preview test the file as it stands (V5ARGS_LIVE).
+V5ARGS_LIVE = R.load_json(os.path.join(HERE, "klara_reveal_s4v5_args.json"))
+V5ARGS = copy.deepcopy(V5ARGS_LIVE)
+V5ARGS["scenes"]["4"]["v5"]["strike_lights"] = "auto"
+for _k in ("preroll", "preroll_note", "strike_lights_decided_by"):
+    V5ARGS["scenes"]["4"]["v5"].pop(_k, None)
+RECORD4 = R.load_json(os.path.join(HERE, "klara_reveal_record_S4.json"))     # the LIVE applied v4 [meas]
 LT_HOOKIN = list(T.S4_LT_HOOKIN)
 CUT_CAM = "b28a821d72b7a24ea738eb622365a09c"           # CineCameraActor (_0) [meas bytes]
 
@@ -536,8 +545,11 @@ class Pendulum(unittest.TestCase):
 class Args(unittest.TestCase):
     def test_arg_files(self):
         self.assertEqual(R.validate_args(V5ARGS), [])
-        self.assertEqual(V5ARGS["mode"], "DRY")
-        self.assertEqual(V5ARGS["decided_by"], "")                                 # APPLY refuses until filled
+        self.assertEqual(R.validate_args(V5ARGS_LIVE), [])
+        self.assertEqual(V5ARGS_LIVE["mode"], "DRY")
+        self.assertEqual(V5ARGS_LIVE["decided_by"], "")                            # APPLY refuses until filled
+        self.assertEqual(V5ARGS_LIVE["scenes"]["4"]["v5"]["strike_lights"], "none")   # Gary 7 Oct ~18:00
+        self.assertEqual(V5ARGS_LIVE["scenes"]["4"]["v5"]["preroll"], "off")
         bad = copy.deepcopy(V5ARGS)
         bad["scenes"]["4"]["v5"]["glide_end"]["mode"] = "sideways"
         self.assertTrue(R.validate_args(bad))
@@ -559,6 +571,255 @@ class Args(unittest.TestCase):
             glob = [ln for ln in src.splitlines() if re.match(r"^[A-Za-z_]\w*\s*=.*\bunreal\.", ln)]
             self.assertEqual(glob, [], m.__name__)
         self.assertTrue(re.match(r"^[A-Za-z_]\w*\s*=.*\bunreal\.", "X = unreal.load_asset('a')"))   # control
+
+
+PRE_DARK = "ae84495"            # the last commit of klara_reveal.py + s4v5 args BEFORE strike_lights "none"
+_PRE = {}
+
+
+def pre_dark():
+    """(module, args) as committed at PRE_DARK, imported with unreal = None: the byte-identity baseline for 'auto'."""
+    if "m" not in _PRE:
+        root = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+
+        def show(f):
+            return subprocess.run(["git", "show", "%s:Saved/CodexConductor/KlaraIngest/%s" % (PRE_DARK, f)], cwd=root,
+                                  capture_output=True, check=True).stdout.decode("utf-8")
+        src = show("klara_reveal.py")
+        if "v5_preroll_mode" in src or 'strike_lights"] == "none"' in src:
+            raise AssertionError("pinned pre-dark commit already carries strike_lights none")
+        m = types.ModuleType("klara_reveal_predark")
+        m.__file__ = os.path.join(HERE, "klara_reveal_predark.py")
+        exec(compile(src, m.__file__, "exec"), m.__dict__)
+        a = json.loads(show("klara_reveal_s4v5_args.json"))
+        if a["scenes"]["4"]["v5"].get("strike_lights") != "auto" or "preroll" in a["scenes"]["4"]["v5"]:
+            raise AssertionError("pinned pre-dark args are not the auto entry")
+        _PRE["m"], _PRE["a"] = m, a
+    return _PRE["m"], _PRE["a"]
+
+
+def dump(p):
+    return json.dumps(jsn(p), sort_keys=True)
+
+
+class DarkArrival(unittest.TestCase):
+    """Gary 7 Oct ~18:00: "we don't strike up, we just arrive in the dark" -> strike_lights none."""
+
+    def test_auto_plan_byte_identical_to_pre_change(self):
+        H, pa = pre_dark()
+        for bc in (HELD, STANDING):
+            for extra in ({}, {"strike_target": "at_cut"}, {"strike_lights": ["SpotLight7"]},
+                          {"preroll_lead_frames": 3}, {"strike_start_s": 1.0}):
+                a = copy.deepcopy(pa)
+                a["scenes"]["4"]["v5"].update(copy.deepcopy(extra))
+                f = v5facts(bc, a)
+                self.assertEqual(dump(H.build_plan(copy.deepcopy(f), a)), dump(R.build_plan(copy.deepcopy(f), a)),
+                                 extra)
+                self.assertEqual(H.validate_args(a), R.validate_args(a))
+        # control: the comparator CAN fail - the old code reads "none" as a set of characters and refuses
+        a = copy.deepcopy(pa)
+        a["scenes"]["4"]["v5"]["strike_lights"] = "none"
+        f = v5facts(HELD, a)
+        old, new = H.build_plan(copy.deepcopy(f), a), R.build_plan(copy.deepcopy(f), a)
+        self.assertNotEqual(dump(old), dump(new))
+        self.assertTrue(any(x.startswith("V5_STRIKE_LIGHTS_UNKNOWN") for x in old["refusals"]))
+
+    def _assert_dark(self, p):
+        tl = p["timeline"]
+        self.assertEqual(p["refusals"], [], p["refusals"])
+        self.assertTrue(p["apply_ready"])
+        self.assertEqual(p["v5"]["strike_lights"], [])
+        self.assertEqual(p["strike_schedule"]["frames"], [])
+        self.assertFalse(any(r["strikes"] for r in p["her_lights"]))
+        self.assertTrue(all(r["intro_keys"] == [[tl["land"], 0.0]] for r in p["her_lights"]))     # 0 to the cut
+        self.assertFalse(any(x.startswith("V5_NO_CHARACTER_LIGHT_STRIKES") for x in p["refusals"]))
+        self.assertFalse(any(w.startswith("V5_LIGHT_DROP_AT_HARD_CUT") for w in p["warnings"]))    # Gary's question
+        self.assertTrue(any(w.startswith("V5_DARK_ARRIVAL") for w in p["warnings"]))
+        self.assertEqual(p["preroll"]["mode"], "off")
+        self.assertIsNone(p["preroll"]["range"])
+        self.assertIsNone(tl["preroll"])
+        keys = {k[0]: k for k in p["glide"]["keys"]}
+        ge = p["glide_end"]["pose"]
+        self.assertEqual(keys[tl["glide_in"][1]][1:7], ge["loc"] + ge["rot"])     # glides in the dark to the pose
+        self.assertEqual(p["slot"]["her_frame_at_cut"], 6)                         # hard cut on her frame 6
+        self.assertEqual(p["slot"]["range"][0], tl["cut"])
+        self.assertLessEqual(tl["glide_in"][1], tl["cut"])
+
+    def test_none_zero_strikes_no_refusal(self):
+        p, _a = plan5(HELD, strike_lights="none")                    # preroll absent -> off
+        self._assert_dark(p)
+        q = R.build_plan(v5facts(HELD, V5ARGS_LIVE), V5ARGS_LIVE)   # the args FILE as it stands
+        self._assert_dark(q)
+        self.assertEqual(jsn(q["her_lights"]), jsn(p["her_lights"]))
+        a, _a2 = plan5(HELD)                                          # control: auto still strikes
+        self.assertGreater(len(a["strike_schedule"]["frames"]), 0)
+        self.assertFalse(any(w.startswith("V5_DARK_ARRIVAL") for w in a["warnings"]))
+        self.assertEqual(a["glide_end"]["pose"], p["glide_end"]["pose"])                 # same framing, same glide
+        self.assertEqual(a["timeline"]["glide_in"], p["timeline"]["glide_in"])
+        self.assertEqual(a["timeline"]["cut"], p["timeline"]["cut"])
+
+    def test_empty_list_still_refuses(self):
+        e, _a = plan5(HELD, strike_lights=[])                         # control: [] is not "none"
+        self.assertTrue(any(x.startswith("V5_NO_CHARACTER_LIGHT_STRIKES") for x in e["refusals"]), e["refusals"])
+        self.assertFalse(e["apply_ready"])
+        self.assertTrue(any(x.startswith("V5_PREROLL_NEEDS_A_STRIKE") for x in e["refusals"]))  # default from_first_strike
+
+    def test_preroll_modes(self):
+        w, _a = plan5(HELD, strike_lights="none", preroll="whole_glide")
+        self.assertEqual(w["refusals"], [], w["refusals"])
+        self.assertEqual(w["preroll"]["range"], [w["timeline"]["glide_in"][0], w["timeline"]["cut"]])
+        self.assertEqual(w["preroll"]["mode"], "whole_glide")
+        w3, _a = plan5(HELD, strike_lights="none", preroll="whole_glide", preroll_lead_frames=3)
+        self.assertEqual(w3["preroll"]["range"][0], w["preroll"]["range"][0] - 3)
+        x, a = plan5(HELD, strike_lights="none", preroll="from_first_strike")
+        self.assertTrue(any(r.startswith("V5_PREROLL_NEEDS_A_STRIKE") for r in x["refusals"]))
+        self.assertTrue(any("V5_PREROLL_NEEDS_A_STRIKE" in r for r in R.validate_args(a)))
+        o, _a = plan5(HELD, preroll="off")                            # auto strikes, no pre-roll
+        self.assertGreater(len(o["strike_schedule"]["frames"]), 0)
+        self.assertIsNone(o["preroll"]["range"])
+        d, _a = plan5(HELD)
+        e, _a = plan5(HELD, preroll="from_first_strike")              # explicit = the default range, + its mode
+        self.assertEqual(e["preroll"]["range"], d["preroll"]["range"])
+        self.assertNotIn("mode", d["preroll"])                        # default keeps the auto plan byte-identical
+        self.assertEqual(e["preroll"]["mode"], "from_first_strike")
+        for bad in ({"preroll": "sometimes"}, {"strike_lights": "all"}, {"strike_lights": "None"}):
+            self.assertTrue(R.validate_args(v5args(**bad)), bad)
+        self.assertEqual(R.validate_args(v5args(strike_lights="none")), [])
+        self.assertEqual(R.v5_preroll_mode({"strike_lights": "none"}), "off")
+        self.assertEqual(R.v5_preroll_mode({"strike_lights": "auto"}), "from_first_strike")
+
+    def test_env_ramp_flagged_when_preroll_off(self):
+        p, _a = plan5(HELD, strike_lights="none")
+        w = [x for x in p["warnings"] if x.startswith("V5_PREROLL_OFF_ENV_RAMPS")]
+        self.assertEqual(len(w), 1)
+        self.assertIn("DirectionalLight", w[0])
+        q, _a = plan5(HELD, strike_lights="none", preroll="whole_glide")     # control: not when characters move
+        self.assertFalse(any(x.startswith("V5_PREROLL_OFF_ENV_RAMPS") for x in q["warnings"]))
+
+    def test_preroll_tool_skips_or_refuses(self):
+        p, _a = plan5(HELD, strike_lights="none")
+        rec = {"applied": True, "plan": {k: p[k] for k in ("version", "preroll", "timeline")}}
+        pp = P.preroll_plan(rec, [0, 4920], 800.0, 960.0)
+        self.assertTrue(pp.get("skip"))
+        self.assertTrue(pp["refusals"][0].startswith("PREROLL_OFF"))
+        g = P.preroll_off_gate("DRY", rec)
+        self.assertEqual(g[0], "SKIP")
+        self.assertTrue(g[1].startswith("PREROLL_OFF|"))
+        self.assertEqual(P.preroll_off_gate("APPLY", rec)[0], "STOP")
+        self.assertIsNone(P.preroll_off_gate("REVERT", rec))          # an applied pre-roll stays revertable
+        a, _a = plan5(HELD)                                            # control: the strike entry proceeds
+        reca = {"applied": True, "plan": {k: a[k] for k in ("version", "preroll", "timeline")}}
+        self.assertIsNone(P.preroll_off_gate("DRY", reca))
+        self.assertIsNone(P.preroll_off_gate("APPLY", reca))
+        self.assertEqual(P.preroll_plan(reca, [0, 4920], 800.0, 960.0)["refusals"], [])
+        self.assertIsNone(P.preroll_off_gate("APPLY", dict(rec, applied=False)))   # the normal path refuses it
+        src = open(P.__file__, encoding="utf-8").read()
+        main = src[src.index("def main():"):]
+        self.assertLess(main.index("preroll_off_gate(mode"), main.index('{"DRY": run_dry'))
+        skip = [ln for ln in main.splitlines() if "KLARAPREROLL_SKIPPED" in ln]
+        self.assertEqual(len(skip), 1)
+        self.assertIn("log_warning", skip[0])
+        self.assertNotIn("_OK", skip[0])
+
+
+class Preview(unittest.TestCase):
+    def test_pose_matches_the_harness_plan(self):
+        pose = PV.preview_pose(DRY4, V5ARGS_LIVE, RECORD4)
+        full = R.build_plan(v5facts(HELD, V5ARGS_LIVE), V5ARGS_LIVE)       # bytes fixtures: subjects, cuts, cloth
+        pose2 = PV.preview_pose(DRY4, V5ARGS_LIVE, RECORD4, plan=full)
+        self.assertEqual(pose["poses"], pose2["poses"])
+        self.assertEqual(pose["v5_frames"], pose2["v5_frames"])
+        self.assertTrue(pose["ok"], (pose["plan_refusals_other"], pose["live"].get("why")))
+        self.assertEqual(pose["n_strikes"], 0)
+        self.assertEqual(pose["preroll"], "off")
+        ge = pose["poses"]["glide_end"]
+        for got, want in zip(ge["loc"] + ge["rot_roll_pitch_yaw"], [11527.667, 240000.0, 211.0, 0.0, -4.0, 5.0]):
+            self.assertAlmostEqual(got, want, places=2)
+        self.assertEqual(ge["focal_mm"], 24.0)
+        hc = pose["poses"]["her_cut"]
+        self.assertEqual(hc["her_frame"], 6)
+        self.assertNotEqual(hc["loc"], ge["loc"])                                       # a hard cut
+        fr = pose["v5_frames"]
+        self.assertEqual((fr["glide_start"], fr["glide_end"], fr["cut"]), (119, 269, 376))
+        self.assertEqual(fr["master_ticks_from_scene_start"]["cut"], 376 * 960)
+        self.assertEqual(sorted(x.split(":")[0].split(" ")[0] for x in pose["plan_refusals_offline_expected"]),
+                         ["BACKCLOTH_STATE_UNREAD", "HER_CUT_PATHS_UNREAD"])
+        with self.assertRaises(PV.PreviewError):                                         # control: auto args
+            PV.preview_pose(DRY4, V5ARGS, RECORD4)
+
+    def test_live_validity_and_frames(self):
+        pose = PV.preview_pose(DRY4, V5ARGS_LIVE, RECORD4)
+        lv = pose["live"]
+        self.assertTrue(lv["valid"])
+        self.assertEqual(lv["level_delta_live_minus_v5_cm"], [0.0, 0.0, 0.0])
+        self.assertEqual(lv["frames"], {"dark": 320, "env": 404, "her": 405})
+        self.assertEqual(lv["frames"]["her"], RECORD4["plan"]["slot"]["range"][0])
+        dk, en = lv["states"]["dark"], lv["states"]["env"]
+        self.assertTrue(dk["her_lights_all_zero"] and dk["env_all_zero"] and dk["bulbs_hidden"])
+        self.assertTrue(all(g["rgb_max"] == 0.0 for g in dk["ceiling_glows"].values()))
+        self.assertFalse(en["her_lights_all_zero"])                                       # control: brighter bracket
+        self.assertTrue(all(abs(v["value"] - v["her_value"]) < 1e-6 for v in en["her_env"].values()))
+        moved = copy.deepcopy(RECORD4)                                                    # control: wrong placement
+        moved["plan"]["level_transform_after"]["loc"][0] += 100.0
+        bad = PV.preview_pose(DRY4, V5ARGS_LIVE, moved)
+        self.assertFalse(bad["live"]["valid"])
+        self.assertFalse(bad["ok"])
+        self.assertFalse(PV.preview_pose(DRY4, V5ARGS_LIVE, dict(RECORD4, applied=False))["ok"])
+
+    def test_pure_helpers(self):
+        self.assertEqual(PV.keys_at([[0, 0.0], [10, 1.0]], 10), (1.0, "key"))
+        self.assertEqual(PV.keys_at([[0, 0.0], [10, 1.0]], 5), (0.5, "linear"))
+        self.assertEqual(PV.keys_at([[0, 0.0], [10, 1.0]], 20), (1.0, "after_last"))
+        self.assertEqual(PV.keys_at([[0, [0, 0, 0, 1]], [10, [1, 1, 1, 1]]], 5)[0], [0.5, 0.5, 0.5, 1.0])
+        self.assertEqual(PV.keys_at([], 3), (None, "unkeyed"))
+        self.assertEqual(PV.master_ticks(1000, 320, 25.0), 1000 + 320 * 960)
+        self.assertNotEqual(PV.master_ticks(1000, 320, 30.0), PV.master_ticks(1000, 320, 25.0))   # control
+
+    def test_args_request_and_call_sequence(self):
+        a = R.load_json(os.path.join(HERE, "klara_s4v5_preview_args.json"))
+        self.assertEqual(PV.validate_args(a), [])
+        self.assertTrue(PV.validate_args(dict(a, phase="save")))                          # control
+        self.assertTrue(PV.validate_args(dict(a, phase="camera", pose_key=None)))
+        self.assertTrue(PV.validate_args(dict(a, phase="shot", path="relative.png")))
+        req = R.load_json(os.path.join(HERE, "klara_s4v5_preview_request.json"))
+        self.assertEqual(req["arguments"]["arguments"]["relativeSavedPath"],
+                         "CodexConductor/KlaraIngest/klara_s4v5_preview.py")
+        pose = PV.preview_pose(DRY4, V5ARGS_LIVE, RECORD4)
+        seq = PV.call_sequence(pose, "T")
+        self.assertEqual(len(seq), 22)
+        self.assertEqual([PV.validate_args(s) for s in seq], [[]] * 22)
+        live = False
+        for s in seq:                                    # every camera is cleaned up before the next one
+            if s["phase"] == "camera":
+                self.assertFalse(live)
+                live = True
+            if s["phase"] == "cleanup":
+                live = False
+            if s["phase"] == "shot":
+                self.assertEqual(s["expect_view"], "preview" if live else "show")
+        self.assertFalse(live)
+        evs = {s["run"]: s["exposure_bias_ev"] for s in seq}
+        self.assertEqual(evs, {"T-dark_true": None, "T-dark_plus6ev": 6.0, "T-env_true": None, "T-her_f6": None})
+        self.assertEqual({s["scene_frame"] for s in seq if s["run"] == "T-her_f6"}, {405})
+        self.assertEqual(len({s["path"] for s in seq if s["phase"] == "shot"}), 4)       # no file reused
+
+    def test_pie_half_rules(self):
+        import inspect
+        src = open(PV.__file__, encoding="utf-8").read()
+        glob = [ln for ln in src.splitlines() if re.match(r"^[A-Za-z_]\w*\s*=.*\bunreal\.", ln)]
+        self.assertEqual(glob, [])
+        for fn in (PV.main, PV.phase_jump, PV.phase_camera, PV.phase_shot, PV.phase_check, PV.phase_cleanup):
+            body = inspect.getsource(fn)
+            self.assertNotIn("import klara_reveal", body)                # no Saved/ import in the PIE path
+            for banned in ("save_", "end_play", "quit", "get_sequence_player", "spawn_actor_from_class",
+                           "EditorActorSubsystem"):
+                self.assertNotIn(banned, body, (fn.__name__, banned))
+        self.assertEqual(src.count("_ok(run, phase, extra)"), 1)            # the one OK, after the census check
+        main = inspect.getsource(PV.main)
+        self.assertLess(main.index("after = _census()"), main.index("_ok(run, phase, extra)"))
+        self.assertIn("set_view_target_with_blend(cam, 0.0)", inspect.getsource(PV.phase_camera))
+        self.assertIn("scrub_to_master_frame", inspect.getsource(PV.phase_jump))
+        self.assertIn("unreal.InfinityCueType.SCENE", inspect.getsource(PV._segment))
 
 
 # Seeded mutations of the v5 code (module, old, new): each must make at least one v5 test fail (the tests can fail).
@@ -584,11 +845,27 @@ V5_MUTATIONS = [
     ("PD", "            return float(m[\"her_start\"]) + (float(scene_frame) - float(m[\"range\"][0])) * float(m[\"ratio\"]), m[\"what\"]",
      "            return float(m[\"her_start\"]) + (float(scene_frame) - float(m[\"range\"][0])), m[\"what\"]"),
 ]
-V5_TESTS = ("S1Unchanged", "PathGate", "Plan5", "PrerollRange", "PrerollStrip", "Pendulum")
+V5_MUTATIONS += [                     # 7 Oct evening: strike_lights none / preroll modes / preview
+    ("R", "    if not strikers and cfg5[\"strike_lights\"] != \"none\":", "    if not strikers:"),
+    ("R", "    if not strikers and cfg5[\"strike_lights\"] != \"none\":", "    if False:"),
+    ("R", "    elif cfg5[\"strike_lights\"] == \"none\":            # Gary", "    elif False:            # Gary"),
+    ("R", "        return \"off\" if cfg5.get(\"strike_lights\") == \"none\" else \"from_first_strike\"",
+     "        return \"from_first_strike\""),
+    ("R", "        P0 = d0 - int(cfg5.get(\"preroll_lead_frames\", 0))",
+     "        P0 = S0 - int(cfg5.get(\"preroll_lead_frames\", 0)) + 1"),
+    ("R", "        if cfg5.get(\"preroll\") is not None:", "        if True:"),
+    ("P", "    if plan.get(\"version\") == 5 and pr and pr.get(\"mode\") == \"off\":", "    if False:"),
+    ("P", "    return (\"SKIP\", reason) if m == \"DRY\" else (\"STOP\", reason)", "    return (\"SKIP\", reason)"),
+    ("PV", "    frames = {\"dark\": int(tl[\"crossfade\"][0]), ", "    frames = {\"dark\": int(tl[\"crossfade\"][0]) - 20, "),
+    ("PV", "    out[\"valid\"] = max(abs(v) for v in dl) <= LT_TOL_CM",
+     "    out[\"valid\"] = True or max(abs(v) for v in dl) <= LT_TOL_CM"),
+    ("PV", "    if cfg5.get(\"strike_lights\") != \"none\":", "    if False:"),
+]
+V5_TESTS = ("S1Unchanged", "PathGate", "Plan5", "PrerollRange", "PrerollStrip", "Pendulum", "DarkArrival", "Preview")
 
 
 def run_v5_mutations():
-    mods = {"R": R, "P": P, "PD": PD}
+    mods = {"R": R, "P": P, "PD": PD, "PV": PV}
     out = []
     for which, old, new in V5_MUTATIONS:
         m0 = mods[which]

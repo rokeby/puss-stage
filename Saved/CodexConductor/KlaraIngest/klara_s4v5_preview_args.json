@@ -1,0 +1,14 @@
+{
+ "_note": "Sample = step 1 of klara_s4v5_preview_pose.json call_sequence (22 steps). Edit phase/run/scene_frame/exposure_bias_ev/path per step, then send klara_s4v5_preview_request.json. PIE-only; never saves; never ends PIE.",
+ "disable_performance_mode": false,
+ "expect_view": "preview",
+ "exposure_bias_ev": null,
+ "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f320_dark_true.png",
+ "phase": "jump",
+ "pose_file": "klara_s4v5_preview_pose.json",
+ "pose_key": "glide_end",
+ "run": "S4V5PREVIEW-20261007-1417-dark_true",
+ "scene_fps": 25.0,
+ "scene_frame": 320,
+ "segment": "Scene 4"
+}

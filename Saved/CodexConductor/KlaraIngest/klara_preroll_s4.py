@@ -33,6 +33,9 @@ Modes (klara_preroll_s4_run.py <- klara_preroll_s4_args.json; confirm "<MODE> KL
          back -> census -> save LS_DevScene_04 + duplicate -> read back -> KLARAPREROLL_APPLY_OK|run=..
   REVERT drift check -> backup -> remove our track -> save -> delete the duplicate (no referencers) -> read back ->
          KLARAPREROLL_REVERT_OK|run=..
+  PREROLL OFF (7 Oct evening: klara_reveal v5 strike_lights "none" -> preroll "off" by default): when the APPLIED v5
+         reveal record's plan.preroll.mode is "off", DRY logs KLARAPREROLL_SKIPPED|run=..|reason=PREROLL_OFF (never
+         DRY_OK) and APPLY stops KLARAPREROLL_STOPPED|..|PREROLL_OFF; REVERT is unaffected (preroll_off_gate).
 Never: Save All, reload a level, open/scrub Sequencer, save her levels, end PIE; no unreal objects in module globals.
 Tiers: [decl] header/source, [prec] in-repo precedent, [meas] record/bytes, [inf] inferred (probed in the DRY api table).
 """
@@ -119,6 +122,8 @@ def preroll_plan(reveal_rec, her_range, her_tpf, scene_tpf):
         return {"refusals": ["REVEAL_NOT_APPLIED: run klara_reveal v5 APPLY first"]}
     plan = reveal_rec.get("plan") or {}
     pr = plan.get("preroll")
+    if plan.get("version") == 5 and pr and pr.get("mode") == "off":
+        return {"refusals": ["PREROLL_OFF: the applied v5 plan has no pre-roll (%s)" % pr.get("note")], "skip": True}
     if plan.get("version") != 5 or not pr:
         return {"refusals": ["REVEAL_NOT_V5: record plan version %r, preroll %s" % (plan.get("version"), bool(pr))]}
     P0, C = int(pr["range"][0]), int(pr["range"][1])
@@ -138,6 +143,21 @@ def preroll_plan(reveal_rec, her_range, her_tpf, scene_tpf):
         r.append("PREROLL_OFFSET_MISMATCH: record %r vs %d" % (pr.get("start_offset_ticks"), off))
     return {"refusals": r, "range": [P0, C], "her_frame_start": h0, "offset_ticks": off, "cut": cut,
             "first_strike": fs}
+
+
+def preroll_off_gate(mode, reveal_rec):
+    """7 Oct evening (Gary: "we just arrive in the dark" -> klara_reveal v5 strike_lights none, preroll off): when the
+    APPLIED v5 reveal record carries preroll mode "off" there is nothing to write. -> None (proceed) or
+    ("SKIP", reason) for DRY (logs KLARAPREROLL_SKIPPED, never DRY_OK) or ("STOP", reason) for APPLY (KLARAPREROLL_STOPPED).
+    REVERT is never gated here: an earlier applied pre-roll must stay revertable."""
+    m = str(mode or "").upper()
+    if m == "REVERT":
+        return None
+    pp = preroll_plan(reveal_rec, [0, 1], 1.0, 1.0)
+    if not pp.get("skip"):
+        return None
+    reason = "PREROLL_OFF|" + " || ".join(pp["refusals"])
+    return ("SKIP", reason) if m == "DRY" else ("STOP", reason)
 
 
 def key_fingerprint(rows):
@@ -599,6 +619,13 @@ def main():
     early = live_gates(state)
     if early:
         _stop(run, "REFUSED|" + " || ".join(early))
+    rv_path = os.path.join(_here(), args["reveal_record"])
+    off = preroll_off_gate(mode, load_json(rv_path) if os.path.exists(rv_path) else None)
+    if off is not None and off[0] == "SKIP":          # DRY: nothing to plan, nothing read beyond the record
+        unreal.log_warning("KLARAPREROLL_SKIPPED|run=%s|mode=%s|reason=%s|mutated=0" % (run, mode, off[1]))
+        return
+    if off is not None:
+        _stop(run, off[1] + "|nothing changed")
     try:
         {"DRY": run_dry, "APPLY": run_apply, "REVERT": run_revert}[mode](args, run, world)
     except PlanError as exc:

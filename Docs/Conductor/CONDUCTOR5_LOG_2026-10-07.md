@@ -92,3 +92,7 @@
   colour stamps with roughness that never shows (no highlight). Variant C = three rect strips at the mirror angle from
   the main S3 camera (computed). Bench drafted (PIE copies + unsaved ZZ_Bench assets → needs Don't-Save after, i.e.
   Gary closing the editor; conductor can't kill it). Sheet: DerivedAssets/S3Marble/Grime_20261007/sheet_ABC.png.
+- **Gary (this session, ~19:30 UTC):** S3 ground "Yes, go" (import + no-save bench); order "Build first".
+  Via Directing (his clicks): ground — mud→mouth, drifts capped, RESCULPT cast area (he arranges figures; report
+  float/buried), deck hidden; marble — C, three 3×1.2 m strips, DiffuseScale ~0.1, GO PIE bench (no save), one
+  Don't-Save restart after a combined ground+marble bench.

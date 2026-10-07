@@ -112,6 +112,8 @@ LIT_DEFAULTS = {"enabled": True, "light_fraction": 0.8, "value_fraction": 0.9, "
 #                  her animation PRE-ROLLS from the first strike (klara_preroll_s4.py, a stripped duplicate); HARD CUT at C
 #                  into her first shot (slot starts at her first bound frame snapped, as her_dark_pan); DRY gates her
 #                  WHOLE camera path against camera_x_min_local and the LIVE backcloth state (build_plan_v5).
+#                  7 Oct evening (Gary: "we just arrive in the dark"): v5.strike_lights "none" = no strikes at all, her
+#                  lights held 0 to the hard cut; v5.preroll ("off" default with "none") - see v5_preroll_mode.
 REVEAL_STYLES = ("strike", "her_dark_pan", "auto", "strike_preroll")
 # opening_darkness: proposed numbers, not Gary's. A frustum grid of nx x ny rays from her camera; each sample is the
 # floor hit within far_cm, else the point probe_cm along the ray. A light covers a sample inside its attenuation
@@ -128,7 +130,12 @@ V5_DEFAULTS = {
                   "focal_mm": 24.0, "focus_cm": None},
     "strike_start_s": 0.0,          # first strike this long after the glide starts (0 = the glide's first frame)
     "hold_after_glide_s": 1.0,      # camera at rest, all struck, then the HARD cut
-    "strike_lights": "auto",        # "auto" = her lights that cover a subject point (light_covers), or an explicit list
+    "strike_lights": "auto",        # "auto" = her lights that cover a subject point (light_covers), or an explicit list;
+                                    # "none" (Gary 7 Oct ~18:00: "we don't strike up, we just arrive in the dark") =
+                                    # zero strikes, every her light held 0 until the hard cut, no NO_STRIKES refusal.
+                                    # An empty LIST [] still refuses V5_NO_CHARACTER_LIGHT_STRIKES (a typo guard).
+    # "preroll" (optional, NOT in this dict so the auto plan's cfg stays byte-identical): "off" | "from_first_strike" |
+    # "whole_glide"; absent = "off" with strike_lights "none", else "from_first_strike" (v5_preroll_mode).
     "subjects": ["BP_MHC_Child", "SK_Pigeon", "Pendulum", "GC_Old_Book", "Paper_Fall"],
     "subject_z_cm": [20.0, 100.0],  # sample heights above each subject's bounds origin floor (children ~1.2 m tall [inf])
     "strike_target": "plateau",     # "plateau" (her sustained lit level, find_lit_frame) or "at_cut" (her value there)
@@ -1064,6 +1071,13 @@ def validate_args(args):
                 r.append("S%s_V5_ORDER_FROM_INVALID" % k)
             if int(c5.get("preroll_lead_frames", 0)) < 0:
                 r.append("S%s_V5_PREROLL_LEAD_NEGATIVE" % k)
+            sl = c5.get("strike_lights")
+            if not (sl in ("auto", "none") or isinstance(sl, list)):
+                r.append("S%s_V5_STRIKE_LIGHTS_INVALID: %r (auto | none | a list of her light labels)" % (k, sl))
+            if c5.get("preroll") is not None and c5.get("preroll") not in V5_PREROLL_MODES:
+                r.append("S%s_V5_PREROLL_INVALID: %r (%s)" % (k, c5.get("preroll"), " | ".join(V5_PREROLL_MODES)))
+            elif sl == "none" and v5_preroll_mode(c5) == "from_first_strike":
+                r.append("S%s_V5_PREROLL_NEEDS_A_STRIKE: preroll from_first_strike with strike_lights none" % k)
     return r
 
 
@@ -2404,6 +2418,23 @@ def v5_cfg(args, key):
     return c
 
 
+V5_PREROLL_MODES = ("off", "from_first_strike", "whole_glide")
+
+
+def v5_preroll_mode(cfg5):
+    """What the pre-roll range [P0, C) means (7 Oct evening, Gary: "we just arrive in the dark"):
+      from_first_strike  [first strike - lead, C): the 7 Oct v5 behaviour (characters move once anything is lit);
+      whole_glide        [glide start - lead, C): characters move for the whole dark glide;
+      off                no pre-roll: her animation only starts at the hard cut (her frame at C).
+    Absent = "off" when strike_lights is "none" (nothing of hers is lit before the cut, so no static character is ever
+    shown by HER lights; her env ramp is the exception - build_plan_v5 warns V5_PREROLL_OFF_ENV_RAMPS), else
+    "from_first_strike" (unchanged v5)."""
+    m = cfg5.get("preroll")
+    if m is None:
+        return "off" if cfg5.get("strike_lights") == "none" else "from_first_strike"
+    return m
+
+
 def glide_end_pose(ge, her_pose, dock):
     """The dark glide-end view (Gary: "a new glide entry view showing the scene in darkness"; framing PROPOSED, judged
     from stills). her_pose = her cut-frame pose AFTER the level move {"loc","rot","focal","focus"}.
@@ -2473,6 +2504,9 @@ def plan_timeline_v5(L, C, E, fps, n_strike, args, cfg5, exit_len, glide_in_s, g
                              "[%d, %d)" % (shift, shift / float(fps), C, E))
     strike_last = min(w1, C - settle - flick - 1)
     P0 = S0 - int(cfg5.get("preroll_lead_frames", 0))
+    pmode = v5_preroll_mode(cfg5)
+    if pmode == "whole_glide":
+        P0 = d0 - int(cfg5.get("preroll_lead_frames", 0))
     xf = [S0, C - settle]
     gf0 = max(L, S0 - f(intro.get("glow_fade_s", 1.5)))
     o0 = E + f(outro["hold_s"])
@@ -2485,7 +2519,8 @@ def plan_timeline_v5(L, C, E, fps, n_strike, args, cfg5, exit_len, glide_in_s, g
     back = [go0, go0 + f(outro.get("rig_back_s", 1.5))] if outro.get("rig_glow_back", True) else None
     r.update(dark=[L, d0], glide_in=[d0, g1], first_hold=[g1, C], glow_fade=[gf0, S0],
              rig_dark=[S0, back[0] if back else end], rig_back=back, strike_window=[S0, strike_last], crossfade=xf,
-             roof_hidden=[g1, env_out[1]], ours_hidden_from=S0, hers_dark=[L, S0], preroll=[P0, C], outro_hold=[E, o0],
+             roof_hidden=[g1, env_out[1]], ours_hidden_from=S0, hers_dark=[L, S0],
+             preroll=None if pmode == "off" else [P0, C], outro_hold=[E, o0],
              blink_window=[o0, lights_out], env_out=env_out, glide_out=[go0, go1], exit_cut=[go1, end],
              planned_end=end, planned_end_s=end / float(fps), outro_s=(end - E) / float(fps),
              intro_s=(C - L) / float(fps), strikes_in_glide=n_strike > 0 and strike_last <= g1)
@@ -2494,7 +2529,7 @@ def plan_timeline_v5(L, C, E, fps, n_strike, args, cfg5, exit_len, glide_in_s, g
                              "glide)" % (S0, g1))
     if n_strike > 0 and strike_last <= S0:
         r["refusals"].append("STRIKE_WINDOW_EMPTY: [%d, %d]" % (S0, strike_last))
-    if P0 < L:
+    if pmode != "off" and P0 < L:
         r["refusals"].append("PREROLL_BEFORE_LAND: %d < %d" % (P0, L))
     if xf[1] <= xf[0]:
         r["refusals"].append("CROSSFADE_EMPTY: %s" % xf)
@@ -2740,6 +2775,8 @@ def build_plan_v5(facts, args):
             refusals.append("V5_SUBJECTS_UNREAD: no subject actors (%s) - strike_lights auto needs them"
                             % cfg5["subjects"])
         chosen = {lab for lab, hits in cover.items() if hits}
+    elif cfg5["strike_lights"] == "none":            # Gary 7 Oct ~18:00: "we just arrive in the dark" (zero strikes)
+        chosen = set()
     else:
         chosen = set(cfg5["strike_lights"])
         unknown = sorted(chosen - {r["label"] for r in facts["her_lights"]})
@@ -2834,8 +2871,14 @@ def build_plan_v5(facts, args):
                      "intro_color": None if color_lit is None else {"range": [tl["land"], tl["cut"]], "rgba": color_lit},
                      "intro_keys": intro, "warn_hidden": r["hidden_in_game"] or not r["visible"],
                      "drop_at_cut": None if not strikes else target - float(r.get("target_lit", target))})
-    if not strikers:
+    if not strikers and cfg5["strike_lights"] != "none":
         refusals.append("V5_NO_CHARACTER_LIGHT_STRIKES (strike_lights %r; covers %s)" % (cfg5["strike_lights"], cover))
+    if cfg5["strike_lights"] == "none":
+        at_cut = lambda x: float(x["target_lit"] if x.get("target_lit") is not None else x["target_first"])
+        on_at_cut = [(x["label"], round(at_cut(x), 4)) for x in rows if at_cut(x) > min_v]
+        warnings.append("V5_DARK_ARRIVAL: strike_lights none - every her light held 0 until the hard cut at %d; her own "
+                        "lights ON at her cut frame %d come on WITH the cut (her first shot): %s" % (tl["cut"], Hc,
+                                                                                                   on_at_cut))
     drops = [(x["label"], round(x["drop_at_cut"], 3)) for x in rows if x["strikes"] and x["drop_at_cut"] > min_v]
     if drops:
         warnings.append("V5_LIGHT_DROP_AT_HARD_CUT: struck to plateau, her own value at her cut frame %d is lower: %s "
@@ -2951,17 +2994,35 @@ def build_plan_v5(facts, args):
                     "shift": tl["slot_shift"], "skip_frames": tl["slot_skip"], "her_frame_at_cut": Hc,
                     "start_offset_ticks": sk["offset_ticks"], "her_range": [her_lo, her_hi],
                     "media_track_note": "later: a MovieSceneMediaTrack section over the same range"}
-    h0 = int(cfg5["preroll_her_start"])
-    pr_len = tl["preroll"][1] - tl["preroll"][0]
-    h_end = h0 + pr_len * float(facts["her_fps"]) / fps
-    plan["preroll"] = {"range": list(tl["preroll"]), "her_frame_start": h0, "her_frame_end": h_end,
-                       "start_offset_ticks": (h0 - int(her_lo)) * int(round(float(facts["her_tpf"]))),
-                       "first_strike": sch["frames"][0] if sch["frames"] else None,
-                       "note": "klara_preroll_s4.py writes it (own record); main slot keeps her frame %d at the cut" % Hc}
-    if not (int(her_lo) <= h0 and h_end <= int(her_hi)):
-        refusals.append("PREROLL_OUTSIDE_HER_RANGE: her [%d, %.1f) vs [%d, %d)" % (h0, h_end, her_lo, her_hi))
-    if sch["frames"] and tl["preroll"][0] > sch["frames"][0]:
-        refusals.append("PREROLL_AFTER_FIRST_STRIKE: %d > %d" % (tl["preroll"][0], sch["frames"][0]))
+    pmode = v5_preroll_mode(cfg5)
+    if pmode == "off":
+        plan["preroll"] = {"mode": "off", "range": None, "her_frame_start": None, "her_frame_end": None,
+                           "start_offset_ticks": None, "first_strike": sch["frames"][0] if sch["frames"] else None,
+                           "note": "no pre-roll (strike_lights %r): her animation starts at the hard cut %d on her frame "
+                                   "%d; klara_preroll_s4.py SKIPS (DRY) / REFUSES (APPLY) PREROLL_OFF"
+                                   % (cfg5["strike_lights"], tl["cut"], Hc)}
+        if any(e.get("action") == "ramp" for e in env):
+            warnings.append("V5_PREROLL_OFF_ENV_RAMPS: her env ramps over %s before the cut %d (%s) - her characters "
+                            "stand static in that light; stills decide; preroll 'whole_glide' is the fallback"
+                            % (tl["crossfade"], tl["cut"], sorted(e["label"] for e in env if e.get("action") == "ramp")))
+    else:
+        h0 = int(cfg5["preroll_her_start"])
+        pr_len = tl["preroll"][1] - tl["preroll"][0]
+        h_end = h0 + pr_len * float(facts["her_fps"]) / fps
+        plan["preroll"] = {"range": list(tl["preroll"]), "her_frame_start": h0, "her_frame_end": h_end,
+                           "start_offset_ticks": (h0 - int(her_lo)) * int(round(float(facts["her_tpf"]))),
+                           "first_strike": sch["frames"][0] if sch["frames"] else None,
+                           "note": "klara_preroll_s4.py writes it (own record); main slot keeps her frame %d at the cut"
+                                   % Hc}
+        if cfg5.get("preroll") is not None:          # explicit only: the default auto plan stays byte-identical
+            plan["preroll"]["mode"] = pmode
+        if not (int(her_lo) <= h0 and h_end <= int(her_hi)):
+            refusals.append("PREROLL_OUTSIDE_HER_RANGE: her [%d, %.1f) vs [%d, %d)" % (h0, h_end, her_lo, her_hi))
+        if sch["frames"] and tl["preroll"][0] > sch["frames"][0]:
+            refusals.append("PREROLL_AFTER_FIRST_STRIKE: %d > %d" % (tl["preroll"][0], sch["frames"][0]))
+        if pmode == "from_first_strike" and not sch["frames"]:
+            refusals.append("V5_PREROLL_NEEDS_A_STRIKE: preroll from_first_strike, no strike (strike_lights %r)"
+                            % (cfg5["strike_lights"],))
     plan["audio"] = audio_report(facts.get("her_audio"), facts.get("scene_audio"), facts.get("scene_markers"), Hc,
                                  float(facts.get("her_fps") or fps), tl["cut"], fps, tl["planned_end"])
     plan["footprint"] = facts.get("footprint")

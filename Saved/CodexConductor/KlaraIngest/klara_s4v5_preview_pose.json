@@ -1,0 +1,930 @@
+{
+ "call_sequence": [
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f320_dark_true.png",
+   "phase": "jump",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-dark_true",
+   "scene_fps": 25.0,
+   "scene_frame": 320,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f320_dark_true.png",
+   "phase": "jump",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-dark_true",
+   "scene_fps": 25.0,
+   "scene_frame": 320,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f320_dark_true.png",
+   "phase": "camera",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-dark_true",
+   "scene_fps": 25.0,
+   "scene_frame": 320,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f320_dark_true.png",
+   "phase": "shot",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-dark_true",
+   "scene_fps": 25.0,
+   "scene_frame": 320,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f320_dark_true.png",
+   "phase": "check",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-dark_true",
+   "scene_fps": 25.0,
+   "scene_frame": 320,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f320_dark_true.png",
+   "phase": "cleanup",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-dark_true",
+   "scene_fps": 25.0,
+   "scene_frame": 320,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": 6.0,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f320_dark_plus6ev.png",
+   "phase": "jump",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-dark_plus6ev",
+   "scene_fps": 25.0,
+   "scene_frame": 320,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": 6.0,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f320_dark_plus6ev.png",
+   "phase": "jump",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-dark_plus6ev",
+   "scene_fps": 25.0,
+   "scene_frame": 320,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": 6.0,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f320_dark_plus6ev.png",
+   "phase": "camera",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-dark_plus6ev",
+   "scene_fps": 25.0,
+   "scene_frame": 320,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": 6.0,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f320_dark_plus6ev.png",
+   "phase": "shot",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-dark_plus6ev",
+   "scene_fps": 25.0,
+   "scene_frame": 320,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": 6.0,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f320_dark_plus6ev.png",
+   "phase": "check",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-dark_plus6ev",
+   "scene_fps": 25.0,
+   "scene_frame": 320,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": 6.0,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f320_dark_plus6ev.png",
+   "phase": "cleanup",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-dark_plus6ev",
+   "scene_fps": 25.0,
+   "scene_frame": 320,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f404_env_true.png",
+   "phase": "jump",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-env_true",
+   "scene_fps": 25.0,
+   "scene_frame": 404,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f404_env_true.png",
+   "phase": "jump",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-env_true",
+   "scene_fps": 25.0,
+   "scene_frame": 404,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f404_env_true.png",
+   "phase": "camera",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-env_true",
+   "scene_fps": 25.0,
+   "scene_frame": 404,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f404_env_true.png",
+   "phase": "shot",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-env_true",
+   "scene_fps": 25.0,
+   "scene_frame": 404,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f404_env_true.png",
+   "phase": "check",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-env_true",
+   "scene_fps": 25.0,
+   "scene_frame": 404,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "preview",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_glide_end_f404_env_true.png",
+   "phase": "cleanup",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": "glide_end",
+   "run": "S4V5PREVIEW-20261007-1417-env_true",
+   "scene_fps": 25.0,
+   "scene_frame": 404,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "show",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_her_frame6_f405.png",
+   "phase": "jump",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": null,
+   "run": "S4V5PREVIEW-20261007-1417-her_f6",
+   "scene_fps": 25.0,
+   "scene_frame": 405,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "show",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_her_frame6_f405.png",
+   "phase": "jump",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": null,
+   "run": "S4V5PREVIEW-20261007-1417-her_f6",
+   "scene_fps": 25.0,
+   "scene_frame": 405,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "show",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_her_frame6_f405.png",
+   "phase": "shot",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": null,
+   "run": "S4V5PREVIEW-20261007-1417-her_f6",
+   "scene_fps": 25.0,
+   "scene_frame": 405,
+   "segment": "Scene 4"
+  },
+  {
+   "disable_performance_mode": false,
+   "expect_view": "show",
+   "exposure_bias_ev": null,
+   "path": "E:/PussStage/Saved/CodexConductor/KlaraIngest/S4V5Preview/s4v5_her_frame6_f405.png",
+   "phase": "check",
+   "pose_file": "klara_s4v5_preview_pose.json",
+   "pose_key": null,
+   "run": "S4V5PREVIEW-20261007-1417-her_f6",
+   "scene_fps": 25.0,
+   "scene_frame": 405,
+   "segment": "Scene 4"
+  }
+ ],
+ "glide_end_sees": {
+  "far_wall": 0,
+  "floor": 0,
+  "left_wall": 0,
+  "open": 0,
+  "right_wall": 0,
+  "roof": 0,
+  "set": 45
+ },
+ "glide_in": {
+  "distance_cm": 859.7565190162816,
+  "end_speed_cm_s": 0.0,
+  "frames": [
+   119,
+   269
+  ],
+  "overshoot": [],
+  "peak_speed_cm_s": 214.93912975406997,
+  "seconds": 6.0,
+  "start_speed_cm_s": 0.0,
+  "turn_deg": [
+   0.0,
+   -3.9999999999999973,
+   5.0
+  ],
+  "want_end_speed_cm_s": 0.0,
+  "want_start_speed_cm_s": 0.0
+ },
+ "level_transform_v5": {
+  "loc": [
+   11435.666958091559,
+   239706.9759904295,
+   0.0
+  ],
+  "yaw": 0.0
+ },
+ "live": {
+  "applied": true,
+  "frames": {
+   "dark": 320,
+   "env": 404,
+   "her": 405
+  },
+  "level_delta_live_minus_v5_cm": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "level_transform_live": {
+   "loc": [
+    11435.666958091559,
+    239706.9759904295,
+    0.0
+   ],
+   "yaw": 0.0
+  },
+  "run": "KLARAREVEAL-20261007-095043",
+  "states": {
+   "dark": {
+    "bulbs_hidden": true,
+    "ceiling_glows": {
+     "S4 Lattice Glow 1-1": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-2": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-3": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-4": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-5": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-6": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-7": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-8": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-1": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-2": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-3": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-4": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-5": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-6": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-7": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-8": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-1": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-2": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-3": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-4": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-5": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-6": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-7": {
+      "how": "key",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-8": {
+      "how": "key",
+      "rgb_max": 0.0
+     }
+    },
+    "env_all_zero": true,
+    "frame": 320,
+    "her_env": {
+     "DirectionalLight": {
+      "her_value": 4.879403,
+      "how": "key",
+      "value": 0.0
+     },
+     "ExponentialHeightFog": {
+      "her_value": 0.0436,
+      "how": "key",
+      "value": 0.0
+     },
+     "SkyLight": {
+      "her_value": 1.0,
+      "how": "key",
+      "value": 0.0
+     }
+    },
+    "her_lights": {
+     "SpotLight": {
+      "how": "after_last",
+      "value": 0.0
+     },
+     "SpotLight2": {
+      "how": "after_last",
+      "value": 0.0
+     },
+     "SpotLight3": {
+      "how": "key",
+      "value": 0.0
+     },
+     "SpotLight4": {
+      "how": "after_last",
+      "value": 0.0
+     },
+     "SpotLight5": {
+      "how": "key",
+      "value": 0.0
+     },
+     "SpotLight6": {
+      "how": "key",
+      "value": 0.0
+     },
+     "SpotLight7": {
+      "how": "key",
+      "value": 0.0
+     },
+     "Spot_MainLight_window": {
+      "how": "key",
+      "value": 0.0
+     }
+    },
+    "her_lights_all_zero": true
+   },
+   "env": {
+    "bulbs_hidden": true,
+    "ceiling_glows": {
+     "S4 Lattice Glow 1-1": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-2": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-3": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-4": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-5": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-6": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-7": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-8": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-1": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-2": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-3": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-4": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-5": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-6": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-7": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-8": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-1": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-2": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-3": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-4": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-5": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-6": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-7": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-8": {
+      "how": "linear",
+      "rgb_max": 0.0
+     }
+    },
+    "env_all_zero": false,
+    "frame": 404,
+    "her_env": {
+     "DirectionalLight": {
+      "her_value": 4.879403,
+      "how": "after_last",
+      "value": 4.879403
+     },
+     "ExponentialHeightFog": {
+      "her_value": 0.0436,
+      "how": "after_last",
+      "value": 0.0436
+     },
+     "SkyLight": {
+      "her_value": 1.0,
+      "how": "after_last",
+      "value": 1.0
+     }
+    },
+    "her_lights": {
+     "SpotLight": {
+      "how": "after_last",
+      "value": 0.0
+     },
+     "SpotLight2": {
+      "how": "after_last",
+      "value": 0.0
+     },
+     "SpotLight3": {
+      "how": "after_last",
+      "value": 160.0
+     },
+     "SpotLight4": {
+      "how": "after_last",
+      "value": 0.0
+     },
+     "SpotLight5": {
+      "how": "after_last",
+      "value": 8.0
+     },
+     "SpotLight6": {
+      "how": "after_last",
+      "value": 0.6413
+     },
+     "SpotLight7": {
+      "how": "after_last",
+      "value": 17.0259
+     },
+     "Spot_MainLight_window": {
+      "how": "after_last",
+      "value": 160.0
+     }
+    },
+    "her_lights_all_zero": false
+   },
+   "her": {
+    "bulbs_hidden": true,
+    "ceiling_glows": {
+     "S4 Lattice Glow 1-1": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-2": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-3": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-4": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-5": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-6": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-7": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 1-8": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-1": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-2": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-3": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-4": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-5": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-6": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-7": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 2-8": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-1": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-2": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-3": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-4": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-5": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-6": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-7": {
+      "how": "linear",
+      "rgb_max": 0.0
+     },
+     "S4 Lattice Glow 3-8": {
+      "how": "linear",
+      "rgb_max": 0.0
+     }
+    },
+    "env_all_zero": false,
+    "frame": 405,
+    "her_env": {
+     "DirectionalLight": {
+      "her_value": 4.879403,
+      "how": "after_last",
+      "value": 4.879403
+     },
+     "ExponentialHeightFog": {
+      "her_value": 0.0436,
+      "how": "after_last",
+      "value": 0.0436
+     },
+     "SkyLight": {
+      "her_value": 1.0,
+      "how": "after_last",
+      "value": 1.0
+     }
+    },
+    "her_lights": {
+     "SpotLight": {
+      "how": "after_last",
+      "value": 0.0
+     },
+     "SpotLight2": {
+      "how": "after_last",
+      "value": 0.0
+     },
+     "SpotLight3": {
+      "how": "after_last",
+      "value": 160.0
+     },
+     "SpotLight4": {
+      "how": "after_last",
+      "value": 0.0
+     },
+     "SpotLight5": {
+      "how": "after_last",
+      "value": 8.0
+     },
+     "SpotLight6": {
+      "how": "after_last",
+      "value": 0.6413
+     },
+     "SpotLight7": {
+      "how": "after_last",
+      "value": 17.0259
+     },
+     "Spot_MainLight_window": {
+      "how": "after_last",
+      "value": 160.0
+     }
+    },
+    "her_lights_all_zero": false
+   }
+  },
+  "timeline": {
+   "crossfade": [
+    320,
+    395
+   ],
+   "cut": 405,
+   "glide_in": [
+    119,
+    307
+   ],
+   "glow_fade": [
+    282,
+    320
+   ],
+   "hers_dark": [
+    104,
+    320
+   ],
+   "land": 104,
+   "ours_hidden_from": 307,
+   "rig_dark": [
+    320,
+    4627
+   ],
+   "slot": [
+    405,
+    4500
+   ]
+  },
+  "valid": true
+ },
+ "n_strikes": 0,
+ "ok": true,
+ "plan_refusals_offline_expected": [
+  "HER_CUT_PATHS_UNREAD (the whole-path gate needs every cut's camera curves)",
+  "BACKCLOTH_STATE_UNREAD: no live backcloth facts (the gate never assumes up or down)"
+ ],
+ "plan_refusals_other": [],
+ "plan_warnings": [
+  "HER_FIRST_CUT_DANGLING: [{'range': [0, 2], 'guid': '3788FAC64E33733DE618F0A435274F5C'}] bind(s) no camera in her copy; her first camera is read at her frame 2",
+  "V5_DARK_ARRIVAL: strike_lights none - every her light held 0 until the hard cut at 376; her own lights ON at her cut frame 6 come on WITH the cut (her first shot): [('SpotLight3', 160.0), ('SpotLight6', 0.6413), ('SpotLight5', 8.0), ('Spot_MainLight_window', 160.0), ('SpotLight7', 17.0259)]",
+  "BULB_EMISSIVE_POPS: 24 bulb meshes hide at frame 119",
+  "V5_PREROLL_OFF_ENV_RAMPS: her env ramps over [119, 366] before the cut 376 (['DirectionalLight', 'ExponentialHeightFog', 'SkyLight']) - her characters stand static in that light; stills decide; preroll 'whole_glide' is the fallback"
+ ],
+ "poses": {
+  "glide_end": {
+   "focal_mm": 24.0,
+   "focus_cm": 100000.0,
+   "loc": [
+    11527.667,
+    240000.0,
+    211.0
+   ],
+   "rot_roll_pitch_yaw": [
+    0.0,
+    -4.0,
+    5.0
+   ]
+  },
+  "her_cut": {
+   "focal_mm": 35.0,
+   "focus_cm": 100000.0,
+   "her_frame": 6,
+   "loc": [
+    12127.667,
+    240000.0,
+    91.0
+   ],
+   "rot_roll_pitch_yaw": [
+    -0.0,
+    6.0,
+    5.0
+   ]
+  }
+ },
+ "preroll": "off",
+ "scene": "4",
+ "scene_fps": 25.0,
+ "sensor_mm": [
+  23.760000228881836,
+  13.364999771118164
+ ],
+ "source": {
+  "args_file": "klara_reveal_s4v5_args.json",
+  "dry_file": "klara_reveal_dry_S4.json",
+  "dry_run": "KLARAREVEAL-20261007-095026",
+  "tier": "[meas] DRY facts + [harness] pure klara_reveal v5 code; not Unreal"
+ },
+ "strike_lights": "none",
+ "tool": "klara_s4v5_preview",
+ "v5_frames": {
+  "cut": 376,
+  "env_ramp": [
+   119,
+   366
+  ],
+  "glide_end": 269,
+  "glide_start": 119,
+  "land": 104,
+  "master_ticks_from_scene_start": {
+   "cut": 360960,
+   "glide_end": 258240,
+   "glide_start": 114240
+  },
+  "planned_end": 4861,
+  "rest_before_cut_s": 4.28,
+  "seconds": {
+   "cut": 15.04,
+   "glide_end": 10.76,
+   "glide_start": 4.76
+  },
+  "slot": [
+   376,
+   4471
+  ]
+ }
+}
