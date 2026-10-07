@@ -1,0 +1,49 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "run_id": null,
+ "decided_by": "",
+ "decided_by_note": "Fill before any APPLY: Gary 6 Oct chose the three LSs and approved relengthing; the START OPTION per Scene and the S1/S2 narration conflicts are NOT yet decided (HOOKIN_PLAN.md section 5).",
+ "levels": [
+  "/Game/KK_S1_Animals/L_Animals",
+  "/Game/Japanese_Alley/Maps/Japanese_Alley",
+  "/Game/L_KK_children"
+ ],
+ "initially_visible": false,
+ "scenes": {
+  "1": {
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
+   "current_nested": "/Game/Scenes/LS_Animals_1",
+   "her_sequence": "/Game/KK_S1_Animals/LS_Animals_1",
+   "start_option": "keep",
+   "narration_rule": "after_voices",
+   "narration_track": "Narration (stand-in)",
+   "voices_pattern": "Animal_Voices",
+   "tail_s": 0.0,
+   "allow_truncate": [],
+   "visible_levels": ["L_Animals"]
+  },
+  "2": {
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_02",
+   "current_nested": "/Game/Scenes/LS_Shrine",
+   "her_sequence": "/Game/KK_S2_Shrine/LS_NEW_SHRINE",
+   "start_option": "keep",
+   "narration_rule": "inside_shot",
+   "narration_track": "Narration (stand-in)",
+   "tail_s": 0.0,
+   "allow_truncate": [],
+   "visible_levels": ["Japanese_Alley"]
+  },
+  "4": {
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04",
+   "current_nested": "/Game/Scenes/LS_Children",
+   "her_sequence": "/Game/LS_Children",
+   "start_option": "keep",
+   "narration_rule": "none",
+   "narration_track": "Narration (stand-in)",
+   "tail_s": 0.0,
+   "allow_truncate": [],
+   "visible_levels": ["L_KK_children", "L_Animals"]
+  }
+ }
+}
