@@ -301,3 +301,9 @@
 - QUEUED (Gary, later, not now): dunes 2× (peaks ~4.8 m, reach 6–8 m, centre lane/millstone/waves clear; prints re-placed above the new print line afterwards). [inferred geometry: 30.5° repose × 20 m box; 3× would close the box.]
 - QUEUED (Gary, "not priority"): waves flats thicker (~5 cm like V3 wings) and more widely spaced.
 - Finishing touches: clam looks v3 held patch 8ccc288 received; ordering = ClamBreath MI run BEFORE BUILD_MAT Pearl_v3/Mantle_v2.
+
+## ~19:58 UTC — Gary fixtures decisions (queued; Gary in editor on S3 lighting/camera)
+
+- Parcans 3×, bare bulbs 2× (→ ~6.4× real). Placement: conductor proposes per passage (ground near reflective floor + hanging), overhead stills to Gary before APPLY. Bulbs: emissive filament + dim point light.
+- Glimmer swap: Gary asks for the bulb hung on a cord OFF A WING, swinging a bit. Proposed: cord+bulb attached to the wing (rides with it), deterministic sine pendulum (few degrees, per-bulb phase), not Chaos/cable physics (takes must repeat). [inferred feasibility; not yet checked which wings move per passage.]
+- Editor HELD for Gary; finishing-touches paused. Their finding [measured by them]: Gary's Ctrl+Z at 23:53:57 rolled MI_PearlClam_Mantle / MI_PearlClam_Pearl_v2 back in memory (period 5, roughness 1.0) after ClamBreath saved them; disk has the new values. Gary told not to save those two MIs.
