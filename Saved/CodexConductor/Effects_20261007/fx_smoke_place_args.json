@@ -1,0 +1,25 @@
+{
+ "mode": "APPLY",
+ "passages": {
+  "P03": {
+   "bays": [
+    8,
+    13,
+    18
+   ]
+  },
+  "P01": {
+   "count": 3
+  },
+  "P04": {
+   "count": 3
+  }
+ },
+ "offstage_cm": 40,
+ "along_cm": 80,
+ "z_cm": 0,
+ "active_radius_cm": 2500,
+ "output": 0.5,
+ "feeds_local_medium": false,
+ "confirm": "APPLY FXSMOKE"
+}

@@ -1,0 +1,695 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
+index be353ca..3b51f40 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
+@@ -448,6 +448,23 @@ enum class EInfinityFenceHeightMode : uint8
+     Stack
+ };
+ 
++/** Which tile joints of each fenced column gap get a post (FencePostMesh). */
++UENUM(BlueprintType)
++enum class EInfinityFencePostJoints : uint8
++{
++    /** No posts: the fence as before posts existed. */
++    None,
++    /** Every joint of every run: tiles + 1 posts per gap and side. For bays that
++     * carry no post of their own. */
++    Every,
++    /** One post per side: the joint at the fence line's far end in the bays' own
++     * +X (the -Y side's last joint, the +Y side's first). For bays that carry their
++     * own post at their local -X end (the barbed-wire kit, SM_FenceBay_short_*_bw*):
++     * the line is continuous across the column gaps, so that end is the only joint
++     * no bay covers. */
++    LineEnd
++};
++
+ /**
+  * How a Stack fence is divided into rows: pure, from the intended height and the
+  * native row height (AInfinityStageStructureActor::PlanFenceStack). Not a USTRUCT:
+@@ -522,6 +539,15 @@ struct INFINITYSTAGE_API FInfinityStageFenceVariant
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+     TSoftObjectPtr<UStaticMesh> OverlayMesh;
+ 
++    /** Drawn instead of Mesh on the fence's top row: in Stack mode the last row,
++     * in Native and Fit the one row (Gary 7 Oct: barbed wire on the top row only,
++     * plain chain-link below). Fitted to the tile by its own bounds as Mesh is,
++     * wears Material on slot 0, carries the overlay, and is in the variant's own
++     * layer tag (plus the top-row tag). It never sets the Stack row height (Mesh
++     * does). Null (the default): Mesh on every row, the fence exactly as before. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    TSoftObjectPtr<UStaticMesh> TopRowMesh;
++
+     /** Replaces the overlay's slot 0 only. Null: the overlay mesh's own. */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+     TSoftObjectPtr<UMaterialInterface> OverlayMaterial;
+@@ -903,6 +929,29 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+     int32 FenceSeed = 0;
+ 
++    /** Which tile joints get a FencePostMesh, on the fence's top row only (Stack:
++     * the last row's bottom; Native and Fit: the fence base). None (the default)
++     * places no post: the fence exactly as before. See EInfinityFencePostJoints. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    EInfinityFencePostJoints FencePostJoints = EInfinityFencePostJoints::None;
++
++    /** The post: placed by its pivot (not fitted by its bounds), in the bays' own
++     * frame (local X along the run, +Y to the walkway, Z up), X and Y scale 1, Z
++     * scaled with the top row (a cut Stack row, or Fit's stretch). Intended:
++     * SM_FencePost_short_bw (Gary 7 Oct, "Coil + strands"). Null: no posts. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    TSoftObjectPtr<UStaticMesh> FencePostMesh;
++
++    /** Every slot of the post. Null: the mesh's own. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    TSoftObjectPtr<UMaterialInterface> FencePostMaterial;
++
++    /** Added to each post's joint in the bays' frame (X along the bays' +X, Y to
++     * the walkway), the Z part scaled with the post: puts the post's axis
++     * where the bays carry theirs (SM_FencePost_short_bw's axis is off its pivot). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (Units = "cm"))
++    FVector FencePostOffsetCm = FVector::ZeroVector;
++
+     static constexpr int32 FenceVariantCount = 4;
+ 
+     /** Variants A..D by index; any other index is D. */
+@@ -1095,6 +1144,14 @@ public:
+     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", meta = (Units = "cm"))
+     double UnderpassFenceStackTopCm = 0.0;
+ 
++    /** Of UnderpassFencePanelCount, the panels drawn with a variant's TopRowMesh. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
++    int32 UnderpassFenceTopRowPanelCount = 0;
++
++    /** Fence posts built (FencePostJoints, FencePostMesh). */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
++    int32 UnderpassFencePostCount = 0;
++
+     /** Pure: how a Stack fence of IntendedCm divides into rows of RowCm (see the plan struct). */
+     static FInfinityStageFenceStackPlan PlanFenceStack(double IntendedCm, double RowCm, bool bCutTopRow);
+ 
+@@ -1199,12 +1256,15 @@ private:
+         double FenceTopAboveBaseCm);
+ 
+     /** Fence panels, one entry per variant A..D in each array. A null panel mesh
+-     * skips its variant; a null overlay mesh builds the panel alone. StackPlan is read
+-     * only in Stack height mode. */
++     * skips its variant; a null overlay mesh builds the panel alone; a null top-row
++     * mesh draws the panel on the top row too. StackPlan is read only in Stack
++     * height mode. A null Post.Mesh builds no posts. */
+     void BuildUnderpassFence(
+         const TArray<FInfinityStructureStation>& Stations,
+         const TArray<FInfinityUnderpassPart>& Panels,
+         const TArray<FInfinityUnderpassPart>& Overlays,
++        const TArray<FInfinityUnderpassPart>& TopRowPanels,
++        const FInfinityUnderpassPart& Post,
+         const FInfinityStageFenceStackPlan& StackPlan);
+ 
+     URectLightComponent* CreateManagedLight(FName BaseName, FName LayerTag);
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
+index 736f834..9615878 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
+@@ -48,6 +48,10 @@ const FName UnderpassFenceOverlayLayerTags[] = {
+     FName(TEXT("InfinityStage.Structure.Underpass.FenceOverlay.C")),
+     FName(TEXT("InfinityStage.Structure.Underpass.FenceOverlay.D")),
+ };
++/** A top-row panel layer carries this beside its variant's own tag (TopRowMesh). */
++const FName UnderpassFenceTopRowTag(TEXT("InfinityStage.Structure.Underpass.FenceTopRow"));
++/** The fence posts' layer (FencePostJoints). Deliberately not under "Fence.": it is no panel. */
++const FName UnderpassFencePostLayerTag(TEXT("InfinityStage.Structure.Underpass.FencePosts"));
+ static_assert(UE_ARRAY_COUNT(UnderpassFenceLayerTags) == FInfinityStageUnderpassSettings::FenceVariantCount, "one tag per fence variant");
+ static_assert(UE_ARRAY_COUNT(UnderpassFenceOverlayLayerTags) == FInfinityStageUnderpassSettings::FenceVariantCount, "one overlay tag per fence variant");
+ 
+@@ -475,6 +479,8 @@ void AInfinityStageStructureActor::ClearStructure()
+     UnderpassFenceOverlayCount = 0;
+     UnderpassFenceRowCount = 0;
+     UnderpassFenceStackTopCm = 0.0;
++    UnderpassFenceTopRowPanelCount = 0;
++    UnderpassFencePostCount = 0;
+     StationSignature = 0;
+     MarkPackageDirty();
+ }
+@@ -576,6 +582,7 @@ bool AInfinityStageStructureActor::MaterializeStructure()
+     // overlay only with its panel.
+     TArray<UStaticMesh*> UnderpassFenceMeshes;
+     TArray<UStaticMesh*> UnderpassFenceOverlayMeshes;
++    TArray<UStaticMesh*> UnderpassFenceTopRowMeshes;
+     for (int32 Variant = 0; Variant < FInfinityStageUnderpassSettings::FenceVariantCount; ++Variant)
+     {
+         const FInfinityStageFenceVariant& Kind = Underpass.GetFenceVariant(Variant);
+@@ -583,7 +590,11 @@ bool AInfinityStageStructureActor::MaterializeStructure()
+         UStaticMesh* Panel = LoadUnderpassMesh(bVariantOn, Kind.Mesh, TEXT("Underpass fence panel"));
+         UnderpassFenceMeshes.Add(Panel);
+         UnderpassFenceOverlayMeshes.Add(LoadUnderpassMesh(bVariantOn && Panel != nullptr, Kind.OverlayMesh, TEXT("Underpass fence overlay")));
++        UnderpassFenceTopRowMeshes.Add(LoadUnderpassMesh(bVariantOn && Panel != nullptr, Kind.TopRowMesh, TEXT("Underpass fence top-row panel")));
+     }
++    UStaticMesh* UnderpassFencePostMesh = LoadUnderpassMesh(
++        Underpass.bEnabled && Underpass.bFence && Underpass.FencePostJoints != EInfinityFencePostJoints::None,
++        Underpass.FencePostMesh, TEXT("Underpass fence post"));
+     // Stack mode: one plan for the fence and the fence-top tubes. The row is the
+     // tallest built bay (built = loaded and a finite weight above 0, exactly the
+     // fence's own rule). No built bay, or any other mode: the tubes read
+@@ -692,13 +703,17 @@ bool AInfinityStageStructureActor::MaterializeStructure()
+         {
+             TArray<FInfinityUnderpassPart> FencePanels;
+             TArray<FInfinityUnderpassPart> FenceOverlays;
++            TArray<FInfinityUnderpassPart> FenceTopRowPanels;
+             for (int32 Variant = 0; Variant < FInfinityStageUnderpassSettings::FenceVariantCount; ++Variant)
+             {
+                 const FInfinityStageFenceVariant& Kind = Underpass.GetFenceVariant(Variant);
+                 FencePanels.Add(UnderpassPart(UnderpassFenceMeshes[Variant], Kind.Material, TEXT("Underpass fence panel")));
+                 FenceOverlays.Add(UnderpassPart(UnderpassFenceOverlayMeshes[Variant], Kind.OverlayMaterial, TEXT("Underpass fence overlay")));
++                // The top-row panel wears the variant's own slot-0 material, as Mesh does.
++                FenceTopRowPanels.Add(UnderpassPart(UnderpassFenceTopRowMeshes[Variant], Kind.Material, TEXT("Underpass fence top-row panel")));
+             }
+-            BuildUnderpassFence(Stations, FencePanels, FenceOverlays, FenceStack);
++            BuildUnderpassFence(Stations, FencePanels, FenceOverlays, FenceTopRowPanels,
++                UnderpassPart(UnderpassFencePostMesh, Underpass.FencePostMaterial, TEXT("Underpass fence post")), FenceStack);
+         }
+     }
+     int32 MovingLights = 0;
+@@ -829,10 +844,13 @@ void AInfinityStageStructureActor::BuildUnderpassFence(
+     const TArray<FInfinityStructureStation>& Stations,
+     const TArray<FInfinityUnderpassPart>& Panels,
+     const TArray<FInfinityUnderpassPart>& Overlays,
++    const TArray<FInfinityUnderpassPart>& TopRowPanels,
++    const FInfinityUnderpassPart& Post,
+     const FInfinityStageFenceStackPlan& StackPlan)
+ {
+     constexpr int32 VariantCount = FInfinityStageUnderpassSettings::FenceVariantCount;
+-    if (Stations.Num() < 2 || Panels.Num() != VariantCount || Overlays.Num() != VariantCount)
++    if (Stations.Num() < 2 || Panels.Num() != VariantCount || Overlays.Num() != VariantCount
++        || TopRowPanels.Num() != VariantCount)
+     {
+         return;
+     }
+@@ -844,8 +862,14 @@ void AInfinityStageStructureActor::BuildUnderpassFence(
+     double AllWeight = 0.0;
+     double BuiltWeight = 0.0;
+     FBox Bounds[VariantCount];
++    // The top-row panels' own bounds (TopRowMesh): fitted exactly as the panels are.
++    FBox TopBounds[VariantCount];
+     // The tile width: the widest built bay. The FenceBay kit's bays are all one size.
++    // Top-row meshes never set it (nor the row height): they are drawn into the
++    // tiles the panels define.
+     double TileWidthCm = 0.0;
++    // The tallest built panel: Fit mode's post Z scale is the stretch of this height.
++    double BuiltPanelHeightCm = 0.0;
+     for (int32 Variant = 0; Variant < VariantCount; ++Variant)
+     {
+         const double Weight = Underpass.GetFenceVariant(Variant).Weight;
+@@ -854,9 +878,11 @@ void AInfinityStageStructureActor::BuildUnderpassFence(
+         const bool bBuilt = Panels[Variant].Mesh && Weights[Variant] > 0.0;
+         BuiltWeight += bBuilt ? Weights[Variant] : 0.0;
+         Bounds[Variant] = Panels[Variant].Mesh ? Panels[Variant].Mesh->GetBoundingBox() : FBox(ForceInit);
++        TopBounds[Variant] = TopRowPanels[Variant].Mesh ? TopRowPanels[Variant].Mesh->GetBoundingBox() : FBox(ForceInit);
+         if (bBuilt)
+         {
+             TileWidthCm = FMath::Max(TileWidthCm, Bounds[Variant].GetSize().X);
++            BuiltPanelHeightCm = FMath::Max(BuiltPanelHeightCm, Bounds[Variant].GetSize().Z);
+         }
+     }
+     if (BuiltWeight <= 0.0 || TileWidthCm <= UE_KINDA_SMALL_NUMBER)
+@@ -921,6 +947,20 @@ void AInfinityStageStructureActor::BuildUnderpassFence(
+                 *GetActorNameOrLabel());
+         }
+     }
++    bool bAnyTopRowMesh = false;
++    for (int32 Variant = 0; Variant < VariantCount; ++Variant)
++    {
++        bAnyTopRowMesh |= TopRowPanels[Variant].Mesh != nullptr;
++    }
++    // A cut top row Z-scales whatever is drawn on it: say so when that is a top-row
++    // mesh (barbed wire squashes) or a post.
++    if (bStack && (bAnyTopRowMesh || Post.Mesh)
++        && !FMath::IsNearlyEqual(StackPlan.TopRowHeightCm, StackPlan.RowHeightCm, 0.01))
++    {
++        UE_LOG(LogInfinityStageStructure, Warning,
++            TEXT("INFINITY_STAGE_STRUCTURE_FENCE_TOP_ROW_SCALED actor='%s' top_row_cm=%.2f row_cm=%.2f (the top-row panels and posts are Z-scaled by %.3f; bFenceStackCutTopRow off builds whole rows)"),
++            *GetActorNameOrLabel(), StackPlan.TopRowHeightCm, StackPlan.RowHeightCm, StackPlan.TopRowHeightCm / StackPlan.RowHeightCm);
++    }
+ 
+     // Native height keeps each bay as authored; say so where that is not the
+     // height the fence was meant to be (W&T's 3 m bays will match).
+@@ -968,6 +1008,24 @@ void AInfinityStageStructureActor::BuildUnderpassFence(
+         TArray<float> Data;
+     };
+     FVariantInstances Built[VariantCount];
++    // The same variant's top-row panels (TopRowMesh), kept apart: another mesh, another component.
++    FVariantInstances BuiltTop[VariantCount];
++    FVariantInstances BuiltPosts;
++    // The posts stand on the top row and stretch with it: a cut Stack row's height,
++    // Fit's stretch of the tallest panel, or (Native) their own.
++    const double TopRowBottomCm = bStack ? StackPlan.RowHeightCm * (Rows - 1) : 0.0;
++    double PostZScale = 1.0;
++    if (bStack)
++    {
++        PostZScale = StackPlan.TopRowHeightCm / StackPlan.RowHeightCm;
++    }
++    else if (!bNativeHeight && BuiltPanelHeightCm > UE_KINDA_SMALL_NUMBER)
++    {
++        PostZScale = IntendedHeightCm / BuiltPanelHeightCm;
++    }
++    const EInfinityFencePostJoints PostJoints = Post.Mesh ? Underpass.FencePostJoints : EInfinityFencePostJoints::None;
++    const FVector PostOffsetCm(Underpass.FencePostOffsetCm.X, Underpass.FencePostOffsetCm.Y, Underpass.FencePostOffsetCm.Z * PostZScale);
++    const double PostHeightCm = Post.Mesh ? Post.Mesh->GetBoundingBox().GetSize().Z * PostZScale : 0.0;
+ 
+     for (int32 Gap = 0; Gap + 1 < ColumnStations.Num(); ++Gap)
+     {
+@@ -1016,8 +1074,12 @@ void AInfinityStageStructureActor::BuildUnderpassFence(
+                     {
+                         continue;
+                     }
+-                    const double DepthCm = FMath::Max(1.0, Bounds[Variant].GetSize().Y);
+-                    double HeightCm = bNativeHeight ? FMath::Max(1.0, Bounds[Variant].GetSize().Z) : IntendedHeightCm;
++                    // The top row draws the variant's TopRowMesh when it has one; the
++                    // choice above is untouched, so the variants stay exactly as before.
++                    const bool bTop = Row == Rows - 1 && TopRowPanels[Variant].Mesh != nullptr;
++                    const FBox& Drawn = bTop ? TopBounds[Variant] : Bounds[Variant];
++                    const double DepthCm = FMath::Max(1.0, Drawn.GetSize().Y);
++                    double HeightCm = bNativeHeight ? FMath::Max(1.0, Drawn.GetSize().Z) : IntendedHeightCm;
+                     double BottomCm = 0.0;
+                     if (bStack)
+                     {
+@@ -1026,8 +1088,30 @@ void AInfinityStageStructureActor::BuildUnderpassFence(
+                     }
+                     const FVector SizeCm(SlotCm, DepthCm, HeightCm);
+                     const FVector Centre = Start + Along * (SlotCm * (Tile + 0.5)) + BayUp * (BottomCm + HeightCm * 0.5);
+-                    Built[Variant].Transforms.Add(FitMeshToTimber(Bounds[Variant], Centre, Rotation, SizeCm));
+-                    Built[Variant].Data.Append({ Tone, static_cast<float>(SlotCm), static_cast<float>(DepthCm), static_cast<float>(HeightCm) });
++                    FVariantInstances& Into = bTop ? BuiltTop[Variant] : Built[Variant];
++                    Into.Transforms.Add(FitMeshToTimber(Drawn, Centre, Rotation, SizeCm));
++                    Into.Data.Append({ Tone, static_cast<float>(SlotCm), static_cast<float>(DepthCm), static_cast<float>(HeightCm) });
++                }
++            }
++
++            // Posts at this run's joints, on the top row, in the bays' frame. The
++            // bays' local +X runs with the stations on the -Y side and against them
++            // on the +Y side, so the line's +X end is the last gap's End (joint
++            // Tiles) on -Y and the first gap's Start (joint 0) on +Y. Neighbouring
++            // gaps share their joint, so Every builds a shared joint once per gap.
++            if (PostJoints != EInfinityFencePostJoints::None)
++            {
++                const bool bLineEndRun = Side < 0.0 ? Gap + 2 == ColumnStations.Num() : Gap == 0;
++                const int32 LineEndJoint = Side < 0.0 ? Tiles : 0;
++                for (int32 Joint = 0; Joint <= Tiles; ++Joint)
++                {
++                    if (PostJoints == EInfinityFencePostJoints::LineEnd && (!bLineEndRun || Joint != LineEndJoint))
++                    {
++                        continue;
++                    }
++                    const FVector Foot = Start + Along * (SlotCm * Joint) + BayUp * TopRowBottomCm;
++                    BuiltPosts.Transforms.Add(FTransform(Rotation, Foot + Rotation.RotateVector(PostOffsetCm), FVector(1.0, 1.0, PostZScale)));
++                    BuiltPosts.Data.Append({ 0.0f, 0.0f, 0.0f, static_cast<float>(PostHeightCm) });
+                 }
+             }
+         }
+@@ -1054,20 +1138,59 @@ void AInfinityStageStructureActor::BuildUnderpassFence(
+     const TCHAR* const OverlayNames[] = {
+         TEXT("StructureUnderpassFenceOverlayA"), TEXT("StructureUnderpassFenceOverlayB"),
+         TEXT("StructureUnderpassFenceOverlayC"), TEXT("StructureUnderpassFenceOverlayD") };
++    const TCHAR* const TopRowNames[] = {
++        TEXT("StructureUnderpassFenceTopRowA"), TEXT("StructureUnderpassFenceTopRowB"),
++        TEXT("StructureUnderpassFenceTopRowC"), TEXT("StructureUnderpassFenceTopRowD") };
+     for (int32 Variant = 0; Variant < VariantCount; ++Variant)
+     {
+-        if (Built[Variant].Transforms.IsEmpty())
++        // Created in the order the fence always made them, so a fence with no
++        // top-row mesh names and orders its components exactly as before.
++        if (!Built[Variant].Transforms.IsEmpty())
+         {
+-            continue;
++            Emit(Built[Variant], PanelNames[Variant], UnderpassFenceLayerTags[Variant], Panels[Variant]);
++            UnderpassFencePanelCount += Built[Variant].Transforms.Num();
++            if (Overlays[Variant].Mesh)
++            {
++                Emit(Built[Variant], OverlayNames[Variant], UnderpassFenceOverlayLayerTags[Variant], Overlays[Variant]);
++                UnderpassFenceOverlayCount += Built[Variant].Transforms.Num();
++            }
+         }
+-        Emit(Built[Variant], PanelNames[Variant], UnderpassFenceLayerTags[Variant], Panels[Variant]);
+-        UnderpassFencePanelCount += Built[Variant].Transforms.Num();
+-        if (Overlays[Variant].Mesh)
++        if (!BuiltTop[Variant].Transforms.IsEmpty())
+         {
+-            Emit(Built[Variant], OverlayNames[Variant], UnderpassFenceOverlayLayerTags[Variant], Overlays[Variant]);
+-            UnderpassFenceOverlayCount += Built[Variant].Transforms.Num();
++            // The variant's own layer tag, so every reader that counts a variant's
++            // panels by tag still finds them all, plus the top-row tag.
++            const int32 ComponentsBefore = ManagedComponents.Num();
++            Emit(BuiltTop[Variant], TopRowNames[Variant], UnderpassFenceLayerTags[Variant], TopRowPanels[Variant]);
++            if (ManagedComponents.Num() > ComponentsBefore && ManagedComponents.Last())
++            {
++                ManagedComponents.Last()->ComponentTags.Add(UnderpassFenceTopRowTag);
++            }
++            UnderpassFencePanelCount += BuiltTop[Variant].Transforms.Num();
++            UnderpassFenceTopRowPanelCount += BuiltTop[Variant].Transforms.Num();
++            if (Overlays[Variant].Mesh)
++            {
++                // Authored in the bay's frame: it takes the top-row panel's transform exactly.
++                Emit(BuiltTop[Variant], OverlayNames[Variant], UnderpassFenceOverlayLayerTags[Variant], Overlays[Variant]);
++                UnderpassFenceOverlayCount += BuiltTop[Variant].Transforms.Num();
++            }
+         }
+     }
++    if (!BuiltPosts.Transforms.IsEmpty())
++    {
++        // Not a panel: no variant tag, so panel readers never count a post.
++        UInstancedStaticMeshComponent* Component = CreateManagedComponent(
++            TEXT("StructureUnderpassFencePosts"), UnderpassFencePostLayerTag, Post.Mesh, Post.Material, Underpass.bFenceCastShadow);
++        Component->ComponentTags.Add(UnderpassFenceTag);
++        ApplyInstances(*Component, BuiltPosts.Transforms, BuiltPosts.Data);
++        UnderpassFencePostCount = BuiltPosts.Transforms.Num();
++    }
++    if (bAnyTopRowMesh || Post.Mesh)
++    {
++        UE_LOG(LogInfinityStageStructure, Display,
++            TEXT("INFINITY_STAGE_STRUCTURE_FENCE_TOP actor='%s' top_row_panels=%d posts=%d post_joints=%d post_z_scale=%.4f top_row_bottom_cm=%.2f"),
++            *GetActorNameOrLabel(), UnderpassFenceTopRowPanelCount, UnderpassFencePostCount, static_cast<int32>(PostJoints),
++            PostZScale, TopRowBottomCm);
++    }
+ }
+ 
+ URectLightComponent* AInfinityStageStructureActor::CreateManagedLight(const FName BaseName, const FName LayerTag)
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
+index e908179..d0f920a 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
+@@ -4000,4 +4000,317 @@ bool FInfinityStageFenceStackRowsTest::RunTest(const FString& Parameters)
+     return true;
+ }
+ 
++// ---------------------------------------------------------------------------
++// Fence top row and posts (patch BW, 7 Oct; Gary: "Coil + strands", barbed wire on
++// the top row only, thicker posts): a variant's TopRowMesh is drawn on the top row
++// alone, with the very same variant choices; posts stand at tile joints on the top
++// row. Every new field at its default builds exactly as before.
++// ---------------------------------------------------------------------------
++namespace
++{
++const TCHAR* const FenceTopRowTag = TEXT("InfinityStage.Structure.Underpass.FenceTopRow");
++const TCHAR* const FencePostTag = TEXT("InfinityStage.Structure.Underpass.FencePosts");
++
++/** Every panel of every variant layer, top-row layers included (ReadFence reads one component per tag). */
++struct FTopRowPanel
++{
++    int32 Variant = INDEX_NONE;
++    bool bTopRowLayer = false;
++    const UStaticMesh* Mesh = nullptr;
++    FTransform Transform;
++    FBox Box = FBox(ForceInit);
++};
++
++TArray<FTopRowPanel> ReadAllPanels(const AInfinityStageStructureActor& Structure)
++{
++    TArray<FTopRowPanel> Panels;
++    for (const UInstancedStaticMeshComponent* Component : Structure.ManagedComponents)
++    {
++        if (!Component)
++        {
++            continue;
++        }
++        int32 Variant = INDEX_NONE;
++        for (int32 Index = 0; Index < FenceVariantTotal; ++Index)
++        {
++            Variant = Component->ComponentTags.Contains(FName(FenceVariantTags[Index])) ? Index : Variant;
++        }
++        if (Variant == INDEX_NONE)
++        {
++            continue;
++        }
++        const FBox MeshBounds = Component->GetStaticMesh()->GetBoundingBox();
++        for (const FTransform& Instance : ReadInstances(*Component))
++        {
++            FTopRowPanel& Panel = Panels.AddDefaulted_GetRef();
++            Panel.Variant = Variant;
++            Panel.bTopRowLayer = Component->ComponentTags.Contains(FName(FenceTopRowTag));
++            Panel.Mesh = Component->GetStaticMesh();
++            Panel.Transform = Instance;
++            Panel.Box = MeshBounds.TransformBy(Instance);
++        }
++    }
++    return Panels;
++}
++
++TMap<FIntVector, int32> AllPanelChoices(const TArray<FTopRowPanel>& Panels, const double BaseCm, const double RowCm)
++{
++    TMap<FIntVector, int32> Choices;
++    for (const FTopRowPanel& Panel : Panels)
++    {
++        const FVector Centre = Panel.Box.GetCenter();
++        Choices.Add(FIntVector(FMath::RoundToInt32(Centre.X), FMath::RoundToInt32(Centre.Y),
++            FMath::RoundToInt32((Panel.Box.Min.Z - BaseCm) / RowCm)), Panel.Variant);
++    }
++    return Choices;
++}
++
++/** Each post's foot (its location less the rotated offset, the offset's Z scaled with the post) and its transform. */
++TArray<TPair<FVector, FTransform>> ReadPosts(const AInfinityStageStructureActor& Structure, const FVector& OffsetCm)
++{
++    TArray<TPair<FVector, FTransform>> Posts;
++    if (const UInstancedStaticMeshComponent* Layer = FindLayer(Structure, FencePostTag))
++    {
++        for (const FTransform& Instance : ReadInstances(*Layer))
++        {
++            const FVector Scaled(OffsetCm.X, OffsetCm.Y, OffsetCm.Z * Instance.GetScale3D().Z);
++            Posts.Emplace(Instance.GetLocation() - Instance.GetRotation().RotateVector(Scaled), Instance);
++        }
++    }
++    return Posts;
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageFenceTopRowAndPostsTest,
++    "InfinityStage.Structure.FenceTopRow.WireOnTheTopRowOnlyAndPostsAtJoints",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageFenceTopRowAndPostsTest::RunTest(const FString& Parameters)
++{
++    const FInfinityStageUnderpassSettings Defaults;
++    TestTrue(TEXT("Defaults: no top-row mesh on any variant, no posts, no post mesh, material or offset"),
++        Defaults.FenceVariantA.TopRowMesh.IsNull() && Defaults.FenceVariantB.TopRowMesh.IsNull()
++        && Defaults.FenceVariantC.TopRowMesh.IsNull() && Defaults.FenceVariantD.TopRowMesh.IsNull()
++        && Defaults.FencePostJoints == EInfinityFencePostJoints::None && Defaults.FencePostMesh.IsNull()
++        && Defaults.FencePostMaterial.IsNull() && Defaults.FencePostOffsetCm.IsZero());
++
++    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
++    const TSoftObjectPtr<UStaticMesh> Cylinder(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cylinder.Cylinder")));
++    const TSoftObjectPtr<UStaticMesh> Cone(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cone.Cone")));
++    if (!Cube.LoadSynchronous() || !Cylinder.LoadSynchronous() || !Cone.LoadSynchronous())
++    {
++        AddError(TEXT("Fixture: the engine cube, cylinder or cone does not load."));
++        return false;
++    }
++
++    // Long gaps, a column on every station, every variant drawn; three whole 100 cm rows.
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = SpawnSpacedPassage(*World, { 1000.0, 1000.0, 1000.0, 1000.0 });
++    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    ArmFence(*Structure);
++    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
++    Underpass.ColumnEvery = 1;
++    Underpass.FenceBaseCm = 20.0;
++    Underpass.FenceHeightMode = EInfinityFenceHeightMode::Stack;
++    Underpass.FenceHeightCm = 300.0;
++    Underpass.FenceVariantB.OverlayMesh = Cube;
++    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++    {
++        FenceVariant(Underpass, Variant).Weight = 0.25;
++    }
++    TestTrue(TEXT("Builds the plain stack"), Structure->MaterializeStructure());
++    const TArray<FBuiltLayer> Plain = SnapshotBuild(*Structure);
++    const TArray<FTopRowPanel> PlainPanels = ReadAllPanels(*Structure);
++    TestEqual(TEXT("Plain: three rows"), Structure->UnderpassFenceRowCount, 3);
++    TestTrue(TEXT("Plain: no top-row panels or posts counted"),
++        Structure->UnderpassFenceTopRowPanelCount == 0 && Structure->UnderpassFencePostCount == 0);
++    TArray<FInfinityStructureStation> Stations;
++    FString Error;
++    Structure->GatherStations(Stations, Error);
++    const double StationZ = Stations.IsEmpty() ? 0.0 : Stations[0].StationWorld.GetLocation().Z;
++    const double BaseCm = StationZ + Structure->Ground.FloorHeightCm + Underpass.FenceBaseCm;
++    const TMap<FIntVector, int32> PlainChoices = AllPanelChoices(PlainPanels, BaseCm, EngineShapeCm);
++
++    // The post fields do nothing while FencePostJoints is None; a post mode with no
++    // mesh does nothing either.
++    Underpass.FencePostMesh = Cone;
++    Underpass.FencePostOffsetCm = FVector(-5.0, -6.5, 0.0);
++    TestTrue(TEXT("Builds with a post mesh and offset but no joints"), Structure->MaterializeStructure());
++    FString Why;
++    TestTrue(FString::Printf(TEXT("Joints None: every component identical to the plain stack (%s)"), *Why),
++        SameBuild(Plain, SnapshotBuild(*Structure), Why));
++    Underpass.FencePostMesh = nullptr;
++    Underpass.FencePostJoints = EInfinityFencePostJoints::LineEnd;
++    TestTrue(TEXT("Builds with joints but no post mesh"), Structure->MaterializeStructure());
++    TestTrue(FString::Printf(TEXT("No post mesh: every component identical to the plain stack (%s)"), *Why),
++        SameBuild(Plain, SnapshotBuild(*Structure), Why));
++    Underpass.FencePostJoints = EInfinityFencePostJoints::None;
++
++    // A top-row mesh on every variant: the cylinder on the top row, the cube below.
++    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++    {
++        FenceVariant(Underpass, Variant).TopRowMesh = Cylinder;
++    }
++    TestTrue(TEXT("Builds with top-row meshes"), Structure->MaterializeStructure());
++    const TArray<FTopRowPanel> Panels = ReadAllPanels(*Structure);
++    TestEqual(TEXT("As many panels as the plain stack"), Panels.Num(), PlainPanels.Num());
++    int32 TopRow = 0;
++    bool bPlaced = !Panels.IsEmpty();
++    for (const FTopRowPanel& Panel : Panels)
++    {
++        const int32 Row = FMath::RoundToInt32((Panel.Box.Min.Z - BaseCm) / EngineShapeCm);
++        const bool bTop = Row == 2;
++        TopRow += bTop ? 1 : 0;
++        bPlaced &= bTop == Panel.bTopRowLayer && Panel.Mesh == (bTop ? Cylinder.Get() : Cube.Get())
++            && FMath::IsNearlyEqual(Panel.Box.Min.Z, BaseCm + Row * EngineShapeCm, 0.1)
++            && FMath::IsNearlyEqual(Panel.Box.Max.Z, BaseCm + (Row + 1) * EngineShapeCm, 0.1);
++    }
++    TestTrue(TEXT("The top row is the cylinder in top-row layers; rows 0 and 1 the cube; every panel in its row"), bPlaced);
++    TestEqual(TEXT("One row of top-row panels"), TopRow * 3, Panels.Num());
++    TestEqual(TEXT("The top-row count is reported"), Structure->UnderpassFenceTopRowPanelCount, TopRow);
++    TestEqual(TEXT("Panels counted with the top row"), Structure->UnderpassFencePanelCount, Panels.Num());
++    TestTrue(TEXT("Every variant's choice is the plain stack's, tile for tile and row for row"),
++        AllPanelChoices(Panels, BaseCm, EngineShapeCm).OrderIndependentCompareEqual(PlainChoices));
++    int32 BPanels = 0;
++    for (const FTopRowPanel& Panel : Panels)
++    {
++        BPanels += Panel.Variant == 1 ? 1 : 0;
++    }
++    TestEqual(TEXT("B's overlay rides every B panel, top row included"), Structure->UnderpassFenceOverlayCount, BPanels);
++    const TArray<FBuiltLayer> Topped = SnapshotBuild(*Structure);
++    TestTrue(TEXT("Rebuilds"), Structure->MaterializeStructure());
++    TestTrue(FString::Printf(TEXT("A rebuild is identical (%s)"), *Why), SameBuild(Topped, SnapshotBuild(*Structure), Why));
++    TestFalse(TEXT("Control: the top row does change the build"), SameBuild(Plain, Topped, Why));
++
++    // LineEnd: one post per side, at the fence line's far end in the bays' +X, on the top row.
++    const FVector OffsetCm(-5.0, -6.5, 0.0);
++    Underpass.FencePostMesh = Cone;
++    Underpass.FencePostOffsetCm = OffsetCm;
++    Underpass.FencePostJoints = EInfinityFencePostJoints::LineEnd;
++    TestTrue(TEXT("Builds with line-end posts"), Structure->MaterializeStructure());
++    const int32 Runs = (ColumnCentreX(*Structure).Num() - 1) * 2;
++    const TArray<TPair<FVector, FTransform>> EndPosts = ReadPosts(*Structure, OffsetCm);
++    TestTrue(FString::Printf(TEXT("Fixture: several runs (%d)"), Runs), Runs >= 4);
++    TestEqual(TEXT("LineEnd: one post per side"), EndPosts.Num(), 2);
++    TestEqual(TEXT("LineEnd: the post count is reported"), Structure->UnderpassFencePostCount, 2);
++    TArray<FTopRowPanel> TopPanels = ReadAllPanels(*Structure).FilterByPredicate([](const FTopRowPanel& Panel) { return Panel.bTopRowLayer; });
++    // -Y side: the bays' +X is world +X, so the line's +X end is the largest max X;
++    // +Y side: their +X is world -X, so it is the smallest min X.
++    double MaxMinusY = -TNumericLimits<double>::Max();
++    double MinPlusY = TNumericLimits<double>::Max();
++    double LineYMinus = 0.0;
++    double LineYPlus = 0.0;
++    for (const FTopRowPanel& Panel : TopPanels)
++    {
++        const FVector Centre = Panel.Box.GetCenter();
++        if (Centre.Y < 0.0 && Panel.Box.Max.X > MaxMinusY)
++        {
++            MaxMinusY = Panel.Box.Max.X;
++            LineYMinus = Centre.Y;
++        }
++        if (Centre.Y > 0.0 && Panel.Box.Min.X < MinPlusY)
++        {
++            MinPlusY = Panel.Box.Min.X;
++            LineYPlus = Centre.Y;
++        }
++    }
++    int32 MinusYEnds = 0;
++    int32 PlusYEnds = 0;
++    bool bEnds = EndPosts.Num() == 2;
++    for (const TPair<FVector, FTransform>& Post : EndPosts)
++    {
++        const FVector Foot = Post.Key;
++        const bool bMinusY = Foot.Y < 0.0;
++        const bool bAtEnd = bMinusY
++            ? FMath::IsNearlyEqual(Foot.X, MaxMinusY, 0.1) && FMath::IsNearlyEqual(Foot.Y, LineYMinus, 0.1)
++            : FMath::IsNearlyEqual(Foot.X, MinPlusY, 0.1) && FMath::IsNearlyEqual(Foot.Y, LineYPlus, 0.1);
++        (bMinusY ? MinusYEnds : PlusYEnds) += bAtEnd ? 1 : 0;
++        bEnds &= bAtEnd && FMath::IsNearlyEqual(Foot.Z, BaseCm + 2.0 * EngineShapeCm, 0.1)
++            && Post.Value.GetScale3D().Equals(FVector::OneVector, 1.0e-6)
++            && FMath::IsNearlyEqual(Post.Value.GetRotation().GetAxisX().X, bMinusY ? 1.0 : -1.0, 1.0e-6);
++    }
++    TestTrue(TEXT("LineEnd: each foot on its side's line end, on the top row's bottom, unscaled, in the bays' frame"),
++        bEnds && MinusYEnds == 1 && PlusYEnds == 1);
++    TestTrue(TEXT("Posts change no panel"),
++        AllPanelChoices(ReadAllPanels(*Structure), BaseCm, EngineShapeCm).OrderIndependentCompareEqual(PlainChoices));
++    // Control: read without the offset, no foot lands on a joint (so the offset is applied, and bEnds can fail).
++    bool bAnyRawOnJoint = false;
++    for (const TPair<FVector, FTransform>& Post : ReadPosts(*Structure, FVector::ZeroVector))
++    {
++        for (const FTopRowPanel& Panel : TopPanels)
++        {
++            bAnyRawOnJoint |= FMath::IsNearlyEqual(Post.Key.Y, Panel.Box.GetCenter().Y, 0.1)
++                && (FMath::IsNearlyEqual(Post.Key.X, Panel.Box.Max.X, 0.1) || FMath::IsNearlyEqual(Post.Key.X, Panel.Box.Min.X, 0.1));
++        }
++    }
++    TestFalse(TEXT("Control: unoffset, no post foot is on a joint"), bAnyRawOnJoint);
++
++    // Every joint: tiles + 1 per run, so exactly one more per run than the top row's tiles.
++    Underpass.FencePostJoints = EInfinityFencePostJoints::Every;
++    TestTrue(TEXT("Builds with posts at every joint"), Structure->MaterializeStructure());
++    TestEqual(TEXT("Every: top-row tiles + one per run"), ReadPosts(*Structure, OffsetCm).Num(), TopRow + Runs);
++
++    // A cut top row Z-scales the top-row panels and the posts together, and says so.
++    Underpass.FencePostJoints = EInfinityFencePostJoints::LineEnd;
++    Underpass.FenceHeightCm = 250.0;
++    AddExpectedMessagePlain(TEXT("INFINITY_STAGE_STRUCTURE_FENCE_TOP_ROW_SCALED"), ELogVerbosity::Warning,
++        EAutomationExpectedMessageFlags::Contains, 1);
++    TestTrue(TEXT("Builds a cut 250 cm stack"), Structure->MaterializeStructure());
++    bool bCut = true;
++    int32 CutTop = 0;
++    for (const FTopRowPanel& Panel : ReadAllPanels(*Structure))
++    {
++        if (Panel.bTopRowLayer)
++        {
++            ++CutTop;
++            bCut &= FMath::IsNearlyEqual(Panel.Transform.GetScale3D().Z, 0.5, 1.0e-4)
++                && FMath::IsNearlyEqual(Panel.Box.Max.Z, BaseCm + 250.0, 0.1);
++        }
++    }
++    for (const TPair<FVector, FTransform>& Post : ReadPosts(*Structure, OffsetCm))
++    {
++        bCut &= FMath::IsNearlyEqual(Post.Value.GetScale3D().Z, 0.5, 1.0e-6)
++            && FMath::IsNearlyEqual(Post.Key.Z, BaseCm + 2.0 * EngineShapeCm, 0.1);
++    }
++    TestTrue(TEXT("Cut: the top-row panels and the posts are scaled 0.5 and stand on the third row"), bCut && CutTop == TopRow);
++
++    // Native, one row: the one row is the top row, so it is all cylinder; posts at Z scale 1 on the base.
++    Underpass.FenceHeightMode = EInfinityFenceHeightMode::Native;
++    Underpass.FenceHeightCm = EngineShapeCm;
++    TestTrue(TEXT("Builds Native"), Structure->MaterializeStructure());
++    const TArray<FTopRowPanel> NativePanels = ReadAllPanels(*Structure);
++    bool bAllTop = !NativePanels.IsEmpty();
++    for (const FTopRowPanel& Panel : NativePanels)
++    {
++        bAllTop &= Panel.bTopRowLayer && Panel.Mesh == Cylinder.Get();
++    }
++    TestTrue(TEXT("Native: the one row is the top row"), bAllTop);
++    bool bNativePosts = Structure->UnderpassFencePostCount == 2;
++    for (const TPair<FVector, FTransform>& Post : ReadPosts(*Structure, OffsetCm))
++    {
++        bNativePosts &= FMath::IsNearlyEqual(Post.Key.Z, BaseCm, 0.1) && FMath::IsNearlyEqual(Post.Value.GetScale3D().Z, 1.0, 1.0e-6);
++    }
++    TestTrue(TEXT("Native: the two line-end posts on the fence base, unscaled"), bNativePosts);
++
++    // Everything back to default: identical to the plain stack.
++    Underpass.FenceHeightMode = EInfinityFenceHeightMode::Stack;
++    Underpass.FenceHeightCm = 300.0;
++    Underpass.FencePostJoints = EInfinityFencePostJoints::None;
++    Underpass.FencePostMesh = nullptr;
++    Underpass.FencePostOffsetCm = FVector::ZeroVector;
++    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++    {
++        FenceVariant(Underpass, Variant).TopRowMesh = nullptr;
++    }
++    TestTrue(TEXT("Rebuilds plain"), Structure->MaterializeStructure());
++    TestTrue(FString::Printf(TEXT("Back to default: every component identical to the plain stack (%s)"), *Why),
++        SameBuild(Plain, SnapshotBuild(*Structure), Why));
++    TestTrue(TEXT("Back to default: no top-row panels or posts counted"),
++        Structure->UnderpassFenceTopRowPanelCount == 0 && Structure->UnderpassFencePostCount == 0);
++    TestTrue(TEXT("The structure is current"), Structure->IsStructureCurrent());
++    World->DestroyWorld(false);
++    return true;
++}
++
+ #endif

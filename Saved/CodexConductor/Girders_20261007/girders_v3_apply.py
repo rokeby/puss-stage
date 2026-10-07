@@ -148,14 +148,79 @@ def from_state_problems(snap: dict) -> list:
     return probs
 
 
-def line_window(old_lines: int, line_drops, housing_old_drops, max_drop: float, depth_old: float, depth_new: float):
-    """Copied from ../underpass_rig_apply.py:168-179 (live-run 5 Oct). Hanging-line count after a depth change."""
-    delta = 1.5 * (depth_new - depth_old)
-    lost = sum(1 for d in line_drops if d + delta > max_drop or d + delta < 1.0)
-    gains = sum(1 for d in housing_old_drops if not (1.0 <= d <= max_drop) and 1.0 <= d + delta <= max_drop)
-    lo = old_lines - lost
-    return lo, lo + gains, {"grid_top_shift_cm": delta, "lost": lost, "possible_gains": gains,
-                            "lines_measured": len(line_drops), "lines_reported": old_lines}
+LINE_EPS_CM = 0.05  # float slack on the C++ bounds (instance transforms are stored as floats)
+
+
+def quat_rotate(q, v):
+    """FQuat::RotateVector for q = (x, y, z, w)."""
+    x, y, z, w = (float(c) for c in q)
+    tx, ty, tz = 2.0 * (y * v[2] - z * v[1]), 2.0 * (z * v[0] - x * v[2]), 2.0 * (x * v[1] - y * v[0])
+    return [v[0] + w * tx + (y * tz - z * ty), v[1] + w * ty + (z * tx - x * tz), v[2] + w * tz + (x * ty - y * tx)]
+
+
+def unit_axis(q, index):
+    """FTransform::GetUnitAxis for a positive-scale transform: the rotated basis vector."""
+    a = [0.0, 0.0, 0.0]
+    a[index] = 1.0
+    return quat_rotate(q, a)
+
+
+def cpp_line_rows(housings, height_cm, depth_cm, body_size_z, max_drop, grid_half_width, lines_on, eps=0.0):
+    """Transcription of BuildFixtures' hanging-line rule (InfinityStageStructureActor.cpp:1834-1847):
+        if (!LineMesh || GridHalfWidthCm <= 0) continue;     LineMesh is null unless bFixtureLines (cpp:557)
+        Lateral = |dot(BodyCentre - Origin, Across)|          Across = station Y, Origin = station location
+        GridTopZ = (Origin + StationUp * (HeightCm + 1.5 * BeamDepthCm)).Z
+        HousingTopZ = BodyCentre.Z + BodySize.Z * 0.5        BodySize = BodySizeCm.ComponentMax(1)
+        Drop = GridTopZ - HousingTopZ; no line if Lateral > GridHalfWidth || Drop < 1 || Drop > MaxDropCm
+    HangingLineCount = Lines.Num() (cpp:1870); portal lines go to PortalPieceCount instead (cpp:1717-1722).
+    housings: [{"centre": [x,y,z], "origin": [x,y,z], "up": unit, "across": unit}] in placement (= instance) order.
+    eps > 0 loosens every bound (upper count), eps < 0 tightens it (lower count)."""
+    rows = []
+    bz = max(1.0, float(body_size_z))
+    for h in housings:
+        c, o, up, ac = h["centre"], h["origin"], h["up"], h["across"]
+        lateral = abs(sum((c[i] - o[i]) * ac[i] for i in range(3)))
+        grid_top_z = o[2] + up[2] * (float(height_cm) + float(depth_cm) * 1.5)
+        drop = grid_top_z - (c[2] + bz * 0.5)
+        hangs = bool(lines_on) and float(grid_half_width) > 0.0 and not (
+            lateral > float(grid_half_width) + eps or drop < 1.0 - eps or drop > float(max_drop) + eps)
+        rows.append({"lateral": lateral, "drop": drop, "hangs": hangs, "cross_z": o[2] + up[2] * float(height_cm)})
+    return rows
+
+
+def line_window(li: dict, live_lines: int, depth_old: float, depth_new: float):
+    """Exact hanging-line prediction. Replaces the 5 Oct estimate (old count - lines pushed past MaxDrop + housings
+    whose drop from the LOWEST grid instance within 600 cm crosses 1 cm), which on Structure 02 (GridHalfWidth
+    2251 cm, grid instance centres on the route line and at +-2251) found no grid instance near any housing and so
+    predicted no gains: 35 -> [32, 32] against a live 50 (GV3A-20261007-023402).
+    Evaluates the C++ rule at the OLD depth first and requires it to reproduce the live count AND the live line
+    drops (else the row is refused); the NEW-depth window is [tight, loose] under LINE_EPS_CM (normally lo == hi)."""
+    h, bz, md, ghw, on = li["height_cm"], li["body_size_z"], li["max_drop"], li["grid_half_width"], li["lines_on"]
+
+    def count(depth, eps):
+        return sum(r["hangs"] for r in cpp_line_rows(li["housings"], h, depth, bz, md, ghw, on, eps))
+
+    old = cpp_line_rows(li["housings"], h, depth_old, bz, md, ghw, on)
+    new = cpp_line_rows(li["housings"], h, depth_new, bz, md, ghw, on)
+    problems = []
+    if li.get("placement_problem"):
+        problems.append(li["placement_problem"])
+    old_lo, old_hi = count(depth_old, -LINE_EPS_CM), count(depth_old, LINE_EPS_CM)
+    if not (old_lo <= live_lines <= old_hi):
+        problems.append(f"C++ rule at the live depth gives [{old_lo}, {old_hi}] lines, live has {live_lines}")
+    pred_drops = sorted(r["drop"] for r in old if r["hangs"])
+    live_drops = sorted(li["line_drops"])
+    if len(pred_drops) != len(live_drops) or any(abs(a - b) > 0.5 for a, b in zip(pred_drops, live_drops)):
+        problems.append(f"predicted line drops do not match the live line instances "
+                        f"({len(pred_drops)} predicted vs {len(live_drops)} live)")
+    lo, hi = count(depth_new, -LINE_EPS_CM), count(depth_new, LINE_EPS_CM)
+    gained = [i for i, (a, b) in enumerate(zip(old, new)) if b["hangs"] and not a["hangs"]]
+    lost = [i for i, (a, b) in enumerate(zip(old, new)) if a["hangs"] and not b["hangs"]]
+    return lo, hi, {"grid_top_shift_cm": 1.5 * (depth_new - depth_old), "lines_reported": live_lines,
+                    "predicted_old": sum(r["hangs"] for r in old), "predicted_new": sum(r["hangs"] for r in new),
+                    "gained": len(gained), "lost": len(lost), "housings": len(li["housings"]),
+                    "gained_new_drops_cm": sorted(round(new[i]["drop"], 1) for i in gained),
+                    "reproduces_before": not problems, "problems": problems}
 
 
 def clearance(housings, depth_old, depth_new, body_h):
@@ -415,35 +480,115 @@ def portal_problem(portal, live):
     return None
 
 
+def _guid_key(g):
+    try:
+        import unreal as _u  # noqa: PLC0415  (module object only; no UE wrapper held at module level)
+        return str(_u.GuidLibrary.conv_guid_to_string(g)).replace("-", "").upper()
+    except Exception:  # noqa: BLE001
+        return str(g).replace("-", "").replace("{", "").replace("}", "").upper()
+
+
+def _enum_name(v):
+    """'<InfinityCueType.WING_PAIR: 1>' -> 'WINGPAIR'."""
+    t = str(v)
+    i = t.rfind(".")
+    t = t[i + 1:] if i >= 0 else t
+    return t.split(":")[0].strip(" <>").upper().replace("_", "")
+
+
+def _q(t):
+    r = t.rotation
+    return (float(r.x), float(r.y), float(r.z), float(r.w))
+
+
+def _v(v):
+    return [float(v.x), float(v.y), float(v.z)]
+
+
+def placement_stations(stations, cues):
+    """GatherFixturePlacements (cpp:139-174): station-major; per station the cue with its CueGuid, WingPair cues
+    only; per attachment bEnabled && Kind == Light && Anchor == Station (other anchors count as moving lights).
+    BuildFixtures adds one body per placement in order (cpp:1817-1831), so this is the station of each housing
+    instance."""
+    by_guid = {}
+    for cue in cues:
+        by_guid[_guid_key(cue.get_editor_property("cue_guid"))] = cue
+    out, moving = [], 0
+    for si, st in enumerate(stations):
+        cue = by_guid.get(_guid_key(st.get_editor_property("cue_guid")))
+        if cue is None or _enum_name(cue.get_editor_property("type")) != "WINGPAIR":
+            continue
+        for att in cue.get_editor_property("wing_pair").get_editor_property("attachments"):
+            if not att.get_editor_property("enabled") or _enum_name(att.get_editor_property("kind")) != "LIGHT":
+                continue
+            if _enum_name(att.get_editor_property("anchor")) != "STATION":
+                moving += 1
+                continue
+            out.append(si)
+    return out, moving
+
+
 def line_inputs(s, depth_old):
-    """Copied from ../underpass_rig_apply.py:406-442: drops of existing lines; each housing's old drop."""
+    """Everything the C++ hanging-line rule reads, from the live actor (read-only): station frames (GatherStations),
+    the housing -> station map (Show cues), each housing's BodyCentre recovered exactly from its ISM instance
+    (FitMeshToTimber: translation = centre - R * (bounds_centre * scale), cpp:183-196) and the live line drops."""
     fixtures = s.get_editor_property("fixtures")
+    grid = s.get_editor_property("gridiron")
     max_drop = float(fixtures.get_editor_property("max_drop_cm"))
-    body_h = float(fixtures.get_editor_property("body_size_cm").z)
+    body_size_z = max(1.0, float(fixtures.get_editor_property("body_size_cm").z))
+    lines_on = (bool(fixtures.get_editor_property("enabled")) and bool(fixtures.get_editor_property("hang_from_grid"))
+                and bool(grid.get_editor_property("enabled")))
     drops = []
     for x in comps(s, TAG["lines"]):
         box = x.get_editor_property("static_mesh").get_bounding_box()
         size_x = float(box.max.x - box.min.x)
         for i in range(int(x.get_instance_count())):
             drops.append(float(x.get_instance_transform(i, True).scale3d.x) * size_x)
-    grid_pts = []
-    for x in comps(s, TAG["grid"]):
+    res = s.gather_stations()  # (ok, stations, error) or (stations, error) depending on the wrapper
+    if isinstance(res, tuple):
+        stations = res[1] if len(res) == 3 else res[0]
+    else:
+        stations = res
+    stations = list(stations or [])
+    show = s.get_editor_property("passage").get_editor_property("show_asset")
+    station_of, moving = placement_stations(stations, list(show.get_editor_property("cues")))
+    frames = []
+    for st in stations:
+        w = st.get_editor_property("station_world")
+        q = _q(w)
+        frames.append({"origin": _v(w.translation), "up": unit_axis(q, 2), "across": unit_axis(q, 1)})
+    fx = comps(s, TAG["fixtures"])
+    xfs = []
+    for x in fx:
+        box = x.get_editor_property("static_mesh").get_bounding_box()
+        bc = [(float(box.max.x) + float(box.min.x)) * 0.5, (float(box.max.y) + float(box.min.y)) * 0.5,
+              (float(box.max.z) + float(box.min.z)) * 0.5]
         for i in range(int(x.get_instance_count())):
-            t = x.get_instance_transform(i, True).translation
-            grid_pts.append((float(t.x), float(t.y), float(t.z)))
-    housing_drops, housings = [], []
-    for x in comps(s, TAG["fixtures"]):
-        for i in range(int(x.get_instance_count())):
-            t = x.get_instance_transform(i, True).translation
-            hx, hy, hz = float(t.x), float(t.y), float(t.z)
-            near = [p for p in grid_pts if (p[0] - hx) ** 2 + (p[1] - hy) ** 2 <= 600.0 ** 2]
-            if not near:
-                continue
-            cz = min(p[2] for p in near)
-            housing_drops.append(cz + 1.5 * depth_old - (hz + body_h * 0.5))
-            housings.append((hx, hy, hz, cz))
-    return {"max_drop": max_drop, "body_h": body_h, "line_drops": drops, "housing_drops": housing_drops,
-            "housings": housings}
+            xfs.append((x.get_instance_transform(i, True), bc))
+    housings, problem = [], None
+    if len(fx) != 1 or len(xfs) != len(station_of):
+        problem = (f"{len(fx)} fixture components, {len(xfs)} housings vs {len(station_of)} Show placements "
+                   f"(moving {moving}): cannot map housings to stations")
+    else:
+        for (xf, bc), si in zip(xfs, station_of):
+            sc = _v(xf.scale3d)
+            off = quat_rotate(_q(xf), [bc[k] * sc[k] for k in range(3)])
+            centre = [float(xf.translation.x) + off[0], float(xf.translation.y) + off[1],
+                      float(xf.translation.z) + off[2]]
+            housings.append(dict(frames[si], centre=centre, station=si))
+    return {"max_drop": max_drop, "body_size_z": body_size_z, "body_h": body_size_z, "lines_on": lines_on,
+            "height_cm": float(grid.get_editor_property("height_cm")), "line_drops": drops,
+            "grid_half_width": float(s.get_editor_property("grid_half_width_cm")), "housings": housings,
+            "placement_problem": problem}
+
+
+def clearance_inputs(li, depth_old):
+    """(hx, hy, hz, cz) per housing under the span, for clearance(): exact BodyCentre and the cross-girder centre Z
+    of ITS station (Origin + StationUp * HeightCm), replacing the 600 cm nearest-grid-instance search."""
+    rows = cpp_line_rows(li["housings"], li["height_cm"], depth_old, li["body_size_z"], li["max_drop"],
+                         li["grid_half_width"], li["lines_on"])
+    return [(h["centre"][0], h["centre"][1], h["centre"][2], r["cross_z"]) for h, r in zip(li["housings"], rows)
+            if r["lateral"] <= li["grid_half_width"]]
 
 
 def instance_scales(s, tag):
@@ -491,19 +636,19 @@ def row_for(c: Ctx, s, label):
     before = counts(s)
     depth_old = float(snap["fields"][("gridiron", "beam_depth_cm")])
     li = line_inputs(s, depth_old)
-    lo, hi, detail = line_window(before["hanging_line_count"], li["line_drops"], li["housing_drops"],
-                                 li["max_drop"], depth_old, PLAN[("gridiron", "beam_depth_cm")][1])
+    lo, hi, detail = line_window(li, before["hanging_line_count"], depth_old, PLAN[("gridiron", "beam_depth_cm")][1])
     return {"snapshot": {"fields": fields_json(snap["fields"]), "context": snap["context"]},
             "from_state_problems": from_state_problems(snap), "soft_ptr_problems": soft_ptr_problems(snap, live),
             "portal": portal, "portal_live": portal_live(s), "portal_problem": portal_problem(portal, portal_live(s)),
             "render_before": live, "before": before, "line_window": [lo, hi], "line_detail": detail,
-            "clearance_hits_new_band": clearance(li["housings"], depth_old, PLAN[("gridiron", "beam_depth_cm")][1],
+            "clearance_hits_new_band": clearance(clearance_inputs(li, depth_old), depth_old, PLAN[("gridiron", "beam_depth_cm")][1],
                                                  li["body_h"]),
             "moves": geometry_moves(snap["context"], portal, floor), "floor_height_cm": floor}
 
 
 def refusals(row) -> list:
-    return row["from_state_problems"] + row["soft_ptr_problems"] + ([row["portal_problem"]] if row["portal_problem"] else []) \
+    return row["from_state_problems"] + row["soft_ptr_problems"] + \
+        [f"line predictor: {p}" for p in row["line_detail"].get("problems", [])] + ([row["portal_problem"]] if row["portal_problem"] else []) \
         + ([] if row["before"]["current"] else ["not current before the swap (re-fit it first, separately)"])
 
 
