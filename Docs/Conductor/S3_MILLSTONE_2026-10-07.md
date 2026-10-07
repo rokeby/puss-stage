@@ -287,3 +287,143 @@ after editing `S3Millstone/s3_props_args.json`. After every call, grep `Saved/Lo
 - Re-seating the clam is left to whoever brings in the Tridacna. The tool's re-seat is generic:
   - it is parameterised by `clam_labels` and seats the lowest AABB bottom on `top_z`;
   - it only moves actors that have no transform track.
+
+## 5. PearlClam extension (7 Oct evening): written OFFLINE, never run in Unreal
+
+Gary approved importing the PearlClam AS DELIVERED, including the thin mantle slit. The same tool now covers it.
+Harness: 293 checks, 0 failed (`test_s3_props.py`, sections I1–I10). Tiers per claim: **[decl]** header,
+**[meas]** read from a file here, **[inf]** not verified, with the reason.
+
+**Live-run lessons folded in**
+
+- IMPORT_TEX is now ONE texture per call for every prop (`check_mode`, `s3_props_ue.py:307`). It does not save and
+  does not gate the size, because a texture read 32×32 in its own import call **[meas, 7 Oct live run]**. It writes
+  `s3_props_tex_pending.json` and leaves exactly that package dirty.
+- **VERIFY_TEX** (`run_verify_tex`, `:1859`) is a separate call. It needs the census to be exactly the pending
+  package (`gate_census`, `:291`), checks size = PNG IHDR and the settings, then saves. Every other write mode
+  refuses while a pending file exists. If the size still reads wrong, it saves nothing; retry VERIFY_TEX later.
+- The tool refuses PIE, and every asset load is `unreal.load_asset`. In PIE, `EditorAssetLibrary.load_asset`
+  returns None **[meas]**.
+
+**Findings**
+
+- **P1. Y flip.** The FBX is Blender Z-up in metres×100 with `Lcl Rotation (-90,0,0)` on every part, the same
+  layout as the millstone **[meas, FBX parse]**. The expected UE frame is (x, −y, z) **[inf until IMPORT_MESH]**.
+  - Bounds can detect a missing flip only on the LID: y [−2.0, 96.45] flipped vs [−96.45, 2.0] unflipped. Bottom,
+    mantle and pearl are within 0.15 cm of symmetric in Y (harness I3 marks them UNDETECTABLE).
+  - A vertex-centroid gate covers the rest (`clam_centroid_check`, `:819`). The bottom/lid/mantle centroids sit
+    about 1.1 cm off-axis in X, so an X mirror is caught (`X_MIRRORED`). The bottom's −1.69 cm Y offset catches a
+    missing Y flip.
+  - The centroid is a strided sample of about 20k vertices of `get_static_mesh_description(0)` **[inf on a fresh
+    Nanite import]**. `"centroid_gate": false` in the args skips it and is recorded.
+- **P2. Lid opening sign.** UE roll r maps local +Y to (0, cos r, −sin r) (`rot_matrix`; harness I5 asserts this).
+  After the flip the lid reaches +Y, so **opening = lid relative Roll −80°** (`lid_open_roll`, `:887`). The front
+  tip rises about 80 cm at mid-height at any root yaw, and +80 drops it (− control). If the import came in
+  unflipped, the sign follows the measured lid bounds. **[inf until seen]**
+- **P3. Reveal must go on all four actors.** Actor.h:1917-1922 **[decl]** says SetActorHiddenInGame hides "the
+  actor and all its components". Nothing propagates to attached actors **[inf from that wording]**.
+  - CLAM_APPLY therefore spawns all four hidden in game, each with its own copy of the stone's LS_S3_HangarRise
+    reveal section (4 new bindings).
+  - `reveal_targets: "root"` is available but warns.
+  - `reveal_range_s` / `reveal_completion_mode` override the copied section for the 31 s question. The override
+    refuses a range that cuts the keys.
+- **P4. Camera yaw.** Read from an offline dump of today's LS_DevScene_03 (`S3Diag/ds03_now_sem.json`, 17:44)
+  **[meas offline]**:
+  - The root cut at B05 (2880–3000) binds **"Cine Camera Actor 3"**, which has no transform track.
+  - The cut at B06 (3000–3480) binds **"Cine Camera Actor 4"**, which is KEYED, moving (14072.6, 160990.6) →
+    (14866.2, 160994.0), yaw −0.9 → −43.7.
+  - The shot cameras were renamed since 1 Oct. Actor 3's template pose cannot be read offline.
+  - Using Actor 3's 1 Oct pose (x 14122, on the axis), B05 + B06 give yaw ≈ 26° with B05 63° off the opening
+    direction. That passes the 70° gate, but it is a compromise. **CLAM_DRY reads the real poses**: spawnable
+    template root transform, or evaluated keys at the cut's start, middle and last frame (`_clam_cameras`,
+    `:2220`). It refuses a beat covered by a nested sequence with its own cut track. If the yaw it reports is not
+    what Directing wants, pass `apply_clam.yaw_deg`. Without cameras and without a yaw, the tool refuses.
+- **P5. Seat.** The clam rests on the highest stone point under its footprint. That is 128.97 cm above the stone
+  base: max of the radial rings within the 32.4 cm half-diagonal of the 43.1 × 48.3 footprint
+  (`s3_millstone_fbx_measure.json`) **[meas offline]**.
+  - The footprint centre (−0.4, −3.4 Blender → −0.4, +3.4 UE) is placed on the stone axis at any yaw (harness I6).
+  - Root z = stone z (−7.0) + 128.97 − `sink_cm` (0). Expect up to about 1 cm float off-axis.
+- **P6. Stand-ins.** `source_Anim` (skeletal) and `Clam_with_Pearl_Clam_with_Pearl_0` are hidden on EVERY primitive
+  component (visible off, hidden in game on). Per-component flags are recorded and restored exactly. The actor flag
+  is untouched, because the LS_S3_HangarRise reveal drives it. Their LS_Clams keys are not touched.
+  **[inf]** that component flags beat the reveal track (same premise as the pedestal; check in PIE).
+
+**What the tool does**
+
+| Mode | What it covers |
+|---|---|
+| IMPORT_MESH `part` | Bottom, Lid, Mantle or Pearl (`run_import_clam_part`, `:1901`): vertex colours REPLACE (read back), slot names = manifest, bounds and centroid gates, `has_vertex_colors` required on the mantle, census then save |
+| IMPORT_TEX + VERIFY_TEX | one texture each: Shell BaseColor 8192 (coral, sha256 recorded at import), Shell N/Roughness and Mantle × 3 at 4096 |
+| BUILD_MAT `material` | one MI per call (`run_build_clam_mat`, `:2087`) |
+
+The BUILD_MAT materials:
+
+| Material | Built on | Settings |
+|---|---|---|
+| Shell | M_S3Prop | the existing master |
+| Mantle | M_S3PropBreathe (create-only) | M_S3Prop graph + WPO Z = BreathAmp·VC.R·(0.5−0.5cos 2πt/BreathPeriod); Amp 0 (off), Period 5; MaxWPO 5 cm (Material.h:1214-1220 **[decl]**, which also clamps per axis) |
+| Interior | M_S3PropSolid (create-only) | BaseColorTint linear (0.855, 0.578, 0.539) = sRGB (238, 200, 194), Roughness 0.25, Specular 0.5 |
+| Pearl | PearlClam/M_PearlClam_Pearl (create-only) | DefaultLit; base (0.86, 0.83, 0.78); Fresnel(exp 3) lerps WarmTint→CoolTint × base by TintAmount 0.6; Roughness 0.18; Specular 0.55; Glow emissive (0); the same breathing WPO with R = 1 so the pearl rides the flesh |
+
+There are no clear-coat pins. Gary sets BreathAmp on BOTH the mantle and the pearl MIs, and they share `Time`.
+
+**CLAM_APPLY** (`run_clam_apply`, `:2390`):
+1. The record is written first.
+2. Backup to `Backups/PreS3PearlClam-<run>/`: the umap, LS_S3_HangarRise and the record.
+3. Spawns "S3 PearlClam" (Bottom, MOVABLE). Lid, Mantle and Pearl are attached KEEP_WORLD at the manifest relative
+   transforms:
+   - Lid (0, −47.86, 30.02);
+   - Mantle (0, 0, 0);
+   - Pearl (0, 0, 35.64).
+4. Read back:
+   - relative transforms within 0.05 cm;
+   - the lid's world origin = root × hinge within 1 cm (`HINGE_PIVOT`);
+   - every material slot.
+5. Adds the 4 reveals and hides the stand-ins.
+6. Saves with the census exactly {LS_S3_HangarRise, map}, then reads back again. The marker is `S3CLAM_APPLY_OK`.
+
+The lid is NOT keyed. Its relative Roll is the hinge, so Sequencer keys Rotation.X (open = −80, recorded in
+`plan.lid`).
+
+**CLAM_REVERT:**
+- Refuses on drift. So if the lid has been keyed and the level saved with a non-zero roll, REVERT refuses; zero the
+  roll first.
+- Restores the stand-in flags.
+- Removes the 4 bindings by GUID.
+- Destroys the children, then the root.
+- Saves and reads back. The marker is `S3CLAM_REVERT_OK`.
+
+**Not covered by the harness [inf]:**
+- the editor calls themselves (only the IMPORT_TEX/VERIFY_TEX split is exercised against a fake editor, I9b);
+- `has_vertex_colors` on a Nanite mesh;
+- `evaluate_keys` / `get_object_template` on today's renamed cameras;
+- `attach_to_actor`;
+- WPO on Nanite (manifest risk note);
+- the Fresnel / VertexColor / Time pin names (`""` and `"R"`).
+
+**Run order (one MCP call each, same request file; grep the marker WITH the run id):**
+
+0. Offline: `python Saved/CodexConductor/S3Millstone/test_s3_props.py` → `TOTAL 293 FAILED 0`.
+1. `{"mode":"CLAM_DRY","run":"<id>"}` → `S3CLAM_DRY_OK`. Read `s3_pearlclam_dry_<run>.json`:
+   - `state.cameras` (the B05/B06 poses);
+   - `plan.yaw` and `camera_check`;
+   - the stand-in components.
+   It refuses ASSETS_MISSING until step 9; that is expected.
+2. IMPORT_MESH ×4, in this order: `{"mode":"IMPORT_MESH","confirm":"IMPORT_MESH S3PROPS","prop":"PearlClam","part":"Lid"}`
+   (Lid first: it is the Y-flip discriminator), then Bottom, Mantle, Pearl → `S3PROPS_IMPORT_MESH_OK` each.
+3. IMPORT_TEX `{"prop":"PearlClam","tex_set":"Shell","textures":["BaseColor"]}` → `S3PROPS_IMPORT_TEX_PENDING`.
+   Then VERIFY_TEX (`{"mode":"VERIFY_TEX","confirm":"VERIFY_TEX S3PROPS"}`) → `S3PROPS_VERIFY_TEX_OK`.
+4. Repeat 3 for Shell N, Shell Roughness, Mantle BaseColor, Mantle N and Mantle Roughness: 6 IMPORT_TEX + 6
+   VERIFY_TEX in all.
+5. BUILD_MAT `"material":"Shell"`.
+6. BUILD_MAT `"Mantle"` (creates M_S3PropBreathe).
+7. BUILD_MAT `"Interior"` (creates M_S3PropSolid).
+8. BUILD_MAT `"Pearl"` (creates M_PearlClam_Pearl). After each of 5–8, wait about 20 s and grep "Failed to compile".
+9. CLAM_DRY again: `apply` = would_apply. Show the yaw to Directing/Gary. If it is not right, set
+   `"apply_clam":{"yaw_deg":<deg>}`.
+10. CLAM_APPLY (`"confirm":"CLAM_APPLY S3PROPS"`) → `S3CLAM_APPLY_OK`. Then PIE past the landing:
+    - the clam appears with the stone;
+    - the stand-ins stay unseen;
+    - check the lid's Roll −80 by eye in Sequencer (do not save).
+    Then queue `SavedMasterMatchesShow` + `SceneCutBindingsResolve` after a run-id marker.
+11. Undo: CLAM_REVERT (`"confirm":"CLAM_REVERT S3PROPS"`). The assets stay.

@@ -229,3 +229,17 @@
 - **Standing stones (Gary, via Blender session):** "2-3 copies, varied"; "Conductor 5 proposes" placement in the dunes
   toward the box edges, stills for him to adjust; hole readable from the main S3 camera on at least one. Proposal asked
   of the dune pass (standing_stones_proposal.json, PLACE-schema compatible).
+- **S3 fixes (Gary: "Yes, hold visibility"; markers: one set = section markers S3 1–7):**
+  - Float hold REVERT S3FLOATHOLD-20261007-175805, then APPLY with visibility failed READBACK (visibility tracks keep
+    display 'Visibility'; nothing saved; Don't-Save restart). Tool fixed: visibility identity = class+path+'Visibility'
+    on a tool-created 'S3 Hangar Float Hold:' binding (+/- controls), exclude_bindings arg (old pedestal binding
+    'tg0pfjxda_tier_0' ≠ label). **APPLY S3FLOATHOLD-20261007-180138: 59 tracks (50 float + 9 visibility) over
+    [744,6240]**, 108 bindings; Gary's camera tracks untouched.
+  - Markers: first APPLY deleted by sorted index (removed 'S3 1' instead of 'S3 B01'); nothing saved; Don't-Save restart;
+    fixed via find_marked_frame_by_label. **APPLY S3MARKERS-20261007-1808:** deleted 8 'S3 B..' markers, added
+    'S3 5 Chorus…'@2880, InfinityStage.VampStart@3480, 'S3 7 Finish / out'@5520 → 9 markers; backup
+    Backups/PreS3Markers-…; tests green.
+  - Right in S3 is refused BY DESIGN (DeclaredUnpausable cellist clock + performance mode; result=4); VampStart back →
+    B07 orbit loops again and Right releases it. For rehearsal stepping set bPerformanceMode=False.
+- PearlClam tool (CLAM_* modes in s3_props_ue.py; harness 293/293; not run). Yaw from B05/B06 is a compromise (~26°,
+  B05 63° off) → Directing/Gary to approve CLAM_DRY yaw.

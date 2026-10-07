@@ -3,16 +3,17 @@
  "tool": "s4_hangar_hold",
  "hold": "FLOAT",
  "scene": 3,
- "run": "S3FLOATHOLD-20261007-132954",
+ "run": "S3FLOATHOLD-20261007-180138",
  "applied": true,
- "decided_by": "Conductor 5, 7 Oct: non-creative fix restoring S3 pinned exposure past the fold (measured weight 0 from +33 s -> white); Gary asked for the S3 white fix ('run those'). DRY S3FLOATHOLD-20261007-132933 clean (50/0/0).",
+ "decided_by": "Gary 7 Oct (own words, conductor session): Yes, hold visibility \u2014 figures/clams/millstone stay revealed past the 31 s rise end; float hold re-applied with visibility; old pedestal binding excluded (hidden)",
  "plan": {
   "range": [
    744,
    6240
   ],
   "kinds": [
-   "float"
+   "float",
+   "visibility"
   ],
   "targets": [
    {
@@ -246,6 +247,29 @@
     ]
    },
    {
+    "id": "-/Clam_with_Pearl_Clam_with_Pearl_0/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "binding": "Clam_with_Pearl_Clam_with_Pearl_0",
+    "parent": null,
+    "binding_guid": "3866095E48A820A6398FB996348DBC50",
+    "property_name": "None",
+    "property_path": "None",
+    "value": true,
+    "source": "last_key",
+    "last_key_tick": 111200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_6",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_6"
+    ]
+   },
+   {
     "id": "S3 Uplight 2/LightComponent0/Intensity",
     "kind": "float",
     "track_class": "MovieSceneFloatTrack",
@@ -430,6 +454,29 @@
     ]
    },
    {
+    "id": "-/S3 Granite Millstone/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "binding": "S3 Granite Millstone",
+    "parent": null,
+    "binding_guid": "6D566E9244625AD25C58329AC95FBC5A",
+    "property_name": "None",
+    "property_path": "None",
+    "value": true,
+    "source": "last_key",
+    "last_key_tick": 111200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_510",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_510"
+    ]
+   },
+   {
     "id": "S3 Lattice Glow 3-7/LightComponent0/Intensity",
     "kind": "float",
     "track_class": "MovieSceneFloatTrack",
@@ -545,6 +592,52 @@
     ]
    },
    {
+    "id": "-/Shore02_F52 Clam/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "binding": "Shore02_F52 Clam",
+    "parent": null,
+    "binding_guid": "7F73B5C84FC9B6FA9CBE8882FBB2D1BE",
+    "property_name": "None",
+    "property_path": "None",
+    "value": true,
+    "source": "last_key",
+    "last_key_tick": 111200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore02_F52_Draped_C_0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore02_F52_Draped_C_0"
+    ]
+   },
+   {
+    "id": "-/Shore03_M59 Clam/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "binding": "Shore03_M59 Clam",
+    "parent": null,
+    "binding_guid": "8006A4374465299E304DF9900593A22D",
+    "property_name": "None",
+    "property_path": "None",
+    "value": true,
+    "source": "last_key",
+    "last_key_tick": 111200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore03_M59_Draped_C_0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore03_M59_Draped_C_0"
+    ]
+   },
+   {
     "id": "S3 Lattice Glow 1-6/LightComponent0/Intensity",
     "kind": "float",
     "track_class": "MovieSceneFloatTrack",
@@ -588,6 +681,52 @@
     "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_174.LightComponent0",
     "rise_located": [
      "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_174.LightComponent0"
+    ]
+   },
+   {
+    "id": "-/Shore06_F25 Clam/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "binding": "Shore06_F25 Clam",
+    "parent": null,
+    "binding_guid": "846861984B25A645F7158F81BE9D7213",
+    "property_name": "None",
+    "property_path": "None",
+    "value": true,
+    "source": "last_key",
+    "last_key_tick": 111200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore06_F25_Draped_C_0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore06_F25_Draped_C_0"
+    ]
+   },
+   {
+    "id": "-/Shore05_M53 Clam/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "binding": "Shore05_M53 Clam",
+    "parent": null,
+    "binding_guid": "856B3A91457CFDEF5F63A38FD937BACF",
+    "property_name": "None",
+    "property_path": "None",
+    "value": true,
+    "source": "last_key",
+    "last_key_tick": 111200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore05_M53_Draped_C_0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore05_M53_Draped_C_0"
     ]
    },
    {
@@ -844,6 +983,29 @@
     ]
    },
    {
+    "id": "-/Shore01_M56 Clam/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "binding": "Shore01_M56 Clam",
+    "parent": null,
+    "binding_guid": "A836B04D414059A033D2BE9EFD9263D2",
+    "property_name": "None",
+    "property_path": "None",
+    "value": true,
+    "source": "last_key",
+    "last_key_tick": 111200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore01_M56_Draped_C_0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore01_M56_Draped_C_0"
+    ]
+   },
+   {
     "id": "S3 Practical R6/LightComponent0/Intensity",
     "kind": "float",
     "track_class": "MovieSceneFloatTrack",
@@ -887,6 +1049,29 @@
     "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_100.LightComponent0",
     "rise_located": [
      "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_100.LightComponent0"
+    ]
+   },
+   {
+    "id": "-/Shore04_F55 Clam/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "binding": "Shore04_F55 Clam",
+    "parent": null,
+    "binding_guid": "B1E9DED14F12FF34E82F659B3AF6A61F",
+    "property_name": "None",
+    "property_path": "None",
+    "value": true,
+    "source": "last_key",
+    "last_key_tick": 111200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore04_F55_Draped_C_0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore04_F55_Draped_C_0"
     ]
    },
    {
@@ -1074,6 +1259,29 @@
     ]
    },
    {
+    "id": "-/source_Anim/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "binding": "source_Anim",
+    "parent": null,
+    "binding_guid": "D3A383644B63D81E3EB52DAA534DE6A9",
+    "property_name": "None",
+    "property_path": "None",
+    "value": true,
+    "source": "last_key",
+    "last_key_tick": 111200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SkeletalMeshActor_1",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SkeletalMeshActor_1"
+    ]
+   },
+   {
     "id": "S3 Lattice Glow 3-3/LightComponent0/Intensity",
     "kind": "float",
     "track_class": "MovieSceneFloatTrack",
@@ -1173,61 +1381,10 @@
     "kind": "geometry_cache",
     "track_class": "MovieSceneGeometryCacheTrack",
     "meaning": "NOT HELD: no declaration-proven way to show a cache's last frame over a held range (MovieSceneGeometryCacheSection.h:13-54; mapping body in the absent private .cpp). Rise section(s): [{'range_tick': [-141600, 99200], 'completion': 'KEEP_STATE', 'params': {'geometry_cache_asset': '/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening.GC_CurtainDrop_Opening', 'start_frame_offset': 23200, 'end_frame_offset': 0, 'first_loop_start_frame_offset': 0, 'play_rate': 1.0, 'reverse': False}}]. Decide with PIEPROBE (report)."
-   },
-   {
-    "id": "-/tg0pfjxda_tier_0/None",
-    "kind": "visibility",
-    "track_class": "MovieSceneVisibilityTrack",
-    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
-   },
-   {
-    "id": "-/Clam_with_Pearl_Clam_with_Pearl_0/None",
-    "kind": "visibility",
-    "track_class": "MovieSceneVisibilityTrack",
-    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
-   },
-   {
-    "id": "-/Shore02_F52 Clam/None",
-    "kind": "visibility",
-    "track_class": "MovieSceneVisibilityTrack",
-    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
-   },
-   {
-    "id": "-/Shore03_M59 Clam/None",
-    "kind": "visibility",
-    "track_class": "MovieSceneVisibilityTrack",
-    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
-   },
-   {
-    "id": "-/Shore06_F25 Clam/None",
-    "kind": "visibility",
-    "track_class": "MovieSceneVisibilityTrack",
-    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
-   },
-   {
-    "id": "-/Shore05_M53 Clam/None",
-    "kind": "visibility",
-    "track_class": "MovieSceneVisibilityTrack",
-    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
-   },
-   {
-    "id": "-/Shore01_M56 Clam/None",
-    "kind": "visibility",
-    "track_class": "MovieSceneVisibilityTrack",
-    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
-   },
-   {
-    "id": "-/Shore04_F55 Clam/None",
-    "kind": "visibility",
-    "track_class": "MovieSceneVisibilityTrack",
-    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
-   },
-   {
-    "id": "-/source_Anim/None",
-    "kind": "visibility",
-    "track_class": "MovieSceneVisibilityTrack",
-    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
    }
+  ],
+  "excluded": [
+   "-/tg0pfjxda_tier_0/None"
   ],
   "identity_mismatch": [],
   "conflicts": [],
@@ -1253,13 +1410,13 @@
   "transform_hold_record_present": true,
   "apply_gate": []
  },
- "backup": "E:/PussStage/Backups\\PreS3HangarFloatHold-S3FLOATHOLD-20261007-132954",
- "source_sha256": "776c2cc5946b87b8a4f2e078a03f701e3772ce22cdc982cee2eeb6d0dd24dc56",
- "written": "2026-10-07T13:29:55.078549",
+ "backup": "E:/PussStage/Backups\\PreS3HangarFloatHold-S3FLOATHOLD-20261007-180138",
+ "source_sha256": "01ee66196037032fcb01e5ead172db8c9f6f81a0324d94255e6f29c846394533",
+ "written": "2026-10-07T18:01:38.741228",
  "rows": [
   {
    "id": "S3 Lattice Glow 1-3/LightComponent0/Intensity",
-   "guid": "452986DB49B6A27F525E4095F2190CD7",
+   "guid": "9E8BF1DA4DB88AFD7C101C8E55DC86BB",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1267,7 +1424,7 @@
   },
   {
    "id": "S3 Practical L7/LightComponent0/Intensity",
-   "guid": "0451ED974702B748E0EF15AE3A75080E",
+   "guid": "3FC034F44A247432A765FC89C5C8ADD9",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1275,7 +1432,7 @@
   },
   {
    "id": "S3 Lattice Glow 2-8/LightComponent0/Intensity",
-   "guid": "A81EF2FA4FF687F17C4AB9BA19EFE508",
+   "guid": "ADAE5347403B58CEC51ADB8838592CCA",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1283,7 +1440,7 @@
   },
   {
    "id": "S3 Strike Cyc 1/LightComponent0/Intensity",
-   "guid": "43887C294F17D057CCA7D7B9382A3886",
+   "guid": "371347BA44C21D45403B91A6CF9492D6",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1291,7 +1448,7 @@
   },
   {
    "id": "S3 Practical R4/LightComponent0/Intensity",
-   "guid": "B7B290054C323D56AF8C19B0B943170D",
+   "guid": "7DCB896542562555296820A818A75023",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1299,7 +1456,7 @@
   },
   {
    "id": "-/S3 Hangar Pinned Exposure/BlendWeight",
-   "guid": "F50B39974E2A82B92DECC48B8D9E1FAB",
+   "guid": "C3141B974AE04C26995A23A9D692E616",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "BlendWeight",
@@ -1307,7 +1464,7 @@
   },
   {
    "id": "S3 Strike Key/LightComponent0/Intensity",
-   "guid": "6CFD2B4D402044A5B1D19EBBFC73EAA9",
+   "guid": "01E0BB574072648DF5310AB4918F7642",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1315,7 +1472,7 @@
   },
   {
    "id": "S3 Lattice Glow 2-3/LightComponent0/Intensity",
-   "guid": "8BA667A3420970626F9CA4B8C1941FB6",
+   "guid": "98B1A3E64EF0364F0AC07C84C6FF92BD",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1323,7 +1480,7 @@
   },
   {
    "id": "S3 Uplight 1/LightComponent0/Intensity",
-   "guid": "E3C69D7740B09C42BF52CA8CD7AF658B",
+   "guid": "E071BD8847B3ACF749CB96BF268D3F67",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1331,15 +1488,23 @@
   },
   {
    "id": "S3 Daylight Cool Fill/LightComponent0/Intensity",
-   "guid": "4AC089E44B3B9FF757D2F29667F48700",
+   "guid": "DD2C75DD46A106633AC9C5A9390E6C46",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
    "value": 450.0
   },
   {
+   "id": "-/Clam_with_Pearl_Clam_with_Pearl_0/None",
+   "guid": "2A4EDB874CB564A8B937CFA63775B2DF",
+   "track_class": "MovieSceneVisibilityTrack",
+   "kind": "visibility",
+   "property_path": "bHiddenInGame",
+   "value": true
+  },
+  {
    "id": "S3 Uplight 2/LightComponent0/Intensity",
-   "guid": "9469F4CA4A05BEAA68711FAB6B1A6923",
+   "guid": "192A6B0C45D9289C954A2E828EA57DF7",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1347,7 +1512,7 @@
   },
   {
    "id": "S3 Practical R3/LightComponent0/Intensity",
-   "guid": "BF2D89384C898E329ABDE6B0BDFC27E5",
+   "guid": "3FF1125D412E983A89C6DB86D4CB6407",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1355,7 +1520,7 @@
   },
   {
    "id": "S3 Strike Fill R/LightComponent0/Intensity",
-   "guid": "BB3CB1894C0D578AD04694924F29976B",
+   "guid": "4896B29E41ED050A73A17AB9FB22DF8F",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1363,7 +1528,7 @@
   },
   {
    "id": "S3 Lattice Glow 3-8/LightComponent0/Intensity",
-   "guid": "ABC485AE49FFBDE7CDD06686076DC3D2",
+   "guid": "F362BAC84A790B95D55BE0996C5CEF3C",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1371,7 +1536,7 @@
   },
   {
    "id": "S3 Daylight Rake Key/LightComponent0/Intensity",
-   "guid": "1FC49DA74481DE4F031A8D9885409086",
+   "guid": "D664C25241992CBF361BF1A391822E60",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1379,7 +1544,7 @@
   },
   {
    "id": "S3 Lattice Glow 3-5/LightComponent0/Intensity",
-   "guid": "E8FE842A4F1BD1D19E6E2EA18512C4F5",
+   "guid": "2599309849568C127DA3919E815D1FEF",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1387,7 +1552,7 @@
   },
   {
    "id": "S3 Lattice Glow 2-7/LightComponent0/Intensity",
-   "guid": "BADBA42C479AF6F0489768B62D8CFD5D",
+   "guid": "BA768AB14C5887CA79764BB462473181",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1395,15 +1560,23 @@
   },
   {
    "id": "S3 Practical R5/LightComponent0/Intensity",
-   "guid": "892889C646A310B4880452AB4746691A",
+   "guid": "2BB38C00439362EE2768FFBBD6B032B3",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
    "value": 160.0
   },
   {
+   "id": "-/S3 Granite Millstone/None",
+   "guid": "1F26524A4130B617D67DDCBCE8F48FEB",
+   "track_class": "MovieSceneVisibilityTrack",
+   "kind": "visibility",
+   "property_path": "bHiddenInGame",
+   "value": true
+  },
+  {
    "id": "S3 Lattice Glow 3-7/LightComponent0/Intensity",
-   "guid": "579761E8418AB6E37E2FA8865FC395A7",
+   "guid": "97DF51B442D1DBDFA84C33B0F7C683FF",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1411,7 +1584,7 @@
   },
   {
    "id": "S3 Lattice Glow 2-6/LightComponent0/Intensity",
-   "guid": "81C642934D4F1732C4C7BF8E76607675",
+   "guid": "B48A6EC44AB286E64E3D88AE3CC429BB",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1419,7 +1592,7 @@
   },
   {
    "id": "S3 Lattice Glow 3-4/LightComponent0/Intensity",
-   "guid": "AFBC175A484CF493329B4DA2C2EBE929",
+   "guid": "9B38D20C471E52D217C506B8322F3F49",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1427,7 +1600,7 @@
   },
   {
    "id": "S3 Practical L2/LightComponent0/Intensity",
-   "guid": "0ED320C5465C66B7A6879D8DBFDB400E",
+   "guid": "65E71763478F494B5F6E34A1991E7318",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1435,15 +1608,31 @@
   },
   {
    "id": "S3 Lattice Glow 1-4/LightComponent0/Intensity",
-   "guid": "68054C5E4F02DA2CACD92C9B34B80902",
+   "guid": "0CDD2878425D0C662B698FA80F314A3B",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
    "value": 8.0
   },
   {
+   "id": "-/Shore02_F52 Clam/None",
+   "guid": "9CDFE7FE4ADEBEA23F6D95A65D5F5442",
+   "track_class": "MovieSceneVisibilityTrack",
+   "kind": "visibility",
+   "property_path": "bHiddenInGame",
+   "value": true
+  },
+  {
+   "id": "-/Shore03_M59 Clam/None",
+   "guid": "93296E854084F6728EE649A69FFC42F9",
+   "track_class": "MovieSceneVisibilityTrack",
+   "kind": "visibility",
+   "property_path": "bHiddenInGame",
+   "value": true
+  },
+  {
    "id": "S3 Lattice Glow 1-6/LightComponent0/Intensity",
-   "guid": "905E4EE340FD0A9F5DBDF38D8B57AD93",
+   "guid": "BF88E77B422F3A40AF4688AC7E931FD2",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1451,15 +1640,31 @@
   },
   {
    "id": "S3 Lattice Glow 2-5/LightComponent0/Intensity",
-   "guid": "C83B9F6042E0D24F33988893465BE081",
+   "guid": "CF663C8D4BC9B94CCD96F7A96497DADA",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
    "value": 8.0
   },
   {
+   "id": "-/Shore06_F25 Clam/None",
+   "guid": "703F27C34033514FB0D727A07EDB2C11",
+   "track_class": "MovieSceneVisibilityTrack",
+   "kind": "visibility",
+   "property_path": "bHiddenInGame",
+   "value": true
+  },
+  {
+   "id": "-/Shore05_M53 Clam/None",
+   "guid": "2B739F274AD46102D4FB768B01FD3BFA",
+   "track_class": "MovieSceneVisibilityTrack",
+   "kind": "visibility",
+   "property_path": "bHiddenInGame",
+   "value": true
+  },
+  {
    "id": "S3 Practical R2/LightComponent0/Intensity",
-   "guid": "7AE5EB4D438A948EF198FDAAC14D2416",
+   "guid": "C711DBF44A8C8B00D481BDBC6D7C2B41",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1467,7 +1672,7 @@
   },
   {
    "id": "S3 Lattice Glow 1-8/LightComponent0/Intensity",
-   "guid": "7AF416214AEF1C15CFECF38299989AD6",
+   "guid": "50FC132B4B36DACB4DF28CA97DA66AFB",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1475,7 +1680,7 @@
   },
   {
    "id": "S3 Lattice Glow 2-4/LightComponent0/Intensity",
-   "guid": "2F00D4A745FC673F1566D18A97B6E7D0",
+   "guid": "EE79E88A45DE5E72C3A134BB4D4B65AB",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1483,7 +1688,7 @@
   },
   {
    "id": "S3 Lattice Glow 2-1/LightComponent0/Intensity",
-   "guid": "3605CA7A4FEF3DEE3AD62196D25887EE",
+   "guid": "302CC5EA4C879A66DC23E0B741243A7F",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1491,7 +1696,7 @@
   },
   {
    "id": "S3 Lattice Glow 1-1/LightComponent0/Intensity",
-   "guid": "285A31FF45A5FA6B30AE409C47424B67",
+   "guid": "CD45EEDE4DFF029F4A48BDAB83EE41F5",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1499,7 +1704,7 @@
   },
   {
    "id": "S3 Practical L4/LightComponent0/Intensity",
-   "guid": "31609E9D4CC7D796E34FF1914038E1E6",
+   "guid": "DCA4B1D44209486073E5E397387DB397",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1507,7 +1712,7 @@
   },
   {
    "id": "S3 Practical L5/LightComponent0/Intensity",
-   "guid": "CB4BA2C446323CA4ECE608A7EE9DF3F9",
+   "guid": "919E752246ED46638E78AC92F94DA906",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1515,7 +1720,7 @@
   },
   {
    "id": "S3 Strike Cyc 3/LightComponent0/Intensity",
-   "guid": "171B93E343E2AFB600E5698AC6E1A6B1",
+   "guid": "C5894DB34EF3886522E92F9D99A73DCA",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1523,7 +1728,7 @@
   },
   {
    "id": "S3 Lattice Glow 1-7/LightComponent0/Intensity",
-   "guid": "67224DCD478B6E4379CF669DBF8952F5",
+   "guid": "AC5C3D1641B668E3A9EE28B92C3ABEE6",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1531,7 +1736,7 @@
   },
   {
    "id": "S3 Practical L6/LightComponent0/Intensity",
-   "guid": "46AEC89441CCEBCBB78FD99626D9716C",
+   "guid": "AEF5ACC24C07310C4D3591AC1CB8D9A4",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1539,15 +1744,23 @@
   },
   {
    "id": "S3 Lattice Glow 1-5/LightComponent0/Intensity",
-   "guid": "1CB3AB834268086C1E6840813DBAA819",
+   "guid": "1A285A0F4FBAD8E24CA3B19AC3C7306F",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
    "value": 8.0
   },
   {
+   "id": "-/Shore01_M56 Clam/None",
+   "guid": "CD6F1E0941AF403A2496E39FA8F0C474",
+   "track_class": "MovieSceneVisibilityTrack",
+   "kind": "visibility",
+   "property_path": "bHiddenInGame",
+   "value": true
+  },
+  {
    "id": "S3 Practical R6/LightComponent0/Intensity",
-   "guid": "4016CDE74311D737F96E56BA610A2F83",
+   "guid": "9EA3012C49D61CFF2A4A1080C79DACAF",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1555,15 +1768,23 @@
   },
   {
    "id": "S3 Strike Cyc 2/LightComponent0/Intensity",
-   "guid": "CDCA9A5D461A4FED1B2B2AAE7EEDA254",
+   "guid": "B395290443C608BA5616BEA616C754A8",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
    "value": 600.0
   },
   {
+   "id": "-/Shore04_F55 Clam/None",
+   "guid": "B04B56DA4CBC76C067BFD6AF832F6094",
+   "track_class": "MovieSceneVisibilityTrack",
+   "kind": "visibility",
+   "property_path": "bHiddenInGame",
+   "value": true
+  },
+  {
    "id": "S3 Practical L3/LightComponent0/Intensity",
-   "guid": "315B6F9C4066E12849471783DFD152E8",
+   "guid": "BE88E8DE4C8B92126C385691FBAB98BA",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1571,7 +1792,7 @@
   },
   {
    "id": "S3 Uplight 3/LightComponent0/Intensity",
-   "guid": "B9E64FA34178C4B6E0875598B6480732",
+   "guid": "BBE4EC9C4F89AF7C76E8748F0AFDF530",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1579,7 +1800,7 @@
   },
   {
    "id": "S3 Practical R7/LightComponent0/Intensity",
-   "guid": "9254EE444E8E3B596CE5FAAB3FF95870",
+   "guid": "6E13856E4F3C88BDDBB916950DE7D044",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1587,7 +1808,7 @@
   },
   {
    "id": "S3 Lattice Glow 1-2/LightComponent0/Intensity",
-   "guid": "C2B2468A461DA16A1E70AD9C2A3842AB",
+   "guid": "F1D1019A408646722B2CB08D30E46301",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1595,7 +1816,7 @@
   },
   {
    "id": "S3 Lattice Glow 3-1/LightComponent0/Intensity",
-   "guid": "0DB6926A4294A4E8894EFBB3CA0325FD",
+   "guid": "5EBB5E42456CD5A781056A8D6B906130",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1603,7 +1824,7 @@
   },
   {
    "id": "S3 Strike Fill L/LightComponent0/Intensity",
-   "guid": "0B8926BF4DD0C7C636B33B800AD823D7",
+   "guid": "9F5ECD13415F54C5F9F29F9BCE9FBD5E",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1611,7 +1832,7 @@
   },
   {
    "id": "S3 Practical R1/LightComponent0/Intensity",
-   "guid": "ADC8D1344CE22BC12B1B568B557F6ED6",
+   "guid": "84174A544E7C598DF736D1A858FF17AC",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1619,15 +1840,23 @@
   },
   {
    "id": "S3 Lattice Glow 3-6/LightComponent0/Intensity",
-   "guid": "5FF515B743701A2C8668AA8F8E92BD55",
+   "guid": "ED482932442C75D1B3B6C6AA7F094168",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
    "value": 8.0
   },
   {
+   "id": "-/source_Anim/None",
+   "guid": "73F5A45A4DC14A7793380C8E0907EE4A",
+   "track_class": "MovieSceneVisibilityTrack",
+   "kind": "visibility",
+   "property_path": "bHiddenInGame",
+   "value": true
+  },
+  {
    "id": "S3 Lattice Glow 3-3/LightComponent0/Intensity",
-   "guid": "B167550E44C521D504D69A9A316670B8",
+   "guid": "44F8A4634A3A625C29D8728BA38CB934",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1635,7 +1864,7 @@
   },
   {
    "id": "S3 Lattice Glow 3-2/LightComponent0/Intensity",
-   "guid": "742D059344E5EFF7F6565287380BD9F7",
+   "guid": "ADF1A64B4F0D516CD8FD51A6A239C17D",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1643,7 +1872,7 @@
   },
   {
    "id": "S3 Practical L1/LightComponent0/Intensity",
-   "guid": "D62A0FC2405CC9D035BCB8AD56C1484C",
+   "guid": "4271B11B4FF92A3684B9C7866F2981DC",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1651,7 +1880,7 @@
   },
   {
    "id": "S3 Lattice Glow 2-2/LightComponent0/Intensity",
-   "guid": "3DEE86704163AEE5BBE2288DEF0C33A8",
+   "guid": "59EE6B2344BFAB894A06BF8CEC687759",
    "track_class": "MovieSceneFloatTrack",
    "kind": "float",
    "property_path": "Intensity",
@@ -1660,501 +1889,546 @@
  ],
  "created_bindings": [
   {
-   "guid": "452986DB49B6A27F525E4095F2190CD7",
+   "guid": "9E8BF1DA4DB88AFD7C101C8E55DC86BB",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "0DE994D841384488D3DBCFB405BF1EC5",
+   "guid": "494BCD5B4BD74E4590431BA71811F74D",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 1-3"
   },
   {
-   "guid": "0451ED974702B748E0EF15AE3A75080E",
+   "guid": "3FC034F44A247432A765FC89C5C8ADD9",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "4ADE883741F2944B9B5619BC93DC520B",
+   "guid": "044469BA463E6915467156B217067E79",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical L7"
   },
   {
-   "guid": "A81EF2FA4FF687F17C4AB9BA19EFE508",
+   "guid": "ADAE5347403B58CEC51ADB8838592CCA",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "E3453E7840A4101FF4A9349DD56BAFEE",
+   "guid": "0EEF7D464981C6C5C13FDDB9538E8A6F",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 2-8"
   },
   {
-   "guid": "43887C294F17D057CCA7D7B9382A3886",
+   "guid": "371347BA44C21D45403B91A6CF9492D6",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "895824904BB88E1949F9FD8EBE7AD4E0",
+   "guid": "F5C9A7C04E735AB20575CEAA2D3DCBE5",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Strike Cyc 1"
   },
   {
-   "guid": "B7B290054C323D56AF8C19B0B943170D",
+   "guid": "7DCB896542562555296820A818A75023",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "4B6E63354BFF77341DB5819042231BD9",
+   "guid": "195F7210476E059B82F64C924034B636",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical R4"
   },
   {
-   "guid": "F50B39974E2A82B92DECC48B8D9E1FAB",
+   "guid": "C3141B974AE04C26995A23A9D692E616",
    "child": false,
    "name": "S3 Hangar Pinned Exposure"
   },
   {
-   "guid": "6CFD2B4D402044A5B1D19EBBFC73EAA9",
+   "guid": "01E0BB574072648DF5310AB4918F7642",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "8EFC6EE4417B1DB33C1C5EA061931A10",
+   "guid": "98DCD7864E0365BF601BD694C903B4F0",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Strike Key"
   },
   {
-   "guid": "8BA667A3420970626F9CA4B8C1941FB6",
+   "guid": "98B1A3E64EF0364F0AC07C84C6FF92BD",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "A9CCBBB446B0879383E1BAB3A5759856",
+   "guid": "69410999491376F785390287629559F7",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 2-3"
   },
   {
-   "guid": "E3C69D7740B09C42BF52CA8CD7AF658B",
+   "guid": "E071BD8847B3ACF749CB96BF268D3F67",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "BF913D67408DD06FAD1CE79D991E44A2",
+   "guid": "D59B556343377A76E264069ABAD7B9A5",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Uplight 1"
   },
   {
-   "guid": "4AC089E44B3B9FF757D2F29667F48700",
+   "guid": "DD2C75DD46A106633AC9C5A9390E6C46",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "D44D98144A79B6B366DFCB9A3DE0530D",
+   "guid": "398F917642E7C6EACA5FAB94C11C0671",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Daylight Cool Fill"
   },
   {
-   "guid": "9469F4CA4A05BEAA68711FAB6B1A6923",
+   "guid": "2A4EDB874CB564A8B937CFA63775B2DF",
+   "child": false,
+   "name": "Clam_with_Pearl_Clam_with_Pearl_0"
+  },
+  {
+   "guid": "192A6B0C45D9289C954A2E828EA57DF7",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "30B4AD50488CBABB89A683991EC74C8D",
+   "guid": "5213AA164DC0267BC9C7A29E0DE1FA14",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Uplight 2"
   },
   {
-   "guid": "BF2D89384C898E329ABDE6B0BDFC27E5",
+   "guid": "3FF1125D412E983A89C6DB86D4CB6407",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "0EE2B93F4B64107C6862A0915F92B1CA",
+   "guid": "37E10611463392D41B575C877746BA0B",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical R3"
   },
   {
-   "guid": "BB3CB1894C0D578AD04694924F29976B",
+   "guid": "4896B29E41ED050A73A17AB9FB22DF8F",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "06C18BC54C0928F25FC9EAA2D69F4B94",
+   "guid": "C2536AF046F66663E26CF8A023DB8E7D",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Strike Fill R"
   },
   {
-   "guid": "ABC485AE49FFBDE7CDD06686076DC3D2",
+   "guid": "F362BAC84A790B95D55BE0996C5CEF3C",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "2521266C4D1C784B143661ACE5E20FC7",
+   "guid": "9F62681149152797CD26719DC94C7B8A",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 3-8"
   },
   {
-   "guid": "1FC49DA74481DE4F031A8D9885409086",
+   "guid": "D664C25241992CBF361BF1A391822E60",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "C1B00C2F44C2C0D3D09C78979188C8CC",
+   "guid": "1B19BEF44300FE86ED07CFBCFFDAECBD",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Daylight Rake Key"
   },
   {
-   "guid": "E8FE842A4F1BD1D19E6E2EA18512C4F5",
+   "guid": "2599309849568C127DA3919E815D1FEF",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "336808E8462EA9BCBE9261B766C16352",
+   "guid": "56F1B14344F530C2E48203B443151749",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 3-5"
   },
   {
-   "guid": "BADBA42C479AF6F0489768B62D8CFD5D",
+   "guid": "BA768AB14C5887CA79764BB462473181",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "C1C900874E60FAD8FD552786F6AA4F89",
+   "guid": "D33373CE452BC5B89F4A869C9A529475",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 2-7"
   },
   {
-   "guid": "892889C646A310B4880452AB4746691A",
+   "guid": "2BB38C00439362EE2768FFBBD6B032B3",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "8F3CE2D7492875CC539A3287F09E9092",
+   "guid": "128A7A1A46B0D41151881D9DFEA68568",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical R5"
   },
   {
-   "guid": "579761E8418AB6E37E2FA8865FC395A7",
+   "guid": "1F26524A4130B617D67DDCBCE8F48FEB",
+   "child": false,
+   "name": "S3 Granite Millstone"
+  },
+  {
+   "guid": "97DF51B442D1DBDFA84C33B0F7C683FF",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "148C00FC4F78AAE2601800A1E77EA84E",
+   "guid": "DBF323ED4D3C92D00FA50782608D4469",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 3-7"
   },
   {
-   "guid": "81C642934D4F1732C4C7BF8E76607675",
+   "guid": "B48A6EC44AB286E64E3D88AE3CC429BB",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "184B50E74DA18B9B85773E90DCEB4E01",
+   "guid": "17D0D6534A0493CF64EE99A35C8237B2",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 2-6"
   },
   {
-   "guid": "AFBC175A484CF493329B4DA2C2EBE929",
+   "guid": "9B38D20C471E52D217C506B8322F3F49",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "DC34E536483A00676065828F4CA7016D",
+   "guid": "2255065E45B5E1C4E4F15FBFFD8EFA89",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 3-4"
   },
   {
-   "guid": "0ED320C5465C66B7A6879D8DBFDB400E",
+   "guid": "65E71763478F494B5F6E34A1991E7318",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "8C50E40C4C83A48B15D061B058C1627E",
+   "guid": "0555F58E4B160428F22BDD84D91E2DC8",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical L2"
   },
   {
-   "guid": "68054C5E4F02DA2CACD92C9B34B80902",
+   "guid": "0CDD2878425D0C662B698FA80F314A3B",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "CC7745314BF5A07E188C73B38F5E53AF",
+   "guid": "9234B0C34245DE7C1E7C249C87047031",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 1-4"
   },
   {
-   "guid": "905E4EE340FD0A9F5DBDF38D8B57AD93",
+   "guid": "9CDFE7FE4ADEBEA23F6D95A65D5F5442",
+   "child": false,
+   "name": "Shore02_F52 Clam"
+  },
+  {
+   "guid": "93296E854084F6728EE649A69FFC42F9",
+   "child": false,
+   "name": "Shore03_M59 Clam"
+  },
+  {
+   "guid": "BF88E77B422F3A40AF4688AC7E931FD2",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "31BDB7A141EE69F3718FCE9F0DAC5EE6",
+   "guid": "4DA8454C48507C82B4DF77B8220AD8F6",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 1-6"
   },
   {
-   "guid": "C83B9F6042E0D24F33988893465BE081",
+   "guid": "CF663C8D4BC9B94CCD96F7A96497DADA",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "742749D447311CBE914A209308C9DACC",
+   "guid": "0BD1CE7741CEC83C0B9B6FB29AC4AFDC",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 2-5"
   },
   {
-   "guid": "7AE5EB4D438A948EF198FDAAC14D2416",
+   "guid": "703F27C34033514FB0D727A07EDB2C11",
+   "child": false,
+   "name": "Shore06_F25 Clam"
+  },
+  {
+   "guid": "2B739F274AD46102D4FB768B01FD3BFA",
+   "child": false,
+   "name": "Shore05_M53 Clam"
+  },
+  {
+   "guid": "C711DBF44A8C8B00D481BDBC6D7C2B41",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "91642C9B41687C192BCC4794AEA83758",
+   "guid": "DA25019545614542959A28B556CADA44",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical R2"
   },
   {
-   "guid": "7AF416214AEF1C15CFECF38299989AD6",
+   "guid": "50FC132B4B36DACB4DF28CA97DA66AFB",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "754D21E145E07D66E7366FB566C9727E",
+   "guid": "5180875046DEFEDB73CD1E80B830E759",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 1-8"
   },
   {
-   "guid": "2F00D4A745FC673F1566D18A97B6E7D0",
+   "guid": "EE79E88A45DE5E72C3A134BB4D4B65AB",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "BE4999404903E650A0EEE093959BE739",
+   "guid": "61550E0D4D6F8EF5E580D7B4940D385D",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 2-4"
   },
   {
-   "guid": "3605CA7A4FEF3DEE3AD62196D25887EE",
+   "guid": "302CC5EA4C879A66DC23E0B741243A7F",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "186BFDEE4ACDE50689F160B940EF8D48",
+   "guid": "EA4132D6411EF5512A4E4E9698DBBD01",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 2-1"
   },
   {
-   "guid": "285A31FF45A5FA6B30AE409C47424B67",
+   "guid": "CD45EEDE4DFF029F4A48BDAB83EE41F5",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "4254EBCC4E632CB6CEC9A09396F86D27",
+   "guid": "0DF77B634F3686DDDAD0ECA47C76CF3F",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 1-1"
   },
   {
-   "guid": "31609E9D4CC7D796E34FF1914038E1E6",
+   "guid": "DCA4B1D44209486073E5E397387DB397",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "48FB83004D581CBFF2D521BB8FF12080",
+   "guid": "8298714F4942CE44E4CEE9BE8910A1E9",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical L4"
   },
   {
-   "guid": "CB4BA2C446323CA4ECE608A7EE9DF3F9",
+   "guid": "919E752246ED46638E78AC92F94DA906",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "FF7748144B81C486D487669F9CE1F2DB",
+   "guid": "393232444DC629349EB6F88546F3D869",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical L5"
   },
   {
-   "guid": "171B93E343E2AFB600E5698AC6E1A6B1",
+   "guid": "C5894DB34EF3886522E92F9D99A73DCA",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "A4B3CB304B9171D024FD2F8430D22DBB",
+   "guid": "306E1E364CF620A64F7F70A80BF99C9D",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Strike Cyc 3"
   },
   {
-   "guid": "67224DCD478B6E4379CF669DBF8952F5",
+   "guid": "AC5C3D1641B668E3A9EE28B92C3ABEE6",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "8EE869154004DD0B1FE375A594662631",
+   "guid": "0EF5A66840612090C3876097405983B4",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 1-7"
   },
   {
-   "guid": "46AEC89441CCEBCBB78FD99626D9716C",
+   "guid": "AEF5ACC24C07310C4D3591AC1CB8D9A4",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "D125DCAC449948DA7C3F4E979FF3E95C",
+   "guid": "03A8DFCF441411365C99E98FC5AEBE30",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical L6"
   },
   {
-   "guid": "1CB3AB834268086C1E6840813DBAA819",
+   "guid": "1A285A0F4FBAD8E24CA3B19AC3C7306F",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "454116764FF6F9A02BCE1D83E4157C42",
+   "guid": "AD8370014F730AA78934C1A7E14D6293",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 1-5"
   },
   {
-   "guid": "4016CDE74311D737F96E56BA610A2F83",
+   "guid": "CD6F1E0941AF403A2496E39FA8F0C474",
+   "child": false,
+   "name": "Shore01_M56 Clam"
+  },
+  {
+   "guid": "9EA3012C49D61CFF2A4A1080C79DACAF",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "BB95909746324101DE41809C18C2FA2B",
+   "guid": "78C138C24E54DC5AFA4EADBE5CDFB8D5",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical R6"
   },
   {
-   "guid": "CDCA9A5D461A4FED1B2B2AAE7EEDA254",
+   "guid": "B395290443C608BA5616BEA616C754A8",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "9DF2DAE54435C402DE406CB48F3FBB52",
+   "guid": "AE96744343E36A1D28B051AB0F685D2B",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Strike Cyc 2"
   },
   {
-   "guid": "315B6F9C4066E12849471783DFD152E8",
+   "guid": "B04B56DA4CBC76C067BFD6AF832F6094",
+   "child": false,
+   "name": "Shore04_F55 Clam"
+  },
+  {
+   "guid": "BE88E8DE4C8B92126C385691FBAB98BA",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "4F71C0AB42BAAA9DAE7156A3FFBE4C2F",
+   "guid": "C0E774E44A8B87B7084FD6BCEE3F87D6",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical L3"
   },
   {
-   "guid": "B9E64FA34178C4B6E0875598B6480732",
+   "guid": "BBE4EC9C4F89AF7C76E8748F0AFDF530",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "9D98D20345AD689EC1B6DC9490997B78",
+   "guid": "ADBDE2504366DD493F6529A2A65229D2",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Uplight 3"
   },
   {
-   "guid": "9254EE444E8E3B596CE5FAAB3FF95870",
+   "guid": "6E13856E4F3C88BDDBB916950DE7D044",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "8BE706C949DB82B6F226C998AAC42AEC",
+   "guid": "7934F58B47F95DF55649A4AD4760E695",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical R7"
   },
   {
-   "guid": "C2B2468A461DA16A1E70AD9C2A3842AB",
+   "guid": "F1D1019A408646722B2CB08D30E46301",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "DA9AE008464CAB2C20ED4EB8632D2978",
+   "guid": "A394B15B4AB48AB4EF9EFC89CD080C38",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 1-2"
   },
   {
-   "guid": "0DB6926A4294A4E8894EFBB3CA0325FD",
+   "guid": "5EBB5E42456CD5A781056A8D6B906130",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "EE654DBB470456FA7FD7398A3DDBE95D",
+   "guid": "BE305B0F41EC3822225DFEB44D88767A",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 3-1"
   },
   {
-   "guid": "0B8926BF4DD0C7C636B33B800AD823D7",
+   "guid": "9F5ECD13415F54C5F9F29F9BCE9FBD5E",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "55F25210449DEE52C69E8EA17F90A142",
+   "guid": "8883CABB4E75221301E2E891F68391F8",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Strike Fill L"
   },
   {
-   "guid": "ADC8D1344CE22BC12B1B568B557F6ED6",
+   "guid": "84174A544E7C598DF736D1A858FF17AC",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "62B1884049527F79409B098B2F93443E",
+   "guid": "5509F74A478B9189F3955D842C52AEF5",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical R1"
   },
   {
-   "guid": "5FF515B743701A2C8668AA8F8E92BD55",
+   "guid": "ED482932442C75D1B3B6C6AA7F094168",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "900820E64AEEF4EEB2061F80BA9F34C9",
+   "guid": "4C2478054002E478FBF64D8A6AEED920",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 3-6"
   },
   {
-   "guid": "B167550E44C521D504D69A9A316670B8",
+   "guid": "73F5A45A4DC14A7793380C8E0907EE4A",
+   "child": false,
+   "name": "source_Anim"
+  },
+  {
+   "guid": "44F8A4634A3A625C29D8728BA38CB934",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "593597314F7DFA1EBFDEC9B81BE433E6",
+   "guid": "D311EB54443FA4EA931EF0AF5FB65374",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 3-3"
   },
   {
-   "guid": "742D059344E5EFF7F6565287380BD9F7",
+   "guid": "ADF1A64B4F0D516CD8FD51A6A239C17D",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "4E6A5C0E476295065BDE85B79D963FA0",
+   "guid": "2BB6CDC84F7EDBA28CD453ACF9B1ED36",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 3-2"
   },
   {
-   "guid": "D62A0FC2405CC9D035BCB8AD56C1484C",
+   "guid": "4271B11B4FF92A3684B9C7866F2981DC",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "CB18FEC74291A6B8BDFBACA7A16C8F15",
+   "guid": "9CC28EB4459CE6182179ADA3F6A7B382",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Practical L1"
   },
   {
-   "guid": "3DEE86704163AEE5BBE2288DEF0C33A8",
+   "guid": "59EE6B2344BFAB894A06BF8CEC687759",
    "child": true,
    "name": "LightComponent0"
   },
   {
-   "guid": "CEA8A9F346C40CCC70FE98AEA59CAAC5",
+   "guid": "9FD616F6446876D3577BF586B0DDE5B1",
    "child": false,
    "name": "S3 Hangar Float Hold: S3 Lattice Glow 2-2"
   }
  ],
- "applied_at": "2026-10-07T13:29:55.689973",
- "saved_sha256": "c4a2a34a93027d7196be49be69232697115400006a533e07f8c82b11a213597f"
+ "applied_at": "2026-10-07T18:01:39.490840",
+ "saved_sha256": "ceca9da9462617635280e7a797ad6cdd2dbd0292d91b3fff95f0eb3f2f3f8923"
 }

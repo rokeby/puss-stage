@@ -1,0 +1,150 @@
+{
+ "run": "S3MARKERS-20261007-1808",
+ "tpf": 1000,
+ "before": [
+  [
+   0,
+   "S3 1 Arrival to shore"
+  ],
+  [
+   0,
+   "S3 B01 Arrive - strike"
+  ],
+  [
+   360000,
+   "S3 2 Swaying shore people"
+  ],
+  [
+   960000,
+   "S3 3 They whimper (narration)"
+  ],
+  [
+   1440000,
+   "S3 B04 Agitation builds - waves"
+  ],
+  [
+   1680000,
+   "S3 4 Cello soothes / clam opens"
+  ],
+  [
+   2880000,
+   "S3 B05 Clam opens slowly"
+  ],
+  [
+   3480000,
+   "S3 B07 Pearl glows - song of forgetting"
+  ],
+  [
+   4200000,
+   "InfinityStage.VampEnd"
+  ],
+  [
+   4320000,
+   "S3 6 Anguished crying"
+  ],
+  [
+   4680000,
+   "S3 B09 Calm swaying (animation start)"
+  ],
+  [
+   5045000,
+   "S3 B10 Defocus - Puss's thoughts "
+  ],
+  [
+   5525000,
+   "S3 B11 Pearl rises to camera"
+  ],
+  [
+   5880000,
+   "S3 B12 Float out - to curtain"
+  ]
+ ],
+ "delete": [
+  [
+   0,
+   "S3 B01 Arrive - strike"
+  ],
+  [
+   1440000,
+   "S3 B04 Agitation builds - waves"
+  ],
+  [
+   2880000,
+   "S3 B05 Clam opens slowly"
+  ],
+  [
+   3480000,
+   "S3 B07 Pearl glows - song of forgetting"
+  ],
+  [
+   4680000,
+   "S3 B09 Calm swaying (animation start)"
+  ],
+  [
+   5045000,
+   "S3 B10 Defocus - Puss's thoughts "
+  ],
+  [
+   5525000,
+   "S3 B11 Pearl rises to camera"
+  ],
+  [
+   5880000,
+   "S3 B12 Float out - to curtain"
+  ]
+ ],
+ "add": [
+  [
+   2880000,
+   "S3 5 Chorus / Puss takes the song (narration)"
+  ],
+  [
+   3480000,
+   "InfinityStage.VampStart"
+  ],
+  [
+   5520000,
+   "S3 7 Finish / out"
+  ]
+ ],
+ "state": "applied",
+ "after": [
+  [
+   0,
+   "S3 1 Arrival to shore"
+  ],
+  [
+   360000,
+   "S3 2 Swaying shore people"
+  ],
+  [
+   960000,
+   "S3 3 They whimper (narration)"
+  ],
+  [
+   1680000,
+   "S3 4 Cello soothes / clam opens"
+  ],
+  [
+   2880000,
+   "S3 5 Chorus / Puss takes the song (narration)"
+  ],
+  [
+   3480000,
+   "InfinityStage.VampStart"
+  ],
+  [
+   4200000,
+   "InfinityStage.VampEnd"
+  ],
+  [
+   4320000,
+   "S3 6 Anguished crying"
+  ],
+  [
+   5520000,
+   "S3 7 Finish / out"
+  ]
+ ],
+ "backup": "E:/PussStage/Backups/PreS3Markers-S3MARKERS-20261007-1808"
+}

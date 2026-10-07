@@ -31,6 +31,31 @@ Modes (every write mode: confirm string, no PIE, editor world = the show level, 
   PLACE        the other props from a placements JSON (no default placement exists yet); same discipline.
   UNPLACE      exact restore from the PLACE record.
 
+  --- 7 Oct evening extension (PearlClam + live-run lessons; written OFFLINE, never run) ---
+  IMPORT_TEX   now ONE texture per call for every prop, and it does NOT save or gate the size: a texture reads
+               32x32 in its own import call [meas 7 Oct].  It writes s3_props_tex_pending.json and leaves exactly
+               that package dirty.
+  VERIFY_TEX   separate call: census must be exactly the pending package; size == source IHDR, settings read
+               back; save; record s3_props_import_tex_<...>.json; pending file retired.  While a pending file
+               exists every other write mode refuses (TEX_PENDING).  A failed VERIFY_TEX saves nothing: retry it.
+  IMPORT_MESH  prop "PearlClam" + "part" Bottom|Lid|Mantle|Pearl (one per call).  Vertex colours REPLACE (read
+               back), slot names == manifest, bounds == the Blender bounds with Y FLIPPED (the lid is the
+               discriminator; an unflipped import names Y_NOT_FLIPPED), vertex-centroid handedness gate
+               (X_MIRRORED), mantle must report vertex colours.
+  BUILD_MAT    prop "PearlClam" + "material" Shell|Interior|Mantle|Pearl (one MI per call).  Create-only masters:
+               M_S3PropBreathe (M_S3Prop + breathing WPO masked by VertexColor.R, BreathAmp default 0 = off),
+               M_S3PropSolid (constant colour; interior blush pink), PearlClam/M_PearlClam_Pearl (DefaultLit,
+               Fresnel warm->cool tint, Glow emissive default 0, breathing WPO with R=1).
+  CLAM_DRY     read-only: stone, B05/B06 camera poses from LS_DevScene_03, assets, the full CLAM_APPLY plan.
+  CLAM_APPLY   4 actors as an assembly on the stone (root "S3 PearlClam" = Bottom; Lid/Mantle/Pearl attached at
+               the manifest relative transforms), yaw from the cameras (hinge away) or explicit "yaw_deg"; each
+               actor hidden in game + its own copy of the stone's LS_S3_HangarRise reveal (bHidden does not
+               propagate to attached actors); the Fab stand-ins hidden at component level, recorded per component.
+               Lid NOT keyed: its relative Roll is the hinge.  Marker S3CLAM_APPLY_OK.
+  CLAM_REVERT  exact restore from s3_pearlclam_apply_record.json.  Marker S3CLAM_REVERT_OK.
+  The tool refuses PIE.  In PIE get_editor_world() is None and EditorAssetLibrary.load_asset returns None
+  [meas 7 Oct]: every load here is unreal.load_asset, and any future PIE path must keep it so.
+
 OFFLINE (no Unreal):  python s3_props_ue.py PREP_TEXTURES   -> 12288 BaseColor -> Export/8K/ at 8192 (PIL LANCZOS),
                       keeps mode and every colour-space chunk (sRGB/gAMA/iCCP) of the source; writes a record.
 
@@ -43,6 +68,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import shutil
 import struct
 import sys
@@ -117,6 +143,64 @@ APPLY_DEFAULTS = {
     "clam_labels": ["source_Anim", "Clam_with_Pearl_Clam_with_Pearl_0"], "clam_gap_cm": 0.0,
     "reseat_clams": "auto",           # auto = move only if NO clam actor has a transform track; "never"
     "reveal": "rise_track",           # copy the pedestal's LS_S3_HangarRise visibility track; "none" = always visible
+}
+
+# ============================================================================================ PearlClam (7 Oct)
+# Source: DerivedAssets/PearlClam/Export/ + PearlClam_manifest.json (Gary approved AS DELIVERED, incl. the mantle slit).
+# Bounds/centroids below are BLENDER cm (Z up, front -Y, hinge +Y) [meas: FBX vertices, fbx_top_measure.parse; the
+# harness re-reads the FBX and the manifest and asserts both].  UE expectation = Y flipped [inf until IMPORT_MESH].
+CLAM = "PearlClam"
+CLAM_DIR = DERIVED + "PearlClam/Export/"
+CLAM_MANIFEST = CLAM_DIR + "PearlClam_manifest.json"
+CLAM_FOLDER = ASSET_ROOT + "/PearlClam"
+CLAM_PARTS = {
+    "Bottom": {"min_b": [-48.94, -49.864, 0.0], "max_b": [49.17, 49.711, 44.301], "centroid_b": [1.084, -1.692, 17.751],
+               "slots": ["M_PearlClam_Shell", "M_PearlClam_Interior"], "vc": False, "parent": None},
+    "Lid": {"min_b": [-50.0, -96.445, -0.909], "max_b": [50.0, 2.0, 36.854], "centroid_b": [-1.146, -51.231, 18.819],
+            "slots": ["M_PearlClam_Shell", "M_PearlClam_Interior"], "vc": False, "parent": "Bottom"},
+    "Mantle": {"min_b": [-37.878, -36.652, 15.0], "max_b": [37.878, 36.652, 38.903], "centroid_b": [1.232, -0.141, 28.113],
+               "slots": ["M_PearlClam_Mantle"], "vc": True, "parent": "Bottom"},
+    "Pearl": {"min_b": [-9.003, -8.998, 0.0], "max_b": [8.997, 8.992, 18.001], "centroid_b": [0.0, 0.001, 8.979],
+              "slots": ["M_PearlClam_Pearl"], "vc": False, "parent": "Bottom"},
+}
+CLAM_PART_ORDER = ("Bottom", "Lid", "Mantle", "Pearl")
+CLAM_LABELS = {"Bottom": "S3 PearlClam", "Lid": "S3 PearlClam Lid", "Mantle": "S3 PearlClam Mantle",
+               "Pearl": "S3 PearlClam Pearl"}
+CENTROID_TOL_CM = 0.6        # x signal is ~1.1 cm (mirror = 2.2 cm apart); stride sample error 0.07 cm [meas offline]
+CENTROID_STRIDE_TARGET = 20000
+CLAM_TEX = {"Shell": {"BaseColor": 8192, "N": 4096, "Roughness": 4096},
+            "Mantle": {"BaseColor": 4096, "N": 4096, "Roughness": 4096}}
+MASTER_BREATHE = ASSET_ROOT + "/M_S3PropBreathe"
+MASTER_SOLID = ASSET_ROOT + "/M_S3PropSolid"
+PEARL_MASTER = CLAM_FOLDER + "/M_PearlClam_Pearl"
+INTERIOR_LINEAR = [0.855, 0.578, 0.539, 1.0]   # Gary 7 Oct (coordinator relay): sRGB (238,200,194) blush, not white
+CLAM_MATERIALS = {   # material key -> MI on a master; scalars/vectors are the MI's explicit values (read back)
+    "Shell": {"mi": "MI_PearlClam_Shell", "master": MASTER, "tex_set": "Shell", "scalars": {}, "vectors": {}},
+    "Mantle": {"mi": "MI_PearlClam_Mantle", "master": MASTER_BREATHE, "tex_set": "Mantle",
+               "scalars": {"BreathAmp": 0.0, "BreathPeriod": 5.0}, "vectors": {}},
+    "Interior": {"mi": "MI_PearlClam_Interior", "master": MASTER_SOLID, "tex_set": None,
+                 "scalars": {"Roughness": 0.25, "Specular": 0.5}, "vectors": {"BaseColorTint": INTERIOR_LINEAR}},
+    "Pearl": {"mi": "MI_PearlClam_Pearl", "master": PEARL_MASTER, "tex_set": None,
+              "scalars": {"Glow": 0.0, "BreathAmp": 0.0, "BreathPeriod": 5.0}, "vectors": {}},
+}
+SLOT_TO_MATERIAL = {"M_PearlClam_Shell": "Shell", "M_PearlClam_Interior": "Interior",
+                    "M_PearlClam_Mantle": "Mantle", "M_PearlClam_Pearl": "Pearl"}
+SCENE3 = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03"
+CLAM_RECORD = HERE + "s3_pearlclam_apply_record.json"
+BACKUP_ROOT_CLAM = PROJECT + "Backups/PreS3PearlClam-"
+TEX_PENDING = HERE + "s3_props_tex_pending.json"
+MILL_MEASURE = HERE + "s3_millstone_fbx_measure.json"
+CLAM_DEFAULTS = {
+    "yaw_deg": None,                  # None = from the B05/B06 cameras (refuses if unreadable); a number overrides
+    "camera_beats": {"B05": 2880, "B06": 3000},   # LS_DevScene_03 display frames (s3_shotlist BEAT_FRAMES; markers)
+    "max_camera_off_front_deg": 70.0, # every camera sample must lie within this of the lid's opening direction
+    "seat_top_offset_cm": None,       # None = highest stone point under the footprint (s3_millstone_fbx_measure.json)
+    "sink_cm": 0.0,                   # push the clam this far into the stone (contact instead of a sub-cm float)
+    "reveal": "rise_track", "reveal_targets": "all",   # "all" = one reveal binding per actor (bHidden is per actor)
+    "reveal_range_s": None, "reveal_completion_mode": None,   # overrides for the copied section (31 s question)
+    "standin_labels": ["source_Anim", "Clam_with_Pearl_Clam_with_Pearl_0"], "hide_standins": True,
+    "mobility": "MOVABLE",            # the lid is keyed later; children of a movable root
+    "lid_open_deg": 80.0,
 }
 
 
@@ -201,27 +285,53 @@ def tex_source_check(name, role):
     return {"file": p["file"], "w": w, "h": h, "depth": depth, "colour_type": ctype}
 
 
-def gate_census(census, mode):
+READ_ONLY_MODES = ("DRY", "CLAM_DRY")
+
+
+def gate_census(census, mode, pending_asset=None):
+    """Write modes need 0+0.  VERIFY_TEX needs EXACTLY the pending texture package dirty (nothing else)."""
     clean = census == {"content": [], "maps": []}
-    if mode != "DRY" and not clean:
+    if mode == "VERIFY_TEX":
+        _req(pending_asset and census == {"content": [pending_asset], "maps": []},
+             "VERIFY_CENSUS|want only %s|got %s" % (pending_asset, json.dumps(census)))
+        return False
+    if mode not in READ_ONLY_MODES and not clean:
         raise PlanError("DIRTY_BEFORE|%s" % json.dumps(census))
     return clean
 
 
-MODES = ("DRY", "IMPORT_MESH", "IMPORT_TEX", "BUILD_MAT", "APPLY", "REVERT", "PLACE", "UNPLACE")
+MODES = ("DRY", "IMPORT_MESH", "IMPORT_TEX", "VERIFY_TEX", "BUILD_MAT", "APPLY", "REVERT", "PLACE", "UNPLACE",
+         "CLAM_DRY", "CLAM_APPLY", "CLAM_REVERT")
 
 
-def check_mode(args, apply_record_exists, place_record_exists):
+def check_mode(args, apply_record_exists, place_record_exists, tex_pending_exists=False, clam_record_exists=False):
     mode = str(args.get("mode", "DRY")).upper()
     _req(mode in MODES, "MODE|%s" % mode)
-    if mode != "DRY":
+    if mode not in READ_ONLY_MODES:
         _req(args.get("confirm") == "%s S3PROPS" % mode, "CONFIRM_MISSING|need %r" % ("%s S3PROPS" % mode))
+    if tex_pending_exists:
+        _req(mode in READ_ONLY_MODES + ("VERIFY_TEX",), "TEX_PENDING|run VERIFY_TEX first (%s)" % TEX_PENDING)
+    _req(not (mode == "VERIFY_TEX" and not tex_pending_exists), "NO_TEX_PENDING")
     if mode in ("IMPORT_MESH", "IMPORT_TEX", "BUILD_MAT"):
-        _req(args.get("prop") in PROPS, "PROP|%r" % args.get("prop"))
+        _req(args.get("prop") in PROPS or args.get("prop") == CLAM, "PROP|%r" % args.get("prop"))
+        if args.get("prop") == CLAM:
+            if mode == "IMPORT_MESH":
+                _req(args.get("part") in CLAM_PARTS, "CLAM_PART|%r" % args.get("part"))
+            if mode == "IMPORT_TEX":
+                _req(args.get("tex_set") in CLAM_TEX, "CLAM_TEX_SET|%r" % args.get("tex_set"))
+            if mode == "BUILD_MAT":
+                _req(args.get("material") in CLAM_MATERIALS, "CLAM_MATERIAL|%r" % args.get("material"))
+    if mode == "IMPORT_TEX":
+        roles = args.get("textures")
+        _req(isinstance(roles, list) and len(roles) == 1 and roles[0] in TEX_ROLES,
+             "ONE_TEXTURE_PER_CALL|textures=%r (live 7 Oct: multi-file imports go one asset per call)" % roles)
     _req(not (mode == "APPLY" and apply_record_exists), "ALREADY_APPLIED|" + APPLY_RECORD)
     _req(not (mode == "REVERT" and not apply_record_exists), "NO_APPLY_RECORD")
     _req(not (mode == "PLACE" and place_record_exists), "ALREADY_PLACED|" + PLACE_RECORD)
     _req(not (mode == "UNPLACE" and not place_record_exists), "NO_PLACE_RECORD")
+    _req(not (mode in ("CLAM_APPLY", "CLAM_DRY") and not apply_record_exists), "NO_STONE|millstone APPLY record missing")
+    _req(not (mode == "CLAM_APPLY" and clam_record_exists), "CLAM_ALREADY_APPLIED|" + CLAM_RECORD)
+    _req(not (mode == "CLAM_REVERT" and not clam_record_exists), "NO_CLAM_RECORD")
     return mode
 
 
@@ -495,8 +605,9 @@ def graph_spec():
     return nodes, edges, props
 
 
-def graph_problems():
-    nodes, edges, props = graph_spec()
+def spec_problems(nodes, edges, props, want_props=None):
+    """Generic graph lint: edges name real nodes, every pin fed once, custom pins fed AND used (word match),
+    no orphan nodes, each material property set once (and exactly want_props when given)."""
     probs = []
     fed = {}
     for s, _o, d, pin in edges:
@@ -512,15 +623,600 @@ def graph_problems():
             for pin in ins:
                 if (k, pin) not in fed:
                     probs.append("CUSTOM_PIN_UNFED|%s.%s" % (k, pin))
-                if pin not in code:
+                if not re.search(r"\b%s\b" % re.escape(pin), code):
                     probs.append("CUSTOM_PIN_UNUSED|%s.%s" % (k, pin))
+            for (d, pin) in fed:
+                if d == k and pin not in ins:
+                    probs.append("CUSTOM_PIN_UNKNOWN|%s.%s" % (k, pin))
     used = {e[0] for e in edges} | {p[0] for p in props}
     probs += ["UNUSED_NODE|%s" % k for k in nodes if k not in used]
-    if {p[2] for p in props} != {"MP_BASE_COLOR", "MP_NORMAL", "MP_ROUGHNESS"}:
-        probs.append("PROPS")
+    mp = [p[2] for p in props]
+    if len(set(mp)) != len(mp):
+        probs.append("PROP_SET_TWICE|%s" % mp)
+    if want_props is not None and set(mp) != set(want_props):
+        probs.append("PROPS|%s" % sorted(mp))
+    for p in props:
+        if p[0] not in nodes:
+            probs.append("PROP_NODE|%s" % p[0])
+    return probs
+
+
+def graph_problems():
+    nodes, edges, props = graph_spec()
+    probs = spec_problems(nodes, edges, props, {"MP_BASE_COLOR", "MP_NORMAL", "MP_ROUGHNESS"})
     if set(MASTER_TEX_PARAMS) != {k for k, (kind, _v) in nodes.items() if kind == "texture"}:
         probs.append("TEX_PARAM_TABLE")
     return probs
+
+
+# ------------------------------------------------------------------- PearlClam material specs (pure; create-only)
+BREATH_CODE = "return float3(0.0, 0.0, A * M * (0.5 - 0.5 * cos(6.2831853 * T / max(P, 0.01))));"
+PEARL_BREATH_CODE = "return float3(0.0, 0.0, A * (0.5 - 0.5 * cos(6.2831853 * T / max(P, 0.01))));"
+PEARL_COLOR_CODE = "return lerp(B.rgb, B.rgb * lerp(W.rgb, C.rgb, F), saturate(K));"
+SOLID_CODE = "return C.rgb;"
+GLOW_CODE = "return G * GC.rgb;"
+MAX_WPO_CM = 5.0     # Material.h:1214-1220 [decl]: clamps WPO per axis AND extends Nanite culling bounds
+
+
+def material_specs():
+    """path -> {nodes, edges, props, want_props, tex_params{param: role}, scalars{}, vectors{}, max_wpo, tex_set}."""
+    n0, e0, p0 = graph_spec()
+    base = {"nodes": n0, "edges": e0, "props": p0, "want_props": {"MP_BASE_COLOR", "MP_NORMAL", "MP_ROUGHNESS"},
+            "tex_params": dict(MASTER_TEX_PARAMS), "scalars": dict(MASTER_SCALARS), "vectors": {}, "max_wpo": None}
+    nb = dict(n0)
+    nb.update({"BreathAmp": ("scalar", 0.0), "BreathPeriod": ("scalar", 5.0), "Time": ("time", None),
+               "VColor": ("vcolor", None), "BreathWPO": ("custom", (BREATH_CODE, ["M", "A", "T", "P"], "F3"))})
+    breathe = {"nodes": nb, "edges": list(e0) + [("VColor", "R", "BreathWPO", "M"), ("BreathAmp", "", "BreathWPO", "A"),
+                                                 ("Time", "", "BreathWPO", "T"), ("BreathPeriod", "", "BreathWPO", "P")],
+               "props": list(p0) + [("BreathWPO", "", "MP_WORLD_POSITION_OFFSET")],
+               "want_props": {"MP_BASE_COLOR", "MP_NORMAL", "MP_ROUGHNESS", "MP_WORLD_POSITION_OFFSET"},
+               "tex_params": dict(MASTER_TEX_PARAMS),
+               "scalars": dict(MASTER_SCALARS, BreathAmp=0.0, BreathPeriod=5.0), "vectors": {}, "max_wpo": MAX_WPO_CM}
+    solid = {"nodes": {"BaseColorTint": ("vector", list(INTERIOR_LINEAR)), "Roughness": ("scalar", 0.25),
+                       "Specular": ("scalar", 0.5), "SolidColor": ("custom", (SOLID_CODE, ["C"], "F3"))},
+             "edges": [("BaseColorTint", "", "SolidColor", "C")],
+             "props": [("SolidColor", "", "MP_BASE_COLOR"), ("Roughness", "", "MP_ROUGHNESS"),
+                       ("Specular", "", "MP_SPECULAR")],
+             "want_props": {"MP_BASE_COLOR", "MP_ROUGHNESS", "MP_SPECULAR"}, "tex_params": {},
+             "scalars": {"Roughness": 0.25, "Specular": 0.5}, "vectors": {"BaseColorTint": list(INTERIOR_LINEAR)},
+             "max_wpo": None}
+    pv = {"BaseColor": [0.86, 0.83, 0.78, 1.0], "WarmTint": [1.0, 0.90, 0.90, 1.0], "CoolTint": [0.88, 0.98, 1.0, 1.0],
+          "GlowColor": [1.0, 0.93, 0.88, 1.0]}
+    ps = {"TintAmount": 0.6, "Roughness": 0.18, "Specular": 0.55, "Glow": 0.0, "BreathAmp": 0.0, "BreathPeriod": 5.0}
+    pn = {k: ("vector", v) for k, v in pv.items()}
+    pn.update({k: ("scalar", v) for k, v in ps.items()})
+    pn.update({"Fresnel": ("fresnel", 3.0), "Time": ("time", None),
+               "PearlColor": ("custom", (PEARL_COLOR_CODE, ["B", "W", "C", "F", "K"], "F3")),
+               "GlowEmissive": ("custom", (GLOW_CODE, ["G", "GC"], "F3")),
+               "PearlWPO": ("custom", (PEARL_BREATH_CODE, ["A", "T", "P"], "F3"))})
+    pearl = {"nodes": pn,
+             "edges": [("BaseColor", "", "PearlColor", "B"), ("WarmTint", "", "PearlColor", "W"),
+                       ("CoolTint", "", "PearlColor", "C"), ("Fresnel", "", "PearlColor", "F"),
+                       ("TintAmount", "", "PearlColor", "K"), ("Glow", "", "GlowEmissive", "G"),
+                       ("GlowColor", "", "GlowEmissive", "GC"), ("BreathAmp", "", "PearlWPO", "A"),
+                       ("Time", "", "PearlWPO", "T"), ("BreathPeriod", "", "PearlWPO", "P")],
+             "props": [("PearlColor", "", "MP_BASE_COLOR"), ("Roughness", "", "MP_ROUGHNESS"),
+                       ("Specular", "", "MP_SPECULAR"), ("GlowEmissive", "", "MP_EMISSIVE_COLOR"),
+                       ("PearlWPO", "", "MP_WORLD_POSITION_OFFSET")],
+             "want_props": {"MP_BASE_COLOR", "MP_ROUGHNESS", "MP_SPECULAR", "MP_EMISSIVE_COLOR",
+                            "MP_WORLD_POSITION_OFFSET"},
+             "tex_params": {}, "scalars": ps, "vectors": pv, "max_wpo": MAX_WPO_CM}
+    return {MASTER: base, MASTER_BREATHE: breathe, MASTER_SOLID: solid, PEARL_MASTER: pearl}
+
+
+def material_problems(specs=None):
+    out = {}
+    for path, s in (specs or material_specs()).items():
+        p = spec_problems(s["nodes"], s["edges"], s["props"], s["want_props"])
+        if set(s["tex_params"]) != {k for k, (kind, _v) in s["nodes"].items() if kind == "texture"}:
+            p.append("TEX_PARAM_TABLE")
+        if set(s["scalars"]) != {k for k, (kind, _v) in s["nodes"].items() if kind == "scalar"}:
+            p.append("SCALAR_TABLE")
+        if set(s["vectors"]) != {k for k, (kind, _v) in s["nodes"].items() if kind == "vector"}:
+            p.append("VECTOR_TABLE")
+        if ("MP_WORLD_POSITION_OFFSET" in s["want_props"]) != (s["max_wpo"] is not None):
+            p.append("MAX_WPO_TABLE")
+        if p:
+            out[path] = p
+    for key, m in CLAM_MATERIALS.items():
+        s = (specs or material_specs()).get(m["master"])
+        if s is None:
+            out.setdefault(key, []).append("MASTER_UNKNOWN")
+            continue
+        for k in m["scalars"]:
+            if k not in s["scalars"]:
+                out.setdefault(key, []).append("MI_SCALAR_NOT_ON_MASTER|%s" % k)
+        for k in m["vectors"]:
+            if k not in s["vectors"]:
+                out.setdefault(key, []).append("MI_VECTOR_NOT_ON_MASTER|%s" % k)
+        if bool(m["tex_set"]) != bool(s["tex_params"]):
+            out.setdefault(key, []).append("TEX_SET_VS_MASTER")
+    return out
+
+
+def breath_eval(amp, mask, t, period):
+    """Python mirror of BREATH_CODE (Z only)."""
+    return amp * mask * (0.5 - 0.5 * math.cos(2.0 * math.pi * t / max(period, 0.01)))
+
+
+def pearl_color_eval(b, w, c, f, k):
+    """Python mirror of PEARL_COLOR_CODE."""
+    k = min(1.0, max(0.0, k))
+    return [b[i] + (b[i] * (w[i] + (c[i] - w[i]) * f) - b[i]) * k for i in range(3)]
+
+
+# ============================================================================================ PearlClam (pure)
+def clam_mesh_path(part):
+    return CLAM_FOLDER + "/SM_PearlClam_" + part
+
+
+def clam_mi_path(material):
+    return CLAM_FOLDER + "/" + CLAM_MATERIALS[material]["mi"]
+
+
+def tex_target(prop, tex_set, role):
+    """One texture's source file / asset / expected size, for the classic props and the clam sets."""
+    _req(role in TEX_ROLES, "ROLE|%r" % role)
+    if prop == CLAM:
+        _req(tex_set in CLAM_TEX, "CLAM_TEX_SET|%r" % tex_set)
+        name = "T_PearlClam_%s%s" % (tex_set, TEX_ROLES[role][0])
+        return {"file": CLAM_DIR + name + ".png", "asset": CLAM_FOLDER + "/" + name, "name": name,
+                "folder": CLAM_FOLDER, "dim": CLAM_TEX[tex_set][role], "label": "%s_%s" % (tex_set, role)}
+    p = prop_paths(prop)["tex"][role]
+    return dict(p, folder=prop_paths(prop)["folder"], dim=PROPS[prop]["tex_dim"][role], label=role)
+
+
+def tex_source_gate(t):
+    """IHDR gate for a tex_target (runs before an import; inside Unreal too)."""
+    _req(os.path.isfile(t["file"]), "TEX_SOURCE_MISSING|%s" % t["file"])
+    w, h, depth, ctype = png_ihdr(t["file"])
+    _req(w == h == t["dim"], "TEX_DIM|%s|%dx%d|want %d" % (t["file"], w, h, t["dim"]))
+    _req(depth == 8, "TEX_DEPTH|%s|%d" % (t["file"], depth))
+    return {"file": t["file"], "w": w, "h": h, "depth": depth, "colour_type": ctype}
+
+
+def flip_y(v):
+    return [float(v[0]), -float(v[1]), float(v[2])]
+
+
+def clam_expected_ue(part, flipped=True, mirror_x=False):
+    """Expected UE bounds / centroid of a part from its Blender numbers.  Default hypothesis: UE = (x, -y, z)."""
+    p = CLAM_PARTS[part]
+    mn, mx, c = list(p["min_b"]), list(p["max_b"]), list(p["centroid_b"])
+    if flipped:
+        mn, mx, c = [mn[0], -mx[1], mn[2]], [mx[0], -mn[1], mx[2]], flip_y(c)
+    if mirror_x:
+        mn, mx, c = [-mx[0], mn[1], mn[2]], [-mn[0], mx[1], mx[2]], [-c[0], c[1], c[2]]
+    return {"min": mn, "max": mx, "centroid": c}
+
+
+def clam_bounds_tol(part):
+    p = CLAM_PARTS[part]
+    return 0.3 if max(p["max_b"][i] - p["min_b"][i] for i in range(3)) < 50.0 else 1.0
+
+
+def _box_fits(got, exp, tol):
+    return all(abs(got[k][i] - exp[k][i]) <= tol for k in ("min", "max") for i in range(3))
+
+
+def clam_bounds_check(part, got):
+    """[] or failures.  Names Y_NOT_FLIPPED when the import kept Blender's Y (the lid separates the cases; the
+    bottom, mantle and pearl are near-symmetric in Y and cannot), and SCALE_100X / SCALE_0.01X."""
+    tol = clam_bounds_tol(part)
+    exp = clam_expected_ue(part)
+    if _box_fits(got, exp, tol):
+        return []
+    f = ["BOUNDS|%s|got=%s|want=%s" % (part, [[round(x, 3) for x in got[k]] for k in ("min", "max")],
+                                        [[round(x, 3) for x in exp[k]] for k in ("min", "max")])]
+    if _box_fits(got, clam_expected_ue(part, flipped=False), tol):
+        f.insert(0, "Y_NOT_FLIPPED|%s" % part)
+    for s, tag in ((100.0, "SCALE_100X"), (0.01, "SCALE_0.01X")):
+        if _box_fits(got, {k: [x * s for x in exp[k]] for k in ("min", "max")}, tol * s):
+            f.insert(0, "%s|%s" % (tag, part))
+    return f
+
+
+def clam_centroid_check(part, got):
+    """Vertex-centroid handedness gate (bounds cannot see an X mirror: the parts are near-symmetric in X)."""
+    exp = clam_expected_ue(part)["centroid"]
+    if near(got, exp, CENTROID_TOL_CM):
+        return []
+    f = ["CENTROID|%s|got=%s|want=%s" % (part, [round(x, 3) for x in got], [round(x, 3) for x in exp])]
+    if near(got, clam_expected_ue(part, mirror_x=True)["centroid"], CENTROID_TOL_CM):
+        f.insert(0, "X_MIRRORED|%s" % part)
+    if near(got, clam_expected_ue(part, flipped=False)["centroid"], CENTROID_TOL_CM):
+        f.insert(0, "Y_NOT_FLIPPED|%s" % part)
+    return f
+
+
+def centroid_discriminates(part):
+    """True when the expected centroid differs from its X-mirror / Y-unflipped twin by > 2 x tolerance."""
+    e = clam_expected_ue(part)["centroid"]
+    mx = clam_expected_ue(part, mirror_x=True)["centroid"]
+    uy = clam_expected_ue(part, flipped=False)["centroid"]
+    return {"x": abs(e[0] - mx[0]) > 2 * CENTROID_TOL_CM, "y": abs(e[1] - uy[1]) > 2 * CENTROID_TOL_CM}
+
+
+def clam_manifest_problems(man):
+    """Table vs PearlClam_manifest.json (the harness also checks table vs FBX vertices)."""
+    probs = []
+    parts = man.get("parts", {})
+    for part, row in CLAM_PARTS.items():
+        m = parts.get("SM_PearlClam_" + part)
+        if m is None:
+            probs.append("MANIFEST_PART_MISSING|%s" % part)
+            continue
+        if list(m.get("slots", [])) != row["slots"]:
+            probs.append("SLOTS|%s|%s" % (part, m.get("slots")))
+        b = m.get("bounds_cm") or m.get("bounds_cm_relative_to_pivot")
+        if b:
+            if not (near(b["min_cm"], row["min_b"], 0.011) and near(b["max_cm"], row["max_b"], 0.011)):
+                probs.append("BOUNDS|%s|%s" % (part, b))
+        if "size_cm" in m:
+            size = [row["max_b"][i] - row["min_b"][i] for i in range(3)]
+            if not near(m["size_cm"], size, 0.06):
+                probs.append("SIZE|%s|%s|%s" % (part, m["size_cm"], size))
+        if "z_cm" in m and not near(m["z_cm"], [row["min_b"][2], row["max_b"][2]], 0.011):
+            probs.append("Z|%s" % part)
+        if "diameter_cm" in m and abs(m["diameter_cm"] - (row["max_b"][0] - row["min_b"][0])) > 0.02:
+            probs.append("DIAMETER|%s" % part)
+        if bool(m.get("breathing")) != row["vc"]:
+            probs.append("VC_FLAG|%s" % part)
+    lid = parts.get("SM_PearlClam_Lid", {})
+    if lid.get("hinge_axis_unit_blender") != [1, 0, 0]:
+        probs.append("HINGE_AXIS|%s" % lid.get("hinge_axis_unit_blender"))
+    return probs
+
+
+def clam_rel_transforms(man):
+    """Child relative transforms in the root (Bottom) frame, UE: manifest place_at_cm with Y flipped, no rotation.
+    Bottom/Mantle sit at the origin, so they are identical with or without the flip; the lid and pearl are not."""
+    out = {}
+    for part in CLAM_PART_ORDER:
+        at = man["parts"]["SM_PearlClam_" + part]["place_at_cm"]
+        out[part] = {"location": flip_y(at), "rotation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0]}
+    _req(near(out["Bottom"]["location"], [0, 0, 0], 1e-9), "BOTTOM_NOT_AT_ORIGIN")
+    return out
+
+
+def lid_front_sign(lid_box):
+    """+1 when the lid (hinge-relative) reaches toward +Y (expected after the Y flip), -1 toward -Y."""
+    return 1 if lid_box["max"][1] > -lid_box["min"][1] else -1
+
+
+def lid_open_roll(front_sign, deg):
+    """UE FRotationMatrix: roll r maps local +Y to (0, cos r, -sin r) [rot_matrix row Y], so the tip at +Y rises
+    for r < 0.  Opening = relative Roll of -front_sign * deg."""
+    return -float(front_sign) * float(deg)
+
+
+def tf_chain_point(tfs, p):
+    """tfs = [child_rel, ..., root_world]; UE composition (child first)."""
+    for tf in tfs:
+        p = tf_point(tf, p)
+    return p
+
+
+def box_corners(box):
+    return [[box["min"][0] if i & 1 else box["max"][0], box["min"][1] if i & 2 else box["max"][1],
+             box["min"][2] if i & 4 else box["max"][2]] for i in range(8)]
+
+
+def chain_box(tfs, box):
+    pts = [tf_chain_point(tfs, c) for c in box_corners(box)]
+    return {"min": [min(p[i] for p in pts) for i in range(3)], "max": [max(p[i] for p in pts) for i in range(3)]}
+
+
+def _tf(loc, rot=(0.0, 0.0, 0.0)):
+    return {"location": [float(x) for x in loc], "rotation": [float(x) for x in rot], "scale": [1.0, 1.0, 1.0]}
+
+
+def lid_tip(lid_box, front_sign):
+    """Lid-local front tip: far end along the front, centre in X, mid height."""
+    far = lid_box["max"][1] if front_sign > 0 else lid_box["min"][1]
+    return [0.5 * (lid_box["min"][0] + lid_box["max"][0]), far, 0.5 * (lid_box["min"][2] + lid_box["max"][2])]
+
+
+def lid_tip_rise(lid_box, rel_lid, root_tf, roll):
+    front = lid_front_sign(lid_box)
+    tip = lid_tip(lid_box, front)
+    closed = tf_chain_point([_tf(rel_lid["location"]), root_tf], tip)
+    opened = tf_chain_point([_tf(rel_lid["location"], (roll, 0.0, 0.0)), root_tf], tip)
+    return closed[2], opened[2]
+
+
+def assembly_problems(boxes, rel):
+    """boxes: part -> part-local UE box (live mesh bounds when read, else the table).  Checks the closed assembly in
+    the root frame.  The hinge side is opposite the lid's reach."""
+    probs = []
+    front = lid_front_sign(boxes["Lid"])
+    sh = lambda part: {k: [boxes[part][k][i] + rel[part]["location"][i] for i in range(3)] for k in ("min", "max")}  # noqa: E731
+    b, l, m, p = sh("Bottom"), sh("Lid"), sh("Mantle"), sh("Pearl")
+    back = (lambda bx: bx["min"][1]) if front > 0 else (lambda bx: bx["max"][1])
+    fwd = (lambda bx: bx["max"][1]) if front > 0 else (lambda bx: bx["min"][1])
+    if abs(back(l) - back(b)) > 1.0:
+        probs.append("HINGE_BACK_EDGE|lid=%.2f|bottom=%.2f" % (back(l), back(b)))
+    hinge_y = rel["Lid"]["location"][1]
+    if abs(hinge_y - back(b)) > 3.0:
+        probs.append("HINGE_NOT_AT_BACK|hinge_y=%.2f|bottom_back=%.2f" % (hinge_y, back(b)))
+    if abs(fwd(l) - fwd(b)) > 3.0:
+        probs.append("LID_FRONT|lid=%.2f|bottom=%.2f" % (fwd(l), fwd(b)))
+    if l["min"][0] < b["min"][0] - 1.5 or l["max"][0] > b["max"][0] + 1.5:
+        probs.append("LID_X|%s|%s" % ([l["min"][0], l["max"][0]], [b["min"][0], b["max"][0]]))
+    if not (b["min"][2] - 0.01 <= rel["Lid"]["location"][2] <= b["max"][2] + 0.01):
+        probs.append("HINGE_Z|%.2f" % rel["Lid"]["location"][2])
+    for i in (0, 1):
+        if m["min"][i] < b["min"][i] - 0.5 or m["max"][i] > b["max"][i] + 0.5:
+            probs.append("MANTLE_OUTSIDE_BOTTOM|axis=%d" % i)
+    if m["min"][2] < b["min"][2] or m["max"][2] > l["max"][2]:
+        probs.append("MANTLE_Z")
+    pc = [0.5 * (p["min"][i] + p["max"][i]) for i in range(3)]
+    if not all(m["min"][i] <= pc[i] <= m["max"][i] for i in (0, 1)):
+        probs.append("PEARL_OFF_MANTLE|%s" % pc[:2])
+    if not (m["min"][2] <= p["min"][2] <= m["max"][2]):
+        probs.append("PEARL_SEAT_Z|%.2f|mantle %s" % (p["min"][2], [m["min"][2], m["max"][2]]))
+    if p["max"][2] >= l["max"][2]:
+        probs.append("PEARL_ABOVE_LID|%.2f|%.2f" % (p["max"][2], l["max"][2]))
+    return probs
+
+
+def seat_offset_from_measure(measure, span_cm):
+    """Highest stone point (max_h of the radial rings) within the footprint's half-diagonal [meas: FBX height map].
+    Resting there means no interpenetration; the float elsewhere is <= that minus the local height."""
+    radius = 0.5 * math.hypot(float(span_cm[0]), float(span_cm[1]))
+    rows = [r for r in measure["radial_upper_surface_cm"]["rows"] if r[0] <= radius and r[3] is not None]
+    _req(rows, "SEAT_ROWS")
+    return max(float(r[3]) for r in rows), radius
+
+
+def _wrap(a):
+    return (a + 180.0) % 360.0 - 180.0
+
+
+def yaw_from_cameras(centre_xy, samples, max_off_deg):
+    """samples: [[x, y], ...] camera positions.  Lid opens toward their mean bearing (hinge away).  Clam local front
+    is +Y; world front at yaw psi is (-sin psi, cos psi), so psi = bearing - 90."""
+    _req(samples, "NO_CAMERA_SAMPLES")
+    bear = []
+    for x, y in samples:
+        dx, dy = float(x) - centre_xy[0], float(y) - centre_xy[1]
+        _req(math.hypot(dx, dy) > 50.0, "CAMERA_AT_CLAM|%s" % [x, y])
+        bear.append(math.degrees(math.atan2(dy, dx)))
+    vx = sum(math.cos(math.radians(b)) for b in bear) / len(bear)
+    vy = sum(math.sin(math.radians(b)) for b in bear) / len(bear)
+    _req(math.hypot(vx, vy) > 0.3, "CAMERA_BEARINGS_CANCEL|%s" % [round(b, 1) for b in bear])
+    theta = math.degrees(math.atan2(vy, vx))
+    offs = [abs(_wrap(b - theta)) for b in bear]
+    if max(offs) > max_off_deg:
+        raise PlanError("CAMERA_SPREAD|bearings=%s|mean=%.1f|max_off=%.1f > %.1f (pass an explicit yaw_deg)" % (
+            [round(b, 1) for b in bear], theta, max(offs), max_off_deg))
+    return _wrap(theta - 90.0), {"bearings_deg": bear, "mean_bearing_deg": theta, "off_front_deg": offs}
+
+
+def front_dir(yaw):
+    r = math.radians(yaw)
+    return [-math.sin(r), math.cos(r)]
+
+
+def clam_root_location(stone_loc, yaw, fp_centre_ue, seat, sink):
+    off = tf_point(_tf([0, 0, 0], (0.0, 0.0, yaw)), [fp_centre_ue[0], fp_centre_ue[1], 0.0])
+    return [stone_loc[0] - off[0], stone_loc[1] - off[1], stone_loc[2] + seat - sink]
+
+
+def standin_hidden(before):
+    return {"actor_hidden": before["actor_hidden"],
+            "components": {k: {"visible": False, "hidden_in_game": True} for k in before["components"]}}
+
+
+def plan_clam(state, args_clam, man):
+    a = dict(CLAM_DEFAULTS, **(args_clam or {}))
+    _req(not state.get("temp_actors"), "TEMP_ACTORS_PRESENT|%s" % (state.get("temp_actors") or [])[:5])
+    root_landed = state["root"]["world"]
+    _req(root_is_landed(root_landed), "ROOT_NOT_LANDED|%s" % json.dumps(root_landed))
+    for part, label in CLAM_LABELS.items():
+        _req(state.get("label_count", {}).get(label, 0) == 0, "LABEL_EXISTS|%s" % label)
+    need = [clam_mesh_path(p) for p in CLAM_PART_ORDER] + [clam_mi_path(m) for m in CLAM_MATERIALS]
+    missing = [p for p in need if not state.get("assets", {}).get(p)]
+    _req(not missing, "ASSETS_MISSING|%s" % missing)
+    _req(not clam_manifest_problems(man), "MANIFEST|%s" % clam_manifest_problems(man))
+    st = state["stone"]
+    _req(st.get("found"), "STONE_MISSING|%s" % st.get("object_path"))
+    _req(near(st["location"], st["record_location"], TOL_CM), "STONE_MOVED|%s vs record %s" % (
+        st["location"], st["record_location"]))
+    _req(near(st["rotation"], [0, 0, 0], 0.01), "STONE_ROTATED|%s" % st["rotation"])
+
+    # part boxes (live mesh bounds when DRY/APPLY read them; else the table's UE expectation)
+    boxes, slots = {}, {}
+    for part in CLAM_PART_ORDER:
+        mesh = (state.get("meshes") or {}).get(part)
+        if mesh:
+            bf = clam_bounds_check(part, mesh["bounds"])
+            _req(not bf, "MESH_BOUNDS_DRIFT|%s" % bf)
+            boxes[part] = mesh["bounds"]
+            slots[part] = list(mesh["slots"])
+        else:
+            e = clam_expected_ue(part)
+            boxes[part] = {"min": e["min"], "max": e["max"]}
+            slots[part] = list(CLAM_PARTS[part]["slots"])
+        _req(slots[part] == CLAM_PARTS[part]["slots"], "MESH_SLOTS|%s|%s" % (part, slots[part]))
+    rel = clam_rel_transforms(man)
+    probs = assembly_problems(boxes, rel)
+    _req(not probs, "ASSEMBLY|%s" % probs)
+
+    # yaw: cameras unless explicit
+    cam = state.get("cameras") or {"ok": False, "error": "NOT_READ"}
+    stone_xy = st["location"][:2]
+    cam_check = None
+    samples = [s["location"][:2] for r in cam.get("rows", []) for s in r["samples"]] if cam.get("ok") else []
+    if a["yaw_deg"] is not None:
+        yaw, source = _wrap(float(a["yaw_deg"])), "args"
+        if samples:
+            fd = front_dir(yaw)
+            cam_check = []
+            for s in samples:
+                dx, dy = s[0] - stone_xy[0], s[1] - stone_xy[1]
+                cam_check.append(round(math.degrees(math.acos(max(-1.0, min(1.0, (fd[0] * dx + fd[1] * dy) /
+                                                                               math.hypot(dx, dy))))), 2))
+    else:
+        _req(cam.get("ok"), "YAW_UNRESOLVED|cameras unreadable (%s); pass apply_clam.yaw_deg" % cam.get("error"))
+        yaw, cam_check = yaw_from_cameras(stone_xy, samples, float(a["max_camera_off_front_deg"]))
+        source = "cameras"
+
+    fp = man["measured"]["bottom_footprint"]
+    fp_ue = flip_y(list(fp["lowest3cm_centre_cm"]) + [0.0])
+    if a["seat_top_offset_cm"] is None:
+        seat, seat_r = seat_offset_from_measure(state["measure"], fp["lowest3cm_span_cm"])
+    else:
+        seat, seat_r = float(a["seat_top_offset_cm"]), None
+    root_loc = clam_root_location(st["location"], yaw, fp_ue, seat, float(a["sink_cm"]))
+    root_tf = _tf(root_loc, (0.0, 0.0, yaw))
+    front = lid_front_sign(boxes["Lid"])
+    roll = lid_open_roll(front, a["lid_open_deg"])
+    tip_closed, tip_open = lid_tip_rise(boxes["Lid"], rel["Lid"], root_tf, roll)
+    _req(tip_open - tip_closed > 50.0, "OPEN_SIGN|tip %.1f -> %.1f" % (tip_closed, tip_open))
+    fp_world = tf_point(root_tf, [fp_ue[0], fp_ue[1], 0.0])
+    _req(near(fp_world[:2], stone_xy, 0.01), "FOOTPRINT_OFF_AXIS|%s" % fp_world)
+
+    parts = {}
+    world_closed, world_open = None, None
+    for part in CLAM_PART_ORDER:
+        r = rel[part]
+        wl = tf_point(root_tf, r["location"]) if part != "Bottom" else list(root_loc)
+        mis = {}
+        for i, sname in enumerate(slots[part]):
+            _req(sname in SLOT_TO_MATERIAL, "SLOT_UNMAPPED|%s|%s" % (part, sname))
+            mis[i] = clam_mi_path(SLOT_TO_MATERIAL[sname])
+        parts[part] = {"label": CLAM_LABELS[part], "mesh": clam_mesh_path(part), "mis": mis, "slots": slots[part],
+                       "parent": None if part == "Bottom" else "Bottom", "rel": r,
+                       "world_location": wl, "world_rotation": [0.0, 0.0, yaw],
+                       "tags": [TAG_ALL, "S3Props.PearlClam", "S3Props.PearlClam." + part]}
+        chain = [root_tf] if part == "Bottom" else [_tf(r["location"]), root_tf]
+        bc = chain_box(chain, boxes[part])
+        bo = chain_box([_tf(r["location"], (roll, 0.0, 0.0)), root_tf], boxes[part]) if part == "Lid" else bc
+        for name, bx in (("closed", bc), ("open", bo)):
+            cur = world_closed if name == "closed" else world_open
+            cur = bx if cur is None else {"min": [min(cur["min"][i], bx["min"][i]) for i in range(3)],
+                                          "max": [max(cur["max"][i], bx["max"][i]) for i in range(3)]}
+            if name == "closed":
+                world_closed = cur
+            else:
+                world_open = cur
+    for name, bx in (("closed", world_closed), ("open", world_open)):
+        loc = box_local(root_landed, bx)
+        _req(box_inside(loc, GUARD_LOCAL), "GUARD_LOCAL_BOX|%s|%s" % (name, json.dumps(loc)))
+
+    reveal = {"mode": a["reveal"], "targets": []}
+    if a["reveal"] == "rise_track":
+        src = st.get("reveal_binding")
+        _req(src and src.get("resolved") == [st["object_path"]], "STONE_REVEAL_BINDING|%s" % (src or {}).get("resolved"))
+        _req(src.get("visibility_sections") and len(src["visibility_sections"]) == 1,
+             "STONE_REVEAL_SECTIONS|%s" % src.get("visibility_sections"))
+        sec = dict(src["visibility_sections"][0])
+        _req(sec.get("keys") and sec.get("completion_mode"), "STONE_REVEAL_EMPTY")
+        overrides = {}
+        if a["reveal_range_s"] is not None:
+            rr = [float(x) for x in a["reveal_range_s"]]
+            _req(len(rr) == 2 and rr[1] > rr[0], "REVEAL_RANGE_ARG|%s" % rr)
+            first_key_s = min(k[0] for k in sec["keys"]) / float(sec["fps"])
+            last_key_s = max(k[0] for k in sec["keys"]) / float(sec["fps"])
+            _req(rr[0] <= first_key_s + 1e-9 and rr[1] > last_key_s,
+                 "REVEAL_RANGE_CUTS_KEYS|%s|keys %.3f..%.3f s" % (rr, first_key_s, last_key_s))
+            sec["range_s"], overrides["range_s"] = rr, rr
+        if a["reveal_completion_mode"] is not None:
+            sec["completion_mode"] = overrides["completion_mode"] = str(a["reveal_completion_mode"]).upper()
+        _req(a["reveal_targets"] in ("all", "root"), "REVEAL_TARGETS|%r" % a["reveal_targets"])
+        reveal.update({"copy_from_guid": src["guid"], "section": sec, "overrides": overrides,
+                       "targets": list(CLAM_PART_ORDER) if a["reveal_targets"] == "all" else ["Bottom"]})
+    else:
+        _req(a["reveal"] == "none", "REVEAL|%r" % a["reveal"])
+    hidden_parts = set(reveal["targets"])
+    for part in CLAM_PART_ORDER:
+        parts[part]["actor_hidden_in_game"] = part in hidden_parts
+    if a["reveal"] == "rise_track" and a["reveal_targets"] == "root":
+        reveal["warning"] = "children have no reveal: bHidden does not propagate to attached actors [inf]"
+
+    rows = []
+    found = {s["label"]: s for s in state.get("standins", [])}
+    miss = sorted(set(a["standin_labels"]) - set(found))
+    _req(not miss, "STANDIN_MISSING|%s" % miss)
+    for label in a["standin_labels"]:
+        s = found[label]
+        _req(s.get("count", 1) == 1, "STANDIN_COUNT|%s|%s" % (label, s.get("count")))
+        _req(s["flags"]["components"], "STANDIN_NO_PRIMITIVES|%s" % label)
+        rows.append({"label": label, "object_path": s["object_path"], "class": s.get("class"),
+                     "before": s["flags"], "after": standin_hidden(s["flags"]) if a["hide_standins"] else s["flags"]})
+    return {"yaw": yaw, "yaw_source": source, "camera_check": cam_check, "cameras": cam,
+            "root_location": root_loc, "seat_top_offset_cm": seat, "seat_radius_cm": seat_r,
+            "footprint_centre_ue": fp_ue[:2], "footprint_world": fp_world,
+            "stone": {k: st[k] for k in ("label", "object_path", "location")},
+            "parts": parts, "boxes_local": boxes, "mobility": a["mobility"], "folder": FOLDER,
+            "lid": {"front_sign": front, "open_relative_rotation_rpy": [roll, 0.0, 0.0], "tip_closed_z": tip_closed,
+                    "tip_open_z": tip_open, "keyed": False},
+            "world_box_closed": world_closed, "world_box_open": world_open, "reveal": reveal,
+            "standins": {"action": "HIDE" if a["hide_standins"] else "KEEP", "rows": rows}, "args": a}
+
+
+def clam_apply_ops(plan):
+    ops = []
+    for part in CLAM_PART_ORDER:
+        p = plan["parts"][part]
+        ops.append({"op": "spawn", "part": part, "label": p["label"], "mesh": p["mesh"], "mis": p["mis"],
+                    "location": p["world_location"], "rotation": p["world_rotation"], "parent": p["parent"],
+                    "rel": p["rel"], "tags": p["tags"], "folder": plan["folder"], "mobility": plan["mobility"],
+                    "actor_hidden_in_game": p["actor_hidden_in_game"]})
+    for part in plan["reveal"]["targets"]:
+        ops.append({"op": "add_reveal", "part": part, "section": plan["reveal"]["section"]})
+    for r in plan["standins"]["rows"]:
+        if r["after"] != r["before"]:
+            ops.append({"op": "set_prim_flags", "object_path": r["object_path"], "flags": r["after"]})
+    return ops
+
+
+def clam_revert_ops(record):
+    plan = record["plan"]
+    ops = []
+    for r in plan["standins"]["rows"]:
+        if r["after"] != r["before"]:
+            ops.append({"op": "set_prim_flags", "object_path": r["object_path"], "flags": r["before"]})
+    for part in reversed(CLAM_PART_ORDER):
+        g = (record.get("reveal_binding_guids") or {}).get(part)
+        if g:
+            ops.append({"op": "remove_reveal", "part": part, "guid": g, "actor_path": record["actor_paths"][part]})
+    for part in reversed(CLAM_PART_ORDER):          # children first, the root last
+        if (record.get("actor_paths") or {}).get(part):
+            ops.append({"op": "destroy", "part": part, "actor_path": record["actor_paths"][part],
+                        "label": plan["parts"][part]["label"]})
+    return ops
+
+
+def clam_simulate(world, ops):
+    """World model: {path: {label, location, rotation, parent, rel, flags}} + __bindings__ {guid: path}."""
+    w = json.loads(json.dumps(world))
+    b = w.setdefault("__bindings__", {})
+    by_part = {}
+    for op in ops:
+        if op["op"] == "spawn":
+            path = "PersistentLevel.NEW_" + op["label"]
+            _req(path not in w, "SIM_SPAWN_EXISTS")
+            parent = by_part.get(op["parent"]) if op["parent"] else None
+            _req(op["parent"] is None or parent, "SIM_PARENT_MISSING|%s" % op["parent"])
+            w[path] = {"label": op["label"], "location": list(op["location"]), "rotation": list(op["rotation"]),
+                       "parent": parent, "rel": op["rel"]["location"] if parent else None,
+                       "hidden": op["actor_hidden_in_game"]}
+            by_part[op["part"]] = path
+        elif op["op"] == "add_reveal":
+            b["GUID_" + op["part"]] = by_part[op["part"]]
+        elif op["op"] == "set_prim_flags":
+            w[op["object_path"]]["flags"] = json.loads(json.dumps(op["flags"]))
+        elif op["op"] == "remove_reveal":
+            _req(b.get(op["guid"]) == op["actor_path"], "SIM_BINDING_MISMATCH")
+            del b[op["guid"]]
+        elif op["op"] == "destroy":
+            _req(op["actor_path"] in w, "SIM_DESTROY_MISSING")
+            _req(not [k for k, v in w.items() if isinstance(v, dict) and v.get("parent") == op["actor_path"]],
+                 "SIM_DESTROY_HAS_CHILDREN|%s" % op["actor_path"])
+            del w[op["actor_path"]]
+    return w
 
 
 def rough_eval(r, mult, override):
@@ -1050,8 +1746,10 @@ def run_unplace(run, world):
 
 
 # ------------------------------------------------------------------------------------------- import / material
-def _pipeline(asset_name):
-    """Same Interchange override as S3Shore/s3_shore_ground_ue.py _pipeline (header lines cited there)."""
+def _pipeline(asset_name, vc_replace=False):
+    """Same Interchange override as S3Shore/s3_shore_ground_ue.py _pipeline (header lines cited there).
+    vc_replace: common_meshes_properties.vertex_color_import_option = IVCIO_Replace
+    (InterchangeGenericAssetsPipelineSharedSettings.h:109-111 [decl]; Replace is also the declared default)."""
     p = unreal.InterchangeGenericAssetsPipeline()
     common = p.get_editor_property("common_meshes_properties")
     mesh = p.get_editor_property("mesh_pipeline")
@@ -1069,6 +1767,10 @@ def _pipeline(asset_name):
     for obj, prop, val in wanted:
         got[prop] = obj.get_editor_property(prop)
         _req(got[prop] == val, "PIPELINE_READBACK|%s=%s" % (prop, got[prop]))
+    if vc_replace:
+        common.set_editor_property("vertex_color_import_option", unreal.InterchangeVertexColorImportOption.IVCIO_REPLACE)
+        got["vertex_color_import_option"] = _enum_name(common.get_editor_property("vertex_color_import_option"))
+        _req(got["vertex_color_import_option"] == "IVCIO_REPLACE", "PIPELINE_READBACK|vc=%s" % got["vertex_color_import_option"])
     ov = unreal.InterchangePipelineStackOverride()
     ov.add_pipeline(p)
     return ov, got
@@ -1117,108 +1819,224 @@ def run_import_mesh(run, name):
     return rec
 
 
-def run_import_tex(run, name, roles):
+def run_import_tex(run, args):
+    """ONE texture per call (check_mode enforces it).  Imports, sets and reads back the settings, and leaves the
+    package DIRTY with a pending file: the size is not gated here because a texture reads 32x32 in its own import
+    call [meas 7 Oct].  VERIFY_TEX (a later call) gates the size and saves."""
     eal = unreal.EditorAssetLibrary
-    p = prop_paths(name)
-    roles = list(roles or TEX_ROLES)
-    _req(all(r in TEX_ROLES for r in roles), "ROLES|%s" % roles)
-    if name == "GraniteMillstone" and "BaseColor" in roles:
-        _req(roles == ["BaseColor"], "MILLSTONE_BASECOLOR_ALONE|8K goes in its own call (memory bulk-import-oom)")
-    src = {r: tex_source_check(name, r) for r in roles}
-    for r in roles:
-        _req(not eal.does_asset_exist(p["tex"][r]["asset"]), "TEX_EXISTS|%s" % p["tex"][r]["asset"])
-    before = _folder_assets(p["folder"])
-    tasks = []
-    for r in roles:
-        t = unreal.AssetImportTask()
-        for k, v in (("filename", p["tex"][r]["file"]), ("destination_path", p["folder"]),
-                     ("destination_name", p["tex"][r]["name"]), ("automated", True), ("replace_existing", False),
-                     ("save", False)):
-            t.set_editor_property(k, v)
-        tasks.append(t)
-    unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks(tasks)
-    new = sorted(_folder_assets(p["folder"]) - before)
-    want = sorted(p["tex"][r]["asset"] for r in roles)
-    _req(new == want, "STRAY_OR_MISSING|got=%s|want=%s" % (new, want))
-    got = {}
-    for r in roles:
-        _suffix, comp, srgb, flip, sampler = TEX_ROLES[r]
-        tex = unreal.load_asset(p["tex"][r]["asset"])
-        _req(isinstance(tex, unreal.Texture2D), "TEX_LOAD|%s" % r)
-        tex.modify()
-        tex.set_editor_property("compression_settings", getattr(unreal.TextureCompressionSettings, comp))
-        tex.set_editor_property("srgb", srgb)
-        tex.set_editor_property("flip_green_channel", flip)
-        g = {"compression": _enum_name(tex.get_editor_property("compression_settings")),
-             "srgb": bool(tex.get_editor_property("srgb")), "flip_green": bool(tex.get_editor_property("flip_green_channel")),
-             "size": [int(tex.blueprint_get_size_x()), int(tex.blueprint_get_size_y())], "source": src[r]}
-        _req(g["compression"] == comp and g["srgb"] == srgb and g["flip_green"] == flip, "TEX_READBACK|%s|%s" % (r, g))
-        _req(g["size"] == [src[r]["w"], src[r]["h"]], "TEX_SIZE|%s|%s" % (r, g["size"]))
-        got[r] = g
-    _req(_census() == {"content": want, "maps": []}, "DIRTY_SCOPE|%s" % _census())
-    for a in want:
-        _req(eal.save_asset(a, only_if_is_dirty=False), "SAVE|%s" % a)
+    prop, role = args["prop"], args["textures"][0]
+    t = tex_target(prop, args.get("tex_set"), role)
+    src = tex_source_gate(t)
+    src["sha256"] = sha256_file(t["file"])           # Shell BaseColor is re-tinted in place (coral): record what we took
+    _req(not eal.does_asset_exist(t["asset"]), "TEX_EXISTS|%s" % t["asset"])
+    before = _folder_assets(t["folder"])
+    task = unreal.AssetImportTask()
+    for k, v in (("filename", t["file"]), ("destination_path", t["folder"]), ("destination_name", t["name"]),
+                 ("automated", True), ("replace_existing", False), ("save", False)):
+        task.set_editor_property(k, v)
+    unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks([task])
+    new = sorted(_folder_assets(t["folder"]) - before)
+    _req(new == [t["asset"]], "STRAY_OR_MISSING|got=%s|want=%s" % (new, [t["asset"]]))
+    _suffix, comp, srgb, flip, _sampler = TEX_ROLES[role]
+    tex = unreal.load_asset(t["asset"])
+    _req(isinstance(tex, unreal.Texture2D), "TEX_LOAD|%s" % role)
+    tex.modify()
+    tex.set_editor_property("compression_settings", getattr(unreal.TextureCompressionSettings, comp))
+    tex.set_editor_property("srgb", srgb)
+    tex.set_editor_property("flip_green_channel", flip)
+    g = {"compression": _enum_name(tex.get_editor_property("compression_settings")),
+         "srgb": bool(tex.get_editor_property("srgb")), "flip_green": bool(tex.get_editor_property("flip_green_channel")),
+         "size_at_import_call": [int(tex.blueprint_get_size_x()), int(tex.blueprint_get_size_y())]}   # NOT gated
+    _req(g["compression"] == comp and g["srgb"] == srgb and g["flip_green"] == flip, "TEX_READBACK|%s|%s" % (role, g))
+    _req(_census() == {"content": [t["asset"]], "maps": []}, "DIRTY_SCOPE|%s" % _census())
+    pending = {"run": run, "prop": prop, "tex_set": args.get("tex_set"), "role": role, "asset": t["asset"],
+               "label": t["label"], "want": {"compression": comp, "srgb": srgb, "flip_green": flip},
+               "source": src, "import": g, "saved": False}
+    _write(TEX_PENDING, pending, exclusive=True)
+    return pending
+
+
+def run_verify_tex(run, pending):
+    """Census == exactly the pending package (gated in main); size == source IHDR; settings; save; record."""
+    eal = unreal.EditorAssetLibrary
+    tex = unreal.load_asset(pending["asset"])
+    _req(isinstance(tex, unreal.Texture2D), "TEX_LOAD|%s" % pending["asset"])
+    g = {"compression": _enum_name(tex.get_editor_property("compression_settings")),
+         "srgb": bool(tex.get_editor_property("srgb")), "flip_green": bool(tex.get_editor_property("flip_green_channel")),
+         "size": [int(tex.blueprint_get_size_x()), int(tex.blueprint_get_size_y())]}
+    w = pending["want"]
+    _req(g["compression"] == w["compression"] and g["srgb"] == w["srgb"] and g["flip_green"] == w["flip_green"],
+         "TEX_READBACK|%s" % g)
+    _req(g["size"] == [pending["source"]["w"], pending["source"]["h"]],
+         "TEX_SIZE|%s|%s (not saved; retry VERIFY_TEX later)" % (pending["asset"], g["size"]))
+    _req(eal.save_asset(pending["asset"], only_if_is_dirty=False), "SAVE|%s" % pending["asset"])
     _req(_census() == {"content": [], "maps": []}, "POST_SAVE_DIRTY|%s" % _census())
     unreal.SystemLibrary.collect_garbage()
-    rec = {"run": run, "prop": name, "textures": got, "saved": True}
-    _write(HERE + "s3_props_import_tex_%s_%s.json" % (name, "-".join(roles)), rec)
+    rec = dict(pending, verify_run=run, verified=g, saved=True)
+    out = HERE + "s3_props_import_tex_%s_%s.json" % (pending["prop"], pending["label"])
+    _write(out, rec)
+    os.replace(TEX_PENDING, TEX_PENDING + ".done-" + run)
     return rec
 
 
-def _build_master(textures):
-    """Create-only (pattern S3Shore BUILD_MAT).  textures: role -> Texture2D used as parameter defaults."""
+def _mesh_centroid(mesh):
+    """Strided vertex centroid of LOD0's mesh description (get_vertex_position, precedent
+    Scripts/build_curtain_chaos_asset.py:362-366).  [inf] for a fresh Nanite import until run."""
+    desc = mesh.get_static_mesh_description(0)
+    _req(desc is not None, "MESH_DESCRIPTION")
+    n = int(desc.get_vertex_count())
+    _req(n > 0, "MESH_NO_VERTICES")
+    stride = max(1, n // CENTROID_STRIDE_TARGET)
+    s, k = [0.0, 0.0, 0.0], 0
+    for i in range(0, n, stride):
+        p = desc.get_vertex_position(unreal.VertexID(i))
+        s[0] += p.x
+        s[1] += p.y
+        s[2] += p.z
+        k += 1
+    desc = None
+    return [x / k for x in s], n, stride
+
+
+def run_import_clam_part(run, part, args):
+    eal = unreal.EditorAssetLibrary
+    name = "SM_PearlClam_" + part
+    fbx = CLAM_DIR + name + ".fbx"
+    path = clam_mesh_path(part)
+    man = json.load(open(CLAM_MANIFEST, encoding="utf-8"))
+    _req(not clam_manifest_problems(man), "MANIFEST|%s" % clam_manifest_problems(man))
+    _req(os.path.isfile(fbx), "FBX_MISSING|%s" % fbx)
+    _req(not eal.does_asset_exist(path), "MESH_EXISTS|%s" % path)
+    before = _folder_assets(CLAM_FOLDER)
+    task = unreal.AssetImportTask()
+    for k, v in (("filename", fbx), ("destination_path", CLAM_FOLDER), ("destination_name", name),
+                 ("automated", True), ("replace_existing", False), ("save", False)):
+        task.set_editor_property(k, v)
+    ov, settings = _pipeline(name, vc_replace=True)
+    task.set_editor_property("options", ov)
+    unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks([task])
+    mesh = unreal.load_asset(path)
+    _req(isinstance(mesh, unreal.StaticMesh), "IMPORT_FAILED|%s" % list(task.imported_object_paths))
+    new = sorted(_folder_assets(CLAM_FOLDER) - before)
+    _req(new == [path], "STRAY_ASSETS|%s (never saved: Don't-Save restart, do not delete)" % new)
+    _req(mesh.get_num_lods() == 1, "LODS|%d" % mesh.get_num_lods())
+    _req(bool(mesh.get_editor_property("nanite_settings").get_editor_property("enabled")), "NANITE_OFF")
+    slots = [str(m.get_editor_property("material_slot_name")) for m in mesh.get_editor_property("static_materials")]
+    _req(slots == CLAM_PARTS[part]["slots"], "SLOTS|%s|want %s" % (slots, CLAM_PARTS[part]["slots"]))
+    bb = mesh.get_bounding_box()
+    got = {"min": _v(bb.min), "max": _v(bb.max)}
+    fails = clam_bounds_check(part, got)
+    _req(not fails, "BOUNDS|%s" % ";".join(fails))
+    has_vc = bool(unreal.get_editor_subsystem(unreal.StaticMeshEditorSubsystem).has_vertex_colors(mesh))
+    if CLAM_PARTS[part]["vc"]:
+        _req(has_vc, "VERTEX_COLORS_MISSING|%s (BreathMask R must survive the import)" % part)
+    centroid = None
+    if args.get("centroid_gate", True):
+        c, n, stride = _mesh_centroid(mesh)
+        cf = clam_centroid_check(part, c)
+        _req(not cf, "CENTROID|%s" % ";".join(cf))
+        centroid = {"value": c, "vertices": n, "stride": stride, "discriminates": centroid_discriminates(part)}
+    _req(_census() == {"content": [path], "maps": []}, "DIRTY_SCOPE|%s" % _census())
+    _req(eal.save_asset(path, only_if_is_dirty=False), "SAVE_MESH")
+    _req(_census() == {"content": [], "maps": []}, "POST_SAVE_DIRTY|%s" % _census())
+    mesh = None
+    unreal.SystemLibrary.collect_garbage()
+    rec = {"run": run, "prop": CLAM, "part": part, "mesh": path, "bounds": got, "expected": clam_expected_ue(part),
+           "y_flip": "VERIFIED_BY_BOUNDS" if part == "Lid" else "CONSISTENT (part near-symmetric in Y)",
+           "slots": slots, "has_vertex_colors": has_vc, "centroid": centroid,
+           "centroid_gate": bool(args.get("centroid_gate", True)), "pipeline": settings,
+           "fbx_sha256": sha256_file(fbx), "saved": True}
+    _write(HERE + "s3_props_import_mesh_PearlClam_%s.json" % part, rec)
+    return rec
+
+
+def _build_material(path, spec, textures):
+    """Create-only (refuses an existing asset; never deletes nodes).  textures: role -> Texture2D defaults."""
     mel = unreal.MaterialEditingLibrary
+    _req(not unreal.EditorAssetLibrary.does_asset_exist(path), "MATERIAL_EXISTS|%s" % path)
     tools = unreal.AssetToolsHelpers.get_asset_tools()
-    mat = tools.create_asset(MASTER.rsplit("/", 1)[1], ASSET_ROOT, unreal.Material, unreal.MaterialFactoryNew())
-    _req(mat is not None, "MASTER_CREATE")
+    folder, name = path.rsplit("/", 1)
+    mat = tools.create_asset(name, folder, unreal.Material, unreal.MaterialFactoryNew())
+    _req(mat is not None, "MATERIAL_CREATE|%s" % path)
     mat.modify()
     mat.set_editor_property("blend_mode", unreal.BlendMode.BLEND_OPAQUE)
     mat.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_DEFAULT_LIT)
     mat.set_editor_property("used_with_nanite", True)
-    nodes, edges, props = graph_spec()
+    if spec["max_wpo"] is not None:
+        mat.set_editor_property("max_world_position_offset_displacement", float(spec["max_wpo"]))
     made = {}
-    for i, (key, (kind, v)) in enumerate(nodes.items()):
+    for i, (key, (kind, v)) in enumerate(spec["nodes"].items()):
+        x, y = -1100, -500 + 160 * i
         if kind == "texture":
-            n = mel.create_material_expression(mat, unreal.MaterialExpressionTextureSampleParameter2D, -900, -400 + 300 * i)
+            n = mel.create_material_expression(mat, unreal.MaterialExpressionTextureSampleParameter2D, x, y)
             _req(n is not None, "NODE|" + key)
             n.set_editor_property("parameter_name", key)
             n.set_editor_property("texture", textures[v])
             n.set_editor_property("sampler_type", getattr(unreal.MaterialSamplerType, TEX_ROLES[v][4]))
         elif kind == "scalar":
-            n = mel.create_material_expression(mat, unreal.MaterialExpressionScalarParameter, -900, 600 + 80 * i)
+            n = mel.create_material_expression(mat, unreal.MaterialExpressionScalarParameter, x, y)
             _req(n is not None, "NODE|" + key)
             n.set_editor_property("parameter_name", key)
             n.set_editor_property("default_value", float(v))
+        elif kind == "vector":
+            n = mel.create_material_expression(mat, unreal.MaterialExpressionVectorParameter, x, y)
+            _req(n is not None, "NODE|" + key)
+            n.set_editor_property("parameter_name", key)
+            n.set_editor_property("default_value", unreal.LinearColor(*[float(c) for c in v]))
+        elif kind == "time":
+            n = mel.create_material_expression(mat, unreal.MaterialExpressionTime, x, y)
+        elif kind == "vcolor":
+            n = mel.create_material_expression(mat, unreal.MaterialExpressionVertexColor, x, y)
+        elif kind == "fresnel":
+            n = mel.create_material_expression(mat, unreal.MaterialExpressionFresnel, x, y)
+            _req(n is not None, "NODE|" + key)
+            n.set_editor_property("exponent", float(v))           # MaterialExpressionFresnel.h:30 [decl]
         else:
-            code, ins, _t = v
-            n = mel.create_material_expression(mat, unreal.MaterialExpressionCustom, -400, 300)
+            code, ins, otype = v
+            n = mel.create_material_expression(mat, unreal.MaterialExpressionCustom, -500, y)
             _req(n is not None, "NODE|" + key)
             n.set_editor_property("code", code)
-            n.set_editor_property("output_type", unreal.CustomMaterialOutputType.CMOT_FLOAT1)
+            n.set_editor_property("output_type", unreal.CustomMaterialOutputType.CMOT_FLOAT1 if otype == "F1"
+                                  else unreal.CustomMaterialOutputType.CMOT_FLOAT3)
             cis = []
             for nm in ins:
                 ci = unreal.CustomInput()
                 ci.set_editor_property("input_name", nm)
                 cis.append(ci)
             n.set_editor_property("inputs", cis)
-            _req([str(c.get_editor_property("input_name")) for c in n.get_editor_property("inputs")] == ins, "CUSTOM_INPUTS")
+            _req([str(c.get_editor_property("input_name")) for c in n.get_editor_property("inputs")] == ins,
+                 "CUSTOM_INPUTS|" + key)
+        _req(n is not None, "NODE|" + key)
         made[key] = n
-    for s, o, d, pin in edges:
+    for s, o, d, pin in spec["edges"]:
         _req(mel.connect_material_expressions(made[s], o, made[d], pin), "LINK|%s.%s->%s.%s" % (s, o, d, pin))
-    for s, o, prop in props:
+    for s, o, prop in spec["props"]:
         _req(mel.connect_material_property(made[s], o, getattr(unreal.MaterialProperty, prop)), "PROP|" + prop)
     errors = [str(e) for e in (mel.recompile_material(mat) or [])]
     _req(not errors, "RECOMPILE|%s" % errors)
     return mat
 
 
-def _verify_master(mat):
+def _verify_material(mat, spec):
     mel = unreal.MaterialEditingLibrary
     tp = sorted(str(x) for x in mel.get_texture_parameter_names(mat))
     sp = sorted(str(x) for x in mel.get_scalar_parameter_names(mat))
-    _req(tp == sorted(MASTER_TEX_PARAMS), "MASTER_TEX_PARAMS|%s" % tp)
-    _req(sp == sorted(MASTER_SCALARS), "MASTER_SCALARS|%s" % sp)
+    vp = sorted(str(x) for x in mel.get_vector_parameter_names(mat))
+    _req(tp == sorted(spec["tex_params"]), "MASTER_TEX_PARAMS|%s" % tp)
+    _req(sp == sorted(spec["scalars"]), "MASTER_SCALARS|%s" % sp)
+    _req(vp == sorted(spec["vectors"]), "MASTER_VECTORS|%s" % vp)
     _req(bool(mat.get_editor_property("used_with_nanite")), "MASTER_NANITE_USAGE")
+    if spec["max_wpo"] is not None:
+        got = float(mat.get_editor_property("max_world_position_offset_displacement"))
+        _req(abs(got - spec["max_wpo"]) < 1e-4, "MASTER_MAX_WPO|%s" % got)
+
+
+def _build_master(textures):
+    return _build_material(MASTER, material_specs()[MASTER], textures)
+
+
+def _verify_master(mat):
+    _verify_material(mat, material_specs()[MASTER])
 
 
 def run_build_mat(run, name):
@@ -1266,6 +2084,395 @@ def run_build_mat(run, name):
     return rec
 
 
+def run_build_clam_mat(run, key):
+    """One clam MI per call (Shell | Interior | Mantle | Pearl); its master is created first if missing."""
+    eal, mel = unreal.EditorAssetLibrary, unreal.MaterialEditingLibrary
+    probs = material_problems()
+    _req(not probs, "GRAPH|%s" % probs)
+    m = CLAM_MATERIALS[key]
+    spec = material_specs()[m["master"]]
+    mi_path = clam_mi_path(key)
+    _req(not eal.does_asset_exist(mi_path), "MI_EXISTS|%s" % mi_path)
+    textures = {}
+    if m["tex_set"]:
+        for r in TEX_ROLES:
+            t = tex_target(CLAM, m["tex_set"], r)
+            tex = unreal.load_asset(t["asset"])
+            _req(isinstance(tex, unreal.Texture2D), "TEX_MISSING|%s (IMPORT_TEX + VERIFY_TEX)" % t["asset"])
+            _req(_enum_name(tex.get_editor_property("compression_settings")) == TEX_ROLES[r][1], "TEX_COMPRESSION|%s" % r)
+            sx, sy = int(tex.blueprint_get_size_x()), int(tex.blueprint_get_size_y())
+            _req(sx == sy == t["dim"], "TEX_SIZE|%s|%dx%d" % (t["asset"], sx, sy))
+            textures[r] = tex
+    planned = [mi_path]
+    created_master = not eal.does_asset_exist(m["master"])
+    if created_master:
+        _req(not spec["tex_params"] or textures, "MASTER_NEEDS_TEXTURES|%s" % m["master"])
+        mat = _build_material(m["master"], spec, textures)
+        planned.append(m["master"])
+    else:
+        mat = unreal.load_asset(m["master"])
+        _req(isinstance(mat, unreal.Material), "MASTER_LOAD|%s" % m["master"])
+    _verify_material(mat, spec)
+    tools = unreal.AssetToolsHelpers.get_asset_tools()
+    mi = tools.create_asset(m["mi"], CLAM_FOLDER, unreal.MaterialInstanceConstant,
+                            unreal.MaterialInstanceConstantFactoryNew())
+    _req(mi is not None, "MI_CREATE")
+    mi.modify()
+    mel.set_material_instance_parent(mi, mat)
+    for param, role in spec["tex_params"].items():
+        mel.set_material_instance_texture_parameter_value(mi, param, textures[role])      # bool lies: read back
+    for k, v in m["scalars"].items():
+        mel.set_material_instance_scalar_parameter_value(mi, k, float(v))
+    for k, v in m["vectors"].items():
+        mel.set_material_instance_vector_parameter_value(mi, k, unreal.LinearColor(*[float(c) for c in v]))
+    mel.update_material_instance(mi)
+    _req(_path(mi.get_editor_property("parent")) == _path(mat), "MI_PARENT")
+    for param, role in spec["tex_params"].items():
+        got = mel.get_material_instance_texture_parameter_value(mi, param)
+        _req(_path(got) == _path(textures[role]), "MI_TEX|%s|%s" % (param, _path(got)))
+    scal = {k: float(mel.get_material_instance_scalar_parameter_value(mi, k)) for k in spec["scalars"]}
+    want = dict(spec["scalars"], **m["scalars"])
+    _req(all(abs(scal[k] - want[k]) < 1e-4 for k in want), "MI_SCALARS|%s" % scal)
+    vec = {}
+    for k in spec["vectors"]:
+        c = mel.get_material_instance_vector_parameter_value(mi, k)
+        vec[k] = [float(c.r), float(c.g), float(c.b), float(c.a)]
+    wantv = dict(spec["vectors"], **m["vectors"])
+    _req(all(near(vec[k], wantv[k], 1e-4) for k in wantv), "MI_VECTORS|%s" % vec)
+    _req(_census() == {"content": sorted(planned), "maps": []}, "DIRTY_SCOPE|%s" % _census())
+    for a in planned:
+        _req(eal.save_asset(a, only_if_is_dirty=False), "SAVE|%s" % a)
+    _req(_census() == {"content": [], "maps": []}, "POST_SAVE_DIRTY|%s" % _census())
+    mi, mat, textures = None, None, None
+    unreal.SystemLibrary.collect_garbage()
+    rec = {"run": run, "prop": CLAM, "material": key, "mi": mi_path, "master": m["master"],
+           "master_created": created_master, "scalars": scal, "vectors": vec, "saved": True}
+    _write(HERE + "s3_props_build_mat_PearlClam_%s.json" % key, rec)
+    return rec
+
+
+# ------------------------------------------------------------------------------------------- PearlClam glue
+def _prim_flags(actor):
+    out = {}
+    for c in actor.get_components_by_class(unreal.PrimitiveComponent):
+        n = str(c.get_name())
+        _req(n not in out, "COMPONENT_NAME_DUP|%s|%s" % (actor.get_actor_label(), n))
+        out[n] = {"visible": bool(c.is_visible()), "hidden_in_game": bool(c.get_editor_property("hidden_in_game"))}
+    return {"actor_hidden": bool(actor.get_editor_property("hidden")), "components": out}
+
+
+def _set_prim_flags(actor, flags):
+    _req(actor is not None, "PRIM_FLAGS_TARGET")
+    actor.modify()
+    comps = {str(c.get_name()): c for c in actor.get_components_by_class(unreal.PrimitiveComponent)}
+    _req(sorted(comps) == sorted(flags["components"]), "COMPONENT_SET_CHANGED|%s" % sorted(comps))
+    actor.set_actor_hidden_in_game(bool(flags["actor_hidden"]))
+    for n, f in flags["components"].items():
+        c = comps[n]
+        c.modify()
+        c.set_visibility(bool(f["visible"]), False)
+        c.set_hidden_in_game(bool(f["hidden_in_game"]), False)
+    got = _prim_flags(actor)
+    _req(got == json.loads(json.dumps(flags)), "PRIM_FLAGS_READBACK|%s|%s" % (actor.get_actor_label(), got))
+
+
+def _channel_value(ch, seq, frame, fallback):
+    if int(ch.get_num_keys()) == 0:
+        return float(ch.get_default()) if ch.has_default() else float(fallback)
+    vals = list(ch.evaluate_keys(seq.make_range(int(frame), 1), seq.get_display_rate()))   # bounded range only
+    _req(len(vals) >= 1, "EVALUATE_EMPTY|frame=%d" % frame)
+    return float(vals[0])
+
+
+def _covers(section, frame):
+    return ((not section.has_start_frame() or section.get_start_frame() <= frame) and
+            (not section.has_end_frame() or frame < section.get_end_frame()))
+
+
+def _camera_pose(seq, world, binding, spawnable, frame):
+    """Spawnable: template ROOT relative transform (memory ue58-fbx-import-traps: the actor transform reads zero).
+    Possessable: the resolved actor.  A covering 3D transform section overrides (keys evaluated, else defaults)."""
+    if spawnable:
+        actor = binding.get_object_template()
+        root = actor.get_editor_property("root_component") if actor is not None else None
+        _req(root is not None and root.get_attach_parent() is None, "CAMERA_TEMPLATE|%s" % binding.get_display_name())
+        base = _v(root.get_editor_property("relative_location")) + _r(root.get_editor_property("relative_rotation"))
+    else:
+        objs = list(seq.locate_bound_objects(binding, world))
+        _req(len(objs) == 1, "CAMERA_RESOLVE|%s|%d" % (binding.get_display_name(), len(objs)))
+        _req(objs[0].get_attach_parent_actor() is None, "CAMERA_ATTACHED|%s" % binding.get_display_name())
+        base = _v(objs[0].get_actor_location()) + _r(objs[0].get_actor_rotation())
+    tracks = [t for t in binding.get_tracks() if str(t.get_class().get_name()) == "MovieScene3DTransformTrack"]
+    _req(len(tracks) <= 1, "CAMERA_TRANSFORM_TRACKS|%d" % len(tracks))
+    vals, source, names = list(base), "template" if spawnable else "level_actor", None
+    if tracks:
+        secs = [s for s in tracks[0].get_sections() if s.is_active() and _covers(s, frame)]
+        _req(len(secs) <= 1, "CAMERA_TRANSFORM_SECTIONS|%d" % len(secs))
+        if secs:
+            chans = list(secs[0].get_all_channels())
+            _req(len(chans) >= 6, "CAMERA_CHANNELS|%d" % len(chans))
+            names = [str(c.get_name()) for c in chans[:6]]           # recorded so a reader can check the order
+            vals = [_channel_value(chans[i], seq, frame, base[i]) for i in range(6)]
+            source = "track"
+    return {"frame": int(frame), "location": vals[:3], "rotation": vals[3:6], "source": source, "channels": names}
+
+
+def _clam_cameras(world, a):
+    """Root camera-cut sections of LS_DevScene_03 at each beat frame -> camera poses at the cut's start, middle and
+    last frame.  Refuses a beat covered by a sub-sequence that has its own cut track (nested cuts outrank root cuts,
+    memory puss-camera-handover-facts)."""
+    seq = unreal.load_asset(SCENE3)
+    _req(isinstance(seq, unreal.LevelSequence), "SCENE3_LOAD")
+    bindings = {_guid(b.get_id()): b for b in seq.get_bindings()}
+    spawn_ids = {_guid(b.get_id()) for b in seq.get_spawnables()}
+    tracks = list(seq.find_tracks_by_type(unreal.MovieSceneCameraCutTrack))
+    _req(len(tracks) == 1, "CUT_TRACK_COUNT|%d" % len(tracks))
+    markers = {}
+    for m in unreal.MovieSceneSequenceExtensions.get_marked_frames_from_sequence(seq, unreal.MovieSceneTimeUnit.DISPLAY_RATE):
+        markers[str(m.label)] = int(m.frame_number.value)
+    subs = {}
+    for cls in (unreal.MovieSceneSubTrack, unreal.MovieSceneCinematicShotTrack):
+        for t in seq.find_tracks_by_type(cls):
+            for s in t.get_sections():
+                subs[_path(s)] = s
+    rows = []
+    for beat, frame in sorted(a["camera_beats"].items()):
+        frame = int(frame)
+        nested = []
+        for s in subs.values():
+            if s.is_active() and _covers(s, frame):
+                sub = s.get_sequence()
+                if sub is not None and list(sub.find_tracks_by_type(unreal.MovieSceneCameraCutTrack)):
+                    nested.append(_path(sub))
+        _req(not nested, "NESTED_CUT_AT_BEAT|%s|%s" % (beat, nested))
+        cands = [s for s in tracks[0].get_sections() if s.is_active() and _covers(s, frame)]
+        _req(cands, "NO_CUT_AT_BEAT|%s|%d" % (beat, frame))
+        sec = max(cands, key=lambda s: s.get_start_frame() if s.has_start_frame() else -10 ** 9)   # latest start wins
+        _req(sec.has_start_frame() and sec.has_end_frame(), "CUT_UNBOUNDED|%s" % beat)
+        a0, a1 = int(sec.get_start_frame()), int(sec.get_end_frame())
+        guid = _guid(sec.get_camera_binding_id().get_editor_property("guid"))
+        b = bindings.get(guid)
+        _req(b is not None, "CUT_BINDING_MISSING|%s|%s" % (beat, guid))
+        frames = sorted({max(a0, frame), (a0 + a1) // 2, a1 - 1})
+        rows.append({"beat": beat, "frame": frame, "cut_range": [a0, a1], "binding": str(b.get_display_name()),
+                     "guid": guid, "spawnable": guid in spawn_ids,
+                     "marker": sorted(k for k, v in markers.items() if v == frame),
+                     "samples": [_camera_pose(seq, world, b, guid in spawn_ids, f) for f in frames]})
+    return {"ok": True, "sequence": SCENE3, "rows": rows}
+
+
+def live_clam_state(world, a):
+    idx = _index(world)
+    root = _one(idx, ROOT_LABEL)
+    with open(APPLY_RECORD, encoding="utf-8") as h:
+        mill = json.load(h)
+    _req(mill.get("applied") and mill.get("actor_path"), "STONE_RECORD_NOT_APPLIED")
+    stone = _by_path(world, mill["actor_path"])
+    st = {"label": mill["plan"]["label"], "object_path": mill["actor_path"], "record_location": mill["plan"]["location"],
+          "record_top_z": mill["plan"]["top_z"], "found": stone is not None and
+          str(stone.get_actor_label()) == mill["plan"]["label"]}
+    if st["found"]:
+        st["location"], st["rotation"] = _v(stone.get_actor_location()), _r(stone.get_actor_rotation())
+        rise = unreal.load_asset(RISE)
+        _req(isinstance(rise, unreal.LevelSequence), "RISE_LOAD")
+        rows = [b for b in rise.get_bindings() if _guid(b.get_id()) == mill.get("reveal_binding_guid")]
+        if len(rows) == 1:
+            st["reveal_binding"] = {"guid": mill["reveal_binding_guid"],
+                                    "resolved": [_path(o) for o in rise.locate_bound_objects(rows[0], world)],
+                                    "visibility_sections": _visibility_sections(rows[0], _fps(rise))}
+    state = {"root": {"world": _world_tf(root)}, "stone": st,
+             "temp_actors": sorted(k for k in idx if k.startswith("ZZ_") or "TEMP" in k.upper()),
+             "label_count": {lab: len(idx.get(lab, [])) for lab in CLAM_LABELS.values()},
+             "assets": {p: bool(unreal.EditorAssetLibrary.does_asset_exist(p)) for p in
+                        [clam_mesh_path(x) for x in CLAM_PART_ORDER] + [clam_mi_path(m) for m in CLAM_MATERIALS]},
+             "meshes": {}, "standins": []}
+    for part in CLAM_PART_ORDER:
+        if state["assets"][clam_mesh_path(part)]:
+            mesh = unreal.load_asset(clam_mesh_path(part))
+            _req(isinstance(mesh, unreal.StaticMesh), "MESH_LOAD|%s" % part)
+            bb = mesh.get_bounding_box()
+            state["meshes"][part] = {"bounds": {"min": _v(bb.min), "max": _v(bb.max)},
+                                     "slots": [str(m.get_editor_property("material_slot_name"))
+                                               for m in mesh.get_editor_property("static_materials")]}
+    for label in a["standin_labels"]:
+        rows = idx.get(label, [])
+        row = {"label": label, "count": len(rows)}
+        if len(rows) == 1:
+            row.update({"object_path": _path(rows[0]), "class": str(rows[0].get_class().get_name()),
+                        "flags": _prim_flags(rows[0])})
+        state["standins"].append(row)
+    try:
+        state["cameras"] = _clam_cameras(world, a)
+    except Exception as exc:  # noqa: BLE001  (recorded; the plan refuses without an explicit yaw)
+        state["cameras"] = {"ok": False, "error": str(exc)[:400]}
+    with open(MILL_MEASURE, encoding="utf-8") as h:
+        state["measure"] = json.load(h)
+    return state
+
+
+def _spawn_part(op, parent_actor):
+    eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    a = eas.spawn_actor_from_class(unreal.StaticMeshActor, unreal.Vector(*op["location"]),
+                                   unreal.Rotator(roll=op["rotation"][0], pitch=op["rotation"][1], yaw=op["rotation"][2]),
+                                   False)
+    _req(a is not None, "SPAWN_FAILED|%s" % op["part"])
+    a.set_actor_label(op["label"])
+    c = a.static_mesh_component
+    c.set_mobility(unreal.ComponentMobility.MOVABLE)
+    mesh = unreal.load_asset(op["mesh"])
+    _req(isinstance(mesh, unreal.StaticMesh), "ASSET_LOAD|%s" % op["mesh"])
+    c.set_static_mesh(mesh)
+    for i, mi_path in sorted(op["mis"].items(), key=lambda kv: int(kv[0])):
+        mi = unreal.load_asset(mi_path)
+        _req(mi is not None, "ASSET_LOAD|%s" % mi_path)
+        c.set_material(int(i), mi)
+    c.set_mobility(getattr(unreal.ComponentMobility, op["mobility"]))
+    if not bool(c.get_editor_property("evaluate_world_position_offset")):        # StaticMeshComponent.h:172-176 [decl]
+        c.set_evaluate_world_position_offset(True)
+    a.set_editor_property("tags", [unreal.Name(t) for t in op["tags"]])
+    a.set_folder_path(op["folder"])
+    a.set_actor_hidden_in_game(bool(op["actor_hidden_in_game"]))
+    if parent_actor is not None:
+        rule = unreal.AttachmentRule.KEEP_WORLD
+        a.attach_to_actor(parent_actor, "", rule, rule, rule, False)              # return value not trusted
+    _check_part(a, op, parent_actor)
+    return a
+
+
+def _check_part(a, op, parent_actor):
+    c = a.static_mesh_component
+    _req(str(a.get_actor_label()) == op["label"], "PART_LABEL|%s" % op["part"])
+    _req(_path(c.get_editor_property("static_mesh")).split(".")[0] == op["mesh"], "READBACK_MESH|%s" % op["part"])
+    for i, mi_path in op["mis"].items():
+        _req(_path(c.get_material(int(i))).split(".")[0] == mi_path, "READBACK_MI|%s|%s" % (op["part"], i))
+    _req(_enum_name(c.get_editor_property("mobility")) == op["mobility"], "READBACK_MOBILITY|%s" % op["part"])
+    _req(bool(c.get_editor_property("evaluate_world_position_offset")), "READBACK_WPO_EVAL|%s" % op["part"])
+    _req(bool(a.get_editor_property("hidden")) == bool(op["actor_hidden_in_game"]), "READBACK_HIDDEN|%s" % op["part"])
+    tf = _world_tf(a)
+    _req(near(tf["location"], op["location"], TOL_CM), "PART_LOCATION|%s|%s" % (op["part"], tf["location"]))
+    _req(near([_wrap(x) for x in tf["rotation"]], [_wrap(x) for x in op["rotation"]], 0.01),
+         "PART_ROTATION|%s|%s" % (op["part"], tf["rotation"]))
+    _req(near(tf["scale"], [1, 1, 1], 1e-6), "PART_SCALE|%s" % op["part"])
+    par = a.get_attach_parent_actor()
+    if parent_actor is None:
+        _req(par is None, "ROOT_ATTACHED|%s" % _path(par))
+    else:
+        _req(par is not None and _path(par) == _path(parent_actor), "NOT_ATTACHED|%s|%s" % (op["part"], _path(par)))
+        rl = _v(c.get_editor_property("relative_location"))
+        rr = _r(c.get_editor_property("relative_rotation"))
+        _req(near(rl, op["rel"]["location"], TOL_CM), "REL_LOCATION|%s|%s" % (op["part"], rl))
+        _req(near([_wrap(x) for x in rr], op["rel"]["rotation"], 0.01), "REL_ROTATION|%s|%s" % (op["part"], rr))
+        if op["part"] == "Lid":    # the pivot IS the hinge: lid origin == root * hinge (1 cm, brief)
+            hinge = tf_point(_world_tf(parent_actor), op["rel"]["location"])
+            _req(near(tf["location"], hinge, 1.0), "HINGE_PIVOT|%s|%s" % (tf["location"], hinge))
+
+
+def _verify_clam(world, record):
+    plan = record["plan"]
+    ops = clam_apply_ops(plan)
+    actors = {}
+    for op in [o for o in ops if o["op"] == "spawn"]:
+        a = _by_path(world, record["actor_paths"].get(op["part"]))
+        _req(a is not None, "PART_MISSING|%s" % op["part"])
+        actors[op["part"]] = a
+        _check_part(a, op, actors.get(op["parent"]) if op["parent"] else None)
+    for part, guid in (record.get("reveal_binding_guids") or {}).items():
+        _verify_reveal(world, guid, actors[part], plan["reveal"]["section"])
+    _req(sorted((record.get("reveal_binding_guids") or {})) == sorted(plan["reveal"]["targets"]), "REVEAL_SET")
+    for r in plan["standins"]["rows"]:
+        s = _by_path(world, r["object_path"])
+        _req(s is not None and _prim_flags(s) == json.loads(json.dumps(r["after"])), "STANDIN_FLAGS|%s" % r["label"])
+    root = _one(_index(world), ROOT_LABEL)
+    for part, a in actors.items():
+        _req(box_inside(box_local(_world_tf(root), _box(a)), GUARD_LOCAL, tol=2.0), "OUTSIDE_LANDED_BOX|%s" % part)
+
+
+def run_clam_apply(run, args, world):
+    a = dict(CLAM_DEFAULTS, **(args.get("apply_clam") or {}))
+    man = json.load(open(CLAM_MANIFEST, encoding="utf-8"))
+    state = live_clam_state(world, a)
+    plan = plan_clam(state, a, man)
+    record = {"run": run, "world": WORLD, "rise": RISE, "plan": plan, "saved": False, "applied": False,
+              "actor_paths": {}, "reveal_binding_guids": {}, "census_before": _census(),
+              "manifest_sha256": sha256_file(CLAM_MANIFEST)}
+    _write(CLAM_RECORD, record, exclusive=True)                         # RECORD FIRST
+    unreal.log("S3CLAM_RECORD|run=%s|path=%s" % (run, CLAM_RECORD))
+    record["backup"] = _backup(BACKUP_ROOT_CLAM, run, (CLAM_RECORD,))
+    _write(CLAM_RECORD, record)
+    actors = {}
+    for op in clam_apply_ops(plan):
+        if op["op"] == "spawn":
+            actors[op["part"]] = _spawn_part(op, actors.get(op["parent"]) if op["parent"] else None)
+            record["actor_paths"][op["part"]] = _path(actors[op["part"]])
+            _write(CLAM_RECORD, record)
+        elif op["op"] == "add_reveal":
+            record["reveal_binding_guids"][op["part"]] = _add_reveal(world, actors[op["part"]], op["section"])
+            _write(CLAM_RECORD, record)
+        elif op["op"] == "set_prim_flags":
+            _set_prim_flags(_by_path(world, op["object_path"]), op["flags"])
+    actors = None
+    _verify_clam(world, record)
+    _save(world, [RISE] if record["reveal_binding_guids"] else [])
+    record["saved"] = True
+    _write(CLAM_RECORD, record)
+    _verify_clam(world, record)                                       # fresh lookups, after the save
+    record["applied"] = True
+    _write(CLAM_RECORD, record)
+    return {"root": record["actor_paths"]["Bottom"], "root_location": plan["root_location"], "yaw": plan["yaw"],
+            "yaw_source": plan["yaw_source"], "lid_open_rpy": plan["lid"]["open_relative_rotation_rpy"],
+            "reveal_guids": record["reveal_binding_guids"], "standins": plan["standins"]["action"],
+            "backup": record["backup"]}
+
+
+def run_clam_revert(run, world):
+    with open(CLAM_RECORD, encoding="utf-8") as h:
+        record = json.load(h)
+    _req(record.get("saved") and record.get("actor_paths"), "RECORD_INVALID")
+    _verify_clam(world, record)                                       # drift since APPLY -> refuse before mutating
+    backup = _backup(BACKUP_ROOT_CLAM, run + "-REVERT", (CLAM_RECORD,))
+    eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    for op in clam_revert_ops(record):
+        if op["op"] == "set_prim_flags":
+            _set_prim_flags(_by_path(world, op["object_path"]), op["flags"])
+        elif op["op"] == "remove_reveal":
+            _remove_reveal(world, op["guid"], op["actor_path"])
+        elif op["op"] == "destroy":
+            a = _by_path(world, op["actor_path"])
+            _req(a is not None and str(a.get_actor_label()) == op["label"], "DESTROY_TARGET|%s" % op["part"])
+            _req(eas.destroy_actor(a), "DESTROY|%s" % op["part"])
+            a = None
+            _req(_by_path(world, op["actor_path"]) is None, "DESTROY_SURVIVED|%s" % op["part"])
+    _save(world, [RISE] if record.get("reveal_binding_guids") else [])
+    for r in record["plan"]["standins"]["rows"]:
+        s = _by_path(world, r["object_path"])
+        _req(s is not None and _prim_flags(s) == json.loads(json.dumps(r["before"])), "REVERT_STANDIN|%s" % r["label"])
+    for part, p in record["actor_paths"].items():
+        _req(_by_path(world, p) is None, "REVERT_ACTOR_PRESENT|%s" % part)
+    rise = unreal.load_asset(RISE)
+    left = {_guid(b.get_id()) for b in rise.get_bindings()} & set((record.get("reveal_binding_guids") or {}).values())
+    _req(not left, "REVERT_BINDINGS_LEFT|%s" % sorted(left))
+    os.replace(CLAM_RECORD, CLAM_RECORD + ".reverted-" + run)
+    return {"backup": backup}
+
+
+def run_clam_dry(run, args, world, census):
+    a = dict(CLAM_DEFAULTS, **(args.get("apply_clam") or {}))
+    man = json.load(open(CLAM_MANIFEST, encoding="utf-8"))
+    state = live_clam_state(world, a)
+    out = {"run": run, "census": census, "state": {k: v for k, v in state.items() if k != "measure"},
+           "masters": {p: bool(unreal.EditorAssetLibrary.does_asset_exist(p)) for p in material_specs()},
+           "textures": {"%s_%s" % (s, r): bool(unreal.EditorAssetLibrary.does_asset_exist(tex_target(CLAM, s, r)["asset"]))
+                        for s in CLAM_TEX for r in TEX_ROLES}}
+    try:
+        out["plan"] = plan_clam(state, a, man)
+        out["apply"] = "would_apply"
+    except PlanError as exc:
+        out["apply"] = "CLAM_APPLY_WOULD_REFUSE|%s" % exc
+    path = HERE + "s3_pearlclam_dry_%s.json" % run
+    _write(path, out)
+    return out, path
+
+
 def run_dry(run, args, world, census):
     a = dict(APPLY_DEFAULTS, **(args.get("apply") or {}))
     state = live_state(world, a)
@@ -1292,26 +2499,65 @@ def main():
         with open(ARGS, encoding="utf-8") as h:
             args = json.load(h)
         run = args.get("run") or run
-        mode = check_mode(args, os.path.exists(APPLY_RECORD), os.path.exists(PLACE_RECORD))
+        pending = None
+        if os.path.exists(TEX_PENDING):
+            with open(TEX_PENDING, encoding="utf-8") as h:
+                pending = json.load(h)
+        mode = check_mode(args, os.path.exists(APPLY_RECORD), os.path.exists(PLACE_RECORD), pending is not None,
+                          os.path.exists(CLAM_RECORD))
         unreal.log("S3PROPS_START|run=%s|mode=%s|prop=%s" % (run, mode, args.get("prop")))
         ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
         _req(ed.get_game_world() is None, "PIE_ACTIVE")
         world = ed.get_editor_world()
         _req(world is not None and str(world.get_outermost().get_name()) == WORLD, "WRONG_WORLD")
         census = _census()
-        gate_census(census, mode)
+        gate_census(census, mode, pending["asset"] if pending else None)
+        if mode == "CLAM_DRY":
+            out, path = run_clam_dry(run, args, world, census)
+            cam = out["state"].get("cameras", {})
+            unreal.log("S3CLAM_DRY_OK|run=%s|mutated=0|apply=%s|cameras=%s|yaw=%s|out=%s" % (
+                run, out["apply"][:300], "OK" if cam.get("ok") else cam.get("error"),
+                out.get("plan", {}).get("yaw"), path))
+            return
         if mode == "DRY":
             out, path = run_dry(run, args, world, census)
             unreal.log("S3PROPS_DRY_OK|run=%s|mutated=0|apply=%s|clams=%s|out=%s" % (
                 run, out["apply"], [(c["label"], c["keyed_verdict"]) for c in out["state"]["clams"]], path))
             return
-        if mode == "IMPORT_MESH":
+        if mode == "IMPORT_MESH" and args["prop"] == CLAM:
+            r = run_import_clam_part(run, args["part"], args)
+            unreal.log("S3PROPS_IMPORT_MESH_OK|run=%s|mesh=%s|bounds=%s|vc=%s|centroid=%s" % (
+                run, r["mesh"], json.dumps(r["bounds"]), r["has_vertex_colors"],
+                json.dumps(r["centroid"]["value"]) if r["centroid"] else "SKIPPED_BY_ARGS"))
+        elif mode == "IMPORT_MESH":
             r = run_import_mesh(run, args["prop"])
             unreal.log("S3PROPS_IMPORT_MESH_OK|run=%s|mesh=%s|bounds=%s" % (run, r["mesh"], json.dumps(r["bounds"])))
         elif mode == "IMPORT_TEX":
-            r = run_import_tex(run, args["prop"], args.get("textures"))
-            unreal.log("S3PROPS_IMPORT_TEX_OK|run=%s|prop=%s|%s" % (run, args["prop"], json.dumps(
-                {k: [v["compression"], v["srgb"], v["size"]] for k, v in r["textures"].items()})))
+            r = run_import_tex(run, args)
+            unreal.log("S3PROPS_IMPORT_TEX_PENDING|run=%s|asset=%s|settings=%s|size_now=%s|saved=0|next=VERIFY_TEX" % (
+                run, r["asset"], json.dumps(r["want"]), r["import"]["size_at_import_call"]))
+        elif mode == "VERIFY_TEX":
+            r = run_verify_tex(run, pending)
+            unreal.log("S3PROPS_VERIFY_TEX_OK|run=%s|asset=%s|size=%s|saved=1|sha256=%s" % (
+                run, r["asset"], r["verified"]["size"], r["source"]["sha256"]))
+        elif mode == "BUILD_MAT" and args["prop"] == CLAM:
+            r = run_build_clam_mat(run, args["material"])
+            unreal.log("S3PROPS_BUILD_MAT_OK|run=%s|mi=%s|master=%s|master_created=%s|scalars=%s|vectors=%s" % (
+                run, r["mi"], r["master"], r["master_created"], json.dumps(r["scalars"]), json.dumps(r["vectors"])))
+        elif mode == "CLAM_APPLY":
+            try:
+                r = run_clam_apply(run, args, world)
+            except Exception:
+                if os.path.exists(CLAM_RECORD):
+                    with open(CLAM_RECORD, encoding="utf-8") as h:
+                        saved = json.load(h).get("saved")
+                    if not saved:
+                        os.replace(CLAM_RECORD, CLAM_RECORD + ".failed-" + run)
+                raise
+            unreal.log("S3CLAM_APPLY_OK|run=%s|level_saved=1|dirty_after=0+0|%s" % (run, json.dumps(r)))
+        elif mode == "CLAM_REVERT":
+            r = run_clam_revert(run, world)
+            unreal.log("S3CLAM_REVERT_OK|run=%s|%s" % (run, json.dumps(r)))
         elif mode == "BUILD_MAT":
             r = run_build_mat(run, args["prop"])
             unreal.log("S3PROPS_BUILD_MAT_OK|run=%s|mi=%s|master_created=%s|scalars=%s" % (

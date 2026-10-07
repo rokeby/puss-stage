@@ -829,6 +829,8 @@ def float_readback_diff(want, got):
     "blend" (float). Float channels store float32 (klara_reveal.py:2991-2992) -> tolerance max(1e-3, 1e-6*|v|)."""
     d = []
     for k in ("range", "completion", "property_path", "display"):
+        if k == "display" and want.get("kind") == "visibility" and _vis_display_ok(got.get(k), want[k]):
+            continue
         if (list(want[k]) if k == "range" else want[k]) != (list(got.get(k) or []) if k == "range" else got.get(k)):
             d.append("%s %s != %s" % (k, got.get(k), want[k]))
     if got.get("n_keys", 0) != 0:
@@ -986,6 +988,13 @@ def _float_plan(args, run, scene):
         plan = plan_nontransform(base["range"], base["rise_end_tick"], rows, args.get("hold_kinds", ["float"]))
     except PlanError as exc:
         _stop(run, "PLAN|%s" % exc)
+    # Conductor 7 Oct: optional exclude_bindings (binding display names) — e.g. the hidden old clam pedestal, whose
+    # binding name 'tg0pfjxda_tier_0' no longer matches its actor label (ACTOR_COUNT 0) and needs no hold (hidden).
+    excl = [str(e) for e in (args.get("exclude_bindings") or [])]
+    if excl:
+        keep = [t for t in plan["targets"] if not any("/%s/" % e in t["id"] for e in excl)]
+        plan["excluded"] = [t["id"] for t in plan["targets"] if t not in keep]
+        plan["targets"] = keep
     world = _editor_world()
     by = {_gs(b.get_id()): b for b in rise.get_bindings()}
     mism = []
@@ -1008,10 +1017,28 @@ def _float_plan(args, run, scene):
     return plan
 
 
+VIS_CLASS = "MovieSceneVisibilityTrack"
+
+
+def _vis_display_ok(display, track):
+    """Conductor 7 Oct [meas APPLY S3FLOATHOLD-20261007-175924 READBACK]: a MovieSceneVisibilityTrack keeps the
+    display name 'Visibility' (set_display_name does not take)."""
+    return display in (track, "Visibility")
+
+
 def _our_nt_tracks(b, cls, track, path):
-    """OUR track of this class AND property path (two held properties may share one binding)."""
-    return [t for t in b.get_tracks() if t.get_class().get_name() == cls and str(t.get_display_name()) == track
-            and _prop(t, "get_property_path") == path]
+    """OUR track of this class AND property path (two held properties may share one binding). Visibility tracks
+    cannot be renamed, so for them 'ours' also requires the binding to be one this tool created (name prefix)."""
+    out = []
+    for t in b.get_tracks():
+        if t.get_class().get_name() != cls or _prop(t, "get_property_path") != path:
+            continue
+        disp = str(t.get_display_name())
+        if disp == track:
+            out.append(t)
+        elif cls == VIS_CLASS and disp == "Visibility" and str(b.get_display_name()).startswith(track + ": "):
+            out.append(t)
+    return out
 
 
 def _read_nt_section(t, s, kind):
