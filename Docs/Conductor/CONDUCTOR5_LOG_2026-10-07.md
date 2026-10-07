@@ -153,3 +153,7 @@
   Clam_Pedastal) — identify actor live, check clam seating, keep it seated in the shore re-sculpt; (2) PEARL: separate
   pearl from the Fab "Clam with Pearl V2" in Blender (export static+skeletal from UE → split loose parts → NEW
   SM_S3_Pearl + SM/SK Clam_NoPearl on the same skeleton; no in-place reimport), glow param for B07; preview first.
+- **Table rock [meas probe_s3_clam_rock.json]:** nothing rock-like within 2 m of the clam; Clam_Pedastal 61×63×97 cm (top
+  z≈99) hidden, clams (static + source_Anim) hidden by default, sit on it; clam/pedestal/figures NOT attached to S3 Hangar
+  Root. [inf] the "table rock" = GraniteMillstone from the Blender/Rodin session, not imported yet. Pearl split: offline
+  investigation running (S3_PEARL_SPLIT_2026-10-07.md).

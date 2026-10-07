@@ -1,0 +1,286 @@
+[
+ {
+  "label": "Clam_Pedastal",
+  "name": "StaticMeshActor_4",
+  "class": "StaticMeshActor",
+  "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+  "parent": null,
+  "hidden_ed": false,
+  "hidden_game": true,
+  "tags": [],
+  "min": [
+   14391.253330657959,
+   159967.80099487305,
+   1.3787389059237967
+  ],
+  "max": [
+   14452.33138317871,
+   160030.88626670837,
+   98.67459433867259
+  ],
+  "meshes": [
+   {
+    "comp": "StaticMeshComponent0",
+    "mesh": "/Game/Fab/Megascans/3D/Roman_Marble_Plinth_tg0pfjxda/Raw/tg0pfjxda_tier_0/StaticMeshes/tg0pfjxda_tier_0.tg0pfjxda_tier_0",
+    "materials": [
+     "/Game/Fab/Megascans/3D/Roman_Marble_Plinth_tg0pfjxda/Raw/tg0pfjxda_tier_0/Materials/MI_tg0pfjxda.MI_tg0pfjxda"
+    ]
+   }
+  ]
+ },
+ {
+  "label": "source_Anim",
+  "name": "SkeletalMeshActor_1",
+  "class": "SkeletalMeshActor",
+  "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+  "parent": null,
+  "hidden_ed": false,
+  "hidden_game": true,
+  "tags": [],
+  "min": [
+   14366.104749427044,
+   159956.64954385898,
+   84.68826778372232
+  ],
+  "max": [
+   14469.360676473565,
+   160041.74943011676,
+   146.23769331230784
+  ],
+  "meshes": [
+   {
+    "comp": "SkeletalMeshComponent0",
+    "mesh": "/Game/Fab/Clam_with_Pearl_V2_-_Realistic_Scallop_Seashell_with_Gemstone/source/SkeletalMeshes/Clam_with_Pearl_002_Clam_with_Pearl_0.Clam_with_Pearl_002_Clam_with_Pearl_0",
+    "materials": [
+     "/Game/Fab/Clam_with_Pearl_V2_-_Realistic_Scallop_Seashell_with_Gemstone/source/Materials/Clam_with_Pearl.Clam_with_Pearl"
+    ]
+   }
+  ]
+ },
+ {
+  "label": "Clam_with_Pearl_Clam_with_Pearl_0",
+  "name": "StaticMeshActor_6",
+  "class": "StaticMeshActor",
+  "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+  "parent": null,
+  "hidden_ed": false,
+  "hidden_game": true,
+  "tags": [],
+  "min": [
+   14379.985086046394,
+   159965.96791568873,
+   92.6472786343154
+  ],
+  "max": [
+   14453.69301039132,
+   160033.55106910583,
+   113.91839679837793
+  ],
+  "meshes": [
+   {
+    "comp": "StaticMeshComponent0",
+    "mesh": "/Game/Fab/Clam_with_Pearl_V2_-_Realistic_Scallop_Seashell_with_Gemstone/source/StaticMeshes/Clam_with_Pearl_Clam_with_Pearl_0.Clam_with_Pearl_Clam_with_Pearl_0",
+    "materials": [
+     "/Game/Fab/Clam_with_Pearl_V2_-_Realistic_Scallop_Seashell_with_Gemstone/source/Materials/Clam_with_Pearl.Clam_with_Pearl"
+    ]
+   }
+  ]
+ },
+ {
+  "label": "GroupActor0",
+  "name": "GroupActor_0",
+  "class": "GroupActor",
+  "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+  "parent": null,
+  "hidden_ed": false,
+  "hidden_game": false,
+  "tags": [],
+  "min": [
+   14366.104749427044,
+   159956.64954385898,
+   84.68826778372232
+  ],
+  "max": [
+   14469.360676473565,
+   160041.74943011676,
+   146.23769331230784
+  ],
+  "meshes": []
+ },
+ {
+  "label": "Shore05_M53 Clam",
+  "name": "BP_Shore05_M53_Draped_C_0",
+  "class": "BP_Shore05_M53_Draped_C",
+  "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+  "parent": null,
+  "hidden_ed": false,
+  "hidden_game": true,
+  "tags": [],
+  "min": [
+   14159.934958916534,
+   159676.80472637698,
+   8.741696500868102
+  ],
+  "max": [
+   14456.52410643369,
+   159988.12500371886,
+   291.6612290304455
+  ],
+  "meshes": [
+   {
+    "comp": "Body",
+    "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Body/SKM_MHC_Shore05_M53_BodyMesh.SKM_MHC_Shore05_M53_BodyMesh",
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Body_Baked_VT_v1.MI_S3Skin_Shore05_M53_Body_Baked_VT_v1"
+    ]
+   },
+   {
+    "comp": "Face",
+    "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Face/SKM_MHC_Shore05_M53_FaceMesh.SKM_MHC_Shore05_M53_FaceMesh",
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Face/Materials/MI_Teeth_Baked.MI_Teeth_Baked",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Face/Materials/MI_EyeL_Baked.MI_EyeL_Baked",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Face/Materials/MI_EyeR_Baked.MI_EyeR_Baked",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Face/Materials/MI_Face_EyeShell.MI_Face_EyeShell",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Face/Materials/MI_Face_LacrimalFluid.MI_Face_LacrimalFluid",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Face/Materials/MI_Face_EyelashesHiLODs.MI_Face_EyelashesHiLODs",
+     "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD3_VT_v1.MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD3_VT_v1",
+     "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD5to7_VT_v1.MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD5to7_VT_v1"
+    ]
+   },
+   {
+    "comp": "Hair",
+    "mesh": null,
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Grooms/MI_WI_Hair_M_Layered_Hair.MI_WI_Hair_M_Layered_Hair",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Grooms/MI_WI_Hair_M_Layered_Hair_Cards.MI_WI_Hair_M_Layered_Hair_Cards",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Grooms/MI_WI_Hair_M_Layered_Hair_Helmet.MI_WI_Hair_M_Layered_Hair_Helmet"
+    ]
+   },
+   {
+    "comp": "Eyebrows",
+    "mesh": null,
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Grooms/MI_WI_Eyebrows_M_Dense_Hair.MI_WI_Eyebrows_M_Dense_Hair",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Grooms/MI_WI_Eyebrows_M_Dense_Facial_Hair.MI_WI_Eyebrows_M_Dense_Facial_Hair"
+    ]
+   },
+   {
+    "comp": "Fuzz",
+    "mesh": null,
+    "materials": [
+     "/HairStrands/Materials/HairDefaultMaterial.HairDefaultMaterial"
+    ]
+   },
+   {
+    "comp": "Eyelashes",
+    "mesh": null,
+    "materials": [
+     "/HairStrands/Materials/HairDefaultMaterial.HairDefaultMaterial"
+    ]
+   },
+   {
+    "comp": "Mustache",
+    "mesh": null,
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Grooms/MI_WI_Mustache_M_Gunslinger_Hair.MI_WI_Mustache_M_Gunslinger_Hair",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Grooms/MI_WI_Mustache_M_Gunslinger_Facial_Hair.MI_WI_Mustache_M_Gunslinger_Facial_Hair",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Grooms/MI_WI_Mustache_M_Gunslinger_Hair_Helmet.MI_WI_Mustache_M_Gunslinger_Hair_Helmet"
+    ]
+   },
+   {
+    "comp": "Beard",
+    "mesh": null,
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Grooms/MI_WI_Goatee_S_SoulpatchStrip_Hair.MI_WI_Goatee_S_SoulpatchStrip_Hair",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Grooms/MI_WI_Goatee_S_SoulpatchStrip_Facial_Hair.MI_WI_Goatee_S_SoulpatchStrip_Facial_Hair",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Grooms/MI_WI_Goatee_S_SoulpatchStrip_Hair_Helmet.MI_WI_Goatee_S_SoulpatchStrip_Hair_Helmet"
+    ]
+   },
+   {
+    "comp": "SkeletalMesh",
+    "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MHC_Shore05_M53_Outfits.MHC_Shore05_M53_Outfits",
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Short.MI_WI_DefaultGarment_M_DG_bodyShapeA_Short",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt.MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Short.MI_WI_DefaultGarment_M_DG_bodyShapeA_Short",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt.MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Short.MI_WI_DefaultGarment_M_DG_bodyShapeA_Short",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt.MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Short.MI_WI_DefaultGarment_M_DG_bodyShapeA_Short",
+     "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt.MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt"
+    ]
+   },
+   {
+    "comp": "ShoreHeadCloth",
+    "mesh": null,
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth_v2.MI_Sackcloth_OldGrey_Cloth_v2"
+    ]
+   }
+  ]
+ },
+ {
+  "label": "S3 Hangar Deck",
+  "name": "StaticMeshActor_243",
+  "class": "StaticMeshActor",
+  "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+  "parent": "S3 Hangar Root",
+  "hidden_ed": false,
+  "hidden_game": false,
+  "tags": [
+   "RigAtmos.S3Deck"
+  ],
+  "min": [
+   11421.97275,
+   159000.0,
+   -25.0
+  ],
+  "max": [
+   17421.97275,
+   161000.0,
+   -5.0
+  ],
+  "meshes": [
+   {
+    "comp": "StaticMeshComponent0",
+    "mesh": "/Engine/BasicShapes/Cube.Cube",
+    "materials": [
+     "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_01/Materials/M_Oak_Hrrngbn_01_Mat_Inst_Dup.M_Oak_Hrrngbn_01_Mat_Inst_Dup"
+    ]
+   }
+  ]
+ },
+ {
+  "label": "S3 Beach V2 Sand Floor",
+  "name": "StaticMeshActor_1461",
+  "class": "StaticMeshActor",
+  "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+  "parent": "S3 Hangar Root",
+  "hidden_ed": false,
+  "hidden_game": false,
+  "tags": [
+   "RigAtmos.S3BeachV2",
+   "S3BeachV2.sand_floor"
+  ],
+  "min": [
+   13971.973,
+   159300.0,
+   -5.0
+  ],
+  "max": [
+   14971.973,
+   160700.0,
+   13.619565963745117
+  ],
+  "meshes": [
+   {
+    "comp": "StaticMeshComponent0",
+    "mesh": "/Game/InfinityStage/Dev/Generated/S3Beach/SM_S3_BeachV2_SandFloor.SM_S3_BeachV2_SandFloor",
+    "materials": [
+     "/Game/EnvironmentPacks/Megascans_2K/Surface/01_Soil_Sand_pjuuz0/01_Soil_Sand_pjuuz0_2K_inst.01_Soil_Sand_pjuuz0_2K_inst"
+    ]
+   }
+  ]
+ }
+]
