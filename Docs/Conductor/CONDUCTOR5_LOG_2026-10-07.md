@@ -79,3 +79,7 @@
   S2 60 s 32 vs 3. Her daylight cinematic reads right with today's (global) exposure; pinned crushes it.
   Recommendation to Gary: DON'T hold exposure in S1/S2 (S3 fix is ours only). Stills EXPBENCH-20261007/.
 - Directing relayed Gary: "the editor is free, conductor can have it now" — but it is still OPEN, so the build waits.
+- **P01 note lamps DRY** 20261007-140559: OK, plan sha unchanged (f1d79dcc…), 30 notes/29 lamps/1 engine flash, mutated=0,
+  unacked foreign records 2 (Effects_20261007/p01_atmos_record.json, MeshyFixtures_20261007/meshy_swap_record_P01.json).
+  APPLY (with those two acked) was **blocked by the permission classifier** (Show write) — needs Gary. Args left at DRY.
+- S4 v5: "none" strikes + PIE-only preview being written (Gary: arrive in the dark; stills first).
