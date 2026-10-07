@@ -6,10 +6,14 @@ Modes (args file s3_shore_ground_args.json):
   BUILD_MAT      confirm "BUILD_MAT S3SHORE"  - create-only master + MI, saves only those two.
   BENCH          confirm "BENCH S3SHORE"      - reversible, NO save; stills via slate tick; originals file first.
   BENCH_RESTORE  confirm "BENCH_RESTORE S3SHORE" + "bench_run": "<run>" - out-of-band restore, no save.
+  BENCH_PIE_APPLY    confirm "BENCH_PIE_APPLY S3SHORE"   - PIE ONLY (never starts/ends PIE), NO save.
+  BENCH_PIE_RESTORE  confirm "BENCH_PIE_RESTORE S3SHORE" + "bench_run": "<apply run>" - PIE, NO save, idempotent.
   APPLY / REVERT / VERIFY / anything else: REFUSED here (not written / not reviewed).
 Markers: S3SHORE_START|run= / S3SHORE_<MODE>_OK|run= (BENCH: S3SHORE_BENCH_STARTED, then S3SHORE_BENCH_OK from the
-tick) / S3SHORE_FAILED|run=|reason.  One mode per call (memory ue58-bulk-import-oom-crash: IMPORT and BUILD_MAT are
-separate calls).
+tick) / S3SHORE_BENCH_PIE_RESTORE_NOOP|run=|reason= (nothing needed restoring; NOT the OK marker) /
+S3SHORE_FAILED|run=|mode=|reason.  The OK/NOOP line is logged only after the mode function returned, i.e. after
+every asserted read-back; any refusal raises before it.  One mode per call (memory ue58-bulk-import-oom-crash:
+IMPORT and BUILD_MAT are separate calls).
 """
 import datetime
 import json
@@ -21,14 +25,17 @@ g = runpy.run_path(HERE + "s3_shore_ground_ue.py")
 import unreal  # noqa: E402
 
 ENABLED = {"DRY": None, "IMPORT": "IMPORT S3SHORE", "BUILD_MAT": "BUILD_MAT S3SHORE", "BENCH": "BENCH S3SHORE",
-           "BENCH_RESTORE": "BENCH_RESTORE S3SHORE"}
+           "BENCH_RESTORE": "BENCH_RESTORE S3SHORE", "BENCH_PIE_APPLY": "BENCH_PIE_APPLY S3SHORE",
+           "BENCH_PIE_RESTORE": "BENCH_PIE_RESTORE S3SHORE"}
 REFUSED = ("APPLY", "REVERT", "VERIFY")
 
-args = json.load(open(HERE + "s3_shore_ground_args.json", encoding="utf-8"))
-mode = str(args.get("mode") or "")
-run = args.get("run") or "S3SHORE-" + datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")
-unreal.log("S3SHORE_START|run=%s|mode=%s" % (run, mode))
+mode = ""
+run = "S3SHORE-unknown"
 try:
+    args = json.load(open(HERE + "s3_shore_ground_args.json", encoding="utf-8"))
+    mode = str(args.get("mode") or "")
+    run = args.get("run") or "S3SHORE-" + datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+    unreal.log("S3SHORE_START|run=%s|mode=%s" % (run, mode))
     if mode in REFUSED or mode not in ENABLED:
         raise RuntimeError("MODE_NOT_ENABLED_IN_RUNNER|%s" % mode)
     want = ENABLED[mode]
@@ -56,5 +63,21 @@ try:
             raise RuntimeError("BENCH_RUN_MISSING")
         out = g["run_bench_restore"](run, args)
         unreal.log("S3SHORE_BENCH_RESTORE_OK|run=%s|from=%s|census=%s" % (run, out["restored_from"], json.dumps(out["census"])))
+    elif mode == "BENCH_PIE_APPLY":
+        out = g["run_bench_pie_apply"](run, args)
+        if not out.get("complete"):
+            raise RuntimeError("APPLY_NOT_COMPLETE")
+        unreal.log("S3SHORE_BENCH_PIE_APPLY_OK|run=%s|borrowed=%s|hidden=%s|census_after=%s" % (
+            run, out["borrowed"], out["hidden"], json.dumps(out["census_after"])))
+    elif mode == "BENCH_PIE_RESTORE":
+        if not args.get("bench_run"):
+            raise RuntimeError("BENCH_RUN_MISSING")
+        out = g["run_bench_pie_restore"](run, args)
+        if out.get("noop"):
+            unreal.log("S3SHORE_BENCH_PIE_RESTORE_NOOP|run=%s|bench_run=%s|reason=%s|record=%s" % (
+                run, args["bench_run"], out["noop"], out["record"]))
+        else:
+            unreal.log("S3SHORE_BENCH_PIE_RESTORE_OK|run=%s|bench_run=%s|still=%s|root_landed=%s|record=%s" % (
+                run, args["bench_run"], out["still"], out["root_landed"], out["record"]))
 except Exception as exc:  # noqa: BLE001
     unreal.log_error("S3SHORE_FAILED|run=%s|mode=%s|%r" % (run, mode, exc))

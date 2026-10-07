@@ -1,6 +1,6 @@
 {
- "passed": 10,
- "total": 10,
+ "passed": 41,
+ "total": 41,
  "results": [
   {
    "case": "shipped params pass",
@@ -11,6 +11,7 @@
    "case": "NEG drift over prints",
    "ok": true,
    "failures": [
+    "CAMERA_LOW S3 Shot B04 79.5",
     "DRIFT_HITS_PRINTS left 171.3",
     "DRIFT_HITS_PRINTS right 171.3",
     "DRIFT_HITS_PRINTS back 158.1"
@@ -24,35 +25,318 @@
    ]
   },
   {
-   "case": "NEG wave base buried",
+   "case": "NEG wave notch off -> drifts/relief under the flats detected",
    "ok": true,
    "failures": [
-    "WAVE_BASE_NOT_FLUSH Row1 16.154"
+    "WAVE_BASE_NOT_FLUSH Row1 86.465",
+    "WAVE_BASE_NOT_FLUSH Row2 129.907",
+    "WAVE_BASE_NOT_FLUSH Row3 99.748"
    ]
   },
   {
-   "case": "NEG figure pad removed",
+   "case": "+ v2 cast preservation ABSENT in shipped field",
    "ok": true,
-   "failures": [
-    "PAD_NOT_FLAT Shore01_M56 Clam dev=1.123",
-    "PAD_NOT_FLAT Shore02_F52 Clam dev=2.461",
-    "PAD_NOT_FLAT Shore03_M59 Clam dev=1.587",
-    "PAD_NOT_FLAT Shore04_F55 Clam dev=1.359",
-    "PAD_NOT_FLAT Shore05_M53 Clam dev=2.348",
-    "PAD_NOT_FLAT Shore06_F25 Clam dev=1.192"
-   ]
+   "info": {
+    "samples": 2506,
+    "fraction_within_0p5cm_of_v2": 0.0,
+    "mean_abs_diff_cm": 11.92,
+    "max_abs_diff_cm": 17.418
+   }
+  },
+  {
+   "case": "- control: old preservation switched on IS detected",
+   "ok": true,
+   "info": {
+    "samples": 2506,
+    "fraction_within_0p5cm_of_v2": 0.8815,
+    "mean_abs_diff_cm": 0.173,
+    "max_abs_diff_cm": 3.855
+   }
+  },
+  {
+   "case": "- control: synthetic floating object flagged FLOATING",
+   "ok": true
+  },
+  {
+   "case": "- control: synthetic buried object flagged BURIED",
+   "ok": true
+  },
+  {
+   "case": "+ control: synthetic seated object OK",
+   "ok": true
+  },
+  {
+   "case": "seat report from LIVE reads (run, 15 objects, Shore03 foot 130.454 local = 10.45 dock)",
+   "ok": true,
+   "counts": {
+    "OK": 3,
+    "FLOATING": 12,
+    "BURIED": 0
+   }
   },
   {
    "case": "NEG camera clearance",
    "ok": true,
    "failures": [
     "CAMERA_LOW S3 Shot B02 169.1",
-    "CAMERA_LOW S3 Shot B03 163.1",
-    "CAMERA_LOW S3 Shot B04 116.3",
-    "CAMERA_LOW S3 Shot B05 129.1",
-    "CAMERA_LOW S3 Shot B06 110.7",
-    "CAMERA_LOW S3 Shot B07 114.1"
+    "CAMERA_LOW S3 Shot B03 160.4",
+    "CAMERA_LOW S3 Shot B04 110.3",
+    "CAMERA_LOW S3 Shot B05 141.0",
+    "CAMERA_LOW S3 Shot B06 117.9",
+    "CAMERA_LOW S3 Shot B07 122.4"
    ]
+  },
+  {
+   "case": "+ material graph spec has no problems",
+   "ok": true,
+   "info": []
+  },
+  {
+   "case": "- control: dropping an edge is detected",
+   "ok": true,
+   "info": [
+    "CUSTOM_PIN_UNFED|SH_Base.WetD",
+    "UNUSED_NODE|WetDarken"
+   ]
+  },
+  {
+   "case": "runner: IMPORT/BUILD_MAT/BENCH(+RESTORE)/BENCH_PIE_* need '<MODE> S3SHORE'; APPLY/REVERT/VERIFY refused",
+   "ok": true,
+   "info": {
+    "enabled": {
+     "DRY": null,
+     "IMPORT": "IMPORT S3SHORE",
+     "BUILD_MAT": "BUILD_MAT S3SHORE",
+     "BENCH": "BENCH S3SHORE",
+     "BENCH_RESTORE": "BENCH_RESTORE S3SHORE",
+     "BENCH_PIE_APPLY": "BENCH_PIE_APPLY S3SHORE",
+     "BENCH_PIE_RESTORE": "BENCH_PIE_RESTORE S3SHORE"
+    },
+    "refused": [
+     "APPLY",
+     "REVERT",
+     "VERIFY"
+    ]
+   }
+  },
+  {
+   "case": "BENCH_PIE: + apply: deck PIE copy -> SM_S3_ShoreGround/MI, relative identity, our tag; v2 hidden; complete",
+   "ok": true,
+   "info": {
+    "name": "StaticMeshActor_77",
+    "class": "StaticMeshActor",
+    "actor_hidden": false,
+    "tags": [
+     "Hangar",
+     "ZZ_S3ShoreGroundBench"
+    ],
+    "mesh": "/Game/InfinityStage/Dev/Generated/S3Shore/SM_S3_ShoreGround.SM_S3_ShoreGround",
+    "materials": [
+     "/Game/InfinityStage/Dev/Generated/S3Shore/MI_S3_ShoreGround.MI_S3_ShoreGround"
+    ],
+    "rel": {
+     "loc": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "rpy": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "visible": true,
+    "hidden_in_game": false,
+    "mobility": "MOVABLE"
+   }
+  },
+  {
+   "case": "BENCH_PIE: + apply: originals file existed before EVERY mutation",
+   "ok": true,
+   "info": [
+    [
+     "set_static_mesh",
+     "/Game/InfinityStage/Dev/Generated/S3Shore/SM_S3_ShoreGround.SM_S3_ShoreGround",
+     true
+    ],
+    [
+     "set_material",
+     0,
+     "/Game/InfinityStage/Dev/Generated/S3Shore/MI_S3_ShoreGround.MI_S3_ShoreGround",
+     true
+    ],
+    [
+     "set_tags",
+     "StaticMeshActor_77",
+     [
+      "Hangar",
+      "ZZ_S3ShoreGroundBench"
+     ],
+     true
+    ]
+   ]
+  },
+  {
+   "case": "BENCH_PIE: + apply: never spawns / destroys / ends PIE",
+   "ok": true,
+   "info": [
+    "GameplayStatics.begin_deferred_actor_spawn_from_class"
+   ]
+  },
+  {
+   "case": "BENCH_PIE: + apply: ZZ_S3MG actor untouched",
+   "ok": true,
+   "info": null
+  },
+  {
+   "case": "BENCH_PIE: + restore: deck/v2 back to the originals file, our tag removed, other tags kept",
+   "ok": true,
+   "info": {
+    "restored": true,
+    "still": "STILL_STATE_HELD",
+    "root_landed": false,
+    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_4i032m0h/s3_shore_pie_bench_restored_T1.json"
+   }
+  },
+  {
+   "case": "BENCH_PIE: + restore: removes only OUR tag (ZZ_S3MG actor + tag untouched, nothing destroyed)",
+   "ok": true,
+   "info": [
+    [
+     "set_static_mesh",
+     "/Engine/BasicShapes/Cube.Cube",
+     true
+    ],
+    [
+     "set_material",
+     0,
+     "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_01/Materials/MI_Oak.MI_Oak",
+     true
+    ],
+    [
+     "set_tags",
+     "StaticMeshActor_77",
+     [
+      "Hangar"
+     ],
+     true
+    ],
+    [
+     "set_actor_hidden_in_game",
+     "StaticMeshActor_77",
+     false,
+     true
+    ]
+   ]
+  },
+  {
+   "case": "BENCH_PIE: + restore is idempotent: second call -> NOOP already_restored",
+   "ok": true,
+   "info": {
+    "noop": "already_restored (state equals the originals file)",
+    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_4i032m0h/s3_shore_pie_bench_restored_T1.json"
+   }
+  },
+  {
+   "case": "BENCH_PIE: + no save attribute touched on any fake library in apply/restore",
+   "ok": true,
+   "info": []
+  },
+  {
+   "case": "BENCH_PIE: - control: the spy DOES see a save attribute access",
+   "ok": true,
+   "info": null
+  },
+  {
+   "case": "BENCH_PIE: - refuses without PIE (NO_PIE_WORLD; no originals file; no mutation)",
+   "ok": true,
+   "info": "NO_PIE_WORLD|start a fresh PIE first (this script never starts PIE)"
+  },
+  {
+   "case": "BENCH_PIE: - refuses when SM/MI/master are missing",
+   "ok": true,
+   "info": "ASSET_MISSING|/Game/InfinityStage/Dev/Generated/S3Shore/SM_S3_ShoreGround|run IMPORT and BUILD_MAT first"
+  },
+  {
+   "case": "BENCH_PIE: - refuses when a ZZ_S3ShoreGroundBench-tagged actor already exists",
+   "ok": true,
+   "info": "STALE_BENCH_TAG_IN_PIE|['Leftover']"
+  },
+  {
+   "case": "BENCH_PIE: - refuses while M_S3_ShoreGround has 0 PS instructions",
+   "ok": true,
+   "info": "PENDING_COMPILE|M_S3_ShoreGround has 0 pixel-shader instructions; rerun in ~30 s"
+  },
+  {
+   "case": "BENCH_PIE: - control: lost bench state before the still is caught (restored, then FAILED)",
+   "ok": true,
+   "info": "RESTORED_BUT_STILL_INVALID|STILL_INVALID|materials"
+  },
+  {
+   "case": "BENCH_PIE: + restore after PIE ended -> NOOP pie=gone",
+   "ok": true,
+   "info": {
+    "noop": "pie=gone (PIE copies died with PIE; editor world was never touched)",
+    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_4i032m0h/s3_shore_pie_bench_restored_T6.json"
+   }
+  },
+  {
+   "case": "BENCH_PIE: - editor map dirtied mid-apply -> FAILED and auto-restored (deck + v2), restore itself clean",
+   "ok": true,
+   "info": "EDITOR_PACKAGES_DIRTIED|{'content': [], 'maps': ['L_InfinityStage_V1VerticalSlice']}"
+  },
+  {
+   "case": "BENCH_PIE: - runner: apply without PIE logs S3SHORE_FAILED (error) and NO _OK",
+   "ok": true,
+   "info": [
+    "S3SHORE_START|run=T8|mode=BENCH_PIE_APPLY",
+    "S3SHORE_FAILED|run=T8|mode=BENCH_PIE_APPLY|RuntimeError('NO_PIE_WORLD|start a fresh PIE first (this script never starts PIE)')"
+   ]
+  },
+  {
+   "case": "BENCH_PIE: - runner: wrong confirm -> FAILED, nothing changed",
+   "ok": true,
+   "info": [
+    "S3SHORE_START|run=T9|mode=BENCH_PIE_APPLY",
+    "S3SHORE_FAILED|run=T9|mode=BENCH_PIE_APPLY|RuntimeError(\"CONFIRM_MISSING|BENCH_PIE_APPLY needs confirm='BENCH_PIE_APPLY S3SHORE'\")"
+   ]
+  },
+  {
+   "case": "BENCH_PIE: + runner: apply OK -> restore OK -> second restore NOOP (one marker each, in order)",
+   "ok": true,
+   "info": [
+    "S3SHORE_START|run=T10|mode=BENCH_PIE_APPLY",
+    "S3SHORE_BENCH_PIE_ORIGINALS|run=T10|path=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_4i032m0h/s3_shore_pie_bench_originals_T10.json",
+    "S3SHORE_BENCH_PIE_APPLY_OK|run=T10|borrowed=StaticMeshActor_77|hidden=StaticMeshActor_88|census_after={\"content\": [\"x\"], \"maps\": []}",
+    "S3SHORE_START|run=T10R|mode=BENCH_PIE_RESTORE",
+    "S3SHORE_BENCH_PIE_RESTORE_OK|run=T10R|bench_run=T10|still=STILL_STATE_HELD|root_landed=False|record=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_4i032m0h/s3_shore_pie_bench_restored_T10.json",
+    "S3SHORE_START|run=T10R2|mode=BENCH_PIE_RESTORE",
+    "S3SHORE_BENCH_PIE_RESTORE_NOOP|run=T10R2|bench_run=T10|reason=already_restored (state equals the originals file)|record=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_4i032m0h/s3_shore_pie_bench_restored_T10.json"
+   ]
+  },
+  {
+   "case": "BENCH_PIE: - runner: APPLY still refused",
+   "ok": true,
+   "info": null
+  },
+  {
+   "case": "BENCH_PIE section: no save / PIE start-end / destroy / editor-spawn / reload call",
+   "ok": true,
+   "info": []
+  },
+  {
+   "case": "- control: the same scan flags a planted save + destroy",
+   "ok": true
+  },
+  {
+   "case": "runner: no save call in BENCH path",
+   "ok": true
   },
   {
    "case": "manifest bounds asymmetric in Y (mirror detectable)",

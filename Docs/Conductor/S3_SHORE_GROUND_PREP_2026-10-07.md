@@ -366,3 +366,132 @@ are specified in the file footer and are left unwritten until the DRY numbers ex
 - `Saved/CodexConductor/S3Shore/test_s3_shore_offline.py` (+ `_report.json`): harness, 10/10
 - `Saved/CodexConductor/S3Shore/s3_shore_ground_ue.py`: editor-side draft (NOT RUN)
 - `DerivedAssets/S3Shore/SM_S3_ShoreGround.fbx`, `.blend`, `_manifest.json`, `previews/*.png`
+
+## 8. BENCH_PIE_APPLY / BENCH_PIE_RESTORE: the combined PIE still with marble variant C (7 Oct, offline, NOT RUN)
+
+Gary approved one combined PIE bench of the new ground plus the s3mg marble variant C, with no level save; he does a
+Don't-Save restart afterwards. The editor-world BENCH (`run_bench`) can never be in a PIE still, because PIE copies the
+editor world at PIE start. Two PIE-only modes were added: `s3_shore_ground_ue.py`, section `BEGIN_BENCH_PIE` …
+`END_BENCH_PIE`, wired into `s3_shore_ground_run.py`. Nothing was run in Unreal, and no MCP call was made.
+
+**The spawn route the brief asked for does not exist [meas].** `GameplayStatics.begin_deferred_actor_spawn_from_class`
+raised `AttributeError` twice in this UE 5.8 editor:
+- `Saved/CodexFlatV3/swapkit/stills/before/FV3STB-20261003-02/st_pie_first_check_runtime.json` (3 Oct);
+- `Saved/CodexConductor/LookBench/20261005-044136/look_bench_result.json` (5 Oct).
+
+The header marks it `BlueprintInternalUseOnly` (`GameplayStatics.h:66-67`, and `:70-71` for `FinishSpawningActor`)
+**[decl]**. That UE Python skips such functions is **[inf]**, but it matches both measured errors.
+`AddComponentByClass` is `ScriptNoExport` (`Actor.h:1974`) **[decl]**.
+
+**Consequence:** `s3mg_bench.py` `stage_apply` (`spawn_pie`, `:285-292`) will fail at the first grease-decal spawn of
+variant C **[inf, from the two measured errors]**. It restores itself and logs `S3MG_FAILED`, so its `stills` stage
+refuses. The marble stream has to fix this before the combined still can be taken. This stream did not edit s3mg
+files.
+
+**What the shore bench does instead: it borrows the deck's PIE copy.** This follows the `gloss4_glint_pie_spawn.py`
+and `hp_test_pie_still.py` precedent. `S3 Hangar Deck` is a `StaticMeshActor`, MOVABLE, attached to `S3 Hangar Root`
+(`hp_probe_walls_result.json`; DRY 181646) **[meas]**.
+
+On its **PIE copy only**, the bench changes:
+- the mesh, to `SM_S3_ShoreGround`;
+- every slot, to `MI_S3_ShoreGround`;
+- the relative transform, to identity, which was relative (3000, 0, 105) at scale (60, 20, 0.2) per
+  `s3_pit_deck_record.json`;
+- the tags: `ZZ_S3ShoreGroundBench` is added.
+
+The v2 sand's PIE copy is hidden with `set_actor_hidden_in_game(True)` and `set_visibility(False)` per primitive
+component.
+
+The deck is therefore *replaced* rather than hidden. Its copy is the ground and rides the root at relative identity,
+exactly as a spawned child would. Nothing is spawned or destroyed, and the editor world is never written.
+
+**Apply gates.** Every refusal raises before the originals file exists, so nothing has changed. The gates are:
+- PIE world present (`NO_PIE_WORLD`) and different from the editor world;
+- `SM/M/MI_S3_ShoreGround` exist with the right classes;
+- master PS instructions > 0 (`PENDING_COMPILE`);
+- no actor already carries our tag;
+- run id not used before;
+- exactly one root, deck and v2 sand by label;
+- deck is a `StaticMeshActor` on the root, MOVABLE, with no attached children.
+
+**Apply steps:**
+1. The originals file `S3Shore/s3_shore_pie_bench_originals_<run>.json` is written, read back and logged
+   (`S3SHORE_BENCH_PIE_ORIGINALS`) **before** any change. It holds: the PIE world path and real time; the deck's mesh,
+   per-slot materials, relative transform, tags, hidden and visible flags; the v2 per-component visibility; the census.
+2. The changes are made, then every one is read back: mesh, MI on every slot, identity, tag, deck world location ==
+   root ±0.5 cm, v2 hidden.
+3. **No new dirty editor package** is allowed.
+
+Any exception auto-restores from the file and is followed by `S3SHORE_FAILED`.
+
+**Restore** (`bench_run` = the apply's run):
+1. If PIE is gone, or this is a new PIE session (path differs, or real time is lower than at apply), it logs `…_NOOP`.
+2. Otherwise it first records a **still check**: was our state still held when the s3mg still was taken? It looks at
+   mesh, MI, identity, deck on root, ground visible, v2 hidden, and records whether the root is landed.
+3. It then sets every value back from the originals file and verifies each one.
+4. Our tag must be gone. Other tags (e.g. `ZZ_S3MG`) are untouched.
+5. A second call logs `…_NOOP|reason=already_restored`.
+6. If the still check had failed, the restore still completes, then raises `RESTORED_BUT_STILL_INVALID` (FAILED): the
+   picture is not evidence.
+
+**Markers:**
+- `S3SHORE_BENCH_PIE_APPLY_OK|run=`
+- `S3SHORE_BENCH_PIE_RESTORE_OK|run=|bench_run=|still=STILL_STATE_HELD|root_landed=`
+- `S3SHORE_BENCH_PIE_RESTORE_NOOP|run=|reason=`
+- `S3SHORE_FAILED|run=|mode=|…`
+
+The OK line is printed only after the function returned.
+
+**Harness:** `test_s3_shore_offline.py` passes **41/41** [meas-here]: the earlier 19 plus 22 new. The new BENCH_PIE
+cases run the real functions against a mock `unreal`:
+- **+ apply:** the full read-back; the originals file existed before every mutation; no spawn, destroy or end-PIE; the
+  `ZZ_S3MG` actor is untouched.
+- **+ restore:** exact originals; only our tag is removed; it is idempotent (NOOP); PIE gone gives NOOP.
+- **− refusals:** no PIE; missing assets; a stale tag; a pending compile; a wrong confirm. None of them mutates anything.
+- **− injected failure:** a dirtied map mid-apply triggers an auto-restore and is FAILED.
+- **− lost state before the still:** restored, then FAILED.
+- **Runner:** a refusal logs `S3SHORE_FAILED` and no `_OK`; the order is OK → OK → NOOP; APPLY is still refused.
+- **Save detection:**
+  - a spy on every fake library saw no `save*` attribute (− control: the spy sees one);
+  - a static scan of the section finds no save, PIE start/end, destroy, editor spawn or reload call (− control: a
+    planted call is flagged).
+
+`S3MarbleGrime/test_s3mg_offline.py` is still at 46/46 [meas-here].
+
+**API names: proof per call.**
+
+| Call | Proof |
+|---|---|
+| `UnrealEditorSubsystem.get_game_world / get_editor_world` | `UnrealEditorSubsystem.h:49-52` **[decl]** |
+| `GameplayStatics.get_all_actors_of_class` | `GameplayStatics.h:98` **[decl]**; DRY **[run]** |
+| `GameplayStatics.get_real_time_seconds` | `GameplayStatics.h:1246-1247` **[decl]** |
+| `Actor.set_actor_hidden_in_game` | `Actor.h:1921-1922` **[decl]**; `beam_texture_bench.py` **[run]** |
+| `hidden` (bHidden) | `Actor.h:364-365` **[decl]**; DRY **[run]** |
+| `tags` | `Actor.h:1343-1344` **[decl]**, BlueprintReadWrite. Setting it on a *PIE* actor is **[inf]**. |
+| `get_attach_parent_actor` | `Actor.h:3547-3548` **[decl]** |
+| `get_components_by_class` | `Actor.h:3805-3807` (ScriptName) **[decl]** |
+| `StaticMeshActor.static_mesh_component` | `StaticMeshActor.h:25-26` **[decl]** |
+| `StaticMeshComponent.set_static_mesh` | `StaticMeshComponent.h:449-450` **[decl]**. Allowed on a registered component only when not Static (`SceneComponent.h:1363-1366`), hence the MOVABLE gate. |
+| `static_mesh` property | `:132-133` **[decl]** |
+| `set_material / get_material / get_num_materials` | `PrimitiveComponent.h:1599-1600 / 1565-1566 / 2325-2326` **[decl]** |
+| `set_relative_transform` (out-param HitResult dropped) / `get_relative_transform` | `SceneComponent.h:459-460 / 464-465` **[decl]** |
+| `set_visibility`, `is_visible` | `SceneComponent.h:916-917, 852-853` **[decl]** |
+| `hidden_in_game`, `mobility` | `SceneComponent.h:225-226, 302-303` **[decl]** |
+| `MaterialEditingLibrary.get_statistics` | `MaterialEditingLibrary.h:609-610` **[decl]**; `s3_sack_install.py:1885` **[run]** |
+| `Transform(location=, rotation=, scale=)`, `.rotation.rotator()`, `.scale3d` | prior Saved/ scripts **[run]** |
+| Actor labels readable on PIE copies | look_bench CAPTURE **[run]** |
+
+**Inferred, not proven:**
+- **[inf]** `set_static_mesh` returns False for an unchanged mesh. The code only calls it on a change and asserts the
+  read-back.
+- **[inf]** The new mesh has the same slot count as the cube, so the per-slot restore compares equal-length lists.
+  `get_num_materials` on a mismatched override list is unverified.
+- **[inf]** No Show or hangar system rewrites the deck's mesh, materials or transform, or re-shows the v2 sand, between
+  apply and the still. If one does, the restore's still check reports `STILL_INVALID`.
+- **[inf]** The new mesh was imported with `collision=False`, so anything in PIE that rested physically on the deck's
+  cube collision would fall through. Nothing such is known in S3.
+- **[inf]** Outside S3 the deck copy may be hidden by the hangar system at apply time. Apply sets it visible, and
+  restore puts back the recorded value.
+
+**Not touched:** `s3_shore_ground_args.json`. The conductor writes it per call. No new request JSON was needed:
+`Saved/CodexConductor/s3_shore_ground_request.json` already runs the runner, and the args select the mode.

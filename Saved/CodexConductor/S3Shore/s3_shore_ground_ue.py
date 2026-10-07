@@ -24,6 +24,12 @@ Modes (write modes need the confirm string and refuse on a dirty editor):
              identity; hides the deck + v2 sand by set_visibility (UFUNCTION; whether it dirties is MEASURED here);
              captures the S3 shot stills (s3_beach_marble_stills.py pattern); destroys the spawn BY REFERENCE and
              restores visibility in `finally`; verifies against the file; reports the census.
+  BENCH_PIE_APPLY    (added 7 Oct, offline, NOT RUN) PIE ONLY: the combined PIE still with the s3mg marble bench.
+             Borrows the PIE copy of the deck (mesh/MI/relative identity/tag ZZ_S3ShoreGroundBench), hides the PIE
+             copy of the v2 sand; originals file first; never saves, never starts/ends PIE, never spawns/destroys.
+             Why borrow: see the BENCH_PIE section (deferred spawn is not exposed to UE 5.8 Python, measured).
+  BENCH_PIE_RESTORE  PIE: puts both PIE copies back from the originals file of args["bench_run"]; idempotent
+             (NOOP marker when PIE is gone / a new PIE / already restored).
   APPLY      backup umap -> Backups/PreS3ShoreGround-<run>; spawn "S3 Shore Ground" (tag RigAtmos.S3ShoreGround),
              attach KEEP_RELATIVE to S3 Hangar Root, relative identity, mobility = the deck's measured mobility;
              hide deck and v2 sand (visible False + hidden_in_game True, modify() first); save census-exact
@@ -708,6 +714,311 @@ def run_bench_restore(run, args):
     orig = json.load(open(opath, encoding="utf-8"))
     _restore_from_originals(orig)
     return {"restored_from": opath, "census": _census()}
+
+
+# ----------------------------------------------------------------------------- BENCH_PIE (combined PIE still)
+# BEGIN_BENCH_PIE  (the harness scans this section for save / PIE-control / destroy / editor-spawn calls)
+#
+# Gary 7 Oct: ONE combined PIE bench of this ground + marble variant C (s3mg_bench.py), no level save, Don't-Save
+# restart afterwards.  The editor-world BENCH above cannot be in a PIE still (PIE is a copy taken at PIE start).
+#
+# WHY BORROW, NOT SPAWN.  The brief asked for GameplayStatics begin/finish deferred spawn into the PIE world (as in
+# s3mg_bench.py:285-292).  That route does NOT exist in UE 5.8 Python [measured twice: AttributeError "type object
+# 'GameplayStatics' has no attribute 'begin_deferred_actor_spawn_from_class'" in
+# Saved/CodexFlatV3/swapkit/stills/before/FV3STB-20261003-02/st_pie_first_check_runtime.json (3 Oct) and
+# Saved/CodexConductor/LookBench/20261005-044136/look_bench_result.json (5 Oct)].  The header marks both functions
+# BlueprintInternalUseOnly (GameplayStatics.h:66,70) [decl]; AddComponentByClass is ScriptNoExport (Actor.h:1974)
+# [decl].  So, like gloss4_glint_pie_spawn.py and hp_test_pie_still.py (borrow an existing PIE copy), this bench
+# BORROWS THE PIE COPY OF THE DECK ITSELF: deck = StaticMeshActor, MOVABLE, attached to S3 Hangar Root [meas:
+# hp_probe_walls_result.json, s3_shore_live_reads.json run S3SHORE-20261007-181646].  On that PIE copy only:
+# mesh -> SM_S3_ShoreGround, every slot -> MI_S3_ShoreGround, relative transform -> identity (it rides the root
+# exactly like a spawned child at relative identity), tag ZZ_S3ShoreGroundBench added.  The v2 sand PIE copy is
+# hidden (set_actor_hidden_in_game + component set_visibility).  Nothing is spawned or destroyed.  The deck is
+# NOT hidden: its PIE copy IS the bench ground.  PIE end discards all of it; RESTORE puts every value back from
+# the originals file while PIE runs (so the s3mg stills/restore sequence ends with the PIE world as it started).
+PIE_TAG = BENCH_LABEL                     # "ZZ_S3ShoreGroundBench" (s3mg uses "ZZ_S3MG": exact-match tags, no overlap)
+
+
+def pie_file(kind, run):
+    return HERE + "s3_shore_pie_bench_%s_%s.json" % (kind, run)
+
+
+def write_verified(path, data):
+    text = json.dumps(data, indent=1, sort_keys=True, default=str)
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+        f.flush()
+        os.fsync(f.fileno())
+    with open(path, encoding="utf-8") as f:
+        _require(f.read() == text, "READBACK|" + path)
+    return path
+
+
+def _path(o):
+    return str(o.get_path_name()) if o is not None else None
+
+
+def _tags(actor):
+    return [str(t) for t in actor.get_editor_property("tags")]
+
+
+def _rot_close(a, b, tol=0.01):
+    return all(abs(((x - y) + 180.0) % 360.0 - 180.0) <= tol for x, y in zip(a, b))
+
+
+def _rel(comp):
+    t = comp.get_relative_transform()                                        # SceneComponent.h:464-465
+    r = t.rotation.rotator()
+    return {"loc": [float(t.translation.x), float(t.translation.y), float(t.translation.z)],
+            "rpy": [float(r.roll), float(r.pitch), float(r.yaw)],
+            "scale": [float(t.scale3d.x), float(t.scale3d.y), float(t.scale3d.z)]}
+
+
+def _rel_matches(got, want, tol_cm=0.01):
+    return (all(abs(a - b) <= tol_cm for a, b in zip(got["loc"], want["loc"])) and _rot_close(got["rpy"], want["rpy"])
+            and all(abs(a - b) <= 1e-4 for a, b in zip(got["scale"], want["scale"])))
+
+
+IDENTITY_REL = {"loc": [0.0, 0.0, 0.0], "rpy": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0]}
+
+
+def _deck_state(deck):
+    smc = deck.static_mesh_component                                          # StaticMeshActor.h:25-26
+    n = int(smc.get_num_materials())                                          # PrimitiveComponent.h:2325-2326
+    return {"name": str(deck.get_name()), "class": str(deck.get_class().get_name()),
+            "actor_hidden": bool(deck.get_editor_property("hidden")),         # Actor.h:364-365 bHidden [run: DRY]
+            "tags": _tags(deck),
+            "mesh": _path(smc.get_editor_property("static_mesh")),            # StaticMeshComponent.h:132-133
+            "materials": [_path(smc.get_material(i)) for i in range(n)],      # PrimitiveComponent.h:1565-1566
+            "rel": _rel(smc),
+            "visible": bool(smc.is_visible()),                                # SceneComponent.h:852-853
+            "hidden_in_game": bool(smc.get_editor_property("hidden_in_game")),  # SceneComponent.h:225-226
+            "mobility": _enum_name(smc.get_editor_property("mobility"))}       # SceneComponent.h:302-303
+
+
+def _v2_state(v2):
+    comps = list(v2.get_components_by_class(unreal.PrimitiveComponent))       # Actor.h:3805-3807
+    return {"name": str(v2.get_name()), "actor_hidden": bool(v2.get_editor_property("hidden")),
+            "components": {str(c.get_name()): bool(c.is_visible()) for c in comps}}
+
+
+def _pie_worlds():
+    ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+    return ed.get_game_world(), ed.get_editor_world()                         # UnrealEditorSubsystem.h:49-52
+
+
+def _by_name(world):
+    out = {}
+    for a in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor):   # GameplayStatics.h:98
+        out.setdefault(str(a.get_name()), []).append(a)
+    return out
+
+
+def _tagged(world):
+    return [a for a in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor) if PIE_TAG in _tags(a)]
+
+
+def _new_dirt(before, after):
+    return {k: sorted(set(after[k]) - set(before[k])) for k in ("content", "maps")}
+
+
+def _set_v2(v2, actor_hidden, comp_visible):
+    """comp_visible: bool for all, or {name: bool} from the originals file."""
+    v2.set_actor_hidden_in_game(bool(actor_hidden))                          # Actor.h:1921-1922
+    for c in v2.get_components_by_class(unreal.PrimitiveComponent):
+        want = comp_visible if isinstance(comp_visible, bool) else comp_visible.get(str(c.get_name()))
+        if want is not None:
+            c.set_visibility(bool(want), False)                               # SceneComponent.h:916-917
+
+
+def _set_mesh(smc, mesh):
+    """SetStaticMesh returns False when the mesh is unchanged [inf: engine .cpp not in the install], so only call it
+    on a change; the read-back is the check either way."""
+    if _path(smc.get_editor_property("static_mesh")) != _path(mesh):
+        _require(smc.set_static_mesh(mesh), "SET_STATIC_MESH_RETURNED_FALSE|%s" % _path(mesh))  # StaticMeshComponent.h:449-450
+    _require(_path(smc.get_editor_property("static_mesh")) == _path(mesh), "READBACK_MESH|%s" % _path(mesh))
+
+
+def _set_deck(deck, mesh, materials, rel, tags, actor_hidden, visible):
+    smc = deck.static_mesh_component
+    _set_mesh(smc, mesh)
+    for i, m in enumerate(materials):
+        smc.set_material(i, m)                                                # PrimitiveComponent.h:1599-1600
+    smc.set_relative_transform(unreal.Transform(location=unreal.Vector(*rel["loc"]),
+                                                rotation=unreal.Rotator(roll=rel["rpy"][0], pitch=rel["rpy"][1],
+                                                                        yaw=rel["rpy"][2]),
+                                                scale=unreal.Vector(*rel["scale"])), False, False)  # SceneComponent.h:459-460
+    deck.set_editor_property("tags", [unreal.Name(t) for t in tags])
+    deck.set_actor_hidden_in_game(bool(actor_hidden))
+    smc.set_visibility(bool(visible), False)
+
+
+def run_bench_pie_apply(run, args):
+    """PIE ONLY.  Never saves, never starts/ends PIE, never spawns or destroys.  Returns the applied record."""
+    world, editor_world = _pie_worlds()
+    _require(world is not None, "NO_PIE_WORLD|start a fresh PIE first (this script never starts PIE)")
+    _require(editor_world is not None and _path(world) != _path(editor_world), "GAME_WORLD_IS_EDITOR_WORLD")
+    _require(WORLD.rsplit("/", 1)[1] in _path(world), "WRONG_PIE_MAP|%s" % _path(world))
+    eal = unreal.EditorAssetLibrary
+    for p in (MESH, MASTER, MI):
+        _require(eal.does_asset_exist(p), "ASSET_MISSING|%s|run IMPORT and BUILD_MAT first" % p)
+    mesh, mi, master = eal.load_asset(MESH), eal.load_asset(MI), eal.load_asset(MASTER)
+    _require(isinstance(mesh, unreal.StaticMesh), "MESH_CLASS|%s" % _path(mesh))
+    _require(isinstance(mi, unreal.MaterialInterface), "MI_CLASS|%s" % _path(mi))
+    ps = int(unreal.MaterialEditingLibrary.get_statistics(master).get_editor_property("num_pixel_shader_instructions"))
+    _require(ps > 0, "PENDING_COMPILE|M_S3_ShoreGround has 0 pixel-shader instructions; rerun in ~30 s")  # MaterialEditingLibrary.h:609-610
+    opath = pie_file("originals", run)
+    _require(not os.path.isfile(opath), "RUN_ALREADY_APPLIED|use a new run id")
+    stale = [str(a.get_name()) for a in _tagged(world)]
+    _require(not stale, "STALE_BENCH_TAG_IN_PIE|%s" % stale)
+    by = _actors_by_label(world)
+    root, deck, v2 = _one(by, ROOT_LABEL), _one(by, DECK_LABEL), _one(by, V2_SAND_LABEL)
+    _require(isinstance(deck, unreal.StaticMeshActor), "DECK_NOT_STATIC_MESH_ACTOR|%s" % deck.get_class().get_name())
+    parent = deck.get_attach_parent_actor()                                    # Actor.h:3547-3548
+    _require(parent is not None and _path(parent) == _path(root), "DECK_NOT_ON_ROOT|%s" % _path(parent))
+    for w in (deck, v2, root):
+        _require(_path(w.get_world()) == _path(world), "NOT_A_PIE_COPY|%s" % _path(w))
+    children = [str(a.get_name()) for a in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor)
+                if a.get_attach_parent_actor() is not None and _path(a.get_attach_parent_actor()) == _path(deck)]
+    _require(not children, "DECK_HAS_CHILDREN|%s|they would move with the identity transform" % children)
+    dstate = _deck_state(deck)
+    _require(dstate["mobility"].endswith("MOVABLE"), "DECK_NOT_MOVABLE|%s|SetStaticMesh refuses on Static" % dstate["mobility"])
+    rl = root.get_actor_location()
+    orig = {"run": run, "utc": datetime.datetime.utcnow().isoformat() + "Z", "pie_world": _path(world),
+            "pie_real_time_s": float(unreal.GameplayStatics.get_real_time_seconds(world)),   # GameplayStatics.h:1246-1247
+            "deferred_spawn_exposed": hasattr(unreal.GameplayStatics, "begin_deferred_actor_spawn_from_class"),
+            "census_before": _census(), "root": {"name": str(root.get_name()), "world": [rl.x, rl.y, rl.z]},
+            "deck": dstate, "v2": _v2_state(v2), "mesh": MESH, "mi": MI, "master_ps": ps}
+    write_verified(opath, orig)                                    # ORIGINALS FIRST: nothing has been changed yet
+    unreal.log("S3SHORE_BENCH_PIE_ORIGINALS|run=%s|path=%s" % (run, opath))
+    applied = {"run": run, "complete": False, "borrowed": dstate["name"], "hidden": orig["v2"]["name"]}
+    try:
+        smc = deck.static_mesh_component
+        _set_mesh(smc, mesh)
+        n = int(smc.get_num_materials())                            # slot count of the NEW mesh
+        _require(n >= 1, "NEW_MESH_HAS_NO_SLOTS")
+        _set_deck(deck, mesh, [mi] * n, IDENTITY_REL, dstate["tags"] + [PIE_TAG], False, True)
+        _set_v2(v2, True, False)
+        got = _deck_state(deck)
+        _require(got["mesh"] == _path(mesh), "READBACK_MESH|%s" % got["mesh"])
+        _require(got["materials"] and all(m == _path(mi) for m in got["materials"]), "READBACK_MI|%s" % got["materials"])
+        _require(_rel_matches(got["rel"], IDENTITY_REL), "READBACK_NOT_IDENTITY|%s" % got["rel"])
+        _require(PIE_TAG in got["tags"] and not got["actor_hidden"] and got["visible"], "READBACK_DECK_FLAGS|%s" % got)
+        dl = deck.get_actor_location()
+        _require(max(abs(dl.x - rl.x), abs(dl.y - rl.y), abs(dl.z - rl.z)) <= 0.5,
+                 "READBACK_NOT_AT_ROOT|deck=%s|root=%s" % ([dl.x, dl.y, dl.z], [rl.x, rl.y, rl.z]))
+        vs = _v2_state(v2)
+        _require(vs["actor_hidden"] and vs["components"] and not any(vs["components"].values()), "READBACK_V2|%s" % vs)
+        applied.update(deck_after=got, v2_after=vs, census_after=_census())
+        dirt = _new_dirt(orig["census_before"], applied["census_after"])
+        _require(not dirt["content"] and not dirt["maps"], "EDITOR_PACKAGES_DIRTIED|%s" % dirt)
+        applied["complete"] = True
+        write_verified(pie_file("applied", run), applied)
+        return applied
+    except Exception:
+        import traceback
+        applied["error"] = traceback.format_exc()
+        write_verified(pie_file("applied", run), applied)
+        try:
+            run_bench_pie_restore(run + "-AUTO", {"bench_run": run}, check_still=False)
+        except Exception:  # noqa: BLE001
+            unreal.log_error("S3SHORE_FAILED|run=%s|mode=BENCH_PIE_APPLY|reason=restore_after_error|%s" % (
+                run, traceback.format_exc().replace("\n", " | ")))
+        raise
+
+
+def _still_check(world, orig, deck, v2, root):
+    """BEFORE restoring: did our state hold until now (i.e. through the s3mg still)?  Does not change anything."""
+    got = _deck_state(deck)
+    vs = _v2_state(v2)
+    dl, rl = deck.get_actor_location(), root.get_actor_location()
+    reasons = []
+    if got["mesh"] != orig["mesh_path"]:
+        reasons.append("mesh=%s" % got["mesh"])
+    if not got["materials"] or any(m != orig["mi_path"] for m in got["materials"]):
+        reasons.append("materials")
+    if not _rel_matches(got["rel"], IDENTITY_REL):
+        reasons.append("rel=%s" % got["rel"])
+    if max(abs(dl.x - rl.x), abs(dl.y - rl.y), abs(dl.z - rl.z)) > 0.5:
+        reasons.append("deck_off_root")
+    if got["actor_hidden"] or not got["visible"]:
+        reasons.append("ground_hidden")
+    if not vs["actor_hidden"] or any(vs["components"].values()):
+        reasons.append("v2_visible")
+    landed = all(abs(a - b) <= 1.0 for a, b in zip((rl.x, rl.y, rl.z), ROOT_LANDED_WORLD))
+    return {"verdict": "STILL_STATE_HELD" if not reasons else "STILL_INVALID|" + ",".join(reasons),
+            "root_now": [rl.x, rl.y, rl.z], "root_landed": landed, "deck_now": [dl.x, dl.y, dl.z]}
+
+
+def run_bench_pie_restore(run, args, check_still=True):
+    """PIE: put the borrowed deck copy and the v2 sand copy back from the originals FILE; idempotent.
+    Returns {"noop": reason} when nothing needed doing (PIE gone / new PIE / already restored)."""
+    bench_run = args.get("bench_run")
+    _require(bench_run, "BENCH_RUN_MISSING")
+    opath = pie_file("originals", bench_run)
+    _require(os.path.isfile(opath), "NO_ORIGINALS|%s" % opath)
+    orig = json.load(open(opath, encoding="utf-8"))
+    _require(orig["run"] == bench_run, "RUN_MISMATCH|%s" % orig["run"])
+    rpath = pie_file("restored", bench_run)
+    world, _editor_world = _pie_worlds()
+    if world is None:
+        write_verified(rpath, {"run": run, "bench_run": bench_run, "pie": "gone", "census": _census()})
+        return {"noop": "pie=gone (PIE copies died with PIE; editor world was never touched)", "record": rpath}
+    if (_path(world) != orig["pie_world"]
+            or float(unreal.GameplayStatics.get_real_time_seconds(world)) < orig["pie_real_time_s"]):
+        write_verified(rpath, {"run": run, "bench_run": bench_run, "pie": "new_session", "census": _census()})
+        return {"noop": "pie=new_session (the applied PIE ended; this PIE never had the bench)", "record": rpath}
+    names = _by_name(world)
+    rows = names.get(orig["deck"]["name"], [])
+    _require(len(rows) == 1, "DECK_BY_NAME|%s|%d" % (orig["deck"]["name"], len(rows)))
+    deck = rows[0]
+    v2rows = names.get(orig["v2"]["name"], [])
+    _require(len(v2rows) == 1, "V2_BY_NAME|%s|%d" % (orig["v2"]["name"], len(v2rows)))
+    v2 = v2rows[0]
+    root_rows = names.get(orig["root"]["name"], [])
+    _require(len(root_rows) == 1, "ROOT_BY_NAME|%s" % orig["root"]["name"])
+    rec = {"run": run, "bench_run": bench_run, "pie": "live"}
+    before_deck, before_v2 = _deck_state(deck), _v2_state(v2)
+    already = (before_deck["mesh"] == orig["deck"]["mesh"] and before_deck["materials"] == orig["deck"]["materials"]
+               and _rel_matches(before_deck["rel"], orig["deck"]["rel"]) and before_deck["tags"] == orig["deck"]["tags"]
+               and before_deck["actor_hidden"] == orig["deck"]["actor_hidden"]
+               and before_deck["visible"] == orig["deck"]["visible"] and before_v2 == orig["v2"])
+    if check_still and not already:
+        rec["still"] = _still_check(world, dict(orig, mesh_path=_path(unreal.EditorAssetLibrary.load_asset(MESH)),
+                                                mi_path=_path(unreal.EditorAssetLibrary.load_asset(MI))),
+                                    deck, v2, root_rows[0])
+        write_verified(rpath, rec)                                  # still evidence on disk before restoring
+    if not already:
+        eal = unreal.EditorAssetLibrary
+        mesh = eal.load_asset(orig["deck"]["mesh"].split(".")[0])
+        mats = [eal.load_asset(m.split(".")[0]) if m else None for m in orig["deck"]["materials"]]
+        _require(mesh is not None and all(m is not None for m, p in zip(mats, orig["deck"]["materials"]) if p),
+                 "ORIGINAL_ASSET_LOAD")
+        _set_deck(deck, mesh, mats, orig["deck"]["rel"], orig["deck"]["tags"], orig["deck"]["actor_hidden"],
+                  orig["deck"]["visible"])
+        _set_v2(v2, orig["v2"]["actor_hidden"], orig["v2"]["components"])
+    after_deck, after_v2 = _deck_state(deck), _v2_state(v2)
+    problems = []
+    for k in ("mesh", "materials", "tags", "actor_hidden", "visible", "hidden_in_game"):
+        if after_deck[k] != orig["deck"][k]:
+            problems.append("DECK_%s|%s" % (k.upper(), after_deck[k]))
+    if not _rel_matches(after_deck["rel"], orig["deck"]["rel"]):
+        problems.append("DECK_REL|%s" % after_deck["rel"])
+    if after_v2 != orig["v2"]:
+        problems.append("V2|%s" % after_v2)
+    left = [str(a.get_name()) for a in _tagged(world)]
+    if left:
+        problems.append("OUR_TAG_LEFT|%s" % left)
+    rec.update(deck_after=after_deck, v2_after=after_v2, problems=problems, census=_census(), already=already)
+    write_verified(rpath, rec)
+    _require(not problems, "RESTORE|" + json.dumps(problems[:10]))
+    verdict = rec.get("still", {}).get("verdict", "unchecked")
+    _require(not verdict.startswith("STILL_INVALID"), "RESTORED_BUT_STILL_INVALID|" + verdict)
+    if already:
+        return {"noop": "already_restored (state equals the originals file)", "record": rpath}
+    return {"restored": True, "still": verdict, "root_landed": rec["still"]["root_landed"] if "still" in rec else None,
+            "record": rpath}
+# END_BENCH_PIE
 
 
 # APPLY / REVERT / VERIFY: REFUSED by the runner.  Shape (unchanged): census clean -> backup umap (sha-checked) ->
