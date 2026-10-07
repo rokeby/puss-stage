@@ -65,3 +65,11 @@ approved AND has a clean DRY with no open look question; hold the rest here.
   S1/S2/S5 hem hangs ~20 cm above the floor (bake hangs from z 20; lowering sinks the pile) — accept gap / sink pile /
   re-bake lower? S3 floor top is 120.5 cm vs drape support 0 — site decision. 44–46 % of the hinge opening still visible
   at release (S1–S3). Pictures ready in MI_CurtainImage_P01/02/03/05.
+- **Girders v3 APPLIED** (GV3A-20261007-024125, 968afa4) after the line predictor was rebuilt to match the C++:
+  lines 48→64, 35→50, 19→18, 39→46, 158→209, 57→77 exactly as predicted; extra lines are cables under TOP lamps now
+  inside the deeper band (the re-hang to sit on the rig is still to do: rig_lamp_drop copy for 180-deep beams). Tests green.
+- **Meshy swap HELD (Gary's calls)** — import is ready, swap DRY not run. Findings [decl]: housings are ONE BodyMesh per
+  Structure (InfinityStageStructureActor.h:396-416), so lanterns can't vary per role without C++; matching old sphere
+  sizes makes bulbs 2–4× real; bodies sit up to 14.3 m from their lights in P06 (6 Oct rig-pattern moves didn't carry
+  them) — placing bulbs ON their lights visibly moves them; P05 would get lanterns behind 185 practicals.
+  Questions: bulb size (real vs old), move bodies onto lights?, lantern per passage OK or wait for C++?
