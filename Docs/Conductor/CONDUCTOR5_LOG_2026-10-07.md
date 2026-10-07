@@ -226,3 +226,6 @@
 - **Standing stones (Gary):** "the standing stones go in the sand half buried" — pivot ≈ surface − 135 cm (165 cm above
   sand; hole stays ~70 cm above), sample the dune over the 144×103 footprint; plural → vary yaw/burial/lean per copy;
   count/positions pending from Gary. PLACE after the dunes land.
+- **Standing stones (Gary, via Blender session):** "2-3 copies, varied"; "Conductor 5 proposes" placement in the dunes
+  toward the box edges, stills for him to adjust; hole readable from the main S3 camera on at least one. Proposal asked
+  of the dune pass (standing_stones_proposal.json, PLACE-schema compatible).
