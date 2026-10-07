@@ -52,7 +52,7 @@
           "type": "<InfinityStageEffectType.SMOKE: 1>"
         },
         "enabled": true,
-        "guid": "2E1224C745D5053D01A66A8602144118",
+        "guid": "7AE7EBE8479D72ADB01B7CA8AB8DE6ED",
         "kind": "<InfinityAttachmentKind.EFFECT: 4>",
         "label": "FX SMOKE P01 B09 L",
         "lighting": {
@@ -149,7 +149,7 @@
         },
         "trigger_distance_cm": 800.0
       },
-      "guid": "2E1224C745D5053D01A66A8602144118",
+      "guid": "7AE7EBE8479D72ADB01B7CA8AB8DE6ED",
       "inner_edge_cm": 137.881,
       "label": "FX SMOKE P01 B09 L",
       "location": [
@@ -214,7 +214,7 @@
           "type": "<InfinityStageEffectType.SMOKE: 1>"
         },
         "enabled": true,
-        "guid": "BB6FBFA74CE048BB34C82BA4508F0CD1",
+        "guid": "185E35794D67361E6EC34BBC5BCDE12E",
         "kind": "<InfinityAttachmentKind.EFFECT: 4>",
         "label": "FX SMOKE P01 B25 R",
         "lighting": {
@@ -311,7 +311,7 @@
         },
         "trigger_distance_cm": 800.0
       },
-      "guid": "BB6FBFA74CE048BB34C82BA4508F0CD1",
+      "guid": "185E35794D67361E6EC34BBC5BCDE12E",
       "inner_edge_cm": 139.012,
       "label": "FX SMOKE P01 B25 R",
       "location": [
@@ -376,7 +376,7 @@
           "type": "<InfinityStageEffectType.SMOKE: 1>"
         },
         "enabled": true,
-        "guid": "C4A4026F4B171EB40B0AE8AAEF2C1130",
+        "guid": "3D2A7D144A1FE564F52C2A80BC91ADAB",
         "kind": "<InfinityAttachmentKind.EFFECT: 4>",
         "label": "FX SMOKE P01 B41 L",
         "lighting": {
@@ -473,7 +473,7 @@
         },
         "trigger_distance_cm": 800.0
       },
-      "guid": "C4A4026F4B171EB40B0AE8AAEF2C1130",
+      "guid": "3D2A7D144A1FE564F52C2A80BC91ADAB",
       "inner_edge_cm": 500.422,
       "label": "FX SMOKE P01 B41 L",
       "location": [
@@ -538,7 +538,7 @@
           "type": "<InfinityStageEffectType.SMOKE: 1>"
         },
         "enabled": true,
-        "guid": "4689D9284954F0AD7F56FFAD2EA91AA8",
+        "guid": "472D77F84DADD52D61C1A485EED3FDDE",
         "kind": "<InfinityAttachmentKind.EFFECT: 4>",
         "label": "FX SMOKE P03 B08 L",
         "lighting": {
@@ -635,7 +635,7 @@
         },
         "trigger_distance_cm": 800.0
       },
-      "guid": "4689D9284954F0AD7F56FFAD2EA91AA8",
+      "guid": "472D77F84DADD52D61C1A485EED3FDDE",
       "inner_edge_cm": 340.639,
       "label": "FX SMOKE P03 B08 L",
       "location": [
@@ -700,7 +700,7 @@
           "type": "<InfinityStageEffectType.SMOKE: 1>"
         },
         "enabled": true,
-        "guid": "25F6343B4205B958211329BB6EC8E90F",
+        "guid": "D7AE23B54AA0E75B7BFE9D887B1AE704",
         "kind": "<InfinityAttachmentKind.EFFECT: 4>",
         "label": "FX SMOKE P03 B13 R",
         "lighting": {
@@ -797,7 +797,7 @@
         },
         "trigger_distance_cm": 800.0
       },
-      "guid": "25F6343B4205B958211329BB6EC8E90F",
+      "guid": "D7AE23B54AA0E75B7BFE9D887B1AE704",
       "inner_edge_cm": 638.739,
       "label": "FX SMOKE P03 B13 R",
       "location": [
@@ -862,7 +862,7 @@
           "type": "<InfinityStageEffectType.SMOKE: 1>"
         },
         "enabled": true,
-        "guid": "284B221C4931DBA3EBA7FAA19660954D",
+        "guid": "B03575754E78F09E7AA373B64F3C59CB",
         "kind": "<InfinityAttachmentKind.EFFECT: 4>",
         "label": "FX SMOKE P03 B18 L",
         "lighting": {
@@ -959,7 +959,7 @@
         },
         "trigger_distance_cm": 800.0
       },
-      "guid": "284B221C4931DBA3EBA7FAA19660954D",
+      "guid": "B03575754E78F09E7AA373B64F3C59CB",
       "inner_edge_cm": 343.095,
       "label": "FX SMOKE P03 B18 L",
       "location": [
@@ -1024,7 +1024,7 @@
           "type": "<InfinityStageEffectType.SMOKE: 1>"
         },
         "enabled": true,
-        "guid": "594656154D83BC4339DB8E9209C67D18",
+        "guid": "7289F98248C9B0B509912CBC1271814B",
         "kind": "<InfinityAttachmentKind.EFFECT: 4>",
         "label": "FX SMOKE P04 B04 L",
         "lighting": {
@@ -1121,7 +1121,7 @@
         },
         "trigger_distance_cm": 800.0
       },
-      "guid": "594656154D83BC4339DB8E9209C67D18",
+      "guid": "7289F98248C9B0B509912CBC1271814B",
       "inner_edge_cm": 387.354,
       "label": "FX SMOKE P04 B04 L",
       "location": [
@@ -1186,7 +1186,7 @@
           "type": "<InfinityStageEffectType.SMOKE: 1>"
         },
         "enabled": true,
-        "guid": "B2123A7040A8FF3A32F546AE46D8550E",
+        "guid": "A9FDB2AE4DFC4AACCFE087B57331ABE8",
         "kind": "<InfinityAttachmentKind.EFFECT: 4>",
         "label": "FX SMOKE P04 B11 R",
         "lighting": {
@@ -1283,7 +1283,7 @@
         },
         "trigger_distance_cm": 800.0
       },
-      "guid": "B2123A7040A8FF3A32F546AE46D8550E",
+      "guid": "A9FDB2AE4DFC4AACCFE087B57331ABE8",
       "inner_edge_cm": 289.574,
       "label": "FX SMOKE P04 B11 R",
       "location": [
@@ -1348,7 +1348,7 @@
           "type": "<InfinityStageEffectType.SMOKE: 1>"
         },
         "enabled": true,
-        "guid": "1EF8837543EE305D494A26A4AC1DCE1E",
+        "guid": "D3A44E6048DA8847003C32A286CA4ED1",
         "kind": "<InfinityAttachmentKind.EFFECT: 4>",
         "label": "FX SMOKE P04 B18 L",
         "lighting": {
@@ -1445,7 +1445,7 @@
         },
         "trigger_distance_cm": 800.0
       },
-      "guid": "1EF8837543EE305D494A26A4AC1DCE1E",
+      "guid": "D3A44E6048DA8847003C32A286CA4ED1",
       "inner_edge_cm": 390.382,
       "label": "FX SMOKE P04 B18 L",
       "location": [
@@ -1492,21 +1492,21 @@
   "backup": {
     "packages": [
       {
-        "backup": "E:/PussStage/Backups\\PreFxSmoke-20261007-023816\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
-        "bytes": 25175112,
+        "backup": "E:/PussStage/Backups\\PreFxSmoke-20261007-103503\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+        "bytes": 25183167,
         "package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
-        "sha256": "2bdbc12e8b4dcc43142834826d97fe932d09d80042ae557ad4a561fb18e11a8a",
+        "sha256": "f418458aef5ef56fc1d52a11fb4b315094b91234fce5a427ba80e62731cac5d2",
         "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset"
       },
       {
-        "backup": "E:/PussStage/Backups\\PreFxSmoke-20261007-023816\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
-        "bytes": 19419060,
+        "backup": "E:/PussStage/Backups\\PreFxSmoke-20261007-103503\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 18422725,
         "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
-        "sha256": "6080d4520b32e39bd9406a2e0a4ce809dc9e65356297395022fe8c65146aa99a",
+        "sha256": "623cb21cb8c87a23258b3526dc29be3aa5b9ea938f256e0625f60c73729041c1",
         "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
       }
     ],
-    "root": "E:/PussStage/Backups\\PreFxSmoke-20261007-023816"
+    "root": "E:/PussStage/Backups\\PreFxSmoke-20261007-103503"
   },
   "plan": [
     {
@@ -1645,101 +1645,10 @@
       "yaw": 90.0
     }
   ],
-  "run": "20261007-023816",
+  "run": "20261007-103503",
   "saved_master_command": "Automation RunTests InfinityStage.Editor.SavedMasterMatchesShow",
   "spawned": {
-    "1EF8837543EE305D494A26A4AC1DCE1E": [
-      {
-        "class": "BP_Effect_SmokePot_C",
-        "location": [
-          8830.000441690237,
-          239569.618,
-          0.0
-        ],
-        "templates": {
-          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
-        }
-      }
-    ],
-    "25F6343B4205B958211329BB6EC8E90F": [
-      {
-        "class": "BP_Effect_SmokePot_C",
-        "location": [
-          6330.000047885031,
-          160678.739,
-          0.0
-        ],
-        "templates": {
-          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
-        }
-      }
-    ],
-    "284B221C4931DBA3EBA7FAA19660954D": [
-      {
-        "class": "BP_Effect_SmokePot_C",
-        "location": [
-          8830.000067039044,
-          159616.905,
-          0.0
-        ],
-        "templates": {
-          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
-        }
-      }
-    ],
-    "2E1224C745D5053D01A66A8602144118": [
-      {
-        "class": "BP_Effect_SmokePot_C",
-        "location": [
-          5129.999820284367,
-          -177.881,
-          0.0
-        ],
-        "templates": {
-          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
-        }
-      }
-    ],
-    "4689D9284954F0AD7F56FFAD2EA91AA8": [
-      {
-        "class": "BP_Effect_SmokePot_C",
-        "location": [
-          3830.0000287310186,
-          159619.361,
-          0.0
-        ],
-        "templates": {
-          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
-        }
-      }
-    ],
-    "594656154D83BC4339DB8E9209C67D18": [
-      {
-        "class": "BP_Effect_SmokePot_C",
-        "location": [
-          1830.0000901261867,
-          239572.6459904479,
-          0.0
-        ],
-        "templates": {
-          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
-        }
-      }
-    ],
-    "B2123A7040A8FF3A32F546AE46D8550E": [
-      {
-        "class": "BP_Effect_SmokePot_C",
-        "location": [
-          5329.9999470689745,
-          240329.574,
-          0.0
-        ],
-        "templates": {
-          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
-        }
-      }
-    ],
-    "BB6FBFA74CE048BB34C82BA4508F0CD1": [
+    "185E35794D67361E6EC34BBC5BCDE12E": [
       {
         "class": "BP_Effect_SmokePot_C",
         "location": [
@@ -1752,12 +1661,103 @@
         }
       }
     ],
-    "C4A4026F4B171EB40B0AE8AAEF2C1130": [
+    "3D2A7D144A1FE564F52C2A80BC91ADAB": [
       {
         "class": "BP_Effect_SmokePot_C",
         "location": [
           24330.000411014706,
           -540.422,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "472D77F84DADD52D61C1A485EED3FDDE": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          3830.0000287310186,
+          159619.361,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "7289F98248C9B0B509912CBC1271814B": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          1830.0000901261867,
+          239572.6459904479,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "7AE7EBE8479D72ADB01B7CA8AB8DE6ED": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          5129.999820284367,
+          -177.881,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "A9FDB2AE4DFC4AACCFE087B57331ABE8": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          5329.9999470689745,
+          240329.574,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "B03575754E78F09E7AA373B64F3C59CB": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          8830.000067039044,
+          159616.905,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "D3A44E6048DA8847003C32A286CA4ED1": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          8830.000441690237,
+          239569.618,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "D7AE23B54AA0E75B7BFE9D887B1AE704": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          6330.000047885031,
+          160678.739,
           0.0
         ],
         "templates": {

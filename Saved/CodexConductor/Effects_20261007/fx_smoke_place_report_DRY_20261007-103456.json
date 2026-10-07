@@ -1,0 +1,731 @@
+{
+  "args": {
+    "active_radius_cm": 2500,
+    "along_cm": 80,
+    "expected_template": "/Game/Japanese_Alley/VFX/Humo_Par",
+    "feeds_local_medium": false,
+    "mode": "DRY",
+    "offstage_cm": 40,
+    "output": 0.5,
+    "passages": {
+      "P01": {
+        "count": 3,
+        "sides": "alternate"
+      },
+      "P03": {
+        "bays": [
+          8,
+          13,
+          18
+        ],
+        "sides": "alternate"
+      },
+      "P04": {
+        "count": 3,
+        "sides": "alternate"
+      }
+    },
+    "revert_accept_drift": false,
+    "z_cm": 0
+  },
+  "bp_gate": {
+    "bp": "/Game/Scenes/Effects/BP_Effect_SmokePot",
+    "plume_template": "/Game/Japanese_Alley/VFX/Humo_Par"
+  },
+  "dirty_after": {
+    "content": [],
+    "maps": []
+  },
+  "dirty_before": {
+    "content": [],
+    "maps": []
+  },
+  "mode": "DRY",
+  "ok": true,
+  "panels": {
+    "P01": [
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 001",
+        "ordinal": 1
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 002",
+        "ordinal": 2
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 003",
+        "ordinal": 3
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 004",
+        "ordinal": 4
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 005",
+        "ordinal": 5
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 006",
+        "ordinal": 6
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 007",
+        "ordinal": 7
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 008",
+        "ordinal": 8
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 009",
+        "ordinal": 9
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 011",
+        "ordinal": 10
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 012",
+        "ordinal": 11
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 010",
+        "ordinal": 12
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 013",
+        "ordinal": 13
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 014",
+        "ordinal": 14
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 015",
+        "ordinal": 15
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 016",
+        "ordinal": 16
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 017",
+        "ordinal": 17
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 018",
+        "ordinal": 18
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 019",
+        "ordinal": 19
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 020",
+        "ordinal": 20
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 021",
+        "ordinal": 21
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 022",
+        "ordinal": 22
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 023",
+        "ordinal": 23
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 024",
+        "ordinal": 24
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 025",
+        "ordinal": 25
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 026",
+        "ordinal": 26
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 027",
+        "ordinal": 27
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 028",
+        "ordinal": 28
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 029",
+        "ordinal": 29
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 030",
+        "ordinal": 30
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 031",
+        "ordinal": 31
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 032",
+        "ordinal": 32
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 033",
+        "ordinal": 33
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 034",
+        "ordinal": 34
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 035",
+        "ordinal": 35
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 036",
+        "ordinal": 36
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 037",
+        "ordinal": 37
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 038",
+        "ordinal": 38
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 039",
+        "ordinal": 39
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 040",
+        "ordinal": 40
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 041",
+        "ordinal": 41
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 042",
+        "ordinal": 42
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 043",
+        "ordinal": 43
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 044",
+        "ordinal": 44
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 045",
+        "ordinal": 45
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 046",
+        "ordinal": 46
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 047",
+        "ordinal": 47
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 048",
+        "ordinal": 48
+      }
+    ],
+    "P03": [
+      {
+        "L_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_SunWashedAdministration_01_L",
+        "R_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_SunWashedAdministration_01_R",
+        "label": "P03 Wing 001",
+        "ordinal": 1
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_YellowCurtainThreshold_01_L",
+        "R_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_YellowCurtainThreshold_01_R",
+        "label": "P03 Wing 003",
+        "ordinal": 2
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_GlassBlockClassroom_01_L",
+        "R_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_GlassBlockClassroom_01_R",
+        "label": "P03 Wing 002",
+        "ordinal": 3
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_RepeatingSanatoriumArches_01_L",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_39_rock_monolith_lichen_R_t5p",
+        "label": "P03 Wing 004",
+        "ordinal": 4
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_21_rock_formation_moss_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_45_rustic_wooden_cottage_R_t5p",
+        "label": "P03 Wing 005",
+        "ordinal": 5
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_40_stonehenge_portal_stone_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_43_weathered_wooden_tower_R_t5j",
+        "label": "P03 Wing 006",
+        "ordinal": 6
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_33_stone_pillar_ancient_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_52_rock_monolith_lichen_R_t5p",
+        "label": "P03 Wing 007",
+        "ordinal": 7
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_coat_wall_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_45_rustic_wooden_cottage_R_t5p",
+        "label": "P03 Wing 008",
+        "ordinal": 8
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_58_rock_formation_isolated_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_coat_wall_R_v1_t5p",
+        "label": "P03 Wing 009",
+        "ordinal": 9
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_36_stone_monolith_with_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_52_rock_monolith_lichen_R_t5p",
+        "label": "P03 Wing 010",
+        "ordinal": 10
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_59_rock_formation_with_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_39_rock_monolith_lichen_R_t5p",
+        "label": "P03 Wing 011",
+        "ordinal": 11
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_33_stone_pillar_ancient_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_43_weathered_wooden_tower_R_t5j",
+        "label": "P03 Wing 012",
+        "ordinal": 12
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_41_rock_formation_with_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_heavy_oblong_R_v1_t5p",
+        "label": "P03 Wing 013",
+        "ordinal": 13
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_21_rock_formation_moss_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_small_burning_R_v1_t5p",
+        "label": "P03 Wing 014",
+        "ordinal": 14
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_46_mossy_wooden_shack_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_heavy_oblong_R_v1_t5p",
+        "label": "P03 Wing 015",
+        "ordinal": 15
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_36_stone_monolith_with_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_abstract_cluster_R_v1_t5p",
+        "label": "P03 Wing 016",
+        "ordinal": 16
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_48_stone_pillar_ancient_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_small_burning_R_v1_t5p",
+        "label": "P03 Wing 017",
+        "ordinal": 17
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_large_roaring_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_abstract_cluster_R_v1_t5p",
+        "label": "P03 Wing 018",
+        "ordinal": 18
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_51_stone_monolith_structure_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_abstract_cluster_R_v1_t5p",
+        "label": "P03 Wing 019",
+        "ordinal": 19
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_54_stone_monolith_with_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_small_burning_R_v1_t5p",
+        "label": "P03 Wing 020",
+        "ordinal": 20
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_large_roaring_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_abstract_cluster_R_v1_t5p",
+        "label": "P03 Wing 021",
+        "ordinal": 21
+      }
+    ],
+    "P04": [
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_R_v1_t5p",
+        "label": "P04 Wing 001",
+        "ordinal": 1
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v2_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v1_cv12b_t5j",
+        "label": "P04 Wing 002",
+        "ordinal": 2
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_interior_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v2_cv12b_t5j",
+        "label": "P04 Wing 003",
+        "ordinal": 3
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_L_v1_cv12b_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v3_cv12b_t5j",
+        "label": "P04 Wing 004",
+        "ordinal": 4
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_R_v1_t5p",
+        "label": "P04 Wing 005",
+        "ordinal": 5
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v2_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v1_cv12b_t5j",
+        "label": "P04 Wing 006",
+        "ordinal": 6
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_interior_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v2_cv12b_t5j",
+        "label": "P04 Wing 007",
+        "ordinal": 7
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_L_v1_cv12b_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v3_cv12b_t5j",
+        "label": "P04 Wing 008",
+        "ordinal": 8
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_R_v1_t5p",
+        "label": "P04 Wing 009",
+        "ordinal": 9
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v2_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v1_cv12b_t5j",
+        "label": "P04 Wing 010",
+        "ordinal": 10
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_interior_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v2_cv12b_t5j",
+        "label": "P04 Wing 011",
+        "ordinal": 11
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_L_v1_cv12b_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v3_cv12b_t5j",
+        "label": "P04 Wing 012",
+        "ordinal": 12
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_R_v1_t5p",
+        "label": "P04 Wing 013",
+        "ordinal": 13
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v2_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v1_cv12b_t5j",
+        "label": "P04 Wing 014",
+        "ordinal": 14
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_interior_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v2_cv12b_t5j",
+        "label": "P04 Wing 015",
+        "ordinal": 15
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_L_v1_cv12b_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v3_cv12b_t5j",
+        "label": "P04 Wing 016",
+        "ordinal": 16
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_R_v1_t5p",
+        "label": "P04 Wing 017",
+        "ordinal": 17
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v2_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v1_cv12b_t5j",
+        "label": "P04 Wing 018",
+        "ordinal": 18
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_interior_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v2_cv12b_t5j",
+        "label": "P04 Wing 019",
+        "ordinal": 19
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_L_v1_cv12b_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v3_cv12b_t5j",
+        "label": "P04 Wing 020",
+        "ordinal": 20
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_R_v1_t5p",
+        "label": "P04 Wing 021",
+        "ordinal": 21
+      }
+    ]
+  },
+  "plan": [
+    {
+      "cue_guid": "8ED7907CA54D333F0D7BFDA27C421316",
+      "cue_label": "P01 Wing 009",
+      "inner_edge_cm": 137.881,
+      "label": "FX SMOKE P01 B09 L",
+      "location": [
+        80.0,
+        -177.881,
+        0.0
+      ],
+      "ordinal": 9,
+      "passage": "P01",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "1D653482314A6193547A83BA8A763F74",
+      "cue_label": "P01 Wing 025",
+      "inner_edge_cm": 139.012,
+      "label": "FX SMOKE P01 B25 R",
+      "location": [
+        80.0,
+        179.012,
+        0.0
+      ],
+      "ordinal": 25,
+      "passage": "P01",
+      "side": "R",
+      "yaw": -90.0
+    },
+    {
+      "cue_guid": "BEEB9F25C24E6BE2E5F59480F0F03755",
+      "cue_label": "P01 Wing 041",
+      "inner_edge_cm": 500.422,
+      "label": "FX SMOKE P01 B41 L",
+      "location": [
+        80.0,
+        -540.422,
+        0.0
+      ],
+      "ordinal": 41,
+      "passage": "P01",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "7742F44B2A42B6A7203114874CAD3E5B",
+      "cue_label": "P03 Wing 008",
+      "inner_edge_cm": 340.639,
+      "label": "FX SMOKE P03 B08 L",
+      "location": [
+        80.0,
+        -380.639,
+        0.0
+      ],
+      "ordinal": 8,
+      "passage": "P03",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "622946E51046353D4D27EF8B20389CE3",
+      "cue_label": "P03 Wing 013",
+      "inner_edge_cm": 638.739,
+      "label": "FX SMOKE P03 B13 R",
+      "location": [
+        80.0,
+        678.739,
+        0.0
+      ],
+      "ordinal": 13,
+      "passage": "P03",
+      "side": "R",
+      "yaw": -90.0
+    },
+    {
+      "cue_guid": "B668CE90914EC39B4A510A9EE1A02F51",
+      "cue_label": "P03 Wing 018",
+      "inner_edge_cm": 343.095,
+      "label": "FX SMOKE P03 B18 L",
+      "location": [
+        80.0,
+        -383.095,
+        0.0
+      ],
+      "ordinal": 18,
+      "passage": "P03",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "5B6B2CD70E47E805ED75C790D2B07967",
+      "cue_label": "P04 Wing 004",
+      "inner_edge_cm": 387.354,
+      "label": "FX SMOKE P04 B04 L",
+      "location": [
+        80.0,
+        -427.354,
+        0.0
+      ],
+      "ordinal": 4,
+      "passage": "P04",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "84958F43DA441BCC978C7BBE1E154DF6",
+      "cue_label": "P04 Wing 011",
+      "inner_edge_cm": 289.574,
+      "label": "FX SMOKE P04 B11 R",
+      "location": [
+        80.0,
+        329.574,
+        0.0
+      ],
+      "ordinal": 11,
+      "passage": "P04",
+      "side": "R",
+      "yaw": -90.0
+    },
+    {
+      "cue_guid": "CDF8F937C64C300A9B8F3A99112AEAE0",
+      "cue_label": "P04 Wing 018",
+      "inner_edge_cm": 390.382,
+      "label": "FX SMOKE P04 B18 L",
+      "location": [
+        80.0,
+        -430.382,
+        0.0
+      ],
+      "ordinal": 18,
+      "passage": "P04",
+      "side": "L",
+      "yaw": 90.0
+    }
+  ],
+  "run": "20261007-103456"
+}

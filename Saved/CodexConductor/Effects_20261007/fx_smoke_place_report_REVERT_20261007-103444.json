@@ -1,0 +1,65 @@
+{
+  "archived_record": "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\fx_smoke_place_record.json.reverted-20261007-103444",
+  "args": {
+    "active_radius_cm": 2500,
+    "along_cm": 80,
+    "confirm": "REVERT FXSMOKE",
+    "expected_template": "/Game/Japanese_Alley/VFX/Humo_Par",
+    "feeds_local_medium": false,
+    "mode": "REVERT",
+    "offstage_cm": 40,
+    "output": 0.5,
+    "passages": {
+      "P01": {
+        "count": 3,
+        "sides": "alternate"
+      },
+      "P03": {
+        "bays": [
+          8,
+          13,
+          18
+        ],
+        "sides": "alternate"
+      },
+      "P04": {
+        "count": 3,
+        "sides": "alternate"
+      }
+    },
+    "revert_accept_drift": false,
+    "z_cm": 0
+  },
+  "backup": {
+    "packages": [
+      {
+        "backup": "E:/PussStage/Backups\\PreFxSmokeRevert-20261007-103444\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+        "bytes": 25225331,
+        "package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
+        "sha256": "eec8b78e5e580e227c5e6e16260b5a80c1ee934462d3cd59cbcfc64c9d9a5bb2",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset"
+      },
+      {
+        "backup": "E:/PussStage/Backups\\PreFxSmokeRevert-20261007-103444\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 18437974,
+        "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+        "sha256": "0f73d20cbe3d11c0e974f196716973aa4e3c63843bee85aada9aed1225885208",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+      }
+    ],
+    "root": "E:/PussStage/Backups\\PreFxSmokeRevert-20261007-103444"
+  },
+  "dirty_after": {
+    "content": [],
+    "maps": []
+  },
+  "dirty_before": {
+    "content": [],
+    "maps": []
+  },
+  "drift": {},
+  "mode": "REVERT",
+  "ok": true,
+  "run": "20261007-103444",
+  "saved_master_command": "Automation RunTests InfinityStage.Editor.SavedMasterMatchesShow"
+}

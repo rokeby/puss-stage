@@ -1,0 +1,2331 @@
+{
+  "added": [
+    {
+      "cue_guid": "8ED7907CA54D333F0D7BFDA27C421316",
+      "cue_label": "P01 Wing 009",
+      "expected": {
+        "actor_class": null,
+        "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+        "effect": {
+          "active_radius_cm": 2500.0,
+          "burn_span_cm": 4000.0,
+          "burn_start_ahead_cm": 3000.0,
+          "burn_u_axis": [
+            0.0,
+            0.0
+          ],
+          "burn_uv_measured_mesh": null,
+          "burn_v_axis": [
+            0.0,
+            0.0
+          ],
+          "feeds_local_medium": false,
+          "flicker_amount": 0.25,
+          "ignition_uv": [
+            0.5,
+            1.0
+          ],
+          "linked_light_attachment_guid": "00000000000000000000000000000000",
+          "medium_density": 0.25,
+          "medium_height_falloff": 800.0,
+          "medium_offset_cm": [
+            250.0,
+            0.0,
+            150.0
+          ],
+          "medium_radius_cm": 300.0,
+          "motes_extent_cm": [
+            250.0,
+            400.0,
+            500.0
+          ],
+          "output": 0.5,
+          "pulse_duty": 0.25,
+          "pulse_period_seconds": 4.0,
+          "replicated_from_attachment_guid": "00000000000000000000000000000000",
+          "tint": [
+            0.3499999940395355,
+            0.33000001311302185,
+            0.30000001192092896,
+            1.0
+          ],
+          "type": "<InfinityStageEffectType.SMOKE: 1>"
+        },
+        "enabled": true,
+        "guid": "7AE7EBE8479D72ADB01B7CA8AB8DE6ED",
+        "kind": "<InfinityAttachmentKind.EFFECT: 4>",
+        "label": "FX SMOKE P01 B09 L",
+        "lighting": {
+          "affect_global_illumination": true,
+          "affect_reflection": true,
+          "affect_translucent_lighting": true,
+          "attenuation_radius_cm": 5000.0,
+          "cast_shadows": true,
+          "cast_volumetric_shadow": true,
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuse_scale": 1.0,
+          "drama": {
+            "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+            "after_pass_distance_cm": 600.0,
+            "decay_distance_cm": 1500.0,
+            "ignition_stutter": 0.6000000238418579,
+            "pan_amplitude_degrees": 6.0,
+            "period_seconds": 14.0,
+            "phase_cycles": 0.0,
+            "phase_from_identity": true,
+            "slow_move": false,
+            "strike_distance_cm": 2500.0,
+            "strike_on_approach": false,
+            "strike_ramp_cm": 250.0,
+            "tilt_amplitude_degrees": 3.0,
+            "unstruck_intensity_scale": 0.0
+          },
+          "force_cached_shadows_for_movable_primitives": false,
+          "ies_brightness_scale": 1.0,
+          "ies_texture": null,
+          "indirect_lighting_intensity": 1.0,
+          "inner_cone_angle_degrees": 18.0,
+          "intensity": 5000.0,
+          "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+          "inverse_exposure_blend": 0.0,
+          "light_falloff_exponent": 8.0,
+          "light_function_disabled_brightness": 0.0,
+          "light_function_fade_distance_cm": 100000.0,
+          "light_function_material": null,
+          "light_function_scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "lighting_channel0": true,
+          "lighting_channel1": false,
+          "lighting_channel2": false,
+          "max_distance_fade_range_cm": 0.0,
+          "max_draw_distance_cm": 0.0,
+          "outer_cone_angle_degrees": 42.0,
+          "rect_barn_door_angle_degrees": 88.0,
+          "rect_barn_door_length_cm": 20.0,
+          "rect_source_height_cm": 100.0,
+          "rect_source_texture": null,
+          "rect_source_width_cm": 100.0,
+          "shadow_bias": 0.5,
+          "shadow_slope_bias": 0.5,
+          "soft_source_radius_cm": 0.0,
+          "source_length_cm": 0.0,
+          "source_radius_cm": 0.0,
+          "specular_scale": 1.0,
+          "temperature_kelvin": 6500.0,
+          "transmission": false,
+          "type": "<InfinityStageLightType.SPOT: 0>",
+          "use_ies_brightness": false,
+          "use_inverse_squared_falloff": true,
+          "use_ray_traced_distance_field_shadows": false,
+          "use_temperature": false,
+          "volumetric_scattering_intensity": 1.0
+        },
+        "mesh": null,
+        "relative_transform": {
+          "location": [
+            80.0,
+            -177.881,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            -0.0,
+            0.7071067811865476,
+            0.7071067811865477
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "trigger_distance_cm": 800.0
+      },
+      "guid": "7AE7EBE8479D72ADB01B7CA8AB8DE6ED",
+      "inner_edge_cm": 137.881,
+      "label": "FX SMOKE P01 B09 L",
+      "location": [
+        80.0,
+        -177.881,
+        0.0
+      ],
+      "ordinal": 9,
+      "passage": "P01",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "1D653482314A6193547A83BA8A763F74",
+      "cue_label": "P01 Wing 025",
+      "expected": {
+        "actor_class": null,
+        "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+        "effect": {
+          "active_radius_cm": 2500.0,
+          "burn_span_cm": 4000.0,
+          "burn_start_ahead_cm": 3000.0,
+          "burn_u_axis": [
+            0.0,
+            0.0
+          ],
+          "burn_uv_measured_mesh": null,
+          "burn_v_axis": [
+            0.0,
+            0.0
+          ],
+          "feeds_local_medium": false,
+          "flicker_amount": 0.25,
+          "ignition_uv": [
+            0.5,
+            1.0
+          ],
+          "linked_light_attachment_guid": "00000000000000000000000000000000",
+          "medium_density": 0.25,
+          "medium_height_falloff": 800.0,
+          "medium_offset_cm": [
+            250.0,
+            0.0,
+            150.0
+          ],
+          "medium_radius_cm": 300.0,
+          "motes_extent_cm": [
+            250.0,
+            400.0,
+            500.0
+          ],
+          "output": 0.5,
+          "pulse_duty": 0.25,
+          "pulse_period_seconds": 4.0,
+          "replicated_from_attachment_guid": "00000000000000000000000000000000",
+          "tint": [
+            0.3499999940395355,
+            0.33000001311302185,
+            0.30000001192092896,
+            1.0
+          ],
+          "type": "<InfinityStageEffectType.SMOKE: 1>"
+        },
+        "enabled": true,
+        "guid": "185E35794D67361E6EC34BBC5BCDE12E",
+        "kind": "<InfinityAttachmentKind.EFFECT: 4>",
+        "label": "FX SMOKE P01 B25 R",
+        "lighting": {
+          "affect_global_illumination": true,
+          "affect_reflection": true,
+          "affect_translucent_lighting": true,
+          "attenuation_radius_cm": 5000.0,
+          "cast_shadows": true,
+          "cast_volumetric_shadow": true,
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuse_scale": 1.0,
+          "drama": {
+            "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+            "after_pass_distance_cm": 600.0,
+            "decay_distance_cm": 1500.0,
+            "ignition_stutter": 0.6000000238418579,
+            "pan_amplitude_degrees": 6.0,
+            "period_seconds": 14.0,
+            "phase_cycles": 0.0,
+            "phase_from_identity": true,
+            "slow_move": false,
+            "strike_distance_cm": 2500.0,
+            "strike_on_approach": false,
+            "strike_ramp_cm": 250.0,
+            "tilt_amplitude_degrees": 3.0,
+            "unstruck_intensity_scale": 0.0
+          },
+          "force_cached_shadows_for_movable_primitives": false,
+          "ies_brightness_scale": 1.0,
+          "ies_texture": null,
+          "indirect_lighting_intensity": 1.0,
+          "inner_cone_angle_degrees": 18.0,
+          "intensity": 5000.0,
+          "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+          "inverse_exposure_blend": 0.0,
+          "light_falloff_exponent": 8.0,
+          "light_function_disabled_brightness": 0.0,
+          "light_function_fade_distance_cm": 100000.0,
+          "light_function_material": null,
+          "light_function_scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "lighting_channel0": true,
+          "lighting_channel1": false,
+          "lighting_channel2": false,
+          "max_distance_fade_range_cm": 0.0,
+          "max_draw_distance_cm": 0.0,
+          "outer_cone_angle_degrees": 42.0,
+          "rect_barn_door_angle_degrees": 88.0,
+          "rect_barn_door_length_cm": 20.0,
+          "rect_source_height_cm": 100.0,
+          "rect_source_texture": null,
+          "rect_source_width_cm": 100.0,
+          "shadow_bias": 0.5,
+          "shadow_slope_bias": 0.5,
+          "soft_source_radius_cm": 0.0,
+          "source_length_cm": 0.0,
+          "source_radius_cm": 0.0,
+          "specular_scale": 1.0,
+          "temperature_kelvin": 6500.0,
+          "transmission": false,
+          "type": "<InfinityStageLightType.SPOT: 0>",
+          "use_ies_brightness": false,
+          "use_inverse_squared_falloff": true,
+          "use_ray_traced_distance_field_shadows": false,
+          "use_temperature": false,
+          "volumetric_scattering_intensity": 1.0
+        },
+        "mesh": null,
+        "relative_transform": {
+          "location": [
+            80.0,
+            179.012,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            -0.0,
+            0.7071067811865476,
+            -0.7071067811865477
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "trigger_distance_cm": 800.0
+      },
+      "guid": "185E35794D67361E6EC34BBC5BCDE12E",
+      "inner_edge_cm": 139.012,
+      "label": "FX SMOKE P01 B25 R",
+      "location": [
+        80.0,
+        179.012,
+        0.0
+      ],
+      "ordinal": 25,
+      "passage": "P01",
+      "side": "R",
+      "yaw": -90.0
+    },
+    {
+      "cue_guid": "BEEB9F25C24E6BE2E5F59480F0F03755",
+      "cue_label": "P01 Wing 041",
+      "expected": {
+        "actor_class": null,
+        "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+        "effect": {
+          "active_radius_cm": 2500.0,
+          "burn_span_cm": 4000.0,
+          "burn_start_ahead_cm": 3000.0,
+          "burn_u_axis": [
+            0.0,
+            0.0
+          ],
+          "burn_uv_measured_mesh": null,
+          "burn_v_axis": [
+            0.0,
+            0.0
+          ],
+          "feeds_local_medium": false,
+          "flicker_amount": 0.25,
+          "ignition_uv": [
+            0.5,
+            1.0
+          ],
+          "linked_light_attachment_guid": "00000000000000000000000000000000",
+          "medium_density": 0.25,
+          "medium_height_falloff": 800.0,
+          "medium_offset_cm": [
+            250.0,
+            0.0,
+            150.0
+          ],
+          "medium_radius_cm": 300.0,
+          "motes_extent_cm": [
+            250.0,
+            400.0,
+            500.0
+          ],
+          "output": 0.5,
+          "pulse_duty": 0.25,
+          "pulse_period_seconds": 4.0,
+          "replicated_from_attachment_guid": "00000000000000000000000000000000",
+          "tint": [
+            0.3499999940395355,
+            0.33000001311302185,
+            0.30000001192092896,
+            1.0
+          ],
+          "type": "<InfinityStageEffectType.SMOKE: 1>"
+        },
+        "enabled": true,
+        "guid": "3D2A7D144A1FE564F52C2A80BC91ADAB",
+        "kind": "<InfinityAttachmentKind.EFFECT: 4>",
+        "label": "FX SMOKE P01 B41 L",
+        "lighting": {
+          "affect_global_illumination": true,
+          "affect_reflection": true,
+          "affect_translucent_lighting": true,
+          "attenuation_radius_cm": 5000.0,
+          "cast_shadows": true,
+          "cast_volumetric_shadow": true,
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuse_scale": 1.0,
+          "drama": {
+            "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+            "after_pass_distance_cm": 600.0,
+            "decay_distance_cm": 1500.0,
+            "ignition_stutter": 0.6000000238418579,
+            "pan_amplitude_degrees": 6.0,
+            "period_seconds": 14.0,
+            "phase_cycles": 0.0,
+            "phase_from_identity": true,
+            "slow_move": false,
+            "strike_distance_cm": 2500.0,
+            "strike_on_approach": false,
+            "strike_ramp_cm": 250.0,
+            "tilt_amplitude_degrees": 3.0,
+            "unstruck_intensity_scale": 0.0
+          },
+          "force_cached_shadows_for_movable_primitives": false,
+          "ies_brightness_scale": 1.0,
+          "ies_texture": null,
+          "indirect_lighting_intensity": 1.0,
+          "inner_cone_angle_degrees": 18.0,
+          "intensity": 5000.0,
+          "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+          "inverse_exposure_blend": 0.0,
+          "light_falloff_exponent": 8.0,
+          "light_function_disabled_brightness": 0.0,
+          "light_function_fade_distance_cm": 100000.0,
+          "light_function_material": null,
+          "light_function_scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "lighting_channel0": true,
+          "lighting_channel1": false,
+          "lighting_channel2": false,
+          "max_distance_fade_range_cm": 0.0,
+          "max_draw_distance_cm": 0.0,
+          "outer_cone_angle_degrees": 42.0,
+          "rect_barn_door_angle_degrees": 88.0,
+          "rect_barn_door_length_cm": 20.0,
+          "rect_source_height_cm": 100.0,
+          "rect_source_texture": null,
+          "rect_source_width_cm": 100.0,
+          "shadow_bias": 0.5,
+          "shadow_slope_bias": 0.5,
+          "soft_source_radius_cm": 0.0,
+          "source_length_cm": 0.0,
+          "source_radius_cm": 0.0,
+          "specular_scale": 1.0,
+          "temperature_kelvin": 6500.0,
+          "transmission": false,
+          "type": "<InfinityStageLightType.SPOT: 0>",
+          "use_ies_brightness": false,
+          "use_inverse_squared_falloff": true,
+          "use_ray_traced_distance_field_shadows": false,
+          "use_temperature": false,
+          "volumetric_scattering_intensity": 1.0
+        },
+        "mesh": null,
+        "relative_transform": {
+          "location": [
+            80.0,
+            -540.422,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            -0.0,
+            0.7071067811865476,
+            0.7071067811865477
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "trigger_distance_cm": 800.0
+      },
+      "guid": "3D2A7D144A1FE564F52C2A80BC91ADAB",
+      "inner_edge_cm": 500.422,
+      "label": "FX SMOKE P01 B41 L",
+      "location": [
+        80.0,
+        -540.422,
+        0.0
+      ],
+      "ordinal": 41,
+      "passage": "P01",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "7742F44B2A42B6A7203114874CAD3E5B",
+      "cue_label": "P03 Wing 008",
+      "expected": {
+        "actor_class": null,
+        "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+        "effect": {
+          "active_radius_cm": 2500.0,
+          "burn_span_cm": 4000.0,
+          "burn_start_ahead_cm": 3000.0,
+          "burn_u_axis": [
+            0.0,
+            0.0
+          ],
+          "burn_uv_measured_mesh": null,
+          "burn_v_axis": [
+            0.0,
+            0.0
+          ],
+          "feeds_local_medium": false,
+          "flicker_amount": 0.25,
+          "ignition_uv": [
+            0.5,
+            1.0
+          ],
+          "linked_light_attachment_guid": "00000000000000000000000000000000",
+          "medium_density": 0.25,
+          "medium_height_falloff": 800.0,
+          "medium_offset_cm": [
+            250.0,
+            0.0,
+            150.0
+          ],
+          "medium_radius_cm": 300.0,
+          "motes_extent_cm": [
+            250.0,
+            400.0,
+            500.0
+          ],
+          "output": 0.5,
+          "pulse_duty": 0.25,
+          "pulse_period_seconds": 4.0,
+          "replicated_from_attachment_guid": "00000000000000000000000000000000",
+          "tint": [
+            0.3499999940395355,
+            0.33000001311302185,
+            0.30000001192092896,
+            1.0
+          ],
+          "type": "<InfinityStageEffectType.SMOKE: 1>"
+        },
+        "enabled": true,
+        "guid": "472D77F84DADD52D61C1A485EED3FDDE",
+        "kind": "<InfinityAttachmentKind.EFFECT: 4>",
+        "label": "FX SMOKE P03 B08 L",
+        "lighting": {
+          "affect_global_illumination": true,
+          "affect_reflection": true,
+          "affect_translucent_lighting": true,
+          "attenuation_radius_cm": 5000.0,
+          "cast_shadows": true,
+          "cast_volumetric_shadow": true,
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuse_scale": 1.0,
+          "drama": {
+            "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+            "after_pass_distance_cm": 600.0,
+            "decay_distance_cm": 1500.0,
+            "ignition_stutter": 0.6000000238418579,
+            "pan_amplitude_degrees": 6.0,
+            "period_seconds": 14.0,
+            "phase_cycles": 0.0,
+            "phase_from_identity": true,
+            "slow_move": false,
+            "strike_distance_cm": 2500.0,
+            "strike_on_approach": false,
+            "strike_ramp_cm": 250.0,
+            "tilt_amplitude_degrees": 3.0,
+            "unstruck_intensity_scale": 0.0
+          },
+          "force_cached_shadows_for_movable_primitives": false,
+          "ies_brightness_scale": 1.0,
+          "ies_texture": null,
+          "indirect_lighting_intensity": 1.0,
+          "inner_cone_angle_degrees": 18.0,
+          "intensity": 5000.0,
+          "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+          "inverse_exposure_blend": 0.0,
+          "light_falloff_exponent": 8.0,
+          "light_function_disabled_brightness": 0.0,
+          "light_function_fade_distance_cm": 100000.0,
+          "light_function_material": null,
+          "light_function_scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "lighting_channel0": true,
+          "lighting_channel1": false,
+          "lighting_channel2": false,
+          "max_distance_fade_range_cm": 0.0,
+          "max_draw_distance_cm": 0.0,
+          "outer_cone_angle_degrees": 42.0,
+          "rect_barn_door_angle_degrees": 88.0,
+          "rect_barn_door_length_cm": 20.0,
+          "rect_source_height_cm": 100.0,
+          "rect_source_texture": null,
+          "rect_source_width_cm": 100.0,
+          "shadow_bias": 0.5,
+          "shadow_slope_bias": 0.5,
+          "soft_source_radius_cm": 0.0,
+          "source_length_cm": 0.0,
+          "source_radius_cm": 0.0,
+          "specular_scale": 1.0,
+          "temperature_kelvin": 6500.0,
+          "transmission": false,
+          "type": "<InfinityStageLightType.SPOT: 0>",
+          "use_ies_brightness": false,
+          "use_inverse_squared_falloff": true,
+          "use_ray_traced_distance_field_shadows": false,
+          "use_temperature": false,
+          "volumetric_scattering_intensity": 1.0
+        },
+        "mesh": null,
+        "relative_transform": {
+          "location": [
+            80.0,
+            -380.639,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            -0.0,
+            0.7071067811865476,
+            0.7071067811865477
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "trigger_distance_cm": 800.0
+      },
+      "guid": "472D77F84DADD52D61C1A485EED3FDDE",
+      "inner_edge_cm": 340.639,
+      "label": "FX SMOKE P03 B08 L",
+      "location": [
+        80.0,
+        -380.639,
+        0.0
+      ],
+      "ordinal": 8,
+      "passage": "P03",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "622946E51046353D4D27EF8B20389CE3",
+      "cue_label": "P03 Wing 013",
+      "expected": {
+        "actor_class": null,
+        "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+        "effect": {
+          "active_radius_cm": 2500.0,
+          "burn_span_cm": 4000.0,
+          "burn_start_ahead_cm": 3000.0,
+          "burn_u_axis": [
+            0.0,
+            0.0
+          ],
+          "burn_uv_measured_mesh": null,
+          "burn_v_axis": [
+            0.0,
+            0.0
+          ],
+          "feeds_local_medium": false,
+          "flicker_amount": 0.25,
+          "ignition_uv": [
+            0.5,
+            1.0
+          ],
+          "linked_light_attachment_guid": "00000000000000000000000000000000",
+          "medium_density": 0.25,
+          "medium_height_falloff": 800.0,
+          "medium_offset_cm": [
+            250.0,
+            0.0,
+            150.0
+          ],
+          "medium_radius_cm": 300.0,
+          "motes_extent_cm": [
+            250.0,
+            400.0,
+            500.0
+          ],
+          "output": 0.5,
+          "pulse_duty": 0.25,
+          "pulse_period_seconds": 4.0,
+          "replicated_from_attachment_guid": "00000000000000000000000000000000",
+          "tint": [
+            0.3499999940395355,
+            0.33000001311302185,
+            0.30000001192092896,
+            1.0
+          ],
+          "type": "<InfinityStageEffectType.SMOKE: 1>"
+        },
+        "enabled": true,
+        "guid": "D7AE23B54AA0E75B7BFE9D887B1AE704",
+        "kind": "<InfinityAttachmentKind.EFFECT: 4>",
+        "label": "FX SMOKE P03 B13 R",
+        "lighting": {
+          "affect_global_illumination": true,
+          "affect_reflection": true,
+          "affect_translucent_lighting": true,
+          "attenuation_radius_cm": 5000.0,
+          "cast_shadows": true,
+          "cast_volumetric_shadow": true,
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuse_scale": 1.0,
+          "drama": {
+            "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+            "after_pass_distance_cm": 600.0,
+            "decay_distance_cm": 1500.0,
+            "ignition_stutter": 0.6000000238418579,
+            "pan_amplitude_degrees": 6.0,
+            "period_seconds": 14.0,
+            "phase_cycles": 0.0,
+            "phase_from_identity": true,
+            "slow_move": false,
+            "strike_distance_cm": 2500.0,
+            "strike_on_approach": false,
+            "strike_ramp_cm": 250.0,
+            "tilt_amplitude_degrees": 3.0,
+            "unstruck_intensity_scale": 0.0
+          },
+          "force_cached_shadows_for_movable_primitives": false,
+          "ies_brightness_scale": 1.0,
+          "ies_texture": null,
+          "indirect_lighting_intensity": 1.0,
+          "inner_cone_angle_degrees": 18.0,
+          "intensity": 5000.0,
+          "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+          "inverse_exposure_blend": 0.0,
+          "light_falloff_exponent": 8.0,
+          "light_function_disabled_brightness": 0.0,
+          "light_function_fade_distance_cm": 100000.0,
+          "light_function_material": null,
+          "light_function_scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "lighting_channel0": true,
+          "lighting_channel1": false,
+          "lighting_channel2": false,
+          "max_distance_fade_range_cm": 0.0,
+          "max_draw_distance_cm": 0.0,
+          "outer_cone_angle_degrees": 42.0,
+          "rect_barn_door_angle_degrees": 88.0,
+          "rect_barn_door_length_cm": 20.0,
+          "rect_source_height_cm": 100.0,
+          "rect_source_texture": null,
+          "rect_source_width_cm": 100.0,
+          "shadow_bias": 0.5,
+          "shadow_slope_bias": 0.5,
+          "soft_source_radius_cm": 0.0,
+          "source_length_cm": 0.0,
+          "source_radius_cm": 0.0,
+          "specular_scale": 1.0,
+          "temperature_kelvin": 6500.0,
+          "transmission": false,
+          "type": "<InfinityStageLightType.SPOT: 0>",
+          "use_ies_brightness": false,
+          "use_inverse_squared_falloff": true,
+          "use_ray_traced_distance_field_shadows": false,
+          "use_temperature": false,
+          "volumetric_scattering_intensity": 1.0
+        },
+        "mesh": null,
+        "relative_transform": {
+          "location": [
+            80.0,
+            678.739,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            -0.0,
+            0.7071067811865476,
+            -0.7071067811865477
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "trigger_distance_cm": 800.0
+      },
+      "guid": "D7AE23B54AA0E75B7BFE9D887B1AE704",
+      "inner_edge_cm": 638.739,
+      "label": "FX SMOKE P03 B13 R",
+      "location": [
+        80.0,
+        678.739,
+        0.0
+      ],
+      "ordinal": 13,
+      "passage": "P03",
+      "side": "R",
+      "yaw": -90.0
+    },
+    {
+      "cue_guid": "B668CE90914EC39B4A510A9EE1A02F51",
+      "cue_label": "P03 Wing 018",
+      "expected": {
+        "actor_class": null,
+        "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+        "effect": {
+          "active_radius_cm": 2500.0,
+          "burn_span_cm": 4000.0,
+          "burn_start_ahead_cm": 3000.0,
+          "burn_u_axis": [
+            0.0,
+            0.0
+          ],
+          "burn_uv_measured_mesh": null,
+          "burn_v_axis": [
+            0.0,
+            0.0
+          ],
+          "feeds_local_medium": false,
+          "flicker_amount": 0.25,
+          "ignition_uv": [
+            0.5,
+            1.0
+          ],
+          "linked_light_attachment_guid": "00000000000000000000000000000000",
+          "medium_density": 0.25,
+          "medium_height_falloff": 800.0,
+          "medium_offset_cm": [
+            250.0,
+            0.0,
+            150.0
+          ],
+          "medium_radius_cm": 300.0,
+          "motes_extent_cm": [
+            250.0,
+            400.0,
+            500.0
+          ],
+          "output": 0.5,
+          "pulse_duty": 0.25,
+          "pulse_period_seconds": 4.0,
+          "replicated_from_attachment_guid": "00000000000000000000000000000000",
+          "tint": [
+            0.3499999940395355,
+            0.33000001311302185,
+            0.30000001192092896,
+            1.0
+          ],
+          "type": "<InfinityStageEffectType.SMOKE: 1>"
+        },
+        "enabled": true,
+        "guid": "B03575754E78F09E7AA373B64F3C59CB",
+        "kind": "<InfinityAttachmentKind.EFFECT: 4>",
+        "label": "FX SMOKE P03 B18 L",
+        "lighting": {
+          "affect_global_illumination": true,
+          "affect_reflection": true,
+          "affect_translucent_lighting": true,
+          "attenuation_radius_cm": 5000.0,
+          "cast_shadows": true,
+          "cast_volumetric_shadow": true,
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuse_scale": 1.0,
+          "drama": {
+            "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+            "after_pass_distance_cm": 600.0,
+            "decay_distance_cm": 1500.0,
+            "ignition_stutter": 0.6000000238418579,
+            "pan_amplitude_degrees": 6.0,
+            "period_seconds": 14.0,
+            "phase_cycles": 0.0,
+            "phase_from_identity": true,
+            "slow_move": false,
+            "strike_distance_cm": 2500.0,
+            "strike_on_approach": false,
+            "strike_ramp_cm": 250.0,
+            "tilt_amplitude_degrees": 3.0,
+            "unstruck_intensity_scale": 0.0
+          },
+          "force_cached_shadows_for_movable_primitives": false,
+          "ies_brightness_scale": 1.0,
+          "ies_texture": null,
+          "indirect_lighting_intensity": 1.0,
+          "inner_cone_angle_degrees": 18.0,
+          "intensity": 5000.0,
+          "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+          "inverse_exposure_blend": 0.0,
+          "light_falloff_exponent": 8.0,
+          "light_function_disabled_brightness": 0.0,
+          "light_function_fade_distance_cm": 100000.0,
+          "light_function_material": null,
+          "light_function_scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "lighting_channel0": true,
+          "lighting_channel1": false,
+          "lighting_channel2": false,
+          "max_distance_fade_range_cm": 0.0,
+          "max_draw_distance_cm": 0.0,
+          "outer_cone_angle_degrees": 42.0,
+          "rect_barn_door_angle_degrees": 88.0,
+          "rect_barn_door_length_cm": 20.0,
+          "rect_source_height_cm": 100.0,
+          "rect_source_texture": null,
+          "rect_source_width_cm": 100.0,
+          "shadow_bias": 0.5,
+          "shadow_slope_bias": 0.5,
+          "soft_source_radius_cm": 0.0,
+          "source_length_cm": 0.0,
+          "source_radius_cm": 0.0,
+          "specular_scale": 1.0,
+          "temperature_kelvin": 6500.0,
+          "transmission": false,
+          "type": "<InfinityStageLightType.SPOT: 0>",
+          "use_ies_brightness": false,
+          "use_inverse_squared_falloff": true,
+          "use_ray_traced_distance_field_shadows": false,
+          "use_temperature": false,
+          "volumetric_scattering_intensity": 1.0
+        },
+        "mesh": null,
+        "relative_transform": {
+          "location": [
+            80.0,
+            -383.095,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            -0.0,
+            0.7071067811865476,
+            0.7071067811865477
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "trigger_distance_cm": 800.0
+      },
+      "guid": "B03575754E78F09E7AA373B64F3C59CB",
+      "inner_edge_cm": 343.095,
+      "label": "FX SMOKE P03 B18 L",
+      "location": [
+        80.0,
+        -383.095,
+        0.0
+      ],
+      "ordinal": 18,
+      "passage": "P03",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "5B6B2CD70E47E805ED75C790D2B07967",
+      "cue_label": "P04 Wing 004",
+      "expected": {
+        "actor_class": null,
+        "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+        "effect": {
+          "active_radius_cm": 2500.0,
+          "burn_span_cm": 4000.0,
+          "burn_start_ahead_cm": 3000.0,
+          "burn_u_axis": [
+            0.0,
+            0.0
+          ],
+          "burn_uv_measured_mesh": null,
+          "burn_v_axis": [
+            0.0,
+            0.0
+          ],
+          "feeds_local_medium": false,
+          "flicker_amount": 0.25,
+          "ignition_uv": [
+            0.5,
+            1.0
+          ],
+          "linked_light_attachment_guid": "00000000000000000000000000000000",
+          "medium_density": 0.25,
+          "medium_height_falloff": 800.0,
+          "medium_offset_cm": [
+            250.0,
+            0.0,
+            150.0
+          ],
+          "medium_radius_cm": 300.0,
+          "motes_extent_cm": [
+            250.0,
+            400.0,
+            500.0
+          ],
+          "output": 0.5,
+          "pulse_duty": 0.25,
+          "pulse_period_seconds": 4.0,
+          "replicated_from_attachment_guid": "00000000000000000000000000000000",
+          "tint": [
+            0.3499999940395355,
+            0.33000001311302185,
+            0.30000001192092896,
+            1.0
+          ],
+          "type": "<InfinityStageEffectType.SMOKE: 1>"
+        },
+        "enabled": true,
+        "guid": "7289F98248C9B0B509912CBC1271814B",
+        "kind": "<InfinityAttachmentKind.EFFECT: 4>",
+        "label": "FX SMOKE P04 B04 L",
+        "lighting": {
+          "affect_global_illumination": true,
+          "affect_reflection": true,
+          "affect_translucent_lighting": true,
+          "attenuation_radius_cm": 5000.0,
+          "cast_shadows": true,
+          "cast_volumetric_shadow": true,
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuse_scale": 1.0,
+          "drama": {
+            "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+            "after_pass_distance_cm": 600.0,
+            "decay_distance_cm": 1500.0,
+            "ignition_stutter": 0.6000000238418579,
+            "pan_amplitude_degrees": 6.0,
+            "period_seconds": 14.0,
+            "phase_cycles": 0.0,
+            "phase_from_identity": true,
+            "slow_move": false,
+            "strike_distance_cm": 2500.0,
+            "strike_on_approach": false,
+            "strike_ramp_cm": 250.0,
+            "tilt_amplitude_degrees": 3.0,
+            "unstruck_intensity_scale": 0.0
+          },
+          "force_cached_shadows_for_movable_primitives": false,
+          "ies_brightness_scale": 1.0,
+          "ies_texture": null,
+          "indirect_lighting_intensity": 1.0,
+          "inner_cone_angle_degrees": 18.0,
+          "intensity": 5000.0,
+          "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+          "inverse_exposure_blend": 0.0,
+          "light_falloff_exponent": 8.0,
+          "light_function_disabled_brightness": 0.0,
+          "light_function_fade_distance_cm": 100000.0,
+          "light_function_material": null,
+          "light_function_scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "lighting_channel0": true,
+          "lighting_channel1": false,
+          "lighting_channel2": false,
+          "max_distance_fade_range_cm": 0.0,
+          "max_draw_distance_cm": 0.0,
+          "outer_cone_angle_degrees": 42.0,
+          "rect_barn_door_angle_degrees": 88.0,
+          "rect_barn_door_length_cm": 20.0,
+          "rect_source_height_cm": 100.0,
+          "rect_source_texture": null,
+          "rect_source_width_cm": 100.0,
+          "shadow_bias": 0.5,
+          "shadow_slope_bias": 0.5,
+          "soft_source_radius_cm": 0.0,
+          "source_length_cm": 0.0,
+          "source_radius_cm": 0.0,
+          "specular_scale": 1.0,
+          "temperature_kelvin": 6500.0,
+          "transmission": false,
+          "type": "<InfinityStageLightType.SPOT: 0>",
+          "use_ies_brightness": false,
+          "use_inverse_squared_falloff": true,
+          "use_ray_traced_distance_field_shadows": false,
+          "use_temperature": false,
+          "volumetric_scattering_intensity": 1.0
+        },
+        "mesh": null,
+        "relative_transform": {
+          "location": [
+            80.0,
+            -427.354,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            -0.0,
+            0.7071067811865476,
+            0.7071067811865477
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "trigger_distance_cm": 800.0
+      },
+      "guid": "7289F98248C9B0B509912CBC1271814B",
+      "inner_edge_cm": 387.354,
+      "label": "FX SMOKE P04 B04 L",
+      "location": [
+        80.0,
+        -427.354,
+        0.0
+      ],
+      "ordinal": 4,
+      "passage": "P04",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "84958F43DA441BCC978C7BBE1E154DF6",
+      "cue_label": "P04 Wing 011",
+      "expected": {
+        "actor_class": null,
+        "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+        "effect": {
+          "active_radius_cm": 2500.0,
+          "burn_span_cm": 4000.0,
+          "burn_start_ahead_cm": 3000.0,
+          "burn_u_axis": [
+            0.0,
+            0.0
+          ],
+          "burn_uv_measured_mesh": null,
+          "burn_v_axis": [
+            0.0,
+            0.0
+          ],
+          "feeds_local_medium": false,
+          "flicker_amount": 0.25,
+          "ignition_uv": [
+            0.5,
+            1.0
+          ],
+          "linked_light_attachment_guid": "00000000000000000000000000000000",
+          "medium_density": 0.25,
+          "medium_height_falloff": 800.0,
+          "medium_offset_cm": [
+            250.0,
+            0.0,
+            150.0
+          ],
+          "medium_radius_cm": 300.0,
+          "motes_extent_cm": [
+            250.0,
+            400.0,
+            500.0
+          ],
+          "output": 0.5,
+          "pulse_duty": 0.25,
+          "pulse_period_seconds": 4.0,
+          "replicated_from_attachment_guid": "00000000000000000000000000000000",
+          "tint": [
+            0.3499999940395355,
+            0.33000001311302185,
+            0.30000001192092896,
+            1.0
+          ],
+          "type": "<InfinityStageEffectType.SMOKE: 1>"
+        },
+        "enabled": true,
+        "guid": "A9FDB2AE4DFC4AACCFE087B57331ABE8",
+        "kind": "<InfinityAttachmentKind.EFFECT: 4>",
+        "label": "FX SMOKE P04 B11 R",
+        "lighting": {
+          "affect_global_illumination": true,
+          "affect_reflection": true,
+          "affect_translucent_lighting": true,
+          "attenuation_radius_cm": 5000.0,
+          "cast_shadows": true,
+          "cast_volumetric_shadow": true,
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuse_scale": 1.0,
+          "drama": {
+            "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+            "after_pass_distance_cm": 600.0,
+            "decay_distance_cm": 1500.0,
+            "ignition_stutter": 0.6000000238418579,
+            "pan_amplitude_degrees": 6.0,
+            "period_seconds": 14.0,
+            "phase_cycles": 0.0,
+            "phase_from_identity": true,
+            "slow_move": false,
+            "strike_distance_cm": 2500.0,
+            "strike_on_approach": false,
+            "strike_ramp_cm": 250.0,
+            "tilt_amplitude_degrees": 3.0,
+            "unstruck_intensity_scale": 0.0
+          },
+          "force_cached_shadows_for_movable_primitives": false,
+          "ies_brightness_scale": 1.0,
+          "ies_texture": null,
+          "indirect_lighting_intensity": 1.0,
+          "inner_cone_angle_degrees": 18.0,
+          "intensity": 5000.0,
+          "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+          "inverse_exposure_blend": 0.0,
+          "light_falloff_exponent": 8.0,
+          "light_function_disabled_brightness": 0.0,
+          "light_function_fade_distance_cm": 100000.0,
+          "light_function_material": null,
+          "light_function_scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "lighting_channel0": true,
+          "lighting_channel1": false,
+          "lighting_channel2": false,
+          "max_distance_fade_range_cm": 0.0,
+          "max_draw_distance_cm": 0.0,
+          "outer_cone_angle_degrees": 42.0,
+          "rect_barn_door_angle_degrees": 88.0,
+          "rect_barn_door_length_cm": 20.0,
+          "rect_source_height_cm": 100.0,
+          "rect_source_texture": null,
+          "rect_source_width_cm": 100.0,
+          "shadow_bias": 0.5,
+          "shadow_slope_bias": 0.5,
+          "soft_source_radius_cm": 0.0,
+          "source_length_cm": 0.0,
+          "source_radius_cm": 0.0,
+          "specular_scale": 1.0,
+          "temperature_kelvin": 6500.0,
+          "transmission": false,
+          "type": "<InfinityStageLightType.SPOT: 0>",
+          "use_ies_brightness": false,
+          "use_inverse_squared_falloff": true,
+          "use_ray_traced_distance_field_shadows": false,
+          "use_temperature": false,
+          "volumetric_scattering_intensity": 1.0
+        },
+        "mesh": null,
+        "relative_transform": {
+          "location": [
+            80.0,
+            329.574,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            -0.0,
+            0.7071067811865476,
+            -0.7071067811865477
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "trigger_distance_cm": 800.0
+      },
+      "guid": "A9FDB2AE4DFC4AACCFE087B57331ABE8",
+      "inner_edge_cm": 289.574,
+      "label": "FX SMOKE P04 B11 R",
+      "location": [
+        80.0,
+        329.574,
+        0.0
+      ],
+      "ordinal": 11,
+      "passage": "P04",
+      "side": "R",
+      "yaw": -90.0
+    },
+    {
+      "cue_guid": "CDF8F937C64C300A9B8F3A99112AEAE0",
+      "cue_label": "P04 Wing 018",
+      "expected": {
+        "actor_class": null,
+        "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+        "effect": {
+          "active_radius_cm": 2500.0,
+          "burn_span_cm": 4000.0,
+          "burn_start_ahead_cm": 3000.0,
+          "burn_u_axis": [
+            0.0,
+            0.0
+          ],
+          "burn_uv_measured_mesh": null,
+          "burn_v_axis": [
+            0.0,
+            0.0
+          ],
+          "feeds_local_medium": false,
+          "flicker_amount": 0.25,
+          "ignition_uv": [
+            0.5,
+            1.0
+          ],
+          "linked_light_attachment_guid": "00000000000000000000000000000000",
+          "medium_density": 0.25,
+          "medium_height_falloff": 800.0,
+          "medium_offset_cm": [
+            250.0,
+            0.0,
+            150.0
+          ],
+          "medium_radius_cm": 300.0,
+          "motes_extent_cm": [
+            250.0,
+            400.0,
+            500.0
+          ],
+          "output": 0.5,
+          "pulse_duty": 0.25,
+          "pulse_period_seconds": 4.0,
+          "replicated_from_attachment_guid": "00000000000000000000000000000000",
+          "tint": [
+            0.3499999940395355,
+            0.33000001311302185,
+            0.30000001192092896,
+            1.0
+          ],
+          "type": "<InfinityStageEffectType.SMOKE: 1>"
+        },
+        "enabled": true,
+        "guid": "D3A44E6048DA8847003C32A286CA4ED1",
+        "kind": "<InfinityAttachmentKind.EFFECT: 4>",
+        "label": "FX SMOKE P04 B18 L",
+        "lighting": {
+          "affect_global_illumination": true,
+          "affect_reflection": true,
+          "affect_translucent_lighting": true,
+          "attenuation_radius_cm": 5000.0,
+          "cast_shadows": true,
+          "cast_volumetric_shadow": true,
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuse_scale": 1.0,
+          "drama": {
+            "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+            "after_pass_distance_cm": 600.0,
+            "decay_distance_cm": 1500.0,
+            "ignition_stutter": 0.6000000238418579,
+            "pan_amplitude_degrees": 6.0,
+            "period_seconds": 14.0,
+            "phase_cycles": 0.0,
+            "phase_from_identity": true,
+            "slow_move": false,
+            "strike_distance_cm": 2500.0,
+            "strike_on_approach": false,
+            "strike_ramp_cm": 250.0,
+            "tilt_amplitude_degrees": 3.0,
+            "unstruck_intensity_scale": 0.0
+          },
+          "force_cached_shadows_for_movable_primitives": false,
+          "ies_brightness_scale": 1.0,
+          "ies_texture": null,
+          "indirect_lighting_intensity": 1.0,
+          "inner_cone_angle_degrees": 18.0,
+          "intensity": 5000.0,
+          "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
+          "inverse_exposure_blend": 0.0,
+          "light_falloff_exponent": 8.0,
+          "light_function_disabled_brightness": 0.0,
+          "light_function_fade_distance_cm": 100000.0,
+          "light_function_material": null,
+          "light_function_scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "lighting_channel0": true,
+          "lighting_channel1": false,
+          "lighting_channel2": false,
+          "max_distance_fade_range_cm": 0.0,
+          "max_draw_distance_cm": 0.0,
+          "outer_cone_angle_degrees": 42.0,
+          "rect_barn_door_angle_degrees": 88.0,
+          "rect_barn_door_length_cm": 20.0,
+          "rect_source_height_cm": 100.0,
+          "rect_source_texture": null,
+          "rect_source_width_cm": 100.0,
+          "shadow_bias": 0.5,
+          "shadow_slope_bias": 0.5,
+          "soft_source_radius_cm": 0.0,
+          "source_length_cm": 0.0,
+          "source_radius_cm": 0.0,
+          "specular_scale": 1.0,
+          "temperature_kelvin": 6500.0,
+          "transmission": false,
+          "type": "<InfinityStageLightType.SPOT: 0>",
+          "use_ies_brightness": false,
+          "use_inverse_squared_falloff": true,
+          "use_ray_traced_distance_field_shadows": false,
+          "use_temperature": false,
+          "volumetric_scattering_intensity": 1.0
+        },
+        "mesh": null,
+        "relative_transform": {
+          "location": [
+            80.0,
+            -430.382,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            -0.0,
+            0.7071067811865476,
+            0.7071067811865477
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "trigger_distance_cm": 800.0
+      },
+      "guid": "D3A44E6048DA8847003C32A286CA4ED1",
+      "inner_edge_cm": 390.382,
+      "label": "FX SMOKE P04 B18 L",
+      "location": [
+        80.0,
+        -430.382,
+        0.0
+      ],
+      "ordinal": 18,
+      "passage": "P04",
+      "side": "L",
+      "yaw": 90.0
+    }
+  ],
+  "args": {
+    "active_radius_cm": 2500,
+    "along_cm": 80,
+    "confirm": "APPLY FXSMOKE",
+    "expected_template": "/Game/Japanese_Alley/VFX/Humo_Par",
+    "feeds_local_medium": false,
+    "mode": "APPLY",
+    "offstage_cm": 40,
+    "output": 0.5,
+    "passages": {
+      "P01": {
+        "count": 3,
+        "sides": "alternate"
+      },
+      "P03": {
+        "bays": [
+          8,
+          13,
+          18
+        ],
+        "sides": "alternate"
+      },
+      "P04": {
+        "count": 3,
+        "sides": "alternate"
+      }
+    },
+    "revert_accept_drift": false,
+    "z_cm": 0
+  },
+  "backup": {
+    "packages": [
+      {
+        "backup": "E:/PussStage/Backups\\PreFxSmoke-20261007-103503\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+        "bytes": 25183167,
+        "package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
+        "sha256": "f418458aef5ef56fc1d52a11fb4b315094b91234fce5a427ba80e62731cac5d2",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset"
+      },
+      {
+        "backup": "E:/PussStage/Backups\\PreFxSmoke-20261007-103503\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 18422725,
+        "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+        "sha256": "623cb21cb8c87a23258b3526dc29be3aa5b9ea938f256e0625f60c73729041c1",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+      }
+    ],
+    "root": "E:/PussStage/Backups\\PreFxSmoke-20261007-103503"
+  },
+  "bp_gate": {
+    "bp": "/Game/Scenes/Effects/BP_Effect_SmokePot",
+    "plume_template": "/Game/Japanese_Alley/VFX/Humo_Par"
+  },
+  "dirty_after": {
+    "content": [],
+    "maps": []
+  },
+  "dirty_before": {
+    "content": [],
+    "maps": []
+  },
+  "mode": "APPLY",
+  "ok": true,
+  "panels": {
+    "P01": [
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 001",
+        "ordinal": 1
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 002",
+        "ordinal": 2
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 003",
+        "ordinal": 3
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 004",
+        "ordinal": 4
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 005",
+        "ordinal": 5
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 006",
+        "ordinal": 6
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 007",
+        "ordinal": 7
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 008",
+        "ordinal": 8
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 009",
+        "ordinal": 9
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 011",
+        "ordinal": 10
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 012",
+        "ordinal": 11
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 010",
+        "ordinal": 12
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 013",
+        "ordinal": 13
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 014",
+        "ordinal": 14
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 015",
+        "ordinal": 15
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 016",
+        "ordinal": 16
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 017",
+        "ordinal": 17
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 018",
+        "ordinal": 18
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 019",
+        "ordinal": 19
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 020",
+        "ordinal": 20
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 021",
+        "ordinal": 21
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 022",
+        "ordinal": 22
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 023",
+        "ordinal": 23
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 024",
+        "ordinal": 24
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 025",
+        "ordinal": 25
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 026",
+        "ordinal": 26
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 027",
+        "ordinal": 27
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 028",
+        "ordinal": 28
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 029",
+        "ordinal": 29
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 030",
+        "ordinal": 30
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 031",
+        "ordinal": 31
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 032",
+        "ordinal": 32
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 033",
+        "ordinal": 33
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 034",
+        "ordinal": 34
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 035",
+        "ordinal": 35
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 036",
+        "ordinal": 36
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 037",
+        "ordinal": 37
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 038",
+        "ordinal": 38
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 039",
+        "ordinal": 39
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 040",
+        "ordinal": 40
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 041",
+        "ordinal": 41
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 042",
+        "ordinal": 42
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 043",
+        "ordinal": 43
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 044",
+        "ordinal": 44
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 045",
+        "ordinal": 45
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_1_roccoco_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R__1_roccoco_R_t5p",
+        "label": "P01 Wing 046",
+        "ordinal": 46
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_pillar1_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_R_Pillar1_bw_R_t5p",
+        "label": "P01 Wing 047",
+        "ordinal": 47
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5P/SM_FlatV3_P01_L_Pillar2_bw_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage01/StaticMeshes/T5J/SM_FlatV3_P01_R_Pillar2_bw_R_t5j",
+        "label": "P01 Wing 048",
+        "ordinal": 48
+      }
+    ],
+    "P03": [
+      {
+        "L_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_SunWashedAdministration_01_L",
+        "R_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_SunWashedAdministration_01_R",
+        "label": "P03 Wing 001",
+        "ordinal": 1
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_YellowCurtainThreshold_01_L",
+        "R_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_YellowCurtainThreshold_01_R",
+        "label": "P03 Wing 003",
+        "ordinal": 2
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_GlassBlockClassroom_01_L",
+        "R_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_GlassBlockClassroom_01_R",
+        "label": "P03 Wing 002",
+        "ordinal": 3
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_RepeatingSanatoriumArches_01_L",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_39_rock_monolith_lichen_R_t5p",
+        "label": "P03 Wing 004",
+        "ordinal": 4
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_21_rock_formation_moss_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_45_rustic_wooden_cottage_R_t5p",
+        "label": "P03 Wing 005",
+        "ordinal": 5
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_40_stonehenge_portal_stone_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_43_weathered_wooden_tower_R_t5j",
+        "label": "P03 Wing 006",
+        "ordinal": 6
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_33_stone_pillar_ancient_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_52_rock_monolith_lichen_R_t5p",
+        "label": "P03 Wing 007",
+        "ordinal": 7
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_coat_wall_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_45_rustic_wooden_cottage_R_t5p",
+        "label": "P03 Wing 008",
+        "ordinal": 8
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_58_rock_formation_isolated_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_coat_wall_R_v1_t5p",
+        "label": "P03 Wing 009",
+        "ordinal": 9
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_36_stone_monolith_with_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_52_rock_monolith_lichen_R_t5p",
+        "label": "P03 Wing 010",
+        "ordinal": 10
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_59_rock_formation_with_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_39_rock_monolith_lichen_R_t5p",
+        "label": "P03 Wing 011",
+        "ordinal": 11
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_33_stone_pillar_ancient_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_43_weathered_wooden_tower_R_t5j",
+        "label": "P03 Wing 012",
+        "ordinal": 12
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_41_rock_formation_with_L_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_heavy_oblong_R_v1_t5p",
+        "label": "P03 Wing 013",
+        "ordinal": 13
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_21_rock_formation_moss_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_small_burning_R_v1_t5p",
+        "label": "P03 Wing 014",
+        "ordinal": 14
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_46_mossy_wooden_shack_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_heavy_oblong_R_v1_t5p",
+        "label": "P03 Wing 015",
+        "ordinal": 15
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_36_stone_monolith_with_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_abstract_cluster_R_v1_t5p",
+        "label": "P03 Wing 016",
+        "ordinal": 16
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_48_stone_pillar_ancient_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_small_burning_R_v1_t5p",
+        "label": "P03 Wing 017",
+        "ordinal": 17
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_large_roaring_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_abstract_cluster_R_v1_t5p",
+        "label": "P03 Wing 018",
+        "ordinal": 18
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_51_stone_monolith_structure_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_abstract_cluster_R_v1_t5p",
+        "label": "P03 Wing 019",
+        "ordinal": 19
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_54_stone_monolith_with_L_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_small_burning_R_v1_t5p",
+        "label": "P03 Wing 020",
+        "ordinal": 20
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_large_roaring_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_abstract_cluster_R_v1_t5p",
+        "label": "P03 Wing 021",
+        "ordinal": 21
+      }
+    ],
+    "P04": [
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_R_v1_t5p",
+        "label": "P04 Wing 001",
+        "ordinal": 1
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v2_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v1_cv12b_t5j",
+        "label": "P04 Wing 002",
+        "ordinal": 2
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_interior_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v2_cv12b_t5j",
+        "label": "P04 Wing 003",
+        "ordinal": 3
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_L_v1_cv12b_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v3_cv12b_t5j",
+        "label": "P04 Wing 004",
+        "ordinal": 4
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_R_v1_t5p",
+        "label": "P04 Wing 005",
+        "ordinal": 5
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v2_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v1_cv12b_t5j",
+        "label": "P04 Wing 006",
+        "ordinal": 6
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_interior_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v2_cv12b_t5j",
+        "label": "P04 Wing 007",
+        "ordinal": 7
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_L_v1_cv12b_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v3_cv12b_t5j",
+        "label": "P04 Wing 008",
+        "ordinal": 8
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_R_v1_t5p",
+        "label": "P04 Wing 009",
+        "ordinal": 9
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v2_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v1_cv12b_t5j",
+        "label": "P04 Wing 010",
+        "ordinal": 10
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_interior_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v2_cv12b_t5j",
+        "label": "P04 Wing 011",
+        "ordinal": 11
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_L_v1_cv12b_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v3_cv12b_t5j",
+        "label": "P04 Wing 012",
+        "ordinal": 12
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_R_v1_t5p",
+        "label": "P04 Wing 013",
+        "ordinal": 13
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v2_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v1_cv12b_t5j",
+        "label": "P04 Wing 014",
+        "ordinal": 14
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_interior_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v2_cv12b_t5j",
+        "label": "P04 Wing 015",
+        "ordinal": 15
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_L_v1_cv12b_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v3_cv12b_t5j",
+        "label": "P04 Wing 016",
+        "ordinal": 16
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_R_v1_t5p",
+        "label": "P04 Wing 017",
+        "ordinal": 17
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v2_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v1_cv12b_t5j",
+        "label": "P04 Wing 018",
+        "ordinal": 18
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_interior_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v2_cv12b_t5j",
+        "label": "P04 Wing 019",
+        "ordinal": 19
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_L_v1_cv12b_t5j",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/CV/SM_FlatV3_P04_ruined_gallery_R_v3_cv12b_t5j",
+        "label": "P04 Wing 020",
+        "ordinal": 20
+      },
+      {
+        "L_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v1_t5p",
+        "R_mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_R_v1_t5p",
+        "label": "P04 Wing 021",
+        "ordinal": 21
+      }
+    ]
+  },
+  "plan": [
+    {
+      "cue_guid": "8ED7907CA54D333F0D7BFDA27C421316",
+      "cue_label": "P01 Wing 009",
+      "inner_edge_cm": 137.881,
+      "label": "FX SMOKE P01 B09 L",
+      "location": [
+        80.0,
+        -177.881,
+        0.0
+      ],
+      "ordinal": 9,
+      "passage": "P01",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "1D653482314A6193547A83BA8A763F74",
+      "cue_label": "P01 Wing 025",
+      "inner_edge_cm": 139.012,
+      "label": "FX SMOKE P01 B25 R",
+      "location": [
+        80.0,
+        179.012,
+        0.0
+      ],
+      "ordinal": 25,
+      "passage": "P01",
+      "side": "R",
+      "yaw": -90.0
+    },
+    {
+      "cue_guid": "BEEB9F25C24E6BE2E5F59480F0F03755",
+      "cue_label": "P01 Wing 041",
+      "inner_edge_cm": 500.422,
+      "label": "FX SMOKE P01 B41 L",
+      "location": [
+        80.0,
+        -540.422,
+        0.0
+      ],
+      "ordinal": 41,
+      "passage": "P01",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "7742F44B2A42B6A7203114874CAD3E5B",
+      "cue_label": "P03 Wing 008",
+      "inner_edge_cm": 340.639,
+      "label": "FX SMOKE P03 B08 L",
+      "location": [
+        80.0,
+        -380.639,
+        0.0
+      ],
+      "ordinal": 8,
+      "passage": "P03",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "622946E51046353D4D27EF8B20389CE3",
+      "cue_label": "P03 Wing 013",
+      "inner_edge_cm": 638.739,
+      "label": "FX SMOKE P03 B13 R",
+      "location": [
+        80.0,
+        678.739,
+        0.0
+      ],
+      "ordinal": 13,
+      "passage": "P03",
+      "side": "R",
+      "yaw": -90.0
+    },
+    {
+      "cue_guid": "B668CE90914EC39B4A510A9EE1A02F51",
+      "cue_label": "P03 Wing 018",
+      "inner_edge_cm": 343.095,
+      "label": "FX SMOKE P03 B18 L",
+      "location": [
+        80.0,
+        -383.095,
+        0.0
+      ],
+      "ordinal": 18,
+      "passage": "P03",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "5B6B2CD70E47E805ED75C790D2B07967",
+      "cue_label": "P04 Wing 004",
+      "inner_edge_cm": 387.354,
+      "label": "FX SMOKE P04 B04 L",
+      "location": [
+        80.0,
+        -427.354,
+        0.0
+      ],
+      "ordinal": 4,
+      "passage": "P04",
+      "side": "L",
+      "yaw": 90.0
+    },
+    {
+      "cue_guid": "84958F43DA441BCC978C7BBE1E154DF6",
+      "cue_label": "P04 Wing 011",
+      "inner_edge_cm": 289.574,
+      "label": "FX SMOKE P04 B11 R",
+      "location": [
+        80.0,
+        329.574,
+        0.0
+      ],
+      "ordinal": 11,
+      "passage": "P04",
+      "side": "R",
+      "yaw": -90.0
+    },
+    {
+      "cue_guid": "CDF8F937C64C300A9B8F3A99112AEAE0",
+      "cue_label": "P04 Wing 018",
+      "inner_edge_cm": 390.382,
+      "label": "FX SMOKE P04 B18 L",
+      "location": [
+        80.0,
+        -430.382,
+        0.0
+      ],
+      "ordinal": 18,
+      "passage": "P04",
+      "side": "L",
+      "yaw": 90.0
+    }
+  ],
+  "run": "20261007-103503",
+  "saved_master_command": "Automation RunTests InfinityStage.Editor.SavedMasterMatchesShow",
+  "spawned": {
+    "185E35794D67361E6EC34BBC5BCDE12E": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          14729.999257819087,
+          179.012,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "3D2A7D144A1FE564F52C2A80BC91ADAB": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          24330.000411014706,
+          -540.422,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "472D77F84DADD52D61C1A485EED3FDDE": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          3830.0000287310186,
+          159619.361,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "7289F98248C9B0B509912CBC1271814B": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          1830.0000901261867,
+          239572.6459904479,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "7AE7EBE8479D72ADB01B7CA8AB8DE6ED": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          5129.999820284367,
+          -177.881,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "A9FDB2AE4DFC4AACCFE087B57331ABE8": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          5329.9999470689745,
+          240329.574,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "B03575754E78F09E7AA373B64F3C59CB": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          8830.000067039044,
+          159616.905,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "D3A44E6048DA8847003C32A286CA4ED1": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          8830.000441690237,
+          239569.618,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ],
+    "D7AE23B54AA0E75B7BFE9D887B1AE704": [
+      {
+        "class": "BP_Effect_SmokePot_C",
+        "location": [
+          6330.000047885031,
+          160678.739,
+          0.0
+        ],
+        "templates": {
+          "PlumeFX": "/Game/Japanese_Alley/VFX/Humo_Par"
+        }
+      }
+    ]
+  }
+}
