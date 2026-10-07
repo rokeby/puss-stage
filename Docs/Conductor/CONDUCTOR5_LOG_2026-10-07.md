@@ -120,3 +120,7 @@
   120 panels + 15 tube lights changed by index, nearest partner 0.0 cm, 0 rot/scale mismatch; all six
   is_structure_current=true). check_others compared "in order" → false fail. Fixed: order-free strict multiset match
   (controls: reorder passes; 5 cm move / duplicate / rotation fail; harness ALL PASS). Re-run DRY→APPLY after restart.
+- **Barbed wire APPLIED** BWAPPLY-20261007-153148 (backup Backups/PreBarbedWire-BWAPPLY-20261007-153148): six
+  Structures, top_row = panels/2 everywhere (186/66/60/60/276/160), 2 posts each; saved + read back; census clean;
+  SavedMasterMatchesShow + SceneCutBindingsResolve green. P05 still 0.3 = clouds dominate (wire not legible);
+  0.6 failed settle (picture still changing). Gary to eyeball in PIE.
