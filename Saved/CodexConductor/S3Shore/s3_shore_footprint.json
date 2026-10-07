@@ -1,0 +1,77 @@
+{
+  "schema": "s3_shore_footprint/1",
+  "frame": "S3 Hangar Root LOCAL cm (LANDED pose). Root landed world = [11421.97275, 160000.0, -120.0], rot 0/0/0, scale 1. dock_cm = local + [500, 0, -120]. Mesh is authored so its actor attaches to S3 Hangar Root at RELATIVE IDENTITY.",
+  "provenance_legend": {
+    "measured": "read back from the live editor by an earlier probe (file named); still needs re-reading because the level has changed since",
+    "declaration": "stated by a tool record / plan file, not re-read live",
+    "inferred": "derived here; see note"
+  },
+  "root_landed_world": {"value": [11421.97275, 160000.0, -120.0], "tier": "measured", "src": "Saved/CodexFlatV3/handprints/hp_probe_walls_result.json (root, run 021056, 6 Oct 06:10 UTC); same in s3_wave_reattach_record.json root_world (5 Oct)"},
+  "floor_top_local_z": {"value": 115.0, "tier": "measured", "src": "hp_probe_walls_result.json context['S3 Hangar Deck'].world_aabb.max.z = -5.0 world"},
+  "deck": {"x": [0.0, 6000.0], "y": [-1000.0, 1000.0], "z": [95.0, 115.0], "material": "M_Oak_Hrrngbn_01_Mat_Inst_Dup", "tier": "measured", "src": "hp_probe_walls_result.json S3 Hangar Deck"},
+  "walls": {
+    "left_inner_face_y": {"value": -999.0, "tier": "measured", "src": "S3 Marble Inner Wall Left aabb y [-1000,-999] local; black wall behind it y [-1050,-1000]"},
+    "right_inner_face_y": {"value": 999.0, "tier": "measured", "src": "S3 Marble Inner Wall Right aabb y [999,1000] local"},
+    "far_wall_x": {"value": 6000.0, "tier": "measured", "src": "S3 Hangar Far Wall * aabb x [6000,6050] local"},
+    "backdrop_plane_x": {"value": 5997.0, "tier": "measured", "src": "S3 Backdrop aabb x 5997 local, y +-1000, z 115..3115 (s3_backwall_marble_record.json target)"},
+    "exit_door_y": {"value": [-150.0, 150.0], "z_top_local": 570.0, "tier": "measured", "src": "Far Wall Left/Right of Exit aabb (y -150 / +150); 'Above Exit' starts z 570 local"},
+    "mouth_x": {"value": 0.0, "tier": "measured", "src": "walls/deck start at local x 0; root tag Hinge|edge=mouth"}
+  },
+  "handprint_lowest_extent_above_floor_cm": {"value": 160.0, "tier": "declaration", "src": "DerivedAssets/FlatV3/HandPrints/placement_S03.json distribution.band_cm [160,400]; computed lowest rotated extent over 449 decals = 160.009 cm (this file's builder, offline)"},
+  "wave_rows": {
+    "tier": "measured",
+    "src": "hp_probe_walls_result.json decal receivers (6 Oct): S3 Wave Row1/2/3 A,B and S3 Wave Split Row1/2/3 Piece1,3; bases at local z 115; s3_wave_reattach_record.json relative x 3665..5335",
+    "rows": [
+      {"name": "Row1", "x": [3649.0, 3735.0], "base_local_z": 115.0},
+      {"name": "Row2", "x": [4449.0, 4535.0], "base_local_z": 115.0},
+      {"name": "Row3", "x": [5249.0, 5332.0], "base_local_z": 115.0}
+    ],
+    "y_sweep_cm": 100.0,
+    "note": "Row*/Split pieces slide in Y (exclusion rule sweep_cm [0,100,0]); the band is notched across the full width."
+  },
+  "beach_v2_sand": {"tier": "declaration", "src": "Saved/CodexConductor/s3_beach_v2.py:43-55 sand_height() (dock cm); applied 4 Oct run 124209 (s3_beach_place_record.json applied=true)", "note": "inside the v2 footprint the new ground reproduces sand_height() exactly so every object seated on v2 stays seated"},
+  "figures": {
+    "tier": "declaration",
+    "src": "s3_beach_place_record.json figures[].dock_xy / planned_foot_z_cm (APPLY 4 Oct 124209). Not re-read since; later S3 runs (skin, sack) did not move them per their records, but Klara/directing passes may have.",
+    "rows": [
+      {"label": "Shore01_M56 Clam", "dock_xy": [3649.129873, -212.979532], "foot_dock_z": 9.575757},
+      {"label": "Shore02_F52 Clam", "dock_xy": [3199.298361, 109.446446], "foot_dock_z": 8.490683},
+      {"label": "Shore03_M59 Clam", "dock_xy": [3390.553554, 300.701639], "foot_dock_z": 12.027405},
+      {"label": "Shore04_F55 Clam", "dock_xy": [3683.544460, 262.128654], "foot_dock_z": 7.342449},
+      {"label": "Shore05_M53 Clam", "dock_xy": [3411.074763, -244.320081], "foot_dock_z": 8.741697},
+      {"label": "Shore06_F25 Clam", "dock_xy": [3760.0, 0.0], "foot_dock_z": 8.697494}
+    ],
+    "pad_radius_cm": 55.0
+  },
+  "pedestal": {"label": "Clam_Pedastal", "dock_xy": [3499.82, -0.66], "base_dock_z": 1.38, "half_extent_xy": [30.5, 31.5], "tier": "measured", "src": "s3_beach_marble_probe_response_20261003.json bounds origin [14421.79,159999.34,50.03] extent [30.5,31.5,48.6]; attach parent was null (NOT on S3 Hangar Root) on 3 Oct", "pad_radius_cm": 50.0},
+  "props": {
+    "tier": "declaration",
+    "src": "s3_beach_v2.py:80-89 PROP_SPECS (dock xy); seated on sand_height() with embed fractions",
+    "rows": [
+      {"label": "S3 Beach V2 Rock 01", "dock_xy": [3820.0, -380.0], "r": 45.0},
+      {"label": "S3 Beach V2 Rock 02", "dock_xy": [3820.0, 330.0], "r": 40.0},
+      {"label": "S3 Beach V2 Rock 03", "dock_xy": [3740.0, -310.0], "r": 55.0},
+      {"label": "S3 Beach V2 Rock 04", "dock_xy": [3860.0, 235.0], "r": 50.0},
+      {"label": "S3 Beach V2 Rock 05", "dock_xy": [3990.0, -90.0], "r": 65.0},
+      {"label": "S3 Beach V2 Seaweed 01", "dock_xy": [3850.0, -400.0], "r": 30.0},
+      {"label": "S3 Beach V2 Seaweed 02", "dock_xy": [3800.0, 450.0], "r": 30.0},
+      {"label": "S3 Beach V2 Seaweed 03", "dock_xy": [3700.0, 470.0], "r": 30.0}
+    ]
+  },
+  "cameras": {
+    "tier": "declaration",
+    "src": "s3_shotlist_record.json after.created (1 Oct 22:57, run 225732) -- STALE RISK: S3 shots/lengths changed since (Klara sequences 7 Oct)",
+    "rows": [
+      {"label": "S3 Shot B02", "local": [2200.0, -250.0, 290.0], "rpy": [0.0, -6.7966, 17.3540], "lens_mm": 35.0},
+      {"label": "S3 Shot B03", "local": [2550.0, 40.0, 280.0], "rpy": [0.0, -7.2364, -5.1686], "lens_mm": 50.0},
+      {"label": "S3 Shot B04", "local": [3000.0, -750.0, 240.0], "rpy": [0.0, -5.4642, 75.4572], "lens_mm": 35.0},
+      {"label": "S3 Shot B05", "local": [2700.0, 0.0, 260.0], "rpy": [0.0, -7.0980, -0.0467], "lens_mm": 85.0},
+      {"label": "S3 Shot B06", "local": [2880.0, 0.0, 235.0], "rpy": [0.0, -5.8244, -0.1200], "lens_mm": 100.0},
+      {"label": "S3 Shot B07", "local": [2800.0, 60.0, 240.0], "rpy": [0.0, -4.6855, -17.1784], "lens_mm": 85.0},
+      {"label": "S3 Shot B08", "local": [2860.0, -40.0, 230.0], "rpy": [0.0, -15.3223, 15.9454], "lens_mm": 50.0},
+      {"label": "S3 Shot B09", "local": [2100.0, 0.0, 290.0], "rpy": [0.0, -6.3335, 0.0], "lens_mm": 35.0},
+      {"label": "S3 Shot B11", "local": [2920.0, 0.0, 225.0], "rpy": [0.0, -1.3139, -0.1841], "lens_mm": 50.0}
+    ],
+    "entry_exit_handoff": {"tier": "inferred", "note": "Scene 3 External Sound Entry/Exit Handoff Camera and S3 Sleight Hangar Camera appear in hp_probe_walls_result.json only as 2020 cm frustum-ish AABBs centred near local (-500, 0, 300); i.e. outside the mouth at ~185 cm above floor. Exact pose UNCLEAR -> live read."}
+  }
+}

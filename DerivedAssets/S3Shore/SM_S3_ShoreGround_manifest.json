@@ -1,0 +1,548 @@
+{
+ "schema": "s3_shore_ground_manifest/1",
+ "built_utc": "2026-10-07T18:14:18Z",
+ "blender": "4.4.0",
+ "fbx": "E:\\PussStage\\DerivedAssets\\S3Shore\\SM_S3_ShoreGround.fbx",
+ "fbx_sha256": "392029e8c2f8a29f28590f78f2c609b4d29e9d880b007d19fc64e73cb885da44",
+ "fbx_bytes": 12347180,
+ "frame": "S3 Hangar Root LOCAL cm; attach at RELATIVE IDENTITY",
+ "params": {
+  "seed": 3307,
+  "grid_cm": 7.5,
+  "x_range": [
+   0.0,
+   6012.0
+  ],
+  "y_range": [
+   -1012.0,
+   1008.0
+  ],
+  "skirt_bottom_local_z": 95.0,
+  "mud_to_sand_x": [
+   1500.0,
+   2900.0
+  ],
+  "wet_sand_from_x": [
+   3300.0,
+   3900.0
+  ],
+  "global_rise_cm": 5.0,
+  "global_rise_x": [
+   2200.0,
+   3600.0
+  ],
+  "undulation_cm": 3.5,
+  "undulation_scale_cm": 420.0,
+  "mud_lumps_cm": 2.5,
+  "mud_lumps_scale_cm": 90.0,
+  "ripple_amp_cm": 1.2,
+  "ripple_wavelength_cm": 42.0,
+  "ripple_meander_cm": 60.0,
+  "drift_side_cm": [
+   55.0,
+   140.0
+  ],
+  "drift_side_mud_cm": [
+   25.0,
+   70.0
+  ],
+  "drift_back_cm": [
+   60.0,
+   130.0
+  ],
+  "drift_cap_cm": 140.0,
+  "drift_lambda_factor": 1.15,
+  "drift_front_taper_x": [
+   150.0,
+   700.0
+  ],
+  "door_gap_y": [
+   180.0,
+   380.0
+  ],
+  "wave_notch_halfwidth_cm": 45.0,
+  "wave_notch_blend_cm": 90.0,
+  "pools": [
+   [
+    520.0,
+    -420.0,
+    160.0,
+    110.0,
+    9.0,
+    20.0
+   ],
+   [
+    980.0,
+    380.0,
+    210.0,
+    120.0,
+    11.0,
+    -15.0
+   ],
+   [
+    1450.0,
+    -120.0,
+    140.0,
+    95.0,
+    7.0,
+    40.0
+   ],
+   [
+    1850.0,
+    560.0,
+    120.0,
+    80.0,
+    6.0,
+    0.0
+   ],
+   [
+    1250.0,
+    -720.0,
+    110.0,
+    70.0,
+    6.0,
+    70.0
+   ],
+   [
+    4080.0,
+    -300.0,
+    90.0,
+    420.0,
+    6.0,
+    4.0
+   ],
+   [
+    4120.0,
+    520.0,
+    70.0,
+    260.0,
+    5.0,
+    -6.0
+   ],
+   [
+    4880.0,
+    120.0,
+    85.0,
+    520.0,
+    7.0,
+    3.0
+   ],
+   [
+    5650.0,
+    -260.0,
+    90.0,
+    450.0,
+    6.0,
+    -5.0
+   ]
+  ],
+  "hummocks": [
+   [
+    300.0,
+    640.0,
+    60.0,
+    7.0
+   ],
+   [
+    420.0,
+    -760.0,
+    45.0,
+    5.0
+   ],
+   [
+    760.0,
+    120.0,
+    38.0,
+    4.0
+   ],
+   [
+    1120.0,
+    -360.0,
+    55.0,
+    6.0
+   ],
+   [
+    1580.0,
+    820.0,
+    50.0,
+    6.0
+   ],
+   [
+    1720.0,
+    -560.0,
+    40.0,
+    4.0
+   ],
+   [
+    640.0,
+    -180.0,
+    30.0,
+    3.0
+   ],
+   [
+    1980.0,
+    -840.0,
+    48.0,
+    5.0
+   ],
+   [
+    220.0,
+    120.0,
+    35.0,
+    3.5
+   ]
+  ],
+  "cast_blend_metric": [
+   0.85,
+   1.2
+  ],
+  "pad_blend_cm": 40.0,
+  "camera_min_vertical_clearance_cm": 80.0
+ },
+ "footprint_sha256": "b868560cda53e9a0715b2442ec05d25c3cf5089e4588c525cdf3f40b7fe9da54",
+ "vertex_count": 218952,
+ "face_count_quads": 217880,
+ "triangles_expected": 435760,
+ "surface_quads": 215738,
+ "expected_ue_local_bounds_cm": {
+  "min": [
+   0.0,
+   -1012.0,
+   95.0
+  ],
+  "max": [
+   6012.0,
+   1008.0,
+   243.19
+  ]
+ },
+ "mirror_gate": "UE bounds.min.y must be -1012 and max.y +1008 (+-0.5); swapped => Y mirrored on import",
+ "calibration_vertices": [
+  {
+   "ue_local": [
+    0.0,
+    -1012.0,
+    95.0
+   ],
+   "rgba_linear": [
+    0.5,
+    0.25,
+    0.75,
+    1.0
+   ]
+  },
+  {
+   "ue_local": [
+    6012.0,
+    -1012.0,
+    95.0
+   ],
+   "rgba_linear": [
+    1.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "ue_local": [
+    6012.0,
+    1008.0,
+    95.0
+   ],
+   "rgba_linear": [
+    0.0,
+    1.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "ue_local": [
+    0.0,
+    1008.0,
+    95.0
+   ],
+   "rgba_linear": [
+    0.0,
+    0.0,
+    1.0,
+    0.5
+   ]
+  }
+ ],
+ "vertex_colour_export": "LINEAR float -> FBX; UE byte value for 0.5 tells whether Interchange sRGB-encodes (expect 128 linear, 188 if sRGB)",
+ "uv": {
+  "UV0": "u = x_ue/100, v = y_ue/100 (metres)",
+  "UV1": "normalised over the mesh extent"
+ },
+ "material_slot": "MI_S3_ShoreGround",
+ "checks_failures": [],
+ "checks": {
+  "pads": [
+   {
+    "label": "Shore01_M56 Clam",
+    "kind": "figure",
+    "local_xy": [
+     3149.13,
+     -212.98
+    ],
+    "pad_h_cm": 14.576,
+    "pad_local_z": 129.576,
+    "max_dev_in_pad_cm": 0.0998
+   },
+   {
+    "label": "Shore02_F52 Clam",
+    "kind": "figure",
+    "local_xy": [
+     2699.3,
+     109.45
+    ],
+    "pad_h_cm": 13.491,
+    "pad_local_z": 128.491,
+    "max_dev_in_pad_cm": 0.0
+   },
+   {
+    "label": "Shore03_M59 Clam",
+    "kind": "figure",
+    "local_xy": [
+     2890.55,
+     300.7
+    ],
+    "pad_h_cm": 17.027,
+    "pad_local_z": 132.027,
+    "max_dev_in_pad_cm": 0.0
+   },
+   {
+    "label": "Shore04_F55 Clam",
+    "kind": "figure",
+    "local_xy": [
+     3183.54,
+     262.13
+    ],
+    "pad_h_cm": 12.342,
+    "pad_local_z": 127.342,
+    "max_dev_in_pad_cm": 0.0
+   },
+   {
+    "label": "Shore05_M53 Clam",
+    "kind": "figure",
+    "local_xy": [
+     2911.07,
+     -244.32
+    ],
+    "pad_h_cm": 13.742,
+    "pad_local_z": 128.742,
+    "max_dev_in_pad_cm": 0.0
+   },
+   {
+    "label": "Shore06_F25 Clam",
+    "kind": "figure",
+    "local_xy": [
+     3260.0,
+     0.0
+    ],
+    "pad_h_cm": 13.697,
+    "pad_local_z": 128.697,
+    "max_dev_in_pad_cm": 0.0
+   },
+   {
+    "label": "Clam_Pedastal",
+    "kind": "pedestal",
+    "local_xy": [
+     2999.82,
+     -0.66
+    ],
+    "pad_h_cm": 15.011,
+    "pad_local_z": 130.011,
+    "max_dev_in_pad_cm": 0.0
+   },
+   {
+    "label": "S3 Beach V2 Rock 01",
+    "kind": "prop",
+    "local_xy": [
+     3320.0,
+     -380.0
+    ],
+    "pad_h_cm": 13.907,
+    "pad_local_z": 128.907,
+    "max_dev_in_pad_cm": 0.0
+   },
+   {
+    "label": "S3 Beach V2 Rock 02",
+    "kind": "prop",
+    "local_xy": [
+     3320.0,
+     330.0
+    ],
+    "pad_h_cm": 13.061,
+    "pad_local_z": 128.061,
+    "max_dev_in_pad_cm": 0.0
+   },
+   {
+    "label": "S3 Beach V2 Rock 03",
+    "kind": "prop",
+    "local_xy": [
+     3240.0,
+     -310.0
+    ],
+    "pad_h_cm": 13.88,
+    "pad_local_z": 128.88,
+    "max_dev_in_pad_cm": 0.0
+   },
+   {
+    "label": "S3 Beach V2 Rock 04",
+    "kind": "prop",
+    "local_xy": [
+     3360.0,
+     235.0
+    ],
+    "pad_h_cm": 16.17,
+    "pad_local_z": 131.17,
+    "max_dev_in_pad_cm": 0.0
+   },
+   {
+    "label": "S3 Beach V2 Rock 05",
+    "kind": "prop",
+    "local_xy": [
+     3490.0,
+     -90.0
+    ],
+    "pad_h_cm": 9.998,
+    "pad_local_z": 124.998,
+    "max_dev_in_pad_cm": 0.0
+   },
+   {
+    "label": "S3 Beach V2 Seaweed 01",
+    "kind": "prop",
+    "local_xy": [
+     3350.0,
+     -400.0
+    ],
+    "pad_h_cm": 9.036,
+    "pad_local_z": 124.036,
+    "max_dev_in_pad_cm": 0.0
+   },
+   {
+    "label": "S3 Beach V2 Seaweed 02",
+    "kind": "prop",
+    "local_xy": [
+     3300.0,
+     450.0
+    ],
+    "pad_h_cm": 15.752,
+    "pad_local_z": 130.752,
+    "max_dev_in_pad_cm": 0.0
+   },
+   {
+    "label": "S3 Beach V2 Seaweed 03",
+    "kind": "prop",
+    "local_xy": [
+     3200.0,
+     470.0
+    ],
+    "pad_h_cm": 12.691,
+    "pad_local_z": 127.691,
+    "max_dev_in_pad_cm": 0.0
+   }
+  ],
+  "pedestal_embed_cm": 8.631,
+  "cameras": [
+   {
+    "label": "S3 Shot B02",
+    "vertical_clearance_cm": 169.1,
+    "min_3d_distance_within_150cm_cm": 169.1
+   },
+   {
+    "label": "S3 Shot B03",
+    "vertical_clearance_cm": 163.13,
+    "min_3d_distance_within_150cm_cm": 162.32
+   },
+   {
+    "label": "S3 Shot B04",
+    "vertical_clearance_cm": 116.26,
+    "min_3d_distance_within_150cm_cm": 115.04
+   },
+   {
+    "label": "S3 Shot B05",
+    "vertical_clearance_cm": 129.14,
+    "min_3d_distance_within_150cm_cm": 129.05
+   },
+   {
+    "label": "S3 Shot B06",
+    "vertical_clearance_cm": 110.67,
+    "min_3d_distance_within_150cm_cm": 110.67
+   },
+   {
+    "label": "S3 Shot B07",
+    "vertical_clearance_cm": 114.07,
+    "min_3d_distance_within_150cm_cm": 113.88
+   },
+   {
+    "label": "S3 Shot B08",
+    "vertical_clearance_cm": 104.65,
+    "min_3d_distance_within_150cm_cm": 104.5
+   },
+   {
+    "label": "S3 Shot B09",
+    "vertical_clearance_cm": 167.96,
+    "min_3d_distance_within_150cm_cm": 167.96
+   },
+   {
+    "label": "S3 Shot B11",
+    "vertical_clearance_cm": 98.64,
+    "min_3d_distance_within_150cm_cm": 97.42
+   }
+  ],
+  "wave_rows": [
+   {
+    "row": "Row1",
+    "max_abs_h_under_flat_cm": 0.0
+   },
+   {
+    "row": "Row2",
+    "max_abs_h_under_flat_cm": 0.0
+   },
+   {
+    "row": "Row3",
+    "max_abs_h_under_flat_cm": 0.0
+   }
+  ],
+  "walls": {
+   "left_max_cm": 128.24,
+   "left_mean_cm": 71.45,
+   "right_max_cm": 127.46,
+   "right_mean_cm": 71.82,
+   "back_max_cm": 105.34,
+   "back_at_door_max_cm": 1.64,
+   "handprint_floor_cm": 160.0
+  },
+  "mouth_edge_h_range_cm": [
+   2.52,
+   7.61
+  ],
+  "grid": {
+   "nx": 803,
+   "ny": 270,
+   "verts": 216810,
+   "h_min_cm": -8.08,
+   "h_max_cm": 128.19,
+   "r_mean": 0.343,
+   "g_mean": 0.406,
+   "b_mean": 0.099
+  }
+ },
+ "renders": [
+  "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\overview_from_mouth.png",
+  "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\overview_high_three_quarter.png",
+  "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\drift_left_wall.png",
+  "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\back_wall_drifts_door.png",
+  "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\mud_front_low.png",
+  "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\cam_B02.png",
+  "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\cam_B04.png",
+  "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\cam_B09.png",
+  "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\plan_vertex_colour_RGB.png"
+ ],
+ "render_engine": "BLENDER_EEVEE_NEXT",
+ "seconds": 7.1
+}

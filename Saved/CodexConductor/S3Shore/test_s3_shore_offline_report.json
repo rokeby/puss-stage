@@ -1,0 +1,86 @@
+{
+ "passed": 10,
+ "total": 10,
+ "results": [
+  {
+   "case": "shipped params pass",
+   "ok": true,
+   "failures": []
+  },
+  {
+   "case": "NEG drift over prints",
+   "ok": true,
+   "failures": [
+    "DRIFT_HITS_PRINTS left 171.3",
+    "DRIFT_HITS_PRINTS right 171.3",
+    "DRIFT_HITS_PRINTS back 158.1"
+   ]
+  },
+  {
+   "case": "NEG door blocked",
+   "ok": true,
+   "failures": [
+    "DOOR_GAP_BLOCKED"
+   ]
+  },
+  {
+   "case": "NEG wave base buried",
+   "ok": true,
+   "failures": [
+    "WAVE_BASE_NOT_FLUSH Row1 16.154"
+   ]
+  },
+  {
+   "case": "NEG figure pad removed",
+   "ok": true,
+   "failures": [
+    "PAD_NOT_FLAT Shore01_M56 Clam dev=1.123",
+    "PAD_NOT_FLAT Shore02_F52 Clam dev=2.461",
+    "PAD_NOT_FLAT Shore03_M59 Clam dev=1.587",
+    "PAD_NOT_FLAT Shore04_F55 Clam dev=1.359",
+    "PAD_NOT_FLAT Shore05_M53 Clam dev=2.348",
+    "PAD_NOT_FLAT Shore06_F25 Clam dev=1.192"
+   ]
+  },
+  {
+   "case": "NEG camera clearance",
+   "ok": true,
+   "failures": [
+    "CAMERA_LOW S3 Shot B02 169.1",
+    "CAMERA_LOW S3 Shot B03 163.1",
+    "CAMERA_LOW S3 Shot B04 116.3",
+    "CAMERA_LOW S3 Shot B05 129.1",
+    "CAMERA_LOW S3 Shot B06 110.7",
+    "CAMERA_LOW S3 Shot B07 114.1"
+   ]
+  },
+  {
+   "case": "manifest bounds asymmetric in Y (mirror detectable)",
+   "ok": true,
+   "bounds": {
+    "min": [
+     0.0,
+     -1012.0,
+     95.0
+    ],
+    "max": [
+     6012.0,
+     1008.0,
+     243.19
+    ]
+   }
+  },
+  {
+   "case": "manifest footprint hash matches current footprint",
+   "ok": true
+  },
+  {
+   "case": "fbx exists and hash matches manifest",
+   "ok": true
+  },
+  {
+   "case": "manifest built with no field failures",
+   "ok": true
+  }
+ ]
+}

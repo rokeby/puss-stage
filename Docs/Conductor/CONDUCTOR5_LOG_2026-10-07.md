@@ -83,3 +83,7 @@
   unacked foreign records 2 (Effects_20261007/p01_atmos_record.json, MeshyFixtures_20261007/meshy_swap_record_P01.json).
   APPLY (with those two acked) was **blocked by the permission classifier** (Show write) — needs Gary. Args left at DRY.
 - S4 v5: "none" strikes + PIE-only preview being written (Gary: arrive in the dark; stills first).
+- **S3 shore ground** prep in (S3_SHORE_GROUND_PREP_2026-10-07.md): mesh 218,952 verts, harness 10/10 (conductor re-ran).
+  Live DRY S3SHORE-20261007-181646 [meas]: landed=True, 33 actors, 6 figures, census clean; footprint diff vs records:
+  only Shore03_M59 foot 12.03 → 10.45 cm (cast area keeps beach-v2 sand, so no rebuild). Next: IMPORT (new asset
+  write) + BENCH stills → needs Gary's go (look write).
