@@ -1,0 +1,436 @@
+{
+ "total": 86,
+ "failed": 0,
+ "results": [
+  {
+   "test": "mode+ DRY needs no confirm",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "mode- APPLY without confirm",
+   "pass": true,
+   "detail": "refused with CONFIRM_MISSING|need 'APPLY S3WAVESV3'"
+  },
+  {
+   "test": "mode+ IMPORT one piece",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "mode- IMPORT two pieces in one call",
+   "pass": true,
+   "detail": "refused with BATCH|IMPORT takes 1..1 pieces, got 2"
+  },
+  {
+   "test": "mode- BUILD_MAT five pieces",
+   "pass": true,
+   "detail": "refused with BATCH|BUILD_MAT takes 1..4 pieces, got 5"
+  },
+  {
+   "test": "mode+ VERIFY allowed in PIE",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "mode- IMPORT refused in PIE",
+   "pass": true,
+   "detail": "refused with PIE_ACTIVE|IMPORT refused in PIE (editor world is None there)"
+  },
+  {
+   "test": "mode- DRY refused in PIE (no editor world)",
+   "pass": true,
+   "detail": "refused with PIE_ACTIVE|DRY refused in PIE (editor world is None there)"
+  },
+  {
+   "test": "mode- APPLY twice",
+   "pass": true,
+   "detail": "refused with ALREADY_APPLIED (REVERT first)"
+  },
+  {
+   "test": "mode- REVERT while motion keyed",
+   "pass": true,
+   "detail": "refused with MOTION_RECORD_PRESENT (MOTION_REVERT first: its bindings point at the actors REVERT destroys)"
+  },
+  {
+   "test": "mode+ REVERT after MOTION_REVERT",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "mode- MOTION_APPLY before APPLY",
+   "pass": true,
+   "detail": "refused with NO_APPLY_RECORD (APPLY first)"
+  },
+  {
+   "test": "mode- LIGHT_REVERT without record",
+   "pass": true,
+   "detail": "refused with NO_LIGHT_RECORD"
+  },
+  {
+   "test": "table+ 12 validated pieces",
+   "pass": true,
+   "detail": "['S3_WaveV3_L1Breakers_P1', 'S3_WaveV3_L1Breakers_P2', 'S3_WaveV3_L2SwellNear_P1', 'S3_WaveV3_L2SwellNear_P2', 'S3_WaveV3_L3SwellMid_P1', 'S3_WaveV3_L3SwellMid_P2', 'S3_WaveV3_L4SwellFar_P1', 'S3_WaveV3_L4SwellFar_P2', 'S3_WaveV3_L5Rollers_P1', 'S3_WaveV3_L5Rollers_P2', 'S3_WaveV3_L6Foam_P1', 'S3_WaveV3_L6Foam_P2']"
+  },
+  {
+   "test": "table+ NEW names SM_FlatV3_S3_WaveV3_*",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "table- mount drift between build and plan",
+   "pass": true,
+   "detail": "refused with MOUNT_DRIFT|S3_WaveV3_L1Breakers_P1"
+  },
+  {
+   "test": "table- unvalidated piece",
+   "pass": true,
+   "detail": "refused with PIECE_NOT_BUILT|S3_WaveV3_L1Breakers_P1"
+  },
+  {
+   "test": "table+ UE bounds: front at x~-15.9, origin bottom-centre (y symmetric, z from 0)",
+   "pass": true,
+   "detail": "{'min': [-15.890048444271088, -576.1711597442627, 0.0], 'max': [-3.1999848783016205, 576.1711597442627, 133.97200107574463]}"
+  },
+  {
+   "test": "apply+ 12 spawns, 9 hides, no reveal, map-only save",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "apply+ every spawn inside the wave guard (rest pose)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "apply- root not landed (sunk REST pose)",
+   "pass": true,
+   "detail": "refused with ROOT_NOT_LANDED|{\"location\": [11421.97, 160000, -3620], \"rotation\": [0, -90, 0], \"scale\": [1, 1, 1]}"
+  },
+  {
+   "test": "apply- label exists",
+   "pass": true,
+   "detail": "refused with LABEL_EXISTS|S3 WaveV3 L1Breakers P1"
+  },
+  {
+   "test": "apply- assets not verified",
+   "pass": true,
+   "detail": "refused with ASSETS_NOT_VERIFIED|S3_WaveV3_L2SwellNear_P2 (IMPORT, BUILD_MAT, then VERIFY)"
+  },
+  {
+   "test": "apply- only 8 split pieces",
+   "pass": true,
+   "detail": "refused with SPLIT_PIECES|['S3 Wave Split Row1 Piece1', 'S3 Wave Split Row1 Piece2', 'S3 Wave Split Row1 Piece3', 'S3 Wave Split Row2 Piece1', 'S3 Wave Split Row2 Piece2', 'S3 Wave Split Row2 Piece3', 'S3 Wave Split Row3 Piece1', 'S3 Wave Split Row3 Piece2']"
+  },
+  {
+   "test": "apply- ZZ_ temp actor present",
+   "pass": true,
+   "detail": "refused with TEMP_ACTORS_PRESENT|['ZZ_TEMP_x']"
+  },
+  {
+   "test": "apply- piece outside the landed wave box",
+   "pass": true,
+   "detail": "refused with GUARD_LOCAL_BOX|S3_WaveV3_L1Breakers_P1|{\"min\": [6184.109951555729, -1099.9711597442626, 95.0], \"max\": [6196.800015121698, 52.37115974426274, 228.97200107574463]}"
+  },
+  {
+   "test": "reveal+ identical rise sections -> copy, rise saved",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "reveal- mixed (one split piece has none)",
+   "pass": true,
+   "detail": "refused with REVEAL_MIXED|[1, 1, 1, 1, 0, 1, 1, 1, 1]"
+  },
+  {
+   "test": "reveal- sections differ",
+   "pass": true,
+   "detail": "refused with REVEAL_SECTIONS_DIFFER"
+  },
+  {
+   "test": "reveal- unreadable rise",
+   "pass": true,
+   "detail": "refused with REVEAL_UNREAD"
+  },
+  {
+   "test": "revert+ exact (none reveal): world identical after APPLY->REVERT",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "apply+ changes the world (none): 12 actors, 9 hidden",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "revert+ exact (copy reveal): world identical after APPLY->REVERT",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "apply+ changes the world (copy): 12 actors, 9 hidden",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "revert- drift (an actor already gone) refuses",
+   "pass": true,
+   "detail": "refused with SIM_DESTROY_MISSING|NEW_S3 WaveV3 L1Breakers P1"
+  },
+  {
+   "test": "motion+ L5 sway clamped 110 -> 100 cm",
+   "pass": true,
+   "detail": "{'id': 'L5_Rollers', 'period_s': 15.0, 'sway_cm': 100.0, 'dir': 1, 'phase': 0.13, 'bob_cm': 10.0, 'roll_deg': 0.25, 'clamped_from': 110.0}"
+  },
+  {
+   "test": "motion+ only L5 clamped",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "motion+ overhang <= 200 cm",
+   "pass": true,
+   "detail": "{'overhang_cm': 199.9780637549634, 'skirt_lift_cm': 6.719475829746202, 'seam_cm': 7.389644451905042e-13, 'split_cm': 2.2737367544323206e-13}"
+  },
+  {
+   "test": "motion- clamp off -> L5 overhang 210 refused",
+   "pass": true,
+   "detail": "refused with OVERHANG|S3_WaveV3_L5Rollers_P1|209.98 cm > 200 (L5 clamp off?)"
+  },
+  {
+   "test": "motion+ every period divides the 720-frame vamp",
+   "pass": true,
+   "detail": "{'L1_Breakers': 180.0, 'L2_SwellNear': 240.0, 'L3_SwellMid': 360.0, 'L4_SwellFar': 240.0, 'L5_Rollers': 360.0, 'L6_Foam': 144.0}"
+  },
+  {
+   "test": "motion- a 7 s period does not divide 30 s",
+   "pass": true,
+   "detail": "refused with PERIODS_DO_NOT_DIVIDE_VAMP|[('L3_SwellMid', 7.0)]"
+  },
+  {
+   "test": "motion- vamp moved off the divisible length",
+   "pass": true,
+   "detail": "refused with PERIODS_DO_NOT_DIVIDE_VAMP|[('L1_Breakers', 7.5), ('L2_SwellNear', 10.0), ('L3_SwellMid', 15.0), ('L4_SwellFar', 10.0), ('L5_Rollers', 15.0), ('L6_Foam', 6.0)]"
+  },
+  {
+   "test": "motion+ keys span strike-1 .. Scene end 6240 (past the 744 rise end)",
+   "pass": true,
+   "detail": "{'first': 239, 'last': 6240, 'count': 2002, 'step': 3}"
+  },
+  {
+   "test": "motion- Scene playback 0..744 (keys would end at 31 s)",
+   "pass": true,
+   "detail": "refused with PLAYBACK|(0, 744) (Scene 3 must be 0..6240; re-plan if relengthed)"
+  },
+  {
+   "test": "motion- strike not +10 s",
+   "pass": true,
+   "detail": "refused with STRIKE|300"
+  },
+  {
+   "test": "motion+ vamp seam identical (< 1e-6 cm)",
+   "pass": true,
+   "detail": "{'overhang_cm': 199.9780637549634, 'skirt_lift_cm': 6.719475829746202, 'seam_cm': 7.389644451905042e-13, 'split_cm': 2.2737367544323206e-13}"
+  },
+  {
+   "test": "motion+ P1/P2 never split (rigid layer)",
+   "pass": true,
+   "detail": "{'overhang_cm': 199.9780637549634, 'skirt_lift_cm': 6.719475829746202, 'seam_cm': 7.389644451905042e-13, 'split_cm': 2.2737367544323206e-13}"
+  },
+  {
+   "test": "motion+ skirt never lifts clear (< 20 cm)",
+   "pass": true,
+   "detail": "{'overhang_cm': 199.9780637549634, 'skirt_lift_cm': 6.719475829746202, 'seam_cm': 7.389644451905042e-13, 'split_cm': 2.2737367544323206e-13}"
+  },
+  {
+   "test": "motion+ rest before the strike and smooth start (|dy| < 1 cm at strike+1 key)",
+   "pass": true,
+   "detail": "[{'frame': 239, 'location': [3650.0, -523.8, 95.0], 'rotation': [-0.0, 0.0, 0.0], 'scale': [1.0, 1.0, 1.0]}, {'frame': 240, 'location': [3650.0, -523.8, 95.0], 'rotation': [-0.0, 0.0, 0.0], 'scale': [1.0, 1.0, 1.0]}, {'frame': 243, 'location': [3650.0, -523.7471731170582, 94.9635263466941], 'rotation': [-0.003909131473493457, 0.0, 0.0], 'scale': [1.0, 1.0, 1.0]}]"
+  },
+  {
+   "test": "motion- naive per-piece roll is caught (P1/P2 split)",
+   "pass": true,
+   "detail": "refused with P1_P2_SPLIT|L1_Breakers|5.803184"
+  },
+  {
+   "test": "motion+ bob is down-only (dz <= 0)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "flicker+ live when Flap section + weights + switch + amp",
+   "pass": true,
+   "detail": "{'a': 'LIVE (Flap WPO, LOD0 within screen size 0.30)', 'b': 'REFUSED: Flap MI Flutter switch False', 'c': 'REFUSED: no Flap section in LOD0; Flap VC.R not 0..1 ([0, 0])'}"
+  },
+  {
+   "test": "flicker- refused when the Flutter switch is off",
+   "pass": true,
+   "detail": "{'a': 'LIVE (Flap WPO, LOD0 within screen size 0.30)', 'b': 'REFUSED: Flap MI Flutter switch False', 'c': 'REFUSED: no Flap section in LOD0; Flap VC.R not 0..1 ([0, 0])'}"
+  },
+  {
+   "test": "flicker- refused with no Flap section",
+   "pass": true,
+   "detail": "{'a': 'LIVE (Flap WPO, LOD0 within screen size 0.30)', 'b': 'REFUSED: Flap MI Flutter switch False', 'c': 'REFUSED: no Flap section in LOD0; Flap VC.R not 0..1 ([0, 0])'}"
+  },
+  {
+   "test": "light+ 6 ground rows + warm side",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "light+ haze SPEC_ONLY without an ExponentialHeightFog in S3",
+   "pass": true,
+   "detail": "{'mode': 'SPEC_ONLY', 'why': \"no ExponentialHeightFog in S3 (found: []); spec: a LocalFogVolume over local box {'min': [3550.0, -995.0, 115.0], 'max': [5990.0, 995.0, 715.0]}, radial 0.25 / height 0.15 / falloff 300 (needs an EHF to render [inf])\"}"
+  },
+  {
+   "test": "light+ rake retint only (temperature 5800 -> 7500, intensity untouched)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "light+ keys 0 -> strike -> ramp -> held to 6240 (whole Scene)",
+   "pass": true,
+   "detail": "[[0, 0.0], [240, 0.0], [245, 120.0], [6240, 120.0]]"
+  },
+  {
+   "test": "light- Scene ends at 744 (rise boundary) refused",
+   "pass": true,
+   "detail": "refused with PLAYBACK|(0, 744)"
+  },
+  {
+   "test": "light- rake colour keyed somewhere",
+   "pass": true,
+   "detail": "refused with RAKE_COLOUR_IS_KEYED|['Temperature'] (retint would be overridden)"
+  },
+  {
+   "test": "light- label already exists",
+   "pass": true,
+   "detail": "refused with LABEL_EXISTS|S3 WaveV3 Warm Side"
+  },
+  {
+   "test": "haze+ APPLY with an EHF in S3: box -> scale (2.44, 1.99, 0.60)",
+   "pass": true,
+   "detail": "{'mode': 'APPLY', 'label': 'S3 WaveV3 Sea Haze', 'relative': {'location': [4770.0, 0.0, 415.0], 'rotation': [0, 0, 0], 'scale': [2.44, 1.99, 0.6]}, 'params': {'radial_fog_extinction': 0.25, 'height_fog_extinction': 0.15, 'height_fog_falloff': 300.0, 'fog_albedo': [0.7, 0.74, 0.74, 1.0]}, 'ehf': [{'label': 'S3 Fog', 'in_s3': True}]}"
+  },
+  {
+   "test": "haze- an EHF outside S3 does not count",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "haze- EHF in S3 but no LocalFogVolume class",
+   "pass": true,
+   "detail": "refused with LOCAL_FOG_CLASS_MISSING (unreal.LocalFogVolume not exposed)"
+  },
+  {
+   "test": "ground rows+ behind each layer, in front of the next, inside the notch bands, shadows off",
+   "pass": true,
+   "detail": "[[3670.0, 0.0, 123.0], [3715.0, 0.0, 123.0], [4470.0, 0.0, 123.0], [4515.0, 0.0, 123.0], [5270.0, 0.0, 123.0], [5315.0, 0.0, 123.0]]"
+  },
+  {
+   "test": "warm side+ left wall (y -980, inside the box), 3200 K",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "ready+ fresh complete VERIFY",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "ready- VERIFY older than the last IMPORT/BUILD_MAT",
+   "pass": true,
+   "detail": "refused with VERIFY_STALE (an IMPORT/BUILD_MAT ran after it)"
+  },
+  {
+   "test": "ready- one piece incomplete",
+   "pass": true,
+   "detail": "refused with PIECES_NOT_READY|['S3_WaveV3_L3SwellMid_P2']"
+  },
+  {
+   "test": "ready- no VERIFY report",
+   "pass": true,
+   "detail": "refused with NO_VERIFY_REPORT (run VERIFY after the last BUILD_MAT)"
+  },
+  {
+   "test": "static+ every C.<name> the UE tool uses exists in the core",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "test": "static- the scan catches a missing name",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static+ UE tool imports offline without running (unreal None)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static+ no unreal object in a module global",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "test": "static+ never get_bound_objects",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static+ never reload the open world",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static+ never delete material nodes",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static- the call scan sees a real call",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "determinism+ two builds byte-identical (96 deliverables, 12 pieces)",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "test": "determinism- a seed+1 skin differs (the gate can fail)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "foam+ L1 P1 gets 3 crest flaps, outlines on paint",
+   "pass": true,
+   "detail": "{'real': 3, 'inside': True, 'mouth': 0, 'solid': 2, 'merged': 6, 'foam_in_file': 3}"
+  },
+  {
+   "test": "foam+ built flaps file = 3 peel + 3 foam (create_flaps 3..6)",
+   "pass": true,
+   "detail": "{'real': 3, 'inside': True, 'mouth': 0, 'solid': 2, 'merged': 6, 'foam_in_file': 3}"
+  },
+  {
+   "test": "foam- a crest over an open curl mouth gets NO flap",
+   "pass": true,
+   "detail": "{'real': 3, 'inside': True, 'mouth': 0, 'solid': 2, 'merged': 6, 'foam_in_file': 3}"
+  },
+  {
+   "test": "foam+ the same crest made solid does get flaps (control)",
+   "pass": true,
+   "detail": "{'real': 3, 'inside': True, 'mouth': 0, 'solid': 2, 'merged': 6, 'foam_in_file': 3}"
+  },
+  {
+   "test": "textures+ every texture <= 4096 px",
+   "pass": true,
+   "detail": "[{'piece': 'S3_WaveV3_L1Breakers_P1', 'sizes': {'SkinColor': [4096, 1024], 'SkinMask': [1024, 2048], 'SkinNormal': [1024, 2048]}, 'gpu_mb': 10.67, 'max_dim_ok': True}, {'piece': 'S3_WaveV3_L1Breakers_P2', 'sizes': {'SkinColor': [4096, 1024], 'SkinMask': [1024, 2048], 'SkinNormal': [1024, 2048]}, 'gpu_mb': 10.67, 'max_dim_ok': True}]"
+  },
+  {
+   "test": "textures+ total GPU memory reported",
+   "pass": true,
+   "detail": "128.0"
+  }
+ ]
+}

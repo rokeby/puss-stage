@@ -333,3 +333,158 @@ All under `E:\PussStage\`.
 2. Should the back surf mask the mural figures' feet?
 3. Keep the warm side light?
 4. Approve the foam-flap flicker?
+
+---
+
+## 7. Variant B production prep (7 Oct, evening; offline)
+
+**Gary's decisions (7 Oct, his own words, relayed by the conductor):** variant B (scroll crests, Whistler grey-green);
+the back foam may cover the mural figures' feet; ADD the warm side light; foam flicker via Flap-slot flutter; sway +
+bob with periods dividing the 30 s vamp; clamp L5's sway inside the 200 cm side cap.
+
+**Scope.** Offline only: no Unreal, no MCP, no commits, no downloads. Headless Blender 4.4, one process at a time (the
+build waits while any other `--background` Blender runs; it did wait once for the shore agent's render). Gary's
+windowed Blender was not touched. Nothing below has run in the editor: every Unreal claim is **[decl]** (a precedent
+tool or header) or **[inf]**, never [meas].
+
+### 7.1 The 12 pieces, built (Flat V3, new names)
+
+Driver `Saved/CodexConductor/S3Waves/s3_waves_v3_B_build.py`; outputs `DerivedAssets/FlatV3/Scene3/waves_v3/B_build/`
+(`pieces/<S3_WaveV3_…>/`, `build_report_B.json`, `build_log_B.txt`, hash files).
+
+- **[meas]** All 12 built and passed the clean re-import validation in a fresh factory-startup Blender
+  (`SM_FlatV3_*_validation.json`, `pass: true`, 27 checks each: LodGroup, slots Front/Flap/Timber/Edge, UV0/UV1, UV1
+  metres, front coverage, vertex-colour contract, LOD1 board-only, no sockets, bottom-centre origin, front -X).
+- **[meas]** Cuts, mounts and seeds are the predecessor's `plan_variant('B')` unchanged (`build_plan_B.json`).
+- **Two deviations from the predecessor's plan, both forced [meas]:**
+  1. `build_skin` refuses 1 % peel for `bottom-heavy` ("must be 2..3", `build_skin.py` argparse) → **2 %**, as the old
+     waves used (`waves/build_wave_assets.py:91`).
+  2. `--minimum-width-m 12` would fail two pieces (L1 P1 11.52 m, L4 P1 11.30 m) → **11.0**.
+- **Row crop [meas]:** each piece's mask/art is cropped to the subject rows as well as the columns. The design canvas
+  carries 40–60 cm of empty sky above the crest; `build_skin` maps the whole image onto `--height-cm`, so the
+  uncropped input would stretch paper grain, sheet grid and peel vertically by up to 1.46× **[decl]**
+  (`build_skin.py:787-791`). Heights then equal the plan's `height_cm_incl_skirt` within 0.11 cm (gated).
+- **Foam flicker flaps [meas]:** L1 Breakers and L6 Foam (4 pieces) carry **3 crest-foam flaps + the 3 largest peel
+  flaps** (6 = the `create_flaps` maximum, `build_v3_flat.py:1640-1641` **[decl]** — the predecessor's "no count
+  limit seen" was wrong). A foam flap is a band under the crest (16 cm deep, 50 cm wide) whose hinge is one
+  horizontal line, so the build's horizontal weight runs 0 at the hinge to 1 at the crest. Windows are chosen
+  deterministically (brightest foam band, solid paint down to the hinge, no curl mouth, outside the P1/P2 overlap,
+  ≥150 cm apart). Other layers keep `build_skin`'s 5 peel flaps.
+- **Determinism [meas]:** two full builds of all 12 → **every deliverable byte-identical** (FBX, SkinColor/Mask/Normal,
+  flaps, MI params, sheet grid: see `hashes_run1.json` = `hashes_run2.json`). Two causes of FBX drift were found and
+  pinned, measured:
+  - Blender's FBX header `CreationTimeStamp` is `datetime.now()` (`io_scene_fbx/export_fbx_bin.py:3145-3155`
+    **[decl]**) → pinned by `s3_waves_v3_blender_pinned.py`;
+  - every FBX object UID is a **salted Python `hash(str)`** (`fbx_utils.py:815-831` **[decl]**); the first two-build
+    test differed in exactly those 4-byte UID fields **[meas]**. Blender ignores `PYTHONHASHSEED` unless
+    `--python-use-system-env` is given (measured: `hash('abc')` differed run to run without it, equal with it)
+    → the build runs Blender with that flag, `PYTHONHASHSEED=0`, `PYTHONNOUSERSITE=1`, no `PYTHONPATH`.
+  - Negative control **[meas]**: the same skin with seed+1 gives a different SkinColor hash (`hashes_negative_seed.json`).
+  - `.blend` and `*_build.json`/`*_skin_manifest.json` (absolute paths, timings) are by-products, not compared.
+- **Textures [meas from PNG headers]:** per piece SkinColor 4096×1024, SkinMask 1024×2048, SkinNormal 1024×2048 (all
+  ≤4K, POT). **Total ≈ 128 MB GPU for all 12** with full mips **[inf: 1 byte/texel for BC7/BC5 × 4/3, not read in
+  Unreal]** (`build_report_B.json` `texture_memory`). Aged/Timber textures are Blender-only (UE uses the CanvasEdge
+  placeholder on Timber and Edge, as the S3 wave precedent).
+
+### 7.2 Editor tool `s3_waves_v3_ue.py` (NOT RUN)
+
+Files in `Saved/CodexConductor/S3Waves/`: `s3_waves_v3_ue.py` (glue), `s3_waves_v3_core.py` (pure planning, harnessed),
+`s3_waves_v3_run.py` (runner: purges the Saved module cache, runs a fresh copy), `s3_waves_v3_request.json`,
+`s3_waves_v3_args.json`. One mode per call; write modes need `"confirm": "<MODE> S3WAVESV3"`.
+
+| Mode | What it does | Saves |
+|---|---|---|
+| DRY | root landed?; the 9 split pieces (flags, parent, every track on bindings resolving to them in LS_DevScene_03 **and** LS_S3_HangarRise, rise visibility); asset readiness; APPLY plan | nothing |
+| IMPORT | ONE piece: FBX (house `phase1_import.fbx_options(True)`, materials/textures off) + 3 PNGs; nanite off; LOD1 screen size 0.3 (Gary's P04-P06 flap value); gates: 2 LODs, slot order, UV0 V-down on Front LOD0/1 + Flap LOD0, front normal -X, no Flap in LOD1, Flap VC.R 0..1, bounds and triangles = the Blender re-import, no sockets, no strays, census = exactly 4 packages | mesh + 3 textures |
+| VERIFY | read-only, **PIE-safe** (`unreal.load_asset` only): texture sizes vs PNG headers (a LATER call than the import, because first-load sizes read 32×32), settings, LODs, screen size, slots, MI params | its report |
+| BUILD_MAT | 1–4 pieces: create-only `MI_FlatV3_<piece>_Front/_Flap` (parents `MI_Billboard_Front/Flap`, params from `<piece>_mi_params.json`; foam pieces' Flap MI also `FlutterAmpCm 4`, `FlutterHz 1.3` **[inf: start values, Gary tunes]**); slots Timber + Edge = `M_Wing_CanvasEdge_Master` | 2 MIs + mesh per piece |
+| APPLY | record first; `Backups/PreS3WavesV3-<run>` (umap + LS_DevScene_03 + rise + record, hash-checked); hide the 9 split pieces (component visibility off, component + actor hidden-in-game; originals recorded); spawn 12 Movable actors `S3 WaveV3 <Layer> <P1/P2>`, tag `S3.WavesV3.ToolOwned`, attached KEEP_RELATIVE to S3 Hangar Root at `mount_local`; root must read LANDED and every actor's world AABB, mapped into the **live** root frame, must lie in the wave guard box; copies the split pieces' rise reveal only if all nine share one (else none) | map (+ rise if a reveal is copied) |
+| REVERT | exact inverse from the record; refuses while the MOTION record exists | same |
+| MOTION_DRY / _APPLY / _REVERT | 9-channel Transform track `S3.WavesV3.Motion` on each actor's new LS_DevScene_03 binding; LINEAR keys every 3 frames, frames 239…6240 (2002 keys, past the 744 rise end); own record + backup | LS_DevScene_03 (+ map if dirtied) |
+| LIGHT_DRY / _APPLY / _REVERT | rake retint; 6 ground rows + warm side; haze only if an ExponentialHeightFog is in S3; own record + backup | map + LS_DevScene_03 |
+
+**Split-piece visibility [decl + inf].** The millstone tool found the pedestal revealed by a rise visibility track
+(`s3_millstone_apply_record.json`: keys 0→false, 139→true at 30 fps). Whether the split pieces have one is **UNCLEAR**
+offline (no record of it; DRY reads it). The hide does not depend on it: a visibility track drives the actor's
+hidden-in-game flag only **[inf: UE MovieSceneVisibilityTrack semantics, not verified in 5.8 source]**, and APPLY
+also turns the static-mesh component's visibility off, which no track touches.
+
+### 7.3 Motion (Gary's sway + bob, L5 clamped)
+
+- Formulas = `s3_waves_v3_motion_plan.json`; phase origin = the strike (frame 240 at 24 fps, read live from the rise
+  as `s3_wave_split_apply.py:317-353` does), with a 2 s smoothstep fade-in so nothing pops at the gate.
+- **L5 sway 110 → 100 cm [meas, plan]**; worst side overhang 199.98 cm ≤ 200. All periods divide the 720-frame vamp
+  (7.5/10/15/10/15/6 s = 180/240/360/240/360/144 frames); vamp seam error 7e-13 cm.
+- Roll is about the LAYER centre line, so P1 and P2 stay one rigid card: worst P1/P2 mismatch 2e-13 cm **[meas,
+  plan]**; a per-piece roll (negative control) is caught. Worst skirt lift 6.7 cm < 20 cm skirt.
+- **Foam flicker [decl]:** it is the Flap MI's time-driven WPO (`MI_Billboard_Flap` Flutter switch, FlutterAmpCm /
+  FlutterHz, max 6 cm), not keys. MOTION_DRY reports per piece LIVE / REFUSED (Flap section in LOD0, VC.R 0..1,
+  switch on, amplitude > 0). Flaps exist only in LOD0; with LOD1 screen size 0.3 the 12.5 m pieces keep LOD0 to
+  roughly 45 m **[inf: UE screen-size ≈ radius / (distance · tan(fov/2)), not measured]**, beyond every S3 shot.
+
+### 7.4 Lighting
+
+- **Rake key [decl]:** `S3 Daylight Rake Key` temperature 5800 → **7500 K**; intensity UNCHANGED. Its intensity is keyed
+  in the rise and held at 1800 cd past frame 744 by S3FLOATHOLD (`s3_hangar_float_hold_record.json`); the redesign's
+  "-30 %" would edit both and is left as a separate decision. LIGHT_DRY refuses if any track animates its colour.
+- **Ground rows + warm side [decl, values inf]:** RectLights on the root, tagged, Movable, candela units, the
+  `s3_daylight_apply.py:380-401` recipe. Ground rows at local z 123, 20 cm behind each layer (x 3670, 3715, 4470, 4515,
+  5270, 5315: inside the notch bands, behind each P2 frame, in front of the next board), 1900 × 12 cm, 9000 K,
+  120 cd, shadows off. Warm side: (2600, -980, 260) → (5000, 400, 230), 200 × 120 cm, 3200 K, 250 cd, shadows on —
+  the placement Gary saw in the B board.
+  - **Keys:** 0 at frame 0 and at the strike, ramp 0.2 s, then held, in ONE LS_DevScene_03 section over the whole
+    Scene (0…6240) — the same component-binding + float-track mechanism S3FLOATHOLD uses, so no rise track ends at 744.
+  - **[inf]** Ground rows 1, 3 and 5 sit only ~10 cm behind the next layer's board (the pairs share a notch): expect a
+    hot strip at those boards' feet; first thing to tune or drop in PIE.
+- **Haze:** a sea-band LocalFogVolume (box x 3550–5990, y ±995, z 115–715; scale = half-extent / 500 cm,
+  `LocalFogVolumeComponent.h:74` **[decl]**) is spawned ONLY if LIGHT_DRY finds an ExponentialHeightFog in S3.
+  Otherwise SPEC_ONLY. **UNCLEAR** whether one exists (none in the light probes searched).
+
+### 7.5 Offline harness
+
+`test_s3_waves_v3_offline.py` → `test_s3_waves_v3_offline_report.json`: **86/86 pass [meas]**. Each gate has a + control (real plan)
+and a − control (broken input that must refuse): mode/confirm/PIE/batch rules; piece table (mount drift, unvalidated
+piece); APPLY plan (sunk root, existing label, unverified assets, 8 split pieces, ZZ_ actor, out-of-box piece, reveal
+none/copy/mixed/differing/unreadable); revert exactness on a world model (APPLY→REVERT returns the identical world;
+drift refuses); motion (L5 clamp on/off, a 7 s period, moved vamp, Scene ending at 744, wrong strike, seam, rigid
+P1/P2 with a naive-roll negative control, down-only bob); flicker verdicts; light plan (keys span 0…6240, Scene ending
+at 744, keyed rake colour, EHF in/out of S3, missing LocalFogVolume class, ground-row placement); VERIFY readiness
+(stale, incomplete, absent); a static scan of the UE glue (every core name exists, no unreal global, no
+get_bound_objects / reload_packages / delete_material_expression calls); build determinism with its seed+1 negative
+control; foam flaps (real crest gets 3; a curl mouth gets none; the same crest made solid does).
+
+### 7.6 Run order (conductor, editor, one call each; args → request)
+
+`python Saved/CodexMocap/mcp_request.py tools/call --params-file Saved/CodexConductor/S3Waves/s3_waves_v3_request.json`
+after editing `s3_waves_v3_args.json` (`mode`, `confirm`, `pieces`); read the log marker `S3WAVESV3_<MODE>_OK|run=<id>`.
+Editor not in PIE, Sequencer closed, census clean, except VERIFY (PIE-safe).
+
+1. `LIGHT_DRY`, then `DRY` (read-only; DRY reports APPLY_WOULD_REFUSE until VERIFY passes — read the split pieces'
+   tracks and reveal).
+2. `IMPORT`, confirm `IMPORT S3WAVESV3`, **one piece per call**, in this order:
+   `L1Breakers_P1`, `L1Breakers_P2`, `L2SwellNear_P1`, `L2SwellNear_P2`, `L3SwellMid_P1`, `L3SwellMid_P2`,
+   `L4SwellFar_P1`, `L4SwellFar_P2`, `L5Rollers_P1`, `L5Rollers_P2`, `L6Foam_P1`, `L6Foam_P2`.
+3. `BUILD_MAT`, confirm `BUILD_MAT S3WAVESV3`, ≤4 per call: [L1Breakers_P1, L1Breakers_P2, L2SwellNear_P1,
+   L2SwellNear_P2], [L3SwellMid_P1, L3SwellMid_P2, L4SwellFar_P1, L4SwellFar_P2], [L5Rollers_P1, L5Rollers_P2,
+   L6Foam_P1, L6Foam_P2].
+4. `VERIFY` (separate, later call) → must read `ready=12/12`.
+5. `DRY` → `apply=would_apply`. 6. `APPLY` (`APPLY S3WAVESV3`). Then run `SavedMasterMatchesShow` and
+   `SceneCutBindingsResolve` singly.
+7. `MOTION_DRY` (flicker LIVE on the 4 foam pieces, no conflicts) → `MOTION_APPLY`.
+8. `LIGHT_DRY` → `LIGHT_APPLY`. 9. PIE look from B09/B02/B05.
+Reverts: `MOTION_REVERT` → `REVERT`; `LIGHT_REVERT` independently.
+
+### 7.7 Preview of the built set
+
+`DerivedAssets/FlatV3/Scene3/waves_v3/B_build/previews/`: `built_B_B09_axis.png`, `built_B_B02_wide.png`,
+`BOARD_built_B.png` (built set over the design preview). Fresh FBX imports + SkinColor, the B board's box/shore/backdrop
+and lighting with the planned ground rows / warm side **[meas, Blender only]**. Not Unreal: no halftone, flutter, TSR,
+Lumen.
+
+- **[meas, Blender preview] The built set matches the design board** (same crests, palette, rake).
+- **[meas, Blender preview] Art finding to judge:** every layer's P1/P2 seam shows as a **vertical dark edge** from the
+  trough to the sand (clearest on L1 in both B09 and B02). It is P1's board edge standing 15 cm in front of P2, plus
+  parallax on the identical art. It belongs to the overlap design, not the build. Options if Gary minds it: cut P1's
+  end along a painted stroke instead of a vertical, or darken/soften the overlap band in P1's art. Not changed here.
+- **[inf]** In PIE the flaps' flutter, the halftone and Lumen will change the read; judge the seam and the ground-row
+  hot strips there first.

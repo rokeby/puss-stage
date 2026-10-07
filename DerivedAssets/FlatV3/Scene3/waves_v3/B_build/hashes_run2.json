@@ -1,0 +1,122 @@
+{
+ "S3_WaveV3_L1Breakers_P1": {
+  "S3_WaveV3_L1Breakers_P1_flaps.json": "ecaae8296052a1e5682b5a3b9d8848dea9a453daa5b398bfbbe9913eb14aa83b",
+  "S3_WaveV3_L1Breakers_P1_flaps_v3.json": "3a696d933d1a493d687b48dbaa8cde7a4f05ecf0dfd4a6948e3c5a86d59e4281",
+  "S3_WaveV3_L1Breakers_P1_mi_params.json": "43540a935cc54b82d72f4cb7e38f9fe038dad232ebefa6493805ceb87ee3c353",
+  "S3_WaveV3_L1Breakers_P1_sheet_grid.json": "8064556c20a35de73236a649ed302db09097984b32c915e2700b287f7c7c1d41",
+  "SM_FlatV3_S3_WaveV3_L1Breakers_P1.fbx": "229a2278d6e6a4238a3d106ff6332d6b8d6bb68425b9386840b1af558ea6f9fd",
+  "T_S3_WaveV3_L1Breakers_P1_SkinColor.png": "c9fff06482496113a006fc93c995cc8c0e9292302e1b484110f53d414b579d9d",
+  "T_S3_WaveV3_L1Breakers_P1_SkinMask.png": "e16a7b7f6d38a610d477dfdd7ec662a5c085dd78781898028c8f677cab980788",
+  "T_S3_WaveV3_L1Breakers_P1_SkinNormal.png": "596447e52876366b46563c32ee34430116d84665f0958b418bf9e02106494781"
+ },
+ "S3_WaveV3_L1Breakers_P2": {
+  "S3_WaveV3_L1Breakers_P2_flaps.json": "492ba2c4ea2095c8f1e6a7b3b6deda17bb0d57e66886bc1e78b95ec6a9f932cc",
+  "S3_WaveV3_L1Breakers_P2_flaps_v3.json": "f3a3bdfc13528af1c4bab80367ca1aa90b43f2ccaca1b01e99210bc806ca9772",
+  "S3_WaveV3_L1Breakers_P2_mi_params.json": "d2390fd86c95d17eecbd62b282d9e8baccdb9708efb43e58a349685c2f42a40f",
+  "S3_WaveV3_L1Breakers_P2_sheet_grid.json": "f3f41f940722ea32f4a5256f83e613e3cbc904060d8ba4eddf2d24219b939c11",
+  "SM_FlatV3_S3_WaveV3_L1Breakers_P2.fbx": "1afd77bb4161b7ef514d7851bf7da6da181f920c823aa7427b94e3f5c02b778b",
+  "T_S3_WaveV3_L1Breakers_P2_SkinColor.png": "5c946174abf370efe7c7ea6fe25aab2f2f8c7556a0e6cc99a200ccb034a33b36",
+  "T_S3_WaveV3_L1Breakers_P2_SkinMask.png": "49233e9e6f5b23efc5a2aaf8307092e302d95e4065e6e8546f7b8dd391dfc29b",
+  "T_S3_WaveV3_L1Breakers_P2_SkinNormal.png": "6e94763751f92b98edf2a15afebe2d038013831be5e1c23a2a1bf5b7a1d46ea4"
+ },
+ "S3_WaveV3_L2SwellNear_P1": {
+  "S3_WaveV3_L2SwellNear_P1_flaps.json": "a5cd9756adbfa4d5f1c4b73e2fd00f1b22c9d6974f89cbc920eb84e054d7d2ae",
+  "S3_WaveV3_L2SwellNear_P1_flaps_v3.json": "10085b41721d1507eeeef9af75c232e4b6d1c38fe5b08062f26c9814280e7bd2",
+  "S3_WaveV3_L2SwellNear_P1_mi_params.json": "1df0b65c89177d83c6237839599f7c261def6aeb7c2cc8b85a7f8ce69708904a",
+  "S3_WaveV3_L2SwellNear_P1_sheet_grid.json": "7c7fec842d1907c043c70741381f15b13698e926944128f58cd237c56c9e2834",
+  "SM_FlatV3_S3_WaveV3_L2SwellNear_P1.fbx": "c4a809873276e1d200b5b57f90de1b0b62b77f3869b30afcce6c1efea66cf217",
+  "T_S3_WaveV3_L2SwellNear_P1_SkinColor.png": "7a3e0d5f55272c009ba697c87e25a5b9b21f2e6556162efc77d55507ad833184",
+  "T_S3_WaveV3_L2SwellNear_P1_SkinMask.png": "f38f8ad214add2e847b3d29e6b3f09efa6525951c0ff1d99fca504303e310d71",
+  "T_S3_WaveV3_L2SwellNear_P1_SkinNormal.png": "53a7dfa2d5efdb2aa59c292ce281d924287cf83ab61f4d9cc59f4066c13b34d7"
+ },
+ "S3_WaveV3_L2SwellNear_P2": {
+  "S3_WaveV3_L2SwellNear_P2_flaps.json": "97bfe1c507f85b5b7da648d2083ea2e508b8ad2fe25c3ccca75f91fa43c25972",
+  "S3_WaveV3_L2SwellNear_P2_flaps_v3.json": "b0f53e9ef13f6ffe44be084d52b70993090c270bedd4b8f70fc9abb85d8d9345",
+  "S3_WaveV3_L2SwellNear_P2_mi_params.json": "0c577021571db1f4fb024a789cd9ffe1e7c2fea9b068d27bc19fc70224877415",
+  "S3_WaveV3_L2SwellNear_P2_sheet_grid.json": "c4f377c5d9d2765a63a62df18361d9c07ffa98121dcbaa2090ba80ec38304832",
+  "SM_FlatV3_S3_WaveV3_L2SwellNear_P2.fbx": "850bc58ba0d7e70d9b18c2bb4c44b07652be19d385176f34be0bd3220a40d626",
+  "T_S3_WaveV3_L2SwellNear_P2_SkinColor.png": "d74f21ce556071d180621579d9f4648eacca72bf3a251427116b15364767d17a",
+  "T_S3_WaveV3_L2SwellNear_P2_SkinMask.png": "0a5fc3783b5def6dd6eed5fd5655b7cc56071429d1a77d6b3e6d607d648d4503",
+  "T_S3_WaveV3_L2SwellNear_P2_SkinNormal.png": "61c014db11eefa8f0f99c21dcd35744a08004576b4222927752aca9fa9312004"
+ },
+ "S3_WaveV3_L3SwellMid_P1": {
+  "S3_WaveV3_L3SwellMid_P1_flaps.json": "27be943aee38b3cf35b26126d5f42c70ae1f16b15228e6a2ac852608e639d7e0",
+  "S3_WaveV3_L3SwellMid_P1_flaps_v3.json": "3e961e49e42dfd1d8244cc43dd706915a24e40ef01c8fb175dc5dc1a8bdb452f",
+  "S3_WaveV3_L3SwellMid_P1_mi_params.json": "f7da8ab87d13b95a7ce1d4b497098883d1287073f3442fccae9216fe8dca56d0",
+  "S3_WaveV3_L3SwellMid_P1_sheet_grid.json": "e241f32b902caff3974b5d84d214bf97bf9ab2dee937cee44061595643842e36",
+  "SM_FlatV3_S3_WaveV3_L3SwellMid_P1.fbx": "f141ed3ac4a10a32e1987bc1af938d81f6c7fc98e40e5f39d17616442c8e8968",
+  "T_S3_WaveV3_L3SwellMid_P1_SkinColor.png": "d35cd1a4f44dd78900df22e9451c1a7ade05ee692d5387e95e6ccf25b3505daf",
+  "T_S3_WaveV3_L3SwellMid_P1_SkinMask.png": "f7bbf4b0eed70cf6cf3f0dfd70c9b85905c78d05ed78e60d6dbe476bdebf61c7",
+  "T_S3_WaveV3_L3SwellMid_P1_SkinNormal.png": "9b2d93e731e2f1ad070c90438edf2a03655460f89fc3211568eaf483b7a9e20f"
+ },
+ "S3_WaveV3_L3SwellMid_P2": {
+  "S3_WaveV3_L3SwellMid_P2_flaps.json": "984abacefc521faf41b82eb6612599ee17aecdf52f480ee47f0aada19a157521",
+  "S3_WaveV3_L3SwellMid_P2_flaps_v3.json": "a15af0c83612302107a7ccffb411a6d4690bd1456d7f22832d8cdb58f43be8a0",
+  "S3_WaveV3_L3SwellMid_P2_mi_params.json": "3142f504f1d2782fefe68bd4f31512772889a5c6a053b513d06eda08a8111f6f",
+  "S3_WaveV3_L3SwellMid_P2_sheet_grid.json": "7ad2493c3fbc163f5e30118d7cdd3379fd491eccf3dc3f5883a93c347053bb8c",
+  "SM_FlatV3_S3_WaveV3_L3SwellMid_P2.fbx": "a5af6b86a478c088a59427c10c096f7bbb177b8093a2c58438f4c17d421e0135",
+  "T_S3_WaveV3_L3SwellMid_P2_SkinColor.png": "a9ce1035f09e6be4b840e4f560202768d61cb81adf7e8cb4d826ada7063a0426",
+  "T_S3_WaveV3_L3SwellMid_P2_SkinMask.png": "81acf7b13c1eeaa51fb59e4b86e489748e4a71a38ec0e5917256467a1152c708",
+  "T_S3_WaveV3_L3SwellMid_P2_SkinNormal.png": "9604468b540388bf843b2f6788c9d7d779350a875df59deb5e9f66a8e6e1f725"
+ },
+ "S3_WaveV3_L4SwellFar_P1": {
+  "S3_WaveV3_L4SwellFar_P1_flaps.json": "0a2fd08eb96f960cf5c96df2bf521e4c1bbfe9d7acb99e70f935b566e7594d4d",
+  "S3_WaveV3_L4SwellFar_P1_flaps_v3.json": "dc8d2ef8159384fb60824a042de25f6477de0e8e2c6fc62539cfeb8c7df601a8",
+  "S3_WaveV3_L4SwellFar_P1_mi_params.json": "4ba68b02d1d062e76a0e8a0587c01d49fdd5bf10380f729af4e7214ee6f2bd71",
+  "S3_WaveV3_L4SwellFar_P1_sheet_grid.json": "702a4de7775098fbb7a969aaff741a2bf4996d8523ba618194d66bbd903c3465",
+  "SM_FlatV3_S3_WaveV3_L4SwellFar_P1.fbx": "1a5daadc19f7f17e2b336dd79c6ac5daa521e6bb0e3211800dcbe179d3a7c75c",
+  "T_S3_WaveV3_L4SwellFar_P1_SkinColor.png": "99fc7afe9abbb39c94791eb6b79eff90079370ba2592572ffd6d128615813ffe",
+  "T_S3_WaveV3_L4SwellFar_P1_SkinMask.png": "3916901439dc42d04c0072e9a683942c5d9f068099f22b5ed1e4e842525fe8ea",
+  "T_S3_WaveV3_L4SwellFar_P1_SkinNormal.png": "36a06788ea478ed747faef123b0f2729f7160b2328dd1992df8db96f3bc7cd92"
+ },
+ "S3_WaveV3_L4SwellFar_P2": {
+  "S3_WaveV3_L4SwellFar_P2_flaps.json": "d6d9a9056b584096db1df57c7a6ebd3eda896fc2de635684edf2ff38c5729ed3",
+  "S3_WaveV3_L4SwellFar_P2_flaps_v3.json": "19cbc6734b48a8f95fb98b24a1ab013a5c6c88400cd92628131e2ec5c17b3d69",
+  "S3_WaveV3_L4SwellFar_P2_mi_params.json": "493f33d9441e4bea215b17d676cf0e1d14cf1a22d45c5a08009adab92d5bc59c",
+  "S3_WaveV3_L4SwellFar_P2_sheet_grid.json": "3c54ab51adfbe25212a40b39b03bc42c7e3ed4d3a7103975cd30440d09f7dd84",
+  "SM_FlatV3_S3_WaveV3_L4SwellFar_P2.fbx": "dbe7067aa07debc4bd662bc5470d9f54c902c314d7fef5115513778a68769f1f",
+  "T_S3_WaveV3_L4SwellFar_P2_SkinColor.png": "ad144bae55849b463624cdf03d72292dcb2ffaddf506dcc60bde2de5995389ff",
+  "T_S3_WaveV3_L4SwellFar_P2_SkinMask.png": "43c7a7d307f881957d3d0860728e726d651e443e39776c9fbefbf24cfe73160d",
+  "T_S3_WaveV3_L4SwellFar_P2_SkinNormal.png": "6f4a27b3c9287d71e5ca72cecad1360ae767f924268766aa429783a5d535479c"
+ },
+ "S3_WaveV3_L5Rollers_P1": {
+  "S3_WaveV3_L5Rollers_P1_flaps.json": "c312c0a131d5741581dff201743035ce782ae34d85b69a6b1f645194863959ce",
+  "S3_WaveV3_L5Rollers_P1_flaps_v3.json": "f86f09a861145145246746c1748f634e4a072155f1ce8fdff171d05f174aec31",
+  "S3_WaveV3_L5Rollers_P1_mi_params.json": "c6ed9a1202c9984dd0205f277cb5f8bdd4f737105aa9e6159b88d60f1e4e8318",
+  "S3_WaveV3_L5Rollers_P1_sheet_grid.json": "befa1046a896c621d2e4b9663c6a5354427d2ea039d17251fcece5da13d101c8",
+  "SM_FlatV3_S3_WaveV3_L5Rollers_P1.fbx": "1a6e54c5f5fdce0d21bff2ecf0507bed1326ebdc58951af86b6bbdce9f70f3ff",
+  "T_S3_WaveV3_L5Rollers_P1_SkinColor.png": "d29042dac816f0af6296035b71d9c0815236e42eb126aaf3145b90d477de5c9b",
+  "T_S3_WaveV3_L5Rollers_P1_SkinMask.png": "32ee510e41bba4d1575443131a16709bb57aba69b0e8ca4dbba5e2f92ecc90ad",
+  "T_S3_WaveV3_L5Rollers_P1_SkinNormal.png": "0f029020af14b64781c9092c54cdd0c9de62d53c6dfb858ba4b65b5f15633a64"
+ },
+ "S3_WaveV3_L5Rollers_P2": {
+  "S3_WaveV3_L5Rollers_P2_flaps.json": "c79d1a6c8a589617793859ca4056528d9eb8645ff4aebe56c4e30563652fc3a2",
+  "S3_WaveV3_L5Rollers_P2_flaps_v3.json": "480aad0104250518e5ad37345fd4c8a199609d77f08f0e70c5d5cc5debc5a4d1",
+  "S3_WaveV3_L5Rollers_P2_mi_params.json": "4b6fe80c55b9e40f6a8ff860f8526290b49b69947e4b22a56e2e9f7c86526332",
+  "S3_WaveV3_L5Rollers_P2_sheet_grid.json": "d665f792b93b655ff9d547c8a0604cb96319938ccef8065227c88b1b6b454221",
+  "SM_FlatV3_S3_WaveV3_L5Rollers_P2.fbx": "cad73b9d5337174e3456d8757cd3bb785070e3bbdd4fdf07b1af0c1081b459a4",
+  "T_S3_WaveV3_L5Rollers_P2_SkinColor.png": "02c7b14c01ebe1c070034820fb9a72ae55afd24c35a5e5d6049e76d3abc7106d",
+  "T_S3_WaveV3_L5Rollers_P2_SkinMask.png": "06c36b3d04d2cf1cd8ae7a0d706859f03783b495b3a6d157f7e3c6d57dd41a62",
+  "T_S3_WaveV3_L5Rollers_P2_SkinNormal.png": "f1d52018d0e1fd0d2d028b4d1bdf0b3b9c2af1af6755477b5c67dad9ad02c81d"
+ },
+ "S3_WaveV3_L6Foam_P1": {
+  "S3_WaveV3_L6Foam_P1_flaps.json": "6ca16d175a5cfbbd5ffd79fdf74f2605c7f12de21df1c3777fa195a208d2d28b",
+  "S3_WaveV3_L6Foam_P1_flaps_v3.json": "a80d6f510ec35785954733b5f519b00db9777f19d04c9bad45a175408e268b74",
+  "S3_WaveV3_L6Foam_P1_mi_params.json": "9f8fb8aa457b1b6bdf5845227f58b4469825749ec891c8d368c9ffe37168d89c",
+  "S3_WaveV3_L6Foam_P1_sheet_grid.json": "a2cf43b5e9e8ff3abacf2fd178ab408fe09963165237c2223c131a7d28badc9b",
+  "SM_FlatV3_S3_WaveV3_L6Foam_P1.fbx": "988f8a90e097f658cf3fe77e94945df07690c9a127f054d59281505b8fc4aacd",
+  "T_S3_WaveV3_L6Foam_P1_SkinColor.png": "57ffd3478ffe9b4fdf69a211d1ca57394ba2dd7f20b71f079f766437effb0536",
+  "T_S3_WaveV3_L6Foam_P1_SkinMask.png": "eb61399c7a4b1d38cfd6d6c6b21deb0c6339214d100486116d8163cbc1c56b6d",
+  "T_S3_WaveV3_L6Foam_P1_SkinNormal.png": "1f14f5f728ff1500cc7b38419c651cc9186fc35f70b8a804d977f9e8e0c4d982"
+ },
+ "S3_WaveV3_L6Foam_P2": {
+  "S3_WaveV3_L6Foam_P2_flaps.json": "ac3fed590691d91738797ac0607cb59444716cf513d37b73c422b5dd8ecb3c36",
+  "S3_WaveV3_L6Foam_P2_flaps_v3.json": "455ca594648a877a72f5b4ac35f53c5d44a16377a9cc50bc2d2bf326d7374b0a",
+  "S3_WaveV3_L6Foam_P2_mi_params.json": "9da22388d6c7123833f0a5f62e45a81f95ca4dd4550da5bacae990120f08f1e5",
+  "S3_WaveV3_L6Foam_P2_sheet_grid.json": "a9279e813d9adc0ddaf2d09e0add1abec4972abae7903d5b5e25dfef25445ec9",
+  "SM_FlatV3_S3_WaveV3_L6Foam_P2.fbx": "f953d061eb0eb0fd02891f7e932b42af12297d4e5d76b25668ee5f6a9c98a4ca",
+  "T_S3_WaveV3_L6Foam_P2_SkinColor.png": "a3f39e55c07f9c74d1495d5e69b78da131f0f89be3d88b84e74fb81dd37f7717",
+  "T_S3_WaveV3_L6Foam_P2_SkinMask.png": "f152a1cd76d43a6d91e7aa03fb9b40cf8729335c0b2c20e8e1bc2aa5028ab9a9",
+  "T_S3_WaveV3_L6Foam_P2_SkinNormal.png": "2f453d6a02a8fe21aca1ee68ca252257a370a1ddecf48123bec7499461933b52"
+ }
+}

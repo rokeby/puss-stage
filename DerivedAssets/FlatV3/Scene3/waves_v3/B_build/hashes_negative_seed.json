@@ -1,0 +1,4 @@
+{
+ "T_S3_WaveV3_L1Breakers_P1_SkinColor.png": "1d52284f19fc1b19a4bcf8fab6ead1b384358691ee7d61c33e4fda3d2993f0a0",
+ "note": "build_skin L1 P1 with seed 720012 (= +1), scratch only: negative control for the determinism gate"
+}

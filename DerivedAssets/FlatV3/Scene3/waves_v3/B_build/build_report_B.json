@@ -1,0 +1,826 @@
+{
+ "pieces": {
+  "S3_WaveV3_L1Breakers_P1": {
+   "suffix": "S3_WaveV3_L1Breakers_P1",
+   "crop": {
+    "rows": [
+     203,
+     642
+    ],
+    "cols": [
+     0,
+     3776
+    ],
+    "width_cm": 1152.344,
+    "height_cm": 133.972
+   },
+   "foam_flaps": 3,
+   "flaps": 6,
+   "validation_pass": true,
+   "bounds_m": {
+    "min": [
+     -0.15890048444271088,
+     -5.761711597442627,
+     0.0
+    ],
+    "max": [
+     -0.031999848783016205,
+     5.761711597442627,
+     1.3397200107574463
+    ]
+   },
+   "triangle_counts": {
+    "lod0": 1646,
+    "lod1": 708,
+    "unexpected_meshes": 0
+   },
+   "seconds": 39.7,
+   "seed": 720011,
+   "mount_local": [
+    3650.0,
+    -523.8,
+    95.0
+   ],
+   "u_range_cm": [
+    -1100.0,
+    52.3
+   ],
+   "layer": "L1_Breakers",
+   "piece": "P1",
+   "asset": "SM_FlatV3_S3_WaveV3_L1Breakers_P1"
+  },
+  "S3_WaveV3_L1Breakers_P2": {
+   "suffix": "S3_WaveV3_L1Breakers_P2",
+   "crop": {
+    "rows": [
+     207,
+     642
+    ],
+    "cols": [
+     2793,
+     7209
+    ],
+    "width_cm": 1347.656,
+    "height_cm": 132.751
+   },
+   "foam_flaps": 3,
+   "flaps": 6,
+   "validation_pass": true,
+   "bounds_m": {
+    "min": [
+     -0.15889957547187805,
+     -6.738257884979248,
+     0.0
+    ],
+    "max": [
+     -0.032000500708818436,
+     6.738257884979248,
+     1.3275099992752075
+    ]
+   },
+   "triangle_counts": {
+    "lod0": 1862,
+    "lod1": 816,
+    "unexpected_meshes": 0
+   },
+   "seconds": 42.0,
+   "seed": 720012,
+   "mount_local": [
+    3665.0,
+    426.2,
+    95.0
+   ],
+   "u_range_cm": [
+    -247.7,
+    1100.0
+   ],
+   "layer": "L1_Breakers",
+   "piece": "P2",
+   "asset": "SM_FlatV3_S3_WaveV3_L1Breakers_P2"
+  },
+  "S3_WaveV3_L2SwellNear_P1": {
+   "suffix": "S3_WaveV3_L2SwellNear_P1",
+   "crop": {
+    "rows": [
+     249,
+     721
+    ],
+    "cols": [
+     0,
+     3893
+    ],
+    "width_cm": 1188.049,
+    "height_cm": 144.043
+   },
+   "foam_flaps": 0,
+   "flaps": 5,
+   "validation_pass": true,
+   "bounds_m": {
+    "min": [
+     -0.16049985587596893,
+     -5.940248012542725,
+     0.0
+    ],
+    "max": [
+     -0.03200044110417366,
+     5.940248012542725,
+     1.4404300451278687
+    ]
+   },
+   "triangle_counts": {
+    "lod0": 862,
+    "lod1": 256,
+    "unexpected_meshes": 0
+   },
+   "seconds": 48.1,
+   "seed": 720021,
+   "mount_local": [
+    3695.0,
+    -506.0,
+    95.0
+   ],
+   "u_range_cm": [
+    -1100.0,
+    88.1
+   ],
+   "layer": "L2_SwellNear",
+   "piece": "P1",
+   "asset": "SM_FlatV3_S3_WaveV3_L2SwellNear_P1"
+  },
+  "S3_WaveV3_L2SwellNear_P2": {
+   "suffix": "S3_WaveV3_L2SwellNear_P2",
+   "crop": {
+    "rows": [
+     223,
+     721
+    ],
+    "cols": [
+     2910,
+     7209
+    ],
+    "width_cm": 1311.951,
+    "height_cm": 151.978
+   },
+   "foam_flaps": 0,
+   "flaps": 5,
+   "validation_pass": true,
+   "bounds_m": {
+    "min": [
+     -0.16049927473068237,
+     -6.5597734451293945,
+     0.0
+    ],
+    "max": [
+     -0.03200031816959381,
+     6.5597734451293945,
+     1.5197800397872925
+    ]
+   },
+   "triangle_counts": {
+    "lod0": 975,
+    "lod1": 284,
+    "unexpected_meshes": 0
+   },
+   "seconds": 43.9,
+   "seed": 720022,
+   "mount_local": [
+    3710.0,
+    444.0,
+    95.0
+   ],
+   "u_range_cm": [
+    -211.9,
+    1100.0
+   ],
+   "layer": "L2_SwellNear",
+   "piece": "P2",
+   "asset": "SM_FlatV3_S3_WaveV3_L2SwellNear_P2"
+  },
+  "S3_WaveV3_L3SwellMid_P1": {
+   "suffix": "S3_WaveV3_L3SwellMid_P1",
+   "crop": {
+    "rows": [
+     261,
+     819
+    ],
+    "cols": [
+     0,
+     4344
+    ],
+    "width_cm": 1325.684,
+    "height_cm": 170.288
+   },
+   "foam_flaps": 0,
+   "flaps": 5,
+   "validation_pass": true,
+   "bounds_m": {
+    "min": [
+     -0.16049949824810028,
+     -6.628414630889893,
+     0.0
+    ],
+    "max": [
+     -0.031999316066503525,
+     6.628414630889893,
+     1.7028800249099731
+    ]
+   },
+   "triangle_counts": {
+    "lod0": 1066,
+    "lod1": 320,
+    "unexpected_meshes": 0
+   },
+   "seconds": 42.1,
+   "seed": 720031,
+   "mount_local": [
+    4450.0,
+    -437.2,
+    95.0
+   ],
+   "u_range_cm": [
+    -1100.0,
+    225.7
+   ],
+   "layer": "L3_SwellMid",
+   "piece": "P1",
+   "asset": "SM_FlatV3_S3_WaveV3_L3SwellMid_P1"
+  },
+  "S3_WaveV3_L3SwellMid_P2": {
+   "suffix": "S3_WaveV3_L3SwellMid_P2",
+   "crop": {
+    "rows": [
+     241,
+     819
+    ],
+    "cols": [
+     3361,
+     7209
+    ],
+    "width_cm": 1174.316,
+    "height_cm": 176.392
+   },
+   "foam_flaps": 0,
+   "flaps": 5,
+   "validation_pass": true,
+   "bounds_m": {
+    "min": [
+     -0.16049912571907043,
+     -5.87159538269043,
+     0.0
+    ],
+    "max": [
+     -0.03200085833668709,
+     5.87159538269043,
+     1.7639199495315552
+    ]
+   },
+   "triangle_counts": {
+    "lod0": 1060,
+    "lod1": 248,
+    "unexpected_meshes": 0
+   },
+   "seconds": 39.2,
+   "seed": 720032,
+   "mount_local": [
+    4465.0,
+    512.8,
+    95.0
+   ],
+   "u_range_cm": [
+    -74.3,
+    1100.0
+   ],
+   "layer": "L3_SwellMid",
+   "piece": "P2",
+   "asset": "SM_FlatV3_S3_WaveV3_L3SwellMid_P2"
+  },
+  "S3_WaveV3_L4SwellFar_P1": {
+   "suffix": "S3_WaveV3_L4SwellFar_P1",
+   "crop": {
+    "rows": [
+     266,
+     878
+    ],
+    "cols": [
+     0,
+     3703
+    ],
+    "width_cm": 1130.066,
+    "height_cm": 186.768
+   },
+   "foam_flaps": 0,
+   "flaps": 5,
+   "validation_pass": true,
+   "bounds_m": {
+    "min": [
+     -0.16050052642822266,
+     -5.6503424644470215,
+     0.0
+    ],
+    "max": [
+     -0.03200070559978485,
+     5.6503424644470215,
+     1.8676799535751343
+    ]
+   },
+   "triangle_counts": {
+    "lod0": 885,
+    "lod1": 176,
+    "unexpected_meshes": 0
+   },
+   "seconds": 41.0,
+   "seed": 720041,
+   "mount_local": [
+    4495.0,
+    -535.0,
+    95.0
+   ],
+   "u_range_cm": [
+    -1100.0,
+    30.1
+   ],
+   "layer": "L4_SwellFar",
+   "piece": "P1",
+   "asset": "SM_FlatV3_S3_WaveV3_L4SwellFar_P1"
+  },
+  "S3_WaveV3_L4SwellFar_P2": {
+   "suffix": "S3_WaveV3_L4SwellFar_P2",
+   "crop": {
+    "rows": [
+     291,
+     878
+    ],
+    "cols": [
+     2720,
+     7209
+    ],
+    "width_cm": 1369.934,
+    "height_cm": 179.138
+   },
+   "foam_flaps": 0,
+   "flaps": 5,
+   "validation_pass": true,
+   "bounds_m": {
+    "min": [
+     -0.16049978137016296,
+     -6.849663257598877,
+     0.0
+    ],
+    "max": [
+     -0.032000333070755005,
+     6.849663257598877,
+     1.7913800477981567
+    ]
+   },
+   "triangle_counts": {
+    "lod0": 933,
+    "lod1": 232,
+    "unexpected_meshes": 0
+   },
+   "seconds": 55.3,
+   "seed": 720042,
+   "mount_local": [
+    4510.0,
+    415.0,
+    95.0
+   ],
+   "u_range_cm": [
+    -269.9,
+    1100.0
+   ],
+   "layer": "L4_SwellFar",
+   "piece": "P2",
+   "asset": "SM_FlatV3_S3_WaveV3_L4SwellFar_P2"
+  },
+  "S3_WaveV3_L5Rollers_P1": {
+   "suffix": "S3_WaveV3_L5Rollers_P1",
+   "crop": {
+    "rows": [
+     202,
+     1009
+    ],
+    "cols": [
+     0,
+     4479
+    ],
+    "width_cm": 1366.882,
+    "height_cm": 246.277
+   },
+   "foam_flaps": 0,
+   "flaps": 5,
+   "validation_pass": true,
+   "bounds_m": {
+    "min": [
+     -0.16050049662590027,
+     -6.834415435791016,
+     0.0
+    ],
+    "max": [
+     -0.03200043737888336,
+     6.834415435791016,
+     2.4627699851989746
+    ]
+   },
+   "triangle_counts": {
+    "lod0": 1354,
+    "lod1": 352,
+    "unexpected_meshes": 0
+   },
+   "seconds": 92.6,
+   "seed": 720051,
+   "mount_local": [
+    5250.0,
+    -416.6,
+    95.0
+   ],
+   "u_range_cm": [
+    -1100.0,
+    266.9
+   ],
+   "layer": "L5_Rollers",
+   "piece": "P1",
+   "asset": "SM_FlatV3_S3_WaveV3_L5Rollers_P1"
+  },
+  "S3_WaveV3_L5Rollers_P2": {
+   "suffix": "S3_WaveV3_L5Rollers_P2",
+   "crop": {
+    "rows": [
+     224,
+     1009
+    ],
+    "cols": [
+     3496,
+     7209
+    ],
+    "width_cm": 1133.118,
+    "height_cm": 239.563
+   },
+   "foam_flaps": 0,
+   "flaps": 5,
+   "validation_pass": true,
+   "bounds_m": {
+    "min": [
+     -0.16050012409687042,
+     -5.665588855743408,
+     0.0
+    ],
+    "max": [
+     -0.031999386847019196,
+     5.665588855743408,
+     2.3956298828125
+    ]
+   },
+   "triangle_counts": {
+    "lod0": 1260,
+    "lod1": 332,
+    "unexpected_meshes": 0
+   },
+   "seconds": 59.1,
+   "seed": 720052,
+   "mount_local": [
+    5265.0,
+    533.4,
+    95.0
+   ],
+   "u_range_cm": [
+    -33.1,
+    1100.0
+   ],
+   "layer": "L5_Rollers",
+   "piece": "P2",
+   "asset": "SM_FlatV3_S3_WaveV3_L5Rollers_P2"
+  },
+  "S3_WaveV3_L6Foam_P1": {
+   "suffix": "S3_WaveV3_L6Foam_P1",
+   "crop": {
+    "rows": [
+     262,
+     1153
+    ],
+    "cols": [
+     0,
+     4219
+    ],
+    "width_cm": 1287.537,
+    "height_cm": 271.912
+   },
+   "foam_flaps": 3,
+   "flaps": 6,
+   "validation_pass": true,
+   "bounds_m": {
+    "min": [
+     -0.1588994264602661,
+     -6.437692165374756,
+     0.0
+    ],
+    "max": [
+     -0.03200067952275276,
+     6.437692165374756,
+     2.7191200256347656
+    ]
+   },
+   "triangle_counts": {
+    "lod0": 4203,
+    "lod1": 2424,
+    "unexpected_meshes": 0
+   },
+   "seconds": 37.7,
+   "seed": 720061,
+   "mount_local": [
+    5295.0,
+    -456.2,
+    95.0
+   ],
+   "u_range_cm": [
+    -1100.0,
+    187.5
+   ],
+   "layer": "L6_Foam",
+   "piece": "P1",
+   "asset": "SM_FlatV3_S3_WaveV3_L6Foam_P1"
+  },
+  "S3_WaveV3_L6Foam_P2": {
+   "suffix": "S3_WaveV3_L6Foam_P2",
+   "crop": {
+    "rows": [
+     219,
+     1153
+    ],
+    "cols": [
+     3236,
+     7209
+    ],
+    "width_cm": 1212.463,
+    "height_cm": 285.034
+   },
+   "foam_flaps": 3,
+   "flaps": 6,
+   "validation_pass": true,
+   "bounds_m": {
+    "min": [
+     -0.15890061855316162,
+     -6.062313079833984,
+     0.0
+    ],
+    "max": [
+     -0.03200044855475426,
+     6.062313079833984,
+     2.850339889526367
+    ]
+   },
+   "triangle_counts": {
+    "lod0": 4173,
+    "lod1": 2304,
+    "unexpected_meshes": 0
+   },
+   "seconds": 43.2,
+   "seed": 720062,
+   "mount_local": [
+    5310.0,
+    493.8,
+    95.0
+   ],
+   "u_range_cm": [
+    -112.5,
+    1100.0
+   ],
+   "layer": "L6_Foam",
+   "piece": "P2",
+   "asset": "SM_FlatV3_S3_WaveV3_L6Foam_P2"
+  }
+ },
+ "texture_memory": {
+  "pieces": [
+   {
+    "piece": "S3_WaveV3_L1Breakers_P1",
+    "sizes": {
+     "SkinColor": [
+      4096,
+      1024
+     ],
+     "SkinMask": [
+      1024,
+      2048
+     ],
+     "SkinNormal": [
+      1024,
+      2048
+     ]
+    },
+    "gpu_mb": 10.67,
+    "max_dim_ok": true
+   },
+   {
+    "piece": "S3_WaveV3_L1Breakers_P2",
+    "sizes": {
+     "SkinColor": [
+      4096,
+      1024
+     ],
+     "SkinMask": [
+      1024,
+      2048
+     ],
+     "SkinNormal": [
+      1024,
+      2048
+     ]
+    },
+    "gpu_mb": 10.67,
+    "max_dim_ok": true
+   },
+   {
+    "piece": "S3_WaveV3_L2SwellNear_P1",
+    "sizes": {
+     "SkinColor": [
+      4096,
+      1024
+     ],
+     "SkinMask": [
+      1024,
+      2048
+     ],
+     "SkinNormal": [
+      1024,
+      2048
+     ]
+    },
+    "gpu_mb": 10.67,
+    "max_dim_ok": true
+   },
+   {
+    "piece": "S3_WaveV3_L2SwellNear_P2",
+    "sizes": {
+     "SkinColor": [
+      4096,
+      1024
+     ],
+     "SkinMask": [
+      1024,
+      2048
+     ],
+     "SkinNormal": [
+      1024,
+      2048
+     ]
+    },
+    "gpu_mb": 10.67,
+    "max_dim_ok": true
+   },
+   {
+    "piece": "S3_WaveV3_L3SwellMid_P1",
+    "sizes": {
+     "SkinColor": [
+      4096,
+      1024
+     ],
+     "SkinMask": [
+      1024,
+      2048
+     ],
+     "SkinNormal": [
+      1024,
+      2048
+     ]
+    },
+    "gpu_mb": 10.67,
+    "max_dim_ok": true
+   },
+   {
+    "piece": "S3_WaveV3_L3SwellMid_P2",
+    "sizes": {
+     "SkinColor": [
+      4096,
+      1024
+     ],
+     "SkinMask": [
+      1024,
+      2048
+     ],
+     "SkinNormal": [
+      1024,
+      2048
+     ]
+    },
+    "gpu_mb": 10.67,
+    "max_dim_ok": true
+   },
+   {
+    "piece": "S3_WaveV3_L4SwellFar_P1",
+    "sizes": {
+     "SkinColor": [
+      4096,
+      1024
+     ],
+     "SkinMask": [
+      1024,
+      2048
+     ],
+     "SkinNormal": [
+      1024,
+      2048
+     ]
+    },
+    "gpu_mb": 10.67,
+    "max_dim_ok": true
+   },
+   {
+    "piece": "S3_WaveV3_L4SwellFar_P2",
+    "sizes": {
+     "SkinColor": [
+      4096,
+      1024
+     ],
+     "SkinMask": [
+      1024,
+      2048
+     ],
+     "SkinNormal": [
+      1024,
+      2048
+     ]
+    },
+    "gpu_mb": 10.67,
+    "max_dim_ok": true
+   },
+   {
+    "piece": "S3_WaveV3_L5Rollers_P1",
+    "sizes": {
+     "SkinColor": [
+      4096,
+      1024
+     ],
+     "SkinMask": [
+      1024,
+      2048
+     ],
+     "SkinNormal": [
+      1024,
+      2048
+     ]
+    },
+    "gpu_mb": 10.67,
+    "max_dim_ok": true
+   },
+   {
+    "piece": "S3_WaveV3_L5Rollers_P2",
+    "sizes": {
+     "SkinColor": [
+      4096,
+      1024
+     ],
+     "SkinMask": [
+      1024,
+      2048
+     ],
+     "SkinNormal": [
+      1024,
+      2048
+     ]
+    },
+    "gpu_mb": 10.67,
+    "max_dim_ok": true
+   },
+   {
+    "piece": "S3_WaveV3_L6Foam_P1",
+    "sizes": {
+     "SkinColor": [
+      4096,
+      1024
+     ],
+     "SkinMask": [
+      1024,
+      2048
+     ],
+     "SkinNormal": [
+      1024,
+      2048
+     ]
+    },
+    "gpu_mb": 10.67,
+    "max_dim_ok": true
+   },
+   {
+    "piece": "S3_WaveV3_L6Foam_P2",
+    "sizes": {
+     "SkinColor": [
+      4096,
+      1024
+     ],
+     "SkinMask": [
+      1024,
+      2048
+     ],
+     "SkinNormal": [
+      1024,
+      2048
+     ]
+    },
+    "gpu_mb": 10.67,
+    "max_dim_ok": true
+   }
+  ],
+  "total_gpu_mb": 128.0,
+  "rule": "BC7/BC5 = 1 byte/texel, full mip chain x4/3 [inf: UE block sizes, not read from the editor]"
+ }
+}
