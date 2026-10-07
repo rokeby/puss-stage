@@ -164,3 +164,7 @@
   under the clam at root-local ≈(2995,0) on the landed floor, seat clam (static + source_Anim) on its top, keep it seated
   in the dune re-sculpt (dune agent told: level ~1.6 m seat there); hide Clam_Pedastal (don't delete). Attaching
   clam/rock/figures to the hangar root NOT wanted (revealed after landing). Waiting for the file path/size/pivot.
+- **Gary (this session + via Directing):** STOP the Fab pearl split (agent stopped; partial files in Saved/CodexConductor/S3Pearl,
+  nothing imported); new ~1 m Tridacna PearlClam (Blender session) replaces the Fab clam, which stays as stand-in.
+  Millstone: import BaseColor at 8K; clam on top at ~1.3 m; size rock placement for a ~1 m clam. Millstone tool being
+  written (S3_MILLSTONE_2026-10-07.md).
