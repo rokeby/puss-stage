@@ -1,0 +1,212 @@
+{
+ "schema": "s3_props_placements/1 (rows) + s3_shore report",
+ "note": "Proposal only (offline).  Copy 'placements' into S3Millstone/s3_props_placements.json to use; PLACE re-measures the floor live, so burial_cm reproduces pivot = high-side surface - 135 cm only if the shore ground is applied as built (grid sha below).",
+ "field_grid_sha256": "4e77818239ec54d44dae54abcf97e4370229026d1c37a17b37a440c64981344a",
+ "height_set": "B",
+ "stone": {
+  "size_cm": [
+   143.65,
+   102.73,
+   330.0
+  ],
+  "pivot_above_root_bottom_cm": 30.0,
+  "hole_above_root_bottom_cm": 234.0,
+  "hole_axis_local": "+-Y",
+  "src": "DerivedAssets/HoledStandingStone/Export/SM_HoledStandingStone_manifest.json"
+ },
+ "rule": "pivot = max surface under the rotated 144x103 footprint - 135 cm",
+ "if_only_two": [
+  "S3 Standing Stone A",
+  "S3 Standing Stone B"
+ ],
+ "placements": [
+  {
+   "prop": "HoledStandingStone",
+   "label": "S3 Standing Stone A",
+   "xy_root_local": [
+    3330.0,
+    760.0
+   ],
+   "yaw_deg": 6.0,
+   "burial_cm": 119.5,
+   "floor_radius_cm": 45.0,
+   "reveal": "rise_track",
+   "mobility": "STATIC",
+   "lean_roll_deg": 4.0,
+   "lean_pitch_deg": -2.5,
+   "lean_note": "NOT applied by s3_props_ue.plan_place (rotation = [0,0,yaw], s3_props_ue.py:515)"
+  },
+  {
+   "prop": "HoledStandingStone",
+   "label": "S3 Standing Stone B",
+   "xy_root_local": [
+    4930.0,
+    -780.0
+   ],
+   "yaw_deg": 68.0,
+   "burial_cm": 113.3,
+   "floor_radius_cm": 45.0,
+   "reveal": "rise_track",
+   "mobility": "STATIC",
+   "lean_roll_deg": -3.0,
+   "lean_pitch_deg": 5.0,
+   "lean_note": "NOT applied by s3_props_ue.plan_place (rotation = [0,0,yaw], s3_props_ue.py:515)"
+  },
+  {
+   "prop": "HoledStandingStone",
+   "label": "S3 Standing Stone C",
+   "xy_root_local": [
+    1420.0,
+    780.0
+   ],
+   "yaw_deg": -38.0,
+   "burial_cm": 97.3,
+   "floor_radius_cm": 45.0,
+   "reveal": "rise_track",
+   "mobility": "STATIC",
+   "lean_roll_deg": 5.5,
+   "lean_pitch_deg": 2.0,
+   "lean_note": "NOT applied by s3_props_ue.plan_place (rotation = [0,0,yaw], s3_props_ue.py:515)"
+  }
+ ],
+ "report": [
+  {
+   "label": "S3 Standing Stone A",
+   "why": "right-wall dunes inside the MAIN camera frame; hole axis within ~20 deg of the view ray",
+   "keepouts_ok": true,
+   "keepouts": {
+    "millstone_seat_plus_blend": 751.2,
+    "cast_area_aabb_plus_150": [
+     2420,
+     3667,
+     -590,
+     651
+    ],
+    "wave_notches_plus_blend": null,
+    "door_corridor_plus_100": null,
+    "inside_side_walls_by_10": [
+     701.4,
+     813.3
+    ]
+   },
+   "keepout_pass": {
+    "millstone_seat_plus_blend": true,
+    "cast_area_aabb_plus_150": true,
+    "wave_notches_plus_blend": true,
+    "door_corridor_plus_100": true,
+    "inside_side_walls_by_10": true
+   },
+   "surface_under_footprint_cm": {
+    "high": 71.4,
+    "low": 40.8,
+    "median_r45": 55.9
+   },
+   "pivot_above_floor_top_cm": -63.6,
+   "pivot_root_local_z": 51.4,
+   "stone_buried_below_high_side_cm": 165.0,
+   "stone_buried_below_low_side_cm": 134.4,
+   "visible_above_high_side_cm": 165.0,
+   "hole_centre_above_high_side_cm": 69.0,
+   "hole_root_local_z": 255.4,
+   "main_camera": {
+    "hole_in_frame": true,
+    "d_yaw_from_centre_deg": 2.2,
+    "d_elev_from_centre_deg": 6.1,
+    "distance_cm": 1546.0,
+    "hole_axis_off_view_ray_deg": -18.3
+   }
+  },
+  {
+   "label": "S3 Standing Stone B",
+   "why": "left-wall dunes between wave rows 2 and 3, back half of the box",
+   "keepouts_ok": true,
+   "keepouts": {
+    "millstone_seat_plus_blend": 2040.1,
+    "cast_area_aabb_plus_150": [
+     2420,
+     3667,
+     -590,
+     651
+    ],
+    "wave_notches_plus_blend": null,
+    "door_corridor_plus_100": null,
+    "inside_side_walls_by_10": [
+     -865.8,
+     -697.2
+    ]
+   },
+   "keepout_pass": {
+    "millstone_seat_plus_blend": true,
+    "cast_area_aabb_plus_150": true,
+    "wave_notches_plus_blend": true,
+    "door_corridor_plus_100": true,
+    "inside_side_walls_by_10": true
+   },
+   "surface_under_footprint_cm": {
+    "high": 95.8,
+    "low": 45.6,
+    "median_r45": 74.1
+   },
+   "pivot_above_floor_top_cm": -39.2,
+   "pivot_root_local_z": 75.8,
+   "stone_buried_below_high_side_cm": 165.0,
+   "stone_buried_below_low_side_cm": 114.8,
+   "visible_above_high_side_cm": 165.0,
+   "hole_centre_above_high_side_cm": 69.0,
+   "hole_root_local_z": 279.8,
+   "main_camera": {
+    "hole_in_frame": false,
+    "d_yaw_from_centre_deg": -76.4,
+    "d_elev_from_centre_deg": 6.7,
+    "distance_cm": 1930.0,
+    "hole_axis_off_view_ray_deg": 21.1
+   }
+  },
+  {
+   "label": "S3 Standing Stone C",
+   "why": "right-wall dunes toward the mouth, seen past the cast from the entry side",
+   "keepouts_ok": true,
+   "keepouts": {
+    "millstone_seat_plus_blend": 1679.3,
+    "cast_area_aabb_plus_150": [
+     2420,
+     3667,
+     -590,
+     651
+    ],
+    "wave_notches_plus_blend": null,
+    "door_corridor_plus_100": null,
+    "inside_side_walls_by_10": [
+     696.0,
+     860.6
+    ]
+   },
+   "keepout_pass": {
+    "millstone_seat_plus_blend": true,
+    "cast_area_aabb_plus_150": true,
+    "wave_notches_plus_blend": true,
+    "door_corridor_plus_100": true,
+    "inside_side_walls_by_10": true
+   },
+   "surface_under_footprint_cm": {
+    "high": 135.4,
+    "low": 52.6,
+    "median_r45": 97.7
+   },
+   "pivot_above_floor_top_cm": 0.4,
+   "pivot_root_local_z": 115.4,
+   "stone_buried_below_high_side_cm": 165.0,
+   "stone_buried_below_low_side_cm": 82.2,
+   "visible_above_high_side_cm": 165.0,
+   "hole_centre_above_high_side_cm": 69.0,
+   "hole_root_local_z": 319.4,
+   "main_camera": {
+    "hole_in_frame": false,
+    "d_yaw_from_centre_deg": 60.4,
+    "d_elev_from_centre_deg": 7.6,
+    "distance_cm": 2199.0,
+    "hole_axis_off_view_ray_deg": 83.9
+   }
+  }
+ ]
+}

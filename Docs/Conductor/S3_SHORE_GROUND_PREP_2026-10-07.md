@@ -495,3 +495,217 @@ cases run the real functions against a mock `unreal`:
 
 **Not touched:** `s3_shore_ground_args.json`. The conductor writes it per call. No new request JSON was needed:
 `Saved/CodexConductor/s3_shore_ground_request.json` already runs the runner, and the args select the mode.
+
+## 9. Dunes v2: wind-shaped, differentiated heaps; A/B/C heights; sand over the soil; millstone seat; standing stones (7 Oct evening, offline)
+
+This folds in Gary's verdict on the §3 banks ("look pretty bad"), his follow-ups (separate heaps against the walls, sand
+flowing over the soil, less regular ripples) and the conductor's two render reviews (terracing; pits on dune flanks).
+**No Unreal, no MCP, no git.** Blender ran headless, one process at a time. The pre-change sources, FBX, manifest and
+previews are snapshotted in `Backups/PreS3ShoreDunes-20261007-1558/`.
+
+Tiers: **[meas-here]** = computed or rendered in this session; **[decl]** = read from a file or code (cited);
+**[inf]** = inferred, reason given.
+
+### 9.1 What the field does now (`s3_shore_field.py`)
+1. **Supply** [decl, code]:
+   - A broken low bank. It exists only where an along-wall noise is high, so saddles show the bare wall base.
+   - A *chain* of separate heaps along each side wall and the back wall:
+     - spacing 4.8–9 m; height 30–100 %; reach 2.2–4.8 m;
+     - 30 % are tongues reaching a further 2.5–4.8 m toward the centre;
+     - crests stand off the wall by up to 1.4 m and are sheared along it, so crest lines are broken and offset;
+     - corners are boosted.
+   - One seeded Generator, one draw per statement.
+2. **Wind** [decl, code `wind_transport`]: deterministic scour-and-carry, with no random numbers.
+   - The wind blows toward the mouth, turned 16° toward the left wall.
+   - Stoss slopes steeper than 13° are scoured. The sand is carried downwind to the first 15° lee shadow.
+   - 90 steps on a 15 cm grid. After each step, an angle-of-repose talus (30.5 ± 1.5°, jittered so slip faces scallop).
+3. **Fine pass (7.5 cm mesh grid)**, in order:
+   1. The surface is blurred where sand is thick. This fills bed pools under heaps and removes the 15 cm facet stripes.
+   2. Wind-blown **sand sheets, tongues and fans** spread downwind over the soil (`sand_sheet`).
+   3. Talus at 32° pairwise, converged to 0.1 cm.
+   4. **Natural ripples** (§9.1 item 4), then a short talus.
+   5. The hard ceiling: wave notches flush, door corridor, camera cones.
+   6. The **millstone seat**.
+   7. A mass-conserving triangle relaxation. It guarantees that no triangle, on either diagonal split, exceeds 34.5°.
+      On the shipped field it moved 0.0012 m³ in 9 iterations [meas-here]. The earlier corner-lowering clamp removed
+      7.8 m³, and that clamp *was* the terracing.
+4. **Ripples** (`wind_ripples`, mode `natural`):
+   - Spacing varies over the floor from 36 to 80 cm, shorter near heaps. It is integrated along the wind, so the local
+     spacing is exact.
+   - Crests bend around the heaps and are warped. Phase noise makes Y-junctions and terminations. Amplitude is patchy.
+   - Height is capped so a ripple's lee face stays under 28°. Ripples fade on slopes of 8–16°, in wet sand and on soil.
+   - Measured crest-to-trough on the 328 m² that carries ripples: p50 2.0 cm, p90 4.5 cm, p99 6.6 cm [meas-here].
+   - **Gary's "6–15 cm" ripple spacing cannot exist in a 7.5 cm mesh (Nyquist limit 15 cm).** That scale belongs to the
+     material normal map (the conductor briefs that separately). Heights of 5–10 cm on a 36–80 cm spacing would need lee
+     faces steeper than the angle of repose [inf, geometry].
+5. **Vertex colour.** The channels are unchanged: R mud, G wet, B moss, A = 1.
+   - Soil shows only where the sand sheet does not cover it.
+   - Crests are dry and pale (G → 0). Hollows are damp (G 0.12–0.45, below the 0.85 puddle threshold).
+   - Wet near the waves; moss on soil and on dune toes.
+
+### 9.2 Height sets [meas-here]
+The hand-print stream reads `Saved/CodexConductor/S3Shore/s3_shore_height_sets.json`.
+
+Heights are in cm above floor top, measured at the marble faces (y = ±999) and the backdrop (x = 5997). The minimum print
+line is the wall maximum plus 20 cm, rounded up to the next 5 cm.
+
+| Set | Supply | Left max | Right max | Back max | Wall max | Wall mean L/R/B | **Min print line** | Lowest camera clearance |
+|---|---|---|---|---|---|---|---|---|
+| A (~180) | 194 | 193.1 | 163.9 | 182.6 | 193.1 | 56/54/63 | **215** | 100.9 (B11) |
+| B (~240) | 265 | 226.3 | 212.8 | 243.4 | 243.4 | 71/66/81 | **265** | 100.4 (B11) |
+| C (~300) | 350 | 288.1 | 264.1 | 307.0 | 307.0 | 85/79/104 | **330** | 100.2 (B11) |
+
+The JSON also has a per-metre wall profile (the maximum for each metre along each wall), in case the prints should follow
+the dune line. The current prints start at 160 cm, so every set covers some of them
+[meas-here, `current_prints_would_be_covered`].
+
+**Recommendation: B** [inf, from the close previews and the frame geometry].
+- B roughly doubles the old bank (243 cm against 128 cm), with distinct heaps and saddles.
+- C reads as the most claustrophobic. But its 330 cm print line sits above the top edge of the main S3 frame at the
+  right wall: with pitch −5.5° and a vertical FOV of about 21.6°, the top ray reaches about 278 cm above floor at
+  1750 cm. The prints would leave the main shot.
+- B's 265 cm line keeps a strip of prints in frame.
+- If Gary prefers the enclosure to the prints in that shot, C is one parameter (`PARAMS["height_set"] = "C"`) and a
+  rebuild.
+
+### 9.3 Built FBX (set B) [meas-here]
+- **File:** `DerivedAssets/S3Shore/SM_S3_ShoreGround.fbx`, 11,616,940 bytes, sha256 `eec3648b…809071`.
+- **Mesh:** 218,952 vertices and 217,880 quads.
+- **UE local bounds:** (0, −1012, 95) .. (6012, 1008, 362.35). The Y asymmetry and the mirror gate are kept.
+- **Manifest:** calibration vertices as before. `_manifest.json` schema 2 adds the height set, the grid sha, the
+  slope-relaxation stats and the millstone seat.
+- **Field checks:** none failed.
+- **Byte-identical rebuilds:** two consecutive builds wrote the same FBX sha (`SM_S3_ShoreGround_determinism_log.json`).
+  This needs two things:
+  - `PYTHONHASHSEED=0` plus `--python-use-system-env`. The FBX exporter derives UUIDs from Python `hash(str)`, which
+    Blender randomises per process [decl, `io_scene_fbx/fbx_utils.py:823`].
+  - The FBX header clock pinned (`export_fbx_bin.py:3146`).
+
+  The build refuses to export without the hash seed.
+- **Blender vs harness heights:** Blender's numpy 1.26.4 and the harness's numpy agree to within 4e-13 cm. The sha differs
+  only through float noise [meas-here, `SM_S3_ShoreGround_grid_h.npy` against the harness].
+- **Constraints:**
+  - Wave notches: max |h| under all three flats is 0.000 cm.
+  - Door gap: 2.0 cm at the back wall for |y| < 150.
+  - Deepest dip: −3.6 cm.
+  - Camera vertical clearance ≥ 100.4 cm (B11). This uses the 1 Oct shot poses, so it is **[decl], stale risk** as
+    before.
+- **Realism** [meas-here]:
+
+  | Metric | Value |
+  |---|---|
+  | Max triangle slope | 34.5° |
+  | Slip faces | 138 m², p50/p95 30.4/32.1° |
+  | Median slope, downwind-facing vs upwind-facing dune faces | 29.0° vs 17.2° (65 % of steep faces face downwind) |
+  | Terracing residual | 2.64° rms |
+  | Ripple spectral peak share | 0.18 (a single sinusoid gives 0.68) |
+  | Pool dips on dunes or slopes | 0 m² |
+
+- **Coverage** [meas-here]:
+  - 91.1 % of the floor inside the walls is painted sand (R < 0.5); 8.9 % is soil.
+  - In the mud zone (x < 2100), 25.3 % soil remains: patches, hollows, the wind-aligned strip and the mouth strip.
+
+### 9.4 Millstone seat [decl input; meas-here result]
+The input came from Gary via Directing.
+- **Footprint:** `s3_shore_footprint.json` `millstone_seat`. Root-local (2995.03, 0.0), which is world (14417, 160000)
+  minus the root. Radius 80 cm, blend 70 cm.
+- **Built:** a level disc at **h 9.57 cm above floor top = root-local z 124.57**. The surface varies by only 0.027 cm
+  within the radius.
+- **Recorded:** in the manifest (`checks.millstone_seat`) and in the grid (`millstone_seat`).
+
+### 9.5 Seat report on the new ground [meas-here]
+`s3_shore_seat_report.json`: 5 OK, 0 FLOATING, 10 BURIED. The sand sheet now raises the cast area, so most rocks, seaweed
+and figures sit below the mean surface under their AABBs. Objects were not moved; Gary arranges them.
+
+### 9.6 Standing stones [meas-here unless noted]
+Files: `standing_stones_proposal.json`, `s3_shore_standing_stones.py`.
+
+**Rule:** pivot = the highest surface under the rotated 144 × 103 footprint, minus 135 cm. On the high side, 165 cm of the
+330 cm stone is buried and 165 cm stands above the sand; the hole centre is 69 cm above the sand on that side.
+
+The rows use the PLACE schema of `S3Millstone/s3_props_ue.py:495-530`, where `burial_cm` = median surface within 45 cm
+minus the pivot.
+
+| Stone | Root-local xy | Yaw | Lean roll/pitch | burial_cm | Pivot z | Hole z | Main camera |
+|---|---|---|---|---|---|---|---|
+| A | (3330, 760) | 6 | 4 / −2.5 | 119.5 | 51.4 | 255.4 | **hole in frame**, 2° off centre; hole axis 18° off the view ray |
+| B | (4930, −780) | 68 | −3 / 5 | 113.3 | 75.8 | 279.8 | out of frame |
+| C | (1420, 780) | −38 | 5.5 / 2 | 97.3 | 115.4 | 319.4 | out of frame |
+
+If Gary wants only two: **A and B**.
+
+All three clear the keep-outs:
+- the millstone seat plus its blend;
+- the cast objects' live AABBs plus 150 cm;
+- the notches plus their blend;
+- the door corridor plus 100 cm;
+- the walls.
+
+**Two blockers in the props tool [decl, code]:**
+1. `plan_place` writes rotation `[0, 0, yaw]` (`s3_props_ue.py:515`). The leans are carried as `lean_roll_deg` and
+   `lean_pitch_deg` but are NOT applied.
+2. `GUARD_LOCAL` has a minimum z of 100 (`s3_props_ue.py:104`, checked at `:517-518`). The stone bottoms (pivot − 30)
+   sit at root-local z 21, 46 and 85. That is below both the deck underside (95) and the guard. The cause: the rule
+   buries 165 cm below the high side, but these dunes stand only 71–135 cm high.
+
+   PLACE would refuse with `GUARD_LOCAL_BOX`. Either the guard is relaxed for this prop or the burial is reduced. This
+   stream did not edit S3Millstone files.
+
+### 9.7 Harness `test_s3_shore_offline.py` [meas-here]
+**Checks with a negative control (the control must trip the check):**
+
+| Check | Negative control |
+|---|---|
+| Drift over the proposed print line | the print line lowered |
+| Door gap open | door corridor closed |
+| Wave bases flush | notch off |
+| Slopes within repose | relaxation off, 40° talus |
+| Ripples present | ripples removed |
+| Ripples not too regular | the regular single-sinusoid field of 17:04 |
+| No terracing | the 17:04 pipeline |
+| No pits on dunes | the 17:04 pools and punched hollows |
+| Lee/windward asymmetry | no wind transport |
+| Seat level | seat not built |
+| Grid determinism (two field builds byte-identical) | a seed change moves the grid hash |
+| Last two Blender FBX identical | a tampered hash is caught |
+
+**Consistency checks:**
+- the height-set JSON agrees with the field;
+- Blender heights equal the harness heights;
+- the standing-stone proposal is built on this field.
+
+Result: **56/56 PASS** [meas-here, `test_s3_shore_offline_report.json`]. The 41 earlier BENCH_PIE, runner and seat cases are unchanged.
+
+### 9.8 Previews [meas-here, EEVEE Next]
+Cycles is not offered under `--factory-startup` here, so the previews use EEVEE Next.
+
+Preview-only settings:
+- Proxies cast no shadows. The 12 m walls would otherwise put a low sun in total shadow.
+- The cast and rock boxes are hidden in the close stills.
+- The sun rakes at 14° across each frame.
+- The red line is the current print line (160 cm); the blue line is the set's proposed line.
+
+Files, all under `DerivedAssets/S3Shore/previews/`:
+- **A/B/C close comparison:** `sets/{A,B,C}_{wall_main_B04,corner_back_right,wall_left_close}.png`. `wall_main_B04` is the
+  main S3 camera pose from the brief.
+- **Recommended set B, with the millstone seat and the three stones:**
+  - close: `wall_main_B04.png`, `corner_back_right.png`, `wall_left_close.png`;
+  - overviews: `overview_from_mouth.png`, `overview_high_three_quarter.png`;
+  - other views: `back_wall_drifts_door.png`, `mud_front_low.png`, `cam_B02.png`, `cam_B09.png`, `cam_EntryHandoff.png`;
+  - vertex colour: `plan_vertex_colour_RGB.png`.
+
+### 9.9 Commands
+| Step | Command |
+|---|---|
+| Field + sets JSON | `python Saved/CodexConductor/S3Shore/s3_shore_field.py --sets` |
+| Close A/B/C stills | `blender -b --factory-startup --python .../s3_shore_blender_build.py -- --sets A,B,C` |
+| Export (byte-identical) | `PYTHONHASHSEED=0 blender -b --factory-startup --python-use-system-env --python .../s3_shore_blender_build.py -- --no-render` |
+| Overview stills + stones | `blender -b --factory-startup --python .../s3_shore_blender_build.py -- --overview` |
+| Stones proposal | `python Saved/CodexConductor/S3Shore/s3_shore_standing_stones.py` |
+| Harness | `python .../test_s3_shore_offline.py` |
+
+**Open [inf]:**
+- The editor import and bench of this FBX have not been run.
+- The UE look (Megascans sand, Nanite at this relief) is unverified.
+- Ripple crests that run at an angle to the 7.5 cm grid alias visibly in the close stills. The material's normal map
+  may need to carry the fine scale.

@@ -1,0 +1,257 @@
+{
+ "A": {
+  "renders": [
+   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\sets\\A_wall_main_B04.png",
+   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\sets\\A_corner_back_right.png",
+   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\sets\\A_wall_left_close.png"
+  ],
+  "failures": [],
+  "walls": {
+   "left_max_cm": 193.13,
+   "left_mean_cm": 56.21,
+   "right_max_cm": 163.85,
+   "right_mean_cm": 53.66,
+   "back_max_cm": 182.65,
+   "back_at_door_max_cm": 2.0,
+   "proposed_print_line_cm": 215.0,
+   "print_clearance_cm": 20.0,
+   "current_print_line_cm": 160.0,
+   "current_prints_would_be_covered": true
+  },
+  "realism": {
+   "ripple_peak_concentration": 0.152,
+   "ripple_hp_rms_cm": 0.772,
+   "ripple_spectrum_windows": [
+    {
+     "x": 2399.0,
+     "y": -291.0,
+     "hp_rms_cm": 1.152,
+     "peak_share": 0.159,
+     "peak_wavelength_cm": 50.9
+    },
+    {
+     "x": 3118.0,
+     "y": -772.0,
+     "hp_rms_cm": 0.482,
+     "peak_share": 0.191,
+     "peak_wavelength_cm": 116.4
+    },
+    {
+     "x": 2159.0,
+     "y": -772.0,
+     "hp_rms_cm": 0.507,
+     "peak_share": 0.107,
+     "peak_wavelength_cm": 113.2
+    },
+    {
+     "x": 2879.0,
+     "y": -291.0,
+     "hp_rms_cm": 0.85,
+     "peak_share": 0.197,
+     "peak_wavelength_cm": 63.0
+    },
+    {
+     "x": 1679.0,
+     "y": -51.0,
+     "hp_rms_cm": 0.87,
+     "peak_share": 0.105,
+     "peak_wavelength_cm": 65.9
+    }
+   ],
+   "closed_pits_near_dunes_m2_info": 0.07,
+   "pool_dips_on_dunes_or_slopes_m2": 0.0,
+   "terracing_rms_deg": 2.9,
+   "terracing_ledge_share": 0.0006,
+   "face_cells": 23999,
+   "sand_painted_floor_pct": 90.7,
+   "soil_painted_floor_pct": 9.3,
+   "soil_pct_in_mud_zone_x_lt_2100": 26.5,
+   "max_triangle_slope_deg": 34.5,
+   "p999_triangle_slope_deg_on_sand": 34.49,
+   "slip_face_area_m2": 79.66,
+   "slip_face_slope_p50_p95_deg": [
+    30.19,
+    32.27
+   ],
+   "lee_vs_windward_median_slope_deg": [
+    27.22,
+    14.26
+   ],
+   "steep_faces_facing_downwind_share": 0.748,
+   "ripple_p3_p97_cm": 7.79,
+   "ripple_samples": 29753,
+   "dune_area_m2_over_30cm": 327.8,
+   "sand_volume_m3": 309.8
+  }
+ },
+ "B": {
+  "renders": [
+   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\sets\\B_wall_main_B04.png",
+   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\sets\\B_corner_back_right.png",
+   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\sets\\B_wall_left_close.png"
+  ],
+  "failures": [],
+  "walls": {
+   "left_max_cm": 226.3,
+   "left_mean_cm": 71.32,
+   "right_max_cm": 212.82,
+   "right_mean_cm": 66.1,
+   "back_max_cm": 243.43,
+   "back_at_door_max_cm": 2.0,
+   "proposed_print_line_cm": 265.0,
+   "print_clearance_cm": 20.0,
+   "current_print_line_cm": 160.0,
+   "current_prints_would_be_covered": true
+  },
+  "realism": {
+   "ripple_peak_concentration": 0.176,
+   "ripple_hp_rms_cm": 0.837,
+   "ripple_spectrum_windows": [
+    {
+     "x": 2399.0,
+     "y": -291.0,
+     "hp_rms_cm": 1.162,
+     "peak_share": 0.157,
+     "peak_wavelength_cm": 50.9
+    },
+    {
+     "x": 3118.0,
+     "y": -531.0,
+     "hp_rms_cm": 0.542,
+     "peak_share": 0.178,
+     "peak_wavelength_cm": 47.0
+    },
+    {
+     "x": 1679.0,
+     "y": -51.0,
+     "hp_rms_cm": 0.81,
+     "peak_share": 0.091,
+     "peak_wavelength_cm": 65.9
+    },
+    {
+     "x": 2399.0,
+     "y": -772.0,
+     "hp_rms_cm": 0.552,
+     "peak_share": 0.291,
+     "peak_wavelength_cm": 116.5
+    },
+    {
+     "x": 3118.0,
+     "y": -1012.0,
+     "hp_rms_cm": 1.121,
+     "peak_share": 0.161,
+     "peak_wavelength_cm": 32.5
+    }
+   ],
+   "closed_pits_near_dunes_m2_info": 0.14,
+   "pool_dips_on_dunes_or_slopes_m2": 0.0,
+   "terracing_rms_deg": 2.64,
+   "terracing_ledge_share": 0.0,
+   "face_cells": 34682,
+   "sand_painted_floor_pct": 91.1,
+   "soil_painted_floor_pct": 8.9,
+   "soil_pct_in_mud_zone_x_lt_2100": 25.3,
+   "max_triangle_slope_deg": 34.5,
+   "p999_triangle_slope_deg_on_sand": 34.48,
+   "slip_face_area_m2": 138.45,
+   "slip_face_slope_p50_p95_deg": [
+    30.41,
+    32.14
+   ],
+   "lee_vs_windward_median_slope_deg": [
+    29.03,
+    17.24
+   ],
+   "steep_faces_facing_downwind_share": 0.654,
+   "ripple_p3_p97_cm": 8.06,
+   "ripple_samples": 26007,
+   "dune_area_m2_over_30cm": 385.3,
+   "sand_volume_m3": 387.4
+  }
+ },
+ "C": {
+  "renders": [
+   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\sets\\C_wall_main_B04.png",
+   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\sets\\C_corner_back_right.png",
+   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\sets\\C_wall_left_close.png"
+  ],
+  "failures": [],
+  "walls": {
+   "left_max_cm": 288.06,
+   "left_mean_cm": 85.35,
+   "right_max_cm": 264.07,
+   "right_mean_cm": 78.93,
+   "back_max_cm": 307.03,
+   "back_at_door_max_cm": 2.0,
+   "proposed_print_line_cm": 330.0,
+   "print_clearance_cm": 20.0,
+   "current_print_line_cm": 160.0,
+   "current_prints_would_be_covered": true
+  },
+  "realism": {
+   "ripple_peak_concentration": 0.142,
+   "ripple_hp_rms_cm": 0.901,
+   "ripple_spectrum_windows": [
+    {
+     "x": 2399.0,
+     "y": -291.0,
+     "hp_rms_cm": 1.165,
+     "peak_share": 0.158,
+     "peak_wavelength_cm": 50.9
+    },
+    {
+     "x": 3118.0,
+     "y": -531.0,
+     "hp_rms_cm": 0.544,
+     "peak_share": 0.165,
+     "peak_wavelength_cm": 46.0
+    },
+    {
+     "x": 1679.0,
+     "y": -51.0,
+     "hp_rms_cm": 0.72,
+     "peak_share": 0.1,
+     "peak_wavelength_cm": 59.5
+    },
+    {
+     "x": 1199.0,
+     "y": 189.0,
+     "hp_rms_cm": 0.798,
+     "peak_share": 0.102,
+     "peak_wavelength_cm": 37.5
+    },
+    {
+     "x": 3118.0,
+     "y": -1012.0,
+     "hp_rms_cm": 1.277,
+     "peak_share": 0.186,
+     "peak_wavelength_cm": 29.3
+    }
+   ],
+   "closed_pits_near_dunes_m2_info": 0.07,
+   "pool_dips_on_dunes_or_slopes_m2": 0.0,
+   "terracing_rms_deg": 2.47,
+   "terracing_ledge_share": 0.0003,
+   "face_cells": 47124,
+   "sand_painted_floor_pct": 91.5,
+   "soil_painted_floor_pct": 8.5,
+   "soil_pct_in_mud_zone_x_lt_2100": 24.1,
+   "max_triangle_slope_deg": 34.5,
+   "p999_triangle_slope_deg_on_sand": 34.07,
+   "slip_face_area_m2": 190.84,
+   "slip_face_slope_p50_p95_deg": [
+    30.51,
+    32.23
+   ],
+   "lee_vs_windward_median_slope_deg": [
+    30.06,
+    21.58
+   ],
+   "steep_faces_facing_downwind_share": 0.633,
+   "ripple_p3_p97_cm": 8.04,
+   "ripple_samples": 20745,
+   "dune_area_m2_over_30cm": 430.4,
+   "sand_volume_m3": 473.2
+  }
+ }
+}

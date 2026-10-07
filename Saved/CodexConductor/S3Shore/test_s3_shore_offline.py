@@ -433,16 +433,73 @@ def run():
         results.append({"case": name, "ok": ok, "failures": fails[:6]})
 
     case("shipped params pass")
-    p = copy.deepcopy(F.PARAMS); p["drift_cap_cm"] = 175.0; p["drift_side_cm"] = [150.0, 175.0]
-    case("NEG drift over prints", p, expect_fail="DRIFT_HITS_PRINTS")
-    p = copy.deepcopy(F.PARAMS); p["door_gap_y"] = [0.0, 1.0]
+    sets = F.PARAMS["height_set"]
+    p = copy.deepcopy(F.PARAMS); p["height_sets"][sets]["print_line_cm"] = 180.0
+    case("NEG drift over the (proposed) print line", p, expect_fail="DRIFT_HITS_PRINTS")
+    p = copy.deepcopy(F.PARAMS); p["constraints"]["door_corridor_halfwidth_cm"] = 0.0; p["dune"]["door_taper_cm"] = 1.0
     case("NEG door blocked", p, expect_fail="DOOR_GAP_BLOCKED")
     p = copy.deepcopy(F.PARAMS); p["wave_notch"] = False
     case("NEG wave notch off -> drifts/relief under the flats detected", p, expect_fail="WAVE_BASE_NOT_FLUSH")
+    # realism (+ shipped passes above; each - control must trip its own check)
+    p = copy.deepcopy(F.PARAMS); p["triangle_clamp"] = False; p["final_repose_deg"] = 40.0; p["dune"]["repose_deg"] = 40.0
+    case("NEG slip faces over the angle of repose (clamp off, 40 deg talus)", p, expect_fail="SLOPE_OVER_REPOSE")
+    p = copy.deepcopy(F.PARAMS); p["wind_ripple"]["height_cm"] = [0.0, 0.0]
+    case("NEG wind ripples removed", p, expect_fail="RIPPLES_ABSENT")
+    p = copy.deepcopy(F.PARAMS); p["dune"]["steps"] = 0
+    case("NEG no wind transport (talus only) -> no lee/windward asymmetry", p, expect_fail="NO_WIND_ASYMMETRY")
+    p = copy.deepcopy(F.PARAMS); p["wind_ripple"]["mode"] = "regular"
+    case("NEG regular single-sinusoid ripples (the 7 Oct field) -> too regular", p, expect_fail="RIPPLES_TOO_REGULAR")
+    p = copy.deepcopy(F.PARAMS)
+    p["fine"].update(sand_blur_passes=0, ripples_before_talus=True); p["final_talus_passes"] = 60
+    p["dune"]["repose_deg"] = 31.0; p["dune"]["repose_jitter_deg"] = 2.0
+    case("NEG the 7 Oct pipeline (no de-terrace blur, ripples before talus) -> terracing", p, expect_fail="TERRACING")
+    p = copy.deepcopy(F.PARAMS)
+    p["fine"].update(fill_pools_under_sand=False, pools_avoid_sand=False); p["sheet"]["hollow_soft"] = False
+    case("NEG the 17:04 field (pools printed into dunes, punched sheet hollows) -> pits on dunes", p,
+         expect_fail="PITS_ON_DUNES")
+    p = copy.deepcopy(F.PARAMS); p["millstone_seat"] = False
+    case("NEG millstone seat not built -> seat not level", p, expect_fail="SEAT_NOT_LEVEL")
+    # determinism: two fresh computations byte-identical; a seed change is seen
+    import numpy as _np
+    F._CACHE.clear()
+    g1 = F.grid_sha256(F.build_grid(fp))
+    F._CACHE.clear()
+    g2 = F.grid_sha256(F.build_grid(fp))
+    results.append({"case": "+ determinism: two fresh field builds byte-identical", "ok": g1 == g2, "sha": g1})
+    p = copy.deepcopy(F.PARAMS); p["seed"] = p["seed"] + 1
+    results.append({"case": "- control: a seed change changes the grid hash", "ok": F.grid_sha256(F.build_grid(fp, p)) != g1})
+    # standing-stone proposal: built on THIS field, every keep-out clear, never floating, hole reads from the main cam
+    sp = os.path.join(HERE, "standing_stones_proposal.json")
+    if os.path.isfile(sp):
+        st = json.load(open(sp, encoding="utf-8"))
+        ok = st["field_grid_sha256"] == g1 and len(st["placements"]) == 3 and all(r["keepouts_ok"] for r in st["report"])             and all(r["stone_buried_below_low_side_cm"] > 0 for r in st["report"])             and any(r["main_camera"]["hole_in_frame"] and abs(r["main_camera"]["hole_axis_off_view_ray_deg"]) < 35
+                    for r in st["report"])             and all(row["prop"] == "HoledStandingStone" and row["xy_root_local"] and "burial_cm" in row
+                    for row in st["placements"])
+        results.append({"case": "standing stones: on this field, keep-outs clear, buried on the low side, hole reads "
+                                "from the main camera", "ok": ok,
+                        "info": [(r["label"], r["keepouts_ok"], r["main_camera"]["hole_in_frame"]) for r in st["report"]]})
+    else:
+        results.append({"case": "standing stones proposal present", "ok": False})
+    # height sets for the hand-print stream
+    hs_path = F.HEIGHT_SETS_JSON
+    if os.path.isfile(hs_path):
+        hs = json.load(open(hs_path, encoding="utf-8"))
+        ok = hs["recommended"] == F.PARAMS["height_set"] and set(hs["sets"]) == {"A", "B", "C"}
+        rows = {}
+        for k, v in hs["sets"].items():
+            rows[k] = [v["measured_wall_max_cm"]["all"], v["min_print_line_cm_above_floor_top"]]
+            ok = ok and not v["checks_failures"] and v["min_print_line_cm_above_floor_top"] <= F.PARAMS["height_sets"][k]["print_line_cm"]                 and abs(v["measured_wall_max_cm"]["all"] - v["target_wall_max_cm"]) <= 0.1 * v["target_wall_max_cm"]
+        cur = F.height_set_summary(fp, F.PARAMS, F.build_grid(fp))
+        ok = ok and cur["measured_wall_max_cm"] == hs["sets"][F.PARAMS["height_set"]]["measured_wall_max_cm"]
+        results.append({"case": "height-set JSON: A/B/C clean, within 10% of target, print lines consistent, matches field",
+                        "ok": ok, "info": rows})
+    else:
+        results.append({"case": "height-set JSON present", "ok": False})
     # Gary 7 Oct: cast area re-sculpted, no v2 preservation, no pads.
     def cast_absent(params):
         _, rep = F.checks(fp, params)
-        return rep["cast_area_vs_v2"]["fraction_within_0p5cm_of_v2"] <= 0.05, rep["cast_area_vs_v2"]
+        # <= 0.2: a level seat / thin sheet can coincide with v2 heights by chance; preservation gives ~1.0
+        return rep["cast_area_vs_v2"]["fraction_within_0p5cm_of_v2"] <= 0.2, rep["cast_area_vs_v2"]
     ok, info = cast_absent(F.PARAMS)
     results.append({"case": "+ v2 cast preservation ABSENT in shipped field", "ok": ok and not F.PARAMS["preserve_v2_cast"]
                     and not F.PARAMS["use_pads"], "info": info})
@@ -517,6 +574,34 @@ def run():
                         "ok": os.path.isfile(m["fbx"]) and __import__("hashlib").sha256(
                             open(m["fbx"], "rb").read()).hexdigest() == m["fbx_sha256"]})
         results.append({"case": "manifest built with no field failures", "ok": not m["checks_failures"]})
+        # the Blender build (its own numpy) and this harness must compute the SAME grid
+        npy = os.path.join(PROJECT, "DerivedAssets", "S3Shore", "SM_S3_ShoreGround_grid_h.npy")
+        if os.path.isfile(npy):
+            hb = _np.load(npy)
+            ho = F.build_grid(fp)["h"]
+            diff = float(_np.abs(hb - ho).max()) if hb.shape == ho.shape else 1e9
+        else:
+            diff = 1e9
+        results.append({"case": "Blender-built heights == harness heights (max |dh| <= 0.05 cm; exact sha reported)",
+                        "ok": diff <= 0.05 and m.get("height_set") == F.PARAMS["height_set"],
+                        "info": {"blender_numpy": m.get("blender_numpy"), "max_abs_dh_cm": diff,
+                                 "sha_equal": m.get("grid_sha256") == g1}})
+        seat = (m.get("checks") or {}).get("millstone_seat")
+        results.append({"case": "manifest records the millstone seat (level within its radius)",
+                        "ok": bool(seat) and seat["range_within_radius_cm"] <= 1.0, "info": seat})
+        det_p = os.path.join(PROJECT, "DerivedAssets", "S3Shore", "SM_S3_ShoreGround_determinism_log.json")
+        det = json.load(open(det_p, encoding="utf-8")) if os.path.isfile(det_p) else []
+        def same_build(pair, fbx_sha):
+            return (len(pair) == 2 and pair[0]["params_sha256"] == pair[1]["params_sha256"]
+                    and pair[0]["fbx_sha256"] == pair[1]["fbx_sha256"] == fbx_sha)
+        last = det[-2:]
+        results.append({"case": "+ determinism: the last two Blender builds of the same params wrote byte-identical FBX",
+                        "ok": same_build(last, m["fbx_sha256"]), "info": last})
+        tampered = copy.deepcopy(last)
+        if tampered:
+            tampered[-1]["fbx_sha256"] = "0" * 64
+        results.append({"case": "- control: a differing FBX hash in the log is caught",
+                        "ok": not same_build(tampered, m["fbx_sha256"])})
     else:
         results.append({"case": "manifest present", "ok": False})
     report = {"passed": sum(r["ok"] for r in results), "total": len(results), "results": results}
