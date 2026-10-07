@@ -1,4 +1,32 @@
 {
- "mode": "COUNT",
- "passage": "ALL"
+ "mode": "APPLY",
+ "confirm": "APPLY MESHYSWAP P06",
+ "passage": "P06",
+ "bulb_scale": "REAL",
+ "bulb_anchor": "LIGHT",
+ "housing": "AUTO",
+ "plan_sha256": "6989bbd7908f1b4c8e7b354e7ad10abc1e4a144530be0d653cc5363cdb757188",
+ "ack_records": [
+  "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p06_atmos_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\fence_stack_750_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\hangar_exit_doors_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\lighting_events_revert_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P06.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\opening_own_rail_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\p06_rig_pattern_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P06.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\rig_tubes_everywhere_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\structure_refit_record_REFIT-20261006-021730.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\tubes_tweak_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\underpass_fence_record_06.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\underpass_phase_b_record_06.json",
+  "E:\\PussStage\\Saved\\CodexStructure\\blink_spots_revert_record.json",
+  "E:\\PussStage\\Saved\\CodexStructure\\board_material_revert_record.json",
+  "E:\\PussStage\\Saved\\CodexStructure\\groove_material_revert_record.json",
+  "E:\\PussStage\\Saved\\CodexStructure\\groove_width_record.json",
+  "E:\\PussStage\\Saved\\CodexStructure\\portal_border_record.json",
+  "E:\\PussStage\\Saved\\CodexStructure\\portal_enable_revert_record.json"
+ ]
 }
