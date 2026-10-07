@@ -1,0 +1,238 @@
+{
+ "S1": {
+  "playback": [
+   0,
+   6176
+  ],
+  "display_rate": [
+   25,
+   1
+  ],
+  "tick_rate": null,
+  "tracks": [
+   {
+    "seq": "LS_S1_HangarRise",
+    "depth": 1,
+    "via": "LS_DevScene_01[0,775)",
+    "binding": "S1 Hangar Pinned Exposure",
+    "track": "MovieSceneFloatTrack",
+    "track_name": "BlendWeight",
+    "sections": [
+     {
+      "start": 0,
+      "end": 930,
+      "active": true,
+      "keys": [
+       [
+        -176,
+        0.0
+       ],
+       [
+        124,
+        1.0
+       ]
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "S2": {
+  "playback": [
+   0,
+   2025
+  ],
+  "display_rate": [
+   25,
+   1
+  ],
+  "tick_rate": null,
+  "tracks": [
+   {
+    "seq": "LS_S2_HangarRise",
+    "depth": 1,
+    "via": "LS_DevScene_02[0,775)",
+    "binding": "S2 Hangar Pinned Exposure",
+    "track": "MovieSceneFloatTrack",
+    "track_name": "BlendWeight",
+    "sections": [
+     {
+      "start": 0,
+      "end": 930,
+      "active": true,
+      "keys": [
+       [
+        -176,
+        0.0
+       ],
+       [
+        124,
+        1.0
+       ]
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "S3": {
+  "playback": [
+   0,
+   6240
+  ],
+  "display_rate": [
+   24,
+   1
+  ],
+  "tick_rate": null,
+  "tracks": [
+   {
+    "seq": "LS_S3_HangarRise",
+    "depth": 1,
+    "via": "LS_DevScene_03[0,744)",
+    "binding": "S3 Hangar Pinned Exposure",
+    "track": "MovieSceneFloatTrack",
+    "track_name": "BlendWeight",
+    "sections": [
+     {
+      "start": 0,
+      "end": 930,
+      "active": true,
+      "keys": [
+       [
+        -176,
+        0.0
+       ],
+       [
+        124,
+        1.0
+       ]
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "S4": {
+  "playback": [
+   0,
+   4890
+  ],
+  "display_rate": [
+   25,
+   1
+  ],
+  "tick_rate": null,
+  "tracks": [
+   {
+    "seq": "LS_S4_HangarRise",
+    "depth": 1,
+    "via": "LS_DevScene_04[0,775)",
+    "binding": "S4 Hangar Pinned Exposure",
+    "track": "MovieSceneFloatTrack",
+    "track_name": "BlendWeight",
+    "sections": [
+     {
+      "start": 0,
+      "end": 930,
+      "active": true,
+      "keys": [
+       [
+        -176,
+        0.0
+       ],
+       [
+        124,
+        1.0
+       ]
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "S5": {
+  "playback": [
+   0,
+   1225
+  ],
+  "display_rate": [
+   25,
+   1
+  ],
+  "tick_rate": null,
+  "tracks": []
+ },
+ "S6": {
+  "playback": [
+   0,
+   5489
+  ],
+  "display_rate": [
+   25,
+   1
+  ],
+  "tick_rate": null,
+  "tracks": [
+   {
+    "seq": "LS_DevScene_06",
+    "depth": 0,
+    "via": "root",
+    "binding": "Klara Void S6 - Hangar Off: S6 Hangar Pinned Exposure",
+    "track": "MovieSceneVisibilityTrack",
+    "track_name": "Visibility",
+    "sections": [
+     {
+      "start": 0,
+      "end": 5489,
+      "active": true,
+      "default": true,
+      "keys": []
+     }
+    ]
+   },
+   {
+    "seq": "LS_DevScene_06",
+    "depth": 0,
+    "via": "root",
+    "binding": "Klara Void S6 - Hangar Off: S6 Hangar Pinned Exposure",
+    "track": "MovieSceneBoolTrack",
+    "track_name": "bEnabled",
+    "sections": [
+     {
+      "start": 0,
+      "end": 5489,
+      "active": true,
+      "default": false,
+      "keys": []
+     }
+    ]
+   },
+   {
+    "seq": "LS_S6_HangarRise",
+    "depth": 1,
+    "via": "LS_DevScene_06[0,775)",
+    "binding": "S6 Hangar Pinned Exposure",
+    "track": "MovieSceneFloatTrack",
+    "track_name": "BlendWeight",
+    "sections": [
+     {
+      "start": 0,
+      "end": 930,
+      "active": true,
+      "keys": [
+       [
+        -176,
+        0.0
+       ],
+       [
+        124,
+        1.0
+       ]
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

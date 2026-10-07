@@ -35,3 +35,22 @@
   with its own Tick rotating PivotRoot (fights her LS keys, which start at her frame 191). Plan: klara_reveal v5
   `strike_preroll` + klara_preroll_s4.py; DRY gate on her whole camera path. Spot-checked klara_reveal.py:237 and
   args reveal_style_note [decl].
+- **Gary's S4 answers (~17:40 UTC):** curtain → "back cloth should be on the floor by this point, and kept there";
+  pendulum → turn its own Tick swing off in the show (probe first); strikes → like S1 flicker strikes; pre-roll → whole glide.
+- **Gary, S4 EXIT (~17:55 UTC) — "excellent, with amendments"; aim for ALL scenes with shadow interaction:**
+  1. End of her sequence has a long tail (~20 s) where nothing happens → trim.
+  2. Lights go off at the end → in MORE STEPS; ends in darkness where camera/assets move invisibly (good, keep).
+  3. Then a light appears on the back wall reflecting on the floor (great) — BUT the **curtain must already be there
+     BEFORE** the spotlight slowly comes on: the shadow interaction plays **ON the curtain**, not on a separate shadow
+     card (**Gary removed the shadow card himself in the editor** — check saved/dirty state before any write).
+  4. After the shadow scene: light dims, the curtain switcheroo is already made, the curtain falls, revealing the next
+     Passage.
+- **S3 white — ROOT CAUSE [meas]:** 'S3 Hangar Pinned Exposure' BlendWeight is keyed only in LS_S3_HangarRise
+  (Hangar Fold sub-section [0,744) = 31 s); weight 1.0 at +10/+30 s, 0.0 at +33/40/55/78/182 s (own PIE,
+  s3_white_probe_S3WHITE-r*.json; scene_exposure_weight_read.json). Camera then gets the unbound PPV (EV100 −3) → white.
+  This morning's holds kept transforms only; the tool's own not_held_rise_tracks lists the exposure weight, ~12 rise
+  light intensities and **P04 Backcloth GeometryCache** (→ backcloth back to hanging in S4 = Gary's curtain note).
+  Same structure in S1/S2/S4/S6. Fix being written offline: hold float + cache rise tracks past the fold
+  (HANGAR_HOLD_FLOAT_EXTENSION_2026-10-07.md). Probe bug fixed: scrub phase now FAILS on refusal (in-S3 scrubs refuse
+  UNSAFE_EXTERNAL_CLOCK; fresh PIE per sample).
+- Exit/shadow-curtain plan in: SCENE_EXIT_SHADOW_CURTAIN_PLAN_2026-10-07.md (Gary's I4 card removal SAVED 17:05).
