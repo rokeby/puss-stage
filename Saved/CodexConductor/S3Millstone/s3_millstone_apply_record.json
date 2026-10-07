@@ -1,0 +1,182 @@
+{
+ "run": "S3PROPS-20261007-173446",
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "rise": "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise",
+ "plan": {
+  "prop": "GraniteMillstone",
+  "label": "S3 Granite Millstone",
+  "tags": [
+   "RigAtmos.S3Props",
+   "S3Props.GraniteMillstone"
+  ],
+  "folder": "RigAtmos/S3Props",
+  "mesh": "/Game/InfinityStage/Dev/Generated/S3Props/GraniteMillstone/SM_GraniteMillstone",
+  "mi": "/Game/InfinityStage/Dev/Generated/S3Props/GraniteMillstone/MI_GraniteMillstone",
+  "mobility": "STATIC",
+  "location": [
+   14421.792356918335,
+   159999.3436307907,
+   -7.0
+  ],
+  "rotation": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "actor_hidden_in_game": true,
+  "top_z": 121.6,
+  "world_box": {
+   "min": [
+    14349.842356918334,
+    159925.54363079072,
+    -7.0
+   ],
+   "max": [
+    14493.742356918336,
+    160073.1436307907,
+    123.0
+   ]
+  },
+  "local_box": {
+   "min": [
+    2927.8696069183334,
+    -74.45636920927791,
+    113.0
+   ],
+   "max": [
+    3071.769606918335,
+    73.14363079069881,
+    243.0
+   ]
+  },
+  "floor": {
+   "label": "S3 Hangar Deck",
+   "kind": "box",
+   "n": 1,
+   "median": -5.0,
+   "min": -5.0,
+   "max": -5.0,
+   "spread": 0.0
+  },
+  "floor_candidates": [
+   {
+    "label": "S3 Hangar Deck",
+    "kind": "box",
+    "n": 1,
+    "median": -5.0,
+    "min": -5.0,
+    "max": -5.0,
+    "spread": 0.0
+   }
+  ],
+  "pedestal": {
+   "label": "Clam_Pedastal",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_4",
+   "before": {
+    "actor_hidden": true,
+    "comp_visible": true,
+    "comp_hidden_in_game": false
+   },
+   "after": {
+    "actor_hidden": true,
+    "comp_visible": false,
+    "comp_hidden_in_game": true
+   }
+  },
+  "clams": {
+   "action": "SKIPPED_KEYED",
+   "delta_z": 28.953,
+   "rows": [
+    {
+     "label": "source_Anim",
+     "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SkeletalMeshActor_1",
+     "verdict": "KEYED",
+     "parent": null,
+     "before_location": [
+      14417.886965217189,
+      159997.27592951845,
+      92.54729693263062
+     ],
+     "bottom_z": 107.5914167675305,
+     "inside_stone_cm": 14.01,
+     "top_above_stone_cm": 1.73,
+     "after_location": [
+      14417.886965217189,
+      159997.27592951845,
+      92.54729693263062
+     ]
+    },
+    {
+     "label": "Clam_with_Pearl_Clam_with_Pearl_0",
+     "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_6",
+     "verdict": "KEYED",
+     "parent": null,
+     "before_location": [
+      14415.795818568313,
+      159988.5084684951,
+      97.38904842496483
+     ],
+     "bottom_z": 92.6472786343154,
+     "inside_stone_cm": 28.95,
+     "top_above_stone_cm": -7.68,
+     "after_location": [
+      14415.795818568313,
+      159988.5084684951,
+      97.38904842496483
+     ]
+    }
+   ]
+  },
+  "reveal": {
+   "mode": "rise_track",
+   "copy_from_guid": "2425E62E4F7051520E7154A094123BE3",
+   "section": {
+    "range_s": [
+     0.0,
+     31.000041961669922
+    ],
+    "completion_mode": "PROJECT_DEFAULT",
+    "channels": 1,
+    "keys": [
+     [
+      0,
+      false
+     ],
+     [
+      139,
+      true
+     ]
+    ],
+    "fps": 30.0
+   }
+  },
+  "args": {
+   "prop": "GraniteMillstone",
+   "label": "S3 Granite Millstone",
+   "xy_world": null,
+   "yaw_deg": 0.0,
+   "burial_cm": 2.0,
+   "top_offset_cm": 128.6,
+   "floor_radius_cm": 45.0,
+   "min_floor_samples": 4,
+   "max_floor_spread_cm": 8.0,
+   "accept_floor_spread": false,
+   "clam_labels": [
+    "source_Anim",
+    "Clam_with_Pearl_Clam_with_Pearl_0"
+   ],
+   "clam_gap_cm": 0.0,
+   "reseat_clams": "auto",
+   "reveal": "rise_track"
+  }
+ },
+ "saved": true,
+ "applied": true,
+ "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_510",
+ "reveal_binding_guid": "6D566E9244625AD25C58329AC95FBC5A",
+ "census_before": {
+  "content": [],
+  "maps": []
+ },
+ "backup": "E:/PussStage/Backups/PreS3Millstone-S3PROPS-20261007-173446"
+}

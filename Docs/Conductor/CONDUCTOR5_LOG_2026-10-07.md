@@ -204,3 +204,10 @@
   gate to a separate VERIFY call. BUILD_MAT 173036 (M_S3Prop + MI_GraniteMillstone). APPLY waits on Gary (stand-in
   clam keyed → sits inside the stone).
 - **Waves v3** A/B board sent (S3_WAVES_REDESIGN_2026-10-07.md); questions to Gary pending.
+- **Millstone PLACED** S3PROPS-20261007-173446 (Gary: "Place now, accept"): StaticMeshActor_510 "S3 Granite Millstone" at
+  world (14421.8, 159999.3, −7) on the deck (−5, sunk 2 cm), top z 121.6; pedestal hidden; reveal copied from the pedestal's
+  LS_S3_HangarRise visibility (keys [0 false],[139 true], section [0,31 s]); level saved; tests green. PIE probe [meas]:
+  stone visible, pedestal hidden, figures visible, stand-in clams inside the stone (z 93–97). Timing check (after 31 s)
+  INCONCLUSIVE: PIE now starts inside S3 → scrubs refused UNSAFE_EXTERNAL_CLOCK. Open: does anything revealed by the
+  rise visibility tracks disappear after the 31 s section end (my float hold left 9 visibility tracks unheld)?
+- **Gary waves:** B scroll crests; back foam covers mural feet; + warm side light, foam flicker, sway+bob.
