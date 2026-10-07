@@ -1,6 +1,6 @@
 {
  "applied": true,
- "backup": "E:/PussStage/Backups\\PreKlaraReveal-S4-KLARAREVEAL-20261007-092823",
+ "backup": "E:/PussStage/Backups\\PreKlaraReveal-S4-KLARAREVEAL-20261007-095043",
  "before": {
   "cuts": [
    {
@@ -249,7 +249,7 @@
   {
    "active": true,
    "camera": "Klara Reveal - S4 Reveal Glide Camera",
-   "guid": "DB2119854BFC4D77CE25DF97413B8600",
+   "guid": "5E53B8484053FAA90DF9E68F6F4FAEEC",
    "range": [
     119,
     4865
@@ -436,15 +436,15 @@
  },
  "manifest": [
   {
-   "sha256": "9d8eb7dd2b105e1806b6b08e67c457f396bdb2c9a97e9f8068f774c7ae18190a",
+   "sha256": "97f51fd7b7131c1c2b172b4c5168e47b04d4b70027fa5b2c93d683fca24d0786",
    "source": "E:/PussStage/Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
   },
   {
-   "sha256": "f8ba797cdb59e8456d953ff5ad6e18066787be413f8615c38915416d77c4a782",
+   "sha256": "9ef0e17276d53df438e61ec6c90cd58b58939762dbe60a7470d33d33b629602b",
    "source": "E:/PussStage/Content\\InfinityStage\\Dev\\Sequences\\LS_DevScene_04.uasset"
   },
   {
-   "sha256": "8958a0583fc7c94a5cb10c2f04cba3981efe7a9a126296d0ae308b0c669067ea",
+   "sha256": "e65f27c1bf6d708135713af569c8a6e7271d2d9a01d61bfb68db88b38d8845fc",
    "source": "E:/PussStage/Content\\InfinityStage\\KlaraHookin\\LS_Children_S4Hangar.uasset"
   }
  ],
@@ -623,41 +623,6 @@
      "why": "no mesh/cache/Niagara component"
     },
     {
-     "class": "BP_MHC_Child_C",
-     "label": "BP_MHC_Child5",
-     "why": "size 2409 m > 40 m"
-    },
-    {
-     "class": "BP_MHC_Child_C",
-     "label": "BP_MHC_Child6",
-     "why": "size 2412 m > 40 m"
-    },
-    {
-     "class": "BP_MHC_Child_C",
-     "label": "BP_MHC_Child7",
-     "why": "size 2409 m > 40 m"
-    },
-    {
-     "class": "BP_MHC_Child_C",
-     "label": "BP_MHC_Child",
-     "why": "size 2410 m > 40 m"
-    },
-    {
-     "class": "BP_MHC_Child_C",
-     "label": "BP_MHC_Child2",
-     "why": "size 2411 m > 40 m"
-    },
-    {
-     "class": "BP_MHC_Child_C",
-     "label": "BP_MHC_Child3",
-     "why": "size 2409 m > 40 m"
-    },
-    {
-     "class": "BP_MHC_Child_C",
-     "label": "BP_MHC_Child4",
-     "why": "size 2412 m > 40 m"
-    },
-    {
      "class": "SpotLight",
      "label": "SpotLight7",
      "why": "environment/light/volume class"
@@ -712,6 +677,34 @@
      "label": "SM_R_Children_Wing2"
     },
     {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child5"
+    },
+    {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child6"
+    },
+    {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child7"
+    },
+    {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child"
+    },
+    {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child2"
+    },
+    {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child3"
+    },
+    {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child4"
+    },
+    {
      "class": "StaticMeshActor",
      "label": "SM_R_Children_Wing3"
     },
@@ -728,7 +721,7 @@
      "label": "Pendulum_ball"
     }
    ],
-   "kept_count": 12
+   "kept_count": 19
   },
   "fps": 25.0,
   "hangar_lights": [
@@ -6562,9 +6555,7 @@
    }
   ],
   "hide": {
-   "labels": [
-    "S4 Hangar Roof"
-   ],
+   "labels": [],
    "range": [
     307,
     4563
@@ -7211,7 +7202,7 @@
    "BULB_EMISSIVE_POPS: 24 bulb meshes hide at frame 320 (glows already at 0; emissive cannot fade without a material track)"
   ]
  },
- "run": "KLARAREVEAL-20261007-092823",
+ "run": "KLARAREVEAL-20261007-095043",
  "scene": "4",
  "schema": 1,
  "shared_bindings": [
@@ -7245,5 +7236,5 @@
  },
  "tool": "klara_reveal",
  "version": 3,
- "written": "2026-10-07T09:28:23"
+ "written": "2026-10-07T09:50:44"
 }

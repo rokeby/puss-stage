@@ -2199,12 +2199,14 @@ def build_plan(facts, args):
                          [sl[0], sl[1], sl[2], sl[3], 0.0, facts["set_world"][5] - dock["loc"][2]])
     plan["first_frame_sees"] = seen
     hide = []
-    if args["roof"] in ("hide_roof", "hide_roof_and_seen_walls"):
+    # 7 Oct (Gary, S4): "the skylight should never get into the hangar for this scene" -> scenes.<n>.roof overrides
+    roof = (args.get("scenes", {}).get(key, {}) or {}).get("roof", args["roof"])
+    if roof in ("hide_roof", "hide_roof_and_seen_walls"):
         hide += [x % key for x in ROOF_LABELS]
-    if args["roof"] == "hide_roof_and_seen_walls":
+    if roof == "hide_roof_and_seen_walls":
         hide += [WALL_LABELS[w] % key for w in ("left_wall", "right_wall", "far_wall") if seen.get(w)]
     elif any(seen.get(w) for w in ("left_wall", "right_wall", "far_wall")):
-        warnings.append("FIRST_FRAME_SEES_WALLS: %s (roof option %r keeps them)" % (seen, args["roof"]))
+        warnings.append("FIRST_FRAME_SEES_WALLS: %s (roof option %r keeps them)" % (seen, roof))
     plan["hide"] = {"labels": hide, "range": tl["roof_hidden"]}
     # cuts: Entry [0, d0) | Glide [d0, X) | Exit [X, end) (X = glide_out end; relength FIRST)
     plan["cuts_after"] = [["entry", [0, tl["glide_in"][0]]], ["glide", [tl["glide_in"][0], tl["exit_cut"][0]]],

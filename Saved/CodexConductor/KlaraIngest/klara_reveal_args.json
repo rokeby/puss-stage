@@ -79,7 +79,9 @@
    },
    "placement_decided_by": "Conductor 7 Oct (approved S4_HANGAR_REBUILD_PLAN.md): S4 only, lead_max 800 -> 1500 because her own first camera sits 1459 cm in (her set reaches ~959 cm behind it; a hangar resize cannot change that). Not Gary's number; her camera position is hers.",
    "reveal_style": "auto",
-   "reveal_style_note": "v4 7 Oct (Gary: adapt her dark opening + pan, or S1-style strike). auto = her_dark_pan when opening_darkness says her first framed view is dark (offline projection: lit fraction 0.0, only SpotLight + SpotLight2 cover her first frame and both are 0 until 5.5-6.5 s), else strike. Set 'her_dark_pan' or 'strike' to force; for strike, scenes.4.lit.frame (her display frame, on the 6-frame grid) pins her lit frame - detection projects 354 (her dolly-back eases in from 351, so the camera is ~6 cm/s there). REVEAL_PLAN.md section 10."
+   "reveal_style_note": "v4 7 Oct (Gary: adapt her dark opening + pan, or S1-style strike). auto = her_dark_pan when opening_darkness says her first framed view is dark (offline projection: lit fraction 0.0, only SpotLight + SpotLight2 cover her first frame and both are 0 until 5.5-6.5 s), else strike. Set 'her_dark_pan' or 'strike' to force; for strike, scenes.4.lit.frame (her display frame, on the 6-frame grid) pins her lit frame - detection projects 354 (her dolly-back eases in from 351, so the camera is ~6 cm/s there). REVEAL_PLAN.md section 10.",
+   "roof": "keep",
+   "roof_note": "Gary 7 Oct (own words, conductor session): 'I don't think the skylight should ever get into the hangar for this scene' -> S4 keeps its roof"
   }
  },
  "allow_lattice_overlap": true,
