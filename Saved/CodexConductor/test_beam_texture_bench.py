@@ -63,6 +63,15 @@ TEST_P = {"file_min_bytes": 50, "settle_min_seconds": 3.0, "resolution": RES, "t
           "analysis_width": 160}
 
 
+LF_CVARS_START = {"r.LightFunctionAtlas": 0.0, "r.VolumetricFog.UsesLightFunctionAtlas": 0.0,
+                  "r.VolumetricFog.LightFunction": 0.0, "r.LightFunctionAtlas.SlotResolution": 32.0,
+                  "r.LightFunctionAtlas.Size": 4.0, "r.LightFunctionAtlas.MaxLightCount": -1.0,
+                  "r.LightFunctionAtlas.Format": 0.0, "r.LightFunctionQuality": 1.0,
+                  "r.Deferred.UsesLightFunctionAtlas": 1.0, "r.MegaLights.EnableForProject": 0.0,
+                  "r.MegaLights.LightFunctions": 1.0, "r.MegaLights.Volume": 1.0}
+assert set(LF_CVARS_START) == set(bt.LF_REPORT_CVARS)
+
+
 class Store:
     pass
 
@@ -90,6 +99,14 @@ class World:
         self.set_("fog", FOG_ID, "scattering_distribution", 0.2)
         for n, v in (("r.VolumetricFog.GridPixelSize", 8.0), ("r.VolumetricFog.GridSizeZ", 64.0),
                      ("r.VolumetricFog.HistoryWeight", 0.9)):
+            self.set_("cvar", n, "value", v)
+        # light function (LightComponent.h:204-241) and the atlas cvars: atlas OFF and fog not sampling it, so G
+        # writes both
+        self.set_("light", BEAM_ID, "light_function_material", None)
+        self.set_("light", BEAM_ID, "light_function_scale", [1024.0, 1024.0, 1024.0])
+        self.set_("light", BEAM_ID, "light_function_fade_distance", 100000.0)
+        self.set_("light", BEAM_ID, "disabled_brightness", 0.5)
+        for n, v in LF_CVARS_START.items():
             self.set_("cvar", n, "value", v)
         self.volumetric = True
         self.beam_label = "P01 SCORE B20 P01_WARM_THEATRICAL BEAM_R"
@@ -182,8 +199,9 @@ class PieFake(World):
 
     def __init__(self, clock, prepared=True, kind="game", tau=0.5, occlusion="clear", residual_after=None,
                  reapply_shadows=False, cvars=None, scrub_result="<InfinityTransportResult.SUCCEEDED: 0>",
-                 control_hit=True):
+                 control_hit=True, ignore_writes=()):
         super().__init__()
+        self.ignore_writes = set(ignore_writes)     # keys whose write does not take (a read-only cvar, a lost setter)
         self.clock, self.kind, self.tau = clock, kind, tau
         if prepared:
             self.pool = {lab: {"on": False} for lab in bt.pool_labels_needed(dict(bt.DEFAULTS))}
@@ -197,6 +215,30 @@ class PieFake(World):
 
     def world_kind(self): return self.kind
     def world_name(self): return "/Game/InfinityStage/Dev/Maps/UEDPIE_0_%s.%s" % (MAP, MAP)
+
+    def write(self, kind, oid, field, value):
+        if bt.key(kind, oid, field) in self.ignore_writes:
+            self.events.append(("write", bt.key(kind, oid, field)))
+            return
+        super().write(kind, oid, field, value)
+
+    def lf_mode(self):
+        """The gobo as the fake 'renders' it: only when the light has a light function AND the fog samples the
+        atlas (the engine's rule, VolumetricFog.usf:546-552)."""
+        mat = self.read("light", BEAM_ID, "light_function_material")
+        cv = {n: self.read("cvar", n, "value") for n in bt.LF_STILL_CVARS}
+        if not mat or not bt.fog_lf_on(cv):
+            return None
+        return "slats" if mat == bt.obj_path(bt.MAT_GOBO_SLATS) else "soft"
+
+    @staticmethod
+    def lf_pattern(mode, i, j):
+        if mode is None:
+            return 1.0
+        fl = bt.DEFAULTS["g_floor"]
+        if mode == "slats":
+            return 1.0 if (j // 5) % 2 == 0 else fl
+        return fl + (1.0 - fl) * ((math.sin((i // 6) * 12.9898 + (j // 6) * 78.233) * 43758.5453) % 1.0)
 
     def passage_segment(self, label):
         if label != "Passage 1":
@@ -298,6 +340,7 @@ class PieFake(World):
         bars = self.read("light", BEAM_ID, "cast_volumetric_shadow") and any(
             p["on"] for k, p in self.pool.items() if "_BAR_" in k)
         noise = any(p["on"] for k, p in self.pool.items() if "NOISEBOX" in k)
+        lf = self.lf_mode()
         rows = []
         for j in range(h):
             row = []
@@ -309,6 +352,7 @@ class PieFake(World):
                         b *= 0.35 if (j // 3) % 2 else 1.0
                     if noise:
                         b *= 0.55 + 0.45 * ((math.sin((i // 4) * 12.9898 + (j // 4) * 78.233) * 43758.5453) % 1.0)
+                    b *= self.lf_pattern(lf, i, j)
                     v += b
                 row.append(v)
             rows.append(row)
@@ -610,9 +654,12 @@ check("- control: a slow gradient along the beam (falloff) is not counted as tex
 F0 = PieFake([0.0])
 fogs0 = F0.fogs()
 occ_clear = bt.classify_occlusion([None] * 13, ctl, P)
+LF0 = {f: F0.read("light", BEAM_ID, f) for f in bt.LF_FIELDS}
+CV0 = {n: F0.cvar(n) for n in bt.LF_REPORT_CVARS}
 plans = {"A": bt.plan_a(BEAM, occ_clear, P), "B": bt.plan_b(POSE, BEAM, fogs0, P), "BL": bt.plan_bl(POSE, BEAM, fogs0, P),
          "D": bt.plan_d(fogs0, {"r.VolumetricFog.GridPixelSize": 8.0, "r.VolumetricFog.GridSizeZ": 64.0,
-                                "r.VolumetricFog.HistoryWeight": 0.9}, P)}
+                                "r.VolumetricFog.HistoryWeight": 0.9}, P),
+         "G": bt.plan_g(BEAM, LF0, CV0, P, "G"), "GS": bt.plan_g(BEAM, LF0, CV0, P, "GS")}
 check("+ A: shadows + volumetric shadow on the beam only; 4 bars shown when clear",
       plans["A"]["ops"] == [("light", BEAM_ID, "cast_shadows", True), ("light", BEAM_ID, "cast_volumetric_shadow", True)]
       and [s["label"] for s in plans["A"]["pool"]] == ["ZZ_BEAMTEX_BAR_%d" % k for k in range(4)])
@@ -712,6 +759,134 @@ del br
 check("+ RESTORE from the record alone is exact (shadow flags, fog, scattering, cvars, pool, strobe)",
       bt.restore_all(Wr, [tmp / "bench3.json"], Wr.log) == [] and Wr.snapshot() == before_r)
 
+# ======================= G / GS: light-function gobo =======================
+gk = {bt.key(*o[:3]): o[3] for o in plans["G"]["ops"]}
+LFK = ["light|%s|%s" % (BEAM_ID, f) for f in bt.LF_FIELDS]
+CVK = ["cvar|%s|value" % n for n in bt.LF_REPORT_CVARS]
+check("+ G plan: the gobo material on the beam (object path), disabled brightness, atlas ON + fog samples the atlas; "
+      "scale / fade / slot resolution left alone by default",
+      gk == {"light|%s|light_function_material" % BEAM_ID: bt.MAT_GOBO_SOFT + ".M_ZZ_BeamTex_GoboSoft",
+             "light|%s|disabled_brightness" % BEAM_ID: 0.6, "cvar|r.LightFunctionAtlas|value": 1.0,
+             "cvar|r.VolumetricFog.UsesLightFunctionAtlas|value": 1.0}
+      and {bt.key(*o[:3]): o[3] for o in plans["GS"]["ops"]}["light|%s|light_function_material" % BEAM_ID]
+      == bt.MAT_GOBO_SLATS + ".M_ZZ_BeamTex_GoboSlats")
+check("+ G / GS: EVERY original is recorded - all four LF fields and all %d reported cvars, written or not"
+      % len(bt.LF_REPORT_CVARS), set(LFK + CVK) <= set(bt.all_keys(plans))
+      and set(LFK + CVK) == set(plans["G"]["record"]))
+check("- control: without the record-only keys the untouched LF fields would not be recorded",
+      not set(LFK) <= set(bt.all_keys(dict(plans, G=dict(plans["G"], record=[]), GS=dict(plans["GS"], record=[])))))
+on_live = dict(CV0, **{"r.LightFunctionAtlas": 1.0})
+check("+ G: a cvar already at its target is a no-op (no op emitted, listed as noop)",
+      "cvar|r.LightFunctionAtlas|value" not in {bt.key(*o[:3]) for o in bt.plan_g(BEAM, LF0, on_live, P, "G")["ops"]}
+      and bt.plan_g(BEAM, LF0, on_live, P, "G")["info"]["noop"] == ["r.LightFunctionAtlas"])
+gx = {bt.key(*o[:3]): o[3] for o in bt.plan_g(BEAM, LF0, CV0, dict(P, g_lf_scale=[2.0, 2.0, 1.0], g_fade_distance_cm=
+                                                                    5000.0, g_atlas_slot_resolution=128.0), "G")["ops"]}
+check("+ G: g_lf_scale / g_fade_distance_cm / g_atlas_slot_resolution are written only when set",
+      gx["light|%s|light_function_scale" % BEAM_ID] == [2.0, 2.0, 1.0]
+      and gx["light|%s|light_function_fade_distance" % BEAM_ID] == 5000.0
+      and gx["cvar|r.LightFunctionAtlas.SlotResolution|value"] == 128.0)
+check("+ G and GS show no pool actor; ALL is still exactly A + B + D (no gobo in it)",
+      bt.variant_plan("G", plans)[1] == [] and bt.variant_plan("GS", plans)[1] == []
+      and not any(o[2] == "light_function_material" for o in bt.variant_plan("ALL", plans)[0]))
+Wg = PieFake([0.0])
+before_g = Wg.snapshot()
+bg = bt.BeamBench(Wg, tmp / "bench_g.json", {}, "BEAMTEX-TG")
+bg.read_globals(Wg.census(), None)
+bg.record_keys(bt.all_keys(plans))
+Wg.record_path = tmp / "bench_g.json"
+bg.apply("G", *bt.variant_plan("G", plans))
+check("+ apply G: originals on disk before every write; the light function and both cvars read back changed",
+      not Wg.violations and Wg.read("light", BEAM_ID, "light_function_material") == bt.obj_path(bt.MAT_GOBO_SOFT)
+      and Wg.read("cvar", "r.VolumetricFog.UsesLightFunctionAtlas", "value") == 1.0 and bg.held() == [])
+bg.apply("GS", *bt.variant_plan("GS", plans))
+check("+ apply GS after G: from base (to_base first), the slats material is the one on the light",
+      Wg.read("light", BEAM_ID, "light_function_material") == bt.obj_path(bt.MAT_GOBO_SLATS) and bg.held() == [])
+del bg
+check("+ RESTORE from the record returns the light function material (None), scale, fade, disabled brightness and "
+      "the atlas cvars exactly", bt.restore_all(Wg, [tmp / "bench_g.json"], Wg.log) == [] and Wg.snapshot() == before_g
+      and Wg.read("light", BEAM_ID, "light_function_material") is None)
+Wg2 = PieFake([0.0], ignore_writes=("light|%s|light_function_material" % BEAM_ID,))
+bg2 = bt.BeamBench(Wg2, tmp / "bench_g2.json", {}, "BEAMTEX-TG2")
+bg2.read_globals(Wg2.census(), None)
+bg2.record_keys(bt.all_keys(plans))
+Wg2.state[("light", BEAM_ID, "light_function_material")] = bt.obj_path(bt.MAT_GOBO_SOFT)   # left on, setter lost
+check("- control: a light function the restore cannot take off is reported by verify()",
+      any("light_function_material" in x for x in bg2.restore()))
+Wg3 = PieFake([0.0], ignore_writes=("cvar|r.VolumetricFog.UsesLightFunctionAtlas|value",))
+bg3 = bt.BeamBench(Wg3, tmp / "bench_g3.json", {}, "BEAMTEX-TG3")
+bg3.read_globals(Wg3.census(), None)
+bg3.record_keys(bt.all_keys(plans))
+bg3.apply("G", *bt.variant_plan("G", plans))
+check("- control: a cvar that does not take is a HELD failure (not assumed)",
+      bg3.held() == ["cvar|r.VolumetricFog.UsesLightFunctionAtlas|value"])
+check("+ same_value: LightFunctionScale read back as float32 equals the written list; a real change does not",
+      bt.same_value("light_function_scale", [1024.0000001, 2.0, 1.0], [1024.0, 2.0, 1.0], 1e-3)
+      and not bt.same_value("light_function_scale", [1024.0, 2.0, 1.0], [1024.0, 2.5, 1.0], 1e-3))
+check("+ fog_lf_on: both cvars >= 0.5 -> True; either off / unreadable -> False",
+      bt.fog_lf_on({"r.LightFunctionAtlas": 1.0, "r.VolumetricFog.UsesLightFunctionAtlas": 1.0})
+      and not bt.fog_lf_on({"r.LightFunctionAtlas": 1.0, "r.VolumetricFog.UsesLightFunctionAtlas": 0.0})
+      and not bt.fog_lf_on({"r.LightFunctionAtlas": None, "r.VolumetricFog.UsesLightFunctionAtlas": 1.0}))
+
+# params
+check("+ defaults validate clean", bt.validate_gobo_params(dict(bt.DEFAULTS)) == [])
+bad_sets = [dict(g_floor=0.0), dict(g_floor=1.0), dict(g_floor=-0.2), dict(g_slat_soft=0.0), dict(g_slat_axis="x"),
+            dict(g_contrast=0.0), dict(g_lf_scale=[1.0, 0.0, 1.0]), dict(g_slat_count=0.5), dict(g_floor="0.3"),
+            dict(g_atlas_slot_resolution=4.0), dict(g_disabled_brightness=1.5)]
+check("- control: each bad gobo param (floor 0 / 1 / <0 = black or no gobo, soft 0 = hard bars, ...) is refused",
+      all(bt.validate_gobo_params(dict(bt.DEFAULTS, **b)) for b in bad_sets))
+check("+ g_floor 0.25 is inside (0, 1): the brief's 'not over-opaque' default", 0.0 < bt.DEFAULTS["g_floor"] < 1.0)
+
+# the material maths (Python mirrors of the HLSL)
+GP = dict(bt.DEFAULTS)
+grid = [(i / 60.0, j / 60.0) for i in range(61) for j in range(61)]
+soft = [bt.gobo_soft_reference(uv, 0.0, GP) for uv in grid]
+smu = sum(soft) / len(soft)
+ssd = math.sqrt(sum((s - smu) ** 2 for s in soft) / len(soft))
+check("+ soft gobo stays in [floor, 1] = [0.25, 1] (never black) and is structured (std %.3f > 0.08)" % ssd,
+      min(soft) >= 0.25 - 1e-9 and max(soft) <= 1.0 + 1e-9 and ssd > 0.08)
+
+
+def rough(p, n=400):
+    xs = [bt.gobo_soft_reference((k / float(n), 0.37), 0.0, p) for k in range(n + 1)]
+    return sum(abs(b - a) for a, b in zip(xs, xs[1:])) / n
+
+
+r_blur, r_sharp = rough(GP), rough(dict(GP, g_blur_cells=0.0))
+check("+ the 9-tap pre-blur softens: mean step %.4f with blur < %.4f without" % (r_blur, r_sharp), r_blur < r_sharp)
+check("- control: contrast 0.01 flattens the soft gobo to ~floor + half (no structure): the std check can fail",
+      max(bt.gobo_soft_reference(uv, 0.0, dict(GP, g_contrast=0.01)) for uv in grid[:200])
+      - min(bt.gobo_soft_reference(uv, 0.0, dict(GP, g_contrast=0.01)) for uv in grid[:200]) < 0.01)
+check("+ soft gobo is static at pan 0 and moves with pan > 0 (Time input wired)",
+      bt.gobo_soft_reference((0.3, 0.6), 0.0, GP) == bt.gobo_soft_reference((0.3, 0.6), 9.0, GP)
+      and bt.gobo_soft_reference((0.3, 0.6), 0.0, dict(GP, g_pan_speed=0.2))
+      != bt.gobo_soft_reference((0.3, 0.6), 9.0, dict(GP, g_pan_speed=0.2)))
+row_u = [bt.gobo_slats_reference((k / 800.0, 0.5), 0.0, GP) for k in range(801)]
+col_v = [bt.gobo_slats_reference((0.3, k / 800.0), 0.0, GP) for k in range(801)]
+peaks = sum(1 for a, b, c in zip(row_u, row_u[1:], row_u[2:]) if b >= a and b > c and b > 0.9)
+check("+ slats: %d soft light bars across the cone along u (g_slat_count 4 -> 4 or 5 incl. the edge), constant along v"
+      % peaks, peaks in (4, 5) and max(col_v) - min(col_v) < 1e-12 and min(row_u) >= 0.25 - 1e-9)
+step_soft = max(abs(b - a) for a, b in zip(row_u, row_u[1:]))
+row_hard = [bt.gobo_slats_reference((k / 800.0, 0.5), 0.0, dict(GP, g_slat_soft=0.005)) for k in range(801)]
+step_hard = max(abs(b - a) for a, b in zip(row_hard, row_hard[1:]))
+check("+ slats are soft: max step %.3f per 1/800 of the cone (< 0.05)" % step_soft, step_soft < 0.05)
+check("- control: slat_soft 0.005 makes hard bars (max step %.3f > 0.2): the softness check can fail" % step_hard,
+      step_hard > 0.2)
+check("+ g_slat_axis v turns the bars 90 deg (varies along v, constant along u)",
+      max(bt.gobo_slats_reference((k / 50.0, 0.3), 0.0, dict(GP, g_slat_axis="v")) for k in range(51))
+      - min(bt.gobo_slats_reference((k / 50.0, 0.3), 0.0, dict(GP, g_slat_axis="v")) for k in range(51)) < 1e-12)
+for nm, code_s, ins, prm in (("soft", bt.CODE_GOBO_SOFT, bt.GOBO_SOFT_INPUTS, bt.GOBO_SOFT_PARAMS),
+                             ("slats", bt.CODE_GOBO_SLATS, bt.GOBO_SLATS_INPUTS, bt.GOBO_SLATS_PARAMS)):
+    check("+ %s HLSL: every input pin is used, the params map onto pins, UV + T wired, no WorldPosition / depth" % nm,
+          all(re.search(r"\b%s\b" % n, code_s) for n in ins) and set(prm) <= set(ins) and {"UV", "T"} <= set(ins)
+          and not re.search(r"WorldPosition|Depth|SceneTexture|AbsoluteWorld", code_s))
+check("+ soft HLSL and its mirror share the constants (127.1/311.7, 43758.5453, 2.03, 17.1/5.3, 289, 0.65, 0.61, "
+      "centre weight 2)", all(t in bt.CODE_GOBO_SOFT for t in ("127.1, 311.7", "43758.5453", "2.03", "17.1, 5.3",
+                                                               "289.0 * floor(c0", "289.0 * floor(c1", "0.65",
+                                                               "0.61 * Pan", "? 2.0 : 1.0", "i < 9", "k < 2")))
+check("- control: the pin check catches an unused pin",
+      not all(re.search(r"\b%s\b" % n, bt.CODE_GOBO_SLATS) for n in bt.GOBO_SLATS_INPUTS + ["Unused"]))
+
+
 # ======================= full CAPTURE runs on the fake =======================
 r1, f1, snap1, mid1 = run()
 m1 = manifest(r1)
@@ -788,6 +963,36 @@ rL, fL, _s, _m = run(params={"variants": ("base", "A", "B", "BL", "D", "ALL")})
 check("+ optional BL variant runs too (6 variants x 3 positions x 3 = 54 stills), passes",
       manifest(rL)["status"] == "passed" and len([s for p in manifest(rL)["positions"] for v in p["shots"].values()
                                                   for s in v["stills"]]) == 54)
+GOBO_RUN = {"variants": ("base", "AB", "G", "GS")}
+rG, fG, snapG, _m = run(params=GOBO_RUN)
+mG = manifest(rG)
+stG = {(p["name"], v): s["stills"] for p in mG["positions"] for v, s in p["shots"].items()}
+check("+ gobo run (base, AB, G, GS): passes, 3 x 4 x 3 = 36 stills, world back to its pre-run snapshot",
+      mG["status"] == "passed" and sum(len(x) for x in stG.values()) == 36 and fG.snapshot() == snapG
+      and not fG.violations)
+check("+ per still: G / GS stills read the fog cvars back ON and carry their gobo material",
+      all(s["fog_lf_on"] and s["lf_cvars"]["r.VolumetricFog.UsesLightFunctionAtlas"] == 1.0
+          and s["light_function_material"] == bt.obj_path(bt.GOBO_MATERIAL[v])
+          for (pn, v), ss in stG.items() if v in ("G", "GS") for s in ss))
+check("- control (per still): base and AB stills read the fog cvar back OFF with no light function",
+      all(not s["fog_lf_on"] and s["light_function_material"] is None
+          for (pn, v), ss in stG.items() if v in ("base", "AB") for s in ss))
+check("+ the LF line reports every written cvar took, per position and gobo variant",
+      len(fG.logs("BEAM_TEXTURE_BENCH_LF|run=%s" % rG["run_id"])) == 6
+      and all("took=True" in m and "took=False" not in m for m in fG.logs("BEAM_TEXTURE_BENCH_LF|"))
+      and all(p["lf_took"]["G"]["cvars"]["r.VolumetricFog.UsesLightFunctionAtlas"]["took"] for p in mG["positions"]))
+check("+ the plan records the LF originals and the reported cvars (incl. the alias and MegaLights)",
+      all(p["plan"]["G"]["lf_was"]["light_function_material"] is None
+          and set(p["plan"]["G"]["report_cvars"]) == set(bt.LF_REPORT_CVARS) for p in mG["positions"]))
+rGx, fGx, snapGx, _m = run(params=GOBO_RUN, ignore_writes=("cvar|r.VolumetricFog.UsesLightFunctionAtlas|value",))
+mGx = manifest(rGx)
+check("- control: a fog cvar that does not take -> HELD ok=False, took=False reported, stills say fog_lf_on False, "
+      "run FAILED (never assumed on)",
+      mGx["status"] == "failed" and fGx.logs("BEAM_TEXTURE_BENCH_HELD|run=%s|pos=a450|variant=G|ok=False" % rGx["run_id"])
+      and any("r.VolumetricFog.UsesLightFunctionAtlas=0.0(target 1.0, took=False)" in m
+              for m in fGx.logs("BEAM_TEXTURE_BENCH_LF|"))
+      and not any(s["fog_lf_on"] for p in mGx["positions"] for v in ("G", "GS") for s in p["shots"][v]["stills"])
+      and fGx.snapshot() == snapGx)
 
 
 # ======================= refusals at CAPTURE arm =======================
@@ -850,6 +1055,34 @@ check("+ refuses when the PREPARE marker is not in the log (cannot judge the mat
       raises(lambda: arm_only(PieFake([0.0]), log_path=tmp / "nolog.log"), "reason=compile_unknown"))
 check("- control: base + D only needs no bench material: arms without the marker",
       not raises(lambda: arm_only(PieFake([0.0]), log_path=tmp / "nolog.log", params={"variants": ("base", "D")}), "FAILED"))
+gobo_log = tmp / "gobo_bad.log"
+gobo_log.write_text(fake_log_text(PREP_REC["marker"], ["[x] LogMaterial: Error: M_ZZ_BeamTex_GoboSoft failed to compile"]),
+                    encoding="utf-8")
+check("+ compile gate: a failed GoboSoft refuses a run that asks for G",
+      raises(lambda: arm_only(PieFake([0.0]), log_path=gobo_log, params={"variants": ("base", "G")}),
+             "reason=material_compile_failed|" + bt.MAT_GOBO_SOFT))
+check("- control: the same log arms a run without G / GS (the gobo materials are needed only when asked for)",
+      not raises(lambda: arm_only(PieFake([0.0]), log_path=gobo_log, params={"variants": ("base", "AB", "D")}), "FAILED")
+      and not raises(lambda: arm_only(PieFake([0.0]), log_path=gobo_log, params={"variants": ("base", "GS")}), "FAILED"))
+check("+ compile gate: base + G without the PREPARE marker cannot judge the gobo -> compile_unknown",
+      raises(lambda: arm_only(PieFake([0.0]), log_path=tmp / "nolog.log", params={"variants": ("base", "G")}),
+             "reason=compile_unknown"))
+fl0 = PieFake([0.0])
+out_fl = tmp / "floor_out"
+check("+ CAPTURE refuses a black gobo floor (g_floor 0) before any write or run dir (bad_params)",
+      raises(lambda: arm_only(fl0, out=out_fl, params={"g_floor": 0.0}), "reason=bad_params|g_floor")
+      and not out_fl.exists() and not [e for e in fl0.events if isinstance(e, tuple)])
+fl_ed = EditorFake()
+check("+ PREPARE refuses bad gobo params before any asset or spawn",
+      raises(lambda: bt.PrepareBench(fl_ed, tmp / "pb" / "h.json", {"g_slat_soft": 0.0}).run(), "reason=bad_params")
+      and not [e for e in fl_ed.events if isinstance(e, tuple)])
+flm = PieFake([0.0])
+flm.missing_api = ["LightComponent.set_light_function_material"]
+out_flm = tmp / "lfapi_out"
+check("+ a missing SetLightFunctionMaterial binding refuses at arm before any change (no write, no run dir, strobe on)",
+      raises(lambda: arm_only(flm, out=out_flm, params={"variants": ("base", "G")}),
+             "reason=api_missing|LightComponent.set_light_function_material")
+      and not out_flm.exists() and not [e for e in flm.events if isinstance(e, tuple)] and flm.strobes["/PIE/Opening_Strobe"])
 sr = tmp / "sessions"
 for name in ("BEAMTEXPREP-20261006-180000", "BEAMTEXPREP-20261006-190000"):
     (sr / "_prepare" / name).mkdir(parents=True)
@@ -918,7 +1151,12 @@ def strict_unreal(drop=()):
         def set_cast_shadows(self, v): self._props["cast_shadows"] = bool(v)
         def set_cast_volumetric_shadow(self, v): self._props["cast_volumetric_shadow"] = bool(v)
 
-    class LightComponent(LightComponentBase): pass
+    class LightComponent(LightComponentBase):                       # LightComponent.h:308-318
+        def set_light_function_material(self, m): self._props["light_function_material"] = m
+        def set_light_function_scale(self, v): self._props["light_function_scale"] = Vector(v.x, v.y, v.z)
+        def set_light_function_fade_distance(self, v): self._props["light_function_fade_distance"] = float(v)
+        def set_light_function_disabled_brightness(self, v): self._props["disabled_brightness"] = float(v)
+
     class LocalLightComponent(LightComponent): pass
     class SpotLightComponent(LocalLightComponent): pass
 
@@ -954,7 +1192,10 @@ def strict_unreal(drop=()):
 
     beam_c = SpotLightComponent(BEAM_ID, _loc=LAMP, _rot=(0.0, -5.0, 76.0), outer_cone_angle=7.0,
                                 attenuation_radius=2600.0, intensity=3500.0, cast_shadows=False,
-                                cast_volumetric_shadow=False, volumetric_scattering_intensity=6.0)
+                                cast_volumetric_shadow=False, volumetric_scattering_intensity=6.0,
+                                light_function_material=None, light_function_scale=Vector(1024.0, 1024.0, 1024.0),
+                                light_function_fade_distance=100000.0, disabled_brightness=0.5)
+    gobo_m = Obj(bt.obj_path(bt.MAT_GOBO_SOFT))
     beam_a = Actor(BEAM_ACTOR, "P01 SCORE B20 P01_WARM_THEATRICAL BEAM_R", [beam_c])
     other_c = SpotLightComponent("/PIE/B19.L", outer_cone_angle=7.0, attenuation_radius=2600.0, intensity=1.0,
                                  cast_shadows=False, cast_volumetric_shadow=False, volumetric_scattering_intensity=6.0)
@@ -967,6 +1208,7 @@ def strict_unreal(drop=()):
     pcm = PlayerCameraManager("/PIE/PCM", "PCM")
     actors = [beam_a, other, fog_a, wing, pcm]
     objects = {o.get_path_name(): o for o in actors + [beam_c, fog_c, wing_c, other_c]}
+    assets = {gobo_m.get_path_name(): gobo_m}          # loadable (PREPAREd) assets, not in the find_object table
     cvars = {"r.VolumetricFog.GridPixelSize": 4.0}
     world = Obj("/Game/Maps/UEDPIE_0_L.L")
 
@@ -1011,6 +1253,7 @@ def strict_unreal(drop=()):
     U_.UnrealEditorSubsystem = object
     U_.get_editor_subsystem = lambda cls: Editor()
     U_.find_object = lambda outer, path: objects.get(path)
+    U_.load_object = lambda outer, path: assets.get(path)
     U_.log = logs["log"].append
     U_.log_error = logs["err"].append
     U_._logs, U_._cvars = logs, cvars
@@ -1052,6 +1295,149 @@ check("+ real adapter: meshes_near returns the wing component with its bounds", 
 check("+ api_missing: nothing missing on the strict fake; dropping SetCastVolumetricShadow is reported",
       SA.api_missing() == [] and bt.make_pie_adapter(strict_unreal(drop=("LightComponentBase.set_cast_volumetric_shadow",)))
       .api_missing() == ["LightComponentBase.set_cast_volumetric_shadow"])
+check("+ api_missing: dropping SetLightFunctionMaterial (or the scale setter) is reported by the real adapter",
+      bt.make_pie_adapter(strict_unreal(drop=("LightComponent.set_light_function_material",))).api_missing()
+      == ["LightComponent.set_light_function_material"]
+      and bt.make_pie_adapter(strict_unreal(drop=("LightComponent.set_light_function_scale",))).api_missing()
+      == ["LightComponent.set_light_function_scale"])
+lf_before = {f: SA.read("light", BEAM_ID, f) for f in bt.LF_FIELDS}
+SA.write("light", BEAM_ID, "light_function_material", bt.obj_path(bt.MAT_GOBO_SOFT))
+SA.write("light", BEAM_ID, "light_function_scale", [2.0, 2.0, 1.0])
+SA.write("light", BEAM_ID, "disabled_brightness", 0.6)
+SA.write("light", BEAM_ID, "light_function_fade_distance", 5000.0)
+check("+ real adapter: the four LF fields go through their setters (material loaded by path) and read back",
+      lf_before == {"light_function_material": None, "light_function_scale": [1024.0, 1024.0, 1024.0],
+                    "light_function_fade_distance": 100000.0, "disabled_brightness": 0.5}
+      and SA.read("light", BEAM_ID, "light_function_material") == bt.obj_path(bt.MAT_GOBO_SOFT)
+      and SA.read("light", BEAM_ID, "light_function_scale") == [2.0, 2.0, 1.0]
+      and SA.read("light", BEAM_ID, "disabled_brightness") == 0.6
+      and SA.read("light", BEAM_ID, "light_function_fade_distance") == 5000.0)
+SA.write("light", BEAM_ID, "light_function_material", None)
+check("+ real adapter: writing the recorded None takes the light function off again",
+      SA.read("light", BEAM_ID, "light_function_material") is None)
+check("- control: an unknown material path refuses (never a silent None)",
+      raises(lambda: SA.write("light", BEAM_ID, "light_function_material", "/Game/Nope/M_X.M_X"), "LF_MATERIAL_MISSING"))
+
+
+# ======================= the REAL editor adapter's material build on a recording fake =======================
+def editor_unreal():
+    """Enough of `unreal` for make_editor_adapter().build_materials(): records every material set_editor_property in
+    order and, like the engine (measured 6 Oct), logs 'Failed to compile' when a domain is set while the blend is
+    still the default Opaque on a Volume material."""
+    calls, logs = [], []
+
+    class Gen:
+        def __init__(self, name): self._n = name
+        def __getattr__(self, a):
+            if a.startswith("__"):
+                raise AttributeError(a)
+            return Gen("%s.%s" % (self._n, a))
+        def __call__(self, *a, **k): return Node(self._n)
+        def __str__(self): return self._n
+
+    class Node:
+        def __init__(self, cls): self._cls, self._props = str(cls), {}
+        def set_editor_property(self, k, v): self._props[k] = v
+        def get_editor_property(self, k): return self._props.get(k)
+        def get_name(self): return self._cls
+
+    class Mat(Node):
+        def __init__(self, path):
+            super().__init__("Material")
+            self.path = path
+            self._props = {"material_domain": "MaterialDomain.MD_SURFACE", "blend_mode": "BlendMode.BLEND_OPAQUE",
+                           "shading_model": "MaterialShadingModel.MSM_DEFAULT_LIT",
+                           "force_compatible_with_light_function_atlas": False}
+            self.nodes = []
+
+        def set_editor_property(self, k, v):
+            calls.append((self.path.rsplit("/", 1)[-1], k))
+            if k == "material_domain" and "VOLUME" in str(v) and "OPAQUE" in str(self._props["blend_mode"]):
+                logs.append("LogMaterial: Error: %s Failed to compile (transient domain/blend)" % self.path)
+            self._props[k] = v if isinstance(v, bool) else str(v)
+
+    class MEL:
+        @staticmethod
+        def create_material_expression(mat, cls, x, y):
+            n = Node(cls)
+            mat.nodes.append(n)
+            return n
+        @staticmethod
+        def connect_material_expressions(a, ao, b, bi): return True
+        @staticmethod
+        def get_material_expression_input_names(b): return [""]
+        @staticmethod
+        def connect_material_property(src, out, mp): return True
+        @staticmethod
+        def recompile_material(m): pass
+        @staticmethod
+        def get_material_expressions(m): return list(m.nodes)
+
+    class Tools:
+        def create_asset(self, name, d, cls, factory): return Mat(d + "/" + name)
+
+    class Sub:
+        def get_editor_world(self): return Node("World")
+        def get_game_world(self): return None
+
+    tex = Node("Texture")
+    tex._props.update(compression_settings="TextureCompressionSettings.TC_DEFAULT", srgb=False)
+    U_ = Gen("unreal")
+    ns = types.SimpleNamespace()
+    for k in ("BlendMode", "MaterialDomain", "MaterialShadingModel", "MaterialProperty", "MaterialSamplerType",
+              "CustomMaterialOutputType", "WorldPositionIncludedOffsets", "LinearColor", "CustomInput",
+              "MaterialFactoryNew", "Material", "Name"):
+        setattr(ns, k, Gen(k))
+    for k in ("MaterialExpressionTextureCoordinate", "MaterialExpressionTextureSample", "MaterialExpressionCustom",
+              "MaterialExpressionScalarParameter", "MaterialExpressionConstant3Vector", "MaterialExpressionTime",
+              "MaterialExpressionWorldPosition", "MaterialExpressionTruncateLWC", "EditorActorSubsystem",
+              "UnrealEditorSubsystem", "GameplayStatics", "Actor"):
+        setattr(ns, k, Gen(k))
+    ns.MaterialEditingLibrary = MEL
+    ns.EditorAssetLibrary = types.SimpleNamespace(does_asset_exist=lambda p: False)
+    ns.AssetToolsHelpers = types.SimpleNamespace(get_asset_tools=lambda: Tools())
+    ns.get_editor_subsystem = lambda cls: Sub()
+    ns.load_asset = lambda p: tex
+    ns.log = logs.append
+    ns._calls, ns._logs = calls, logs
+    return ns
+
+
+def domain_last(calls, short, keys=("blend_mode", "shading_model", "force_compatible_with_light_function_atlas",
+                                     "two_sided")):
+    """For one material: every set of `keys` comes BEFORE its domain set, and the domain is set."""
+    seq = [k for m, k in calls if m == short]
+    if "material_domain" not in seq:
+        return False
+    d = seq.index("material_domain")
+    return all(seq.index(k) < d for k in keys if k in seq)
+
+
+EU = editor_unreal()
+built = bt.make_editor_adapter(EU).build_materials(dict(bt.DEFAULTS))
+short = lambda m: m.rsplit("/", 1)[-1]
+check("+ PREPARE build (real builder, recording fake): both gobo materials set blend, shading and the atlas flag "
+      "BEFORE the domain (LightFunction, set last); the noise volume sets blend before its domain",
+      domain_last(EU._calls, short(bt.MAT_GOBO_SOFT)) and domain_last(EU._calls, short(bt.MAT_GOBO_SLATS))
+      and domain_last(EU._calls, short(bt.MAT_NOISE), ("blend_mode",))
+      and [k for m, k in EU._calls if m == short(bt.MAT_GOBO_SOFT)][-1] == "material_domain")
+check("+ PREPARE build: gobo read-back = LIGHT_FUNCTION domain, atlas-compatible flag read back True, ok; no "
+      "'Failed to compile' line logged",
+      all(built[m]["ok"] and "LIGHT_FUNCTION" in built[m]["domain"] and built[m]["atlas_compatible_flag"] is True
+          for m in (bt.MAT_GOBO_SOFT, bt.MAT_GOBO_SLATS))
+      and sorted(built) == sorted(bt.BENCH_MATERIALS) and not [x for x in EU._logs if "Failed to compile" in x])
+check("- control: the order checker flags a domain-first material, and the fake logs the trap for it",
+      not domain_last([("M", "material_domain"), ("M", "blend_mode")], "M"))
+EU2 = editor_unreal()
+m_bad = EU2.AssetToolsHelpers.get_asset_tools().create_asset("M_T", "/Game/T", None, None)
+m_bad.set_editor_property("material_domain", "MaterialDomain.MD_VOLUME")
+check("- control: setting a Volume domain before the blend logs 'Failed to compile' on the fake (the measured trap)",
+      any("Failed to compile" in x for x in EU2._logs))
+gsrc = (HERE / "beam_texture_bench.py").read_text(encoding="utf-8")
+gsrc = gsrc.split("def build_gobo(", 1)[1].split("def build_gobo_soft", 1)[0]
+check("+ the gobo builder uses TextureCoordinate + Time + Custom + scalars only: no WorldPosition / depth node "
+      "(atlas-compatible, Material.h:921-927)",
+      "MaterialExpressionTextureCoordinate" in gsrc and not re.search(r"WorldPosition|Depth|SceneTexture", gsrc))
 
 # ======================= source scans =======================
 SAVE = re.compile(r"save_(current_level|packages|dirty|map|asset|loaded_asset|directory|level)|EditorAssetLibrary\.save|"
@@ -1099,6 +1485,23 @@ check("+ the sheet carries frame times and the occlusion note on A tiles",
 for pth in pathlib.Path(r1["run_dir"]).glob("a050/B_*.png"):
     pth.unlink()
 check("- control: deleting a shot's stills makes that tile MISSING", cs.build_sheet(r1["run_dir"], thumb_w=160)["missing"] == ["a050/B"])
+sheetG = cs.build_sheet(rG["run_dir"], thumb_w=160)
+tG = {(t["position"], t["variant"]): t for t in sheetG["tiles"]}
+check("+ gobo sheet: 3 rows x 4 tiles (base, AB, G, GS) titled 'soft gobo (light function)' / 'soft slats (light "
+      "function)'", len(sheetG["tiles"]) == 12 and sheetG["variants"] == ["base", "AB", "G", "GS"]
+      and tG[("a250", "G")]["title"] == "soft gobo (light function)"
+      and tG[("a250", "GS")]["title"] == "soft slats (light function)")
+check("+ gobo sheet: G and GS read TEXTURED at every position with the note 'fog LF on 3/3'",
+      all(tG[(pn, v)]["verdict"]["textured"] is True and "fog LF on 3/3" in tG[(pn, v)]["notes"]
+          for pn in ("a450", "a250", "a050") for v in ("G", "GS")))
+check("- control: base / AB tiles carry no fog-LF note", not any("fog LF" in n for (pn, v), t in tG.items()
+                                                                if v in ("base", "AB") for n in t["notes"]))
+sheetGx = cs.build_sheet(rGx["run_dir"], thumb_w=160)
+tGx = {(t["position"], t["variant"]): t for t in sheetGx["tiles"]}
+check("- control: when the fog cvar did not take, G tiles say 'fog LF OFF 0/3' + 'DID NOT TAKE' and are NOT textured",
+      all("fog LF OFF 0/3" in tGx[(pn, "G")]["notes"]
+          and any(n.startswith("DID NOT TAKE: UsesLightFunctionAtlas") for n in tGx[(pn, "G")]["notes"])
+          and tGx[(pn, "G")]["verdict"]["textured"] is False for pn in ("a450", "a250", "a050")))
 
 failed = [n for n, ok in RESULTS if not ok]
 print("\nBEAM_TEXTURE_BENCH_HARNESS %d/%d %s" % (len(RESULTS) - len(failed), len(RESULTS), "OK" if not failed else "FAILED"))

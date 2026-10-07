@@ -71,6 +71,36 @@ VARIANTS (each applied from the recorded base; base first; a base return between
         (InfinityStageEffectSource.cpp:61-62), which does NOT exist in Content [measured: Content/Scenes/Effects holds
         only the candle]. Noted for the Niagara session.
   ALL   A + B + D.
+  AB    A + B (the comparison for G / GS).
+  G     soft gobo (Gary 6 Oct: "a structured but not over-opaque beam using a gobo that splits it in a softer focused
+        way"). The beam's PIE light gets a LIGHT FUNCTION material (/Game/ZZ_Bench/BeamTexture/M_ZZ_BeamTex_GoboSoft,
+        CREATE-ONLY, domain MD_LightFunction) whose emissive is a pre-blurred 2-octave value noise (9-tap average) in
+        [g_floor, 1] (never black: g_floor 0.25 keeps the beam "not over-opaque"), optionally panning (g_pan_speed,
+        default 0 for repeatable stills). Setters SetLightFunctionMaterial / SetLightFunctionScale /
+        SetLightFunctionFadeDistance / SetLightFunctionDisabledBrightness (LightComponent.h:308-318); the four
+        originals (light_function_material, light_function_scale, light_function_fade_distance, disabled_brightness,
+        UPROPERTYs LightComponent.h:204-241) are recorded and restored. Light functions reach VOLUMETRIC FOG for local
+        lights ONLY through the light function atlas: VolumetricFog.usf:546-552 (and :1130-1136) multiplies
+        GetLocalLightFunctionCommon(...) in only under USE_LIGHT_FUNCTION_ATLAS + bUseLightFunctionAtlas; the
+        non-atlas light-function path in that shader is the directional light's (:737-759) [declaration-proven, shader
+        source]. G therefore sets, PIE only, recorded and restored: r.LightFunctionAtlas 1 ("Enable the light function
+        atlas generation at runtime. The atlas will only be generated if other systems are using it") and
+        r.VolumetricFog.UsesLightFunctionAtlas 1 ("Whether the light function atlas is sampled when rendering local
+        lights"); r.VolumetricFog.LightFunction (RendererSettings.h:1086-1089) is, by the string next to it, "an
+        alias, please use r.VolumetricFog.UsesLightFunctionAtlas" [binary-proven: UTF-16 strings in
+        UnrealEditor-Renderer.dll; the help/name pairing is inferred from string order]. Read-only report (never
+        written): LF_REPORT_CVARS below. Every still records the read-back of the fog cvars (fog_lf_on).
+        Coordinates: TextureCoordinate only. In the atlas pass the material sees TexCoords = the slot UV in [0,1] and
+        TranslatedWorldPosition = 0 (LightFunctionAtlasRender.usf:27, :36, :52; LightFunctionCommon.ush:32-35,
+        :61-66); sampling maps a spot's cone onto that UV (LightFunctionAtlasCommon.usf:113, frac :144). The non-atlas
+        spot path feeds the same cone UV into TexCoords (LightFunctionCommon.ush:45-50, :61-66). So a TexCoord pattern
+        means the same thing in both; WorldPosition / depth would not (Material.h:921-927 "Compatible With Light
+        Function Atlas": "world position and depth are not used"); PREPARE sets that flag
+        (bForceCompatibleWithLightFunctionAtlas) and reads it back.
+  GS    soft slats: as G with M_ZZ_BeamTex_GoboSlats: g_slat_count soft parallel bars (cosine bars through a wide
+        smoothstep) across one cone-UV axis (g_slat_axis "u" = light-local Z = up for a roll-0 light, so horizontal
+        sheets [inferred: TranslatedWorldToLight is the light's local frame; LightFunctionAtlasCommon.usf:104-105
+        swizzles .zyx]), in [g_floor, 1].
 
 CAMERA POSITIONS (positions param, default ahead 450 / 250 / 50 cm): the camera is placed by Master scrub
 (passage_stills route) at the frame where the lamp is ahead_cm in front of it along the camera's heading. A secant
@@ -84,10 +114,10 @@ relative to the mean luma. A variant is "textured" when that is >= textured_rati
 keep_brightness of base's mean. The base vs itself is the failing control (ratio 1). Frame time = editor tick deltas
 over time_seconds with no capture in flight (lb.frame_stats; comparable within one run only).
 
-Modes (BENCH_MODE): PREPARE (editor world, PIE NOT running: creates the three bench materials CREATE-ONLY under
+Modes (BENCH_MODE): PREPARE (editor world, PIE NOT running: creates the five bench materials CREATE-ONLY under
 /Game/ZZ_Bench/BeamTexture and spawns the hidden ZZ_BEAMTEX_* pool; never saves), CAPTURE (PIE: the stills run;
 BENCH_DRY=True only locates, settles, plans and shoots base), RESTORE (PIE: re-applies every original from this
-session's records, hides the pool). The map and three new material packages are dirty after PREPARE by design; the
+session's records, hides the pool). The map and five new material packages are dirty after PREPARE by design; the
 conductor ends with a Don't-Save editor restart (it also discards the new materials).
 
 Markers carry run ids: BEAM_TEXTURE_BENCH_START|run=..., _ANNOUNCE, _LOCATE, _PLAN, _OCCLUSION, _TIME, _STILL,
@@ -129,14 +159,33 @@ HANDLE_NAME = "PUSS_BEAM_TEXTURE_BENCH_HANDLE"
 STATE_NAME = "PUSS_BEAM_TEXTURE_BENCH_STATE"
 MARK = "BEAM_TEXTURE_BENCH"
 RESTART = MARK + "_NEEDS_DONT_SAVE_RESTART"
-ORDER = ("base", "A", "B", "BL", "AB", "D", "ALL")
-DEFAULT_VARIANTS = ("base", "A", "B", "D", "ALL")
+ORDER = ("base", "A", "B", "BL", "AB", "D", "G", "GS", "ALL")
+DEFAULT_VARIANTS = ("base", "A", "B", "D", "ALL")   # the gobo run passes {"variants": ["base", "AB", "G", "GS"]}
+GOBO_VARIANTS = ("G", "GS")
 KINDS = ("light", "fog", "cvar")
 ASSET_DIR = "/Game/ZZ_Bench/BeamTexture"
 MAT_NOISE = ASSET_DIR + "/M_ZZ_BeamTex_NoiseVolume"
 MAT_BREAKUP = ASSET_DIR + "/M_ZZ_BeamTex_Breakup"
 MAT_BLACK = ASSET_DIR + "/M_ZZ_BeamTex_Black"
-BENCH_MATERIALS = (MAT_BLACK, MAT_BREAKUP, MAT_NOISE)
+MAT_GOBO_SOFT = ASSET_DIR + "/M_ZZ_BeamTex_GoboSoft"
+MAT_GOBO_SLATS = ASSET_DIR + "/M_ZZ_BeamTex_GoboSlats"
+GOBO_MATERIAL = {"G": MAT_GOBO_SOFT, "GS": MAT_GOBO_SLATS}
+BENCH_MATERIALS = (MAT_BLACK, MAT_BREAKUP, MAT_NOISE, MAT_GOBO_SOFT, MAT_GOBO_SLATS)
+# light-function fields of the beam (UPROPERTYs LightComponent.h:204-241; setters :308-318)
+LF_FIELDS = ("light_function_material", "light_function_scale", "light_function_fade_distance", "disabled_brightness")
+# written by G / GS (PIE only, recorded + restored) - names binary-proven (UTF-16 strings, UnrealEditor-Renderer.dll)
+LF_ATLAS_CVAR = "r.LightFunctionAtlas"
+LF_FOG_CVAR = "r.VolumetricFog.UsesLightFunctionAtlas"
+LF_SLOT_CVAR = "r.LightFunctionAtlas.SlotResolution"
+# read-only report per plan and per still (never written unless listed above). r.VolumetricFog.LightFunction = the
+# alias (RendererSettings.h:1086-1089 + DLL string); Format is ConfigRestartRequired (RendererSettings.h:1077-1081);
+# r.LightFunctionQuality is a scalability cvar (BaseScalability.ini:133 = 0 at Low) [inferred: 0 disables LFs];
+# MegaLights may route local lights in fog through its own volume path, which has r.MegaLights.LightFunctions.
+LF_REPORT_CVARS = (LF_ATLAS_CVAR, LF_FOG_CVAR, "r.VolumetricFog.LightFunction", LF_SLOT_CVAR,
+                   "r.LightFunctionAtlas.Size", "r.LightFunctionAtlas.MaxLightCount", "r.LightFunctionAtlas.Format",
+                   "r.LightFunctionQuality", "r.Deferred.UsesLightFunctionAtlas", "r.MegaLights.EnableForProject",
+                   "r.MegaLights.LightFunctions", "r.MegaLights.Volume")
+LF_STILL_CVARS = (LF_ATLAS_CVAR, LF_FOG_CVAR, "r.VolumetricFog.LightFunction")
 CUBE = "/Engine/BasicShapes/Cube.Cube"            # 100 cm cube, pivot at centre (look_bench.py:107)
 PLANE = "/Engine/BasicShapes/Plane.Plane"         # 100 x 100 cm, normal +Z [inferred: engine basic shape]
 SKIP_LIGHT_CLASSES = ("InfinityStageSweepLight", "InfinityStageStrobeLight")
@@ -238,6 +287,20 @@ DEFAULTS = {
                 "r.VolumetricFog.HistoryWeight": 0.6},
     "d_escalate": True,
     "d_scattering_distribution": 0.7,
+    # G / GS (light-function gobo). Pattern space = the spot's cone UV (0..1 across the cone, centre 0.5)
+    "g_scale": 3.0,                    # soft: noise cells across the cone
+    "g_floor": 0.25,                   # the darkest the gobo gets (0 = black bars; never 0: "not over-opaque")
+    "g_contrast": 2.5,                 # soft: contrast of the blurred noise around 0.5
+    "g_blur_cells": 0.35,              # soft: 9-tap box pre-blur radius in noise cells (0 = no blur)
+    "g_slat_count": 4.0,               # slats: bars across the cone
+    "g_slat_soft": 0.3,                # slats: smoothstep half-width on the cosine (0.5 = fully sinusoidal)
+    "g_slat_threshold": 0.5,           # slats: duty (higher = thinner light bars)
+    "g_slat_axis": "u",                # "u" = across cone-UV x (light-local Z, up: horizontal sheets) | "v"
+    "g_pan_speed": 0.0,                # pattern units per second; 0 keeps the stills repeatable
+    "g_disabled_brightness": 0.6,      # the light's DisabledBrightness ~ the pattern's mean (LightComponent.h:236-241)
+    "g_lf_scale": None,                # None = leave the light's LightFunctionScale (recorded); else [x, y, z]
+    "g_fade_distance_cm": None,        # None = leave LightFunctionFadeDistance (recorded); else cm
+    "g_atlas_slot_resolution": None,   # None = leave r.LightFunctionAtlas.SlotResolution (reported); else px
 }
 
 
@@ -253,6 +316,17 @@ class BenchRefused(RuntimeError):
 
 utc_stamp, utc_iso, plain, same_value, stats = fb.utc_stamp, fb.utc_iso, fb.plain, fb.same_value, fb.stats
 robust_settle, base_return_ok = fb.robust_settle, fb.base_return_ok
+
+
+def same_value(field, a, b, tol_deg):
+    """fb.same_value, plus number lists (light_function_scale [x, y, z]) compared element-wise with its float32
+    tolerance instead of exactly."""
+    def numlist(v):
+        return isinstance(v, (list, tuple)) and len(v) > 0 and all(
+            isinstance(x, (int, float)) and not isinstance(x, bool) for x in v)
+    if numlist(a) and numlist(b):
+        return len(a) == len(b) and all(fb.same_value(field, x, y, tol_deg) for x, y in zip(a, b))
+    return fb.same_value(field, a, b, tol_deg)
 
 
 def key(kind, oid, field):
@@ -695,7 +769,85 @@ def plan_d(fogs, cvars_live, p):
                                              "scattering_was": [f["scattering_distribution"] for f in fogs]}}
 
 
-VARIANT_PARTS = {"base": (), "A": ("A",), "B": ("B",), "BL": ("BL",), "AB": ("A", "B"), "D": ("D",), "ALL": ("A", "B", "D")}
+def obj_path(asset_path):
+    """/Game/Dir/M_X -> /Game/Dir/M_X.M_X (what get_path_name() reads back)."""
+    return "%s.%s" % (asset_path, asset_path.rsplit("/", 1)[-1])
+
+
+def validate_gobo_params(p):
+    """-> [problem, ...] (empty = ok). PREPARE bakes these into material parameters; CAPTURE writes the light ones."""
+    out = []
+
+    def num(k, lo, hi, lo_open=False, hi_open=False):
+        v = p.get(k)
+        if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(float(v)):
+            out.append("%s=%r not a number" % (k, v))
+            return
+        v = float(v)
+        if (v <= lo if lo_open else v < lo) or (v >= hi if hi_open else v > hi):
+            out.append("%s=%r outside %s%s, %s%s" % (k, v, "(" if lo_open else "[", lo, hi, ")" if hi_open else "]"))
+    num("g_floor", 0.0, 1.0, True, True)
+    num("g_scale", 0.0, 64.0, True)
+    num("g_contrast", 0.0, 50.0, True)
+    num("g_blur_cells", 0.0, 2.0)
+    num("g_slat_count", 1.0, 32.0)
+    num("g_slat_soft", 0.0, 0.5, True)
+    num("g_slat_threshold", 0.0, 1.0, True, True)
+    num("g_pan_speed", -5.0, 5.0)
+    num("g_disabled_brightness", 0.0, 1.0)
+    if p.get("g_slat_axis") not in ("u", "v"):
+        out.append("g_slat_axis=%r not u|v" % (p.get("g_slat_axis"),))
+    s = p.get("g_lf_scale")
+    if s is not None and not (isinstance(s, (list, tuple)) and len(s) == 3 and all(
+            isinstance(x, (int, float)) and not isinstance(x, bool) and float(x) > 0.0 for x in s)):
+        out.append("g_lf_scale=%r not None or 3 positive numbers" % (s,))
+    for k, lo, hi in (("g_fade_distance_cm", 1.0, 1e7), ("g_atlas_slot_resolution", 8.0, 1024.0)):
+        if p.get(k) is not None:
+            num(k, lo, hi)
+    return out
+
+
+def gobo_cvar_targets(live, p):
+    """-> {name: {"live", "target", "noop"}} for the cvars G / GS write (atlas on, fog samples the atlas, and the slot
+    resolution only when g_atlas_slot_resolution is set)."""
+    want = {LF_ATLAS_CVAR: 1.0, LF_FOG_CVAR: 1.0}
+    if p.get("g_atlas_slot_resolution") is not None:
+        want[LF_SLOT_CVAR] = float(p["g_atlas_slot_resolution"])
+    out = {}
+    for name, t in sorted(want.items()):
+        now = live.get(name)
+        out[name] = {"live": now, "target": t, "noop": now is not None and abs(float(now) - t) < 1e-6}
+    return out
+
+
+def plan_g(beam, lf_live, cvars_live, p, which):
+    """G / GS: the beam's light function (PIE copy) + the atlas cvars. Every LF field and every reported cvar is
+    RECORDED (so verify() proves them back at the end) even when not written."""
+    lid = beam["id"]
+    ops = [op("light", lid, "light_function_material", obj_path(GOBO_MATERIAL[which])),
+           op("light", lid, "disabled_brightness", float(p["g_disabled_brightness"]))]
+    if p.get("g_lf_scale") is not None:
+        ops.append(op("light", lid, "light_function_scale", [float(x) for x in p["g_lf_scale"]]))
+    if p.get("g_fade_distance_cm") is not None:
+        ops.append(op("light", lid, "light_function_fade_distance", float(p["g_fade_distance_cm"])))
+    tg = gobo_cvar_targets(cvars_live, p)
+    ops += [op("cvar", n, "value", t["target"]) for n, t in sorted(tg.items()) if not t["noop"]]
+    record = [key("light", lid, f) for f in LF_FIELDS] + [key("cvar", n, "value") for n in LF_REPORT_CVARS]
+    return {"ops": ops, "pool": [], "record": record,
+            "info": {"material": GOBO_MATERIAL[which], "lf_was": dict(lf_live), "cvars": tg,
+                     "noop": sorted(n for n, t in tg.items() if t["noop"]),
+                     "report_cvars": {n: cvars_live.get(n) for n in LF_REPORT_CVARS},
+                     "disabled_brightness": float(p["g_disabled_brightness"]),
+                     "lf_scale": p.get("g_lf_scale"), "fade_distance_cm": p.get("g_fade_distance_cm")}}
+
+
+def fog_lf_on(cvars):
+    """Per still: the atlas and the fog's use of it both read back on (None = unreadable -> False)."""
+    return all(cvars.get(n) is not None and float(cvars[n]) >= 0.5 for n in (LF_ATLAS_CVAR, LF_FOG_CVAR))
+
+
+VARIANT_PARTS = {"base": (), "A": ("A",), "B": ("B",), "BL": ("BL",), "AB": ("A", "B"), "D": ("D",),
+                 "G": ("G",), "GS": ("GS",), "ALL": ("A", "B", "D")}
 
 
 def variant_plan(name, plans):
@@ -720,6 +872,8 @@ def all_keys(plans):
     for name in ORDER:
         ops, _pool = variant_plan(name, plans)
         keys.update(key(o[0], o[1], o[2]) for o in ops)
+    for plan in plans.values():
+        keys.update(plan.get("record", ()))         # record-only keys (G / GS: untouched LF fields, report cvars)
     return sorted(keys)
 
 
@@ -776,7 +930,8 @@ def compile_errors_since(log_text, marker, names):
         return None
     short = [n.rsplit("/", 1)[-1] for n in names]
     return [ln for ln in lines[start + 1:]
-            if any(s in ln for s in short) and ("failed to compile" in ln.lower() or "error" in ln.lower())]
+            if any(s in ln for s in short) and MARK + "_" not in ln     # skip our own report lines (6 Oct: "atlas_flag_error": null tripped it)
+            and ("failed to compile" in ln.lower() or "error" in ln.lower())]
 
 
 # 3-octave 3D value noise, the 2D construction of s3_marble_tiling_material.py:351-366 lifted to 3D (each corner
@@ -822,6 +977,114 @@ CODE_BREAKUP = r"""
 return saturate((X - Thr) * Contrast + 0.5);
 """
 
+# G: soft gobo. UV = TextureCoordinate (the spot's cone UV; see the docstring for why that is atlas-safe). A 2-octave
+# 2D value noise (the s3_marble_tiling_material.py:351-366 construction: wrap each corner at 289 AFTER +1) averaged
+# over a 3x3 tap box of radius Blur cells (centre weight 2) = a pre-blurred dapple, then contrast, smoothstep, and
+# lifted to [FloorV, 1]. Keep in step with gobo_soft_reference().
+CODE_GOBO_SOFT = r"""
+float2 p = (UV - 0.5) * Scale + float2(Pan * T, 0.61 * Pan * T);
+float acc = 0.0;
+float wsum = 0.0;
+for (int i = 0; i < 9; i++)
+{
+    float2 q = p + float2((float)(i % 3) - 1.0, (float)(i / 3) - 1.0) * Blur;
+    float w = (i == 4) ? 2.0 : 1.0;
+    float n = 0.0;
+    float amp = 0.65;
+    float norm = 0.0;
+    for (int k = 0; k < 2; k++)
+    {
+        float2 c0 = floor(q);
+        float2 f = q - c0;
+        float2 u = f * f * (3.0 - 2.0 * f);
+        float2 c1 = c0 + 1.0;
+        c0 = c0 - 289.0 * floor(c0 / 289.0);
+        c1 = c1 - 289.0 * floor(c1 / 289.0);
+        float2 kk = float2(127.1, 311.7);
+        float h00 = frac(sin(dot(float2(c0.x, c0.y), kk)) * 43758.5453);
+        float h10 = frac(sin(dot(float2(c1.x, c0.y), kk)) * 43758.5453);
+        float h01 = frac(sin(dot(float2(c0.x, c1.y), kk)) * 43758.5453);
+        float h11 = frac(sin(dot(float2(c1.x, c1.y), kk)) * 43758.5453);
+        n += amp * lerp(lerp(h00, h10, u.x), lerp(h01, h11, u.x), u.y);
+        norm += amp;
+        q = q * 2.03 + float2(17.1, 5.3);
+        amp *= 0.5;
+    }
+    acc += w * (n / norm);
+    wsum += w;
+}
+float d = saturate((acc / wsum - 0.5) * Contrast + 0.5);
+d = d * d * (3.0 - 2.0 * d);
+return lerp(FloorV, 1.0, d);
+"""
+GOBO_SOFT_INPUTS = ["UV", "T", "Scale", "FloorV", "Contrast", "Blur", "Pan"]
+GOBO_SOFT_PARAMS = {"Scale": "g_scale", "FloorV": "g_floor", "Contrast": "g_contrast", "Blur": "g_blur_cells",
+                    "Pan": "g_pan_speed"}
+
+# GS: soft slats. Cosine bars along one cone-UV axis through a wide smoothstep, in [FloorV, 1]. Keep in step with
+# gobo_slats_reference().
+CODE_GOBO_SLATS = r"""
+float2 p = UV - 0.5;
+float x = ((Axis > 0.5) ? p.y : p.x) * Count + Pan * T;
+float s = 0.5 + 0.5 * cos(6.2831853 * x);
+float d = smoothstep(Thr - Soft, Thr + Soft, s);
+return lerp(FloorV, 1.0, d);
+"""
+GOBO_SLATS_INPUTS = ["UV", "T", "Count", "FloorV", "Soft", "Thr", "Axis", "Pan"]
+GOBO_SLATS_PARAMS = {"Count": "g_slat_count", "FloorV": "g_floor", "Soft": "g_slat_soft", "Thr": "g_slat_threshold",
+                     "Pan": "g_pan_speed"}            # Axis comes from g_slat_axis ("u" 0 / "v" 1)
+
+
+def _h2(c):
+    return (math.sin(c[0] * 127.1 + c[1] * 311.7) * 43758.5453) % 1.0
+
+
+def _smoothstep(e0, e1, x):
+    t = min(1.0, max(0.0, (x - e0) / (e1 - e0)))
+    return t * t * (3.0 - 2.0 * t)
+
+
+def gobo_soft_reference(uv, t, p):
+    """Python mirror of CODE_GOBO_SOFT (same order of operations)."""
+    pan, sc, blur = float(p["g_pan_speed"]), float(p["g_scale"]), float(p["g_blur_cells"])
+    base = ((uv[0] - 0.5) * sc + pan * t, (uv[1] - 0.5) * sc + 0.61 * pan * t)
+    acc, wsum = 0.0, 0.0
+    for i in range(9):
+        q = [base[0] + ((i % 3) - 1.0) * blur, base[1] + ((i // 3) - 1.0) * blur]
+        w = 2.0 if i == 4 else 1.0
+        n, amp, norm = 0.0, 0.65, 0.0
+        for _k in range(2):
+            c0 = [math.floor(x) for x in q]
+            f = [q[j] - c0[j] for j in range(2)]
+            u = [x * x * (3.0 - 2.0 * x) for x in f]
+            c1 = [x + 1.0 for x in c0]
+            c0 = [x - 289.0 * math.floor(x / 289.0) for x in c0]
+            c1 = [x - 289.0 * math.floor(x / 289.0) for x in c1]
+            h00, h10 = _h2((c0[0], c0[1])), _h2((c1[0], c0[1]))
+            h01, h11 = _h2((c0[0], c1[1])), _h2((c1[0], c1[1]))
+            lerp = lambda a, b, s: a + (b - a) * s
+            n += amp * lerp(lerp(h00, h10, u[0]), lerp(h01, h11, u[0]), u[1])
+            norm += amp
+            q = [q[0] * 2.03 + 17.1, q[1] * 2.03 + 5.3]
+            amp *= 0.5
+        acc += w * (n / norm)
+        wsum += w
+    d = min(1.0, max(0.0, (acc / wsum - 0.5) * float(p["g_contrast"]) + 0.5))
+    d = d * d * (3.0 - 2.0 * d)
+    fl = float(p["g_floor"])
+    return fl + (1.0 - fl) * d
+
+
+def gobo_slats_reference(uv, t, p):
+    """Python mirror of CODE_GOBO_SLATS."""
+    axis = 1.0 if p["g_slat_axis"] == "v" else 0.0
+    x = ((uv[1] - 0.5) if axis > 0.5 else (uv[0] - 0.5)) * float(p["g_slat_count"]) + float(p["g_pan_speed"]) * t
+    s = 0.5 + 0.5 * math.cos(6.2831853 * x)
+    thr, soft = float(p["g_slat_threshold"]), float(p["g_slat_soft"])
+    d = _smoothstep(thr - soft, thr + soft, s)
+    fl = float(p["g_floor"])
+    return fl + (1.0 - fl) * d
+
 
 def _h3(c):
     return (math.sin(c[0] * 127.1 + c[1] * 311.7 + c[2] * 74.7) * 43758.5453) % 1.0
@@ -866,6 +1129,9 @@ PIE_API = (
                "get_actor_location")),
     ("SceneComponent", ("get_world_location", "get_world_rotation", "is_visible", "set_visibility")),
     ("LightComponentBase", ("set_cast_shadows", "set_cast_volumetric_shadow")),   # LightComponentBase.h:146, :153
+    ("LightComponent", ("set_light_function_material", "set_light_function_scale",
+                        "set_light_function_fade_distance",
+                        "set_light_function_disabled_brightness")),           # LightComponent.h:308-318
     ("ExponentialHeightFogComponent", ("set_fog_density", "set_second_fog_density",
                                        "set_volumetric_fog_scattering_distribution")),  # ...FogComponent.h:251-308
     ("LocalFogVolumeComponent", ("set_radial_fog_extinction", "set_height_fog_extinction", "set_height_fog_falloff",
@@ -888,7 +1154,8 @@ EDITOR_API = (
     ("MaterialExpressionTime", ()), ("MaterialExpressionScalarParameter", ()),
     ("MaterialExpressionConstant3Vector", ()), ("MaterialExpressionTextureCoordinate", ()),
     ("MaterialExpressionTextureSample", ()), ("CustomInput", ()),
-    ("MaterialDomain", ("MD_VOLUME",)), ("BlendMode", ("BLEND_ADDITIVE", "BLEND_MASKED", "BLEND_OPAQUE")),
+    ("MaterialDomain", ("MD_VOLUME", "MD_LIGHT_FUNCTION")),
+    ("BlendMode", ("BLEND_ADDITIVE", "BLEND_MASKED", "BLEND_OPAQUE")),
     ("MaterialShadingModel", ("MSM_DEFAULT_LIT", "MSM_UNLIT")),
     ("MaterialProperty", ("MP_BASE_COLOR", "MP_SUBSURFACE_COLOR", "MP_EMISSIVE_COLOR", "MP_OPACITY_MASK")),
     ("StaticMeshActor", ()), ("LocalFogVolume", ()), ("LocalFogVolumeComponent", ()),
@@ -1089,6 +1356,9 @@ class PrepareBench:
         missing = self.a.api_missing()
         if missing:
             raise BenchRefused("api_missing", ",".join(missing), self.run_id)
+        bad = validate_gobo_params(self.p)                # baked into the gobo materials' parameter defaults
+        if bad:
+            raise BenchRefused("bad_params", ";".join(bad), self.run_id)
         census = self.a.census()
         if census["maps"] or census["content"]:
             raise BenchRefused("dirty_before_prepare", json.dumps(census), self.run_id)
@@ -1311,6 +1581,21 @@ class BeamMachine:
                 ("|" + ",".join(bad[:4])) if bad else ""))
             if bad:
                 self._fail("held %s/%s %d overwritten" % (self.pos["name"], t[1], len(bad)))
+            if t[1] in GOBO_VARIANTS:
+                # did each written cvar TAKE? (a read-only / lower-priority cvar reads back unchanged: reported here
+                # and as a held failure above, never assumed)
+                info = self.pos["_plans"][t[1]]["info"]
+                took = {}
+                for n, tg in sorted(info["cvars"].items()):
+                    now = self.a.cvar(n)
+                    took[n] = {"target": tg["target"], "read": now,
+                               "took": now is not None and abs(float(now) - float(tg["target"])) < 1e-6}
+                lf = {f: plain(self.a.read("light", self.pos["plan"]["beam"]["id"], f)) for f in LF_FIELDS}
+                self.pos.setdefault("lf_took", {})[t[1]] = {"cvars": took, "light": lf}
+                self.a.log("%s_LF|run=%s|pos=%s|variant=%s|%s|material=%s" % (
+                    MARK, self.b.run_id, self.pos["name"], t[1],
+                    "|".join("%s=%s(target %s, took=%s)" % (n, x["read"], x["target"], x["took"])
+                             for n, x in sorted(took.items())), lf.get("light_function_material")))
             self.task = None
             return
         if kind == "shoot":
@@ -1422,10 +1707,13 @@ class BeamMachine:
         advice = behind_wing_advice(occ, meshes, beam, cross, p)
         fogs = a.fogs()
         cvars_live = {n: a.cvar(n) for n in sorted(p["d_cvars"])}
+        lf_live = {f: plain(a.read("light", beam["id"], f)) for f in LF_FIELDS}
+        lf_cvars = {n: a.cvar(n) for n in LF_REPORT_CVARS}
         plans = {"A": plan_a(beam, occ, p), "B": plan_b(pose, beam, fogs, p), "BL": plan_bl(pose, beam, fogs, p),
-                 "D": plan_d(fogs, cvars_live, p)}
+                 "D": plan_d(fogs, cvars_live, p), "G": plan_g(beam, lf_live, lf_cvars, p, "G"),
+                 "GS": plan_g(beam, lf_live, lf_cvars, p, "GS")}
         pos["_plans"] = plans
-        summary = {v: plans[v]["info"] for v in ("A", "B", "BL", "D")}
+        summary = {v: plans[v]["info"] for v in ("A", "B", "BL", "D", "G", "GS")}
         summary.update(pose=pose, beam=beam, struck=struck, mask=spec, mask_frac=frac, beam_axis=u,
                        route_cross_s=cross, occlusion=dict(occ, rays=len(rays), control=control is not None),
                        behind_wing=advice, exposure=self.run.get("exposure"),
@@ -1442,7 +1730,7 @@ class BeamMachine:
         a.log("%s_OCCLUSION|run=%s|pos=%s|verdict=%s|blocked=%s|labels=%s|advice=%s" % (
             MARK, self.b.run_id, pos["name"], occ["verdict"], occ.get("blocked_frac"), ",".join(occ["labels"][:4]),
             advice.get("advice", "")[:160]))
-        for v in ("A", "B", "BL", "D"):
+        for v in ("A", "B", "BL", "D", "G", "GS"):
             a.log("%s_PLAN|run=%s|pos=%s|variant=%s|ops=%d|pool=%d|info=%s" % (
                 MARK, self.b.run_id, pos["name"], v, len(plans[v]["ops"]), len(plans[v]["pool"]),
                 json.dumps(plain(plans[v]["info"]), sort_keys=True)[:400]))
@@ -1469,9 +1757,14 @@ class BeamMachine:
             pose = a.camera_pose(float(w) / float(h), p["fov_fallback_deg"])
             rows = a.beam_rows(self.run["beam_regex"])
             inten = float(rows[0]["intensity"]) if len(rows) == 1 else None
+            lf_cv = {n: a.cvar(n) for n in LF_STILL_CVARS}          # read back AT the still, every variant
+            lf_mat = None
+            if len(rows) == 1:
+                lf_mat = plain(a.read("light", rows[0]["id"], "light_function_material"))
             a.console('HighResShot %dx%d filename="%s"' % (w, h, path.as_posix()))
             shot["stills"].append({"i": sub["i"], "path": path.as_posix(), "master_frame": frame, "pose": pose,
-                                   "beam_intensity": inten, "t": round(now, 3)})
+                                   "beam_intensity": inten, "t": round(now, 3), "lf_cvars": lf_cv,
+                                   "fog_lf_on": fog_lf_on(lf_cv), "light_function_material": lf_mat})
             sub.update(phase="wait_file", issued=now, last_size=-1, stable=0, path=path)
             return
         if sub["phase"] == "wait_file":
@@ -1483,8 +1776,9 @@ class BeamMachine:
                 sub["stable"], sub["last_size"] = 0, size
             if sub["stable"] >= int(p["file_stable_ticks"]):
                 shot["stills"][-1]["bytes"] = size
-                a.log("%s_STILL|run=%s|pos=%s|variant=%s|i=%d|bytes=%d|path=%s" % (
-                    MARK, self.b.run_id, pos["name"], variant, sub["i"], size, path.as_posix()))
+                a.log("%s_STILL|run=%s|pos=%s|variant=%s|i=%d|bytes=%d|fog_lf_on=%s|lf_material=%s|path=%s" % (
+                    MARK, self.b.run_id, pos["name"], variant, sub["i"], size, shot["stills"][-1]["fog_lf_on"],
+                    shot["stills"][-1]["light_function_material"], path.as_posix()))
                 sub["i"] += 1
                 if sub["i"] >= int(p["stills_per_shot"]):
                     self.task = None
@@ -1519,8 +1813,11 @@ def read_preflight(adapter, p, regex):
     probe = adapter.trace(tuple(pose["loc"]), (pose["loc"][0], pose["loc"][1], pose["loc"][2] - 10.0),
                           beam["actor_id"])
     meshes = adapter.meshes_near(beam["location"], 100.0, 4, float(p["a_wing_max_extent_cm"]))
+    lf = {f: plain(adapter.read("light", beam["id"], f)) for f in LF_FIELDS}     # a bad LF read refuses here
+    lf_cvars = {n: adapter.cvar(n) for n in LF_REPORT_CVARS}
     return {"beam": beam, "fogs": len(fogs), "cvars": cvars, "r.VolumetricFog": vf, "trace_ok": True,
-            "trace_probe_hit": probe is not None, "meshes_probe": len(meshes), "exposure": adapter.exposure_info()}
+            "trace_probe_hit": probe is not None, "meshes_probe": len(meshes), "exposure": adapter.exposure_info(),
+            "light_function": lf, "lf_cvars": lf_cvars}
 
 
 def arm(adapter, prepare_path=None, params=None, dry=False, out_root=OUT_ROOT, prepare_root=PREPARE_ROOT,
@@ -1543,6 +1840,9 @@ def arm(adapter, prepare_path=None, params=None, dry=False, out_root=OUT_ROOT, p
         names = [str(x["name"]) for x in p["positions"]]
         if not names or len(set(names)) != len(names):
             raise BenchRefused("bad_positions", ",".join(names))
+        bad_p = validate_gobo_params(p)
+        if bad_p:
+            raise BenchRefused("bad_params", ";".join(bad_p))
         if adapter.world_kind() != "game":
             raise BenchRefused("no_pie", "start PIE first (conductor_pie_begin.py); PREPARE comes before PIE")
         missing_api = adapter.api_missing()
@@ -1576,6 +1876,7 @@ def arm(adapter, prepare_path=None, params=None, dry=False, out_root=OUT_ROOT, p
             needed.add(MAT_NOISE)
         if any(v in ("A", "AB", "ALL") for v in p["variants"]) and p["a_occluder_policy"] != "never":
             needed.add(MAT_BREAKUP if p["a_occluder"] == "breakup" else MAT_BLACK)
+        needed.update(GOBO_MATERIAL[v] for v in p["variants"] if v in GOBO_VARIANTS)
         if errs is None and needed:
             raise BenchRefused("compile_unknown", "PREPARE marker %r not in %s: cannot judge the bench materials" % (
                 prep.get("marker"), pathlib.Path(log_path).as_posix()))
@@ -1598,12 +1899,13 @@ def arm(adapter, prepare_path=None, params=None, dry=False, out_root=OUT_ROOT, p
     bench = BeamBench(adapter, run_dir / ORIGINALS_NAME, p, run_id)
     bench.read_globals(census_before, prep)
     positions = [{"i": i, "name": str(x["name"]), "ahead_cm": float(x["ahead_cm"])} for i, x in enumerate(p["positions"])]
-    adapter.log("%s_ANNOUNCE|run=%s|world=PIE|%s bay %d %s|changes the beam's shadow flags, height fog density / "
-                "scattering distribution and %d volumetric-fog cvars in PIE only, shows prepared %s* actors (no "
-                "spawns); every change recorded and restored at the end; the map and %s are dirty from PREPARE: "
-                "Don't-Save restart after|record=%s" % (
-                    MARK, run_id, p["passage"], int(p["bay"]), preflight["beam"]["label"], len(p["d_cvars"]), PREFIX,
-                    ASSET_DIR, bench.record_path.as_posix()))
+    adapter.log("%s_ANNOUNCE|run=%s|world=PIE|%s bay %d %s|changes the beam's shadow flags and light function "
+                "(material, disabled brightness), height fog density / scattering distribution, %d volumetric-fog "
+                "cvars and the light-function-atlas cvars (%s) in PIE only, shows prepared %s* actors (no spawns); "
+                "every change recorded and restored at the end; the map and %s are dirty from PREPARE: Don't-Save "
+                "restart after|record=%s" % (
+                    MARK, run_id, p["passage"], int(p["bay"]), preflight["beam"]["label"], len(p["d_cvars"]),
+                    ",".join(sorted(gobo_cvar_targets({}, p))), PREFIX, ASSET_DIR, bench.record_path.as_posix()))
     try:
         bench.neutralise()
     except Exception:
@@ -1924,6 +2226,49 @@ def make_editor_adapter(unreal):
         unreal.MaterialEditingLibrary.recompile_material(mat)
         return readback(mat, {"domain": "VOLUME", "blend_mode": "ADDITIVE"})
 
+    def build_gobo(path, code, inputs, params, extra, p):
+        """G / GS light-function material. Every blend / shading / atlas flag is set BEFORE the domain (the measured
+        Volume trap: a transient domain + default-blend state logs 'Failed to compile', which the CAPTURE compile gate
+        catches); the domain is set LAST. Coordinates: TextureCoordinate only (atlas-safe, see the module doc)."""
+        mat = create_material(path)
+        mat.set_editor_property("blend_mode", unreal.BlendMode.BLEND_OPAQUE)
+        mat.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_UNLIT)
+        flag_err = None
+        try:                                    # Material.h:921-927 bForceCompatibleWithLightFunctionAtlas
+            mat.set_editor_property("force_compatible_with_light_function_atlas", True)
+        except Exception as exc:                # judged by the read-back below, never by the setter
+            flag_err = "%s: %s" % (type(exc).__name__, exc)
+        mat.set_editor_property("material_domain", unreal.MaterialDomain.MD_LIGHT_FUNCTION)
+        uv = node(mat, unreal.MaterialExpressionTextureCoordinate, -1100, 0)
+        tm = node(mat, unreal.MaterialExpressionTime, -1100, 120)
+        cus = custom(mat, -600, 100, "BeamTex gobo " + path.rsplit("_", 1)[-1], code, inputs)
+        link(uv, "", cus, "UV")
+        link(tm, "", cus, "T")
+        k = 0
+        for pin, pkey in sorted(params.items()):
+            link(scalar(mat, pin, p[pkey], -1100, 250 + 100 * k), "", cus, pin)
+            k += 1
+        for pin, value in sorted(extra.items()):
+            link(scalar(mat, pin, value, -1100, 250 + 100 * k), "", cus, pin)
+            k += 1
+        prop(cus, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)       # a light function reads Emissive only
+        unreal.MaterialEditingLibrary.recompile_material(mat)
+        out = readback(mat, {"domain": "LIGHT_FUNCTION"})
+        try:
+            out["atlas_compatible_flag"] = bool(mat.get_editor_property("force_compatible_with_light_function_atlas"))
+        except Exception as exc:
+            out["atlas_compatible_flag"] = None
+            flag_err = flag_err or "%s: %s" % (type(exc).__name__, exc)
+        out["atlas_flag_error"] = flag_err
+        return out
+
+    def build_gobo_soft(p):
+        return build_gobo(MAT_GOBO_SOFT, CODE_GOBO_SOFT, GOBO_SOFT_INPUTS, GOBO_SOFT_PARAMS, {}, p)
+
+    def build_gobo_slats(p):
+        return build_gobo(MAT_GOBO_SLATS, CODE_GOBO_SLATS, GOBO_SLATS_INPUTS, GOBO_SLATS_PARAMS,
+                          {"Axis": 1.0 if p["g_slat_axis"] == "v" else 0.0}, p)
+
     class EditorAdapter:
         def world_kind(self):
             if editor_sub.get_game_world() is not None:
@@ -1956,7 +2301,8 @@ def make_editor_adapter(unreal):
 
         def build_materials(self, p):
             out = {}
-            for path, fn in ((MAT_BLACK, build_black), (MAT_BREAKUP, build_breakup), (MAT_NOISE, build_noise)):
+            for path, fn in ((MAT_BLACK, build_black), (MAT_BREAKUP, build_breakup), (MAT_NOISE, build_noise),
+                             (MAT_GOBO_SOFT, build_gobo_soft), (MAT_GOBO_SLATS, build_gobo_slats)):
                 out[path] = fn(p)
                 unreal.log("%s_MATERIAL|%s|%s" % (MARK, path, json.dumps(out[path], sort_keys=True)))
             return out
@@ -2242,6 +2588,13 @@ def make_pie_adapter(unreal):
                 comp = get(oid)
                 if field in ("cast_shadows", "cast_volumetric_shadow"):
                     return bool(comp.get_editor_property(field))
+                if field == "light_function_material":                 # LightComponent.h:204-205
+                    m = comp.get_editor_property("light_function_material")
+                    return m.get_path_name() if m else None
+                if field == "light_function_scale":                    # :213-215 (FVector)
+                    return vec(comp.get_editor_property("light_function_scale"))
+                if field in ("light_function_fade_distance", "disabled_brightness"):   # :233-234, :240-241
+                    return float(comp.get_editor_property(field))
                 raise RuntimeError("%s_LIGHT_FIELD|%s" % (MARK, field))
             if kind == "fog":
                 return fog_read(get(oid), field)
@@ -2257,6 +2610,19 @@ def make_pie_adapter(unreal):
                     comp.set_cast_shadows(bool(value))                 # LightComponentBase.h:146
                 elif field == "cast_volumetric_shadow":
                     comp.set_cast_volumetric_shadow(bool(value))       # LightComponentBase.h:153
+                elif field == "light_function_material":
+                    mat = None
+                    if value:                                          # an existing (PREPAREd) asset: load, never create
+                        mat = unreal.find_object(None, value) or unreal.load_object(None, value)
+                        if mat is None:
+                            raise RuntimeError("%s_LF_MATERIAL_MISSING|%s" % (MARK, value))
+                    comp.set_light_function_material(mat)              # LightComponent.h:308-309
+                elif field == "light_function_scale":
+                    comp.set_light_function_scale(unreal.Vector(*[float(x) for x in value]))   # :311-312
+                elif field == "light_function_fade_distance":
+                    comp.set_light_function_fade_distance(float(value))                       # :314-315
+                elif field == "disabled_brightness":
+                    comp.set_light_function_disabled_brightness(float(value))                 # :317-318
                 else:
                     raise RuntimeError("%s_LIGHT_FIELD|%s" % (MARK, field))
             elif kind == "fog":

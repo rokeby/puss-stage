@@ -12,7 +12,8 @@ and three numbers:
 Verdict "TEXTURED" when tex >= textured_ratio x base AND beam >= keep_brightness x base (beam_texture_bench.
 texture_verdict). The base tile is the failing control: base vs itself = ratio 1.00 -> never TEXTURED.
 Notes from the run's plan are printed on the tile (occlusion verdict, occluder shown, D escalated / no-op, beam
-unstruck, beam not in shot, held failures). Writes beam_texture_bench_contact_sheet.png / .json into the run dir.
+unstruck, beam not in shot, held failures; on G / GS "fog LF on n/n" = how many stills read the light-function-atlas
+cvars back ON at the shot, and any cvar that DID NOT TAKE). Writes beam_texture_bench_contact_sheet.png / .json into the run dir.
 Never touches Unreal.
 """
 import json
@@ -28,7 +29,8 @@ import beam_texture_bench as btb  # noqa: E402
 SHEET_PNG = "beam_texture_bench_contact_sheet.png"
 SHEET_JSON = "beam_texture_bench_contact_sheet.json"
 TITLES = {"base": "unchanged", "A": "vol. shadows + occluder", "B": "noise fog volume",
-          "BL": "fog clumps (LFV)", "D": "finer fog grid, g 0.7", "AB": "A + B (shadows + noise fog)", "ALL": "A + B + D"}
+          "BL": "fog clumps (LFV)", "D": "finer fog grid, g 0.7", "AB": "A + B (shadows + noise fog)",
+          "G": "soft gobo (light function)", "GS": "soft slats (light function)", "ALL": "A + B + D"}
 
 
 def load_luma(path, width):
@@ -84,6 +86,18 @@ def notes_for(pos, v):
         out.append("D past brief: " + ",".join(n.split(".")[-1] for n in d["escalated"]))
     if v in ("D", "ALL") and d.get("noop"):
         out.append("D no-op: " + ",".join(n.split(".")[-1] for n in d["noop"]))
+    if v in btb.GOBO_VARIANTS:
+        # per still: did the fog's light-function cvars read back ON at the shot? (never assumed)
+        stills = ((pos.get("shots") or {}).get(v) or {}).get("stills") or []
+        on = sum(1 for s in stills if s.get("fog_lf_on"))
+        out.append("fog LF %s %d/%d" % ("on" if stills and on == len(stills) else "OFF", on, len(stills)))
+        g = plan.get(v) or {}
+        if g.get("noop"):
+            out.append("already on: " + ",".join(n.split(".")[-1] for n in g["noop"]))
+        took = ((pos.get("lf_took") or {}).get(v) or {}).get("cvars") or {}
+        lost = [n.split(".")[-1] for n, x in sorted(took.items()) if not x.get("took")]
+        if lost:
+            out.append("DID NOT TAKE: " + ",".join(lost))
     held = (pos.get("held") or {}).get(v)
     if held:
         out.append("HELD FAIL %d" % len(held))
