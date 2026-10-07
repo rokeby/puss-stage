@@ -474,3 +474,93 @@ The lid is NOT keyed. Its relative Roll is the hinge, so Sequencer keys Rotation
    - then queue SavedMasterMatchesShow + SceneCutBindingsResolve after a run-id marker.
 8. Undo: CLAM_REVERT `"confirm":"CLAM_REVERT S3PROPS"` → `S3CLAM_REVERT_OK`. Assets stay. Zero any keyed lid roll
    before reverting.
+
+## Pearl v2 — iridescence + less spherical (7 Oct late, OFFLINE extension; nothing run in Unreal)
+
+Gary, 7 Oct, in his words: the pearl "needs to be more iridescent, and slightly less perfectly spherical". The
+Blender session delivered `SM_PearlClam_Pearl_v2.fbx` and `T_PearlClam_Pearl_Nacre.png`, and the manifest entry
+`parts.SM_PearlClam_Pearl_v2`. The tool (`Saved/CodexConductor/S3Millstone/s3_props_ue.py`) now imports these as
+**new** assets and swaps the placed pearl over to them. The v1 assets stay, and so does every v1 table: CLAM_PARTS,
+CLAM_MATERIALS and TEX_ROLES are unchanged, which the harness check `J1.v1_tables_untouched` asserts. The v2 rows
+live in their own tables, `CLAM_EXTRA_PARTS` / `EXTRA_TEX_ROLES` / `CLAM_EXTRA_MATERIALS` (`s3_props_ue.py:234-256`).
+
+Harness: `TOTAL 459 FAILED 0`. That is the 364 earlier checks, all still passing; 2 automatic rows for the new
+Pearl/Nacre texture set; and 93 new J-checks (`test_s3_props.py:882`).
+
+What each claim rests on:
+- **measured (offline):** the FBX vertices give min (−8.933, −9.000, 0) and max (8.933, 9.000, 17.997) cm, and a
+  centroid of (−0.096, 0.089, 8.906) Blender cm. There is 1 geometry, Z-up, UnitScale 100. The table is checked
+  against the FBX (J1).
+- **measured (offline):** the Nacre PNG is 2048², 8-bit RGB with R=G=B, and its p5/50/95 are 0.18/0.44/0.75,
+  matching the manifest (J4).
+- **declaration-proven:** `FMaterialPixelParameters` has `WorldNormal` and `CameraVector`
+  (UE_5.8 `Engine/Shaders/Private/MaterialTemplate.ush:427/437/447`).
+- **inferred:** that a Custom node compiles when it reads those members on a pixel-only path. Only BUILD_MAT's
+  recompile and the PEARL_MAT_CHECK log scan can prove it.
+- **inferred until IMPORT_MESH:** the Y flip, using the same logic as v1. The bounds and centroid cannot see a Y flip
+  on a near-symmetric pearl (as with v1).
+
+**Material M_PearlClam_Pearl_v2** (create-only; nodes are never deleted; DefaultLit, Nanite usage, Max WPO 5 cm).
+The spec is at `s3_props_ue.py:789`.
+- **Phase.** `phase = pow(1 − saturate(N·V), FresnelExponent) * IridScale + Nacre.R * NacreScale`. This is the
+  Custom node IridPhase. The exponent is an MI parameter.
+- **Colour.** `pal = saturate(a + b·cos(2π(c·phase + d)))`, then `BaseColor = lerp(base (0.86,0.83,0.78), pal,
+  IridStrength)`.
+- **Defaults.**
+  - Palette: a 0.78, b 0.22, c 1, d (0, 0.33, 0.67).
+  - Iridescence: IridStrength 0.65, IridScale 1.2, NacreScale 0.5, FresnelExponent 1.5.
+  - Mirror checks: the hue cycles through all three channels, the colour stays pale (minimum channel > 0.5), and
+    facing differs from grazing by > 0.08 (J5).
+- **Emissive.** `Glow * lerp(GlowColor, iridColour, GlowIrid 0.35)`. Glow defaults to 0, so it is off by default
+  (B07).
+- **Specular** 0.6.
+- **Roughness** `saturate(0.15 + (Nacre − 0.44) * 0.08)`, which gives 0.13–0.17 over p5–p95.
+- **WPO** is identical to v1: same node, same edges, BreathAmp 0, BreathPeriod 5 (J5 parity check). There are no
+  ClearCoat pins.
+- **MI_PearlClam_Pearl_v2** has explicit values Glow 0, BreathAmp 0, BreathPeriod 5 (the same as v1) and Nacre = the
+  texture.
+- **Not done:** the optional world-space noise. It was left out to keep compile risk at one Custom node family. The
+  nacre already varies the phase.
+
+**PEARL_SWAP** (`run_pearl_swap`, `s3_props_ue.py:2855`; plan `pearl_swap_plan`, `:1460`):
+1. Refuses unless the target is exactly today's CLAM_APPLY pearl:
+   - label "S3 PearlClam Pearl";
+   - path == record `StaticMeshActor_513`, and parent == the record's Bottom;
+   - v1 mesh, and v1 MI as both material 0 and the sole override;
+   - relative transform == the record within 0.05 cm;
+   - WPO evaluation on;
+   - the v2 mesh + MI exist and the v2 slot is `M_PearlClam_Pearl`;
+   - no `*Material*` track on the actor in LS_Clams / LS_DevScene_03 / LS_S3_HangarRise. Unreadable counts as a
+     refusal; the arg `pearl_swap.allow_material_tracks` overrides it.
+2. Writes the record FIRST (`s3_pearl_swap_record.json`: the old mesh + MI paths and the full before/after state).
+3. Takes a backup at `Backups/PreS3PearlSwap-<run>` (umap + rise + record).
+4. `modify()` on the actor and component, then `set_static_mesh` and `set_material(0)`.
+5. Reads back mesh / materials / overrides / relative + world transform / hidden / WPO / parent.
+6. Saves the map only (census-exact), then reads back again.
+7. Prints the marker `S3PEARL_SWAP_OK`.
+
+The relative transform is kept. The v2 rest z is 35.65 against 35.64; the +0.01 cm is not applied. **PEARL_UNSWAP**
+refuses on drift from the swapped state and restores the before state exactly → `S3PEARL_UNSWAP_OK`. CLAM_REVERT
+refuses while a swap record exists (`PEARL_SWAPPED`, `:395`). The swap/unswap glue is **inferred**: only the pure plan,
+ops and read-back gate are harness-tested (J6/J7). `c.get_num_materials()` and the `override_materials` read are
+untested in this editor.
+
+**Run order (one MCP call each; grep the marker WITH the run id; editor not in PIE; census 0+0):**
+
+0. Offline: `python Saved/CodexConductor/S3Millstone/test_s3_props.py` → `TOTAL 459 FAILED 0`.
+1. IMPORT_MESH `{"mode":"IMPORT_MESH","confirm":"IMPORT_MESH S3PROPS","prop":"PearlClam","part":"Pearl_v2"}` →
+   `S3PROPS_IMPORT_MESH_OK` (mesh …/PearlClam/SM_PearlClam_Pearl_v2).
+2. IMPORT_TEX `{"mode":"IMPORT_TEX","confirm":"IMPORT_TEX S3PROPS","prop":"PearlClam","tex_set":"Pearl","textures":["Nacre"]}`
+   → `S3PROPS_IMPORT_TEX_PENDING`.
+3. VERIFY_TEX `{"mode":"VERIFY_TEX","confirm":"VERIFY_TEX S3PROPS"}` → `S3PROPS_VERIFY_TEX_OK` with size [2048, 2048].
+   If it reads 32×32, repeat it later.
+4. BUILD_MAT `{"mode":"BUILD_MAT","confirm":"BUILD_MAT S3PROPS","prop":"PearlClam","material":"Pearl_v2"}` →
+   `S3PROPS_BUILD_MAT_OK` (master_created=True).
+5. Wait about 20 s. Then PEARL_MAT_CHECK `{"mode":"PEARL_MAT_CHECK","run":"<id>"}` → `S3PEARL_MAT_CHECK_OK`. It is
+   read-only: it re-reads the params and scans the newest editor log for "Failed to compile"/error lines naming the
+   v2 material.
+6. PEARL_SWAP `{"mode":"PEARL_SWAP","confirm":"PEARL_SWAP S3PROPS","run":"<id>"}` → `S3PEARL_SWAP_OK`. Then:
+   - PIE past the landing and look at the pearl (iridescence, shape). Gary tunes the MI params by hand.
+   - Queue SavedMasterMatchesShow after a run-id marker.
+7. Undo: PEARL_UNSWAP `{"mode":"PEARL_UNSWAP","confirm":"PEARL_UNSWAP S3PROPS"}` → `S3PEARL_UNSWAP_OK`. The v2 assets
+   stay.

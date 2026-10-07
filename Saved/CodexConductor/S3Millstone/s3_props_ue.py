@@ -56,6 +56,16 @@ Modes (every write mode: confirm string, no PIE, editor world = the show level, 
                propagate to attached actors); the Fab stand-ins hidden at component level, recorded per component.
                Lid NOT keyed: its relative Roll is the hinge.  Marker S3CLAM_APPLY_OK.
   CLAM_REVERT  exact restore from s3_pearlclam_apply_record.json.  Marker S3CLAM_REVERT_OK.
+  --- 7 Oct late: Pearl v2 (Gary: "more iridescent, slightly less perfectly spherical"; written OFFLINE, never run) ---
+  IMPORT_MESH  prop "PearlClam" part "Pearl_v2" -> NEW SM_PearlClam_Pearl_v2 (v1 kept); bounds gate per the manifest
+               v2 entry, same Y-flip logic; normals recomputed off (no custom normals), vertex colours IGNORE.
+  IMPORT_TEX   prop "PearlClam" tex_set "Pearl" textures ["Nacre"] (TC_MASKS, sRGB off) -> VERIFY_TEX as usual.
+  BUILD_MAT    prop "PearlClam" material "Pearl_v2": create-only M_PearlClam_Pearl_v2 + MI_PearlClam_Pearl_v2
+               (cosine-palette thin-film hue shift over the v1 base; same BreathAmp WPO as v1, default 0).
+  PEARL_MAT_CHECK  read-only, a LATER call: v2 params read back + the editor log scanned for compile failures.
+  PEARL_SWAP   record first, backup, set "S3 PearlClam Pearl" mesh -> v2 and material 0 -> MI v2, relative
+               transform kept, map-only save, read back.  Marker S3PEARL_SWAP_OK.  PEARL_UNSWAP restores exactly
+               (S3PEARL_UNSWAP_OK).  CLAM_REVERT refuses while a swap record exists.
   The tool refuses PIE.  In PIE get_editor_world() is None and EditorAssetLibrary.load_asset returns None
   [meas 7 Oct]: every load here is unreal.load_asset, and any future PIE path must keep it so.
 
@@ -217,6 +227,38 @@ CLAM_DEFAULTS = {
     "lid_open_deg": 80.0,
 }
 
+# ------------------------------------------------------------------ Pearl v2 (Gary 7 Oct: "more iridescent, slightly less
+# perfectly spherical").  Kept OUT of CLAM_PARTS / CLAM_MATERIALS / TEX_ROLES on purpose: those tables drive CLAM_APPLY
+# and the classic props, which must not change.  Bounds/centroid = BLENDER cm from the FBX vertices [meas offline,
+# fbx_top_measure.parse; the harness re-reads the FBX]; UE expectation = Y flipped (same logic as v1) [inf until import].
+PEARL_V2 = "Pearl_v2"
+CLAM_EXTRA_PARTS = {
+    PEARL_V2: {"min_b": [-8.933, -9.0, 0.0], "max_b": [8.933, 9.0, 17.997], "centroid_b": [-0.096, 0.089, 8.906],
+               "slots": ["M_PearlClam_Pearl"], "vc": False, "parent": "Bottom", "custom_normals": False,
+               "manifest_key": "SM_PearlClam_Pearl_v2", "tris": 65024, "place_at_cm": [0.0, 0.0, 35.65]},
+}
+EXTRA_TEX_ROLES = {"Nacre": ("_Nacre", "TC_MASKS", False, False, "SAMPLERTYPE_MASKS")}   # linear grey, sample .R
+ROLE_SPEC = dict(TEX_ROLES, **EXTRA_TEX_ROLES)
+CLAM_TEX["Pearl"] = {"Nacre": 2048}            # T_PearlClam_Pearl_Nacre.png 2048^2 [meas IHDR]; v2 UVs only
+NACRE_MEDIAN = 0.44                            # manifest p50 (p5/p95 0.18/0.75) [meas offline, PIL]
+PEARL_V2_MASTER = CLAM_FOLDER + "/M_PearlClam_Pearl_v2"
+CLAM_EXTRA_MATERIALS = {
+    PEARL_V2: {"mi": "MI_PearlClam_Pearl_v2", "master": PEARL_V2_MASTER, "tex_set": "Pearl",
+               "scalars": {"Glow": 0.0, "BreathAmp": 0.0, "BreathPeriod": 5.0}, "vectors": {}},   # == v1 MI explicit
+}
+PEARL_SWAP_RECORD = HERE + "s3_pearl_swap_record.json"
+BACKUP_ROOT_PEARL = PROJECT + "Backups/PreS3PearlSwap-"
+
+
+def clam_part_row(part):
+    _req(part in CLAM_PARTS or part in CLAM_EXTRA_PARTS, "CLAM_PART|%r" % part)
+    return CLAM_PARTS.get(part) or CLAM_EXTRA_PARTS[part]
+
+
+def clam_material_row(key):
+    _req(key in CLAM_MATERIALS or key in CLAM_EXTRA_MATERIALS, "CLAM_MATERIAL|%r" % key)
+    return CLAM_MATERIALS.get(key) or CLAM_EXTRA_MATERIALS[key]
+
 
 class PlanError(ValueError):
     pass
@@ -299,7 +341,7 @@ def tex_source_check(name, role):
     return {"file": p["file"], "w": w, "h": h, "depth": depth, "colour_type": ctype}
 
 
-READ_ONLY_MODES = ("DRY", "CLAM_DRY")
+READ_ONLY_MODES = ("DRY", "CLAM_DRY", "PEARL_MAT_CHECK")
 
 
 def gate_census(census, mode, pending_asset=None):
@@ -315,10 +357,11 @@ def gate_census(census, mode, pending_asset=None):
 
 
 MODES = ("DRY", "IMPORT_MESH", "IMPORT_TEX", "VERIFY_TEX", "BUILD_MAT", "APPLY", "REVERT", "PLACE", "UNPLACE",
-         "CLAM_DRY", "CLAM_APPLY", "CLAM_REVERT")
+         "CLAM_DRY", "CLAM_APPLY", "CLAM_REVERT", "PEARL_MAT_CHECK", "PEARL_SWAP", "PEARL_UNSWAP")
 
 
-def check_mode(args, apply_record_exists, place_record_exists, tex_pending_exists=False, clam_record_exists=False):
+def check_mode(args, apply_record_exists, place_record_exists, tex_pending_exists=False, clam_record_exists=False,
+               pearl_swap_exists=False):
     mode = str(args.get("mode", "DRY")).upper()
     _req(mode in MODES, "MODE|%s" % mode)
     if mode not in READ_ONLY_MODES:
@@ -330,15 +373,26 @@ def check_mode(args, apply_record_exists, place_record_exists, tex_pending_exist
         _req(args.get("prop") in PROPS or args.get("prop") == CLAM, "PROP|%r" % args.get("prop"))
         if args.get("prop") == CLAM:
             if mode == "IMPORT_MESH":
-                _req(args.get("part") in CLAM_PARTS, "CLAM_PART|%r" % args.get("part"))
+                _req(args.get("part") in CLAM_PARTS or args.get("part") in CLAM_EXTRA_PARTS,
+                     "CLAM_PART|%r" % args.get("part"))
             if mode == "IMPORT_TEX":
                 _req(args.get("tex_set") in CLAM_TEX, "CLAM_TEX_SET|%r" % args.get("tex_set"))
             if mode == "BUILD_MAT":
-                _req(args.get("material") in CLAM_MATERIALS, "CLAM_MATERIAL|%r" % args.get("material"))
+                _req(args.get("material") in CLAM_MATERIALS or args.get("material") in CLAM_EXTRA_MATERIALS,
+                     "CLAM_MATERIAL|%r" % args.get("material"))
     if mode == "IMPORT_TEX":
         roles = args.get("textures")
-        _req(isinstance(roles, list) and len(roles) == 1 and roles[0] in TEX_ROLES,
+        _req(isinstance(roles, list) and len(roles) == 1 and roles[0] in ROLE_SPEC,
              "ONE_TEXTURE_PER_CALL|textures=%r (live 7 Oct: multi-file imports go one asset per call)" % roles)
+        if args.get("prop") == CLAM:
+            _req(roles[0] in CLAM_TEX[args["tex_set"]], "ROLE_NOT_IN_SET|%s|%s" % (args["tex_set"], roles[0]))
+        else:
+            _req(roles[0] in TEX_ROLES, "ROLE|%s" % roles[0])
+    _req(not (mode in ("PEARL_SWAP", "PEARL_UNSWAP") and not clam_record_exists),
+         "NO_CLAM_RECORD|the clam must be applied before a pearl swap")
+    _req(not (mode == "PEARL_SWAP" and pearl_swap_exists), "PEARL_ALREADY_SWAPPED|" + PEARL_SWAP_RECORD)
+    _req(not (mode == "PEARL_UNSWAP" and not pearl_swap_exists), "NO_PEARL_SWAP_RECORD")
+    _req(not (mode == "CLAM_REVERT" and pearl_swap_exists), "PEARL_SWAPPED|run PEARL_UNSWAP before CLAM_REVERT")
     _req(not (mode == "APPLY" and apply_record_exists), "ALREADY_APPLIED|" + APPLY_RECORD)
     _req(not (mode == "REVERT" and not apply_record_exists), "NO_APPLY_RECORD")
     _req(not (mode == "PLACE" and place_record_exists), "ALREADY_PLACED|" + PLACE_RECORD)
@@ -669,6 +723,16 @@ PEARL_BREATH_CODE = "return float3(0.0, 0.0, A * (0.5 - 0.5 * cos(6.2831853 * T 
 PEARL_COLOR_CODE = "return lerp(B.rgb, B.rgb * lerp(W.rgb, C.rgb, F), saturate(K));"
 GLOW_CODE = "return G * GC.rgb;"
 MAX_WPO_CM = 5.0     # Material.h:1214-1220 [decl]: clamps WPO per axis AND extends Nanite culling bounds
+# v2 thin-film-style hue shift.  Parameters.WorldNormal / Parameters.CameraVector are FMaterialPixelParameters members
+# (UE_5.8 Engine/Shaders/Private/MaterialTemplate.ush:427 struct, :437 WorldNormal, :447 CameraVector [decl]); that a
+# Custom node may read them in a pixel-only path is [inf] (common practice; proven only by the BUILD_MAT recompile +
+# PEARL_MAT_CHECK log scan).  Fresnel is computed here so its exponent is an MI parameter (no Fresnel pin names needed).
+IRID_PHASE_CODE = ("float f = pow(1.0 - saturate(dot(normalize(Parameters.WorldNormal), "
+                   "normalize(Parameters.CameraVector))), max(E, 0.01)); return f * S + N * K;")
+IRID_COLOR_CODE = ("float3 pal = saturate(PA.rgb + PB.rgb * cos(6.2831853 * (PC.rgb * P + PD.rgb))); "
+                   "return lerp(B.rgb, pal, saturate(S));")
+IRID_GLOW_CODE = "return G * lerp(GC.rgb, I, saturate(K));"
+IRID_ROUGH_CODE = "return saturate(R + (N - %.2f) * V);" % NACRE_MEDIAN
 
 
 def material_specs():
@@ -706,7 +770,42 @@ def material_specs():
              "want_props": {"MP_BASE_COLOR", "MP_ROUGHNESS", "MP_SPECULAR", "MP_EMISSIVE_COLOR",
                             "MP_WORLD_POSITION_OFFSET"},
              "tex_params": {}, "scalars": ps, "vectors": pv, "max_wpo": MAX_WPO_CM}
-    return {MASTER: base, MASTER_BREATHE: breathe, PEARL_MASTER: pearl}
+    # v2: palette a + b cos(2 pi (c phase + d)); a/b chosen so the shift is visible but stays pale (0.56..1.0 per
+    # channel); d = (0, 1/3, 2/3) walks the full thin-film hue cycle.  Gary tunes every value on the MI.
+    v2v = {"BaseColor": [0.86, 0.83, 0.78, 1.0], "PaletteA": [0.78, 0.78, 0.78, 1.0],
+           "PaletteB": [0.22, 0.22, 0.22, 1.0], "PaletteC": [1.0, 1.0, 1.0, 1.0], "PaletteD": [0.0, 0.33, 0.67, 1.0],
+           "GlowColor": [1.0, 0.93, 0.88, 1.0]}
+    v2s = {"IridStrength": 0.65, "IridScale": 1.2, "NacreScale": 0.5, "FresnelExponent": 1.5, "Roughness": 0.15,
+           "RoughnessNacre": 0.08, "Specular": 0.6, "Glow": 0.0, "GlowIrid": 0.35, "BreathAmp": 0.0,
+           "BreathPeriod": 5.0}
+    vn = {k: ("vector", v) for k, v in v2v.items()}
+    vn.update({k: ("scalar", v) for k, v in v2s.items()})
+    vn.update({"Nacre": ("texture", "Nacre"), "Time": ("time", None),
+               "IridPhase": ("custom", (IRID_PHASE_CODE, ["E", "S", "N", "K"], "F1")),
+               "IridColor": ("custom", (IRID_COLOR_CODE, ["B", "PA", "PB", "PC", "PD", "P", "S"], "F3")),
+               "GlowEmissive": ("custom", (IRID_GLOW_CODE, ["G", "GC", "I", "K"], "F3")),
+               "PearlRough": ("custom", (IRID_ROUGH_CODE, ["R", "N", "V"], "F1")),
+               "PearlWPO": ("custom", (PEARL_BREATH_CODE, ["A", "T", "P"], "F3"))})      # == v1 (parity)
+    pearl_v2 = {"nodes": vn,
+                "edges": [("FresnelExponent", "", "IridPhase", "E"), ("IridScale", "", "IridPhase", "S"),
+                          ("Nacre", "R", "IridPhase", "N"), ("NacreScale", "", "IridPhase", "K"),
+                          ("BaseColor", "", "IridColor", "B"), ("PaletteA", "", "IridColor", "PA"),
+                          ("PaletteB", "", "IridColor", "PB"), ("PaletteC", "", "IridColor", "PC"),
+                          ("PaletteD", "", "IridColor", "PD"), ("IridPhase", "", "IridColor", "P"),
+                          ("IridStrength", "", "IridColor", "S"),
+                          ("Glow", "", "GlowEmissive", "G"), ("GlowColor", "", "GlowEmissive", "GC"),
+                          ("IridColor", "", "GlowEmissive", "I"), ("GlowIrid", "", "GlowEmissive", "K"),
+                          ("Roughness", "", "PearlRough", "R"), ("Nacre", "R", "PearlRough", "N"),
+                          ("RoughnessNacre", "", "PearlRough", "V"),
+                          ("BreathAmp", "", "PearlWPO", "A"), ("Time", "", "PearlWPO", "T"),
+                          ("BreathPeriod", "", "PearlWPO", "P")],
+                "props": [("IridColor", "", "MP_BASE_COLOR"), ("PearlRough", "", "MP_ROUGHNESS"),
+                          ("Specular", "", "MP_SPECULAR"), ("GlowEmissive", "", "MP_EMISSIVE_COLOR"),
+                          ("PearlWPO", "", "MP_WORLD_POSITION_OFFSET")],
+                "want_props": {"MP_BASE_COLOR", "MP_ROUGHNESS", "MP_SPECULAR", "MP_EMISSIVE_COLOR",
+                               "MP_WORLD_POSITION_OFFSET"},
+                "tex_params": {"Nacre": "Nacre"}, "scalars": v2s, "vectors": v2v, "max_wpo": MAX_WPO_CM}
+    return {MASTER: base, MASTER_BREATHE: breathe, PEARL_MASTER: pearl, PEARL_V2_MASTER: pearl_v2}
 
 
 def material_problems(specs=None):
@@ -723,8 +822,10 @@ def material_problems(specs=None):
             p.append("MAX_WPO_TABLE")
         if p:
             out[path] = p
-    for key, m in CLAM_MATERIALS.items():
+    for key, m in list(CLAM_MATERIALS.items()) + list(CLAM_EXTRA_MATERIALS.items()):
         s = (specs or material_specs()).get(m["master"])
+        if s is not None and m["tex_set"] and set(s["tex_params"].values()) != set(CLAM_TEX.get(m["tex_set"], {})):
+            out.setdefault(key, []).append("TEX_SET_ROLES|%s|%s" % (m["tex_set"], sorted(s["tex_params"].values())))
         if s is None:
             out.setdefault(key, []).append("MASTER_UNKNOWN")
             continue
@@ -750,23 +851,50 @@ def pearl_color_eval(b, w, c, f, k):
     return [b[i] + (b[i] * (w[i] + (c[i] - w[i]) * f) - b[i]) * k for i in range(3)]
 
 
+def _sat(x):
+    return min(1.0, max(0.0, x))
+
+
+def irid_phase_eval(ndotv, e, s, n, k):
+    """Python mirror of IRID_PHASE_CODE (ndotv = dot(N, V) of unit vectors)."""
+    return (1.0 - _sat(ndotv)) ** max(e, 0.01) * s + n * k
+
+
+def palette_eval(a, b, c, d, t):
+    return [_sat(a[i] + b[i] * math.cos(2.0 * math.pi * (c[i] * t + d[i]))) for i in range(3)]
+
+
+def irid_color_eval(base, a, b, c, d, phase, strength):
+    """Python mirror of IRID_COLOR_CODE."""
+    pal = palette_eval(a, b, c, d, phase)
+    k = _sat(strength)
+    return [base[i] + (pal[i] - base[i]) * k for i in range(3)]
+
+
+def irid_rough_eval(r, n, v):
+    """Python mirror of IRID_ROUGH_CODE."""
+    return _sat(r + (n - NACRE_MEDIAN) * v)
+
+
 # ============================================================================================ PearlClam (pure)
 def clam_mesh_path(part):
     return CLAM_FOLDER + "/SM_PearlClam_" + part
 
 
 def clam_mi_path(material):
-    return CLAM_FOLDER + "/" + CLAM_MATERIALS[material]["mi"]
+    return CLAM_FOLDER + "/" + clam_material_row(material)["mi"]
 
 
 def tex_target(prop, tex_set, role):
     """One texture's source file / asset / expected size, for the classic props and the clam sets."""
-    _req(role in TEX_ROLES, "ROLE|%r" % role)
+    _req(role in ROLE_SPEC, "ROLE|%r" % role)
     if prop == CLAM:
         _req(tex_set in CLAM_TEX, "CLAM_TEX_SET|%r" % tex_set)
-        name = "T_PearlClam_%s%s" % (tex_set, TEX_ROLES[role][0])
+        _req(role in CLAM_TEX[tex_set], "ROLE_NOT_IN_SET|%s|%s" % (tex_set, role))
+        name = "T_PearlClam_%s%s" % (tex_set, ROLE_SPEC[role][0])
         return {"file": CLAM_DIR + name + ".png", "asset": CLAM_FOLDER + "/" + name, "name": name,
                 "folder": CLAM_FOLDER, "dim": CLAM_TEX[tex_set][role], "label": "%s_%s" % (tex_set, role), "prop": CLAM}
+    _req(role in TEX_ROLES, "ROLE|%r" % role)
     p = prop_paths(prop)["tex"][role]
     return dict(p, folder=prop_paths(prop)["folder"], dim=PROPS[prop]["tex_dim"][role], label=role, prop=prop)
 
@@ -811,7 +939,7 @@ def pipeline_wanted(vc_option=None, normals_from_file=False):
 def clam_vc_option(part):
     """Mantle: REPLACE (BreathMask R).  Others IGNORE: the v2 Bottom/Lid FBX carry an undeclared 'LipGrad' colour
     layer [meas: FBX LayerElementColor, 7 Oct 18:15] that no material reads (header: Ignore = drop source colours)."""
-    return "IVCIO_REPLACE" if CLAM_PARTS[part]["vc"] else "IVCIO_IGNORE"
+    return "IVCIO_REPLACE" if clam_part_row(part)["vc"] else "IVCIO_IGNORE"
 
 
 def pipeline_problems(rows, part):
@@ -820,7 +948,7 @@ def pipeline_problems(rows, part):
     probs = []
     if d.get(("common", "recompute_normals")) is not False:
         probs.append("RECOMPUTE_NORMALS_ON|%s" % part)
-    if CLAM_PARTS[part]["custom_normals"] and d.get(("common", "use_mikk_t_space")) is not True:
+    if clam_part_row(part)["custom_normals"] and d.get(("common", "use_mikk_t_space")) is not True:
         probs.append("MIKKT_OFF|%s" % part)
     if d.get(("common", "vertex_color_import_option")) != clam_vc_option(part):
         probs.append("VC_OPTION|%s|%s" % (part, d.get(("common", "vertex_color_import_option"))))
@@ -836,7 +964,7 @@ def flip_y(v):
 
 def clam_expected_ue(part, flipped=True, mirror_x=False):
     """Expected UE bounds / centroid of a part from its Blender numbers.  Default hypothesis: UE = (x, -y, z)."""
-    p = CLAM_PARTS[part]
+    p = clam_part_row(part)
     mn, mx, c = list(p["min_b"]), list(p["max_b"]), list(p["centroid_b"])
     if flipped:
         mn, mx, c = [mn[0], -mx[1], mn[2]], [mx[0], -mn[1], mx[2]], flip_y(c)
@@ -846,7 +974,7 @@ def clam_expected_ue(part, flipped=True, mirror_x=False):
 
 
 def clam_bounds_tol(part):
-    p = CLAM_PARTS[part]
+    p = clam_part_row(part)
     return 0.3 if max(p["max_b"][i] - p["min_b"][i] for i in range(3)) < 50.0 else 1.0
 
 
@@ -887,7 +1015,7 @@ def clam_centroid_check(part, got):
 def normals_gate(part, normals, allow_unreadable=False):
     """After import: a custom-normal part must read recompute_normals False (else the FBX normals were discarded).
     Unreadable settings refuse unless allow_unreadable (then the pipeline read-back is the only evidence)."""
-    if not CLAM_PARTS[part]["custom_normals"]:
+    if not clam_part_row(part)["custom_normals"]:
         return []
     if not normals.get("readable"):
         return [] if allow_unreadable else ["NORMALS_UNREADABLE|%s|%s" % (part, normals.get("error"))]
@@ -940,6 +1068,36 @@ def clam_manifest_problems(man):
     lid = parts.get("SM_PearlClam_Lid", {})
     if lid.get("hinge_axis_unit_blender") != [1, 0, 0]:
         probs.append("HINGE_AXIS|%s" % lid.get("hinge_axis_unit_blender"))
+    return probs
+
+
+def pearl_v2_manifest_problems(man):
+    """Pearl_v2 table vs manifest parts.SM_PearlClam_Pearl_v2 (validation_blender_clean_reimport)."""
+    row = CLAM_EXTRA_PARTS[PEARL_V2]
+    m = man.get("parts", {}).get(row["manifest_key"])
+    if m is None:
+        return ["MANIFEST_PART_MISSING|%s" % PEARL_V2]
+    probs = []
+    v = m.get("validation_blender_clean_reimport") or {}
+    size = [row["max_b"][i] - row["min_b"][i] for i in range(3)]
+    if not v or not near(v.get("size_cm", []) or [1e9] * 3, size, 0.06):
+        probs.append("SIZE|%s|%s" % (v.get("size_cm"), size))
+    if abs(float(v.get("min_z_cm", 1e9)) - row["min_b"][2]) > 0.011:
+        probs.append("MIN_Z|%s" % v.get("min_z_cm"))
+    if not near(v.get("xy_centre_cm", [1e9, 1e9]), [0.5 * (row["min_b"][i] + row["max_b"][i]) for i in (0, 1)], 0.02):
+        probs.append("XY_CENTRE|%s" % v.get("xy_centre_cm"))
+    if v.get("identity") is not True or v.get("uv") != ["UVMap"]:
+        probs.append("IDENTITY_OR_UV|%s|%s" % (v.get("identity"), v.get("uv")))
+    if list(v.get("slots", [])) != row["slots"] or list(m.get("slots", [])) != row["slots"]:
+        probs.append("SLOTS|%s|%s" % (v.get("slots"), m.get("slots")))
+    if int(v.get("tris", -1)) != row["tris"]:
+        probs.append("TRIS|%s" % v.get("tris"))
+    if not near(m.get("place_at_cm", [1e9] * 3), row["place_at_cm"], 0.011):
+        probs.append("PLACE_AT|%s" % m.get("place_at_cm"))
+    v1 = man.get("parts", {}).get("SM_PearlClam_Pearl", {}).get("place_at_cm")
+    v2 = m.get("place_at_cm")
+    if not v1 or not v2 or abs(float(v2[2]) - float(v1[2])) > 0.02:
+        probs.append("REST_Z_MOVED|v1=%s|v2=%s (swap keeps the v1 relative transform)" % (v1, m.get("place_at_cm")))
     return probs
 
 
@@ -1292,6 +1450,97 @@ def clam_simulate(world, ops):
                  "SIM_DESTROY_HAS_CHILDREN|%s" % op["actor_path"])
             del w[op["actor_path"]]
     return w
+
+
+# ------------------------------------------------------------------------------- Pearl v2 swap (pure; harness-checkable)
+PEARL_STATE_KEYS = ("label", "object_path", "parent_path", "mesh", "materials", "override_materials", "rel", "world",
+                    "hidden", "wpo_eval")
+
+
+def pearl_swap_plan(clam_record, live, args_swap=None):
+    """live = the placed pearl as read (see _pearl_live).  Refuses unless it is exactly the CLAM_APPLY pearl carrying
+    the v1 mesh + v1 MI, both v2 assets exist with the v1 slot, and no sequence keys a material on it."""
+    a = dict({"allow_material_tracks": False}, **(args_swap or {}))
+    _req(clam_record.get("applied") and clam_record.get("saved"), "CLAM_RECORD_NOT_APPLIED")
+    paths = clam_record.get("actor_paths") or {}
+    _req(live.get("count") == 1, "PEARL_COUNT|%s" % live.get("count"))
+    _req(live["label"] == CLAM_LABELS["Pearl"], "PEARL_LABEL|%s" % live["label"])
+    _req(live["object_path"] == paths.get("Pearl"), "PEARL_PATH|%s vs record %s" % (live["object_path"], paths.get("Pearl")))
+    _req(live["parent_path"] == paths.get("Bottom"), "PEARL_PARENT|%s" % live["parent_path"])
+    v1_mesh, v1_mi = clam_mesh_path("Pearl"), clam_mi_path("Pearl")
+    v2_mesh, v2_mi = clam_mesh_path(PEARL_V2), clam_mi_path(PEARL_V2)
+    _req(live["mesh"] == v1_mesh, "PEARL_MESH_NOT_V1|%s" % live["mesh"])
+    _req(live["materials"] == [v1_mi], "PEARL_MATERIALS_NOT_V1|%s" % live["materials"])
+    _req(live["override_materials"] == [v1_mi], "PEARL_OVERRIDES|%s" % live["override_materials"])
+    _req(live["assets"].get(v2_mesh) and live["assets"].get(v2_mi), "V2_ASSETS_MISSING|%s" % live["assets"])
+    _req(live.get("v2_slots") == CLAM_EXTRA_PARTS[PEARL_V2]["slots"], "V2_SLOTS|%s" % live.get("v2_slots"))
+    rec_rel = clam_record["plan"]["parts"]["Pearl"]["rel"]
+    _req(near(live["rel"]["location"], rec_rel["location"], TOL_CM) and near(live["rel"]["rotation"], rec_rel["rotation"], 0.01)
+         and near(live["rel"]["scale"], [1, 1, 1], 1e-6), "PEARL_REL_DRIFT|%s vs %s" % (live["rel"], rec_rel))
+    _req(live["wpo_eval"] is True, "PEARL_WPO_EVAL_OFF")
+    tracks = live.get("tracks")
+    _req(isinstance(tracks, dict) and tracks and not any(v == "UNREAD" for v in tracks.values()),
+         "PEARL_TRACKS_UNREAD|%s" % tracks)
+    mat_tracks = sorted({t for v in tracks.values() if v for t in v if "Material" in t})
+    _req(not mat_tracks or a["allow_material_tracks"], "PEARL_MATERIAL_TRACKS|%s (a keyed MI would be orphaned)" % mat_tracks)
+    before = {k: json.loads(json.dumps(live[k])) for k in PEARL_STATE_KEYS}
+    after = dict(json.loads(json.dumps(before)), mesh=v2_mesh, materials=[v2_mi], override_materials=[v2_mi])
+    return {"object_path": live["object_path"], "before": before, "after": after, "tracks": tracks,
+            "material_tracks": mat_tracks, "args": a,
+            "note": "relative transform kept (v2 manifest rest z 35.65 vs v1 35.64: +0.01 cm not applied)"}
+
+
+def pearl_swap_ops(plan):
+    return [{"op": "set_mesh_material", "object_path": plan["object_path"], "mesh": plan["after"]["mesh"],
+             "material0": plan["after"]["materials"][0]}]
+
+
+def pearl_unswap_ops(record):
+    p = record["plan"]
+    _req(len(p["before"]["materials"]) == 1, "UNSWAP_SLOTS|%s" % p["before"]["materials"])
+    return [{"op": "set_mesh_material", "object_path": p["object_path"], "mesh": p["before"]["mesh"],
+             "material0": p["before"]["materials"][0]}]
+
+
+def pearl_state_problems(live, want):
+    """[] when the live pearl equals the wanted state (paths exact, transforms within TOL_CM / 0.01 deg)."""
+    probs = []
+    for k in ("label", "object_path", "parent_path", "mesh", "materials", "override_materials", "hidden", "wpo_eval"):
+        if live.get(k) != want.get(k):
+            probs.append("%s|got=%s|want=%s" % (k.upper(), live.get(k), want.get(k)))
+    for k, tol in (("location", TOL_CM), ("rotation", 0.01), ("scale", 1e-6)):
+        for frame in ("rel", "world"):
+            g, w = live[frame][k], want[frame][k]
+            if k == "rotation":
+                g, w = [_wrap(x) for x in g], [_wrap(x) for x in w]
+            if not near(g, w, tol):
+                probs.append("%s_%s|got=%s|want=%s" % (frame.upper(), k.upper(), live[frame][k], want[frame][k]))
+    return probs
+
+
+def pearl_simulate(world, ops):
+    w = json.loads(json.dumps(world))
+    for op in ops:
+        _req(op["op"] == "set_mesh_material" and op["object_path"] in w, "SIM_PEARL_TARGET|%s" % op.get("object_path"))
+        w[op["object_path"]].update(mesh=op["mesh"], materials=[op["material0"]], override_materials=[op["material0"]])
+    return w
+
+
+def compile_log_problems(lines, names):
+    """Log lines naming one of `names` that report a compile failure / error (our own S3PROPS_ markers excluded),
+    plus unattributed 'Failed to compile' lines (reported, not gated: [inf] UE names the material on that line)."""
+    named, unattributed = [], []
+    for ln in lines:
+        if "S3PROPS_" in ln or "S3PEARL_" in ln:
+            continue
+        bad = "Failed to compile" in ln or re.search(r"\berror\b", ln, re.I) is not None
+        if not bad:
+            continue
+        if any(n in ln for n in names):
+            named.append(ln.strip()[:400])
+        elif "Failed to compile" in ln:
+            unattributed.append(ln.strip()[:400])
+    return named, unattributed
 
 
 def rough_eval(r, mult, override):
@@ -1909,7 +2158,7 @@ def run_import_tex(run, args):
     unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks([task])
     new = sorted(_folder_assets(t["folder"]) - before)
     _req(new == [t["asset"]], "STRAY_OR_MISSING|got=%s|want=%s" % (new, [t["asset"]]))
-    _suffix, comp, srgb, flip, _sampler = TEX_ROLES[role]
+    _suffix, comp, srgb, flip, _sampler = ROLE_SPEC[role]
     tex = unreal.load_asset(t["asset"])
     _req(isinstance(tex, unreal.Texture2D), "TEX_LOAD|%s" % role)
     tex.modify()
@@ -1984,9 +2233,12 @@ def run_import_clam_part(run, part, args):
     for k, v in (("filename", fbx), ("destination_path", CLAM_FOLDER), ("destination_name", name),
                  ("automated", True), ("replace_existing", False), ("save", False)):
         task.set_editor_property(k, v)
-    plan_rows = pipeline_wanted(clam_vc_option(part), CLAM_PARTS[part]["custom_normals"])
+    row = clam_part_row(part)
+    if part in CLAM_EXTRA_PARTS:
+        _req(not pearl_v2_manifest_problems(man), "MANIFEST_V2|%s" % pearl_v2_manifest_problems(man))
+    plan_rows = pipeline_wanted(clam_vc_option(part), row["custom_normals"])
     _req(not pipeline_problems(plan_rows, part), "PIPELINE_PLAN|%s" % pipeline_problems(plan_rows, part))
-    ov, settings = _pipeline(name, vc_option=clam_vc_option(part), normals_from_file=CLAM_PARTS[part]["custom_normals"])
+    ov, settings = _pipeline(name, vc_option=clam_vc_option(part), normals_from_file=row["custom_normals"])
     task.set_editor_property("options", ov)
     unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks([task])
     mesh = unreal.load_asset(path)
@@ -1996,7 +2248,7 @@ def run_import_clam_part(run, part, args):
     _req(mesh.get_num_lods() == 1, "LODS|%d" % mesh.get_num_lods())
     _req(bool(mesh.get_editor_property("nanite_settings").get_editor_property("enabled")), "NANITE_OFF")
     slots = [str(m.get_editor_property("material_slot_name")) for m in mesh.get_editor_property("static_materials")]
-    _req(slots == CLAM_PARTS[part]["slots"], "SLOTS|%s|want %s" % (slots, CLAM_PARTS[part]["slots"]))
+    _req(slots == row["slots"], "SLOTS|%s|want %s" % (slots, row["slots"]))
     bb = mesh.get_bounding_box()
     got = {"min": _v(bb.min), "max": _v(bb.max)}
     fails = clam_bounds_check(part, got)
@@ -2016,7 +2268,7 @@ def run_import_clam_part(run, part, args):
         normals["error"] = str(exc)[:200]
     _req(normals_gate(part, normals, bool(args.get("allow_unreadable_normals"))) == [],
          "NORMALS|%s" % normals_gate(part, normals, bool(args.get("allow_unreadable_normals"))))
-    if CLAM_PARTS[part]["vc"]:
+    if row["vc"]:
         _req(has_vc, "VERTEX_COLORS_MISSING|%s (BreathMask R must survive the import)" % part)
     centroid = None
     if args.get("centroid_gate", True):
@@ -2060,7 +2312,7 @@ def _build_material(path, spec, textures):
             _req(n is not None, "NODE|" + key)
             n.set_editor_property("parameter_name", key)
             n.set_editor_property("texture", textures[v])
-            n.set_editor_property("sampler_type", getattr(unreal.MaterialSamplerType, TEX_ROLES[v][4]))
+            n.set_editor_property("sampler_type", getattr(unreal.MaterialSamplerType, ROLE_SPEC[v][4]))
         elif kind == "scalar":
             n = mel.create_material_expression(mat, unreal.MaterialExpressionScalarParameter, x, y)
             _req(n is not None, "NODE|" + key)
@@ -2177,17 +2429,18 @@ def run_build_clam_mat(run, key):
     eal, mel = unreal.EditorAssetLibrary, unreal.MaterialEditingLibrary
     probs = material_problems()
     _req(not probs, "GRAPH|%s" % probs)
-    m = CLAM_MATERIALS[key]
+    m = clam_material_row(key)
     spec = material_specs()[m["master"]]
     mi_path = clam_mi_path(key)
     _req(not eal.does_asset_exist(mi_path), "MI_EXISTS|%s" % mi_path)
     textures = {}
     if m["tex_set"]:
-        for r in TEX_ROLES:
+        for r in CLAM_TEX[m["tex_set"]]:
             t = tex_target(CLAM, m["tex_set"], r)
             tex = unreal.load_asset(t["asset"])
             _req(isinstance(tex, unreal.Texture2D), "TEX_MISSING|%s (IMPORT_TEX + VERIFY_TEX)" % t["asset"])
-            _req(_enum_name(tex.get_editor_property("compression_settings")) == TEX_ROLES[r][1], "TEX_COMPRESSION|%s" % r)
+            _req(_enum_name(tex.get_editor_property("compression_settings")) == ROLE_SPEC[r][1], "TEX_COMPRESSION|%s" % r)
+            _req(bool(tex.get_editor_property("srgb")) == ROLE_SPEC[r][2], "TEX_SRGB|%s" % r)
             sx, sy = int(tex.blueprint_get_size_x()), int(tex.blueprint_get_size_y())
             _req(sx == sy == t["dim"], "TEX_SIZE|%s|%dx%d" % (t["asset"], sx, sy))
             textures[r] = tex
@@ -2543,6 +2796,145 @@ def run_clam_revert(run, world):
     return {"backup": backup}
 
 
+# ------------------------------------------------------------------------------------------- Pearl v2 glue
+def _asset_path(o):
+    return _path(o).split(".")[0] if o is not None else None
+
+
+def _pearl_live(world, with_tracks=True):
+    idx = _index(world)
+    rows = idx.get(CLAM_LABELS["Pearl"], [])
+    out = {"count": len(rows)}
+    if len(rows) != 1:
+        return out, None
+    a = rows[0]
+    c = _smc(a)
+    par = a.get_attach_parent_actor()
+    out.update({"label": str(a.get_actor_label()), "object_path": _path(a), "parent_path": _path(par),
+                "mesh": _asset_path(c.get_editor_property("static_mesh")),
+                "materials": [_asset_path(c.get_material(i)) for i in range(int(c.get_num_materials()))],
+                "override_materials": [_asset_path(m) for m in c.get_editor_property("override_materials")],
+                "rel": {"location": _v(c.get_editor_property("relative_location")),
+                        "rotation": _r(c.get_editor_property("relative_rotation")),
+                        "scale": _v(c.get_editor_property("relative_scale3d"))},
+                "world": _world_tf(a), "hidden": bool(a.get_editor_property("hidden")),
+                "wpo_eval": bool(c.get_editor_property("evaluate_world_position_offset"))})
+    eal = unreal.EditorAssetLibrary
+    v2_mesh, v2_mi = clam_mesh_path(PEARL_V2), clam_mi_path(PEARL_V2)
+    out["assets"] = {p: bool(eal.does_asset_exist(p)) for p in (v2_mesh, v2_mi)}
+    out["v2_slots"] = None
+    if out["assets"][v2_mesh]:
+        m = unreal.load_asset(v2_mesh)
+        _req(isinstance(m, unreal.StaticMesh), "V2_MESH_LOAD")
+        out["v2_slots"] = [str(s.get_editor_property("material_slot_name")) for s in m.get_editor_property("static_materials")]
+    if with_tracks:
+        out["tracks"] = {p: _sequence_tracks(unreal.load_asset(p), world, a) for p in CLAM_SEQUENCES}
+    return out, a
+
+
+def _set_mesh_material(world, op):
+    a = _by_path(world, op["object_path"])
+    _req(a is not None and str(a.get_actor_label()) == CLAM_LABELS["Pearl"], "PEARL_TARGET|%s" % op["object_path"])
+    c = _smc(a)
+    mesh, mi = unreal.load_asset(op["mesh"]), unreal.load_asset(op["material0"])
+    _req(isinstance(mesh, unreal.StaticMesh) and mi is not None, "ASSET_LOAD|%s|%s" % (op["mesh"], op["material0"]))
+    a.modify()
+    c.modify()
+    c.set_static_mesh(mesh)                         # return values not trusted: read back by the caller
+    c.set_material(0, mi)
+
+
+def _pearl_check(world, want):
+    live, _a = _pearl_live(world, with_tracks=False)
+    _req(live["count"] == 1, "PEARL_COUNT_AFTER|%d" % live["count"])
+    probs = pearl_state_problems(live, want)
+    _req(not probs, "PEARL_READBACK|%s" % ";".join(probs))
+    return live
+
+
+def run_pearl_swap(run, args, world):
+    with open(CLAM_RECORD, encoding="utf-8") as h:
+        clam = json.load(h)
+    live, _a = _pearl_live(world)
+    _a = None
+    plan = pearl_swap_plan(clam, live, args.get("pearl_swap"))
+    record = {"run": run, "world": WORLD, "plan": plan, "clam_record_run": clam.get("run"), "census_before": _census(),
+              "saved": False, "applied": False}
+    _write(PEARL_SWAP_RECORD, record, exclusive=True)                  # RECORD FIRST (old mesh + material paths)
+    unreal.log("S3PEARL_RECORD|run=%s|path=%s|old_mesh=%s|old_mi=%s" % (
+        run, PEARL_SWAP_RECORD, plan["before"]["mesh"], plan["before"]["materials"][0]))
+    record["backup"] = _backup(BACKUP_ROOT_PEARL, run, (PEARL_SWAP_RECORD,))
+    _write(PEARL_SWAP_RECORD, record)
+    for op in pearl_swap_ops(plan):
+        _set_mesh_material(world, op)
+    _pearl_check(world, plan["after"])
+    _save(world, [])                                                   # map only (census-exact)
+    record["saved"] = True
+    _write(PEARL_SWAP_RECORD, record)
+    got = _pearl_check(world, plan["after"])                           # fresh lookup after the save
+    record["applied"], record["after_readback"] = True, got
+    _write(PEARL_SWAP_RECORD, record)
+    return {"actor": plan["object_path"], "mesh": got["mesh"], "mi": got["materials"][0],
+            "rel_location": got["rel"]["location"], "backup": record["backup"]}
+
+
+def run_pearl_unswap(run, world):
+    with open(PEARL_SWAP_RECORD, encoding="utf-8") as h:
+        record = json.load(h)
+    _req(record.get("saved") and record.get("applied"), "SWAP_RECORD_INVALID")
+    plan = record["plan"]
+    _pearl_check(world, plan["after"])                                 # drift since the swap -> refuse before mutating
+    backup = _backup(BACKUP_ROOT_PEARL, run + "-UNSWAP", (PEARL_SWAP_RECORD,))
+    for op in pearl_unswap_ops(record):
+        _set_mesh_material(world, op)
+    _pearl_check(world, plan["before"])
+    _save(world, [])
+    got = _pearl_check(world, plan["before"])
+    os.replace(PEARL_SWAP_RECORD, PEARL_SWAP_RECORD + ".unswapped-" + run)
+    return {"actor": plan["object_path"], "mesh": got["mesh"], "mi": got["materials"][0], "backup": backup}
+
+
+def _current_log_lines():
+    d = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_log_dir())
+    logs = [os.path.join(d, f) for f in os.listdir(d) if f.endswith(".log") and "backup" not in f.lower()]
+    _req(logs, "NO_LOG|%s" % d)
+    newest = max(logs, key=os.path.getmtime)
+    with open(newest, encoding="utf-8", errors="replace") as h:
+        return newest, h.readlines()
+
+
+def run_pearl_mat_check(run):
+    """Read-only, a LATER call than BUILD_MAT Pearl_v2: params read back again + log scan for compile failures."""
+    mel = unreal.MaterialEditingLibrary
+    m = CLAM_EXTRA_MATERIALS[PEARL_V2]
+    spec = material_specs()[PEARL_V2_MASTER]
+    mat = unreal.load_asset(PEARL_V2_MASTER)
+    mi = unreal.load_asset(clam_mi_path(PEARL_V2))
+    _req(isinstance(mat, unreal.Material) and mi is not None, "V2_MATERIAL_LOAD")
+    _verify_material(mat, spec)
+    _req(_path(mi.get_editor_property("parent")) == _path(mat), "MI_PARENT")
+    nacre = tex_target(CLAM, "Pearl", "Nacre")["asset"]
+    _req(_asset_path(mel.get_material_instance_texture_parameter_value(mi, "Nacre")) == nacre, "MI_NACRE")
+    scal = {k: float(mel.get_material_instance_scalar_parameter_value(mi, k)) for k in spec["scalars"]}
+    want = dict(spec["scalars"], **m["scalars"])
+    _req(all(abs(scal[k] - want[k]) < 1e-4 for k in want), "MI_SCALARS|%s" % scal)
+    stats = {}
+    try:                                    # [inf] MaterialEditingLibrary.get_statistics; recorded, not gated
+        s = mel.get_statistics(mat)
+        stats = {"ps": int(s.get_editor_property("num_pixel_shader_instructions")),
+                 "vs": int(s.get_editor_property("num_vertex_shader_instructions"))}
+    except Exception as exc:  # noqa: BLE001
+        stats = {"error": str(exc)[:200]}
+    log, lines = _current_log_lines()
+    named, unattributed = compile_log_problems(lines, ["M_PearlClam_Pearl_v2", "MI_PearlClam_Pearl_v2"])
+    _req(not named, "COMPILE_ERRORS|%s" % named[:5])
+    built = [ln for ln in lines if "S3PROPS_BUILD_MAT_OK" in ln and "MI_PearlClam_Pearl_v2" in ln]
+    rec = {"run": run, "log": log, "build_marker_in_log": bool(built), "named_errors": named,
+           "unattributed_failed_to_compile": unattributed[-10:], "stats": stats, "scalars": scal}
+    _write(HERE + "s3_pearl_v2_mat_check_%s.json" % run, rec)
+    return rec
+
+
 def run_clam_dry(run, args, world, census):
     a = dict(CLAM_DEFAULTS, **(args.get("apply_clam") or {}))
     man = json.load(open(CLAM_MANIFEST, encoding="utf-8"))
@@ -2550,7 +2942,7 @@ def run_clam_dry(run, args, world, census):
     out = {"run": run, "census": census, "state": {k: v for k, v in state.items() if k != "measure"},
            "masters": {p: bool(unreal.EditorAssetLibrary.does_asset_exist(p)) for p in material_specs()},
            "textures": {"%s_%s" % (s, r): bool(unreal.EditorAssetLibrary.does_asset_exist(tex_target(CLAM, s, r)["asset"]))
-                        for s in CLAM_TEX for r in TEX_ROLES}}
+                        for s in CLAM_TEX for r in CLAM_TEX[s]}}
     try:
         out["plan"] = plan_clam(state, a, man)
         out["apply"] = "would_apply"
@@ -2592,7 +2984,7 @@ def main():
             with open(TEX_PENDING, encoding="utf-8") as h:
                 pending = json.load(h)
         mode = check_mode(args, os.path.exists(APPLY_RECORD), os.path.exists(PLACE_RECORD), pending is not None,
-                          os.path.exists(CLAM_RECORD))
+                          os.path.exists(CLAM_RECORD), os.path.exists(PEARL_SWAP_RECORD))
         unreal.log("S3PROPS_START|run=%s|mode=%s|prop=%s" % (run, mode, args.get("prop")))
         ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
         _req(ed.get_game_world() is None, "PIE_ACTIVE")
@@ -2606,6 +2998,11 @@ def main():
             unreal.log("S3CLAM_DRY_OK|run=%s|mutated=0|apply=%s|cameras=%s|yaw=%s|out=%s" % (
                 run, out["apply"][:300], "OK" if cam.get("ok") else cam.get("error"),
                 out.get("plan", {}).get("yaw"), path))
+            return
+        if mode == "PEARL_MAT_CHECK":
+            r = run_pearl_mat_check(run)
+            unreal.log("S3PEARL_MAT_CHECK_OK|run=%s|mutated=0|named_errors=0|unattributed=%d|build_marker=%s|stats=%s" % (
+                run, len(r["unattributed_failed_to_compile"]), r["build_marker_in_log"], json.dumps(r["stats"])))
             return
         if mode == "DRY":
             out, path = run_dry(run, args, world, census)
@@ -2643,6 +3040,20 @@ def main():
                         os.replace(CLAM_RECORD, CLAM_RECORD + ".failed-" + run)
                 raise
             unreal.log("S3CLAM_APPLY_OK|run=%s|level_saved=1|dirty_after=0+0|%s" % (run, json.dumps(r)))
+        elif mode == "PEARL_SWAP":
+            try:
+                r = run_pearl_swap(run, args, world)
+            except Exception:
+                if os.path.exists(PEARL_SWAP_RECORD):
+                    with open(PEARL_SWAP_RECORD, encoding="utf-8") as h:
+                        saved = json.load(h).get("saved")
+                    if not saved:
+                        os.replace(PEARL_SWAP_RECORD, PEARL_SWAP_RECORD + ".failed-" + run)
+                raise
+            unreal.log("S3PEARL_SWAP_OK|run=%s|level_saved=1|dirty_after=0+0|%s" % (run, json.dumps(r)))
+        elif mode == "PEARL_UNSWAP":
+            r = run_pearl_unswap(run, world)
+            unreal.log("S3PEARL_UNSWAP_OK|run=%s|level_saved=1|dirty_after=0+0|%s" % (run, json.dumps(r)))
         elif mode == "CLAM_REVERT":
             r = run_clam_revert(run, world)
             unreal.log("S3CLAM_REVERT_OK|run=%s|%s" % (run, json.dumps(r)))

@@ -1,12 +1,12 @@
 """S3 shore ground -- editor-side DRY / IMPORT / BUILD_MAT / BENCH / APPLY / REVERT / VERIFY.
 
-DRAFT, written 7 Oct 2026 OFFLINE.  NEVER RUN.  Unreal was closed/building; MCP not called.
+DRAFT, written 7 Oct 2026 OFFLINE.  DRY/IMPORT/BUILD_MAT/BENCH_PIE were run 7 Oct; APPLY/REVERT written offline, NOT RUN.
 Plan + live reads: Docs/Conductor/S3_SHORE_GROUND_PREP_2026-10-07.md (sections 4-5).
 
 Args Saved/CodexConductor/S3Shore/s3_shore_ground_args.json:
   {"mode": "DRY"|"IMPORT"|"BUILD_MAT"|"BENCH"|"APPLY"|"REVERT"|"VERIFY",
    "confirm": "<MODE> S3SHORE", "run": "<id>",
-   "hide_deck": true, "hide_v2_sand": true}
+   "mesh_name": "SM_S3_ShoreGround_B" (IMPORT, APPLY), "mi": "<MI path>" (APPLY), "reveal": "mirror_deck"|"none"}
 
 Modes (write modes need the confirm string and refuse on a dirty editor):
   DRY        read-only.  Writes s3_shore_live_reads.json: root transform (asserts LANDED == footprint +-1 cm),
@@ -30,13 +30,17 @@ Modes (write modes need the confirm string and refuse on a dirty editor):
              Why borrow: see the BENCH_PIE section (deferred spawn is not exposed to UE 5.8 Python, measured).
   BENCH_PIE_RESTORE  PIE: puts both PIE copies back from the originals file of args["bench_run"]; idempotent
              (NOOP marker when PIE is gone / a new PIE / already restored).
-  APPLY      backup umap -> Backups/PreS3ShoreGround-<run>; spawn "S3 Shore Ground" (tag RigAtmos.S3ShoreGround),
-             attach KEEP_RELATIVE to S3 Hangar Root, relative identity, mobility = the deck's measured mobility;
-             hide deck and v2 sand (visible False + hidden_in_game True, modify() first); save census-exact
-             (map + the 3 new assets only); read back from the saved state; landed-box guard.
-  REVERT     destroy the recorded actor (by path), restore deck / v2 sand flags from the record, save the map.
-             Assets stay.
-  VERIFY     read-only end state; then queue InfinityStage.Editor.SavedMasterMatchesShow and
+  IMPORT takes "mesh_name" (default SM_S3_ShoreGround = v1); set B goes in as SM_S3_ShoreGround_B (create-only).
+  APPLY      (7 Oct evening, offline, NOT RUN; section BEGIN_APPLY) record FIRST (s3_shore_ground_record.json, refuses
+             if present) -> Backups/PreS3ShoreGround-<run> (umap + LS_S3_HangarRise + record, sha-checked) -> spawn
+             "S3 Shore Ground" (mesh = mesh_name, slot 0 = mi, default MI_S3_ShoreGround_v2, tag
+             RigAtmos.S3ShoreGround, MOVABLE, NO_COLLISION) attached KEEP_RELATIVE to S3 Hangar Root at relative
+             identity -> mirror the deck's rise reveal if it has one -> hide deck and v2 sand (actor hidden in game +
+             every primitive component visibility off + hidden in game; exact originals in the record) -> save
+             census-exact (map [+ LS_S3_HangarRise only if a reveal was copied]) -> fresh read-back + landed-box guard.
+  REVERT     destroy the recorded actor (by path, by reference), remove our reveal binding, restore deck / v2 sand
+             flags exactly from the record, save, read back; record -> .reverted-<run>.  Assets stay.
+  VERIFY     (still refused by the runner) read-only end state; then queue InfinityStage.Editor.SavedMasterMatchesShow and
              InfinityStage.Editor.SceneCutBindingsResolve after a run-id marker (memory tk-saved-master-stage-is-fake).
 
 Markers: S3SHORE_START|run= / S3SHORE_<MODE>_OK|run= / S3SHORE_FAILED|run=|<reason>
@@ -333,7 +337,7 @@ def _enum_name(v):
     return s.split(".")[-1].split(":")[0].strip("<> ").upper()
 
 
-def _pipeline():
+def _pipeline(asset_name="SM_S3_ShoreGround"):
     """Interchange override for one static mesh.  Names checked 7 Oct against the UE 5.8 headers
     (declaration-proven, see the API table in Docs/Conductor/S3_SHORE_GROUND_PREP_2026-10-07.md):
       InterchangeGenericMeshPipeline.h:73 bImportStaticMeshes, :204 bImportSkeletalMeshes, :101 bCollision,
@@ -347,7 +351,7 @@ def _pipeline():
     mat = p.get_editor_property("material_pipeline")
     tex = mat.get_editor_property("texture_pipeline") if mat else None
     _require(all(x is not None for x in (common, mesh, mat, tex)), "PIPELINE_SUBOBJECTS")
-    p.set_editor_property("asset_name", "SM_S3_ShoreGround")
+    p.set_editor_property("asset_name", asset_name)
     wanted = [(mat, "import_materials", False), (tex, "import_textures", False),
               (mesh, "import_static_meshes", True), (mesh, "import_skeletal_meshes", False),
               (mesh, "build_nanite", True), (mesh, "collision", False),
@@ -368,18 +372,39 @@ def _pipeline():
     return ov, got
 
 
-def run_import(run):
+DEFAULT_MESH_NAME = "SM_S3_ShoreGround"          # v1 asset; set B goes in as "SM_S3_ShoreGround_B" (7 Oct)
+
+
+def mesh_name_of(args):
+    name = str((args or {}).get("mesh_name") or DEFAULT_MESH_NAME)
+    _require(name.startswith("SM_S3_ShoreGround") and all(c.isalnum() or c == "_" for c in name), "MESH_NAME|%r" % name)
+    return name
+
+
+def mesh_path_of(args):
+    return ASSET_DIR + "/" + mesh_name_of(args)
+
+
+def import_record_path(name):
+    return RECORD + ".import" if name == DEFAULT_MESH_NAME else RECORD + ".import-" + name
+
+
+def run_import(run, args=None):
+    """Create-only.  args["mesh_name"] (default SM_S3_ShoreGround) names the NEW asset; never reimports in place."""
     eal = unreal.EditorAssetLibrary
+    name = mesh_name_of(args)
+    MESH = ASSET_DIR + "/" + name                                   # noqa: N806 (shadows the v1 constant on purpose)
     _require(_census() == {"content": [], "maps": []}, "DIRTY_EDITOR|%s" % _census())
-    _require(not eal.does_asset_exist(MESH), "MESH_EXISTS")
+    _require(not eal.does_asset_exist(MESH), "MESH_EXISTS|%s" % MESH)
+    _require(not os.path.isfile(import_record_path(name)), "IMPORT_RECORD_EXISTS|%s" % import_record_path(name))
     man = json.load(open(MANIFEST, encoding="utf-8"))
     _require(sha256_file(FBX) == man["fbx_sha256"], "FBX_HASH")
     before = set(eal.list_assets(ASSET_DIR, recursive=True)) if eal.does_directory_exist(ASSET_DIR) else set()
     task = unreal.AssetImportTask()
-    for k, v in (("filename", FBX), ("destination_path", ASSET_DIR), ("destination_name", "SM_S3_ShoreGround"),
+    for k, v in (("filename", FBX), ("destination_path", ASSET_DIR), ("destination_name", name),
                  ("automated", True), ("replace_existing", False), ("save", False)):
         task.set_editor_property(k, v)
-    ov, settings = _pipeline()
+    ov, settings = _pipeline(name)
     task.set_editor_property("options", ov)
     unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks([task])
     mesh = unreal.load_asset(MESH)
@@ -407,7 +432,7 @@ def run_import(run):
     _require(_census() == {"content": [], "maps": []}, "POST_SAVE_DIRTY|%s" % _census())
     rec = {"run": run, "mesh": MESH, "bounds": got, "nanite": nanite, "has_vertex_colors": has_vc, "slots": slots,
            "pipeline": settings, "calibration": calib, "fbx_sha256": man["fbx_sha256"], "saved": True}
-    _write(RECORD + ".import", rec)
+    _write(import_record_path(name), rec)
     return rec
 
 
@@ -1026,8 +1051,384 @@ def run_bench_pie_restore(run, args, check_still=True):
 # END_BENCH_PIE
 
 
-# APPLY / REVERT / VERIFY: REFUSED by the runner.  Shape (unchanged): census clean -> backup umap (sha-checked) ->
-#   spawn "S3 Shore Ground" + attach KEEP_RELATIVE identity, mobility MOVABLE (deck measured MOVABLE, DRY 181646)
-#   -> deck + v2 sand hidden (modify(); visible False; hidden_in_game True) -> save census-exact
-#   {"content": [], "maps": [WORLD]} -> read back from the saved state -> landed-box guard against the LIVE root
-#   -> S3SHORE_APPLY_OK only after every assert.  Figures / pedestal / rocks are NOT moved (Gary re-arranges).
+# ----------------------------------------------------------------------------- APPLY / REVERT (7 Oct evening)
+# BEGIN_APPLY   written OFFLINE 7 Oct evening, NOT RUN.  Patterns (run-proven 7 Oct): S3Millstone/s3_props_ue.py
+# run_apply/_revert_record (record first, backup umap + rise, _set_flags pedestal hide, _add_reveal track copy,
+# census-exact _save, fresh read-back after save).  Everything here uses unreal.load_asset (EditorAssetLibrary
+# .load_asset returned None in PIE, measured 7 Oct) and refuses in PIE anyway.
+#
+# APPLY  args: mesh_name (default SM_S3_ShoreGround; Gary 7 Oct: SM_S3_ShoreGround_B), mi (default
+#        MI_S3_ShoreGround_v2), reveal ("mirror_deck" default | "none").
+#   gates: no PIE, editor world == WORLD, census CLEAN, no record file, no "S3 Shore Ground" label / TAG yet,
+#          mesh + MI load, exactly one root / deck / v2 sand, sequences read.
+#   reveal: the deck's and the v2 sand's bindings in LS_S3_HangarRise and LS_DevScene_03 are read and REPORTED.
+#          mirror_deck: deck has ONE RISE binding with ONE visibility section -> that section is copied to the new
+#          actor (actor hidden in game, like the millstone) and LS_S3_HangarRise is saved too; the S3 float hold
+#          (s4_hangar_hold.py FLOAT, s3_hangar_float_hold_record.json) then needs re-applying -> REPORTED, not done.
+#          deck has no visibility track anywhere -> no reveal (the ground rides the root like the deck did).
+#          deck visibility only in LS_DevScene_03, several bindings/sections, or a sequence UNREAD -> REFUSED.
+#   hides deck + v2 sand: actor hidden in game + EVERY primitive component visibility off + hidden in game (exact
+#          originals in the record); component-level, so a rise visibility track on them cannot re-show them.
+RISE = "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise"
+RISE_UASSET = PROJECT + "Content/InfinityStage/RigAtmos/LS_S3_HangarRise.uasset"
+APPLY_DEFAULT_MI = ASSET_DIR + "/MI_S3_ShoreGround_v2"          # built live 7 Oct (4K sand)
+HIDE_LABELS = (DECK_LABEL, V2_SAND_LABEL)
+GUARD_TOL_CM = 2.0
+FLOAT_HOLD_NOTE = ("the new actor got a COPY of the deck's LS_S3_HangarRise visibility track: re-apply the S3 float "
+                   "hold (s4_hangar_hold.py FLOAT, record s3_hangar_float_hold_record.json) to include it - NOT done here")
+
+
+def _guid(g):
+    return str(unreal.GuidLibrary.conv_guid_to_string(g))
+
+
+def _fps(seq):
+    r = seq.get_display_rate()
+    return r.numerator / float(r.denominator)
+
+
+def _vis_sections(binding, fps):
+    out = []
+    for t in binding.get_tracks():
+        if str(t.get_class().get_name()) != "MovieSceneVisibilityTrack":
+            continue
+        for s in t.get_sections():
+            chans = list(s.get_all_channels())
+            try:
+                mode = _enum_name(s.get_completion_mode())
+            except Exception:  # noqa: BLE001
+                mode = _enum_name(s.get_editor_property("eval_options").get_editor_property("completion_mode"))
+            out.append({"range_s": [float(s.get_start_frame_seconds()), float(s.get_end_frame_seconds())],
+                        "completion_mode": mode, "channels": len(chans),
+                        "keys": [[int(k.get_time().frame_number.value), bool(k.get_value())] for k in chans[0].get_keys()]
+                        if len(chans) == 1 else None, "fps": fps})
+    return out
+
+
+def _bindings_for(seq, world, actor):
+    """Bindings that resolve to `actor` (locate_bound_objects, run-proven) OR whose display name is its label / object
+    name (sub-sequence possessables may not resolve outside their parent).  "UNREAD" when the sequence is missing."""
+    if seq is None:
+        return "UNREAD"
+    want, names = _path(actor), (str(actor.get_actor_label()), str(actor.get_name()))
+    fps = _fps(seq)
+    rows = []
+    for b in seq.get_bindings():
+        try:
+            hit = any(_path(o) == want for o in seq.locate_bound_objects(b, world))
+        except Exception:  # noqa: BLE001
+            hit = False
+        if hit or str(b.get_display_name()) in names:
+            rows.append({"guid": _guid(b.get_id()), "resolved": hit,
+                         "tracks": [str(t.get_class().get_name()) for t in b.get_tracks()],
+                         "visibility_sections": _vis_sections(b, fps)})
+    return rows
+
+
+def plan_reveal(reads, mode="mirror_deck"):
+    """Pure (harness-tested).  reads = {"rise": {label: rows|"UNREAD"}, "scene": {label: rows|"UNREAD"}}.
+    Returns {"mode", "copy": section|None, "copy_from_guid", "report": {...}, "float_hold_reapply_needed"}."""
+    report = {}
+    for label in HIDE_LABELS:
+        r = {}
+        for k in ("rise", "scene"):
+            rows = reads.get(k, {}).get(label, "UNREAD")
+            r[k] = rows if rows == "UNREAD" else [{"guid": x["guid"], "tracks": x["tracks"],
+                                                   "visibility_sections": len(x["visibility_sections"])} for x in rows]
+        report[label] = r
+    out = {"mode": mode, "copy": None, "copy_from_guid": None, "report": report, "float_hold_reapply_needed": False}
+    if mode == "none":
+        return out
+    _require(mode == "mirror_deck", "REVEAL_MODE|%r" % mode)
+    rise, scene = reads.get("rise", {}).get(DECK_LABEL, "UNREAD"), reads.get("scene", {}).get(DECK_LABEL, "UNREAD")
+    _require(rise != "UNREAD" and scene != "UNREAD", "SEQUENCE_UNREAD|rise=%s|scene=%s|use reveal=none to override" % (
+        rise == "UNREAD", scene == "UNREAD"))
+    rv = [x for x in rise if x["visibility_sections"]]
+    sv = [x for x in scene if x["visibility_sections"]]
+    _require(not sv, "DECK_REVEAL_IN_SCENE_SEQUENCE_UNSUPPORTED|%s" % [x["guid"] for x in sv])
+    if not rv:
+        return out
+    _require(len(rv) == 1 and len(rv[0]["visibility_sections"]) == 1, "DECK_REVEAL_SHAPE|%s" % rv)
+    sec = rv[0]["visibility_sections"][0]
+    _require(sec["channels"] == 1 and sec["keys"], "DECK_REVEAL_KEYS|%s" % sec)
+    out.update(copy=sec, copy_from_guid=rv[0]["guid"], float_hold_reapply_needed=True)
+    return out
+
+
+def _prims(actor):
+    return sorted(actor.get_components_by_class(unreal.PrimitiveComponent), key=lambda c: str(c.get_name()))
+
+
+def _hide_state(actor):
+    return {"path": _path(actor), "label": str(actor.get_actor_label()),
+            "actor_hidden": bool(actor.get_editor_property("hidden")),                       # Actor.h bHidden
+            "components": {str(c.get_name()): {"visible": bool(c.is_visible()),              # SceneComponent.h:852
+                                               "hidden_in_game": bool(c.get_editor_property("hidden_in_game"))}
+                           for c in _prims(actor)}}
+
+
+def hidden_target(state):
+    return dict(state, actor_hidden=True,
+                components={k: {"visible": False, "hidden_in_game": True} for k in state["components"]})
+
+
+def _set_hide_state(actor, want):
+    actor.modify()
+    actor.set_actor_hidden_in_game(bool(want["actor_hidden"]))                              # Actor.h:1921
+    for c in _prims(actor):
+        w = want["components"].get(str(c.get_name()))
+        _require(w is not None, "COMPONENT_NOT_IN_RECORD|%s|%s" % (want["label"], c.get_name()))
+        c.modify()
+        c.set_visibility(bool(w["visible"]), False)                                          # SceneComponent.h:916
+        c.set_hidden_in_game(bool(w["hidden_in_game"]), False)                               # SceneComponent.h:932-933
+    got = _hide_state(actor)
+    _require(got == want, "HIDE_READBACK|%s|%s" % (want["label"], json.dumps(got)))
+
+
+def _by_path_in(world, path):
+    rows = [a for a in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor) if _path(a) == path]
+    _require(len(rows) <= 1, "PATH_COUNT|%s|%d" % (path, len(rows)))
+    return rows[0] if rows else None
+
+
+def _ground_state(actor):
+    smc = actor.static_mesh_component
+    parent = actor.get_attach_parent_actor()
+    return {"path": _path(actor), "label": str(actor.get_actor_label()), "parent": _path(parent), "tags": _tags(actor),
+            "mesh": (_path(smc.get_editor_property("static_mesh")) or "").split(".")[0],
+            "mi0": (_path(smc.get_material(0)) or "").split(".")[0], "rel": _rel(smc),
+            "mobility": _enum_name(smc.get_editor_property("mobility")),
+            "collision": _enum_name(smc.get_collision_enabled()),                            # PrimitiveComponent.h:2618-2619
+            "actor_hidden": bool(actor.get_editor_property("hidden")), "visible": bool(smc.is_visible())}
+
+
+def _apply_world():
+    ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+    _require(ed.get_game_world() is None, "PIE_ACTIVE|APPLY/REVERT are editor-world only")
+    world = ed.get_editor_world()
+    _require(world is not None and str(world.get_path_name()).startswith(WORLD), "WRONG_WORLD|%s" % _path(world))
+    return world
+
+
+def _backup_files(run, record_path):
+    d = BACKUP_ROOT + run
+    os.makedirs(d)                                                    # refuses an existing folder
+    out = {}
+    for src in (UMAP, RISE_UASSET, record_path):
+        dst = os.path.join(d, os.path.basename(src))
+        shutil.copy2(src, dst)
+        _require(sha256_file(dst) == sha256_file(src), "BACKUP_HASH|%s" % dst)
+        out[os.path.basename(src)] = sha256_file(dst)
+    return {"dir": d, "sha256": out}
+
+
+def _seq_save(world, want_content):
+    c = _census()
+    _require(c == {"content": sorted(want_content), "maps": [WORLD]}, "DIRTY_SCOPE|%s" % json.dumps(c))
+    _require(not [k for k in _actors_by_label(world) if k.startswith("ZZ_")], "ZZ_ACTORS_PRESENT")
+    for p in want_content:
+        _require(unreal.EditorAssetLibrary.save_asset(p, only_if_is_dirty=False), "SAVE|" + p)
+    _require(unreal.EditorLoadingAndSavingUtils.save_map(world, WORLD), "SAVE_MAP")
+    after = _census()
+    _require(after == {"content": [], "maps": []}, "POST_SAVE_DIRTY|%s" % json.dumps(after))
+
+
+def _add_reveal_copy(world, actor, section):
+    rise = unreal.load_asset(RISE)
+    _require(abs(_fps(rise) - section["fps"]) < 1e-6, "RISE_FPS_CHANGED")
+    b = rise.add_possessable(actor)
+    _require(b is not None and b.is_valid(), "ADD_POSSESSABLE")
+    t = b.add_track(unreal.MovieSceneVisibilityTrack)
+    _require(t is not None, "ADD_VISIBILITY_TRACK")
+    s = t.add_section()
+    s.set_range_seconds(section["range_s"][0], section["range_s"][1])
+    s.set_completion_mode(getattr(unreal.MovieSceneCompletionMode, section["completion_mode"]))
+    ch = list(s.get_all_channels())
+    _require(len(ch) == 1, "NEW_SECTION_CHANNELS|%d" % len(ch))
+    for frame, value in section["keys"]:
+        ch[0].add_key(unreal.FrameNumber(int(frame)), bool(value), time_unit=unreal.MovieSceneTimeUnit.DISPLAY_RATE)
+    return _guid(b.get_id())
+
+
+def _verify_reveal_copy(world, guid, actor, section):
+    rise = unreal.load_asset(RISE)
+    rows = [b for b in rise.get_bindings() if _guid(b.get_id()) == guid]
+    _require(len(rows) == 1, "REVEAL_BINDING_COUNT|%d" % len(rows))
+    _require([_path(o) for o in rise.locate_bound_objects(rows[0], world)] == [_path(actor)], "REVEAL_RESOLVES")
+    got = _vis_sections(rows[0], _fps(rise))
+    _require(len(got) == 1 and got[0]["keys"] == [[int(f), bool(v)] for f, v in section["keys"]]
+             and got[0]["completion_mode"] == section["completion_mode"]
+             and all(abs(a - b) <= 1.0 / got[0]["fps"] + 1e-6 for a, b in zip(got[0]["range_s"], section["range_s"])),
+             "REVEAL_READBACK|%s" % got)
+
+
+def _remove_reveal_copy(world, guid, actor_path):
+    rise = unreal.load_asset(RISE)
+    rows = [b for b in rise.get_bindings() if _guid(b.get_id()) == guid]
+    if not rows:
+        return False
+    _require([_path(o) for o in rise.locate_bound_objects(rows[0], world)] == [actor_path], "REVERT_BINDING_TARGET")
+    rows[0].remove()                                                  # returns None even on success: re-list
+    _require(not [b for b in rise.get_bindings() if _guid(b.get_id()) == guid], "REVERT_BINDING_SURVIVED")
+    return True
+
+
+def _expected_ground(record):
+    p = record["plan"]
+    return {"label": ACTOR_LABEL, "parent": p["root_path"], "tags": [TAG], "mesh": p["mesh"], "mi0": p["mi"],
+            "mobility": "MOVABLE", "collision": "NO_COLLISION", "actor_hidden": bool(p["reveal"]["copy"]),
+            "visible": True}
+
+
+def _verify_applied(world, record):
+    a = _by_path_in(world, record["actor_path"])
+    _require(a is not None, "ACTOR_MISSING|%s" % record["actor_path"])
+    got = _ground_state(a)
+    for k, v in _expected_ground(record).items():
+        _require(got[k] == v, "READBACK_%s|got=%r|want=%r" % (k.upper(), got[k], v))
+    _require(_rel_matches(got["rel"], IDENTITY_REL), "READBACK_NOT_IDENTITY|%s" % got["rel"])
+    for label in HIDE_LABELS:
+        h = _by_path_in(world, record["before"][label]["path"])
+        _require(h is not None, "HIDDEN_ACTOR_MISSING|%s" % label)
+        _require(_hide_state(h) == record["after"][label], "READBACK_HIDDEN|%s|%s" % (label, json.dumps(_hide_state(h))))
+    if record.get("reveal_binding_guid"):
+        _verify_reveal_copy(world, record["reveal_binding_guid"], a, record["plan"]["reveal"]["copy"])
+    root = _by_path_in(world, record["plan"]["root_path"])
+    box = _bounds_local(root, a)
+    lo, hi = LANDED_LOCAL_BOX["min"], LANDED_LOCAL_BOX["max"]
+    _require(all(lo[i] - GUARD_TOL_CM <= box["min"][i] and box["max"][i] <= hi[i] + GUARD_TOL_CM for i in range(3)),
+             "OUTSIDE_LANDED_BOX|%s" % box)                           # memory puss-level-saved-landed-frame-trap
+    return dict(got, local_box=box)
+
+
+def _undo(world, record):
+    """In-memory undo of whatever the record says was done (reveal binding, actor, flags).  No save.  Idempotent."""
+    done = []
+    a = _by_path_in(world, record["actor_path"]) if record.get("actor_path") else None
+    if record.get("reveal_binding_guid") and a is not None:
+        if _remove_reveal_copy(world, record["reveal_binding_guid"], record["actor_path"]):
+            done.append("reveal_removed")
+    if a is not None:
+        _require(str(a.get_actor_label()) == ACTOR_LABEL and TAG in _tags(a), "DESTROY_TARGET|%s" % _path(a))
+        _require(unreal.get_editor_subsystem(unreal.EditorActorSubsystem).destroy_actor(a), "DESTROY")
+        _require(_by_path_in(world, record["actor_path"]) is None, "DESTROY_SURVIVED")
+        done.append("actor_destroyed")
+    for label in HIDE_LABELS:
+        before = record.get("before", {}).get(label)
+        h = _by_path_in(world, before["path"]) if before else None
+        if h is not None and _hide_state(h) != before:
+            _set_hide_state(h, before)
+            done.append("restored|" + label)
+    return done
+
+
+def run_apply(run, args):
+    world = _apply_world()
+    _require(_census() == {"content": [], "maps": []}, "DIRTY_EDITOR|%s" % json.dumps(_census()))
+    _require(not os.path.isfile(RECORD), "RECORD_EXISTS|%s|REVERT first or move it" % RECORD)
+    mesh_p, mi_p = mesh_path_of(args), str(args.get("mi") or APPLY_DEFAULT_MI)
+    mesh, mi = unreal.load_asset(mesh_p), unreal.load_asset(mi_p)
+    _require(isinstance(mesh, unreal.StaticMesh), "MESH_MISSING|%s|run IMPORT first" % mesh_p)
+    _require(isinstance(mi, unreal.MaterialInterface), "MI_MISSING|%s" % mi_p)
+    by = _actors_by_label(world)
+    _require(not by.get(ACTOR_LABEL), "ACTOR_EXISTS|%s" % ACTOR_LABEL)
+    tagged = [str(a.get_name()) for rows in by.values() for a in rows if TAG in _tags(a)]
+    _require(not tagged, "TAG_EXISTS|%s" % tagged)
+    root, deck, v2 = _one(by, ROOT_LABEL), _one(by, DECK_LABEL), _one(by, V2_SAND_LABEL)
+    seqs = {"rise": unreal.load_asset(RISE), "scene": unreal.load_asset(SEQUENCE_PATH)}
+    reads = {k: {DECK_LABEL: _bindings_for(s, world, deck), V2_SAND_LABEL: _bindings_for(s, world, v2)}
+             for k, s in seqs.items()}
+    reveal = plan_reveal(reads, str(args.get("reveal") or "mirror_deck"))
+    dp = deck.get_attach_parent_actor()
+    try:
+        folder = str(deck.get_folder_path())                          # Actor.h:2757-2758
+    except Exception:  # noqa: BLE001
+        folder = None
+    folder = None if folder in ("", "None") else folder
+    rl = root.get_actor_location()
+    before = {DECK_LABEL: _hide_state(deck), V2_SAND_LABEL: _hide_state(v2)}
+    record = {"run": run, "utc": datetime.datetime.utcnow().isoformat() + "Z", "world": WORLD, "rise": RISE,
+              "census_before": _census(), "saved": False, "applied": False, "actor_path": None,
+              "reveal_binding_guid": None,
+              "plan": {"mesh": mesh_p, "mi": mi_p, "root_path": _path(root), "root_world": [rl.x, rl.y, rl.z],
+                       "deck_parent": _path(dp), "folder": folder, "reveal": reveal},
+              "before": before, "after": {k: hidden_target(v) for k, v in before.items()}, "sequence_reads": reads}
+    with open(RECORD, "x", encoding="utf-8") as h:                     # RECORD FIRST (exclusive create)
+        json.dump(record, h, indent=1, default=str)
+    unreal.log("S3SHORE_RECORD|run=%s|path=%s" % (run, RECORD))
+    record["backup"] = _backup_files(run, RECORD)
+    _write(RECORD, record)
+    try:
+        eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+        a = eas.spawn_actor_from_class(unreal.StaticMeshActor, root.get_actor_location(), root.get_actor_rotation(),
+                                       False)                         # EditorActorSubsystem.h:228
+        _require(a is not None, "SPAWN_FAILED")
+        record["actor_path"] = _path(a)
+        _write(RECORD, record)
+        a.set_actor_label(ACTOR_LABEL)
+        smc = a.static_mesh_component
+        smc.set_mobility(unreal.ComponentMobility.MOVABLE)
+        _set_mesh(smc, mesh)
+        smc.set_material(0, mi)
+        smc.set_collision_enabled(unreal.CollisionEnabled.NO_COLLISION)          # PrimitiveComponent.h:2025-2026
+        a.set_editor_property("tags", [unreal.Name(TAG)])
+        if folder:
+            a.set_folder_path(folder)
+        a.attach_to_actor(root, "", unreal.AttachmentRule.KEEP_RELATIVE, unreal.AttachmentRule.KEEP_RELATIVE,
+                          unreal.AttachmentRule.KEEP_RELATIVE, False)
+        smc.set_relative_transform(unreal.Transform(), False, False)
+        a.set_actor_hidden_in_game(bool(reveal["copy"]))
+        if reveal["copy"]:
+            record["reveal_binding_guid"] = _add_reveal_copy(world, a, reveal["copy"])
+            _write(RECORD, record)
+        for label, h in ((DECK_LABEL, deck), (V2_SAND_LABEL, v2)):
+            _set_hide_state(h, record["after"][label])
+        _verify_applied(world, record)
+        _seq_save(world, [RISE] if record["reveal_binding_guid"] else [])
+        record["saved"] = True
+        _write(RECORD, record)
+    except Exception as exc:
+        record["error"] = repr(exc)
+        try:
+            record["auto_undo"] = _undo(world, record)
+            record["census_after_undo"] = _census()
+        except Exception as exc2:  # noqa: BLE001
+            record["auto_undo_error"] = repr(exc2)
+        _write(RECORD, record)
+        os.replace(RECORD, RECORD + ".failed-" + run)                 # a failed APPLY leaves no live record
+        raise
+    record["readback"] = _verify_applied(world, record)               # fresh lookups, after the save
+    record["census_after"] = _census()
+    _require(record["census_after"] == {"content": [], "maps": []}, "DIRTY_AFTER_READBACK|%s" % record["census_after"])
+    record["applied"] = True
+    _write(RECORD, record)
+    return {"actor": record["actor_path"], "mesh": mesh_p, "mi": mi_p, "reveal_guid": record["reveal_binding_guid"],
+            "float_hold_reapply_needed": reveal["float_hold_reapply_needed"], "reveal_report": reveal["report"],
+            "backup": record["backup"]["dir"], "local_box": record["readback"]["local_box"]}
+
+
+def run_revert(run, args):
+    world = _apply_world()
+    _require(_census() == {"content": [], "maps": []}, "DIRTY_EDITOR|%s" % json.dumps(_census()))
+    _require(os.path.isfile(RECORD), "NO_RECORD|%s" % RECORD)
+    record = json.load(open(RECORD, encoding="utf-8"))
+    _require(record.get("saved") and record.get("actor_path"), "RECORD_NOT_SAVED")
+    _verify_applied(world, record)                                    # drift since APPLY -> refuse before mutating
+    backup = _backup_files(run + "-REVERT", RECORD)
+    done = _undo(world, record)
+    _seq_save(world, [RISE] if record.get("reveal_binding_guid") else [])
+    by = _actors_by_label(world)
+    _require(_by_path_in(world, record["actor_path"]) is None and not by.get(ACTOR_LABEL), "REVERT_ACTOR_PRESENT")
+    for label in HIDE_LABELS:
+        got = _hide_state(_by_path_in(world, record["before"][label]["path"]))
+        _require(got == record["before"][label], "REVERT_FLAGS|%s|%s" % (label, json.dumps(got)))
+    if record.get("reveal_binding_guid"):
+        rise = unreal.load_asset(RISE)
+        _require(not [b for b in rise.get_bindings() if _guid(b.get_id()) == record["reveal_binding_guid"]],
+                 "REVERT_BINDING_PRESENT")
+    _require(_census() == {"content": [], "maps": []}, "DIRTY_AFTER_REVERT|%s" % _census())
+    os.replace(RECORD, RECORD + ".reverted-" + run)
+    return {"done": done, "backup": backup["dir"], "record": RECORD + ".reverted-" + run}
+# END_APPLY
+# VERIFY: still REFUSED by the runner (queue SavedMasterMatchesShow + SceneCutBindingsResolve after a run-id marker
+# by hand: memory tk-saved-master-stage-is-fake).

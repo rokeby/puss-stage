@@ -488,3 +488,16 @@ Lumen.
   end along a painted stroke instead of a vertical, or darken/soften the overlap band in P1's art. Not changed here.
 - **[inf]** In PIE the flaps' flutter, the halftone and Lumen will change the read; judge the seam and the ground-row
   hot strips there first.
+
+### 7.8 Live IMPORT fix (7 Oct, after the conductor's run)
+
+- **[meas, conductor live run]** 10/12 IMPORTs OK. L6Foam_P1/P2 stopped at SCREEN_SIZE_READBACK: `get_lod_screen_sizes`
+  read [0.0, 0.0] in the import call, so no record was written. The conductor set [1.0, 0.3] in a later call
+  (`fix_l6p1_lod.py`); the other ten read [2.0, 0.3]. BUILD_MAT group 3 then created the L5 MIs before stopping on
+  NOT_IMPORTED L6 (unsaved; Don't-Save restart).
+- **Fixes (offline, NOT RUN):** IMPORT no longer touches screen sizes; BUILD_MAT and the new **ADOPT** mode set
+  [2.0, 0.3] on the saved mesh (modify, read back) and VERIFY requires exactly that. ADOPT (`ADOPT S3WAVESV3`, 1–2
+  pieces) runs IMPORT's mesh gates and texture-settings check on an imported-but-unrecorded piece, saves only the
+  meshes it changed, then writes the import record with `adopted: true`. BUILD_MAT now checks every piece's
+  preconditions before creating anything. Harness 108/108 **[meas]**. Why the L6 meshes read [0, 0] is **UNCLEAR**
+  (L1 carries the same 6 flaps and read [2.0, 0.3]; nothing in the tool differs between them).

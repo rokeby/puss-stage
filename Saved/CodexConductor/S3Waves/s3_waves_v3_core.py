@@ -45,6 +45,7 @@ FOAM_LAYERS = ("L1_Breakers", "L6_Foam")
 FOAM_FLUTTER = {"FlutterAmpCm": 4.0, "FlutterHz": 1.3}     # [inf] creative start values; Gary tunes (max WPO 6 cm)
 FLUTTER_NAMES = ("FlutterAmpCm", "FlutterHz")              # flutter_lod_core.py:31-32 [decl]
 LOD1_SCREEN_SIZE = 0.3                                     # Gary 7 Oct for P04-P06 flaps (flutter_lod_core.py:36) [decl]
+SCREEN_SIZES = (2.0, LOD1_SCREEN_SIZE)                     # LOD0 2.0 = what the 10 good imports read back [meas, live 7 Oct]
 
 # ----------------------------------------------------------------------------------------------- live geometry
 ROOT_LANDED_WORLD = (11421.97275, 160000.0, -120.0)        # S3Millstone/s3_props_ue.py:77 [meas there, 7 Oct]
@@ -66,11 +67,11 @@ RAMP_S = 2.0                                               # sway fade-in after 
 LIGHT_RAMP_S = 0.20                                        # s3_daylight_apply.py:37 [decl]
 
 # ----------------------------------------------------------------------------------------------- confirm strings
-MODES = ("DRY", "IMPORT", "VERIFY", "BUILD_MAT", "APPLY", "REVERT",
+MODES = ("DRY", "IMPORT", "ADOPT", "VERIFY", "BUILD_MAT", "APPLY", "REVERT",
          "MOTION_DRY", "MOTION_APPLY", "MOTION_REVERT", "LIGHT_DRY", "LIGHT_APPLY", "LIGHT_REVERT")
 READ_ONLY = ("DRY", "VERIFY", "MOTION_DRY", "LIGHT_DRY")
 PIE_OK = ("VERIFY",)                                       # asset reads only; get_editor_world() is None in PIE
-BATCH_CAP = {"IMPORT": 1, "BUILD_MAT": 4}
+BATCH_CAP = {"IMPORT": 1, "ADOPT": 2, "BUILD_MAT": 4}
 
 
 class PlanError(ValueError):
@@ -107,6 +108,29 @@ def check_mode(args, in_pie, records):
     req(not (mode == "LIGHT_APPLY" and records["light"]), "LIGHT_ALREADY_APPLIED")
     req(not (mode == "LIGHT_REVERT" and not records["light"]), "NO_LIGHT_RECORD")
     return mode
+
+
+def screen_size_action(current, want=SCREEN_SIZES, tol=1e-4):
+    """LOD screen sizes are NOT set in the IMPORT call any more: live 7 Oct, L6Foam_P1/P2 read [0.0, 0.0] in the same
+    call as the import (and once more later) while ten pieces read [2.0, 0.3].  ADOPT and BUILD_MAT (later calls on a
+    saved mesh) set them; VERIFY requires exactly SCREEN_SIZES.  -> "KEEP" | "SET"; refuses a mesh that is not 2 LODs."""
+    cur = [float(x) for x in (current or [])]
+    req(len(cur) == len(want), "SCREEN_SIZES_LOD_COUNT|%s" % cur)
+    return "KEEP" if all(abs(a - b) <= tol for a, b in zip(cur, want)) else "SET"
+
+
+def screen_sizes_ok(current, want=SCREEN_SIZES, tol=1e-4):
+    cur = [float(x) for x in (current or [])]
+    return len(cur) == len(want) and all(abs(a - b) <= tol for a, b in zip(cur, want))
+
+
+def adopt_check(row, mesh_exists, tex_exist, import_record):
+    """ADOPT preconditions (pure): mesh + 3 textures saved in /Game, no import record yet."""
+    req(mesh_exists, "ADOPT_NO_MESH|%s (IMPORT it)" % row["suffix"])
+    missing = sorted(k for k, v in tex_exist.items() if not v)
+    req(not missing, "ADOPT_TEXTURES_MISSING|%s|%s" % (row["suffix"], missing))
+    req(not (import_record or {}).get("saved"), "ADOPT_ALREADY_RECORDED|%s" % row["suffix"])
+    return True
 
 
 # ----------------------------------------------------------------------------------------------- piece table

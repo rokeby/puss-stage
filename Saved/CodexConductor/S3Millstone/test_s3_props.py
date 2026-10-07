@@ -879,6 +879,239 @@ check("I11.millstone_8k_still_allowed(+)", T["tex_source_gate"](T["tex_target"](
 check("I11.shell_basecolor_final_on_disk_8192", T["tex_source_gate"](T["tex_target"]("PearlClam", "Shell", "BaseColor"))["w"] == 8192)
 check("I11.material_keys", sorted(T["CLAM_MATERIALS"]) == ["InteriorBottom", "InteriorLid", "Mantle", "Pearl", "Shell"])
 
+# ================================================================== J. Pearl v2 (7 Oct late)
+V2 = T["PEARL_V2"]
+R2 = T["CLAM_EXTRA_PARTS"][V2]
+# J1. table == FBX vertices, table == manifest
+fb = M["parse"](T["CLAM_DIR"] + "SM_PearlClam_Pearl_v2.fbx")
+geos = [g for g in fb["geometries"] if "vertices" in g]
+v2v = geos[0]["vertices"] * 100.0
+check("J1.fbx_one_geometry_z_up_cm", len(geos) == 1 and fb["global"].get("UnitScaleFactor") == 100.0 and
+      abs(fb["models"][0].get("Lcl Rotation")[0] + 90.0) < 0.01, (len(geos), fb["models"][0].get("Lcl Rotation")))
+check("J1.fbx_bounds_match_table", T["near"](v2v.min(0).tolist(), R2["min_b"], 0.01) and
+      T["near"](v2v.max(0).tolist(), R2["max_b"], 0.01), (v2v.min(0).tolist(), v2v.max(0).tolist()))
+check("J1.fbx_centroid_match_table", T["near"](v2v.mean(0).tolist(), R2["centroid_b"], 0.01), v2v.mean(0).tolist())
+check("J1.less_spherical_than_v1(info: x 17.87 vs y 18.0)", (R2["max_b"][1] - R2["min_b"][1]) - (R2["max_b"][0] - R2["min_b"][0]) > 0.1)
+check("J1.manifest_v2_clean(+)", T["pearl_v2_manifest_problems"](man) == [], T["pearl_v2_manifest_problems"](man))
+for nm, fn, needle in (("tris", lambda m: m["parts"]["SM_PearlClam_Pearl_v2"]["validation_blender_clean_reimport"].update(tris=1), "TRIS"),
+                       ("rest_z_moved", lambda m: m["parts"]["SM_PearlClam_Pearl_v2"].update(place_at_cm=[0, 0, 36.0]), "REST_Z_MOVED"),
+                       ("slots", lambda m: m["parts"]["SM_PearlClam_Pearl_v2"].update(slots=["M_X"]), "SLOTS"),
+                       ("size", lambda m: m["parts"]["SM_PearlClam_Pearl_v2"]["validation_blender_clean_reimport"].update(
+                           size_cm=[18.0, 18.0, 18.0]), "SIZE"),
+                       ("missing", lambda m: m["parts"].pop("SM_PearlClam_Pearl_v2"), "MANIFEST_PART_MISSING")):
+    bm = copy.deepcopy(man)
+    fn(bm)
+    check("J1.manifest_v2_%s_refused(-)" % nm, any(needle in x for x in T["pearl_v2_manifest_problems"](bm)),
+          T["pearl_v2_manifest_problems"](bm))
+check("J1.v1_tables_untouched", list(CP) == ["Bottom", "Lid", "Mantle", "Pearl"] and V2 not in T["CLAM_MATERIALS"] and
+      "Nacre" not in T["TEX_ROLES"] and T["CLAM_PART_ORDER"] == ("Bottom", "Lid", "Mantle", "Pearl"))
+
+# J2. bounds gate (Y flip, same logic as v1)
+e2 = T["clam_expected_ue"](V2)
+check("J2.flipped_bounds_pass(+)", T["clam_bounds_check"](V2, {"min": e2["min"], "max": e2["max"]}) == [])
+check("J2.expected_is_y_flipped", T["near"](e2["centroid"], [-0.096, -0.089, 8.906], 1e-9), e2["centroid"])
+f = T["clam_bounds_check"](V2, {k: [x * 100 for x in e2[k]] for k in ("min", "max")})
+check("J2.100x_refused(-)", bool(f) and f[0].startswith("SCALE_100X"), f[:1])
+f = T["clam_bounds_check"](V2, {"min": [-9.0, -9.0, 0.0], "max": [9.0, 9.0, 19.0]})
+check("J2.1cm_tall_refused(-)", bool(f), f[:1])
+check("J2.pivot_lowest_point", e2["min"][2] == 0.0)
+check("J2.centroid_pass(+)", T["clam_centroid_check"](V2, e2["centroid"]) == [])
+rows = T["pipeline_wanted"](T["clam_vc_option"](V2), R2["custom_normals"])
+check("J2.pipeline_plan_clean(+)", T["pipeline_problems"](rows, V2) == [] and T["clam_vc_option"](V2) == "IVCIO_IGNORE",
+      T["pipeline_problems"](rows, V2))
+check("J2.mesh_path_new_asset", T["clam_mesh_path"](V2).endswith("/PearlClam/SM_PearlClam_Pearl_v2") and
+      T["clam_mesh_path"](V2) != T["clam_mesh_path"]("Pearl"))
+ok, msg = refuses(lambda: T["clam_part_row"]("Pearl_v3"), "CLAM_PART")
+check("J2.unknown_part_refused(-)", ok, msg)
+
+# J3. mode gates
+for nm, a_, exp in (("import_mesh_v2", {"mode": "IMPORT_MESH", "confirm": "IMPORT_MESH S3PROPS", "prop": "PearlClam", "part": V2}, "IMPORT_MESH"),
+                    ("import_tex_nacre", {"mode": "IMPORT_TEX", "confirm": "IMPORT_TEX S3PROPS", "prop": "PearlClam",
+                                          "tex_set": "Pearl", "textures": ["Nacre"]}, "IMPORT_TEX"),
+                    ("build_mat_v2", {"mode": "BUILD_MAT", "confirm": "BUILD_MAT S3PROPS", "prop": "PearlClam", "material": V2}, "BUILD_MAT"),
+                    ("mat_check_no_confirm", {"mode": "PEARL_MAT_CHECK"}, "PEARL_MAT_CHECK")):
+    check("J3.%s_ok(+)" % nm, CM(a_, True, False, False, True) == exp)
+check("J3.mat_check_allowed_while_pending(+)", CM({"mode": "PEARL_MAT_CHECK"}, True, False, True, True) == "PEARL_MAT_CHECK")
+check("J3.swap_ok(+)", CM({"mode": "PEARL_SWAP", "confirm": "PEARL_SWAP S3PROPS"}, True, False, False, True, False) == "PEARL_SWAP")
+check("J3.unswap_ok(+)", CM({"mode": "PEARL_UNSWAP", "confirm": "PEARL_UNSWAP S3PROPS"}, True, False, False, True, True) == "PEARL_UNSWAP")
+for nm, call, needle in (
+        ("nacre_on_shell", lambda: CM({"mode": "IMPORT_TEX", "confirm": "IMPORT_TEX S3PROPS", "prop": "PearlClam", "tex_set": "Shell",
+                                       "textures": ["Nacre"]}, True, False), "ROLE_NOT_IN_SET"),
+        ("basecolor_on_pearl_set", lambda: CM({"mode": "IMPORT_TEX", "confirm": "IMPORT_TEX S3PROPS", "prop": "PearlClam",
+                                               "tex_set": "Pearl", "textures": ["BaseColor"]}, True, False), "ROLE_NOT_IN_SET"),
+        ("nacre_on_classic_prop", lambda: CM({"mode": "IMPORT_TEX", "confirm": "IMPORT_TEX S3PROPS", "prop": "HominidJaw",
+                                              "textures": ["Nacre"]}, True, False), "ROLE"),
+        ("unknown_material", lambda: CM({"mode": "BUILD_MAT", "confirm": "BUILD_MAT S3PROPS", "prop": "PearlClam",
+                                         "material": "Pearl_v3"}, True, False), "CLAM_MATERIAL"),
+        ("swap_confirm", lambda: CM({"mode": "PEARL_SWAP", "confirm": "PEARL_SWAP"}, True, False, False, True), "CONFIRM_MISSING"),
+        ("swap_without_clam", lambda: CM({"mode": "PEARL_SWAP", "confirm": "PEARL_SWAP S3PROPS"}, True, False, False, False), "NO_CLAM_RECORD"),
+        ("swap_twice", lambda: CM({"mode": "PEARL_SWAP", "confirm": "PEARL_SWAP S3PROPS"}, True, False, False, True, True),
+         "PEARL_ALREADY_SWAPPED"),
+        ("unswap_without_record", lambda: CM({"mode": "PEARL_UNSWAP", "confirm": "PEARL_UNSWAP S3PROPS"}, True, False, False, True, False),
+         "NO_PEARL_SWAP_RECORD"),
+        ("clam_revert_while_swapped", lambda: CM({"mode": "CLAM_REVERT", "confirm": "CLAM_REVERT S3PROPS"}, True, False, False, True, True),
+         "PEARL_SWAPPED"),
+        ("swap_while_tex_pending", lambda: CM({"mode": "PEARL_SWAP", "confirm": "PEARL_SWAP S3PROPS"}, True, False, True, True),
+         "TEX_PENDING")):
+    ok, msg = refuses(call, needle)
+    check("J3.%s_refused(-)" % nm, ok, msg)
+
+# J4. Nacre texture
+tn = T["tex_target"]("PearlClam", "Pearl", "Nacre")
+rn = T["tex_source_gate"](tn)
+check("J4.nacre_source_2048(+)", tn["name"] == "T_PearlClam_Pearl_Nacre" and rn["w"] == rn["h"] == 2048 and
+      tn["asset"].endswith("/PearlClam/T_PearlClam_Pearl_Nacre"), (tn, rn))
+check("J4.nacre_linear_masks", T["ROLE_SPEC"]["Nacre"][1:5] == ("TC_MASKS", False, False, "SAMPLERTYPE_MASKS"))
+ok, msg = refuses(lambda: T["tex_source_gate"](dict(tn, dim=4096)), "TEX_DIM")
+check("J4.nacre_wrong_dim_refused(-)", ok, msg)
+with Image.open(tn["file"]) as im:
+    na = np.asarray(im).astype(float) / 255.0
+grey = na.ndim == 2 or (np.abs(na[..., 0] - na[..., 1]).max() == 0 and np.abs(na[..., 0] - na[..., 2]).max() == 0)
+pc = np.percentile(na[..., 0] if na.ndim == 3 else na, [5, 50, 95])
+check("J4.nacre_grey_R_carries_it", grey, na.shape)
+check("J4.nacre_percentiles_match_manifest", T["near"](pc.tolist(), [0.18, 0.44, 0.75], 0.01) and
+      abs(pc[1] - T["NACRE_MEDIAN"]) < 0.01, pc.tolist())
+
+# J5. material v2
+specs = T["material_specs"]()
+S2 = specs[T["PEARL_V2_MASTER"]]
+S1 = specs[T["PEARL_MASTER"]]
+check("J5.v2_spec_clean(+)", T["PEARL_V2_MASTER"] not in T["material_problems"]() and V2 not in T["material_problems"](),
+      T["material_problems"]())
+for nm, fn, needle in (
+        ("orphan", lambda s: (s["nodes"].update(Orphan=("scalar", 1.0)), s["scalars"].update(Orphan=1.0)), "UNUSED_NODE|Orphan"),
+        ("phase_nacre_unfed", lambda s: s.update(edges=[e for e in s["edges"] if not (e[2] == "IridPhase" and e[3] == "N")]),
+         "CUSTOM_PIN_UNFED|IridPhase.N"),
+        ("emissive_twice", lambda s: s["props"].append(("IridColor", "", "MP_EMISSIVE_COLOR")), "PROP_SET_TWICE"),
+        ("no_wpo", lambda s: s.update(props=[p for p in s["props"] if p[2] != "MP_WORLD_POSITION_OFFSET"]), "PROPS")):
+    bad = copy.deepcopy(specs)
+    fn(bad[T["PEARL_V2_MASTER"]])
+    got = T["material_problems"](bad).get(T["PEARL_V2_MASTER"], [])
+    check("J5.%s_detected(-)" % nm, any(needle in x for x in got), got)
+bad = copy.deepcopy(specs)
+bad[T["PEARL_V2_MASTER"]]["tex_params"] = {"Nacre": "Roughness"}
+check("J5.tex_set_role_mismatch_detected(-)", any("TEX_SET_ROLES" in x for x in T["material_problems"](bad).get(V2, [])),
+      T["material_problems"](bad))
+check("J5.wpo_parity_with_v1", S2["nodes"]["PearlWPO"] == S1["nodes"]["PearlWPO"] and
+      [e for e in S2["edges"] if e[2] == "PearlWPO"] == [e for e in S1["edges"] if e[2] == "PearlWPO"] and
+      S2["max_wpo"] == S1["max_wpo"] and S2["scalars"]["BreathAmp"] == 0.0 and S2["scalars"]["BreathPeriod"] == 5.0)
+check("J5.mi_scalars_parity_with_v1", T["CLAM_EXTRA_MATERIALS"][V2]["scalars"] == T["CLAM_MATERIALS"]["Pearl"]["scalars"])
+check("J5.v1_pearl_spec_unchanged", sorted(S1["nodes"]) == sorted(
+    ["BaseColor", "WarmTint", "CoolTint", "GlowColor", "TintAmount", "Roughness", "Specular", "Glow", "BreathAmp",
+     "BreathPeriod", "Fresnel", "Time", "PearlColor", "GlowEmissive", "PearlWPO"]) and S1["scalars"]["Roughness"] == 0.18)
+check("J5.defaults", S2["vectors"]["BaseColor"][:3] == [0.86, 0.83, 0.78] and S2["scalars"]["Specular"] == 0.6 and
+      S2["scalars"]["Roughness"] == 0.15 and S2["scalars"]["Glow"] == 0.0 and S2["tex_params"] == {"Nacre": "Nacre"})
+check("J5.hlsl_reads_pixel_normal_and_camera", "Parameters.WorldNormal" in T["IRID_PHASE_CODE"] and
+      "Parameters.CameraVector" in T["IRID_PHASE_CODE"])
+check("J5.nacre_feeds_phase_and_roughness", ("Nacre", "R", "IridPhase", "N") in S2["edges"] and
+      ("Nacre", "R", "PearlRough", "N") in S2["edges"])
+sv, ss = S2["vectors"], S2["scalars"]
+pal = [sv[k] for k in ("PaletteA", "PaletteB", "PaletteC", "PaletteD")]
+col = lambda ndv, nac, st=ss["IridStrength"]: T["irid_color_eval"](sv["BaseColor"], *pal, T["irid_phase_eval"](  # noqa: E731
+    ndv, ss["FresnelExponent"], ss["IridScale"], nac, ss["NacreScale"]), st)
+check("J5.strength0_is_base_exactly(-control)", col(0.3, 0.6, 0.0) == sv["BaseColor"][:3], col(0.3, 0.6, 0.0))
+facing, grazing = col(1.0, 0.44), col(0.05, 0.44)
+check("J5.facing_vs_grazing_shift", max(abs(facing[i] - grazing[i]) for i in range(3)) > 0.08, (facing, grazing))
+sweep = [T["irid_color_eval"](sv["BaseColor"], *pal, t / 20.0, ss["IridStrength"]) for t in range(21)]
+check("J5.hue_rotates_over_phase(thin-film)", len({max(range(3), key=lambda i: c[i]) for c in sweep}) == 3,
+      [max(range(3), key=lambda i: c[i]) for c in sweep])
+check("J5.stays_pale(min channel > 0.5)", min(min(c) for c in sweep) > 0.5, min(min(c) for c in sweep))
+check("J5.nacre_shifts_colour_at_facing", max(abs(col(1.0, 0.18)[i] - col(1.0, 0.75)[i]) for i in range(3)) > 0.03)
+re2 = T["irid_rough_eval"]
+check("J5.roughness_median_0.15_range_small", abs(re2(ss["Roughness"], 0.44, ss["RoughnessNacre"]) - 0.15) < 1e-9 and
+      0.10 < re2(ss["Roughness"], 0.18, ss["RoughnessNacre"]) < re2(ss["Roughness"], 0.75, ss["RoughnessNacre"]) < 0.20)
+check("J5.rough_code_uses_median", ("%.2f" % T["NACRE_MEDIAN"]) in T["IRID_ROUGH_CODE"])
+
+# J6. swap plan against the REAL apply record (read-only)
+crec = json.load(open(T["CLAM_RECORD"], encoding="utf-8"))
+v1m, v1i = T["clam_mesh_path"]("Pearl"), T["clam_mi_path"]("Pearl")
+v2m, v2i = T["clam_mesh_path"](V2), T["clam_mi_path"](V2)
+pp_ = crec["plan"]["parts"]["Pearl"]
+
+
+def pearl_live():
+    return {"count": 1, "label": "S3 PearlClam Pearl", "object_path": crec["actor_paths"]["Pearl"],
+            "parent_path": crec["actor_paths"]["Bottom"], "mesh": v1m, "materials": [v1i], "override_materials": [v1i],
+            "rel": copy.deepcopy(pp_["rel"]), "world": {"location": pp_["world_location"], "rotation": pp_["world_rotation"],
+                                                         "scale": [1.0, 1.0, 1.0]},
+            "hidden": True, "wpo_eval": True, "assets": {v2m: True, v2i: True}, "v2_slots": ["M_PearlClam_Pearl"],
+            "tracks": {s: (["MovieSceneVisibilityTrack"] if s == T["RISE"] else None) for s in T["CLAM_SEQUENCES"]}}
+
+
+check("J6.record_is_todays_apply", crec["run"] == "S3PROPS-20261007-183435" and pp_["label"] == "S3 PearlClam Pearl", crec["run"])
+sp = T["pearl_swap_plan"](crec, pearl_live())
+check("J6.plan_ok(+)", sp["after"]["mesh"] == v2m and sp["after"]["materials"] == [v2i] and sp["before"]["mesh"] == v1m and
+      sp["before"]["materials"] == [v1i] and sp["after"]["rel"] == sp["before"]["rel"] and sp["after"]["world"] == sp["before"]["world"])
+for nm, fn, needle in (
+        ("count", lambda L: L.update(count=2), "PEARL_COUNT"),
+        ("label", lambda L: L.update(label="S3 PearlClam Lid"), "PEARL_LABEL"),
+        ("path", lambda L: L.update(object_path="X"), "PEARL_PATH"),
+        ("parent", lambda L: L.update(parent_path=None), "PEARL_PARENT"),
+        ("already_v2", lambda L: L.update(mesh=v2m), "PEARL_MESH_NOT_V1"),
+        ("material_not_v1", lambda L: L.update(materials=["/Game/X/MI_Y"]), "PEARL_MATERIALS_NOT_V1"),
+        ("overrides", lambda L: L.update(override_materials=[]), "PEARL_OVERRIDES"),
+        ("v2_mi_missing", lambda L: L["assets"].update({v2i: False}), "V2_ASSETS_MISSING"),
+        ("v2_slots", lambda L: L.update(v2_slots=["M_Other"]), "V2_SLOTS"),
+        ("rel_drift_0.1cm", lambda L: L["rel"]["location"].__setitem__(2, L["rel"]["location"][2] + 0.1), "PEARL_REL_DRIFT"),
+        ("wpo_off", lambda L: L.update(wpo_eval=False), "PEARL_WPO_EVAL_OFF"),
+        ("tracks_unread", lambda L: L["tracks"].update({T["SCENE3"]: "UNREAD"}), "PEARL_TRACKS_UNREAD"),
+        ("material_track", lambda L: L["tracks"].update({T["SCENE3"]: ["MovieSceneComponentMaterialTrack"]}),
+         "PEARL_MATERIAL_TRACKS")):
+    L = pearl_live()
+    fn(L)
+    ok, msg = refuses(lambda L=L: T["pearl_swap_plan"](crec, L), needle)
+    check("J6.%s_refused(-)" % nm, ok, msg)
+L = pearl_live()
+L["tracks"][T["SCENE3"]] = ["MovieSceneComponentMaterialTrack"]
+check("J6.material_track_allowed_by_arg(+)", T["pearl_swap_plan"](crec, L, {"allow_material_tracks": True})["material_tracks"] ==
+      ["MovieSceneComponentMaterialTrack"])
+L = pearl_live()
+L["rel"]["location"][2] += 0.01
+check("J6.rel_0.01cm_within_tol(+)", T["pearl_swap_plan"](crec, L)["after"]["rel"]["location"][2] == L["rel"]["location"][2])
+nr = dict(crec, applied=False)
+ok, msg = refuses(lambda: T["pearl_swap_plan"](nr, pearl_live()), "CLAM_RECORD_NOT_APPLIED")
+check("J6.unapplied_clam_record_refused(-)", ok, msg)
+
+# J7. ops round trip + read-back gate
+w0 = {sp["object_path"]: copy.deepcopy(sp["before"])}
+w1 = T["pearl_simulate"](w0, T["pearl_swap_ops"](sp))
+check("J7.swap_effect", T["pearl_state_problems"](w1[sp["object_path"]], sp["after"]) == [],
+      T["pearl_state_problems"](w1[sp["object_path"]], sp["after"]))
+check("J7.swapped_differs_from_before(-)", bool(T["pearl_state_problems"](w1[sp["object_path"]], sp["before"])))
+srec = {"plan": json.loads(json.dumps(sp))}
+w2 = T["pearl_simulate"](w1, T["pearl_unswap_ops"](srec))
+check("J7.unswap_exact(+)", w2 == w0, json.dumps(w2)[:300])
+bad = copy.deepcopy(srec)
+bad["plan"]["before"]["mesh"] = "/Game/Other/SM_X"
+check("J7.tampered_record_detected(-)", T["pearl_simulate"](w1, T["pearl_unswap_ops"](bad)) != w0)
+bad = copy.deepcopy(srec)
+bad["plan"]["object_path"] = "PersistentLevel.SomeoneElse"
+ok, msg = refuses(lambda: T["pearl_simulate"](w1, T["pearl_unswap_ops"](bad)), "SIM_PEARL_TARGET")
+check("J7.foreign_target_refused(-)", ok, msg)
+dl = copy.deepcopy(sp["after"])
+dl["rel"]["location"][2] += 0.1
+check("J7.readback_rel_drift_detected(-)", any("REL_LOCATION" in x for x in T["pearl_state_problems"](dl, sp["after"])))
+dl = copy.deepcopy(sp["after"])
+dl["world"]["rotation"][2] += 360.0
+check("J7.readback_yaw_wrap_ok(+)", T["pearl_state_problems"](dl, sp["after"]) == [])
+dl = copy.deepcopy(sp["after"])
+dl["hidden"] = False
+check("J7.readback_hidden_flip_detected(-)", any("HIDDEN" in x for x in T["pearl_state_problems"](dl, sp["after"])))
+check("J7.swap_record_path_separate", T["PEARL_SWAP_RECORD"] != T["CLAM_RECORD"] and not os.path.exists(T["PEARL_SWAP_RECORD"]))
+
+# J8. compile log scan
+CL = T["compile_log_problems"]
+nm2 = ["M_PearlClam_Pearl_v2", "MI_PearlClam_Pearl_v2"]
+lines = ["LogMaterial: Warning: Failed to compile Material /Game/X/PearlClam/M_PearlClam_Pearl_v2.M_PearlClam_Pearl_v2 for "
+         "platform PCD3D_SM6, Default Material will be used in game.\n"]
+check("J8.named_failure_caught(-)", CL(lines, nm2)[0] != [], CL(lines, nm2))
+check("J8.own_markers_ignored(+)", CL(["LogPython: S3PROPS_BUILD_MAT_OK|run=x|mi=/Game/X/MI_PearlClam_Pearl_v2 error\n"], nm2) == ([], []))
+n_, u_ = CL(["LogMaterial: Warning: Failed to compile Material /Game/Other/M_Z for platform SM6\n"], nm2)
+check("J8.unrelated_failure_unattributed_only", n_ == [] and len(u_) == 1, (n_, u_))
+check("J8.clean_log(+)", CL(["LogMaterial: Display: Compiling M_PearlClam_Pearl_v2\n"], nm2) == ([], []))
+check("J8.hlsl_error_line_caught(-)", CL(["/Game/X/M_PearlClam_Pearl_v2: [SM6] (12,3): error X3004: undeclared identifier\n"],
+                                           nm2)[0] != [])
+
 # ------------------------------------------------------------------ report
 fails = [r for r in RESULTS if not r["ok"]]
 rep = {"checks": len(RESULTS), "failed": len(fails), "fails": fails, "results": RESULTS,

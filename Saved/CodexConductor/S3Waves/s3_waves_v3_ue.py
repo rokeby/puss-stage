@@ -4,10 +4,15 @@
                 that resolve to them in LS_DevScene_03 AND LS_S3_HangarRise, rise visibility sections), our labels,
                 asset state, the full APPLY plan.  Writes s3_waves_v3_dry_<run>.json.  Marker S3WAVESV3_DRY_OK.
   IMPORT        ONE piece: its FBX (LodGroup, materials/textures OFF) + its 3 skin PNGs -> new packages under
-                /Game/Scenes/Wings/FlatV3/Scene3/WavesV3; nanite off; LOD1 screen size 0.3; gates: 2 LODs, slot order,
+                /Game/Scenes/Wings/FlatV3/Scene3/WavesV3; nanite off; gates: 2 LODs, slot order,
                 UV0 signs (V runs DOWN), front normal -X, LOD1 has no Flap section, bounds and triangle counts = the
                 clean Blender re-import, no sockets, no stray assets, census = exactly the 4 new packages; save; GC.
+                LOD screen sizes are NOT set here (L6 read [0,0] in the import call, live 7 Oct): BUILD_MAT or
+                ADOPT sets [2.0, 0.3] in a later call; VERIFY requires it.
                 Texture SIZE is NOT gated here (first-load sizes read 32x32): VERIFY does it in a later call.
+  ADOPT         1..2 pieces already imported + saved but unrecorded (IMPORT stopped late): IMPORT's mesh gates,
+                texture settings, LOD screen sizes -> [2.0, 0.3] (modify, read back), save ONLY the changed meshes,
+                write the import record with adopted=true.  Marker S3WAVESV3_ADOPT_OK.
   VERIFY        read-only, PIE-safe (unreal.load_asset only): every piece's mesh/texture/MI state incl. texture sizes
                 == the PNG headers.  Writes s3_waves_v3_verify.json (APPLY needs it newer than every import/mat run).
   BUILD_MAT     1..4 pieces: create-only MI_..._Front / _Flap (parents MI_Billboard_Front/Flap; textures + sheet
@@ -516,14 +521,10 @@ def run_import(C, run, args, world):
     nan = mesh.get_editor_property("nanite_settings")
     nan.set_editor_property("enabled", False)
     mesh.set_editor_property("nanite_settings", nan)
+    # LOD screen sizes are NOT touched in the import call (live 7 Oct: L6Foam_P1/P2 read [0, 0] here and failed the
+    # read-back).  BUILD_MAT / ADOPT set them on the saved mesh in a later call; VERIFY requires C.SCREEN_SIZES.
     sme = unreal.get_editor_subsystem(unreal.StaticMeshEditorSubsystem)
-    sizes = [float(x) for x in sme.get_lod_screen_sizes(mesh)]
-    if len(sizes) != 2:
-        raise RuntimeError("SCREEN_SIZES_READ|%s" % sizes)
-    sme.set_lod_screen_sizes(mesh, [sizes[0], C.LOD1_SCREEN_SIZE])      # flutter_lod.py:184-187 [prec]
-    got_sizes = [float(x) for x in sme.get_lod_screen_sizes(mesh)]
-    if abs(got_sizes[1] - C.LOD1_SCREEN_SIZE) > 1e-4:
-        raise RuntimeError("SCREEN_SIZE_READBACK|%s" % got_sizes)
+    got_sizes = [float(x) for x in sme.get_lod_screen_sizes(mesh)]                 # informational only
     tex_state = {}
     for k in C.TEX_KINDS:
         tools.import_asset_tasks([pilot.import_task(files["tex"][k], row["tex"][k])])
@@ -541,10 +542,68 @@ def run_import(C, run, args, world):
     _save(C, world, planned, map_expected=False)
     unreal.SystemLibrary.collect_garbage()
     rec = {"run": run, "suffix": row["suffix"], "packages": planned, "mesh_gate": gate, "textures": tex_state,
-           "fbx_sha256": _sha(files["fbx"]), "screen_sizes": got_sizes, "saved": True,
+           "fbx_sha256": _sha(files["fbx"]), "screen_sizes_at_import_unverified": got_sizes, "saved": True,
+           "adopted": False,
            "utc": datetime.datetime.utcnow().isoformat() + "Z"}
     _write(os.path.join(HERE, "s3_waves_v3_import_%s.json" % row["suffix"]), rec)
     return rec
+
+
+def _ensure_screen_sizes(C, mesh):
+    """Set LOD screen sizes to C.SCREEN_SIZES on a SAVED mesh (a call after its import), modify() first, read back.
+    StaticMeshEditorSubsystem.set_lod_screen_sizes: flutter_lod.py:184-187 [prec, ran FLUTTERLOD-APPLY 7 Oct] and the
+    conductor's fix_l6p1_lod.py (read back [1.0, 0.3], 7 Oct) [prec]."""
+    sme = unreal.get_editor_subsystem(unreal.StaticMeshEditorSubsystem)
+    before = [float(x) for x in sme.get_lod_screen_sizes(mesh)]
+    action = C.screen_size_action(before)
+    if action == "SET":
+        mesh.modify()
+        sme.set_lod_screen_sizes(mesh, [float(x) for x in C.SCREEN_SIZES])       # return value not trusted
+    after = [float(x) for x in sme.get_lod_screen_sizes(mesh)]
+    if not C.screen_sizes_ok(after):
+        raise RuntimeError("SCREEN_SIZE_READBACK|%s|before=%s|after=%s" % (mesh.get_path_name(), before, after))
+    return {"before": before, "action": action, "after": after}
+
+
+def run_adopt(C, run, args, world):
+    """For a mesh (+ its 3 textures) that IMPORT created and saved but did not record (it stopped at a late gate):
+    the same mesh gates as IMPORT, texture settings (size is VERIFY's), screen sizes -> C.SCREEN_SIZES, save ONLY
+    the meshes that changed, then write the import record with adopted=true."""
+    pilot = _pilot()
+    rows = _pick(_rows(C), args["pieces"])
+    for row in rows:                                                          # all preconditions before any write
+        rec_path = os.path.join(HERE, "s3_waves_v3_import_%s.json" % row["suffix"])
+        C.adopt_check(row, _exists(row["mesh"]), {k: _exists(row["tex"][k]) for k in C.TEX_KINDS}, _read(rec_path))
+        val = _read(_piece_files(row["suffix"])["validation"])
+        if not val or not val.get("pass"):
+            raise RuntimeError("VALIDATION_NOT_PASS|%s" % row["suffix"])
+    out, changed = [], []
+    for row in rows:
+        files = _piece_files(row["suffix"])
+        val = _read(files["validation"])
+        mesh = _load(row["mesh"], unreal.StaticMesh)
+        gate = _mesh_gate(pilot, C, mesh, row, val)
+        tex_state = {}
+        for k in C.TEX_KINDS:
+            st = _texture_state(_load(row["tex"][k], unreal.Texture2D), C, k, check_size=False)
+            st["png_size"] = _png_size(files["tex"][k])
+            st["size_unverified"] = st.pop("size")
+            tex_state[k] = st
+        ss = _ensure_screen_sizes(C, mesh)
+        if ss["action"] == "SET":
+            changed.append(row["mesh"])
+        out.append({"run": run, "suffix": row["suffix"], "packages": [row["mesh"]] + [row["tex"][k] for k in C.TEX_KINDS],
+                    "mesh_gate": gate, "textures": tex_state, "fbx_sha256": _sha(files["fbx"]), "screen_sizes": ss,
+                    "saved": True, "adopted": True, "utc": datetime.datetime.utcnow().isoformat() + "Z"})
+    if changed:
+        _save(C, world, sorted(changed), map_expected=False)
+    elif _census() != {"content": [], "maps": []}:
+        raise RuntimeError("ADOPT_DIRTIED_WITHOUT_CHANGE|%s" % json.dumps(_census()))
+    unreal.SystemLibrary.collect_garbage()
+    for rec in out:                                                          # records only after the save
+        _write(os.path.join(HERE, "s3_waves_v3_import_%s.json" % rec["suffix"]), rec)
+    return {"adopted": [r["suffix"] for r in out], "saved": sorted(changed),
+            "screen_sizes": {r["suffix"]: r["screen_sizes"] for r in out}}
 
 
 # =================================================================================================== BUILD_MAT
@@ -557,12 +616,17 @@ def run_build_mat(C, run, args, world):
     pilot = _pilot()
     mel = unreal.MaterialEditingLibrary
     out = {}
-    for row in _pick(_rows(C), args["pieces"]):
+    picked = _pick(_rows(C), args["pieces"])
+    for row in picked:          # every precondition for EVERY piece before the first create (live 7 Oct: group 3
+        #                          created the L5 MIs, then stopped on NOT_IMPORTED L6 -> Don't-Save restart)
         if not _read(os.path.join(HERE, "s3_waves_v3_import_%s.json" % row["suffix"]), {}).get("saved"):
-            raise RuntimeError("NOT_IMPORTED|%s" % row["suffix"])
+            raise RuntimeError("NOT_IMPORTED|%s (IMPORT or ADOPT it first; nothing created)" % row["suffix"])
         for p in row["mi"].values():
             if _exists(p):
-                raise RuntimeError("MI_EXISTS|%s" % p)
+                raise RuntimeError("MI_EXISTS|%s (nothing created)" % p)
+        if not os.path.isfile(_piece_files(row["suffix"])["mi_params"]):
+            raise RuntimeError("MI_PARAMS_MISSING|%s" % row["suffix"])
+    for row in picked:
         params = _read(_piece_files(row["suffix"])["mi_params"])
         if params["parents"]["Front"] != C.PARENTS["Front"] or params["parents"]["Flap"] != C.PARENTS["Flap"]:
             raise RuntimeError("MI_PARAMS_PARENTS|%s" % params["parents"])
@@ -609,7 +673,8 @@ def run_build_mat(C, run, args, world):
         got = [pilot.asset_package(s.get_editor_property("material_interface")) for s in mesh.get_editor_property("static_materials")]
         if got != want_slots:
             raise RuntimeError("SLOT_MATERIALS|%s|%s" % (row["suffix"], got))
-        out[row["suffix"]] = {"mis": made, "slots": got}
+        ss = _ensure_screen_sizes(C, mesh)                                     # saved mesh, later call than import
+        out[row["suffix"]] = {"mis": made, "slots": got, "screen_sizes": ss}
     planned = sorted([r["mesh"] for r in _pick(_rows(C), args["pieces"])] +
                      [p for r in _pick(_rows(C), args["pieces"]) for p in r["mi"].values()])
     _save(C, world, planned, map_expected=False)
@@ -643,8 +708,8 @@ def run_verify(C, run):
             problems = []
             if r["lods"] != 2:
                 problems.append("lods")
-            if abs(r["screen_sizes"][1] - C.LOD1_SCREEN_SIZE) > 1e-4:
-                problems.append("lod1_screen_size")
+            if not C.screen_sizes_ok(r["screen_sizes"]):
+                problems.append("screen_sizes(want %s; BUILD_MAT/ADOPT sets them)" % list(C.SCREEN_SIZES))
             if r["nanite"]:
                 problems.append("nanite")
             want_slots = [row["mi"]["Front"], row["mi"]["Flap"], C.PARENTS["Timber"], C.PARENTS["Edge"]]
@@ -1276,6 +1341,9 @@ def main():
             r = run_import(C, run, args, world)
             unreal.log("%s_IMPORT_OK|run=%s|piece=%s|lods=%d|sizes_unverified(VERIFY next)" % (
                 C.MARK, run, r["suffix"], r["mesh_gate"]["num_lods"]))
+        elif mode == "ADOPT":
+            r = run_adopt(C, run, args, world)
+            unreal.log("%s_ADOPT_OK|run=%s|%s" % (C.MARK, run, json.dumps(r)))
         elif mode == "BUILD_MAT":
             r = run_build_mat(C, run, args, world)
             unreal.log("%s_BUILD_MAT_OK|run=%s|%s" % (C.MARK, run, json.dumps(r)))

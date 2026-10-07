@@ -709,3 +709,125 @@ Files, all under `DerivedAssets/S3Shore/previews/`:
 - The UE look (Megascans sand, Nanite at this relief) is unverified.
 - Ripple crests that run at an angle to the 7.5 cm grid alias visibly in the close stills. The material's normal map
   may need to carry the fine scale.
+
+
+## 10. Set B into the level: IMPORT `mesh_name`, APPLY / REVERT (7 Oct evening, offline, NOT RUN)
+
+Gary wants the set-B dune ground in the level now. The set-B FBX is
+`DerivedAssets/S3Shore/SM_S3_ShoreGround.fbx` (sha `eec3648b…`, height_set B, bounds
+min [0, −1012, 95], max [6012, 1008, 362.35]). The tier is **measured**: the manifest was read here.
+
+This is offline code only. No MCP, no Unreal, no commit.
+
+### 10.1 What changed
+- **IMPORT** takes `"mesh_name"`.
+  - The default `SM_S3_ShoreGround` is unchanged, so the v1 asset, the v1 import record and BENCH/BENCH_PIE all
+    behave as before.
+  - `SM_S3_ShoreGround_B` imports the same FBX into a **new** asset. It is create-only: `MESH_EXISTS` if the asset is
+    there, and nothing is ever reimported in place.
+  - The gates are the same as for v1: census clean, FBX hash, Nanite, VC REPLACE, 1 LOD, bounds == manifest ±0.5
+    (the Y asymmetry −1012/+1008 is the mirror gate), stray-folder diff, only this package dirty, save, clean after.
+  - The record goes to `s3_shore_ground_record.json.import-SM_S3_ShoreGround_B`, and the import refuses if that file
+    exists. Names must start `SM_S3_ShoreGround` and use only `[A-Za-z0-9_]`.
+- **APPLY** (`confirm "APPLY S3SHORE"`) lives in the `BEGIN_APPLY` section of `s3_shore_ground_ue.py`. It follows the
+  run-proven pattern of `S3Millstone/s3_props_ue.py` `run_apply` / `_revert_record`.
+  1. **Gates:** no PIE; editor world == the vertical slice; census clean; no `s3_shore_ground_record.json`; no
+     "S3 Shore Ground" label or `RigAtmos.S3ShoreGround` tag. The mesh and MI must load through `unreal.load_asset`.
+     There must be exactly one root, one deck and one v2 sand.
+  2. **Reads:** the deck's and the v2 sand's bindings in `LS_S3_HangarRise` and `LS_DevScene_03`. A binding counts
+     if `locate_bound_objects` resolves it, or if its display name equals the label or object name. The track
+     classes and visibility sections go into the record and the OK marker (`reveal_report`).
+  3. **Record first** (exclusive create), then the backup `Backups/PreS3ShoreGround-<run>/`: the umap,
+     `LS_S3_HangarRise.uasset` and the record, all sha-checked.
+  4. **Spawn** a StaticMeshActor "S3 Shore Ground" with these settings:
+     - mesh = `mesh_name`;
+     - slot 0 = `mi` (default `MI_S3_ShoreGround_v2`);
+     - MOVABLE, NO_COLLISION, tag `RigAtmos.S3ShoreGround`, the deck's outliner folder;
+     - attached KEEP_RELATIVE to "S3 Hangar Root", relative transform set to identity.
+  5. **Reveal**, `reveal: "mirror_deck"` (the default):
+     - **The deck has one RISE binding with one visibility section:** the section is copied to the new actor
+       (`add_possessable` + `MovieSceneVisibilityTrack`, as the millstone did). The actor is hidden in game, and
+       `LS_S3_HangarRise` joins the save set. The marker then says `float_hold_reapply_needed=True`: the S3 float
+       hold (`s4_hangar_hold.py` FLOAT, `s3_hangar_float_hold_record.json`) must be re-applied to include the new
+       binding. That is reported, not done.
+     - **No visibility track anywhere:** no reveal. The ground rides the root exactly as the deck does.
+     - **Refused:** a deck visibility track in `LS_DevScene_03`, several bindings or sections, or a sequence that
+       could not be read. `reveal: "none"` overrides this.
+  6. **Hide** the deck and the v2 sand. The actor is set hidden in game, and every primitive component gets
+     visibility off and hidden in game, after `modify()`. Each flag is read back against the exact originals in the
+     record. Because this is done at component level, an actor-level rise visibility track cannot re-show them. This
+     is the precedent of the `Clam_Pedastal` hide.
+  7. **Narrow save.** The census must be exactly `{content: [] or [RISE], maps: [WORLD]}`, with no ZZ_ actors. Then
+     `save_map`, plus `save_asset(RISE)` only if a reveal was copied, and the census must be clean afterwards.
+  8. **Read back** with fresh lookups after the save:
+     - the parent is the root, the relative transform is identity ±0.01, and mesh, MI0, tag, mobility, collision
+       and the hidden flag are as set;
+     - the deck and v2 flags equal the record's `after`, and the reveal binding resolves and its keys match;
+     - the landed-box guard: the actor's root-local AABB is inside `LANDED_LOCAL_BOX` ±2 cm.
+     Only then is `S3SHORE_APPLY_OK|run=…` logged.
+  9. **Failure** at any step after the record is written: an in-memory auto-undo runs (reveal removed, actor
+     destroyed by reference, flags restored), and the record is renamed to `.failed-<run>`. **The map may still be
+     dirty: Don't-Save restart.**
+- **REVERT** (`confirm "REVERT S3SHORE"`):
+  1. Gates: census clean, record saved.
+  2. `_verify_applied`. Any drift since APPLY refuses before anything is mutated.
+  3. Backup `-REVERT`.
+  4. Remove our binding (only after proving it resolves to our actor), destroy the actor, and restore the deck and
+     v2 flags exactly.
+  5. Narrow save, then read back: the actor is gone and the flags equal the record's `before`.
+  6. The record is renamed to `.reverted-<run>`. The assets stay.
+- **VERIFY** is still refused by the runner.
+
+### 10.2 Evidence tiers
+- **declaration-proven:**
+  - `SetCollisionEnabled` / `GetCollisionEnabled`: PrimitiveComponent.h:2025-2026, 2618-2619.
+  - `SetHiddenInGame`: SceneComponent.h:932-933.
+  - `GetFolderPath` / `SetFolderPath`: Actor.h:2757-2758, 2782-2783.
+- **run-proven elsewhere** (7 Oct, `s3_props_ue.py` millstone APPLY, commit 15255da): spawn, KEEP_RELATIVE attach,
+  `_set_flags` hide, the RISE visibility-track copy, `save_map` + `save_asset`, `locate_bound_objects`, and the
+  GUID binding remove.
+- **measured here** (mock unreal): harness, see 10.4.
+- **inferred / UNCLEAR:**
+  - **Is the deck revealed by a rise visibility track? UNCLEAR.** The offline files hold only the *pedestal's*
+    RISE binding (`S3Millstone/s3_props_dry_S3PROPS-20261007-173420.json`, guid 2425E62E…, keys 0:false / 139:true).
+    No offline file lists the deck's or the v2 sand's bindings in either sequence. The searches were
+    `probe_s3_clam_rock.json`, the s3_props DRY/apply records and `s3_shore_live_reads.json`. The deck's last read
+    state was hidden_ed false, hidden_game false, parent the root (`probe_s3_clam_rock.json`). That fits a box part
+    with no reveal, but it is not proof. APPLY reads the bindings and decides, and its marker reports the result.
+  - **Is the new ground visible during the hangar rise?** It is attached to the root at identity, so it moves with
+    the box as the deck does. Its visibility mirrors the deck's: always visible if the deck has no track, or the
+    copied reveal if it has one. Inferred from the attachment; not yet measured in PIE.
+  - Whether `set_collision_enabled` dirties anything beyond the map: the census-exact save gate catches this. It is
+    not measured.
+
+### 10.3 Run order (Gary waiting)
+1. `{"mode":"IMPORT","confirm":"IMPORT S3SHORE","run":"S3SHORE-<ts>-IMPB","mesh_name":"SM_S3_ShoreGround_B"}`.
+   Expect `S3SHORE_IMPORT_OK`, with bounds max z ≈ 362.35.
+2. `{"mode":"APPLY","confirm":"APPLY S3SHORE","run":"S3SHORE-<ts>-APPLY","mesh_name":"SM_S3_ShoreGround_B"}`.
+   - `mi` defaults to MI_S3_ShoreGround_v2.
+   - Read `reveal_report` and `float_hold_reapply_needed` from the marker.
+3. Tests: `InfinityStage.Editor.SavedMasterMatchesShow` and `InfinityStage.Editor.SceneCutBindingsResolve`, queued
+   after a run-id marker.
+4. If `float_hold_reapply_needed=True`, re-apply the S3 float hold (conductor's call).
+
+To undo: `{"mode":"REVERT","confirm":"REVERT S3SHORE","run":"S3SHORE-<ts>-REV"}`.
+
+### 10.4 Harness
+`test_s3_shore_offline.py` gains 23 APPLY cases, using a new editor-world mock in which every mutation dirties the
+map and is logged with record-file existence. The cases cover:
+- \+ APPLY: placement, flags, one map-only save, record before every mutation.
+- \+ REVERT exact, including a non-default `Skirt.hidden_in_game`.
+- − refusals: dirty census (APPLY and REVERT), existing record, missing _B, deck reveal only in DevScene_03, PIE,
+  revert drift.
+- − a foreign package dirtied mid-apply: DIRTY_SCOPE, auto-undo, `.failed` record.
+- \+ deck reveal mirrored, RISE saved, float hold flagged; REVERT removes only our binding.
+- mesh_name: default unchanged, B, bad names refused.
+- − IMPORT `_B` exists / dirty census, refused before any import task.
+- Runner: wrong confirm; APPLY_OK → REVERT_OK → VERIFY refused.
+- A static scan of the APPLY section for `EditorAssetLibrary.load_asset`, reload, Save-All, reimport and
+  GetBoundObjects, with a − control.
+
+Two existing runner checks were updated on purpose: APPLY and REVERT are now enabled, and VERIFY is still refused.
+Result: see the end of this section.
+
+Result (7 Oct evening, measured here): `S3SHORE_OFFLINE 79/79` (56 previous + 23 new), exit 0.

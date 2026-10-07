@@ -388,9 +388,10 @@ def run_pie_cases(U):
             [m.split("|")[0] for m in msgs if "S3SHORE_BENCH_PIE_" in m and "ORIGINALS" not in m] ==
             ["S3SHORE_BENCH_PIE_APPLY_OK", "S3SHORE_BENCH_PIE_RESTORE_OK", "S3SHORE_BENCH_PIE_RESTORE_NOOP"]
             and not any(k == "error" for k, _m in st["log"]), msgs)
-        run_runner(fake, {"mode": "APPLY", "confirm": "APPLY S3SHORE", "run": "T11"})
+        run_runner(fake, {"mode": "VERIFY", "confirm": "VERIFY S3SHORE", "run": "T11"})
         msgs = [m for _k, m in st["log"]]
-        add("- runner: APPLY still refused", any("MODE_NOT_ENABLED_IN_RUNNER|APPLY" in m for m in msgs))
+        add("- runner: VERIFY still refused (APPLY/REVERT enabled 7 Oct evening)",
+            any("MODE_NOT_ENABLED_IN_RUNNER|VERIFY" in m for m in msgs))
     finally:
         U.unreal, U.HERE = saved_unreal, saved_here
         for f in glob.glob(tmp + "*.json"):
@@ -415,6 +416,663 @@ def run_pie_cases(U):
     out.append({"case": "- control: the same scan flags a planted save + destroy",
                 "ok": set(scan(code + "\nunreal.EditorAssetLibrary.save_asset(x)\na.destroy_actor()"))
                 >= {"save_asset", "destroy_actor"}})
+    return out
+
+# ----------------------------------------------------------------------------- APPLY / REVERT mocks (no Unreal)
+def _make_editor_fake(U, state):
+    """Editor-world fake: every mutation dirties the map (as the real editor does) and is logged with whether the
+    record file existed at that moment (record-first check)."""
+    calls = state["calls"]
+    ns = types.SimpleNamespace
+
+    def mark(name, *a):
+        calls.append((name,) + a + (os.path.isfile(U.RECORD),))
+        if U.WORLD not in state["dirty"]["maps"]:
+            state["dirty"]["maps"].append(U.WORLD)
+
+    class Obj:
+        def __init__(self, path):
+            self.path = path
+
+        def get_path_name(self):
+            return self.path
+
+        def get_name(self):
+            return self.path.rsplit(".", 1)[-1].rsplit("/", 1)[-1]
+
+    class Pkg(Obj):
+        def get_name(self):                                           # UPackage name = full long package path
+            return self.path
+
+    class StaticMesh(Obj):
+        def __init__(self, path, box=None):
+            super().__init__(path)
+            self.box = box or {"min": [-50.0, -50.0, -50.0], "max": [50.0, 50.0, 50.0]}
+
+    class MaterialInterface(Obj):
+        pass
+
+    class Vector:
+        def __init__(self, x=0.0, y=0.0, z=0.0):
+            self.x, self.y, self.z = float(x), float(y), float(z)
+
+    class Rotator:
+        def __init__(self, roll=0.0, pitch=0.0, yaw=0.0):
+            self.roll, self.pitch, self.yaw = float(roll), float(pitch), float(yaw)
+
+    class Quat:
+        def __init__(self, r):
+            self.r = r
+
+        def rotator(self):
+            return self.r
+
+    class Transform:
+        def __init__(self, location=None, rotation=None, scale=None):
+            self.translation = location or Vector()
+            self.rotation = Quat(rotation or Rotator())
+            self.scale3d = scale or Vector(1, 1, 1)
+
+    class PrimitiveComponent:
+        def __init__(self, name, owner):
+            self.name, self.owner, self.visible, self.hidden_in_game = name, owner, True, False
+
+        def get_name(self):
+            return self.name
+
+        def modify(self):
+            calls.append(("modify", self.owner.name))
+
+        def is_visible(self):
+            return self.visible
+
+        def get_editor_property(self, k):
+            return {"hidden_in_game": self.hidden_in_game}[k]
+
+        def set_visibility(self, v, prop):
+            mark("set_visibility", self.owner.name, v)
+            self.visible = bool(v)
+
+        def set_hidden_in_game(self, v, prop):
+            mark("set_hidden_in_game", self.owner.name, v)
+            self.hidden_in_game = bool(v)
+
+    class SMC(PrimitiveComponent):
+        def __init__(self, name, owner, mesh=None, rel=None):
+            super().__init__(name, owner)
+            self.mesh, self.mats = mesh, []
+            self.rel = rel or {"loc": [0.0, 0.0, 0.0], "rpy": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0]}
+            self.mobility, self.collision = "<ComponentMobility.STATIC: 0>", "<CollisionEnabled.QUERY_AND_PHYSICS: 3>"
+
+        def get_editor_property(self, k):
+            if k in ("static_mesh", "mobility"):
+                return {"static_mesh": self.mesh, "mobility": self.mobility}[k]
+            return super().get_editor_property(k)
+
+        def set_static_mesh(self, m):
+            mark("set_static_mesh", self.owner.name)
+            if m is self.mesh:
+                return False
+            self.mesh = m
+            return True
+
+        def get_material(self, i):
+            return self.mats[i] if i < len(self.mats) else None
+
+        def set_material(self, i, m):
+            mark("set_material", self.owner.name)
+            while len(self.mats) <= i:
+                self.mats.append(None)
+            self.mats[i] = m
+
+        def set_mobility(self, m):
+            mark("set_mobility", self.owner.name)
+            self.mobility = m
+
+        def set_collision_enabled(self, c):
+            mark("set_collision_enabled", self.owner.name)
+            self.collision = c
+
+        def get_collision_enabled(self):
+            return self.collision
+
+        def get_relative_transform(self):
+            r = self.rel
+            return Transform(Vector(*r["loc"]), Rotator(*r["rpy"]), Vector(*r["scale"]))
+
+        def set_relative_transform(self, t, sweep, teleport):
+            mark("set_relative_transform", self.owner.name)
+            rr = t.rotation.rotator()
+            self.rel = {"loc": [t.translation.x, t.translation.y, t.translation.z],
+                        "rpy": [rr.roll, rr.pitch, rr.yaw], "scale": [t.scale3d.x, t.scale3d.y, t.scale3d.z]}
+
+    class Actor:
+        def __init__(self, world, name, label, tags=(), parent=None, loc=(0.0, 0.0, 0.0)):
+            self.world, self.name, self.label, self.tags = world, name, label, list(tags)
+            self.parent, self.loc, self.hidden, self.comps, self.folder = parent, loc, False, [], "S3"
+            self.static_mesh_component = None
+            world.actors.append(self)
+
+        def get_name(self):
+            return self.name
+
+        def get_actor_label(self):
+            return self.label
+
+        def set_actor_label(self, v):
+            mark("set_actor_label", self.name)
+            self.label = v
+
+        def get_path_name(self):
+            return self.world.path + ":PersistentLevel." + self.name
+
+        def get_world(self):
+            return self.world
+
+        def get_class(self):
+            return ns(get_name=lambda: type(self).__name__)
+
+        def modify(self):
+            calls.append(("modify", self.name))
+
+        def get_editor_property(self, k):
+            return {"tags": list(self.tags), "hidden": self.hidden}[k]
+
+        def set_editor_property(self, k, v):
+            assert k == "tags"
+            mark("set_tags", self.name)
+            self.tags = [str(x) for x in v]
+
+        def set_actor_hidden_in_game(self, v):
+            mark("set_actor_hidden_in_game", self.name, v)
+            self.hidden = bool(v)
+
+        def get_attach_parent_actor(self):
+            return self.parent
+
+        def attach_to_actor(self, parent, socket, a, b, c, weld):
+            mark("attach_to_actor", self.name, a, b, c)
+            self.parent = parent
+
+        def get_folder_path(self):
+            return self.folder
+
+        def set_folder_path(self, f):
+            mark("set_folder_path", self.name)
+            self.folder = f
+
+        def get_actor_location(self):
+            smc = self.static_mesh_component
+            if self.parent is not None and smc is not None:
+                p, r = self.parent.get_actor_location(), smc.rel["loc"]
+                return Vector(p.x + r[0], p.y + r[1], p.z + r[2])
+            return Vector(*self.loc)
+
+        def get_actor_rotation(self):
+            return Rotator()
+
+        def get_actor_transform(self):
+            l0 = self.get_actor_location()
+            return ns(inverse_transform_location=lambda v: Vector(v.x - l0.x, v.y - l0.y, v.z - l0.z))
+
+        def get_actor_bounds(self, only_colliding):
+            l0 = self.get_actor_location()
+            smc = self.static_mesh_component
+            b = smc.mesh.box if smc is not None and smc.mesh is not None else {"min": [0, 0, 0], "max": [0, 0, 0]}
+            o = [(b["min"][i] + b["max"][i]) / 2.0 for i in range(3)]
+            e = [(b["max"][i] - b["min"][i]) / 2.0 for i in range(3)]
+            return Vector(l0.x + o[0], l0.y + o[1], l0.z + o[2]), Vector(*e)
+
+        def get_components_by_class(self, cls):
+            return [c for c in self.comps if isinstance(c, cls)]
+
+    class StaticMeshActor(Actor):
+        pass
+
+    class World:
+        def __init__(self, path):
+            self.path, self.actors = path, []
+
+        def get_path_name(self):
+            return self.path
+
+    # --- sequences
+    class Key:
+        def __init__(self, f, v):
+            self.f, self.v = f, v
+
+        def get_time(self):
+            return ns(frame_number=ns(value=self.f))
+
+        def get_value(self):
+            return self.v
+
+    class Channel:
+        def __init__(self, keys=()):
+            self.keys = [Key(f, v) for f, v in keys]
+
+        def get_keys(self):
+            return list(self.keys)
+
+        def add_key(self, frame, value, time_unit=None):
+            self.keys.append(Key(int(frame.value), bool(value)))
+
+    class Section:
+        def __init__(self, seq, rng=(0.0, 0.0), mode="PROJECT_DEFAULT", keys=()):
+            self.seq, self.rng, self.mode, self.ch = seq, list(rng), mode, Channel(keys)
+
+        def get_all_channels(self):
+            return [self.ch]
+
+        def get_completion_mode(self):
+            return self.mode
+
+        def set_completion_mode(self, m):
+            self.mode = m
+
+        def set_range_seconds(self, a, b):
+            self.rng = [a, b]
+
+        def get_start_frame_seconds(self):
+            return self.rng[0]
+
+        def get_end_frame_seconds(self):
+            return self.rng[1]
+
+    class MovieSceneVisibilityTrack:
+        pass
+
+    class Track:
+        def __init__(self, seq, cls_name="MovieSceneVisibilityTrack"):
+            self.seq, self.cls_name, self.sections = seq, cls_name, []
+
+        def get_class(self):
+            return ns(get_name=lambda: self.cls_name)
+
+        def get_sections(self):
+            return list(self.sections)
+
+        def add_section(self):
+            s = Section(self.seq)
+            self.sections.append(s)
+            return s
+
+    class Binding:
+        def __init__(self, seq, gid, obj, display):
+            self.seq, self.gid, self.obj, self.display, self.tracks = seq, gid, obj, display, []
+
+        def get_id(self):
+            return self.gid
+
+        def get_display_name(self):
+            return self.display
+
+        def get_tracks(self):
+            return list(self.tracks)
+
+        def is_valid(self):
+            return True
+
+        def add_track(self, cls):
+            self.seq.dirty()
+            t = Track(self.seq)
+            self.tracks.append(t)
+            return t
+
+        def remove(self):
+            self.seq.dirty()
+            self.seq.bindings.remove(self)
+
+    class LevelSequence(Obj):
+        def __init__(self, path):
+            super().__init__(path)
+            self.bindings, self.n = [], 0
+
+        def dirty(self):
+            if self.path not in state["dirty"]["content"]:
+                state["dirty"]["content"].append(self.path)
+
+        def get_display_rate(self):
+            return ns(numerator=30, denominator=1)
+
+        def get_bindings(self):
+            return list(self.bindings)
+
+        def locate_bound_objects(self, b, world):
+            return [b.obj] if b.obj is not None and b.obj in world.actors else []
+
+        def add_possessable(self, actor):
+            self.dirty()
+            self.n += 1
+            b = Binding(self, "GUID-NEW-%d" % self.n, actor, actor.get_actor_label())
+            self.bindings.append(b)
+            return b
+
+    class EditorActorSubsystem:
+        pass
+
+    class UnrealEditorSubsystem:
+        pass
+
+    def spawn(cls, loc, rot, transient):
+        state["n"] += 1
+        mark("spawn_actor_from_class", "StaticMeshActor_%d" % state["n"])
+        a = cls(state["editor"], "StaticMeshActor_%d" % state["n"], "StaticMeshActor", loc=(loc.x, loc.y, loc.z))
+        a.static_mesh_component = SMC("StaticMeshComponent0", a)
+        a.comps = [a.static_mesh_component]
+        if state.get("spawn_hook"):
+            state["spawn_hook"]()
+        return a
+
+    def destroy(a):
+        mark("destroy_actor", a.name)
+        a.world.actors.remove(a)
+        return True
+
+    def save_map(world, path):
+        calls.append(("save_map", path, os.path.isfile(U.RECORD)))
+        state["dirty"]["maps"] = []
+        return True
+
+    def save_asset(p, only_if_is_dirty=True):
+        calls.append(("save_asset", p, os.path.isfile(U.RECORD)))
+        state["dirty"]["content"] = [x for x in state["dirty"]["content"] if x != p]
+        return True
+
+    ed = ns(get_game_world=lambda: state["pie"], get_editor_world=lambda: state["editor"])
+    eas = ns(spawn_actor_from_class=spawn, destroy_actor=destroy)
+    fake = _Spy("unreal", state["names"],
+                Actor=Actor, StaticMeshActor=StaticMeshActor, StaticMesh=StaticMesh, MaterialInterface=MaterialInterface,
+                PrimitiveComponent=PrimitiveComponent, LevelSequence=LevelSequence, Vector=Vector, Rotator=Rotator,
+                Transform=Transform, Name=str, UnrealEditorSubsystem=UnrealEditorSubsystem,
+                EditorActorSubsystem=EditorActorSubsystem,
+                get_editor_subsystem=lambda c: ed if c is UnrealEditorSubsystem else eas,
+                load_asset=lambda p: state["assets"].get(p.split(".")[0]),
+                log=lambda m: state["log"].append(("log", m)), log_error=lambda m: state["log"].append(("error", m)),
+                ComponentMobility=ns(MOVABLE="<ComponentMobility.MOVABLE: 2>"),
+                CollisionEnabled=ns(NO_COLLISION="<CollisionEnabled.NO_COLLISION: 0>"),
+                AttachmentRule=ns(KEEP_RELATIVE="KEEP_RELATIVE"),
+                MovieSceneVisibilityTrack=MovieSceneVisibilityTrack,
+                MovieSceneCompletionMode=ns(PROJECT_DEFAULT="PROJECT_DEFAULT", KEEP_STATE="KEEP_STATE",
+                                            RESTORE_STATE="RESTORE_STATE"),
+                MovieSceneTimeUnit=ns(DISPLAY_RATE="DISPLAY_RATE"), FrameNumber=lambda v: ns(value=int(v)),
+                GuidLibrary=ns(conv_guid_to_string=lambda g: g),
+                GameplayStatics=_Spy("GameplayStatics", state["names"],
+                                     get_all_actors_of_class=lambda w, c: [a for a in w.actors if isinstance(a, c)]),
+                EditorAssetLibrary=_Spy("EditorAssetLibrary", state["names"],
+                                        does_asset_exist=lambda p: p in state["assets"], save_asset=save_asset),
+                EditorLoadingAndSavingUtils=_Spy("EditorLoadingAndSavingUtils", state["names"],
+                                                 get_dirty_content_packages=lambda: [Pkg(p) for p in state["dirty"]["content"]],
+                                                 get_dirty_map_packages=lambda: [Pkg(p) for p in state["dirty"]["maps"]],
+                                                 save_map=save_map))
+    return fake, dict(World=World, Actor=Actor, StaticMeshActor=StaticMeshActor, SMC=SMC, Binding=Binding,
+                      Track=Track, Section=Section, PrimitiveComponent=PrimitiveComponent, StaticMesh=StaticMesh,
+                      MaterialInterface=MaterialInterface, LevelSequence=LevelSequence)
+
+
+def _editor_scene(U, deck_reveal=False, scene_reveal=False):
+    state = {"calls": [], "names": [], "log": [], "n": 0, "pie": None, "dirty": {"content": [], "maps": []}}
+    fake, K = _make_editor_fake(U, state)
+    man = json.load(open(MANIFEST, encoding="utf-8"))
+    mb = man["expected_ue_local_bounds_cm"]
+    b_path = U.ASSET_DIR + "/SM_S3_ShoreGround_B"
+    cube = K["StaticMesh"]("/Engine/BasicShapes/Cube.Cube")
+    rise, scene = K["LevelSequence"](U.RISE), K["LevelSequence"](U.SEQUENCE_PATH)
+    state["assets"] = {b_path: K["StaticMesh"](b_path + ".SM_S3_ShoreGround_B", box=mb),
+                       U.MESH: K["StaticMesh"](U.MESH + ".SM_S3_ShoreGround", box=mb),
+                       U.APPLY_DEFAULT_MI: K["MaterialInterface"](U.APPLY_DEFAULT_MI + ".MI_S3_ShoreGround_v2"),
+                       U.RISE: rise, U.SEQUENCE_PATH: scene}
+    editor = K["World"](U.WORLD + ".L_InfinityStage_V1VerticalSlice")
+    state["editor"] = editor
+    root = K["Actor"](editor, "Actor_Root_1", U.ROOT_LABEL, loc=U.ROOT_LANDED_WORLD)
+    deck = K["StaticMeshActor"](editor, "StaticMeshActor_243", U.DECK_LABEL, tags=["RigAtmos.S3Deck"], parent=root)
+    deck.static_mesh_component = K["SMC"]("StaticMeshComponent0", deck, cube,
+                                          {"loc": [3000.0, 0.0, -25.0], "rpy": [0.0, 0.0, 0.0], "scale": [60.0, 20.0, 0.5]})
+    deck.comps = [deck.static_mesh_component]
+    v2 = K["StaticMeshActor"](editor, "StaticMeshActor_88", U.V2_SAND_LABEL, parent=root)
+    v2.static_mesh_component = K["SMC"]("StaticMeshComponent0", v2, cube)
+    skirt = K["PrimitiveComponent"]("Skirt", v2)
+    skirt.hidden_in_game = True                                       # a non-default original that must come back
+    v2.comps = [v2.static_mesh_component, skirt]
+    other = K["StaticMeshActor"](editor, "StaticMeshActor_4", "Clam_Pedastal")
+    rb = K["Binding"](rise, "2425E62E", other, "Clam_Pedastal")
+    t = K["Track"](rise)
+    t.sections.append(K["Section"](rise, (0.0, 31.0), "PROJECT_DEFAULT", [(0, False), (139, True)]))
+    rb.tracks.append(t)
+    rise.bindings.append(rb)
+    if deck_reveal:
+        db = K["Binding"](rise, "DECKGUID", deck, U.DECK_LABEL)
+        t2 = K["Track"](rise)
+        t2.sections.append(K["Section"](rise, (0.0, 31.0), "KEEP_STATE", [(0, False), (120, True)]))
+        db.tracks.append(t2)
+        rise.bindings.append(db)
+    if scene_reveal:
+        sb = K["Binding"](scene, "SCENEGUID", None, U.DECK_LABEL)        # matched by display name
+        t3 = K["Track"](scene)
+        t3.sections.append(K["Section"](scene, (0.0, 10.0), "PROJECT_DEFAULT", [(0, True)]))
+        sb.tracks.append(t3)
+        scene.bindings.append(sb)
+    state.update(root=root, deck=deck, v2=v2, rise=rise, scene=scene, K=K, b_path=b_path, other=other)
+    return fake, state
+
+
+def run_apply_cases(U):
+    import glob
+    import io
+    import shutil as _sh
+    out = []
+
+    def add(case, ok, info=None):
+        out.append({"case": "APPLY: " + case, "ok": bool(ok), "info": info})
+
+    def raises(fn, token):
+        try:
+            fn()
+            return False, "no raise"
+        except Exception as e:  # noqa: BLE001
+            return token in str(e), str(e)[:240]
+
+    saved = {k: getattr(U, k) for k in ("unreal", "RECORD", "UMAP", "RISE_UASSET", "BACKUP_ROOT")}
+    tmp = tempfile.mkdtemp(prefix="s3shore_apply_mock_").replace("\\", "/") + "/"
+    for name in ("L_InfinityStage_V1VerticalSlice.umap", "LS_S3_HangarRise.uasset"):
+        with open(tmp + name, "wb") as h:
+            h.write(name.encode() * 50)
+    U.RECORD, U.UMAP, U.RISE_UASSET = tmp + "s3_shore_ground_record.json", tmp + "L_InfinityStage_V1VerticalSlice.umap", \
+        tmp + "LS_S3_HangarRise.uasset"
+    U.BACKUP_ROOT = tmp + "Backups/PreS3ShoreGround-"
+    args_b = {"mesh_name": "SM_S3_ShoreGround_B"}
+    muts = ("spawn_actor_from_class", "set_visibility", "set_hidden_in_game", "set_actor_hidden_in_game",
+            "set_static_mesh", "set_material", "attach_to_actor", "destroy_actor", "set_tags")
+
+    def snap(st):
+        return {k: U._hide_state(st[k]) for k in ("deck", "v2")}
+
+    try:
+        # + APPLY (deck has no reveal track)
+        fake, st = _editor_scene(U)
+        U.unreal = fake
+        before = snap(st)
+        res = U.run_apply("A1", args_b)
+        g = [a for a in st["editor"].actors if a.label == U.ACTOR_LABEL]
+        smc = g[0].static_mesh_component if g else None
+        rec = json.load(open(U.RECORD, encoding="utf-8"))
+        add("+ apply: 'S3 Shore Ground' on the root at relative identity, mesh _B, MI v2, tag, MOVABLE, no collision",
+            len(g) == 1 and g[0].parent is st["root"] and smc.rel == U.IDENTITY_REL
+            and smc.mesh is st["assets"][st["b_path"]] and smc.mats[0] is st["assets"][U.APPLY_DEFAULT_MI]
+            and g[0].tags == [U.TAG] and "MOVABLE" in smc.mobility and "NO_COLLISION" in smc.collision
+            and not g[0].hidden and res["reveal_guid"] is None and not res["float_hold_reapply_needed"], res)
+        add("+ apply: deck + v2 sand hidden (actor + every component off + hidden in game); census clean; record "
+            "saved+applied; backup umap+rise+record",
+            all(st[k].hidden and all(not c.visible and c.hidden_in_game for c in st[k].comps) for k in ("deck", "v2"))
+            and st["dirty"] == {"content": [], "maps": []} and rec["saved"] and rec["applied"]
+            and sorted(os.listdir(U.BACKUP_ROOT + "A1")) == sorted(["L_InfinityStage_V1VerticalSlice.umap",
+                                                                     "LS_S3_HangarRise.uasset",
+                                                                     "s3_shore_ground_record.json"]), rec.get("backup"))
+        m = [c for c in st["calls"] if c[0] in muts]
+        saves = [c for c in st["calls"] if c[0] in ("save_map", "save_asset")]
+        add("+ apply: record existed before EVERY mutation; exactly one save (the map), no sequence saved",
+            m and all(c[-1] for c in m) and [c[0] for c in saves] == ["save_map"], saves)
+        # + REVERT exact
+        r = U.run_revert("A1R", {})
+        add("+ revert: actor destroyed, deck/v2 flags EXACTLY as before (incl. Skirt hidden_in_game), census clean, "
+            "record -> .reverted",
+            snap(st) == before and not [a for a in st["editor"].actors if a.label == U.ACTOR_LABEL]
+            and st["dirty"] == {"content": [], "maps": []} and not os.path.isfile(U.RECORD)
+            and os.path.isfile(U.RECORD + ".reverted-A1R") and st["v2"].comps[1].hidden_in_game, r)
+        # - dirty census refused, nothing written
+        fake, st = _editor_scene(U)
+        st["dirty"]["content"] = ["/Game/Klara/SomeLevel"]
+        U.unreal = fake
+        ok, msg = raises(lambda: U.run_apply("A2", args_b), "DIRTY_EDITOR")
+        add("- apply refuses on a dirty census (no record, no mutation)",
+            ok and not os.path.isfile(U.RECORD) and not [c for c in st["calls"] if c[0] in muts], msg)
+        fake, st = _editor_scene(U)
+        U.unreal = fake
+        st["dirty"]["maps"] = [U.WORLD]
+        ok, msg = raises(lambda: U.run_revert("A2R", {}), "DIRTY_EDITOR")
+        add("- revert refuses on a dirty census", ok, msg)
+        # - existing record refused, record untouched
+        fake, st = _editor_scene(U)
+        U.unreal = fake
+        with open(U.RECORD, "w", encoding="utf-8") as h:
+            h.write('{"run": "OLD"}')
+        ok, msg = raises(lambda: U.run_apply("A3", args_b), "RECORD_EXISTS")
+        add("- apply refuses when s3_shore_ground_record.json exists (file untouched, no mutation)",
+            ok and open(U.RECORD, encoding="utf-8").read() == '{"run": "OLD"}'
+            and not [c for c in st["calls"] if c[0] in muts], msg)
+        os.remove(U.RECORD)
+        # - missing mesh refused (IMPORT not run)
+        fake, st = _editor_scene(U)
+        del st["assets"][st["b_path"]]
+        U.unreal = fake
+        ok, msg = raises(lambda: U.run_apply("A4", args_b), "MESH_MISSING")
+        add("- apply refuses when SM_S3_ShoreGround_B is missing", ok and not os.path.isfile(U.RECORD), msg)
+        # + deck reveal mirrored (RISE copy), RISE saved, float hold flagged; revert removes the binding
+        fake, st = _editor_scene(U, deck_reveal=True)
+        U.unreal = fake
+        n0 = len(st["rise"].bindings)
+        before = snap(st)
+        res = U.run_apply("A5", args_b)
+        g = [a for a in st["editor"].actors if a.label == U.ACTOR_LABEL][0]
+        nb = [b for b in st["rise"].bindings if b.obj is g]
+        keys = [[k.f, k.v] for k in nb[0].tracks[0].sections[0].ch.keys] if nb else None
+        saves = [c[:2] for c in st["calls"] if c[0] in ("save_map", "save_asset")]
+        add("+ deck reveal: copied to the new actor (keys/mode), actor hidden in game, rise + map saved, float hold flagged",
+            len(nb) == 1 and keys == [[0, False], [120, True]] and nb[0].tracks[0].sections[0].mode == "KEEP_STATE"
+            and g.hidden and res["float_hold_reapply_needed"] and ("save_asset", U.RISE) in saves
+            and ("save_map", U.WORLD) in saves and st["dirty"] == {"content": [], "maps": []}, saves)
+        r = U.run_revert("A5R", {})
+        add("+ revert after a reveal copy: binding removed, pedestal + deck bindings kept, flags exact",
+            len(st["rise"].bindings) == n0 and not [b for b in st["rise"].bindings if b.obj is g]
+            and snap(st) == before and "reveal_removed" in r["done"], r)
+        # - deck revealed only in LS_DevScene_03 -> refused before anything
+        fake, st = _editor_scene(U, scene_reveal=True)
+        U.unreal = fake
+        ok, msg = raises(lambda: U.run_apply("A6", args_b), "DECK_REVEAL_IN_SCENE_SEQUENCE_UNSUPPORTED")
+        add("- deck visibility track in LS_DevScene_03 -> refused (no record, no mutation)",
+            ok and not os.path.isfile(U.RECORD) and not [c for c in st["calls"] if c[0] in muts], msg)
+        # - a foreign package dirtied mid-apply -> DIRTY_SCOPE, auto-undo, no live record
+        fake, st = _editor_scene(U)
+        U.unreal = fake
+        before = snap(st)
+        st["spawn_hook"] = lambda: st["dirty"]["content"].append("/Game/Klara/AlleyLevel")
+        ok, msg = raises(lambda: U.run_apply("A7", args_b), "DIRTY_SCOPE")
+        failed = U.RECORD + ".failed-A7"
+        frec = json.load(open(failed, encoding="utf-8")) if os.path.isfile(failed) else {}
+        add("- foreign package dirtied mid-apply -> DIRTY_SCOPE, nothing saved, auto-undo (actor gone, flags exact), "
+            "record -> .failed",
+            ok and not [c for c in st["calls"] if c[0] in ("save_map", "save_asset")] and snap(st) == before
+            and not [a for a in st["editor"].actors if a.label == U.ACTOR_LABEL] and not os.path.isfile(U.RECORD)
+            and "actor_destroyed" in frec.get("auto_undo", []), msg)
+        # - revert refuses on drift (someone re-showed the deck) before mutating
+        fake, st = _editor_scene(U)
+        U.unreal = fake
+        U.run_apply("A8", args_b)
+        st["deck"].static_mesh_component.visible = True
+        st["calls"].clear()
+        ok, msg = raises(lambda: U.run_revert("A8R", {}), "READBACK_HIDDEN")
+        add("- revert refuses on drift since APPLY (no mutation, actor kept)",
+            ok and not [c for c in st["calls"] if c[0] in muts]
+            and [a for a in st["editor"].actors if a.label == U.ACTOR_LABEL], msg)
+        os.remove(U.RECORD)
+        # - refuses in PIE
+        fake, st = _editor_scene(U)
+        st["pie"] = st["K"]["World"]("/Game/UEDPIE_0_x")
+        U.unreal = fake
+        ok, msg = raises(lambda: U.run_apply("A9", args_b), "PIE_ACTIVE")
+        add("- apply refuses while PIE runs", ok and not os.path.isfile(U.RECORD), msg)
+        # mesh_name: default unchanged; B; bad names refused
+        add("+ mesh_name default unchanged (SM_S3_ShoreGround, v1 path, v1 import record path)",
+            U.mesh_name_of({}) == "SM_S3_ShoreGround" and U.mesh_path_of({}) == U.MESH
+            and U.mesh_path_of({"mesh_name": None}) == U.MESH
+            and U.import_record_path(U.mesh_name_of({})) == U.RECORD + ".import")
+        add("+ mesh_name B -> new asset path + its own import record",
+            U.mesh_path_of(args_b) == U.ASSET_DIR + "/SM_S3_ShoreGround_B"
+            and U.import_record_path("SM_S3_ShoreGround_B") == U.RECORD + ".import-SM_S3_ShoreGround_B")
+        ok, msg = raises(lambda: U.mesh_name_of({"mesh_name": "../SM_S3_ShoreGround"}), "MESH_NAME")
+        add("- mesh_name with a path / foreign prefix refused", ok, msg)
+        # IMPORT gates (before any import task): existing _B refused; dirty census refused
+        fake, st = _editor_scene(U)
+        U.unreal = fake
+        ok, msg = raises(lambda: U.run_import("I1", args_b), "MESH_EXISTS|" + st["b_path"])
+        add("- IMPORT mesh_name=_B refuses when _B already exists (create-only, never reimport)",
+            ok and "unreal.AssetImportTask" not in st["names"], msg)
+        fake, st = _editor_scene(U)
+        st["dirty"]["maps"] = [U.WORLD]
+        U.unreal = fake
+        ok, msg = raises(lambda: U.run_import("I2", args_b), "DIRTY_EDITOR")
+        add("- IMPORT refuses on a dirty census", ok and "unreal.AssetImportTask" not in st["names"], msg)
+
+        # runner: APPLY/REVERT markers
+        src = open(os.path.join(HERE, "s3_shore_ground_run.py"), encoding="utf-8").read()
+        src = src.replace('runpy.run_path("E:/PussStage/Saved/CodexConductor/purge_saved_module_cache.py")', "pass")
+        src = src.replace('g = runpy.run_path(HERE + "s3_shore_ground_ue.py")', "g = _G")
+        src = src.replace('open(HERE + "s3_shore_ground_args.json", encoding="utf-8")', "_ARGS")
+
+        def run_runner(fake, args):
+            sys.modules["unreal"] = fake
+            try:
+                exec(compile(src, "s3_shore_ground_run.py", "exec"),
+                     {"_G": vars(U), "_ARGS": io.StringIO(json.dumps(args)), "__name__": "runner"})
+            finally:
+                sys.modules.pop("unreal", None)
+
+        fake, st = _editor_scene(U)
+        U.unreal = fake
+        run_runner(fake, dict(args_b, mode="APPLY", confirm="APPLY", run="R1"))
+        msgs = [mm for _k, mm in st["log"]]
+        add("- runner: APPLY with the wrong confirm -> FAILED, no record, no mutation",
+            any("CONFIRM_MISSING" in mm for mm in msgs) and not any("_OK|" in mm for mm in msgs)
+            and not os.path.isfile(U.RECORD) and not [c for c in st["calls"] if c[0] in muts], msgs)
+        st["log"].clear()
+        run_runner(fake, dict(args_b, mode="APPLY", confirm="APPLY S3SHORE", run="R2"))
+        run_runner(fake, {"mode": "REVERT", "confirm": "REVERT S3SHORE", "run": "R2R"})
+        run_runner(fake, {"mode": "VERIFY", "confirm": "VERIFY S3SHORE", "run": "R3"})
+        msgs = [mm for _k, mm in st["log"]]
+        heads = [mm.split("|")[0] for mm in msgs if mm.startswith("S3SHORE_") and not mm.startswith(("S3SHORE_START",
+                                                                                                         "S3SHORE_RECORD"))]
+        add("+ runner: APPLY_OK -> REVERT_OK (once each, in order), then VERIFY refused",
+            heads == ["S3SHORE_APPLY_OK", "S3SHORE_REVERT_OK", "S3SHORE_FAILED"]
+            and "MODE_NOT_ENABLED_IN_RUNNER|VERIFY" in msgs[-1]
+            and "mesh=" + st["b_path"] in [mm for mm in msgs if mm.startswith("S3SHORE_APPLY_OK")][0], heads)
+    finally:
+        for k, v in saved.items():
+            setattr(U, k, v)
+        _sh.rmtree(tmp, ignore_errors=True)
+    # static scan of the APPLY section
+    usrc = open(os.path.join(HERE, "s3_shore_ground_ue.py"), encoding="utf-8").read()
+    sec = usrc.split("# BEGIN_APPLY")[1].split("# END_APPLY")[0]
+    code = "\n".join(ln.split("#")[0] for ln in sec.splitlines() if not ln.strip().startswith("#"))
+
+    def scan(c):
+        return [t for t in ("EditorAssetLibrary.load_asset", "reload_packages", "load_map", "save_current_level",
+                            "save_dirty", "save_packages", "reimport", "replace_existing", "import_asset_tasks",
+                            "get_bound_objects", "end_play", "quit_editor") if t in c]
+    out.append({"case": "APPLY section: no EditorAssetLibrary.load_asset / reload / Save-All / reimport / "
+                        "GetBoundObjects / PIE end", "ok": not scan(code), "info": scan(code)})
+    out.append({"case": "- control: the same scan flags planted calls",
+                "ok": set(scan(code + "\nunreal.EditorAssetLibrary.load_asset(p)\nx.reimport()"))
+                >= {"EditorAssetLibrary.load_asset", "reimport"}})
     return out
 
 
@@ -548,14 +1206,16 @@ def run():
         if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name) and node.targets[0].id in ("ENABLED", "REFUSED"):
             consts[node.targets[0].id] = ast.literal_eval(node.value)
     en, rf = consts.get("ENABLED", {}), consts.get("REFUSED", ())
-    ok = (set(en) == {"DRY", "IMPORT", "BUILD_MAT", "BENCH", "BENCH_RESTORE", "BENCH_PIE_APPLY", "BENCH_PIE_RESTORE"}
+    ok = (set(en) == {"DRY", "IMPORT", "BUILD_MAT", "BENCH", "BENCH_RESTORE", "BENCH_PIE_APPLY", "BENCH_PIE_RESTORE",
+                      "APPLY", "REVERT"}
           and en["DRY"] is None
           and all(en[m] == m + " S3SHORE" for m in en if m != "DRY")
-          and set(rf) >= {"APPLY", "REVERT", "VERIFY"} and not (set(rf) & set(en)))
-    results.append({"case": "runner: IMPORT/BUILD_MAT/BENCH(+RESTORE)/BENCH_PIE_* need '<MODE> S3SHORE'; "
-                            "APPLY/REVERT/VERIFY refused",
+          and set(rf) >= {"VERIFY"} and not (set(rf) & set(en)))
+    results.append({"case": "runner: IMPORT/BUILD_MAT/BENCH(+RESTORE)/BENCH_PIE_*/APPLY/REVERT need '<MODE> S3SHORE'; "
+                            "VERIFY refused",
                     "ok": ok, "info": {"enabled": en, "refused": rf}})
     results.extend(run_pie_cases(U))
+    results.extend(run_apply_cases(U))
     results.append({"case": "runner: no save call in BENCH path",
                     "ok": all(k not in open(os.path.join(HERE, "s3_shore_ground_ue.py"), encoding="utf-8").read()
                               .split("def run_bench(")[1].split("def run_bench_restore(")[0]

@@ -363,8 +363,57 @@ print(json.dumps({"real": len(real), "inside": inside, "mouth": len(mouth), "sol
     check("textures+ total GPU memory reported", tm.get("total_gpu_mb", 0) > 0, tm.get("total_gpu_mb"))
 
 
+# ------------------------------------------------------------------------------------------------ ADOPT / screen sizes (7 Oct live fix)
+def fn_body(src, name):
+    m = re.search(r"\ndef " + name + r"\(.*?(?=\ndef |\Z)", src, re.S)
+    return m.group(0) if m else ""
+
+
+def t_adopt():
+    rec0 = {"apply": False, "motion": False, "light": False}
+    check("adopt+ mode with confirm, 2 pieces", C.check_mode({"mode": "ADOPT", "confirm": "ADOPT S3WAVESV3",
+                                                             "pieces": ["L6Foam_P1", "L6Foam_P2"]}, False, rec0) == "ADOPT")
+    refuses("adopt- 3 pieces in one call", lambda: C.check_mode({"mode": "ADOPT", "confirm": "ADOPT S3WAVESV3",
+                                                                 "pieces": ["a", "b", "c"]}, False, rec0), "BATCH")
+    refuses("adopt- without confirm", lambda: C.check_mode({"mode": "ADOPT", "pieces": ["a"]}, False, rec0),
+            "CONFIRM_MISSING")
+    refuses("adopt- in PIE", lambda: C.check_mode({"mode": "ADOPT", "confirm": "ADOPT S3WAVESV3", "pieces": ["a"]},
+                                                   True, rec0), "PIE_ACTIVE")
+    check("sizes+ [2.0, 0.3] -> KEEP", C.screen_size_action([2.0, 0.3]) == "KEEP")
+    check("sizes+ live L6 read [0, 0] -> SET", C.screen_size_action([0.0, 0.0]) == "SET")
+    check("sizes+ conductor's [1.0, 0.3] -> SET to [2.0, 0.3]", C.screen_size_action([1.0, 0.3]) == "SET")
+    refuses("sizes- a one-LOD mesh is refused", lambda: C.screen_size_action([2.0]), "SCREEN_SIZES_LOD_COUNT")
+    check("verify+ [2.0, 0.3] ok", C.screen_sizes_ok([2.0, 0.3]))
+    check("verify- [1.0, 0.3] not ok (VERIFY flags it)", not C.screen_sizes_ok([1.0, 0.3]))
+    check("verify- [0, 0] not ok", not C.screen_sizes_ok([0.0, 0.0]))
+    row = ROWS[-1]
+    tex = {k: True for k in C.TEX_KINDS}
+    check("adopt+ saved mesh + textures, no record", C.adopt_check(row, True, tex, None) is True)
+    refuses("adopt- mesh missing", lambda: C.adopt_check(row, False, tex, None), "ADOPT_NO_MESH")
+    refuses("adopt- a texture missing", lambda: C.adopt_check(row, True, dict(tex, SkinMask=False), None),
+            "ADOPT_TEXTURES_MISSING")
+    refuses("adopt- record already written", lambda: C.adopt_check(row, True, tex, {"saved": True}),
+            "ADOPT_ALREADY_RECORDED")
+    src = open(os.path.join(HERE, "s3_waves_v3_ue.py"), encoding="utf-8").read()
+    imp = fn_body(src, "run_import")
+    check("static+ IMPORT no longer sets screen sizes", imp and "set_lod_screen_sizes" not in imp and
+          "_ensure_screen_sizes" not in imp)
+    old = "def run_import(C):\n    sme.set_lod_screen_sizes(mesh, [1, 0.3])\n"
+    check("static- the scan would catch a set in IMPORT", "set_lod_screen_sizes" in fn_body("\n" + old, "run_import"))
+    for name in ("run_adopt", "run_build_mat"):
+        b = fn_body(src, name)
+        check("static+ %s sets screen sizes on the saved mesh" % name, "_ensure_screen_sizes(C, mesh)" in b)
+    bm = fn_body(src, "run_build_mat")
+    check("static+ BUILD_MAT checks EVERY piece before its first create_asset",
+          0 < bm.find("NOT_IMPORTED") < bm.find("create_asset") and 0 < bm.find("MI_EXISTS") < bm.find("create_asset"))
+    ad = fn_body(src, "run_adopt")
+    check("static+ ADOPT writes records only after the save, adopted=true",
+          '"adopted": True' in ad and ad.find("_save(") < ad.rfind("_write("))
+    check("static+ ADOPT runs the IMPORT mesh gates", "_mesh_gate(pilot, C, mesh, row, val)" in ad)
+
+
 def main():
-    for t in (t_modes, t_table, t_apply, t_motion, t_light, t_ready, t_static, t_build):
+    for t in (t_modes, t_table, t_apply, t_motion, t_light, t_ready, t_static, t_adopt, t_build):
         try:
             t()
         except Exception as exc:  # noqa: BLE001

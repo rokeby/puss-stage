@@ -273,3 +273,7 @@
 - **Waves import:** 12 pieces imported (S3WAVESV3-20261007-184749..184949); L6Foam_P1/P2 failed only on a same-call LOD
   screen-size read [0,0] → recovered in a later call (fix_l6p1_lod.py: set [1.0, 0.3], saved). BUILD_MAT + VERIFY running.
 - Directing: S1 entry "camera view snap" as it comes into view → read-only frame-log probe queued (after S3).
+- **Gary on fallbacks:** test render tonight after he stops; S3 vamp straight through; delete PNG frames after QC;
+  tier: PIE-match set first, 8-sample cinematic where time allows (he read "8" as clip count — still only the six Scenes).
+- Tools ready (offline): shore IMPORT _B + APPLY/REVERT (79/79), waves ADOPT + screen-size fix (108/108), pearl v2 swap
+  (459/0), MRQ fallbacks (31/31). Editor: Gary's unsaved level edit + my partial L5 wave MIs → next restart.
