@@ -1,0 +1,1609 @@
+{
+ "after": {
+  "ours": [
+   "Klara Void S6 - Glimmer: Bee Swarm",
+   "Klara Void S6 - Hangar Light Off: S6 Ghost Light",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 1-1",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 1-2",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 1-3",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 1-4",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 1-5",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 1-6",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 1-7",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 1-8",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 2-1",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 2-2",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 2-3",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 2-4",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 2-5",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 2-6",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 2-7",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 2-8",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 3-1",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 3-2",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 3-3",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 3-4",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 3-5",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 3-6",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 3-7",
+   "Klara Void S6 - Hangar Light Off: S6 Lattice Glow 3-8",
+   "Klara Void S6 - Hangar Light Off: S6 Practical L1",
+   "Klara Void S6 - Hangar Light Off: S6 Practical L2",
+   "Klara Void S6 - Hangar Light Off: S6 Practical L3",
+   "Klara Void S6 - Hangar Light Off: S6 Practical L4",
+   "Klara Void S6 - Hangar Light Off: S6 Practical L5",
+   "Klara Void S6 - Hangar Light Off: S6 Practical L6",
+   "Klara Void S6 - Hangar Light Off: S6 Practical L7",
+   "Klara Void S6 - Hangar Light Off: S6 Practical R1",
+   "Klara Void S6 - Hangar Light Off: S6 Practical R2",
+   "Klara Void S6 - Hangar Light Off: S6 Practical R3",
+   "Klara Void S6 - Hangar Light Off: S6 Practical R4",
+   "Klara Void S6 - Hangar Light Off: S6 Practical R5",
+   "Klara Void S6 - Hangar Light Off: S6 Practical R6",
+   "Klara Void S6 - Hangar Light Off: S6 Practical R7",
+   "Klara Void S6 - Hangar Light Off: S6 Uplight 1",
+   "Klara Void S6 - Hangar Light Off: S6 Uplight 2",
+   "Klara Void S6 - Hangar Light Off: S6 Uplight 3",
+   "Klara Void S6 - Hangar Off: S6 Arrival",
+   "Klara Void S6 - Hangar Off: S6 Ghost Light",
+   "Klara Void S6 - Hangar Off: S6 Ghost Light Bulb",
+   "Klara Void S6 - Hangar Off: S6 Ghost Light Stand",
+   "Klara Void S6 - Hangar Off: S6 Hangar Apron",
+   "Klara Void S6 - Hangar Off: S6 Hangar Far Wall Above Exit",
+   "Klara Void S6 - Hangar Off: S6 Hangar Far Wall Hinge",
+   "Klara Void S6 - Hangar Off: S6 Hangar Floor 1",
+   "Klara Void S6 - Hangar Off: S6 Hangar Floor 1 Hinge",
+   "Klara Void S6 - Hangar Off: S6 Hangar Floor 2",
+   "Klara Void S6 - Hangar Off: S6 Hangar Floor 2 Hinge",
+   "Klara Void S6 - Hangar Off: S6 Hangar Floor 3",
+   "Klara Void S6 - Hangar Off: S6 Hangar Floor 3 Hinge",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 01",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 02",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 03",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 04",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 05",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 06",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 07",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 08",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 09",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 10",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 11",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 12",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 13",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Beam 14",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Fly",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Rail 1",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Rail 2",
+   "Klara Void S6 - Hangar Off: S6 Hangar Lattice Rail 3",
+   "Klara Void S6 - Hangar Off: S6 Hangar Left Wall",
+   "Klara Void S6 - Hangar Off: S6 Hangar Left Wall Hinge",
+   "Klara Void S6 - Hangar Off: S6 Hangar Pinned Exposure",
+   "Klara Void S6 - Hangar Off: S6 Hangar Right Wall",
+   "Klara Void S6 - Hangar Off: S6 Hangar Right Wall Hinge",
+   "Klara Void S6 - Hangar Off: S6 Hangar Root",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 1-1",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 1-2",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 1-3",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 1-4",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 1-5",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 1-6",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 1-7",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 1-8",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 2-1",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 2-2",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 2-3",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 2-4",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 2-5",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 2-6",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 2-7",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 2-8",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 3-1",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 3-2",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 3-3",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 3-4",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 3-5",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 3-6",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 3-7",
+   "Klara Void S6 - Hangar Off: S6 Lattice Bulb 3-8",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 1-1",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 1-2",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 1-3",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 1-4",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 1-5",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 1-6",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 1-7",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 1-8",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 2-1",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 2-2",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 2-3",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 2-4",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 2-5",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 2-6",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 2-7",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 2-8",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 3-1",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 3-2",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 3-3",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 3-4",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 3-5",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 3-6",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 3-7",
+   "Klara Void S6 - Hangar Off: S6 Lattice Glow 3-8",
+   "Klara Void S6 - Hangar Off: S6 Practical L1",
+   "Klara Void S6 - Hangar Off: S6 Practical L1 Body",
+   "Klara Void S6 - Hangar Off: S6 Practical L2",
+   "Klara Void S6 - Hangar Off: S6 Practical L2 Body",
+   "Klara Void S6 - Hangar Off: S6 Practical L3",
+   "Klara Void S6 - Hangar Off: S6 Practical L3 Body",
+   "Klara Void S6 - Hangar Off: S6 Practical L4",
+   "Klara Void S6 - Hangar Off: S6 Practical L4 Body",
+   "Klara Void S6 - Hangar Off: S6 Practical L5",
+   "Klara Void S6 - Hangar Off: S6 Practical L5 Body",
+   "Klara Void S6 - Hangar Off: S6 Practical L6",
+   "Klara Void S6 - Hangar Off: S6 Practical L6 Body",
+   "Klara Void S6 - Hangar Off: S6 Practical L7",
+   "Klara Void S6 - Hangar Off: S6 Practical L7 Body",
+   "Klara Void S6 - Hangar Off: S6 Practical R1",
+   "Klara Void S6 - Hangar Off: S6 Practical R1 Body",
+   "Klara Void S6 - Hangar Off: S6 Practical R2",
+   "Klara Void S6 - Hangar Off: S6 Practical R2 Body",
+   "Klara Void S6 - Hangar Off: S6 Practical R3",
+   "Klara Void S6 - Hangar Off: S6 Practical R3 Body",
+   "Klara Void S6 - Hangar Off: S6 Practical R4",
+   "Klara Void S6 - Hangar Off: S6 Practical R4 Body",
+   "Klara Void S6 - Hangar Off: S6 Practical R5",
+   "Klara Void S6 - Hangar Off: S6 Practical R5 Body",
+   "Klara Void S6 - Hangar Off: S6 Practical R6",
+   "Klara Void S6 - Hangar Off: S6 Practical R6 Body",
+   "Klara Void S6 - Hangar Off: S6 Practical R7",
+   "Klara Void S6 - Hangar Off: S6 Practical R7 Body",
+   "Klara Void S6 - Hangar Off: S6 Uplight 1",
+   "Klara Void S6 - Hangar Off: S6 Uplight 2",
+   "Klara Void S6 - Hangar Off: S6 Uplight 3",
+   "Klara Void S6 - Ours Off: Infinity Stage - Dusk Height Fog",
+   "Klara Void S6 - Ours Off: Infinity Stage - Dusk Skylight",
+   "Klara Void S6 - Ours Off: Infinity Stage - Dusk Sun",
+   "Klara Void S6 - Ours Off: Infinity Stage - Moon"
+  ],
+  "rise": [
+   [
+    "Hangar Fold",
+    0,
+    775,
+    false
+   ]
+  ],
+  "score": [
+   [
+    "Scene Score",
+    104,
+    4804,
+    "/Game/InfinityStage/Audio/ScenesAudio/Score/SW_S6_The_Void_Live",
+    false
+   ]
+  ],
+  "shot": {
+   "active": true,
+   "end": 5489,
+   "sequence": "/Game/InfinityStage/KlaraHookin/LS_Void_S6",
+   "start": 104,
+   "start_offset": 0
+  }
+ },
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PreKlaraVoidS6-KLARAVOIDS6-20261007-013108",
+ "before": {
+  "ours": [],
+  "rise": [
+   [
+    "Hangar Fold",
+    0,
+    775,
+    true
+   ]
+  ],
+  "score": [
+   [
+    "Scene Score",
+    104,
+    4804,
+    "/Game/InfinityStage/Audio/ScenesAudio/Score/SW_S6_The_Void_Live",
+    true
+   ]
+  ],
+  "shot": {
+   "active": true,
+   "end": 375,
+   "sequence": "/Game/Scenes/LS_Void",
+   "start": 0,
+   "start_offset": 0
+  }
+ },
+ "copy": "/Game/InfinityStage/KlaraHookin/LS_Void_S6",
+ "decided_by": "Gary 7 Oct (relayed by the conductor): 'Hide our S6 hangar as S6 leads into the void and doesn't really need a hangar. Do whatever works best such that P06 goes and heads eventually into total darkness, at which point we perhaps travel into the void sequence with the first glimmer of the swarm of bees ... the void sequence so far is actually pretty minimally developed, we don't use a level actor and simply bring that action into the main stage level.' Conductor decision 7 Oct: NO streamed level; her action comes into our main level. NOT Gary's (proposed): placement match_entry_yaw, start_option score_land (104 f lead keeps the five S6 markers on her music), end_rule her_playback, her set pieces (spots + floor + directional ON, sky atmosphere OFF), glimmer at her swarm's first pose from 1.0 s, handoff overlap 2.0 s. GARY'S OWN ANSWERS 7 Oct (conductor session questionnaire): her directional light OFF; end S6 at her last cut; 2 s glimmer overlap; S6 Ghost Light off in P06 too (separate step). Floor: her floor kept where it lands (no seam camera drop), conductor default.",
+ "hangar_hidden": [
+  "S6 Arrival",
+  "S6 Ghost Light",
+  "S6 Ghost Light Bulb",
+  "S6 Ghost Light Stand",
+  "S6 Hangar Apron",
+  "S6 Hangar Far Wall Above Exit",
+  "S6 Hangar Far Wall Hinge",
+  "S6 Hangar Floor 1",
+  "S6 Hangar Floor 1 Hinge",
+  "S6 Hangar Floor 2",
+  "S6 Hangar Floor 2 Hinge",
+  "S6 Hangar Floor 3",
+  "S6 Hangar Floor 3 Hinge",
+  "S6 Hangar Lattice Beam 01",
+  "S6 Hangar Lattice Beam 02",
+  "S6 Hangar Lattice Beam 03",
+  "S6 Hangar Lattice Beam 04",
+  "S6 Hangar Lattice Beam 05",
+  "S6 Hangar Lattice Beam 06",
+  "S6 Hangar Lattice Beam 07",
+  "S6 Hangar Lattice Beam 08",
+  "S6 Hangar Lattice Beam 09",
+  "S6 Hangar Lattice Beam 10",
+  "S6 Hangar Lattice Beam 11",
+  "S6 Hangar Lattice Beam 12",
+  "S6 Hangar Lattice Beam 13",
+  "S6 Hangar Lattice Beam 14",
+  "S6 Hangar Lattice Fly",
+  "S6 Hangar Lattice Rail 1",
+  "S6 Hangar Lattice Rail 2",
+  "S6 Hangar Lattice Rail 3",
+  "S6 Hangar Left Wall",
+  "S6 Hangar Left Wall Hinge",
+  "S6 Hangar Pinned Exposure",
+  "S6 Hangar Right Wall",
+  "S6 Hangar Right Wall Hinge",
+  "S6 Hangar Root",
+  "S6 Lattice Bulb 1-1",
+  "S6 Lattice Bulb 1-2",
+  "S6 Lattice Bulb 1-3",
+  "S6 Lattice Bulb 1-4",
+  "S6 Lattice Bulb 1-5",
+  "S6 Lattice Bulb 1-6",
+  "S6 Lattice Bulb 1-7",
+  "S6 Lattice Bulb 1-8",
+  "S6 Lattice Bulb 2-1",
+  "S6 Lattice Bulb 2-2",
+  "S6 Lattice Bulb 2-3",
+  "S6 Lattice Bulb 2-4",
+  "S6 Lattice Bulb 2-5",
+  "S6 Lattice Bulb 2-6",
+  "S6 Lattice Bulb 2-7",
+  "S6 Lattice Bulb 2-8",
+  "S6 Lattice Bulb 3-1",
+  "S6 Lattice Bulb 3-2",
+  "S6 Lattice Bulb 3-3",
+  "S6 Lattice Bulb 3-4",
+  "S6 Lattice Bulb 3-5",
+  "S6 Lattice Bulb 3-6",
+  "S6 Lattice Bulb 3-7",
+  "S6 Lattice Bulb 3-8",
+  "S6 Lattice Glow 1-1",
+  "S6 Lattice Glow 1-2",
+  "S6 Lattice Glow 1-3",
+  "S6 Lattice Glow 1-4",
+  "S6 Lattice Glow 1-5",
+  "S6 Lattice Glow 1-6",
+  "S6 Lattice Glow 1-7",
+  "S6 Lattice Glow 1-8",
+  "S6 Lattice Glow 2-1",
+  "S6 Lattice Glow 2-2",
+  "S6 Lattice Glow 2-3",
+  "S6 Lattice Glow 2-4",
+  "S6 Lattice Glow 2-5",
+  "S6 Lattice Glow 2-6",
+  "S6 Lattice Glow 2-7",
+  "S6 Lattice Glow 2-8",
+  "S6 Lattice Glow 3-1",
+  "S6 Lattice Glow 3-2",
+  "S6 Lattice Glow 3-3",
+  "S6 Lattice Glow 3-4",
+  "S6 Lattice Glow 3-5",
+  "S6 Lattice Glow 3-6",
+  "S6 Lattice Glow 3-7",
+  "S6 Lattice Glow 3-8",
+  "S6 Practical L1",
+  "S6 Practical L1 Body",
+  "S6 Practical L2",
+  "S6 Practical L2 Body",
+  "S6 Practical L3",
+  "S6 Practical L3 Body",
+  "S6 Practical L4",
+  "S6 Practical L4 Body",
+  "S6 Practical L5",
+  "S6 Practical L5 Body",
+  "S6 Practical L6",
+  "S6 Practical L6 Body",
+  "S6 Practical L7",
+  "S6 Practical L7 Body",
+  "S6 Practical R1",
+  "S6 Practical R1 Body",
+  "S6 Practical R2",
+  "S6 Practical R2 Body",
+  "S6 Practical R3",
+  "S6 Practical R3 Body",
+  "S6 Practical R4",
+  "S6 Practical R4 Body",
+  "S6 Practical R5",
+  "S6 Practical R5 Body",
+  "S6 Practical R6",
+  "S6 Practical R6 Body",
+  "S6 Practical R7",
+  "S6 Practical R7 Body",
+  "S6 Uplight 1",
+  "S6 Uplight 2",
+  "S6 Uplight 3"
+ ],
+ "hangar_zeroed": [
+  "S6 Ghost Light",
+  "S6 Lattice Glow 1-1",
+  "S6 Lattice Glow 1-2",
+  "S6 Lattice Glow 1-3",
+  "S6 Lattice Glow 1-4",
+  "S6 Lattice Glow 1-5",
+  "S6 Lattice Glow 1-6",
+  "S6 Lattice Glow 1-7",
+  "S6 Lattice Glow 1-8",
+  "S6 Lattice Glow 2-1",
+  "S6 Lattice Glow 2-2",
+  "S6 Lattice Glow 2-3",
+  "S6 Lattice Glow 2-4",
+  "S6 Lattice Glow 2-5",
+  "S6 Lattice Glow 2-6",
+  "S6 Lattice Glow 2-7",
+  "S6 Lattice Glow 2-8",
+  "S6 Lattice Glow 3-1",
+  "S6 Lattice Glow 3-2",
+  "S6 Lattice Glow 3-3",
+  "S6 Lattice Glow 3-4",
+  "S6 Lattice Glow 3-5",
+  "S6 Lattice Glow 3-6",
+  "S6 Lattice Glow 3-7",
+  "S6 Lattice Glow 3-8",
+  "S6 Practical L1",
+  "S6 Practical L2",
+  "S6 Practical L3",
+  "S6 Practical L4",
+  "S6 Practical L5",
+  "S6 Practical L6",
+  "S6 Practical L7",
+  "S6 Practical R1",
+  "S6 Practical R2",
+  "S6 Practical R3",
+  "S6 Practical R4",
+  "S6 Practical R5",
+  "S6 Practical R6",
+  "S6 Practical R7",
+  "S6 Uplight 1",
+  "S6 Uplight 2",
+  "S6 Uplight 3"
+ ],
+ "mode": "APPLY",
+ "ours_hidden": [
+  "Infinity Stage - Dusk Sun",
+  "Infinity Stage - Moon",
+  "Infinity Stage - Dusk Skylight",
+  "Infinity Stage - Dusk Height Fog"
+ ],
+ "plan": {
+  "T": {
+   "loc": [
+    29339.283499999998,
+    399920.0,
+    135.0
+   ],
+   "yaw": 0.0
+  },
+  "end_alternatives": {
+   "her_last_cut": {
+    "end": 5489,
+    "end_s": 219.56
+   },
+   "her_playback": {
+    "end": 5923,
+    "end_s": 236.92
+   }
+  },
+  "end_change_s": 25.56,
+  "extend_mode": {
+   "dry_run": true,
+   "new_end_s": 219.56,
+   "scene_label": "Scene 6 \u2014 External Sound"
+  },
+  "fps": 25.0,
+  "glimmer": {
+   "distance_cm": 4007.0197489669354,
+   "pose": {
+    "loc": [
+     31643.040335937498,
+     400033.3709640503,
+     361.7453155517578
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     6.375,
+     1.5,
+     3.375
+    ]
+   },
+   "scale_from": 1.0,
+   "spawn": [
+    25,
+    154
+   ],
+   "spawn_s": [
+    1.0,
+    6.16
+   ],
+   "system": "/Game/FX/NS_BeeSwarm"
+  },
+  "her_audio": {
+   "scene_s": [
+    4.16,
+    192.16
+   ],
+   "sound": "/Game/Void_content/The_Void_Live_Stereo_1_"
+  },
+  "her_cut_span_scene_s": [
+   4.5600000000000005,
+   219.52666666666667
+  ],
+  "her_floor_world_z": 95.0,
+  "her_len_s": 215.36666666666667,
+  "length": {
+   "exact": 5384.166666666667,
+   "frames": 5385,
+   "hold_s": 0.033333333333321204,
+   "on_grid": false
+  },
+  "markers": [
+   {
+    "delta_frames": 0.0,
+    "delta_s": 0.0,
+    "label": "S6 score in (land)",
+    "lines_up": true,
+    "music_scene_s": 4.16,
+    "scene_s": 4.16,
+    "track_s": 0.0
+   },
+   {
+    "delta_frames": 1.7763568394002505e-13,
+    "delta_s": 7.105427357601002e-15,
+    "label": "S6 swell 0:50",
+    "lines_up": true,
+    "music_scene_s": 54.959999999999994,
+    "scene_s": 54.96,
+    "track_s": 50.8
+   },
+   {
+    "delta_frames": -0.012499999999704414,
+    "delta_s": -0.0004999999999881766,
+    "label": "S6 trough 2:00",
+    "lines_up": true,
+    "music_scene_s": 120.12049999999999,
+    "scene_s": 120.12,
+    "track_s": 115.9605
+   },
+   {
+    "delta_frames": -0.30750000000026034,
+    "delta_s": -0.012300000000010414,
+    "label": "S6 climax 2:35",
+    "lines_up": true,
+    "music_scene_s": 160.0123,
+    "scene_s": 160.0,
+    "track_s": 155.8523
+   },
+   {
+    "delta_frames": -0.45250000000010004,
+    "delta_s": -0.018100000000004002,
+    "label": "S6 drop 2:54",
+    "lines_up": true,
+    "music_scene_s": 177.9381,
+    "scene_s": 177.92,
+    "track_s": 173.7781
+   }
+  ],
+  "mute": [
+   {
+    "active": true,
+    "cls": "MovieSceneAudioTrack",
+    "end": 4804,
+    "sound": "/Game/InfinityStage/Audio/ScenesAudio/Score/SW_S6_The_Void_Live",
+    "start": 104,
+    "track": "Scene Score"
+   }
+  ],
+  "placement": {
+   "her_cam_world": [
+    27640.283499999998,
+    400000.0,
+    180.0
+   ],
+   "mode": "match_entry_yaw",
+   "residual": {
+    "dz_cm": 0.0,
+    "focal_mm": 0.0,
+    "pitch_deg": 0.0,
+    "pos_cm": 0.0,
+    "roll_deg": 0.0,
+    "yaw_deg": 0.0
+   },
+   "seamless": true,
+   "transform": {
+    "loc": [
+     29339.283499999998,
+     399920.0,
+     135.0
+    ],
+    "yaw": 0.0
+   }
+  },
+  "placements": {
+   "identity": {
+    "her_cam_world": [
+     -1699.0,
+     80.0,
+     45.0
+    ],
+    "mode": "identity",
+    "residual": {
+     "dz_cm": -135.0,
+     "focal_mm": 0.0,
+     "pitch_deg": 0.0,
+     "pos_cm": 400994.7857283101,
+     "roll_deg": 0.0,
+     "yaw_deg": 0.0
+    },
+    "seamless": false,
+    "transform": {
+     "loc": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "yaw": 0.0
+    }
+   },
+   "match_entry_floor": {
+    "her_cam_world": [
+     27640.283499999998,
+     400000.0,
+     85.0
+    ],
+    "mode": "match_entry_floor",
+    "residual": {
+     "dz_cm": -95.0,
+     "focal_mm": 0.0,
+     "pitch_deg": 0.0,
+     "pos_cm": 95.0,
+     "roll_deg": 0.0,
+     "yaw_deg": 0.0
+    },
+    "seamless": false,
+    "transform": {
+     "loc": [
+      29339.283499999998,
+      399920.0,
+      40.0
+     ],
+     "yaw": 0.0
+    }
+   },
+   "match_entry_translation": {
+    "her_cam_world": [
+     27640.283499999998,
+     400000.0,
+     180.0
+    ],
+    "mode": "match_entry_translation",
+    "residual": {
+     "dz_cm": 0.0,
+     "focal_mm": 0.0,
+     "pitch_deg": 0.0,
+     "pos_cm": 0.0,
+     "roll_deg": 0.0,
+     "yaw_deg": 0.0
+    },
+    "seamless": true,
+    "transform": {
+     "loc": [
+      29339.283499999998,
+      399920.0,
+      135.0
+     ],
+     "yaw": 0.0
+    }
+   },
+   "match_entry_yaw": {
+    "her_cam_world": [
+     27640.283499999998,
+     400000.0,
+     180.0
+    ],
+    "mode": "match_entry_yaw",
+    "residual": {
+     "dz_cm": 0.0,
+     "focal_mm": 0.0,
+     "pitch_deg": 0.0,
+     "pos_cm": 0.0,
+     "roll_deg": 0.0,
+     "yaw_deg": 0.0
+    },
+    "seamless": true,
+    "transform": {
+     "loc": [
+      29339.283499999998,
+      399920.0,
+      135.0
+     ],
+     "yaw": 0.0
+    }
+   }
+  },
+  "planned_end": 5489,
+  "planned_end_s": 219.56,
+  "rebuild": [
+   {
+    "children": [],
+    "class_path": "/Script/Niagara.NiagaraActor",
+    "name": "NS_BeeSwarm",
+    "transform": {
+     "pitch": {
+      "default": 0.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1095200,
+        "tmode": "RCTM_AUTO",
+        "v": 0.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       }
+      ],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "roll": {
+      "default": 0.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1095200,
+        "tmode": "RCTM_AUTO",
+        "v": 0.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       }
+      ],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "x": {
+      "default": 2530.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 448800,
+        "tmode": "RCTM_AUTO",
+        "v": 2303.7568359375,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 882400,
+        "tmode": "RCTM_AUTO",
+        "v": 1719.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1095200,
+        "tmode": "RCTM_AUTO",
+        "v": 2447.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1280800,
+        "tmode": "RCTM_AUTO",
+        "v": 1651.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1406400,
+        "tmode": "RCTM_AUTO",
+        "v": 2530.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": -0.0002114427916239947,
+        "interp": "RCIM_CUBIC",
+        "leave": -0.0002114427916239947,
+        "t": 1728000,
+        "tmode": "RCTM_AUTO",
+        "v": 1648.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 2210400,
+        "tmode": "RCTM_AUTO",
+        "v": 1580.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       }
+      ],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "y": {
+      "default": 245.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 448800,
+        "tmode": "RCTM_AUTO",
+        "v": 113.37096405029297,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 882400,
+        "tmode": "RCTM_AUTO",
+        "v": 113.37096405029297,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1095200,
+        "tmode": "RCTM_AUTO",
+        "v": 107.7782211303711,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1406400,
+        "tmode": "RCTM_AUTO",
+        "v": 245.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1728000,
+        "tmode": "RCTM_AUTO",
+        "v": 78.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1987200,
+        "tmode": "RCTM_AUTO",
+        "v": 446.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 2210400,
+        "tmode": "RCTM_AUTO",
+        "v": 48.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       }
+      ],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "yaw": {
+      "default": 0.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1095200,
+        "tmode": "RCTM_AUTO",
+        "v": 0.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       }
+      ],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "z": {
+      "default": 122.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 448800,
+        "tmode": "RCTM_AUTO",
+        "v": 226.7453155517578,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1095200,
+        "tmode": "RCTM_AUTO",
+        "v": 66.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1280800,
+        "tmode": "RCTM_AUTO",
+        "v": 706.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1406400,
+        "tmode": "RCTM_AUTO",
+        "v": 122.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1728000,
+        "tmode": "RCTM_AUTO",
+        "v": 131.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 2210400,
+        "tmode": "RCTM_AUTO",
+        "v": 36.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       }
+      ],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     }
+    }
+   },
+   {
+    "children": [
+     "CameraComponent"
+    ],
+    "class_path": "/Script/CinematicCamera.CineCameraActor",
+    "name": "CineCameraActor2",
+    "transform": {
+     "pitch": {
+      "default": 0.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "roll": {
+      "default": -0.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "x": {
+      "default": 1552.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "y": {
+      "default": 56.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "yaw": {
+      "default": 36.00000000000003,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "z": {
+      "default": 54.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     }
+    }
+   },
+   {
+    "children": [
+     "CameraComponent"
+    ],
+    "class_path": "/Script/CinematicCamera.CineCameraActor",
+    "name": "CineCameraActor3",
+    "transform": {
+     "pitch": {
+      "default": 3.0000000000000018,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "roll": {
+      "default": -1.99057468934487e-16,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "x": {
+      "default": 1532.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "y": {
+      "default": 56.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "yaw": {
+      "default": 22.000000000000043,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "z": {
+      "default": 54.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     }
+    }
+   },
+   {
+    "children": [
+     "CameraComponent"
+    ],
+    "class_path": "/Script/CinematicCamera.CineCameraActor",
+    "name": "CineCameraActor",
+    "transform": {
+     "pitch": {
+      "default": -1.987846675914698e-16,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "roll": {
+      "default": 3.999999999999996,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "x": {
+      "default": 1507.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "y": {
+      "default": 44.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "yaw": {
+      "default": 17.000000000000004,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "z": {
+      "default": 22.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     }
+    }
+   },
+   {
+    "children": [
+     "Body",
+     "Face"
+    ],
+    "class_path": "/Game/MetaHumans/MHC_Elder_Female/BP_MHC_Elder_Female.BP_MHC_Elder_Female_C",
+    "name": "BP_MHC_Elder_Female",
+    "transform": null
+   },
+   {
+    "children": [
+     "CameraComponent"
+    ],
+    "class_path": "/Script/CinematicCamera.CineCameraActor",
+    "name": "CineCameraActor5",
+    "transform": {
+     "pitch": {
+      "default": 0.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "roll": {
+      "default": -0.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "x": {
+      "default": -1699.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "y": {
+      "default": 80.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "yaw": {
+      "default": 0.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "z": {
+      "default": 45.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     }
+    }
+   },
+   {
+    "children": [
+     "CameraComponent"
+    ],
+    "class_path": "/Script/CinematicCamera.CineCameraActor",
+    "name": "CineCameraActor4",
+    "transform": {
+     "pitch": {
+      "default": 31.000000000000096,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "roll": {
+      "default": -33.00000000000005,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "x": {
+      "default": 1467.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "y": {
+      "default": 48.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "yaw": {
+      "default": 7.000000000000037,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "z": {
+      "default": -22.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     }
+    }
+   }
+  ],
+  "refusals": [],
+  "rekey": [
+   {
+    "binding": "NS_BeeSwarm",
+    "keys": {
+     "x": 7,
+     "y": 7,
+     "yaw": 1,
+     "z": 6
+    },
+    "method": "translate",
+    "problems": []
+   },
+   {
+    "binding": "CineCameraActor2",
+    "keys": {
+     "x": 0,
+     "y": 0,
+     "yaw": 0,
+     "z": 0
+    },
+    "method": "translate",
+    "problems": []
+   },
+   {
+    "binding": "CineCameraActor3",
+    "keys": {
+     "x": 0,
+     "y": 0,
+     "yaw": 0,
+     "z": 0
+    },
+    "method": "translate",
+    "problems": []
+   },
+   {
+    "binding": "CineCameraActor",
+    "keys": {
+     "x": 0,
+     "y": 0,
+     "yaw": 0,
+     "z": 0
+    },
+    "method": "translate",
+    "problems": []
+   },
+   {
+    "binding": "CineCameraActor5",
+    "keys": {
+     "x": 0,
+     "y": 0,
+     "yaw": 0,
+     "z": 0
+    },
+    "method": "translate",
+    "problems": []
+   },
+   {
+    "binding": "CineCameraActor4",
+    "keys": {
+     "x": 0,
+     "y": 0,
+     "yaw": 0,
+     "z": 0
+    },
+    "method": "translate",
+    "problems": []
+   }
+  ],
+  "rise": [
+   {
+    "active": true,
+    "cls": "MovieSceneSubTrack",
+    "end": 775,
+    "sequence": "/Game/InfinityStage/RigAtmos/LS_S6_HangarRise",
+    "start": 0,
+    "start_offset": 0,
+    "track": "Hangar Fold"
+   }
+  ],
+  "section": [
+   104,
+   5489
+  ],
+  "section_s": [
+   4.16,
+   219.56
+  ],
+  "set_pieces": [
+   {
+    "class": "/Script/Engine.SpotLight",
+    "color": [
+     254,
+     255,
+     222,
+     255
+    ],
+    "intensity": 3.0,
+    "kind": "spots",
+    "label": "SpotLight",
+    "level_object": "SpotLight_1",
+    "loc": [
+     1585.0,
+     98.0,
+     127.0
+    ],
+    "rot": [
+     0.0,
+     -90.0,
+     -1.0
+    ],
+    "units": "CANDELAS",
+    "world": {
+     "loc": [
+      30924.283499999998,
+      400018.0,
+      262.0
+     ],
+     "rot": [
+      0.0,
+      -90.0,
+      -1.0
+     ]
+    }
+   },
+   {
+    "class": "/Script/Engine.SpotLight",
+    "color": [
+     255,
+     243,
+     210,
+     255
+    ],
+    "intensity": 8.0,
+    "kind": "spots",
+    "label": "SpotLight2",
+    "level_object": "SpotLight_3",
+    "loc": [
+     1591.0,
+     60.0,
+     89.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "units": "CANDELAS",
+    "world": {
+     "loc": [
+      30930.283499999998,
+      399980.0,
+      224.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   {
+    "cast_shadow": false,
+    "class": "/Script/Engine.StaticMeshActor",
+    "kind": "floor",
+    "label": "BlackWater_Floor",
+    "level_object": "StaticMeshActor_0",
+    "loc": [
+     100.0,
+     50.0,
+     -40.0
+    ],
+    "mesh": "/Game/KK_Materials/SM_BlackWater_Floor",
+    "override_materials": [
+     "/Game/Japanese_Alley/Materials/M_Metallic_Door_01"
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     0.75,
+     0.75,
+     1.3125
+    ],
+    "world": {
+     "loc": [
+      29439.283499999998,
+      399970.0,
+      95.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      0.75,
+      0.75,
+      1.3125
+     ]
+    }
+   }
+  ],
+  "start_why": "our S6 score land frame (her music then sits where our markers expect it)",
+  "timeline": {
+   "cinematic": [
+    104,
+    5489
+   ],
+   "glimmer": [
+    25,
+    154
+   ],
+   "hangar_lights_zero": [
+    0,
+    5489
+   ],
+   "hangar_off": [
+    0,
+    5489
+   ],
+   "lead": [
+    0,
+    104
+   ],
+   "ours_off": [
+    0,
+    5489
+   ],
+   "set_pieces_lit": [
+    104,
+    5489
+   ]
+  },
+  "warnings": [
+   "HER_FLOOR_OFF_OURS: her floor lands at z=95.0, ours 0.0 (placement match_entry_floor fixes it at the cost of a 95.0 cm camera drop at the seam)",
+   "LENGTH_OFF_GRID: 5384.167 frames ceiled to 5385 (holds her last frame 0.0333 s)",
+   "GLIMMER_OVERLAP: two swarm instances for 2.00 s from her start (density doubles, then the glimmer's half vanishes); overlap_s 0 makes it a clean empty-and-refill instead"
+  ],
+  "woman_world": {
+   "loc": [
+    30909.283499999998,
+    400020.0,
+    95.0
+   ],
+   "rot": [
+    0.0,
+    0.0,
+    146.0
+   ]
+  }
+ },
+ "playback_before": [
+  0,
+  4850
+ ],
+ "rebuild_log": [
+  {
+   "binding": "NS_BeeSwarm",
+   "children": [],
+   "new_id": "34079A3A4D1F7668AB3DF790A976693E"
+  },
+  {
+   "binding": "CineCameraActor2",
+   "children": [
+    "CameraComponent"
+   ],
+   "new_id": "A8302C604217ECB863DE71B1B188EB9F"
+  },
+  {
+   "binding": "CineCameraActor3",
+   "children": [
+    "CameraComponent"
+   ],
+   "new_id": "7DE096084096D6C844942CB3D14A430A"
+  },
+  {
+   "binding": "CineCameraActor",
+   "children": [
+    "CameraComponent"
+   ],
+   "new_id": "CD1A57334C382B9E511D92814499F0C5"
+  },
+  {
+   "binding": "BP_MHC_Elder_Female",
+   "children": [
+    "Body",
+    "Face"
+   ],
+   "new_id": "EB17F32A4D53D2CDE8B3338E94C74334"
+  },
+  {
+   "binding": "CineCameraActor5",
+   "children": [
+    "CameraComponent"
+   ],
+   "new_id": "2D4256CA48D8A561A7EB5A88325D82E3"
+  },
+  {
+   "binding": "CineCameraActor4",
+   "children": [
+    "CameraComponent"
+   ],
+   "new_id": "BBA229FF439107D5A0E6C3A2DD433A38"
+  },
+  {
+   "binding": "CineCameraActor5",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "yaw": 0,
+    "z": 0
+   },
+   "method": "translate"
+  },
+  {
+   "binding": "NS_BeeSwarm",
+   "keys": {
+    "x": 7,
+    "y": 7,
+    "yaw": 1,
+    "z": 6
+   },
+   "method": "translate"
+  },
+  {
+   "binding": "CineCameraActor3",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "yaw": 0,
+    "z": 0
+   },
+   "method": "translate"
+  },
+  {
+   "binding": "CineCameraActor2",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "yaw": 0,
+    "z": 0
+   },
+   "method": "translate"
+  },
+  {
+   "binding": "CineCameraActor4",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "yaw": 0,
+    "z": 0
+   },
+   "method": "translate"
+  },
+  {
+   "binding": "CineCameraActor",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "yaw": 0,
+    "z": 0
+   },
+   "method": "translate"
+  },
+  {
+   "binding": "BP_MHC_Elder_Female",
+   "pinned": {
+    "loc": [
+     30909.283499999998,
+     400020.0,
+     95.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     146.0
+    ]
+   }
+  },
+  {
+   "set_piece": "SpotLight",
+   "world": {
+    "loc": [
+     30924.283499999998,
+     400018.0,
+     262.0
+    ],
+    "rot": [
+     0.0,
+     -90.0,
+     -1.0
+    ]
+   }
+  },
+  {
+   "set_piece": "SpotLight2",
+   "world": {
+    "loc": [
+     30930.283499999998,
+     399980.0,
+     224.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "set_piece": "BlackWater_Floor",
+   "world": {
+    "loc": [
+     29439.283499999998,
+     399970.0,
+     95.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     0.75,
+     0.75,
+     1.3125
+    ]
+   }
+  }
+ ],
+ "rise_mark": "LS_S6_HangarRise",
+ "row": {
+  "at_frame": null,
+  "copy_path": "/Game/InfinityStage/KlaraHookin/LS_Void_S6",
+  "current_nested": "/Game/Scenes/LS_Void",
+  "end_rule": "her_last_cut",
+  "floor_z_cm": 0.0,
+  "her_level_package": "/Game/L_KK_Void",
+  "her_sequence": "/Game/Void_content/LS_Void",
+  "marker_source": "Saved/CodexConductor/scene_audio_import_S6_record.json args_row.markers[].track_s [meas] (run SCENEAUDIO-20261006-172057)",
+  "marker_track_s": {
+   "S6 climax 2:35": 155.8523,
+   "S6 drop 2:54": 173.7781,
+   "S6 score in (land)": 0.0,
+   "S6 swell 0:50": 50.8,
+   "S6 trough 2:00": 115.9605
+  },
+  "mute_sounds": [
+   "/Game/InfinityStage/Audio/ScenesAudio/Score/SW_S6_The_Void_Live"
+  ],
+  "placement": "match_entry_yaw",
+  "rise_mark": "LS_S6_HangarRise",
+  "scene_label_hint": "Scene 6 \u2014 External Sound",
+  "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_06",
+  "start_option": "score_land"
+ },
+ "run": "KLARAVOIDS6-20261007-013108",
+ "schema": 1,
+ "tool": "klara_void_s6",
+ "written": "2026-10-07T01:31:09"
+}

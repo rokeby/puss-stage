@@ -1,0 +1,3550 @@
+{
+ "api_table": [
+  {
+   "api": "LevelSequence.add_spawnable_from_class",
+   "ok": true,
+   "result": "True",
+   "tier": "decl MovieSceneSequenceExtensions.h:435 (deprecated 5.5); prec curtain_sleight.py:1897"
+  },
+  {
+   "api": "MovieSceneBindingExtensions.move_binding_contents",
+   "ok": true,
+   "result": "True",
+   "tier": "decl MovieSceneBindingExtensions.h:208"
+  },
+  {
+   "api": "MovieSceneBindingProxy.get_object_template / set_parent / get_parent",
+   "ok": true,
+   "result": "True",
+   "tier": "decl MovieSceneBindingExtensions.h:172,190,199"
+  },
+  {
+   "api": "LevelSequence.get_possessables / get_spawnables",
+   "ok": true,
+   "result": "True",
+   "tier": "decl MovieSceneSequenceExtensions.h:392,401"
+  },
+  {
+   "api": "MovieSceneCameraCutSection.set_camera_binding_id",
+   "ok": true,
+   "result": "True",
+   "tier": "decl MovieSceneCameraCutSection.h:49; prec curtain_sleight.py:2118"
+  },
+  {
+   "api": "MovieSceneScriptingDoubleChannel.add_key(time_unit, interpolation)",
+   "ok": true,
+   "result": "True",
+   "tier": "decl Private/KeysAndChannels/MovieSceneScriptingDouble.h:245"
+  },
+  {
+   "api": "MovieSceneSpawnTrack",
+   "ok": true,
+   "result": "True",
+   "tier": "prec curtain_sleight.py:1819-1835"
+  },
+  {
+   "api": "MovieSceneBoolTrack.set_property_name_and_path",
+   "ok": true,
+   "result": "True",
+   "tier": "prec CodexCurtainAuthoring/add_curtain_active_tracks.py"
+  },
+  {
+   "api": "CameraFocusMethod.DISABLE",
+   "ok": true,
+   "result": "'<CameraFocusMethod.DISABLE: 3>'",
+   "tier": "inf (enum name)"
+  },
+  {
+   "api": "PostProcessSettings override_color_saturation / color_saturation_shadows",
+   "ok": true,
+   "result": "['override_color_saturation', 'color_saturation', 'override_color_saturation_shadows', 'color_saturation_shadows']",
+   "tier": "inf (property names)"
+  },
+  {
+   "api": "NiagaraComponent.set_asset",
+   "ok": true,
+   "result": "True",
+   "tier": "inf"
+  },
+  {
+   "api": "LightUnits.CANDELAS",
+   "ok": true,
+   "result": "'<LightUnits.CANDELAS: 1>'",
+   "tier": "inf (enum name)"
+  },
+  {
+   "api": "MovieSceneTimeUnit.TICK_RESOLUTION",
+   "ok": true,
+   "result": "'<MovieSceneTimeUnit.TICK_RESOLUTION: 1>'",
+   "tier": "prec klara_hookin_s6.py:_land_frame"
+  }
+ ],
+ "apply_ready": true,
+ "args": {
+  "confirm": "",
+  "decided_by": "Gary 7 Oct (relayed by the conductor): 'Hide our S6 hangar as S6 leads into the void and doesn't really need a hangar. Do whatever works best such that P06 goes and heads eventually into total darkness, at which point we perhaps travel into the void sequence with the first glimmer of the swarm of bees ... the void sequence so far is actually pretty minimally developed, we don't use a level actor and simply bring that action into the main stage level.' Conductor decision 7 Oct: NO streamed level; her action comes into our main level. NOT Gary's (proposed): placement match_entry_yaw, start_option score_land (104 f lead keeps the five S6 markers on her music), end_rule her_playback, her set pieces (spots + floor + directional ON, sky atmosphere OFF), glimmer at her swarm's first pose from 1.0 s, handoff overlap 2.0 s. GARY'S OWN ANSWERS 7 Oct (conductor session questionnaire): her directional light OFF; end S6 at her last cut; 2 s glimmer overlap; S6 Ghost Light off in P06 too (separate step). Floor: her floor kept where it lands (no seam camera drop), conductor default.",
+  "glimmer": {
+   "ahead_cm": 1200.0,
+   "enabled": true,
+   "overlap_s": 2.0,
+   "place": "her_first",
+   "scale_from": 1.0,
+   "start_s": 1.0,
+   "system": "/Game/FX/NS_BeeSwarm"
+  },
+  "hangar": {
+   "hide": true,
+   "mute_rise": true,
+   "tag": "RigAtmos.Scene6Hangar",
+   "zero_lights": true
+  },
+  "her_offline_facts": {
+   "audio": {
+    "range_tick": [
+     0,
+     4512000
+    ],
+    "sound": "/Game/Void_content/The_Void_Live_Stereo_1_"
+   },
+   "camera_template": {
+    "CineCameraActor": {
+     "color_saturation": [
+      1.0,
+      1.0,
+      1.0,
+      0.51
+     ],
+     "focus_method": "DISABLE"
+    },
+    "CineCameraActor2": {
+     "color_saturation_shadows": [
+      0.71,
+      1.0,
+      1.0,
+      0.0
+     ],
+     "focus_method": "DISABLE"
+    },
+    "CineCameraActor3": {
+     "focus_method": "DISABLE"
+    },
+    "CineCameraActor4": {
+     "focus_method": "DISABLE"
+    },
+    "CineCameraActor5": {}
+   },
+   "clock_source": "EUpdateClockSource::Audio",
+   "cuts": [
+    [
+     [
+      9600,
+      420800
+     ],
+     "CineCameraActor5"
+    ],
+    [
+     [
+      420800,
+      434400
+     ],
+     "CineCameraActor"
+    ],
+    [
+     [
+      434400,
+      856000
+     ],
+     "CineCameraActor2"
+    ],
+    [
+     [
+      856000,
+      1416800
+     ],
+     "CineCameraActor"
+    ],
+    [
+     [
+      1416800,
+      1776000
+     ],
+     "CineCameraActor2"
+    ],
+    [
+     [
+      1776000,
+      2308800
+     ],
+     "CineCameraActor"
+    ],
+    [
+     [
+      2308800,
+      2632800
+     ],
+     "CineCameraActor3"
+    ],
+    [
+     [
+      2632800,
+      3308000
+     ],
+     "CineCameraActor4"
+    ],
+    [
+     [
+      3308000,
+      3808000
+     ],
+     "CineCameraActor"
+    ],
+    [
+     [
+      3808000,
+      5168800
+     ],
+     "CineCameraActor3"
+    ]
+   ],
+   "first_cut_camera_pose": {
+    "binding": "CineCameraActor5",
+    "focal": 35.0,
+    "loc": [
+     -1699.0,
+     80.0,
+     45.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "source": "sequence defaults (no keys)"
+   },
+   "fps": 30,
+   "her_class_paths": {
+    "BP_MHC_Elder_Female": "/Game/MetaHumans/MHC_Elder_Female/BP_MHC_Elder_Female.BP_MHC_Elder_Female_C",
+    "CineCameraActor": "/Script/CinematicCamera.CineCameraActor",
+    "NiagaraActor": "/Script/Niagara.NiagaraActor"
+   },
+   "instance_overrides_not_carried": [
+    "BP_MHC_Elder_Female_C_1.Body ForcedLodModel=4, Face ForcedLodModel=8, both VisibilityBasedAnimTickOption=AlwaysTickPoseAndRefreshBones",
+    "BP_MHC_Elder_Female_C_1.Face OverrideMaterials: 6 construction-script MIDs (MID_MI_Face_Skin_Baked_LOD0..5to7)",
+    "BP_MHC_Elder_Female_C_1.LODSync CustomLODMapping; groom component transforms/attach (Hair, Eyebrows, ...)",
+    "NiagaraActor_29.NiagaraComponent0 OverrideParameters (store present, contents not decoded)"
+   ],
+   "playback_tick": [
+    0,
+    5585600
+   ],
+   "possessables": [
+    {
+     "class": "NiagaraActor",
+     "level_object": "NiagaraActor_29",
+     "name": "NS_BeeSwarm",
+     "parent": null,
+     "tracks": [
+      "MovieScene3DTransformTrack (keyed, linear)"
+     ]
+    },
+    {
+     "class": "CineCameraActor",
+     "level_object": "CineCameraActor_1",
+     "name": "CineCameraActor",
+     "parent": null,
+     "tracks": [
+      "MovieScene3DTransformTrack (defaults only)"
+     ]
+    },
+    {
+     "class": "CineCameraActor",
+     "level_object": "CineCameraActor_3",
+     "name": "CineCameraActor2",
+     "parent": null,
+     "tracks": [
+      "MovieScene3DTransformTrack (defaults only)"
+     ]
+    },
+    {
+     "class": "CineCameraActor",
+     "level_object": "CineCameraActor_0",
+     "name": "CineCameraActor3",
+     "parent": null,
+     "tracks": [
+      "MovieScene3DTransformTrack (defaults only)"
+     ]
+    },
+    {
+     "class": "CineCameraActor",
+     "level_object": "CineCameraActor_4",
+     "name": "CineCameraActor4",
+     "parent": null,
+     "tracks": [
+      "MovieScene3DTransformTrack (defaults only)"
+     ]
+    },
+    {
+     "class": "CineCameraActor",
+     "level_object": "CineCameraActor_5",
+     "name": "CineCameraActor5",
+     "parent": null,
+     "tracks": [
+      "MovieScene3DTransformTrack (defaults only)"
+     ]
+    },
+    {
+     "class": "BP_MHC_Elder_Female_C",
+     "level_object": "BP_MHC_Elder_Female_C_1",
+     "name": "BP_MHC_Elder_Female",
+     "parent": null,
+     "tracks": []
+    },
+    {
+     "name": "CameraComponent",
+     "parent": "CineCameraActor",
+     "tracks": [
+      "3 x MovieSceneFloatTrack (CurrentFocalLength 35, FocusSettings.ManualFocusDistance 100000, CurrentAperture 2.8)"
+     ]
+    },
+    {
+     "name": "CameraComponent",
+     "parent": "CineCameraActor2",
+     "tracks": [
+      "3 x MovieSceneFloatTrack"
+     ]
+    },
+    {
+     "name": "CameraComponent",
+     "parent": "CineCameraActor3",
+     "tracks": [
+      "3 x MovieSceneFloatTrack"
+     ]
+    },
+    {
+     "name": "CameraComponent",
+     "parent": "CineCameraActor4",
+     "tracks": [
+      "3 x MovieSceneFloatTrack"
+     ]
+    },
+    {
+     "name": "CameraComponent",
+     "parent": "CineCameraActor5",
+     "tracks": [
+      "3 x MovieSceneFloatTrack"
+     ]
+    },
+    {
+     "name": "Body",
+     "parent": "BP_MHC_Elder_Female",
+     "tracks": [
+      "MovieSceneControlRigParameterTrack (MetaHuman_ControlRig)",
+      "MovieSceneSkeletalAnimationTrack (AS_MHP_Void_woman)"
+     ]
+    },
+    {
+     "name": "Face",
+     "parent": "BP_MHC_Elder_Female",
+     "tracks": [
+      "MovieSceneControlRigParameterTrack (Face_ControlBoard_CtrlRig)"
+     ]
+    }
+   ],
+   "set_pieces": {
+    "directional": {
+     "class": "/Script/Engine.DirectionalLight",
+     "label": "DirectionalLight",
+     "level_object": "DirectionalLight_1",
+     "loc": [
+      770.0,
+      -20.0,
+      40.0
+     ],
+     "note": "intensity/colour at class defaults in her level (not serialised)",
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "floor": {
+     "cast_shadow": false,
+     "class": "/Script/Engine.StaticMeshActor",
+     "label": "BlackWater_Floor",
+     "level_object": "StaticMeshActor_0",
+     "loc": [
+      100.0,
+      50.0,
+      -40.0
+     ],
+     "mesh": "/Game/KK_Materials/SM_BlackWater_Floor",
+     "override_materials": [
+      "/Game/Japanese_Alley/Materials/M_Metallic_Door_01"
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      0.75,
+      0.75,
+      1.3125
+     ]
+    },
+    "sky_atmosphere": {
+     "class": "/Script/Engine.SkyAtmosphere",
+     "label": "SkyAtmosphere",
+     "level_object": "SkyAtmosphere_1",
+     "loc": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "spots": [
+     {
+      "class": "/Script/Engine.SpotLight",
+      "color": [
+       254,
+       255,
+       222,
+       255
+      ],
+      "intensity": 3.0,
+      "label": "SpotLight",
+      "level_object": "SpotLight_1",
+      "loc": [
+       1585.0,
+       98.0,
+       127.0
+      ],
+      "rot": [
+       0.0,
+       -90.0,
+       -1.0
+      ],
+      "units": "CANDELAS"
+     },
+     {
+      "class": "/Script/Engine.SpotLight",
+      "color": [
+       255,
+       243,
+       210,
+       255
+      ],
+      "intensity": 8.0,
+      "label": "SpotLight2",
+      "level_object": "SpotLight_3",
+      "loc": [
+       1591.0,
+       60.0,
+       89.0
+      ],
+      "rot": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "units": "CANDELAS"
+     }
+    ]
+   },
+   "source": "bytes of Content/Void_content/LS_Void.uasset and Content/L_KK_Void.umap (UE5 package 1018), parsed 7 Oct by test_klara_void_s6_offline.py (re-derived on every harness run) [meas]",
+   "spawnables": [],
+   "swarm": {
+    "first_key_tick": 448800,
+    "first_loc": [
+     2303.7568359375,
+     113.37096405029297,
+     226.7453155517578
+    ],
+    "first_loc_note": "her first KEY values (float32-rounded in the channel); the level RelativeLocation is (2303.756792, 113.370963, 226.745312)",
+    "scale": [
+     6.375,
+     1.5,
+     3.375
+    ]
+   },
+   "tick": 24000,
+   "woman_pose": {
+    "loc": [
+     1570.0,
+     100.0,
+     -40.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     146.0
+    ],
+    "source": "L_KK_Void BP_MHC_Elder_Female_C_1.Root RelativeLocation/RelativeRotation; her LS has NO transform track on her"
+   }
+  },
+  "mode": "DRY",
+  "ours_off": true,
+  "run_id": null,
+  "scene": {
+   "at_frame": null,
+   "copy_path": "/Game/InfinityStage/KlaraHookin/LS_Void_S6",
+   "current_nested": "/Game/Scenes/LS_Void",
+   "end_rule": "her_last_cut",
+   "floor_z_cm": 0.0,
+   "her_level_package": "/Game/L_KK_Void",
+   "her_sequence": "/Game/Void_content/LS_Void",
+   "marker_source": "Saved/CodexConductor/scene_audio_import_S6_record.json args_row.markers[].track_s [meas] (run SCENEAUDIO-20261006-172057)",
+   "marker_track_s": {
+    "S6 climax 2:35": 155.8523,
+    "S6 drop 2:54": 173.7781,
+    "S6 score in (land)": 0.0,
+    "S6 swell 0:50": 50.8,
+    "S6 trough 2:00": 115.9605
+   },
+   "mute_sounds": [
+    "/Game/InfinityStage/Audio/ScenesAudio/Score/SW_S6_The_Void_Live"
+   ],
+   "placement": "match_entry_yaw",
+   "rise_mark": "LS_S6_HangarRise",
+   "scene_label_hint": "Scene 6 \u2014 External Sound",
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_06",
+   "start_option": "score_land"
+  },
+  "set_pieces": {
+   "directional": false,
+   "floor": true,
+   "sky_atmosphere": false,
+   "spots": true
+  }
+ },
+ "audio_compare": {
+  "hers_s": 188.0,
+  "ours_s": 188.0
+ },
+ "extend_mode": {
+  "dry_run": true,
+  "new_end_s": 219.56,
+  "scene_label": "Scene 6 \u2014 External Sound"
+ },
+ "facts": {
+  "entry_camera": {
+   "focal": 35.0,
+   "label": "Scene 6 \u2014 External Sound \u2014 Entry Handoff Camera",
+   "loc": [
+    27640.283499999998,
+    400000.0,
+    180.0
+   ],
+   "rot": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sensor_w": 23.760000228881836
+  },
+  "her": {
+   "audio": {
+    "active": true,
+    "duration_s": 188.0,
+    "range_tick": [
+     0,
+     4512000
+    ],
+    "sound": "/Game/Void_content/The_Void_Live_Stereo_1_"
+   },
+   "bindings": [
+    {
+     "class": "NiagaraActor",
+     "id": "10F0576F413A542222CFC1B3A0E5FB3F",
+     "keys_absolute_world": true,
+     "kind": "possessable",
+     "name": "NS_BeeSwarm",
+     "parent": null,
+     "parent_id": null,
+     "tracks": [
+      [
+       "MovieScene3DTransformTrack",
+       "Transform",
+       1
+      ]
+     ],
+     "transform": {
+      "pitch": {
+       "default": 0.0,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1095200,
+         "tmode": "RCTM_AUTO",
+         "v": 0.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        }
+       ],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "roll": {
+       "default": 0.0,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1095200,
+         "tmode": "RCTM_AUTO",
+         "v": 0.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        }
+       ],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "x": {
+       "default": 2530.0,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 448800,
+         "tmode": "RCTM_AUTO",
+         "v": 2303.7568359375,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 882400,
+         "tmode": "RCTM_AUTO",
+         "v": 1719.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1095200,
+         "tmode": "RCTM_AUTO",
+         "v": 2447.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1280800,
+         "tmode": "RCTM_AUTO",
+         "v": 1651.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1406400,
+         "tmode": "RCTM_AUTO",
+         "v": 2530.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": -0.0002114427916239947,
+         "interp": "RCIM_CUBIC",
+         "leave": -0.0002114427916239947,
+         "t": 1728000,
+         "tmode": "RCTM_AUTO",
+         "v": 1648.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 2210400,
+         "tmode": "RCTM_AUTO",
+         "v": 1580.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        }
+       ],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "y": {
+       "default": 245.0,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 448800,
+         "tmode": "RCTM_AUTO",
+         "v": 113.37096405029297,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 882400,
+         "tmode": "RCTM_AUTO",
+         "v": 113.37096405029297,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1095200,
+         "tmode": "RCTM_AUTO",
+         "v": 107.7782211303711,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1406400,
+         "tmode": "RCTM_AUTO",
+         "v": 245.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1728000,
+         "tmode": "RCTM_AUTO",
+         "v": 78.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1987200,
+         "tmode": "RCTM_AUTO",
+         "v": 446.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 2210400,
+         "tmode": "RCTM_AUTO",
+         "v": 48.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        }
+       ],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "yaw": {
+       "default": 0.0,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1095200,
+         "tmode": "RCTM_AUTO",
+         "v": 0.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        }
+       ],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "z": {
+       "default": 122.0,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 448800,
+         "tmode": "RCTM_AUTO",
+         "v": 226.7453155517578,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1095200,
+         "tmode": "RCTM_AUTO",
+         "v": 66.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1280800,
+         "tmode": "RCTM_AUTO",
+         "v": 706.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1406400,
+         "tmode": "RCTM_AUTO",
+         "v": 122.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 1728000,
+         "tmode": "RCTM_AUTO",
+         "v": 131.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        },
+        {
+         "arrive": 0.0,
+         "interp": "RCIM_CUBIC",
+         "leave": 0.0,
+         "t": 2210400,
+         "tmode": "RCTM_AUTO",
+         "v": 36.0,
+         "wmode": "RCTWM_WEIGHTED_NONE"
+        }
+       ],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      }
+     },
+     "transform_kind": "keyed",
+     "transform_sections": 1
+    },
+    {
+     "class": "CineCameraComponent",
+     "id": "111D39E0410F64BC6A2E71AAF978838C",
+     "kind": "possessable",
+     "name": "CameraComponent",
+     "parent": "CineCameraActor4",
+     "parent_id": "E0D23C644067C680B52975A861ACD75A",
+     "tracks": [
+      [
+       "MovieSceneFloatTrack",
+       "CurrentFocalLength",
+       1
+      ],
+      [
+       "MovieSceneFloatTrack",
+       "ManualFocusDistance",
+       1
+      ],
+      [
+       "MovieSceneFloatTrack",
+       "CurrentAperture",
+       1
+      ]
+     ],
+     "transform": null,
+     "transform_sections": 0
+    },
+    {
+     "class": "CineCameraComponent",
+     "id": "1EA0F5D841EE599E9F4FE69EB3189BF1",
+     "kind": "possessable",
+     "name": "CameraComponent",
+     "parent": "CineCameraActor3",
+     "parent_id": "62AA98F2429529B8E014CEB3457CC635",
+     "tracks": [
+      [
+       "MovieSceneFloatTrack",
+       "CurrentFocalLength",
+       1
+      ],
+      [
+       "MovieSceneFloatTrack",
+       "ManualFocusDistance",
+       1
+      ],
+      [
+       "MovieSceneFloatTrack",
+       "CurrentAperture",
+       1
+      ]
+     ],
+     "transform": null,
+     "transform_sections": 0
+    },
+    {
+     "class": "CineCameraComponent",
+     "id": "2E7C6B594B611449F737BC8DD392750B",
+     "kind": "possessable",
+     "name": "CameraComponent",
+     "parent": "CineCameraActor2",
+     "parent_id": "4BD42EF347E788E6CB14CA841291672F",
+     "tracks": [
+      [
+       "MovieSceneFloatTrack",
+       "CurrentFocalLength",
+       1
+      ],
+      [
+       "MovieSceneFloatTrack",
+       "ManualFocusDistance",
+       1
+      ],
+      [
+       "MovieSceneFloatTrack",
+       "CurrentAperture",
+       1
+      ]
+     ],
+     "transform": null,
+     "transform_sections": 0
+    },
+    {
+     "class": "CineCameraActor",
+     "id": "4BD42EF347E788E6CB14CA841291672F",
+     "keys_absolute_world": true,
+     "kind": "possessable",
+     "name": "CineCameraActor2",
+     "parent": null,
+     "parent_id": null,
+     "tracks": [
+      [
+       "MovieScene3DTransformTrack",
+       "Transform",
+       1
+      ]
+     ],
+     "transform": {
+      "pitch": {
+       "default": 0.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "roll": {
+       "default": -0.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "x": {
+       "default": 1552.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "y": {
+       "default": 56.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "yaw": {
+       "default": 36.00000000000003,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "z": {
+       "default": 54.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      }
+     },
+     "transform_kind": "defaults only",
+     "transform_sections": 1
+    },
+    {
+     "class": "CineCameraActor",
+     "id": "62AA98F2429529B8E014CEB3457CC635",
+     "keys_absolute_world": true,
+     "kind": "possessable",
+     "name": "CineCameraActor3",
+     "parent": null,
+     "parent_id": null,
+     "tracks": [
+      [
+       "MovieScene3DTransformTrack",
+       "Transform",
+       1
+      ]
+     ],
+     "transform": {
+      "pitch": {
+       "default": 3.0000000000000018,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "roll": {
+       "default": -1.99057468934487e-16,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "x": {
+       "default": 1532.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "y": {
+       "default": 56.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "yaw": {
+       "default": 22.000000000000043,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "z": {
+       "default": 54.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      }
+     },
+     "transform_kind": "defaults only",
+     "transform_sections": 1
+    },
+    {
+     "class": "CineCameraActor",
+     "id": "7968862A4EBA3D694D042A991BA33D65",
+     "keys_absolute_world": true,
+     "kind": "possessable",
+     "name": "CineCameraActor",
+     "parent": null,
+     "parent_id": null,
+     "tracks": [
+      [
+       "MovieScene3DTransformTrack",
+       "Transform",
+       1
+      ]
+     ],
+     "transform": {
+      "pitch": {
+       "default": -1.987846675914698e-16,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "roll": {
+       "default": 3.999999999999996,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "x": {
+       "default": 1507.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "y": {
+       "default": 44.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "yaw": {
+       "default": 17.000000000000004,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "z": {
+       "default": 22.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      }
+     },
+     "transform_kind": "defaults only",
+     "transform_sections": 1
+    },
+    {
+     "class": "BP_MHC_Elder_Female_C",
+     "id": "90A9049B4767A0D060D5C7ACBF9A16B8",
+     "kind": "possessable",
+     "name": "BP_MHC_Elder_Female",
+     "parent": null,
+     "parent_id": null,
+     "tracks": [],
+     "transform": null,
+     "transform_sections": 0
+    },
+    {
+     "class": "CineCameraComponent",
+     "id": "9900B0E64A250A1E1C0D559FAFEDAC47",
+     "kind": "possessable",
+     "name": "CameraComponent",
+     "parent": "CineCameraActor5",
+     "parent_id": "D5EAC3E7474FEC88A604CEA89E4F6304",
+     "tracks": [
+      [
+       "MovieSceneFloatTrack",
+       "CurrentFocalLength",
+       1
+      ],
+      [
+       "MovieSceneFloatTrack",
+       "ManualFocusDistance",
+       1
+      ],
+      [
+       "MovieSceneFloatTrack",
+       "CurrentAperture",
+       1
+      ]
+     ],
+     "transform": null,
+     "transform_sections": 0
+    },
+    {
+     "class": "CineCameraActor",
+     "id": "D5EAC3E7474FEC88A604CEA89E4F6304",
+     "keys_absolute_world": true,
+     "kind": "possessable",
+     "name": "CineCameraActor5",
+     "parent": null,
+     "parent_id": null,
+     "tracks": [
+      [
+       "MovieScene3DTransformTrack",
+       "Transform",
+       1
+      ]
+     ],
+     "transform": {
+      "pitch": {
+       "default": 0.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "roll": {
+       "default": -0.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "x": {
+       "default": -1699.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "y": {
+       "default": 80.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "yaw": {
+       "default": 0.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "z": {
+       "default": 45.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      }
+     },
+     "transform_kind": "defaults only",
+     "transform_sections": 1
+    },
+    {
+     "class": "CineCameraActor",
+     "id": "E0D23C644067C680B52975A861ACD75A",
+     "keys_absolute_world": true,
+     "kind": "possessable",
+     "name": "CineCameraActor4",
+     "parent": null,
+     "parent_id": null,
+     "tracks": [
+      [
+       "MovieScene3DTransformTrack",
+       "Transform",
+       1
+      ]
+     ],
+     "transform": {
+      "pitch": {
+       "default": 31.000000000000096,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "roll": {
+       "default": -33.00000000000005,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "x": {
+       "default": 1467.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "y": {
+       "default": 48.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "yaw": {
+       "default": 7.000000000000037,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      },
+      "z": {
+       "default": -22.0,
+       "keys": [],
+       "post": "RCCE_CONSTANT",
+       "pre": "RCCE_CONSTANT"
+      }
+     },
+     "transform_kind": "defaults only",
+     "transform_sections": 1
+    },
+    {
+     "class": "CineCameraComponent",
+     "id": "E285C95D4545A52F1E5EFA9D91CE57B2",
+     "kind": "possessable",
+     "name": "CameraComponent",
+     "parent": "CineCameraActor",
+     "parent_id": "7968862A4EBA3D694D042A991BA33D65",
+     "tracks": [
+      [
+       "MovieSceneFloatTrack",
+       "CurrentFocalLength",
+       1
+      ],
+      [
+       "MovieSceneFloatTrack",
+       "ManualFocusDistance",
+       1
+      ],
+      [
+       "MovieSceneFloatTrack",
+       "CurrentAperture",
+       1
+      ]
+     ],
+     "transform": null,
+     "transform_sections": 0
+    },
+    {
+     "class": "SkeletalMeshComponent",
+     "id": "E826FD21483EB48533A643A5C76FAE92",
+     "kind": "possessable",
+     "name": "Body",
+     "parent": "BP_MHC_Elder_Female",
+     "parent_id": "90A9049B4767A0D060D5C7ACBF9A16B8",
+     "tracks": [
+      [
+       "MovieSceneControlRigParameterTrack",
+       "MetaHuman_ControlRig",
+       1
+      ],
+      [
+       "MovieSceneSkeletalAnimationTrack",
+       "Animation",
+       1
+      ]
+     ],
+     "transform": null,
+     "transform_sections": 0
+    },
+    {
+     "class": "SkeletalMeshComponent",
+     "id": "F5FEF4624BAC55FD1168F2BEF8588CB1",
+     "kind": "possessable",
+     "name": "Face",
+     "parent": "BP_MHC_Elder_Female",
+     "parent_id": "90A9049B4767A0D060D5C7ACBF9A16B8",
+     "tracks": [
+      [
+       "MovieSceneControlRigParameterTrack",
+       "Face_ControlBoard_CtrlRig",
+       1
+      ]
+     ],
+     "transform": null,
+     "transform_sections": 0
+    }
+   ],
+   "cuts": [
+    [
+     [
+      9600,
+      420800
+     ],
+     "CineCameraActor5"
+    ],
+    [
+     [
+      420800,
+      434400
+     ],
+     "CineCameraActor"
+    ],
+    [
+     [
+      434400,
+      856000
+     ],
+     "CineCameraActor2"
+    ],
+    [
+     [
+      856000,
+      1416800
+     ],
+     "CineCameraActor"
+    ],
+    [
+     [
+      1416800,
+      1776000
+     ],
+     "CineCameraActor2"
+    ],
+    [
+     [
+      1776000,
+      2308800
+     ],
+     "CineCameraActor"
+    ],
+    [
+     [
+      2308800,
+      2632800
+     ],
+     "CineCameraActor3"
+    ],
+    [
+     [
+      2632800,
+      3308000
+     ],
+     "CineCameraActor4"
+    ],
+    [
+     [
+      3308000,
+      3808000
+     ],
+     "CineCameraActor"
+    ],
+    [
+     [
+      3808000,
+      5168800
+     ],
+     "CineCameraActor3"
+    ]
+   ],
+   "exists": true,
+   "first_cut_camera": {
+    "binding": "CineCameraActor5",
+    "focal": 35.0,
+    "loc": [
+     -1699.0,
+     80.0,
+     45.0
+    ],
+    "rot": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "tick": 9600
+   },
+   "fps": 30.0,
+   "path": "/Game/Void_content/LS_Void",
+   "playback_tick": [
+    0,
+    5585600
+   ],
+   "tick": 24000.0
+  },
+  "offline": {
+   "audio": {
+    "range_tick": [
+     0,
+     4512000
+    ],
+    "sound": "/Game/Void_content/The_Void_Live_Stereo_1_"
+   },
+   "camera_template": {
+    "CineCameraActor": {
+     "color_saturation": [
+      1.0,
+      1.0,
+      1.0,
+      0.51
+     ],
+     "focus_method": "DISABLE"
+    },
+    "CineCameraActor2": {
+     "color_saturation_shadows": [
+      0.71,
+      1.0,
+      1.0,
+      0.0
+     ],
+     "focus_method": "DISABLE"
+    },
+    "CineCameraActor3": {
+     "focus_method": "DISABLE"
+    },
+    "CineCameraActor4": {
+     "focus_method": "DISABLE"
+    },
+    "CineCameraActor5": {}
+   },
+   "clock_source": "EUpdateClockSource::Audio",
+   "cuts": [
+    [
+     [
+      9600,
+      420800
+     ],
+     "CineCameraActor5"
+    ],
+    [
+     [
+      420800,
+      434400
+     ],
+     "CineCameraActor"
+    ],
+    [
+     [
+      434400,
+      856000
+     ],
+     "CineCameraActor2"
+    ],
+    [
+     [
+      856000,
+      1416800
+     ],
+     "CineCameraActor"
+    ],
+    [
+     [
+      1416800,
+      1776000
+     ],
+     "CineCameraActor2"
+    ],
+    [
+     [
+      1776000,
+      2308800
+     ],
+     "CineCameraActor"
+    ],
+    [
+     [
+      2308800,
+      2632800
+     ],
+     "CineCameraActor3"
+    ],
+    [
+     [
+      2632800,
+      3308000
+     ],
+     "CineCameraActor4"
+    ],
+    [
+     [
+      3308000,
+      3808000
+     ],
+     "CineCameraActor"
+    ],
+    [
+     [
+      3808000,
+      5168800
+     ],
+     "CineCameraActor3"
+    ]
+   ],
+   "first_cut_camera_pose": {
+    "binding": "CineCameraActor5",
+    "focal": 35.0,
+    "loc": [
+     -1699.0,
+     80.0,
+     45.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "source": "sequence defaults (no keys)"
+   },
+   "fps": 30,
+   "her_class_paths": {
+    "BP_MHC_Elder_Female": "/Game/MetaHumans/MHC_Elder_Female/BP_MHC_Elder_Female.BP_MHC_Elder_Female_C",
+    "CineCameraActor": "/Script/CinematicCamera.CineCameraActor",
+    "NiagaraActor": "/Script/Niagara.NiagaraActor"
+   },
+   "instance_overrides_not_carried": [
+    "BP_MHC_Elder_Female_C_1.Body ForcedLodModel=4, Face ForcedLodModel=8, both VisibilityBasedAnimTickOption=AlwaysTickPoseAndRefreshBones",
+    "BP_MHC_Elder_Female_C_1.Face OverrideMaterials: 6 construction-script MIDs (MID_MI_Face_Skin_Baked_LOD0..5to7)",
+    "BP_MHC_Elder_Female_C_1.LODSync CustomLODMapping; groom component transforms/attach (Hair, Eyebrows, ...)",
+    "NiagaraActor_29.NiagaraComponent0 OverrideParameters (store present, contents not decoded)"
+   ],
+   "playback_tick": [
+    0,
+    5585600
+   ],
+   "possessables": [
+    {
+     "class": "NiagaraActor",
+     "level_object": "NiagaraActor_29",
+     "name": "NS_BeeSwarm",
+     "parent": null,
+     "tracks": [
+      "MovieScene3DTransformTrack (keyed, linear)"
+     ]
+    },
+    {
+     "class": "CineCameraActor",
+     "level_object": "CineCameraActor_1",
+     "name": "CineCameraActor",
+     "parent": null,
+     "tracks": [
+      "MovieScene3DTransformTrack (defaults only)"
+     ]
+    },
+    {
+     "class": "CineCameraActor",
+     "level_object": "CineCameraActor_3",
+     "name": "CineCameraActor2",
+     "parent": null,
+     "tracks": [
+      "MovieScene3DTransformTrack (defaults only)"
+     ]
+    },
+    {
+     "class": "CineCameraActor",
+     "level_object": "CineCameraActor_0",
+     "name": "CineCameraActor3",
+     "parent": null,
+     "tracks": [
+      "MovieScene3DTransformTrack (defaults only)"
+     ]
+    },
+    {
+     "class": "CineCameraActor",
+     "level_object": "CineCameraActor_4",
+     "name": "CineCameraActor4",
+     "parent": null,
+     "tracks": [
+      "MovieScene3DTransformTrack (defaults only)"
+     ]
+    },
+    {
+     "class": "CineCameraActor",
+     "level_object": "CineCameraActor_5",
+     "name": "CineCameraActor5",
+     "parent": null,
+     "tracks": [
+      "MovieScene3DTransformTrack (defaults only)"
+     ]
+    },
+    {
+     "class": "BP_MHC_Elder_Female_C",
+     "level_object": "BP_MHC_Elder_Female_C_1",
+     "name": "BP_MHC_Elder_Female",
+     "parent": null,
+     "tracks": []
+    },
+    {
+     "name": "CameraComponent",
+     "parent": "CineCameraActor",
+     "tracks": [
+      "3 x MovieSceneFloatTrack (CurrentFocalLength 35, FocusSettings.ManualFocusDistance 100000, CurrentAperture 2.8)"
+     ]
+    },
+    {
+     "name": "CameraComponent",
+     "parent": "CineCameraActor2",
+     "tracks": [
+      "3 x MovieSceneFloatTrack"
+     ]
+    },
+    {
+     "name": "CameraComponent",
+     "parent": "CineCameraActor3",
+     "tracks": [
+      "3 x MovieSceneFloatTrack"
+     ]
+    },
+    {
+     "name": "CameraComponent",
+     "parent": "CineCameraActor4",
+     "tracks": [
+      "3 x MovieSceneFloatTrack"
+     ]
+    },
+    {
+     "name": "CameraComponent",
+     "parent": "CineCameraActor5",
+     "tracks": [
+      "3 x MovieSceneFloatTrack"
+     ]
+    },
+    {
+     "name": "Body",
+     "parent": "BP_MHC_Elder_Female",
+     "tracks": [
+      "MovieSceneControlRigParameterTrack (MetaHuman_ControlRig)",
+      "MovieSceneSkeletalAnimationTrack (AS_MHP_Void_woman)"
+     ]
+    },
+    {
+     "name": "Face",
+     "parent": "BP_MHC_Elder_Female",
+     "tracks": [
+      "MovieSceneControlRigParameterTrack (Face_ControlBoard_CtrlRig)"
+     ]
+    }
+   ],
+   "set_pieces": {
+    "directional": {
+     "class": "/Script/Engine.DirectionalLight",
+     "label": "DirectionalLight",
+     "level_object": "DirectionalLight_1",
+     "loc": [
+      770.0,
+      -20.0,
+      40.0
+     ],
+     "note": "intensity/colour at class defaults in her level (not serialised)",
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "floor": {
+     "cast_shadow": false,
+     "class": "/Script/Engine.StaticMeshActor",
+     "label": "BlackWater_Floor",
+     "level_object": "StaticMeshActor_0",
+     "loc": [
+      100.0,
+      50.0,
+      -40.0
+     ],
+     "mesh": "/Game/KK_Materials/SM_BlackWater_Floor",
+     "override_materials": [
+      "/Game/Japanese_Alley/Materials/M_Metallic_Door_01"
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      0.75,
+      0.75,
+      1.3125
+     ]
+    },
+    "sky_atmosphere": {
+     "class": "/Script/Engine.SkyAtmosphere",
+     "label": "SkyAtmosphere",
+     "level_object": "SkyAtmosphere_1",
+     "loc": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "spots": [
+     {
+      "class": "/Script/Engine.SpotLight",
+      "color": [
+       254,
+       255,
+       222,
+       255
+      ],
+      "intensity": 3.0,
+      "label": "SpotLight",
+      "level_object": "SpotLight_1",
+      "loc": [
+       1585.0,
+       98.0,
+       127.0
+      ],
+      "rot": [
+       0.0,
+       -90.0,
+       -1.0
+      ],
+      "units": "CANDELAS"
+     },
+     {
+      "class": "/Script/Engine.SpotLight",
+      "color": [
+       255,
+       243,
+       210,
+       255
+      ],
+      "intensity": 8.0,
+      "label": "SpotLight2",
+      "level_object": "SpotLight_3",
+      "loc": [
+       1591.0,
+       60.0,
+       89.0
+      ],
+      "rot": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "units": "CANDELAS"
+     }
+    ]
+   },
+   "source": "bytes of Content/Void_content/LS_Void.uasset and Content/L_KK_Void.umap (UE5 package 1018), parsed 7 Oct by test_klara_void_s6_offline.py (re-derived on every harness run) [meas]",
+   "spawnables": [],
+   "swarm": {
+    "first_key_tick": 448800,
+    "first_loc": [
+     2303.7568359375,
+     113.37096405029297,
+     226.7453155517578
+    ],
+    "first_loc_note": "her first KEY values (float32-rounded in the channel); the level RelativeLocation is (2303.756792, 113.370963, 226.745312)",
+    "scale": [
+     6.375,
+     1.5,
+     3.375
+    ]
+   },
+   "tick": 24000,
+   "woman_pose": {
+    "loc": [
+     1570.0,
+     100.0,
+     -40.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     146.0
+    ],
+    "source": "L_KK_Void BP_MHC_Elder_Female_C_1.Root RelativeLocation/RelativeRotation; her LS has NO transform track on her"
+   }
+  },
+  "scene": {
+   "camera_owner": "TIMELINE",
+   "fps": 25.0,
+   "label": "Scene 6 \u2014 External Sound",
+   "markers": [
+    {
+     "label": "S6 score in (land)",
+     "scene_s": 4.16
+    },
+    {
+     "label": "S6 swell 0:50",
+     "scene_s": 54.96
+    },
+    {
+     "label": "S6 trough 2:00",
+     "scene_s": 120.12
+    },
+    {
+     "label": "S6 climax 2:35",
+     "scene_s": 160.0
+    },
+    {
+     "label": "S6 drop 2:54",
+     "scene_s": 177.92
+    }
+   ],
+   "playback": [
+    0,
+    4850
+   ],
+   "score": [
+    {
+     "active": true,
+     "cls": "MovieSceneAudioTrack",
+     "end": 4804,
+     "sound": "/Game/InfinityStage/Audio/ScenesAudio/Score/SW_S6_The_Void_Live",
+     "start": 104,
+     "track": "Scene Score"
+    }
+   ],
+   "sections": [
+    {
+     "active": true,
+     "cls": "MovieSceneCinematicShotTrack",
+     "end": 375,
+     "sequence": "/Game/Scenes/LS_Void",
+     "start": 0,
+     "start_offset": 0,
+     "track": "Shots"
+    },
+    {
+     "active": true,
+     "cls": "MovieSceneSubTrack",
+     "end": 775,
+     "sequence": "/Game/InfinityStage/RigAtmos/LS_S6_HangarRise",
+     "start": 0,
+     "start_offset": 0,
+     "track": "Hangar Fold"
+    },
+    {
+     "active": true,
+     "cls": "MovieSceneAudioTrack",
+     "end": 4804,
+     "sound": "/Game/InfinityStage/Audio/ScenesAudio/Score/SW_S6_The_Void_Live",
+     "start": 104,
+     "track": "Scene Score"
+    },
+    {
+     "active": true,
+     "cls": "MovieSceneCameraCutTrack",
+     "end": 4825,
+     "start": 0,
+     "track": "Camera Cuts"
+    },
+    {
+     "active": true,
+     "cls": "MovieSceneCameraCutTrack",
+     "end": 4850,
+     "start": 4825,
+     "track": "Camera Cuts"
+    }
+   ],
+   "shots": [
+    {
+     "active": true,
+     "cls": "MovieSceneCinematicShotTrack",
+     "end": 375,
+     "sequence": "/Game/Scenes/LS_Void",
+     "start": 0,
+     "start_offset": 0,
+     "track": "Shots"
+    }
+   ],
+   "subs": [
+    {
+     "active": true,
+     "cls": "MovieSceneSubTrack",
+     "end": 775,
+     "sequence": "/Game/InfinityStage/RigAtmos/LS_S6_HangarRise",
+     "start": 0,
+     "start_offset": 0,
+     "track": "Hangar Fold"
+    }
+   ],
+   "tick": 24000.0
+  }
+ },
+ "hangar": [
+  {
+   "class": "InfinityStageArrival",
+   "hidden_in_game": false,
+   "label": "S6 Arrival"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 60.0,
+   "label": "S6 Ghost Light"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Ghost Light Bulb"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Ghost Light Stand"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Apron"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Far Wall Above Exit"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Far Wall Hinge"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Floor 1"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Floor 1 Hinge"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Floor 2"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Floor 2 Hinge"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Floor 3"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Floor 3 Hinge"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 01"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 02"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 03"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 04"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 05"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 06"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 07"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 08"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 09"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 10"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 11"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 12"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 13"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Beam 14"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Fly"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Rail 1"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Rail 2"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Lattice Rail 3"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Left Wall"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Left Wall Hinge"
+  },
+  {
+   "class": "PostProcessVolume",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Pinned Exposure"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Right Wall"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Right Wall Hinge"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Hangar Root",
+   "rot": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 1-1"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 1-2"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 1-3"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 1-4"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 1-5"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 1-6"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 1-7"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 1-8"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 2-1"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 2-2"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 2-3"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 2-4"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 2-5"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 2-6"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 2-7"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 2-8"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 3-1"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 3-2"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 3-3"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 3-4"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 3-5"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 3-6"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 3-7"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Lattice Bulb 3-8"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 1-1"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 1-2"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 1-3"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 1-4"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 1-5"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 1-6"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 1-7"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 1-8"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 2-1"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 2-2"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 2-3"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 2-4"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 2-5"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 2-6"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 2-7"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 2-8"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 3-1"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 3-2"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 3-3"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 3-4"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 3-5"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 3-6"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 3-7"
+  },
+  {
+   "class": "PointLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Lattice Glow 3-8"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical L1"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical L1 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical L2"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical L2 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical L3"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical L3 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical L4"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical L4 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical L5"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical L5 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical L6"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical L6 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical L7"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical L7 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical R1"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical R1 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical R2"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical R2 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical R3"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical R3 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical R4"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical R4 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical R5"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical R5 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical R6"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical R6 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Practical R7"
+  },
+  {
+   "class": "StaticMeshActor",
+   "hidden_in_game": false,
+   "label": "S6 Practical R7 Body"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Uplight 1"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Uplight 2"
+  },
+  {
+   "class": "SpotLight",
+   "hidden_in_game": false,
+   "intensity": 0.0,
+   "label": "S6 Uplight 3"
+  }
+ ],
+ "loads": {
+  "/Game/FX/NS_BeeSwarm": true,
+  "/Game/Japanese_Alley/Materials/M_Metallic_Door_01": true,
+  "/Game/KK_Materials/SM_BlackWater_Floor": true,
+  "class BP_MHC_Elder_Female": true,
+  "class CineCameraActor": true,
+  "class NiagaraActor": true,
+  "our swarm system /Game/Scenes/Effects/Swarm/NS_BeeSwarm (C++ actor's default)": false
+ },
+ "plan": {
+  "T": {
+   "loc": [
+    29339.283499999998,
+    399920.0,
+    135.0
+   ],
+   "yaw": 0.0
+  },
+  "end_alternatives": {
+   "her_last_cut": {
+    "end": 5489,
+    "end_s": 219.56
+   },
+   "her_playback": {
+    "end": 5923,
+    "end_s": 236.92
+   }
+  },
+  "end_change_s": 25.56,
+  "extend_mode": {
+   "dry_run": true,
+   "new_end_s": 219.56,
+   "scene_label": "Scene 6 \u2014 External Sound"
+  },
+  "fps": 25.0,
+  "glimmer": {
+   "distance_cm": 4007.0197489669354,
+   "pose": {
+    "loc": [
+     31643.040335937498,
+     400033.3709640503,
+     361.7453155517578
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     6.375,
+     1.5,
+     3.375
+    ]
+   },
+   "scale_from": 1.0,
+   "spawn": [
+    25,
+    154
+   ],
+   "spawn_s": [
+    1.0,
+    6.16
+   ],
+   "system": "/Game/FX/NS_BeeSwarm"
+  },
+  "her_audio": {
+   "scene_s": [
+    4.16,
+    192.16
+   ],
+   "sound": "/Game/Void_content/The_Void_Live_Stereo_1_"
+  },
+  "her_cut_span_scene_s": [
+   4.5600000000000005,
+   219.52666666666667
+  ],
+  "her_floor_world_z": 95.0,
+  "her_len_s": 215.36666666666667,
+  "length": {
+   "exact": 5384.166666666667,
+   "frames": 5385,
+   "hold_s": 0.033333333333321204,
+   "on_grid": false
+  },
+  "markers": [
+   {
+    "delta_frames": 0.0,
+    "delta_s": 0.0,
+    "label": "S6 score in (land)",
+    "lines_up": true,
+    "music_scene_s": 4.16,
+    "scene_s": 4.16,
+    "track_s": 0.0
+   },
+   {
+    "delta_frames": 1.7763568394002505e-13,
+    "delta_s": 7.105427357601002e-15,
+    "label": "S6 swell 0:50",
+    "lines_up": true,
+    "music_scene_s": 54.959999999999994,
+    "scene_s": 54.96,
+    "track_s": 50.8
+   },
+   {
+    "delta_frames": -0.012499999999704414,
+    "delta_s": -0.0004999999999881766,
+    "label": "S6 trough 2:00",
+    "lines_up": true,
+    "music_scene_s": 120.12049999999999,
+    "scene_s": 120.12,
+    "track_s": 115.9605
+   },
+   {
+    "delta_frames": -0.30750000000026034,
+    "delta_s": -0.012300000000010414,
+    "label": "S6 climax 2:35",
+    "lines_up": true,
+    "music_scene_s": 160.0123,
+    "scene_s": 160.0,
+    "track_s": 155.8523
+   },
+   {
+    "delta_frames": -0.45250000000010004,
+    "delta_s": -0.018100000000004002,
+    "label": "S6 drop 2:54",
+    "lines_up": true,
+    "music_scene_s": 177.9381,
+    "scene_s": 177.92,
+    "track_s": 173.7781
+   }
+  ],
+  "mute": [
+   {
+    "active": true,
+    "cls": "MovieSceneAudioTrack",
+    "end": 4804,
+    "sound": "/Game/InfinityStage/Audio/ScenesAudio/Score/SW_S6_The_Void_Live",
+    "start": 104,
+    "track": "Scene Score"
+   }
+  ],
+  "placement": {
+   "her_cam_world": [
+    27640.283499999998,
+    400000.0,
+    180.0
+   ],
+   "mode": "match_entry_yaw",
+   "residual": {
+    "dz_cm": 0.0,
+    "focal_mm": 0.0,
+    "pitch_deg": 0.0,
+    "pos_cm": 0.0,
+    "roll_deg": 0.0,
+    "yaw_deg": 0.0
+   },
+   "seamless": true,
+   "transform": {
+    "loc": [
+     29339.283499999998,
+     399920.0,
+     135.0
+    ],
+    "yaw": 0.0
+   }
+  },
+  "placements": {
+   "identity": {
+    "her_cam_world": [
+     -1699.0,
+     80.0,
+     45.0
+    ],
+    "mode": "identity",
+    "residual": {
+     "dz_cm": -135.0,
+     "focal_mm": 0.0,
+     "pitch_deg": 0.0,
+     "pos_cm": 400994.7857283101,
+     "roll_deg": 0.0,
+     "yaw_deg": 0.0
+    },
+    "seamless": false,
+    "transform": {
+     "loc": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "yaw": 0.0
+    }
+   },
+   "match_entry_floor": {
+    "her_cam_world": [
+     27640.283499999998,
+     400000.0,
+     85.0
+    ],
+    "mode": "match_entry_floor",
+    "residual": {
+     "dz_cm": -95.0,
+     "focal_mm": 0.0,
+     "pitch_deg": 0.0,
+     "pos_cm": 95.0,
+     "roll_deg": 0.0,
+     "yaw_deg": 0.0
+    },
+    "seamless": false,
+    "transform": {
+     "loc": [
+      29339.283499999998,
+      399920.0,
+      40.0
+     ],
+     "yaw": 0.0
+    }
+   },
+   "match_entry_translation": {
+    "her_cam_world": [
+     27640.283499999998,
+     400000.0,
+     180.0
+    ],
+    "mode": "match_entry_translation",
+    "residual": {
+     "dz_cm": 0.0,
+     "focal_mm": 0.0,
+     "pitch_deg": 0.0,
+     "pos_cm": 0.0,
+     "roll_deg": 0.0,
+     "yaw_deg": 0.0
+    },
+    "seamless": true,
+    "transform": {
+     "loc": [
+      29339.283499999998,
+      399920.0,
+      135.0
+     ],
+     "yaw": 0.0
+    }
+   },
+   "match_entry_yaw": {
+    "her_cam_world": [
+     27640.283499999998,
+     400000.0,
+     180.0
+    ],
+    "mode": "match_entry_yaw",
+    "residual": {
+     "dz_cm": 0.0,
+     "focal_mm": 0.0,
+     "pitch_deg": 0.0,
+     "pos_cm": 0.0,
+     "roll_deg": 0.0,
+     "yaw_deg": 0.0
+    },
+    "seamless": true,
+    "transform": {
+     "loc": [
+      29339.283499999998,
+      399920.0,
+      135.0
+     ],
+     "yaw": 0.0
+    }
+   }
+  },
+  "planned_end": 5489,
+  "planned_end_s": 219.56,
+  "rebuild": [
+   {
+    "children": [],
+    "class_path": "/Script/Niagara.NiagaraActor",
+    "name": "NS_BeeSwarm",
+    "transform": {
+     "pitch": {
+      "default": 0.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1095200,
+        "tmode": "RCTM_AUTO",
+        "v": 0.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       }
+      ],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "roll": {
+      "default": 0.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1095200,
+        "tmode": "RCTM_AUTO",
+        "v": 0.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       }
+      ],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "x": {
+      "default": 2530.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 448800,
+        "tmode": "RCTM_AUTO",
+        "v": 2303.7568359375,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 882400,
+        "tmode": "RCTM_AUTO",
+        "v": 1719.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1095200,
+        "tmode": "RCTM_AUTO",
+        "v": 2447.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1280800,
+        "tmode": "RCTM_AUTO",
+        "v": 1651.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1406400,
+        "tmode": "RCTM_AUTO",
+        "v": 2530.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": -0.0002114427916239947,
+        "interp": "RCIM_CUBIC",
+        "leave": -0.0002114427916239947,
+        "t": 1728000,
+        "tmode": "RCTM_AUTO",
+        "v": 1648.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 2210400,
+        "tmode": "RCTM_AUTO",
+        "v": 1580.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       }
+      ],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "y": {
+      "default": 245.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 448800,
+        "tmode": "RCTM_AUTO",
+        "v": 113.37096405029297,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 882400,
+        "tmode": "RCTM_AUTO",
+        "v": 113.37096405029297,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1095200,
+        "tmode": "RCTM_AUTO",
+        "v": 107.7782211303711,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1406400,
+        "tmode": "RCTM_AUTO",
+        "v": 245.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1728000,
+        "tmode": "RCTM_AUTO",
+        "v": 78.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1987200,
+        "tmode": "RCTM_AUTO",
+        "v": 446.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 2210400,
+        "tmode": "RCTM_AUTO",
+        "v": 48.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       }
+      ],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "yaw": {
+      "default": 0.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1095200,
+        "tmode": "RCTM_AUTO",
+        "v": 0.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       }
+      ],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "z": {
+      "default": 122.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 448800,
+        "tmode": "RCTM_AUTO",
+        "v": 226.7453155517578,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1095200,
+        "tmode": "RCTM_AUTO",
+        "v": 66.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1280800,
+        "tmode": "RCTM_AUTO",
+        "v": 706.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1406400,
+        "tmode": "RCTM_AUTO",
+        "v": 122.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 1728000,
+        "tmode": "RCTM_AUTO",
+        "v": 131.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       },
+       {
+        "arrive": 0.0,
+        "interp": "RCIM_CUBIC",
+        "leave": 0.0,
+        "t": 2210400,
+        "tmode": "RCTM_AUTO",
+        "v": 36.0,
+        "wmode": "RCTWM_WEIGHTED_NONE"
+       }
+      ],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     }
+    }
+   },
+   {
+    "children": [
+     "CameraComponent"
+    ],
+    "class_path": "/Script/CinematicCamera.CineCameraActor",
+    "name": "CineCameraActor2",
+    "transform": {
+     "pitch": {
+      "default": 0.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "roll": {
+      "default": -0.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "x": {
+      "default": 1552.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "y": {
+      "default": 56.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "yaw": {
+      "default": 36.00000000000003,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "z": {
+      "default": 54.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     }
+    }
+   },
+   {
+    "children": [
+     "CameraComponent"
+    ],
+    "class_path": "/Script/CinematicCamera.CineCameraActor",
+    "name": "CineCameraActor3",
+    "transform": {
+     "pitch": {
+      "default": 3.0000000000000018,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "roll": {
+      "default": -1.99057468934487e-16,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "x": {
+      "default": 1532.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "y": {
+      "default": 56.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "yaw": {
+      "default": 22.000000000000043,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "z": {
+      "default": 54.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     }
+    }
+   },
+   {
+    "children": [
+     "CameraComponent"
+    ],
+    "class_path": "/Script/CinematicCamera.CineCameraActor",
+    "name": "CineCameraActor",
+    "transform": {
+     "pitch": {
+      "default": -1.987846675914698e-16,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "roll": {
+      "default": 3.999999999999996,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "x": {
+      "default": 1507.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "y": {
+      "default": 44.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "yaw": {
+      "default": 17.000000000000004,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "z": {
+      "default": 22.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     }
+    }
+   },
+   {
+    "children": [
+     "Body",
+     "Face"
+    ],
+    "class_path": "/Game/MetaHumans/MHC_Elder_Female/BP_MHC_Elder_Female.BP_MHC_Elder_Female_C",
+    "name": "BP_MHC_Elder_Female",
+    "transform": null
+   },
+   {
+    "children": [
+     "CameraComponent"
+    ],
+    "class_path": "/Script/CinematicCamera.CineCameraActor",
+    "name": "CineCameraActor5",
+    "transform": {
+     "pitch": {
+      "default": 0.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "roll": {
+      "default": -0.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "x": {
+      "default": -1699.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "y": {
+      "default": 80.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "yaw": {
+      "default": 0.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "z": {
+      "default": 45.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     }
+    }
+   },
+   {
+    "children": [
+     "CameraComponent"
+    ],
+    "class_path": "/Script/CinematicCamera.CineCameraActor",
+    "name": "CineCameraActor4",
+    "transform": {
+     "pitch": {
+      "default": 31.000000000000096,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "roll": {
+      "default": -33.00000000000005,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "x": {
+      "default": 1467.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "y": {
+      "default": 48.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "yaw": {
+      "default": 7.000000000000037,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     },
+     "z": {
+      "default": -22.0,
+      "keys": [],
+      "post": "RCCE_CONSTANT",
+      "pre": "RCCE_CONSTANT"
+     }
+    }
+   }
+  ],
+  "refusals": [],
+  "rekey": [
+   {
+    "binding": "NS_BeeSwarm",
+    "keys": {
+     "x": 7,
+     "y": 7,
+     "yaw": 1,
+     "z": 6
+    },
+    "method": "translate",
+    "problems": []
+   },
+   {
+    "binding": "CineCameraActor2",
+    "keys": {
+     "x": 0,
+     "y": 0,
+     "yaw": 0,
+     "z": 0
+    },
+    "method": "translate",
+    "problems": []
+   },
+   {
+    "binding": "CineCameraActor3",
+    "keys": {
+     "x": 0,
+     "y": 0,
+     "yaw": 0,
+     "z": 0
+    },
+    "method": "translate",
+    "problems": []
+   },
+   {
+    "binding": "CineCameraActor",
+    "keys": {
+     "x": 0,
+     "y": 0,
+     "yaw": 0,
+     "z": 0
+    },
+    "method": "translate",
+    "problems": []
+   },
+   {
+    "binding": "CineCameraActor5",
+    "keys": {
+     "x": 0,
+     "y": 0,
+     "yaw": 0,
+     "z": 0
+    },
+    "method": "translate",
+    "problems": []
+   },
+   {
+    "binding": "CineCameraActor4",
+    "keys": {
+     "x": 0,
+     "y": 0,
+     "yaw": 0,
+     "z": 0
+    },
+    "method": "translate",
+    "problems": []
+   }
+  ],
+  "rise": [
+   {
+    "active": true,
+    "cls": "MovieSceneSubTrack",
+    "end": 775,
+    "sequence": "/Game/InfinityStage/RigAtmos/LS_S6_HangarRise",
+    "start": 0,
+    "start_offset": 0,
+    "track": "Hangar Fold"
+   }
+  ],
+  "section": [
+   104,
+   5489
+  ],
+  "section_s": [
+   4.16,
+   219.56
+  ],
+  "set_pieces": [
+   {
+    "class": "/Script/Engine.SpotLight",
+    "color": [
+     254,
+     255,
+     222,
+     255
+    ],
+    "intensity": 3.0,
+    "kind": "spots",
+    "label": "SpotLight",
+    "level_object": "SpotLight_1",
+    "loc": [
+     1585.0,
+     98.0,
+     127.0
+    ],
+    "rot": [
+     0.0,
+     -90.0,
+     -1.0
+    ],
+    "units": "CANDELAS",
+    "world": {
+     "loc": [
+      30924.283499999998,
+      400018.0,
+      262.0
+     ],
+     "rot": [
+      0.0,
+      -90.0,
+      -1.0
+     ]
+    }
+   },
+   {
+    "class": "/Script/Engine.SpotLight",
+    "color": [
+     255,
+     243,
+     210,
+     255
+    ],
+    "intensity": 8.0,
+    "kind": "spots",
+    "label": "SpotLight2",
+    "level_object": "SpotLight_3",
+    "loc": [
+     1591.0,
+     60.0,
+     89.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "units": "CANDELAS",
+    "world": {
+     "loc": [
+      30930.283499999998,
+      399980.0,
+      224.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   {
+    "cast_shadow": false,
+    "class": "/Script/Engine.StaticMeshActor",
+    "kind": "floor",
+    "label": "BlackWater_Floor",
+    "level_object": "StaticMeshActor_0",
+    "loc": [
+     100.0,
+     50.0,
+     -40.0
+    ],
+    "mesh": "/Game/KK_Materials/SM_BlackWater_Floor",
+    "override_materials": [
+     "/Game/Japanese_Alley/Materials/M_Metallic_Door_01"
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     0.75,
+     0.75,
+     1.3125
+    ],
+    "world": {
+     "loc": [
+      29439.283499999998,
+      399970.0,
+      95.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      0.75,
+      0.75,
+      1.3125
+     ]
+    }
+   }
+  ],
+  "start_why": "our S6 score land frame (her music then sits where our markers expect it)",
+  "timeline": {
+   "cinematic": [
+    104,
+    5489
+   ],
+   "glimmer": [
+    25,
+    154
+   ],
+   "hangar_lights_zero": [
+    0,
+    5489
+   ],
+   "hangar_off": [
+    0,
+    5489
+   ],
+   "lead": [
+    0,
+    104
+   ],
+   "ours_off": [
+    0,
+    5489
+   ],
+   "set_pieces_lit": [
+    104,
+    5489
+   ]
+  },
+  "warnings": [
+   "HER_FLOOR_OFF_OURS: her floor lands at z=95.0, ours 0.0 (placement match_entry_floor fixes it at the cost of a 95.0 cm camera drop at the seam)",
+   "LENGTH_OFF_GRID: 5384.167 frames ceiled to 5385 (holds her last frame 0.0333 s)",
+   "GLIMMER_OVERLAP: two swarm instances for 2.00 s from her start (density doubles, then the glimmer's half vanishes); overlap_s 0 makes it a clean empty-and-refill instead"
+  ],
+  "woman_world": {
+   "loc": [
+    30909.283499999998,
+    400020.0,
+    95.0
+   ],
+   "rot": [
+    0.0,
+    0.0,
+    146.0
+   ]
+  }
+ },
+ "refusals": [],
+ "rig": {
+  "ours": [
+   "Infinity Stage - Dusk Sun",
+   "Infinity Stage - Moon",
+   "Infinity Stage - Dusk Skylight",
+   "Infinity Stage - Dusk Height Fog"
+  ]
+ },
+ "run": "KLARAVOIDS6-20261007-012300",
+ "tool": "klara_void_s6",
+ "warnings": [
+  "HER_FLOOR_OFF_OURS: her floor lands at z=95.0, ours 0.0 (placement match_entry_floor fixes it at the cost of a 95.0 cm camera drop at the seam)",
+  "LENGTH_OFF_GRID: 5384.167 frames ceiled to 5385 (holds her last frame 0.0333 s)",
+  "GLIMMER_OVERLAP: two swarm instances for 2.00 s from her start (density doubles, then the glimmer's half vanishes); overlap_s 0 makes it a clean empty-and-refill instead",
+  "HANGAR_LIGHTS_LIT_NOW: 1 (['S6 Ghost Light']...) - visible from P06 unless hidden there too; S6 zeroes them"
+ ]
+}

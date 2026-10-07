@@ -1,0 +1,10 @@
+{
+ "run": "S6GHOST-20261007-013200",
+ "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_211",
+ "lights": [
+  {
+   "comp": "LightComponent0",
+   "intensity": 60.0
+  }
+ ]
+}
