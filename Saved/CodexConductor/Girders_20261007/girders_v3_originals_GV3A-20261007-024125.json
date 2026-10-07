@@ -1,0 +1,2702 @@
+{
+ "run": "GV3A-20261007-024125",
+ "status": "APPLIED",
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "gary": "7 Oct: 'v3 at double section'",
+ "plan": {
+  "gridiron.beam_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder_v3",
+  "gridiron.beam_width_cm": 80.0,
+  "gridiron.beam_depth_cm": 180.0,
+  "underpass.column_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn_v3",
+  "underpass.knee_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket_v3",
+  "underpass.column_width_cm": 120.0,
+  "underpass.column_depth_cm": 80.0
+ },
+ "allow_board_drift": false,
+ "expected_lines": null,
+ "structures": {
+  "Infinity Stage - Structure 01": {
+   "snapshot": {
+    "fields": {
+     "gridiron.beam_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder",
+     "gridiron.beam_width_cm": 40.0,
+     "gridiron.beam_depth_cm": 90.0,
+     "underpass.column_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn",
+     "underpass.knee_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket",
+     "underpass.column_width_cm": 60.0,
+     "underpass.column_depth_cm": 40.0
+    },
+    "context": {
+     "gridiron.material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "gridiron.height_cm": 1150.0,
+     "gridiron.enabled": true,
+     "gridiron.section_variation": 0.0,
+     "gridiron.twist_degrees": 0.0,
+     "gridiron.cross_beam_every": 1,
+     "underpass.enabled": true,
+     "underpass.columns": true,
+     "underpass.knees": true,
+     "underpass.column_material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "underpass.knee_material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "underpass.column_outset_cm": 60.0,
+     "underpass.deck_height_cm": 2000.0,
+     "underpass.pier_height_cm": 120.0,
+     "underpass.pier_size_cm": 140.0,
+     "underpass.knee_size_cm": 120.0
+    }
+   },
+   "from_state_problems": [],
+   "soft_ptr_problems": [],
+   "portal": {
+    "enabled": true,
+    "extend_gridiron": true,
+    "portal_mesh": "/Engine/BasicShapes/Cube",
+    "portal_material": "/Engine/EngineMaterials/WorldGridMaterial"
+   },
+   "portal_live": {
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Engine/EngineMaterials/WorldGridMaterial"
+   },
+   "portal_problem": null,
+   "render_before": {
+    "grid": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 142
+    },
+    "columns": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 50
+    },
+    "knees": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 96
+    }
+   },
+   "before": {
+    "station_count": 48,
+    "cross_beam_count": 48,
+    "rail_segment_count": 94,
+    "board_count": 9696,
+    "slot_count": 96,
+    "groove_piece_count": 288,
+    "cloth_count": 0,
+    "portal_piece_count": 1667,
+    "fixture_body_count": 284,
+    "hanging_line_count": 48,
+    "underpass_column_count": 50,
+    "underpass_pier_count": 50,
+    "underpass_knee_count": 96,
+    "underpass_deck_count": 47,
+    "underpass_catwalk_count": 0,
+    "underpass_tube_count": 678,
+    "underpass_tube_light_count": 4,
+    "underpass_fence_panel_count": 372,
+    "underpass_fence_overlay_count": 123,
+    "current": true,
+    "grid_half_width_cm": 1349.142962891607
+   },
+   "line_window": [
+    64,
+    64
+   ],
+   "line_detail": {
+    "grid_top_shift_cm": 135.0,
+    "lines_reported": 48,
+    "predicted_old": 48,
+    "predicted_new": 64,
+    "gained": 19,
+    "lost": 3,
+    "housings": 284,
+    "gained_new_drops_cm": [
+     9.3,
+     11.6,
+     15.5,
+     19.1,
+     21.1,
+     23.3,
+     23.9,
+     27.2,
+     28.1,
+     30.1,
+     34.1,
+     34.2,
+     35.1,
+     38.5,
+     40.9,
+     44.0,
+     49.8,
+     52.3,
+     122.6
+    ],
+    "reproduces_before": true,
+    "problems": []
+   },
+   "clearance_hits_new_band": [
+    [
+     1557,
+     -1327,
+     1374
+    ],
+    [
+     2749,
+     -1328,
+     1381
+    ],
+    [
+     4556,
+     -1349,
+     1376
+    ],
+    [
+     5775,
+     -1312,
+     1380
+    ],
+    [
+     5754,
+     1338,
+     1424
+    ],
+    [
+     7554,
+     -1333,
+     1377
+    ],
+    [
+     8157,
+     -1337,
+     1389
+    ],
+    [
+     10538,
+     -1321,
+     1354
+    ],
+    [
+     11746,
+     -1311,
+     1370
+    ],
+    [
+     12352,
+     -1316,
+     1352
+    ],
+    [
+     12340,
+     1339,
+     1411
+    ],
+    [
+     14759,
+     -1326,
+     1370
+    ],
+    [
+     14759,
+     1348,
+     1411
+    ],
+    [
+     15950,
+     -1304,
+     1392
+    ],
+    [
+     15949,
+     1348,
+     1425
+    ],
+    [
+     16559,
+     -1313,
+     1360
+    ],
+    [
+     18935,
+     -1340,
+     1369
+    ],
+    [
+     20145,
+     -1327,
+     1363
+    ],
+    [
+     20727,
+     1337,
+     1427
+    ],
+    [
+     23133,
+     -1341,
+     1385
+    ],
+    [
+     24942,
+     -1312,
+     1395
+    ],
+    [
+     26751,
+     -1309,
+     1366
+    ],
+    [
+     27962,
+     -1348,
+     1383
+    ]
+   ],
+   "moves": {
+    "cross_girder_to_column_gap_cm": [
+     30.0,
+     0.0
+    ],
+    "grid_top_shift_cm": 135.0,
+    "cross_band_rel_cm": [
+     [
+      1105.0,
+      1285.0
+     ],
+     [
+      1060.0,
+      1420.0
+     ]
+    ],
+    "deck_half_span_grows_cm": 30.0,
+    "knee_shift_along_route_cm": 20.0,
+    "column_height_cm": 1880.0,
+    "column_mesh_x_scale": [
+     3.76,
+     1.0
+    ],
+    "portal_carried_rails_section_cm": [
+     [
+      40.0,
+      90.0
+     ],
+     [
+      80.0,
+      180.0
+     ]
+    ]
+   },
+   "floor_height_cm": 0.0
+  },
+  "Infinity Stage - Structure 02": {
+   "snapshot": {
+    "fields": {
+     "gridiron.beam_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder",
+     "gridiron.beam_width_cm": 40.0,
+     "gridiron.beam_depth_cm": 90.0,
+     "underpass.column_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn",
+     "underpass.knee_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket",
+     "underpass.column_width_cm": 60.0,
+     "underpass.column_depth_cm": 40.0
+    },
+    "context": {
+     "gridiron.material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "gridiron.height_cm": 1150.0,
+     "gridiron.enabled": true,
+     "gridiron.section_variation": 0.0,
+     "gridiron.twist_degrees": 0.0,
+     "gridiron.cross_beam_every": 1,
+     "underpass.enabled": true,
+     "underpass.columns": true,
+     "underpass.knees": true,
+     "underpass.column_material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "underpass.knee_material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "underpass.column_outset_cm": 60.0,
+     "underpass.deck_height_cm": 2000.0,
+     "underpass.pier_height_cm": 120.0,
+     "underpass.pier_size_cm": 140.0,
+     "underpass.knee_size_cm": 120.0
+    }
+   },
+   "from_state_problems": [],
+   "soft_ptr_problems": [],
+   "portal": {
+    "enabled": true,
+    "extend_gridiron": true,
+    "portal_mesh": "/Engine/BasicShapes/Cube",
+    "portal_material": "/Engine/EngineMaterials/WorldGridMaterial"
+   },
+   "portal_live": {
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Engine/EngineMaterials/WorldGridMaterial"
+   },
+   "portal_problem": null,
+   "render_before": {
+    "grid": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 67
+    },
+    "columns": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 24
+    },
+    "knees": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 44
+    }
+   },
+   "before": {
+    "station_count": 23,
+    "cross_beam_count": 23,
+    "rail_segment_count": 44,
+    "board_count": 0,
+    "slot_count": 0,
+    "groove_piece_count": 0,
+    "cloth_count": 0,
+    "portal_piece_count": 12,
+    "fixture_body_count": 132,
+    "hanging_line_count": 35,
+    "underpass_column_count": 24,
+    "underpass_pier_count": 24,
+    "underpass_knee_count": 44,
+    "underpass_deck_count": 22,
+    "underpass_catwalk_count": 0,
+    "underpass_tube_count": 264,
+    "underpass_tube_light_count": 45,
+    "underpass_fence_panel_count": 132,
+    "underpass_fence_overlay_count": 45,
+    "current": true,
+    "grid_half_width_cm": 2250.697280883791
+   },
+   "line_window": [
+    50,
+    50
+   ],
+   "line_detail": {
+    "grid_top_shift_cm": 135.0,
+    "lines_reported": 35,
+    "predicted_old": 35,
+    "predicted_new": 50,
+    "gained": 18,
+    "lost": 3,
+    "housings": 132,
+    "gained_new_drops_cm": [
+     3.9,
+     11.7,
+     12.8,
+     17.3,
+     36.7,
+     42.4,
+     48.0,
+     48.3,
+     53.8,
+     105.1,
+     107.4,
+     112.6,
+     116.5,
+     126.1,
+     127.5,
+     130.6,
+     134.1,
+     134.9
+    ],
+    "reproduces_before": true,
+    "problems": []
+   },
+   "clearance_hits_new_band": [
+    [
+     1047,
+     88598,
+     1400
+    ],
+    [
+     1756,
+     87985,
+     1350
+    ],
+    [
+     2176,
+     87646,
+     1356
+    ],
+    [
+     4018,
+     89596,
+     1410
+    ],
+    [
+     3214,
+     86511,
+     1392
+    ],
+    [
+     3586,
+     86183,
+     1436
+    ],
+    [
+     3965,
+     85892,
+     1356
+    ],
+    [
+     5803,
+     87892,
+     1431
+    ],
+    [
+     4307,
+     85580,
+     1387
+    ],
+    [
+     6166,
+     87509,
+     1425
+    ],
+    [
+     4638,
+     85128,
+     1419
+    ],
+    [
+     4989,
+     84816,
+     1413
+    ],
+    [
+     5399,
+     84530,
+     1367
+    ],
+    [
+     7266,
+     86475,
+     1425
+    ],
+    [
+     5711,
+     84109,
+     1422
+    ],
+    [
+     6133,
+     83830,
+     1362
+    ],
+    [
+     7901,
+     82045,
+     1415
+    ],
+    [
+     8307,
+     81804,
+     1391
+    ],
+    [
+     10141,
+     83719,
+     1409
+    ]
+   ],
+   "moves": {
+    "cross_girder_to_column_gap_cm": [
+     30.0,
+     0.0
+    ],
+    "grid_top_shift_cm": 135.0,
+    "cross_band_rel_cm": [
+     [
+      1105.0,
+      1285.0
+     ],
+     [
+      1060.0,
+      1420.0
+     ]
+    ],
+    "deck_half_span_grows_cm": 30.0,
+    "knee_shift_along_route_cm": 20.0,
+    "column_height_cm": 1880.0,
+    "column_mesh_x_scale": [
+     3.76,
+     1.0
+    ],
+    "portal_carried_rails_section_cm": [
+     [
+      40.0,
+      90.0
+     ],
+     [
+      80.0,
+      180.0
+     ]
+    ]
+   },
+   "floor_height_cm": 0.0
+  },
+  "Infinity Stage - Structure 03": {
+   "snapshot": {
+    "fields": {
+     "gridiron.beam_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder",
+     "gridiron.beam_width_cm": 40.0,
+     "gridiron.beam_depth_cm": 90.0,
+     "underpass.column_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn",
+     "underpass.knee_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket",
+     "underpass.column_width_cm": 60.0,
+     "underpass.column_depth_cm": 40.0
+    },
+    "context": {
+     "gridiron.material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "gridiron.height_cm": 1150.0,
+     "gridiron.enabled": true,
+     "gridiron.section_variation": 0.0,
+     "gridiron.twist_degrees": 0.0,
+     "gridiron.cross_beam_every": 1,
+     "underpass.enabled": true,
+     "underpass.columns": true,
+     "underpass.knees": true,
+     "underpass.column_material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "underpass.knee_material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "underpass.column_outset_cm": 60.0,
+     "underpass.deck_height_cm": 2000.0,
+     "underpass.pier_height_cm": 120.0,
+     "underpass.pier_size_cm": 140.0,
+     "underpass.knee_size_cm": 120.0
+    }
+   },
+   "from_state_problems": [],
+   "soft_ptr_problems": [],
+   "portal": {
+    "enabled": true,
+    "extend_gridiron": true,
+    "portal_mesh": "/Engine/BasicShapes/Cube",
+    "portal_material": "/Engine/EngineMaterials/WorldGridMaterial"
+   },
+   "portal_live": {
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Engine/EngineMaterials/WorldGridMaterial"
+   },
+   "portal_problem": null,
+   "render_before": {
+    "grid": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 61
+    },
+    "columns": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 22
+    },
+    "knees": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 40
+    }
+   },
+   "before": {
+    "station_count": 21,
+    "cross_beam_count": 21,
+    "rail_segment_count": 40,
+    "board_count": 0,
+    "slot_count": 0,
+    "groove_piece_count": 0,
+    "cloth_count": 0,
+    "portal_piece_count": 12,
+    "fixture_body_count": 103,
+    "hanging_line_count": 19,
+    "underpass_column_count": 22,
+    "underpass_pier_count": 22,
+    "underpass_knee_count": 40,
+    "underpass_deck_count": 20,
+    "underpass_catwalk_count": 0,
+    "underpass_tube_count": 240,
+    "underpass_tube_light_count": 15,
+    "underpass_fence_panel_count": 120,
+    "underpass_fence_overlay_count": 42,
+    "current": true,
+    "grid_half_width_cm": 1224.2424325393222
+   },
+   "line_window": [
+    18,
+    18
+   ],
+   "line_detail": {
+    "grid_top_shift_cm": 135.0,
+    "lines_reported": 19,
+    "predicted_old": 19,
+    "predicted_new": 18,
+    "gained": 0,
+    "lost": 1,
+    "housings": 103,
+    "gained_new_drops_cm": [],
+    "reproduces_before": true,
+    "problems": []
+   },
+   "clearance_hits_new_band": [
+    [
+     198,
+     160174,
+     1070
+    ],
+    [
+     699,
+     160207,
+     1071
+    ],
+    [
+     1200,
+     159778,
+     1072
+    ],
+    [
+     1699,
+     159786,
+     1071
+    ],
+    [
+     3199,
+     160205,
+     1073
+    ],
+    [
+     3699,
+     159825,
+     1072
+    ],
+    [
+     4200,
+     160215,
+     1071
+    ],
+    [
+     4698,
+     159786,
+     1069
+    ],
+    [
+     5199,
+     160207,
+     1070
+    ],
+    [
+     5699,
+     159775,
+     1069
+    ],
+    [
+     7199,
+     160213,
+     1073
+    ],
+    [
+     7700,
+     159787,
+     1072
+    ],
+    [
+     8198,
+     160204,
+     1072
+    ],
+    [
+     9699,
+     159825,
+     1073
+    ]
+   ],
+   "moves": {
+    "cross_girder_to_column_gap_cm": [
+     30.0,
+     0.0
+    ],
+    "grid_top_shift_cm": 135.0,
+    "cross_band_rel_cm": [
+     [
+      1105.0,
+      1285.0
+     ],
+     [
+      1060.0,
+      1420.0
+     ]
+    ],
+    "deck_half_span_grows_cm": 30.0,
+    "knee_shift_along_route_cm": 20.0,
+    "column_height_cm": 1880.0,
+    "column_mesh_x_scale": [
+     3.76,
+     1.0
+    ],
+    "portal_carried_rails_section_cm": [
+     [
+      40.0,
+      90.0
+     ],
+     [
+      80.0,
+      180.0
+     ]
+    ]
+   },
+   "floor_height_cm": 0.0
+  },
+  "Infinity Stage - Structure 04": {
+   "snapshot": {
+    "fields": {
+     "gridiron.beam_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder",
+     "gridiron.beam_width_cm": 40.0,
+     "gridiron.beam_depth_cm": 90.0,
+     "underpass.column_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn",
+     "underpass.knee_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket",
+     "underpass.column_width_cm": 60.0,
+     "underpass.column_depth_cm": 40.0
+    },
+    "context": {
+     "gridiron.material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "gridiron.height_cm": 1150.0,
+     "gridiron.enabled": true,
+     "gridiron.section_variation": 0.0,
+     "gridiron.twist_degrees": 0.0,
+     "gridiron.cross_beam_every": 1,
+     "underpass.enabled": true,
+     "underpass.columns": true,
+     "underpass.knees": true,
+     "underpass.column_material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "underpass.knee_material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "underpass.column_outset_cm": 60.0,
+     "underpass.deck_height_cm": 2000.0,
+     "underpass.pier_height_cm": 120.0,
+     "underpass.pier_size_cm": 140.0,
+     "underpass.knee_size_cm": 120.0
+    }
+   },
+   "from_state_problems": [],
+   "soft_ptr_problems": [],
+   "portal": {
+    "enabled": true,
+    "extend_gridiron": true,
+    "portal_mesh": "/Engine/BasicShapes/Cube",
+    "portal_material": "/Engine/EngineMaterials/WorldGridMaterial"
+   },
+   "portal_live": {
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Engine/EngineMaterials/WorldGridMaterial"
+   },
+   "portal_problem": null,
+   "render_before": {
+    "grid": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 61
+    },
+    "columns": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 22
+    },
+    "knees": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 40
+    }
+   },
+   "before": {
+    "station_count": 21,
+    "cross_beam_count": 21,
+    "rail_segment_count": 40,
+    "board_count": 4554,
+    "slot_count": 42,
+    "groove_piece_count": 126,
+    "cloth_count": 0,
+    "portal_piece_count": 1625,
+    "fixture_body_count": 128,
+    "hanging_line_count": 39,
+    "underpass_column_count": 22,
+    "underpass_pier_count": 22,
+    "underpass_knee_count": 40,
+    "underpass_deck_count": 20,
+    "underpass_catwalk_count": 0,
+    "underpass_tube_count": 240,
+    "underpass_tube_light_count": 14,
+    "underpass_fence_panel_count": 120,
+    "underpass_fence_overlay_count": 54,
+    "current": true,
+    "grid_half_width_cm": 1577.6107803546474
+   },
+   "line_window": [
+    46,
+    46
+   ],
+   "line_detail": {
+    "grid_top_shift_cm": 135.0,
+    "lines_reported": 39,
+    "predicted_old": 39,
+    "predicted_new": 46,
+    "gained": 11,
+    "lost": 4,
+    "housings": 128,
+    "gained_new_drops_cm": [
+     6.0,
+     6.8,
+     9.4,
+     28.6,
+     41.9,
+     98.6,
+     107.7,
+     108.2,
+     117.5,
+     121.4,
+     130.1
+    ],
+    "reproduces_before": true,
+    "problems": []
+   },
+   "clearance_hits_new_band": [
+    [
+     250,
+     239650,
+     1072
+    ],
+    [
+     250,
+     240350,
+     1073
+    ],
+    [
+     750,
+     239652,
+     1072
+    ],
+    [
+     750,
+     240347,
+     1071
+    ],
+    [
+     1250,
+     239655,
+     1069
+    ],
+    [
+     1250,
+     240347,
+     1071
+    ],
+    [
+     1750,
+     239652,
+     1071
+    ],
+    [
+     1750,
+     240348,
+     1071
+    ],
+    [
+     2250,
+     239649,
+     1073
+    ],
+    [
+     2250,
+     240348,
+     1072
+    ],
+    [
+     2750,
+     239652,
+     1071
+    ],
+    [
+     2750,
+     240348,
+     1071
+    ],
+    [
+     3289,
+     238587,
+     1434
+    ],
+    [
+     3741,
+     238679,
+     1397
+    ],
+    [
+     3764,
+     241363,
+     1431
+    ],
+    [
+     4766,
+     238589,
+     1428
+    ],
+    [
+     5274,
+     238593,
+     1425
+    ],
+    [
+     6786,
+     238596,
+     1395
+    ],
+    [
+     7306,
+     238606,
+     1416
+    ],
+    [
+     7742,
+     238676,
+     1375
+    ],
+    [
+     7755,
+     241367,
+     1409
+    ],
+    [
+     8290,
+     238583,
+     1398
+    ],
+    [
+     9278,
+     238599,
+     1435
+    ],
+    [
+     9432,
+     241360,
+     1305
+    ],
+    [
+     9741,
+     238695,
+     1362
+    ],
+    [
+     9747,
+     241364,
+     1436
+    ]
+   ],
+   "moves": {
+    "cross_girder_to_column_gap_cm": [
+     30.0,
+     0.0
+    ],
+    "grid_top_shift_cm": 135.0,
+    "cross_band_rel_cm": [
+     [
+      1105.0,
+      1285.0
+     ],
+     [
+      1060.0,
+      1420.0
+     ]
+    ],
+    "deck_half_span_grows_cm": 30.0,
+    "knee_shift_along_route_cm": 20.0,
+    "column_height_cm": 1880.0,
+    "column_mesh_x_scale": [
+     3.76,
+     1.0
+    ],
+    "portal_carried_rails_section_cm": [
+     [
+      40.0,
+      90.0
+     ],
+     [
+      80.0,
+      180.0
+     ]
+    ]
+   },
+   "floor_height_cm": 0.0
+  },
+  "Infinity Stage - Structure 05": {
+   "snapshot": {
+    "fields": {
+     "gridiron.beam_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder",
+     "gridiron.beam_width_cm": 40.0,
+     "gridiron.beam_depth_cm": 90.0,
+     "underpass.column_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn",
+     "underpass.knee_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket",
+     "underpass.column_width_cm": 60.0,
+     "underpass.column_depth_cm": 40.0
+    },
+    "context": {
+     "gridiron.material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "gridiron.height_cm": 1150.0,
+     "gridiron.enabled": true,
+     "gridiron.section_variation": 0.0,
+     "gridiron.twist_degrees": 0.0,
+     "gridiron.cross_beam_every": 1,
+     "underpass.enabled": true,
+     "underpass.columns": true,
+     "underpass.knees": true,
+     "underpass.column_material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "underpass.knee_material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "underpass.column_outset_cm": 60.0,
+     "underpass.deck_height_cm": 2000.0,
+     "underpass.pier_height_cm": 120.0,
+     "underpass.pier_size_cm": 140.0,
+     "underpass.knee_size_cm": 120.0
+    }
+   },
+   "from_state_problems": [],
+   "soft_ptr_problems": [],
+   "portal": {
+    "enabled": true,
+    "extend_gridiron": true,
+    "portal_mesh": "/Engine/BasicShapes/Cube",
+    "portal_material": "/Engine/EngineMaterials/WorldGridMaterial"
+   },
+   "portal_live": {
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Engine/EngineMaterials/WorldGridMaterial"
+   },
+   "portal_problem": null,
+   "render_before": {
+    "grid": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 277
+    },
+    "columns": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 94
+    },
+    "knees": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 184
+    }
+   },
+   "before": {
+    "station_count": 93,
+    "cross_beam_count": 93,
+    "rail_segment_count": 184,
+    "board_count": 10463,
+    "slot_count": 186,
+    "groove_piece_count": 558,
+    "cloth_count": 0,
+    "portal_piece_count": 1901,
+    "fixture_body_count": 598,
+    "hanging_line_count": 158,
+    "underpass_column_count": 94,
+    "underpass_pier_count": 94,
+    "underpass_knee_count": 184,
+    "underpass_deck_count": 92,
+    "underpass_catwalk_count": 0,
+    "underpass_tube_count": 1104,
+    "underpass_tube_light_count": 44,
+    "underpass_fence_panel_count": 552,
+    "underpass_fence_overlay_count": 190,
+    "current": true,
+    "grid_half_width_cm": 744.8964557098225
+   },
+   "line_window": [
+    209,
+    209
+   ],
+   "line_detail": {
+    "grid_top_shift_cm": 135.0,
+    "lines_reported": 158,
+    "predicted_old": 158,
+    "predicted_new": 209,
+    "gained": 51,
+    "lost": 0,
+    "housings": 598,
+    "gained_new_drops_cm": [
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3,
+     99.3
+    ],
+    "reproduces_before": true,
+    "problems": []
+   },
+   "clearance_hits_new_band": [
+    [
+     250,
+     319633,
+     1074
+    ],
+    [
+     250,
+     320361,
+     1075
+    ],
+    [
+     1472,
+     320000,
+     1305
+    ],
+    [
+     750,
+     319640,
+     1075
+    ],
+    [
+     750,
+     320361,
+     1075
+    ],
+    [
+     1972,
+     320000,
+     1305
+    ],
+    [
+     1250,
+     319631,
+     1073
+    ],
+    [
+     1250,
+     320365,
+     1074
+    ],
+    [
+     2472,
+     320000,
+     1305
+    ],
+    [
+     1750,
+     319636,
+     1074
+    ],
+    [
+     1750,
+     320371,
+     1072
+    ],
+    [
+     2972,
+     320000,
+     1305
+    ],
+    [
+     2250,
+     319629,
+     1072
+    ],
+    [
+     2250,
+     320369,
+     1073
+    ],
+    [
+     3472,
+     320000,
+     1305
+    ],
+    [
+     2750,
+     319639,
+     1075
+    ],
+    [
+     2750,
+     320355,
+     1074
+    ],
+    [
+     3972,
+     320000,
+     1305
+    ],
+    [
+     3250,
+     319623,
+     1067
+    ],
+    [
+     3250,
+     320371,
+     1072
+    ],
+    [
+     3750,
+     319626,
+     1070
+    ],
+    [
+     3750,
+     320372,
+     1071
+    ],
+    [
+     4250,
+     319658,
+     1066
+    ],
+    [
+     4250,
+     320359,
+     1075
+    ],
+    [
+     4750,
+     319639,
+     1075
+    ],
+    [
+     4750,
+     320362,
+     1075
+    ],
+    [
+     5250,
+     319631,
+     1073
+    ],
+    [
+     5250,
+     320379,
+     1065
+    ],
+    [
+     5750,
+     319639,
+     1075
+    ],
+    [
+     5750,
+     320357,
+     1074
+    ],
+    [
+     6250,
+     319630,
+     1072
+    ],
+    [
+     6250,
+     320370,
+     1072
+    ],
+    [
+     7472,
+     320000,
+     1305
+    ],
+    [
+     6750,
+     319639,
+     1075
+    ],
+    [
+     6750,
+     320361,
+     1075
+    ],
+    [
+     7972,
+     320000,
+     1305
+    ],
+    [
+     7250,
+     319642,
+     1075
+    ],
+    [
+     7246,
+     320362,
+     1074
+    ],
+    [
+     8472,
+     320000,
+     1305
+    ],
+    [
+     7750,
+     319627,
+     1071
+    ],
+    [
+     7750,
+     320375,
+     1069
+    ],
+    [
+     8972,
+     320000,
+     1305
+    ],
+    [
+     8250,
+     319639,
+     1075
+    ],
+    [
+     8250,
+     320360,
+     1075
+    ],
+    [
+     9472,
+     320000,
+     1305
+    ],
+    [
+     8750,
+     319640,
+     1075
+    ],
+    [
+     8750,
+     320343,
+     1067
+    ],
+    [
+     9972,
+     320000,
+     1305
+    ],
+    [
+     9750,
+     319639,
+     1075
+    ],
+    [
+     9750,
+     320364,
+     1074
+    ],
+    [
+     10972,
+     320000,
+     1305
+    ],
+    [
+     10250,
+     319636,
+     1074
+    ],
+    [
+     10250,
+     320363,
+     1075
+    ],
+    [
+     10750,
+     319639,
+     1075
+    ],
+    [
+     10750,
+     320361,
+     1075
+    ],
+    [
+     11972,
+     320000,
+     1305
+    ],
+    [
+     11250,
+     319635,
+     1074
+    ],
+    [
+     11250,
+     320362,
+     1075
+    ],
+    [
+     12472,
+     320000,
+     1305
+    ],
+    [
+     11750,
+     319632,
+     1073
+    ],
+    [
+     11750,
+     320365,
+     1074
+    ],
+    [
+     12250,
+     319640,
+     1075
+    ],
+    [
+     12250,
+     320361,
+     1075
+    ],
+    [
+     13472,
+     320000,
+     1305
+    ],
+    [
+     13250,
+     319635,
+     1074
+    ],
+    [
+     13250,
+     320365,
+     1074
+    ],
+    [
+     14472,
+     320000,
+     1305
+    ],
+    [
+     13750,
+     319639,
+     1075
+    ],
+    [
+     13750,
+     320363,
+     1074
+    ],
+    [
+     14250,
+     319634,
+     1074
+    ],
+    [
+     14250,
+     320363,
+     1074
+    ],
+    [
+     15472,
+     320000,
+     1305
+    ],
+    [
+     14750,
+     319640,
+     1075
+    ],
+    [
+     14750,
+     320357,
+     1075
+    ],
+    [
+     15972,
+     320000,
+     1305
+    ],
+    [
+     15250,
+     319637,
+     1074
+    ],
+    [
+     15250,
+     320363,
+     1075
+    ],
+    [
+     15750,
+     319634,
+     1074
+    ],
+    [
+     15750,
+     320370,
+     1073
+    ],
+    [
+     16972,
+     320000,
+     1305
+    ],
+    [
+     16750,
+     319639,
+     1075
+    ],
+    [
+     16750,
+     320361,
+     1075
+    ],
+    [
+     17972,
+     320000,
+     1305
+    ],
+    [
+     17250,
+     319630,
+     1073
+    ],
+    [
+     17250,
+     320364,
+     1074
+    ],
+    [
+     17750,
+     319640,
+     1075
+    ],
+    [
+     17750,
+     320358,
+     1075
+    ],
+    [
+     18972,
+     320000,
+     1305
+    ],
+    [
+     18250,
+     319633,
+     1074
+    ],
+    [
+     18250,
+     320365,
+     1074
+    ],
+    [
+     19472,
+     320000,
+     1305
+    ],
+    [
+     18750,
+     319639,
+     1075
+    ],
+    [
+     18750,
+     320361,
+     1075
+    ],
+    [
+     19250,
+     319641,
+     1075
+    ],
+    [
+     19250,
+     320361,
+     1075
+    ],
+    [
+     20472,
+     320000,
+     1305
+    ],
+    [
+     20250,
+     319640,
+     1075
+    ],
+    [
+     20250,
+     320360,
+     1075
+    ],
+    [
+     21472,
+     320000,
+     1305
+    ],
+    [
+     20750,
+     319640,
+     1075
+    ],
+    [
+     20750,
+     320353,
+     1074
+    ],
+    [
+     21250,
+     319629,
+     1072
+    ],
+    [
+     21250,
+     320365,
+     1074
+    ],
+    [
+     22472,
+     320000,
+     1305
+    ],
+    [
+     21750,
+     319639,
+     1075
+    ],
+    [
+     21750,
+     320362,
+     1075
+    ],
+    [
+     22972,
+     320000,
+     1305
+    ],
+    [
+     22250,
+     319634,
+     1074
+    ],
+    [
+     22250,
+     320365,
+     1074
+    ],
+    [
+     22750,
+     319639,
+     1075
+    ],
+    [
+     22750,
+     320362,
+     1075
+    ],
+    [
+     23972,
+     320000,
+     1305
+    ],
+    [
+     23750,
+     319629,
+     1072
+    ],
+    [
+     23750,
+     320362,
+     1075
+    ],
+    [
+     24972,
+     320000,
+     1305
+    ],
+    [
+     24250,
+     319640,
+     1075
+    ],
+    [
+     24250,
+     320361,
+     1075
+    ],
+    [
+     24750,
+     319640,
+     1075
+    ],
+    [
+     24750,
+     320360,
+     1075
+    ],
+    [
+     25972,
+     320000,
+     1305
+    ],
+    [
+     25250,
+     319636,
+     1074
+    ],
+    [
+     25250,
+     320364,
+     1074
+    ],
+    [
+     26472,
+     320000,
+     1305
+    ],
+    [
+     25750,
+     319639,
+     1075
+    ],
+    [
+     25750,
+     320364,
+     1074
+    ],
+    [
+     26250,
+     319631,
+     1073
+    ],
+    [
+     26250,
+     320364,
+     1074
+    ],
+    [
+     27472,
+     320000,
+     1305
+    ],
+    [
+     27250,
+     319636,
+     1074
+    ],
+    [
+     27250,
+     320363,
+     1075
+    ],
+    [
+     28472,
+     320000,
+     1305
+    ],
+    [
+     27750,
+     319634,
+     1074
+    ],
+    [
+     27750,
+     320368,
+     1073
+    ],
+    [
+     28250,
+     319645,
+     1074
+    ],
+    [
+     28250,
+     320359,
+     1075
+    ],
+    [
+     29472,
+     320000,
+     1305
+    ],
+    [
+     28750,
+     319639,
+     1075
+    ],
+    [
+     28750,
+     320361,
+     1075
+    ],
+    [
+     29972,
+     320000,
+     1305
+    ],
+    [
+     29250,
+     319634,
+     1074
+    ],
+    [
+     29250,
+     320367,
+     1074
+    ],
+    [
+     29750,
+     319640,
+     1075
+    ],
+    [
+     29750,
+     320357,
+     1075
+    ],
+    [
+     30972,
+     320000,
+     1305
+    ],
+    [
+     30750,
+     319640,
+     1075
+    ],
+    [
+     30750,
+     320361,
+     1075
+    ],
+    [
+     31972,
+     320000,
+     1305
+    ],
+    [
+     31250,
+     319641,
+     1075
+    ],
+    [
+     31250,
+     320361,
+     1075
+    ],
+    [
+     31750,
+     319632,
+     1073
+    ],
+    [
+     31750,
+     320367,
+     1074
+    ],
+    [
+     32972,
+     320000,
+     1305
+    ],
+    [
+     32250,
+     319640,
+     1075
+    ],
+    [
+     32250,
+     320360,
+     1075
+    ],
+    [
+     33472,
+     320000,
+     1305
+    ],
+    [
+     32750,
+     319640,
+     1075
+    ],
+    [
+     32750,
+     320357,
+     1074
+    ],
+    [
+     33250,
+     319634,
+     1074
+    ],
+    [
+     33250,
+     320365,
+     1074
+    ],
+    [
+     34472,
+     320000,
+     1305
+    ],
+    [
+     34250,
+     319634,
+     1074
+    ],
+    [
+     34250,
+     320364,
+     1074
+    ],
+    [
+     35472,
+     320000,
+     1305
+    ],
+    [
+     34750,
+     319638,
+     1075
+    ],
+    [
+     34750,
+     320362,
+     1075
+    ],
+    [
+     35250,
+     319636,
+     1074
+    ],
+    [
+     35250,
+     320362,
+     1075
+    ],
+    [
+     36472,
+     320000,
+     1305
+    ],
+    [
+     35750,
+     319631,
+     1073
+    ],
+    [
+     35750,
+     320362,
+     1075
+    ],
+    [
+     36972,
+     320000,
+     1305
+    ],
+    [
+     36250,
+     319640,
+     1075
+    ],
+    [
+     36250,
+     320360,
+     1075
+    ],
+    [
+     36750,
+     319640,
+     1075
+    ],
+    [
+     36750,
+     320360,
+     1075
+    ],
+    [
+     37972,
+     320000,
+     1305
+    ],
+    [
+     37750,
+     319639,
+     1075
+    ],
+    [
+     37750,
+     320364,
+     1074
+    ],
+    [
+     38972,
+     320000,
+     1305
+    ],
+    [
+     38250,
+     319633,
+     1074
+    ],
+    [
+     38250,
+     320363,
+     1074
+    ],
+    [
+     38750,
+     319640,
+     1075
+    ],
+    [
+     38750,
+     320356,
+     1074
+    ],
+    [
+     39972,
+     320000,
+     1305
+    ],
+    [
+     39250,
+     319637,
+     1074
+    ],
+    [
+     39250,
+     320362,
+     1075
+    ],
+    [
+     40472,
+     320000,
+     1305
+    ],
+    [
+     39750,
+     319629,
+     1072
+    ],
+    [
+     39750,
+     320371,
+     1072
+    ],
+    [
+     40250,
+     319645,
+     1074
+    ],
+    [
+     40250,
+     320360,
+     1075
+    ],
+    [
+     41472,
+     320000,
+     1305
+    ],
+    [
+     41250,
+     319634,
+     1074
+    ],
+    [
+     41250,
+     320366,
+     1074
+    ],
+    [
+     42472,
+     320000,
+     1305
+    ],
+    [
+     41750,
+     319640,
+     1075
+    ],
+    [
+     41750,
+     320358,
+     1075
+    ],
+    [
+     42250,
+     319629,
+     1072
+    ],
+    [
+     42250,
+     320364,
+     1074
+    ],
+    [
+     43472,
+     320000,
+     1305
+    ],
+    [
+     43250,
+     319641,
+     1075
+    ],
+    [
+     43250,
+     320362,
+     1075
+    ],
+    [
+     44250,
+     319640,
+     1075
+    ],
+    [
+     44250,
+     320360,
+     1075
+    ],
+    [
+     45472,
+     320000,
+     1305
+    ],
+    [
+     45250,
+     319634,
+     1074
+    ],
+    [
+     45250,
+     320365,
+     1074
+    ]
+   ],
+   "moves": {
+    "cross_girder_to_column_gap_cm": [
+     30.0,
+     0.0
+    ],
+    "grid_top_shift_cm": 135.0,
+    "cross_band_rel_cm": [
+     [
+      1105.0,
+      1285.0
+     ],
+     [
+      1060.0,
+      1420.0
+     ]
+    ],
+    "deck_half_span_grows_cm": 30.0,
+    "knee_shift_along_route_cm": 20.0,
+    "column_height_cm": 1880.0,
+    "column_mesh_x_scale": [
+     3.76,
+     1.0
+    ],
+    "portal_carried_rails_section_cm": [
+     [
+      40.0,
+      90.0
+     ],
+     [
+      80.0,
+      180.0
+     ]
+    ]
+   },
+   "floor_height_cm": 0.0
+  },
+  "Infinity Stage - Structure 06": {
+   "snapshot": {
+    "fields": {
+     "gridiron.beam_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder",
+     "gridiron.beam_width_cm": 40.0,
+     "gridiron.beam_depth_cm": 90.0,
+     "underpass.column_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn",
+     "underpass.knee_mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket",
+     "underpass.column_width_cm": 60.0,
+     "underpass.column_depth_cm": 40.0
+    },
+    "context": {
+     "gridiron.material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "gridiron.height_cm": 1150.0,
+     "gridiron.enabled": true,
+     "gridiron.section_variation": 0.0,
+     "gridiron.twist_degrees": 0.0,
+     "gridiron.cross_beam_every": 1,
+     "underpass.enabled": true,
+     "underpass.columns": true,
+     "underpass.knees": true,
+     "underpass.column_material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "underpass.knee_material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "underpass.column_outset_cm": 60.0,
+     "underpass.deck_height_cm": 2000.0,
+     "underpass.pier_height_cm": 120.0,
+     "underpass.pier_size_cm": 140.0,
+     "underpass.knee_size_cm": 120.0
+    }
+   },
+   "from_state_problems": [],
+   "soft_ptr_problems": [],
+   "portal": {
+    "enabled": true,
+    "extend_gridiron": true,
+    "portal_mesh": "/Engine/BasicShapes/Cube",
+    "portal_material": "/Engine/EngineMaterials/WorldGridMaterial"
+   },
+   "portal_live": {
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Engine/EngineMaterials/WorldGridMaterial"
+   },
+   "portal_problem": null,
+   "render_before": {
+    "grid": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 190
+    },
+    "columns": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 66
+    },
+    "knees": {
+     "mesh": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket",
+     "material": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+     "instances": 128
+    }
+   },
+   "before": {
+    "station_count": 64,
+    "cross_beam_count": 64,
+    "rail_segment_count": 126,
+    "board_count": 12328,
+    "slot_count": 128,
+    "groove_piece_count": 384,
+    "cloth_count": 0,
+    "portal_piece_count": 1613,
+    "fixture_body_count": 243,
+    "hanging_line_count": 57,
+    "underpass_column_count": 66,
+    "underpass_pier_count": 66,
+    "underpass_knee_count": 128,
+    "underpass_deck_count": 63,
+    "underpass_catwalk_count": 0,
+    "underpass_tube_count": 648,
+    "underpass_tube_light_count": 43,
+    "underpass_fence_panel_count": 372,
+    "underpass_fence_overlay_count": 139,
+    "current": true,
+    "grid_half_width_cm": 1600.7165985107422
+   },
+   "line_window": [
+    77,
+    77
+   ],
+   "line_detail": {
+    "grid_top_shift_cm": 135.0,
+    "lines_reported": 57,
+    "predicted_old": 57,
+    "predicted_new": 77,
+    "gained": 23,
+    "lost": 3,
+    "housings": 243,
+    "gained_new_drops_cm": [
+     1.4,
+     2.9,
+     4.6,
+     5.6,
+     10.4,
+     11.6,
+     11.9,
+     20.7,
+     22.5,
+     23.8,
+     29.1,
+     32.1,
+     37.9,
+     39.2,
+     42.4,
+     43.8,
+     46.9,
+     97.8,
+     102.1,
+     108.5,
+     114.2,
+     121.8,
+     128.4
+    ],
+    "reproduces_before": true,
+    "problems": []
+   },
+   "clearance_hits_new_band": [
+    [
+     -194,
+     398564,
+     1412
+    ],
+    [
+     2669,
+     399687,
+     1066
+    ],
+    [
+     4071,
+     398586,
+     1398
+    ],
+    [
+     4955,
+     398566,
+     1403
+    ],
+    [
+     5305,
+     398664,
+     1362
+    ],
+    [
+     5322,
+     401348,
+     1421
+    ],
+    [
+     5783,
+     398594,
+     1424
+    ],
+    [
+     5944,
+     401360,
+     1306
+    ],
+    [
+     6175,
+     398654,
+     1381
+    ],
+    [
+     6632,
+     398600,
+     1399
+    ],
+    [
+     6794,
+     401352,
+     1302
+    ],
+    [
+     7020,
+     398652,
+     1366
+    ],
+    [
+     7497,
+     398607,
+     1415
+    ],
+    [
+     7917,
+     398661,
+     1360
+    ],
+    [
+     8344,
+     398569,
+     1416
+    ],
+    [
+     8762,
+     398675,
+     1357
+    ],
+    [
+     9639,
+     398697,
+     1372
+    ],
+    [
+     10074,
+     398597,
+     1435
+    ],
+    [
+     10475,
+     398674,
+     1375
+    ],
+    [
+     10952,
+     398594,
+     1401
+    ],
+    [
+     11349,
+     398689,
+     1392
+    ],
+    [
+     11800,
+     398566,
+     1433
+    ],
+    [
+     12192,
+     398662,
+     1380
+    ],
+    [
+     12644,
+     398584,
+     1434
+    ],
+    [
+     13029,
+     398662,
+     1383
+    ],
+    [
+     13491,
+     398589,
+     1392
+    ],
+    [
+     13883,
+     398680,
+     1365
+    ],
+    [
+     14342,
+     398590,
+     1394
+    ]
+   ],
+   "moves": {
+    "cross_girder_to_column_gap_cm": [
+     30.0,
+     0.0
+    ],
+    "grid_top_shift_cm": 135.0,
+    "cross_band_rel_cm": [
+     [
+      1105.0,
+      1285.0
+     ],
+     [
+      1060.0,
+      1420.0
+     ]
+    ],
+    "deck_half_span_grows_cm": 30.0,
+    "knee_shift_along_route_cm": 20.0,
+    "column_height_cm": 1880.0,
+    "column_mesh_x_scale": [
+     3.76,
+     1.0
+    ],
+    "portal_carried_rails_section_cm": [
+     [
+      40.0,
+      90.0
+     ],
+     [
+      80.0,
+      180.0
+     ]
+    ]
+   },
+   "floor_height_cm": 0.0
+  }
+ },
+ "backup": "Backups/PreGirdersV3-20261007-0241/Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap",
+ "after": {
+  "Infinity Stage - Structure 01": {
+   "station_count": 48,
+   "cross_beam_count": 48,
+   "rail_segment_count": 94,
+   "board_count": 9696,
+   "slot_count": 96,
+   "groove_piece_count": 288,
+   "cloth_count": 0,
+   "portal_piece_count": 1667,
+   "fixture_body_count": 284,
+   "hanging_line_count": 64,
+   "underpass_column_count": 50,
+   "underpass_pier_count": 50,
+   "underpass_knee_count": 96,
+   "underpass_deck_count": 47,
+   "underpass_catwalk_count": 0,
+   "underpass_tube_count": 678,
+   "underpass_tube_light_count": 4,
+   "underpass_fence_panel_count": 372,
+   "underpass_fence_overlay_count": 123,
+   "current": true,
+   "grid_half_width_cm": 1349.142962891607
+  },
+  "Infinity Stage - Structure 02": {
+   "station_count": 23,
+   "cross_beam_count": 23,
+   "rail_segment_count": 44,
+   "board_count": 0,
+   "slot_count": 0,
+   "groove_piece_count": 0,
+   "cloth_count": 0,
+   "portal_piece_count": 12,
+   "fixture_body_count": 132,
+   "hanging_line_count": 50,
+   "underpass_column_count": 24,
+   "underpass_pier_count": 24,
+   "underpass_knee_count": 44,
+   "underpass_deck_count": 22,
+   "underpass_catwalk_count": 0,
+   "underpass_tube_count": 264,
+   "underpass_tube_light_count": 45,
+   "underpass_fence_panel_count": 132,
+   "underpass_fence_overlay_count": 45,
+   "current": true,
+   "grid_half_width_cm": 2250.697280883791
+  },
+  "Infinity Stage - Structure 03": {
+   "station_count": 21,
+   "cross_beam_count": 21,
+   "rail_segment_count": 40,
+   "board_count": 0,
+   "slot_count": 0,
+   "groove_piece_count": 0,
+   "cloth_count": 0,
+   "portal_piece_count": 12,
+   "fixture_body_count": 103,
+   "hanging_line_count": 18,
+   "underpass_column_count": 22,
+   "underpass_pier_count": 22,
+   "underpass_knee_count": 40,
+   "underpass_deck_count": 20,
+   "underpass_catwalk_count": 0,
+   "underpass_tube_count": 240,
+   "underpass_tube_light_count": 15,
+   "underpass_fence_panel_count": 120,
+   "underpass_fence_overlay_count": 42,
+   "current": true,
+   "grid_half_width_cm": 1224.2424325393222
+  },
+  "Infinity Stage - Structure 04": {
+   "station_count": 21,
+   "cross_beam_count": 21,
+   "rail_segment_count": 40,
+   "board_count": 4554,
+   "slot_count": 42,
+   "groove_piece_count": 126,
+   "cloth_count": 0,
+   "portal_piece_count": 1625,
+   "fixture_body_count": 128,
+   "hanging_line_count": 46,
+   "underpass_column_count": 22,
+   "underpass_pier_count": 22,
+   "underpass_knee_count": 40,
+   "underpass_deck_count": 20,
+   "underpass_catwalk_count": 0,
+   "underpass_tube_count": 240,
+   "underpass_tube_light_count": 14,
+   "underpass_fence_panel_count": 120,
+   "underpass_fence_overlay_count": 54,
+   "current": true,
+   "grid_half_width_cm": 1577.6107803546474
+  },
+  "Infinity Stage - Structure 05": {
+   "station_count": 93,
+   "cross_beam_count": 93,
+   "rail_segment_count": 184,
+   "board_count": 10463,
+   "slot_count": 186,
+   "groove_piece_count": 558,
+   "cloth_count": 0,
+   "portal_piece_count": 1901,
+   "fixture_body_count": 598,
+   "hanging_line_count": 209,
+   "underpass_column_count": 94,
+   "underpass_pier_count": 94,
+   "underpass_knee_count": 184,
+   "underpass_deck_count": 92,
+   "underpass_catwalk_count": 0,
+   "underpass_tube_count": 1104,
+   "underpass_tube_light_count": 44,
+   "underpass_fence_panel_count": 552,
+   "underpass_fence_overlay_count": 190,
+   "current": true,
+   "grid_half_width_cm": 744.8964557098225
+  },
+  "Infinity Stage - Structure 06": {
+   "station_count": 64,
+   "cross_beam_count": 64,
+   "rail_segment_count": 126,
+   "board_count": 12328,
+   "slot_count": 128,
+   "groove_piece_count": 384,
+   "cloth_count": 0,
+   "portal_piece_count": 1613,
+   "fixture_body_count": 243,
+   "hanging_line_count": 77,
+   "underpass_column_count": 66,
+   "underpass_pier_count": 66,
+   "underpass_knee_count": 128,
+   "underpass_deck_count": 63,
+   "underpass_catwalk_count": 0,
+   "underpass_tube_count": 648,
+   "underpass_tube_light_count": 43,
+   "underpass_fence_panel_count": 372,
+   "underpass_fence_overlay_count": 139,
+   "current": true,
+   "grid_half_width_cm": 1600.7165985107422
+  }
+ },
+ "findings": [
+  "Infinity Stage - Structure 01: hanging_line_count 48 -> 64 (inside [64, 64])",
+  "Infinity Stage - Structure 02: hanging_line_count 35 -> 50 (inside [50, 50])",
+  "Infinity Stage - Structure 03: hanging_line_count 19 -> 18 (inside [18, 18])",
+  "Infinity Stage - Structure 04: hanging_line_count 39 -> 46 (inside [46, 46])",
+  "Infinity Stage - Structure 05: hanging_line_count 158 -> 209 (inside [209, 209])",
+  "Infinity Stage - Structure 06: hanging_line_count 57 -> 77 (inside [77, 77])"
+ ]
+}

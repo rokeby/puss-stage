@@ -42,9 +42,20 @@ class Box:
         self.min, self.max = V(*[-s / 2 for s in size]), V(*[s / 2 for s in size])
 
 
+class Q:
+    def __init__(self, x=0.0, y=0.0, z=0.0, w=1.0):
+        self.x, self.y, self.z, self.w = float(x), float(y), float(z), float(w)
+
+
 class Xf:
-    def __init__(self, t, s=(1, 1, 1)):
-        self.translation, self.scale3d = V(*t), V(*s)
+    def __init__(self, t, s=(1, 1, 1), q=(0.0, 0.0, 0.0, 1.0)):
+        self.translation, self.scale3d, self.rotation = V(*t), V(*s), Q(*q)
+
+
+ENUM_WING = "<InfinityCueType.WING_PAIR: 1>"
+ENUM_LIGHT = "<InfinityAttachmentKind.LIGHT: 0>"
+ENUM_STATION = "<InfinityAttachmentAnchor.STATION: 0>"
+ENUM_ROUTE = "<InfinityAttachmentAnchor.ROUTE: 1>"
 
 
 class Struct:
@@ -187,9 +198,12 @@ class Actor:
 class Structure(Actor):
     """N stations 500 apart; TOP housings hung 5 cm under the Phase A band (top 1100), plus low lamps."""
 
-    def __init__(self, label, n=8, portal=False, pinned=True, v1_state=True):
+    def __init__(self, label, n=8, portal=False, pinned=True, v1_state=True, wide=False):
         super().__init__(label)
         self.n, self.inject = n, {}
+        # wide=True models Structure 02 after the straighten: a 2251 cm half span, lamps 1500 cm off the route line
+        # (no grid instance centre within 600 cm), a row of TOP lamps poking 40 cm above the Phase A grid top.
+        self.ghw = 2251.0 if wide else 745.0
         a = S.assets
         self.gridiron = Struct(beam_mesh=a[MESH + "SM_UP_PlateGirder"] if v1_state else a[CUBE], material=a[MI],
                                beam_width_cm=40.0 if v1_state else 26.0, beam_depth_cm=90.0 if v1_state else 34.0,
@@ -201,12 +215,28 @@ class Structure(Actor):
                                 deck_height_cm=2000.0, pier_height_cm=120.0, pier_size_cm=140.0, knee_size_cm=120.0)
         self.portal = Struct(enabled=portal, extend_gridiron=True, portal_mesh=a[TIMBER] if (portal and pinned) else None,
                              portal_material=None)
-        self.fixtures = Struct(max_drop_cm=900.0, body_size_cm=V(45, 32, 32))
+        self.fixtures = Struct(max_drop_cm=900.0, body_size_cm=V(45, 32, 32), enabled=True, hang_from_grid=True)
         self.ground = Struct(floor_height_cm=0.0)
         self.body_h = 32.0
         # (x, y, housing top): TOP lamps at 1100 (5 cm under the 90 band), low lamps at top 500
-        self.housings = [(i * 500.0, s * 360.0, 1100.0) for i in range(n) for s in (-1, 1)] + \
-                        [(i * 500.0, 300.0, 500.0) for i in range(0, n, 2)]
+        # station-major, as GatherFixturePlacements orders placements (cpp:150-173): (station, x, y, housing top)
+        self.housings = []
+        for i in range(n):
+            self.housings += [(i, i * 500.0, s * 360.0, 1100.0) for s in (-1, 1)]
+            if i % 2 == 0:
+                self.housings.append((i, i * 500.0, 300.0, 500.0))
+            if wide:
+                self.housings += [(i, i * 500.0, 1500.0, 1325.0), (i, i * 500.0, -2400.0, 1100.0)]
+        guids = [f"{0xA000 + i:032X}" for i in range(n)]
+        cues = []
+        for i in range(n):
+            atts = [Struct(enabled=True, kind=ENUM_LIGHT, anchor=ENUM_STATION) for h in self.housings if h[0] == i]
+            atts += [Struct(enabled=False, kind=ENUM_LIGHT, anchor=ENUM_STATION),
+                     Struct(enabled=True, kind=ENUM_LIGHT, anchor=ENUM_ROUTE)]
+            cues.append(Struct(cue_guid=guids[i], type=ENUM_WING, wing_pair=Struct(attachments=atts)))
+        cues.append(Struct(cue_guid="F" * 32, type="<InfinityCueType.CAMERA: 3>", wing_pair=Struct(attachments=[])))
+        self.passage = Struct(show_asset=Struct(cues=cues[::-1]))
+        self.stations = [Struct(cue_guid=guids[i], station_world=Xf((i * 500.0, 0.0, 0.0))) for i in range(n)]
         self.current = True
         self._build()
 
@@ -234,11 +264,11 @@ class Structure(Actor):
                 knees += [Xf((i * 500.0, s * 805.0, 1940.0), (1.0, 1.0, 1.0))] * (1 if i in (0, self.n - 1) else 2)
         lines, bodies = [], []
         grid_top = H + 1.5 * D
-        for x, y, top in self.housings:
+        for _, x, y, top in self.housings:
             z = top - self.body_h / 2
             bodies.append(Xf((x, y, z)))
             drop = grid_top - top
-            if 1.0 <= drop <= self.fixtures._p["max_drop_cm"]:
+            if abs(y) <= self.ghw and 1.0 <= drop <= self.fixtures._p["max_drop_cm"]:
                 lines.append(Xf((x, y, top + drop / 2), (drop / 100.0, 0.03, 0.03)))
         cube = S.assets[CUBE]
         mat_change = self.inject.get("material_change")
@@ -270,17 +300,20 @@ class Structure(Actor):
         S.map_dirty = True
 
     def get_editor_property(self, k):
-        if k in ("gridiron", "underpass", "portal", "fixtures", "ground"):
+        if k in ("gridiron", "underpass", "portal", "fixtures", "ground", "passage"):
             return copy.deepcopy(getattr(self, k))
         if k == "managed_components":
             return list(self.comps)
         if k == "grid_half_width_cm":
-            return 745.0
+            return self.ghw
         return self.c[k]
 
     def set_editor_property(self, k, v):
         assert k in ("gridiron", "underpass"), k
         setattr(self, k, v)
+
+    def gather_stations(self):
+        return True, copy.deepcopy(self.stations), ""
 
     def materialize_structure(self):
         if self.inject.get("materialize_false"):
@@ -665,10 +698,18 @@ def app_no_autorun(tmp):
 @test
 def app_pure_window_clearance_gap(tmp):
     m = load(tmp, "girders_v3_apply")
-    lo, hi, d = m.line_window(10, [800.0, 700.0, 200.0], [], 900.0, 90.0, 180.0)
-    assert d["grid_top_shift_cm"] == 135.0 and (lo, hi) == (9, 9), (lo, hi, d)  # 800+135 > 900: lost
-    lo, hi, _ = m.line_window(10, [700.0], [-20.0], 900.0, 90.0, 180.0)
-    assert (lo, hi) == (10, 11), "a housing above the old grid top may gain a line"
+    flat = {"origin": [0.0, 0.0, 0.0], "up": [0.0, 0.0, 1.0], "across": [0.0, 1.0, 0.0]}
+    hs = [dict(flat, centre=[0.0, 300.0, 1285.0 - d - 16.0]) for d in (800.0, 700.0, 200.0, -20.0, -200.0)]
+    li = {"housings": hs, "height_cm": 1150.0, "body_size_z": 32.0, "max_drop": 900.0, "grid_half_width": 745.0,
+          "lines_on": True, "line_drops": [800.0, 700.0, 200.0]}
+    lo, hi, d = m.line_window(li, 3, 90.0, 180.0)
+    # 800+135 > 900: lost; -20+135: gained; -200+135 still above the grid top: no line
+    assert d["grid_top_shift_cm"] == 135.0 and (lo, hi) == (3, 3) and (d["lost"], d["gained"]) == (1, 1), (lo, hi, d)
+    assert d["reproduces_before"] and not d["problems"]
+    _, _, bad = m.line_window(li, 4, 90.0, 180.0)
+    assert not bad["reproduces_before"] and "live has 4" in bad["problems"][0], "a live count the rule misses must refuse"
+    _, _, bad = m.line_window(dict(li, line_drops=[800.0, 700.0, 205.0]), 3, 90.0, 180.0)
+    assert not bad["reproduces_before"], "line drops that disagree with the rule must refuse"
     # TOP housing top 1100 (centre 1084): clear of the 90 band, inside the 180 band
     assert m.clearance([(0, 360, 1084.0, 1150.0)], 90.0, 180.0, 32.0) == [[0, 360, 1084]]
     assert m.clearance([(0, 300, 484.0, 1150.0)], 90.0, 180.0, 32.0) == [], "low lamp must not hit"
@@ -679,6 +720,107 @@ def app_pure_window_clearance_gap(tmp):
     assert mv["cross_girder_to_column_gap_cm"] == [30.0, 0.0] and mv["deck_half_span_grows_cm"] == 30.0
     assert mv["knee_shift_along_route_cm"] == 20.0 and mv["portal_carried_rails_section_cm"] == [[40.0, 90.0], [80.0, 180.0]]
     assert abs(mv["column_mesh_x_scale"][1] - 1.0) < 1e-9 and abs(mv["column_mesh_x_scale"][0] - 3.76) < 1e-9
+
+
+def _cpp_reference(housing, station_xf, body_bounds, body_size, height, depth, max_drop, ghw):
+    """Independent evaluation of cpp:1820-1847 from a body INSTANCE transform (vector maths written out
+    separately from the tool): centre = T + R(bc * scale); GridTop = (Origin + Up * (H + 1.5 D)).Z."""
+    import math
+    t, sc, q = housing
+    def rot(q, v):
+        x, y, z, w = q
+        # R = matrix of a unit quaternion
+        m = [[1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+             [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+             [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)]]
+        return [sum(m[r][c] * v[c] for c in range(3)) for r in range(3)]
+    bc = [(body_bounds[0][k] + body_bounds[1][k]) / 2 for k in range(3)]
+    off = rot(q, [bc[k] * sc[k] for k in range(3)])
+    centre = [t[k] + off[k] for k in range(3)]
+    o, sq = station_xf
+    up, across = rot(sq, [0, 0, 1]), rot(sq, [0, 1, 0])
+    lateral = abs(sum((centre[k] - o[k]) * across[k] for k in range(3)))
+    gridtop = [o[k] + up[k] * (height + depth * 1.5) for k in range(3)][2]
+    drop = gridtop - (centre[2] + max(1.0, body_size[2]) * 0.5)
+    return not (lateral > ghw or drop < 1.0 or drop > max_drop), drop
+
+
+@test
+def app_predictor_matches_cpp_transcription(tmp):
+    """cpp_line_rows + the instance-centre recovery against an independent evaluation: pitched/rolled stations
+    (StationUp not vertical), rotated housings, a mesh whose pivot is NOT its bounds centre, depths 90 and 180."""
+    import math
+    import random
+    m = load(tmp, "girders_v3_apply")
+    rng = random.Random(7)
+    bounds = ((-10.0, -16.0, 0.0), (35.0, 16.0, 32.0))  # pivot at the bottom-back: bc = (12.5, 0, 16)
+    agree = flips = 0
+    for _ in range(4000):
+        a = math.radians(rng.uniform(-8, 8))
+        ax = [rng.uniform(-1, 1) for _ in range(3)]
+        n = math.sqrt(sum(c * c for c in ax)) or 1.0
+        sq = (ax[0] / n * math.sin(a / 2), ax[1] / n * math.sin(a / 2), ax[2] / n * math.sin(a / 2), math.cos(a / 2))
+        o = [rng.uniform(-5e4, 5e4), rng.uniform(-5e4, 5e4), rng.uniform(-200, 200)]
+        b = math.radians(rng.uniform(-180, 180))
+        hq = (0.0, math.sin(b / 2) * 0.6, math.sin(b / 2) * 0.8, math.cos(b / 2))
+        sc = (45.0 / 45.0, 32.0 / 32.0, 32.0 / 32.0)
+        t = [o[0] + rng.uniform(-1500, 1500), o[1] + rng.uniform(-2500, 2500), o[2] + rng.uniform(200, 1500)]
+        for depth in (90.0, 180.0):
+            want, drop = _cpp_reference((t, sc, hq), (o, sq), bounds, (45.0, 32.0, 32.0), 1150.0, depth, 900.0, 2251.0)
+            centre_off = m.quat_rotate(hq, [((bounds[0][k] + bounds[1][k]) / 2) * sc[k] for k in range(3)])
+            h = {"centre": [t[k] + centre_off[k] for k in range(3)], "origin": o,
+                 "up": m.unit_axis(sq, 2), "across": m.unit_axis(sq, 1)}
+            row = m.cpp_line_rows([h], 1150.0, depth, 32.0, 900.0, 2251.0, True)[0]
+            assert abs(row["drop"] - drop) < 1e-6, (row, drop)
+            agree += row["hangs"] == want
+            flips += want
+    assert agree == 8000 and 0 < flips < 8000, (agree, flips)
+    assert not m.cpp_line_rows([h], 1150.0, 90.0, 32.0, 900.0, 2251.0, False)[0]["hangs"], "lines off: no line"
+    assert not m.cpp_line_rows([h], 1150.0, 90.0, 32.0, 900.0, 0.0, True)[0]["hangs"], "GridHalfWidth 0: no line"
+
+
+@test
+def app_predictor_structure02_regression(tmp):
+    """The live failure GV3A-20261007-023402: a wide span (lamps far from every grid instance centre) made the old
+    600 cm search see no housings, so gains were 0. The exact predictor must reproduce the live before count and
+    predict the C++ after count; the APPLY must then pass its line gate."""
+    m = load(tmp, "girders_v3_apply")
+    add_v3_assets()
+    acts = six(wide=True)
+    s = acts[LABELS[1]]
+    before = s.c["hanging_line_count"]
+    li = m.line_inputs(s, 90.0)
+    assert li["placement_problem"] is None and len(li["housings"]) == s.c["fixture_body_count"], li["placement_problem"]
+    lo, hi, d = m.line_window(li, before, 90.0, 180.0)
+    assert d["reproduces_before"], d["problems"]
+    s.gridiron._p["beam_depth_cm"] = 180.0
+    s._build()
+    after = s.c["hanging_line_count"]
+    assert (lo, hi) == (after, after) and d["gained"] == 8, (lo, hi, after, d)
+    assert after > before - d["lost"], "the regression must include gains the old estimate could not see"
+    s.gridiron._p["beam_depth_cm"] = 90.0
+    s._build()
+    rec = _apply(m)
+    assert rec["status"] == "APPLIED" and markers("GIRDERSV3_APPLY_OK"), S.logs[-3:]
+
+
+@test
+def app_predictor_refuses_unmappable_or_wrong(tmp):
+    """Negative twins: a live line count the rule cannot reproduce, and housings that cannot be mapped to Show
+    placements, must refuse the DRY row (not silently widen the window)."""
+    m = load(tmp, "girders_v3_apply")
+    add_v3_assets()
+    acts = six()
+    acts[LABELS[2]].inject["line_delta"] = 1
+    acts[LABELS[2]]._build()
+    acts[LABELS[3]].passage._p["show_asset"]._p["cues"][1]._p["wing_pair"]._p["attachments"].append(
+        Struct(enabled=True, kind=ENUM_LIGHT, anchor=ENUM_STATION))
+    m.main()
+    rows = markers("GIRDERSV3_DRY_ROW")
+    r2 = [r for r in rows if LABELS[2] in r][0]
+    r3 = [r for r in rows if LABELS[3] in r][0]
+    assert "line predictor" in r2 and "live has" in r2, r2
+    assert "line predictor" in r3 and "cannot map housings" in r3, r3
 
 
 @test

@@ -34,7 +34,10 @@ Proof tiers (AGENTS.md), per claim:
   - field names: Gridiron BeamMesh/BeamWidthCm/BeamDepthCm h:83-105; Underpass ColumnWidthCm/ColumnDepthCm
     h:588-591, ColumnMesh h:616, KneeMesh h:634, ColumnOutsetCm h:579, DeckHeightCm h:583, PierHeightCm h:599.
   - hanging line top GridTop = HeightCm + 1.5 x BeamDepthCm (cpp:1843), line only if 1 <= drop <= MaxDropCm
-    (cpp:1846): 90 -> 180 raises GridTop 135 cm.
+    (cpp:1846): 90 -> 180 raises GridTop 135 cm. The line predictor (cpp_line_rows / line_window) evaluates that
+    rule per housing exactly (station frame from GatherStations, housing -> station from the Show placements,
+    BodyCentre from the ISM instance) and REFUSES a row unless it reproduces the live count and line drops at the
+    current depth (8 Oct fix; the 5 Oct 600 cm estimate predicted Structure 02 35 -> [32,32], live 50).
   - cross girder spans GridHalfWidthCm*2 at HeightCm, section BeamWidth x BeamDepth (cpp:1105-1128); column line =
     GetFloorHalfSpanCm (== GridHalfWidthCm when > 0, cpp:1409-1411) + ColumnOutsetCm (cpp:1889); so the clear gap
     between a cross girder's end and the column's inner face = ColumnOutsetCm - ColumnWidthCm/2 = 60 - 30 = 30 cm,
