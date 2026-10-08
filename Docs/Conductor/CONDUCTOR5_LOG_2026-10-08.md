@@ -150,3 +150,31 @@ All [measured] by success markers unless marked.
     (the tap ends at 18.5 s).
 - Gary on S4 children: "If Klara's first cut is black then start with black, if not then v5". Her first shot is NOT
   black (16.4 s still: lit pendulum close-up) [meas] -> v5.
+
+## Night of 8→9 Oct (Gary asleep). Conductor work, in order
+- Gary (own words, chat) asked for P01 smoke hidden, the P01 bay-1 wings on the stage front, and P03 lit like P01.
+  He also gave notes 4.1-4.6 (FINAL_JOBS).
+- **P01 smoke pots disabled** FXENABLE APPLY 20261008-042536: Show attachments `enabled=false` for FX SMOKE P01
+  B09 L / B25 R / B41 L; P01 materialized; Show + level saved; backup Backups/PreFxEnable-20261008-042536.
+  REVERT via fx_attach_enable.py. [meas] Probe after: no FX SMOKE P01 actors spawned.
+- **Stage front temp wings** FRONTWINGS-20261008-042743: two StaticMeshActors using
+  SM_FlatV3_P01_L_1_roccoco_L_t5p and SM_FlatV3_P01_R__1_roccoco_R_t5p at x -45, inner edges |y| 850 (spans
+  -1574..-850 and 850..1575), z 0, attached to Structure 01, tag PussStage.StageFrontTemp. Map saved. [meas]
+  - NOT yet seen in the Opening view: the stills tool's "Opening" mapping finds 0 segments, because the real label is
+    "Opening — Curtain"; the stills tool needs a prefix match. Possible clash with the curtain overshoot pile at the
+    floor (pile ±1220 at the lip) [inferred].
+- Tests green after both writes (SavedMasterMatchesShow, SceneCutBindingsResolve) [meas].
+- **S3 0-8 s light tap** (pie_lights_tap, s3_lights_tap.jsonl) [meas]:
+  - The camera sits at (10922, 160000, 180), the P03 end, for S3 0-6.5 s.
+  - P03 score lights stay LIT the whole time: pyre practicals B21 1600 cd at 10.9 m, B20 1520 at 14.8 m, B17/B18/B14,
+    Blink Spot W017 1164, Rig Slash W020 at 15 m.
+  - Nothing near the camera switches on at ~4 s.
+  - "S3 WaveV3 Warm Side3" rect is lit at S3 -0.33 s (P03 tail, before the S3 sequence evaluates) and is off at 0.03 s.
+  - [inferred] The spoiler Gary saw at 0:04 is most likely the P03 pyre/score lights reaching into the dark S3 arrival.
+    This is unproven, because how much the hangar walls block was not measured. Proposed fix: P03 score lights out by
+    the S3 cut (fold into P16's P03 relight).
+- Codex launched: P8 S4 v5, P9 interactions (done 53/53), P10 front/void/ending (done), P11 music timing, P12
+  handprints, P13 opening lighting, P14 rehearsal robustness, P15 video transitions + aspect, P16 P03 = P01 lighting.
+  P3, P6 and P7 imported and committed.
+- Stage front wings re-placed with inner edges at ±700 (FRONTWINGS-20261008-043305, after REVERT -043302); in the
+  Opening stills (PSTILLS-OPEN-...-frontwings_open700) they frame the curtain. scene_stills.py now maps "Opening".

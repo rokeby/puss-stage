@@ -640,7 +640,9 @@ def make_pie_adapter(unreal):
                     "content": package_names(unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages())}
 
         def passage_segment(self, label):
-            if label.startswith("Scene "):
+            if label == "Opening":                     # 8 Oct: 'Opening — Curtain' (any cue type)
+                segs = [s for s in list(show_root().transport.segments) if str(s.label).startswith("Opening")]
+            elif label.startswith("Scene "):
                 segs = [s for s in list(show_root().transport.segments)
                         if s.type == unreal.InfinityCueType.SCENE and (str(s.label) == label or str(s.label).startswith(label + " "))]
             else:
