@@ -67,7 +67,8 @@ once at editor startup at 08:59, before that change.
   - No blackout / crash-restart command exists yet.
 - P15: video placeholder (1080p25 test card + WAV) for rehearsing the video Scenes, a held video-transition subsystem,
   and an aspect/LED report. **Needs the LED screen's pixel size**.
-- P16: (applied, above). P17: P03 bone dune + new Rodin bones (running when this was written).
+- P16: (applied, above).
+- P17: P03 bone dune (8×6×3.5 m, wind-shaped, proposed at bay 13) + 6 new Rodin bone specs. The toolchain is ready (58/58), but NOT generated: Codex's sandbox can't read the Rodin key, so 0 credits were used. The conductor runs the asset step after the reboot.
 - P7: P06 FX cue sheet + tools. P6: animated gobo tool. P3: dunes ×2 field.
 
 ## Findings
