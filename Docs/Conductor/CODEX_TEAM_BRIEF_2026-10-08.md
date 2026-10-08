@@ -27,6 +27,8 @@ through `head`/`tail` (it buffers and looks hung).
 6. **Mark uncertainty per claim:** declaration-proven / binary-proven / measured / inferred, with `file:line`.
    Unmarked reports are rejected.
 7. **Look/creative values are Gary's.** Defaults go in args; nothing look-changing is applied without his yes.
+9. **Editor sky stays hidden** (Gary, standing rule): after any editor restart run
+   `Saved/CodexConductor/editor_sky_toggle.py` (hide=true, transient, saves nothing). Leave the editor that way.
 8. **Kill your process tree on stop** (codex.exe outlives its wrapper; memory codex-orphan-processes).
 
 ## Work packages (ready to brief)

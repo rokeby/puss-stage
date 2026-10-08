@@ -14,3 +14,13 @@ Status: OPEN unless marked. Tiers per claim: measured / declaration / inferred.
 | S3-6 | **All hessians need pinning to the back at least**: they often flip out and hang on the head | Codex package 6 (cloth) / whoever owns the sack cloth | Sack cloth plan: Docs/Conductor/S3_SACKCLOTH_PLAN_2026-10-06.md; tools Saved/CodexConductor/s3_sack_install.py, s3_sack_livecloth_*, s3_sack_follower_bp_* [declaration: file names]. Fix [inferred]: cloth max-distance 0 (kinematic) on a back strip, or extra back attach points on the follower. |
 | F-1 | Fixtures: parcans 3×, bulbs 2×, glowing filament + dim light, placement proposed per passage; glimmer → bulb on a cord off a wing with sway | Codex package 3/4 | Gary's answers 7 Oct, logged. |
 | R-1 | Video fallbacks, six scenes, Sun 11 Oct lunch: S5 10 s test both tiers tonight | Conductor | Needs the editor closed. |
+
+## STANDING RULE (Gary 8 Oct, via finishing touches): the editor is always left WITHOUT the external sky / sun
+
+Applies to every overnight run and every agent with editor access. The editor's working state has the sky atmosphere,
+sky light, sky sphere, volumetric clouds and all directional suns hidden. Use the TRANSIENT toggle
+`Saved/CodexConductor/editor_sky_toggle.py` (args `editor_sky_toggle_args.json` {"hide": true}, request
+`editor_sky_toggle_request.json`, marker `EDITOR_SKY_TOGGLE_OK|hide=True|n=14|census_unchanged=True`). It uses
+set_is_temporarily_hidden_in_editor: nothing is saved, deleted or dirtied, and PIE/MRQ are unaffected (S6's sunset
+still works). Re-run it after EVERY editor restart, since a restart brings the sky back. Any bench that shows the sky
+for a capture hides it again before handing back.
