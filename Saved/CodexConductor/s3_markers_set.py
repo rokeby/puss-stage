@@ -25,7 +25,7 @@ def main():
     before = marks(seq)
     labels = [l for _, l in before]
     rem = a.get("remove", [])
-    if any(l.startswith("InfinityStage.") for l in rem) or any(l not in labels for l in rem):
+    if (any(l.startswith("InfinityStage.") for l in rem) and not a.get("allow_infinitystage")) or any(l not in labels for l in rem):
         raise RuntimeError("REMOVE_INVALID|%s|have=%s" % (rem, labels))
     add = [(int(f), str(l)) for f, l in a.get("add", [])]
     if any(l in labels and l not in rem for _, l in add) or any(l.startswith("GO ") for _, l in add):
