@@ -35,3 +35,14 @@ All [measured] by success markers unless marked.
   (Gary: teleport while the camera is distracted, no turn). Backup Backups/PreS3Retime-S3RETIME-20261008-020659.
 - OPEN: VampStart/VampEnd still 145–175 s, the window the orbit was built for; now B04's compressed move plays there.
   Gary to say whether the vamp follows the orbit to 1:00.
+
+## 02:10–02:35 — Gary's corrected audio times; lid opening
+- Gary: chorus 2:08–3:07 ("petering out by 3:07"); Puss decides after 3:15, takes the pearl ~3:20; 3:23→end wailing.
+  The 3:00/3:10 markers were wrong. S3MSET-20261008-021848APPLY: removed 'choir sings 2:10', 'Puss narration 3:00',
+  'Puss takes clam 3:10'; added chorus 2:08 / chorus ends 3:07 / Puss decides 3:15 / Puss takes pearl 3:20 / wailing 3:23.
+- Pearl glow (Gary confirmed here): 4 cd → 40 cd over 1:02–1:04 (2–4 s into the cello), dims to 12 cd over 3:02–3:07
+  (chorus ends), out at 3:20–3:21 (S3KM-20261008-021829APPLY). Wall grazes follow the chorus: up 3072/3102→3144/3174,
+  down to 30 % at 4488→4584 (four S3KM runs 0218xx–0219xx) [inferred from Gary's chorus correction; not separately asked].
+- Lid opening (finishing-touches tool d7dec87): first APPLY CLAMOPEN-20261008-021929 refused READBACK on ~2e-6°
+  float rounding → Don't-Save restart; READBACK_TOL 1e-4° added for new key values (harness 64/64);
+  CLAMOPEN-20261008-023043 APPLY_OK (lid 0°→80° over 1446→1746, tangent_changes=0). Tests green after.

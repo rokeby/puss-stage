@@ -27,7 +27,8 @@ def main():
     if census()[0]:
         raise RuntimeError("CONTENT_DIRTY|%s" % (census(),))
     seq = unreal.load_asset(SCENE)
-    mp = {int(k): int(v) for k, v in a["map"].items()}
+    mp = {int(k): int(v) for k, v in a.get("map", {}).items()}
+    new_keys = [(int(f), float(v)) for f, v in a["keys"]] if a.get("keys") else None   # full replacement (linear)
     fr = lambda k: int(k.get_time().frame_number.value)
     hits = []
     for b in seq.get_bindings():
@@ -45,10 +46,10 @@ def main():
     if len(hits) != 1:
         raise RuntimeError("CHANNELS|%d" % len(hits))
     ch, before = hits[0]
-    if sorted(mp) != sorted(f for f, _ in before if f in mp):
+    if new_keys is None and sorted(mp) != sorted(f for f, _ in before if f in mp):
         raise RuntimeError("FROM_KEYS_MISSING|%s|have=%s" % (sorted(mp), before))
     if mode == "DRY":
-        unreal.log("S3KEYMOVE_DRY_OK|run=%s|before=%s|map=%s" % (run, before, mp))
+        unreal.log("S3KEYMOVE_DRY_OK|run=%s|before=%s|map=%s|keys=%s" % (run, before, mp, new_keys))
         return
     rec = HERE + "s3_key_move_record_%s.json" % run
     json.dump({"run": run, "args": a, "before": before}, open(rec, "w"), indent=1)
@@ -56,11 +57,19 @@ def main():
     os.makedirs(bdir)
     shutil.copy2(UASSET, bdir)
     seq.modify()
-    for k in list(ch.get_keys()):
-        if fr(k) in mp:
-            k.set_time(unreal.FrameNumber(mp[fr(k)]), 0.0, unreal.MovieSceneTimeUnit.DISPLAY_RATE)
+    if new_keys is not None:
+        for k in list(ch.get_keys()):
+            ch.remove_key(k)
+        for f, v in new_keys:
+            ch.add_key(unreal.FrameNumber(f), v, time_unit=unreal.MovieSceneTimeUnit.DISPLAY_RATE,
+                       interpolation=unreal.MovieSceneKeyInterpolation.LINEAR)
+        want = sorted((f, round(v, 3)) for f, v in new_keys)
+    else:
+        for k in list(ch.get_keys()):
+            if fr(k) in mp:
+                k.set_time(unreal.FrameNumber(mp[fr(k)]), 0.0, unreal.MovieSceneTimeUnit.DISPLAY_RATE)
+        want = sorted((mp.get(f, f), v) for f, v in before)
     after = sorted((fr(k), round(k.get_value(), 3)) for k in ch.get_keys())
-    want = sorted((mp.get(f, f), v) for f, v in before)
     if after != want:
         raise RuntimeError("READBACK|%s|NOTHING SAVED; Don't-Save restart" % after)
     if census()[0] != [SCENE]:

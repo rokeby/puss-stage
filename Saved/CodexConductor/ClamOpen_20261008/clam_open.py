@@ -104,6 +104,7 @@ CHANNELS = ("Location.X", "Location.Y", "Location.Z", "Rotation.X", "Rotation.Y"
             "Scale.X", "Scale.Y", "Scale.Z")
 EASES = ("cubic-in-out", "smootherstep", "linear")
 VALUE_TOL = 1e-6                   # read-back of a written double
+READBACK_TOL = 1e-4               # channel storage rounds (measured 8 Oct: |err| up to ~2e-6 deg on 1620-1656) - 1e-4 deg is invisible
 EVAL_TOL = 1e-3                    # deg, evaluated curve vs plan
 NS = "NOTHING SAVED; Don't-Save restart"
 RUN = {"run": "?"}                 # plain str in a dict (no UE wrapper at module level)
@@ -358,7 +359,7 @@ def roll_after_diff(orig_keys, planned, got_keys):
                 if g.get(fld) != ok.get(fld):
                     tang.append("%d:%s %s->%s" % (f, fld, ok.get(fld), g.get(fld)))
         else:
-            if abs(g["value"] - v) > VALUE_TOL:
+            if abs(g["value"] - v) > READBACK_TOL:
                 e.append("NEW_KEY_VALUE|%d|%s|%s" % (f, v, g["value"]))
             if g["interp"] != "RCIM_LINEAR":
                 e.append("NEW_KEY_INTERP|%d|%s" % (f, g["interp"]))
