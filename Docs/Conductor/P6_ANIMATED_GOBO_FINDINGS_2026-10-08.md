@@ -167,6 +167,34 @@ rectangle too"), and the gobo should block light inside the beam and "take the b
 
 Harness after the border work: **127 passed / 0 failed**. **[measured]**
 
+## Outcome on I2, 8 Oct evening (runs 002-004)
+
+1. **Run 002:** the material failed to compile ("Sampler type is Grayscale, should be Linear Grayscale"). Reverted.
+   Fixed in 4e7888d. **[measured: PussStage.log]**
+2. **REVERT re-dirtied the sequence after the asset deletes.** Fixed in d8ec1d2 (delete, then save, then census);
+   run 003-R then reverted cleanly. **[measured]**
+3. **The first stills showed a plain disc.** It was the I2 show camera not framing the drape: zeroing both gobo spots
+   left the disc unchanged. The gobo spots carry the LF and Finishing Touches' 21.74 deg cone. **[measured: PIE probe
+   AGPIE-20261008-01; Conductor 5's zero test]**
+4. **Light-function UV axes: U runs along the light's UP axis and V along its RIGHT axis** (`LightVector.zyx`,
+   `LightFunctionAtlasCommon.usf:105`). **[declaration-proven]** This rotated the image 90 deg (portrait border, bird on
+   its side). An offline twin under that mapping matched the render. **[measured]** Fixed by `SpotAxes` (b483b31).
+5. **Sharpness, Mouth f300** (Conductor 5's A/B, measured):
+   - atlas with 128 px slots: stair-stepped;
+   - atlas with 512 px slots: much better;
+   - no atlas: clean.
+   Run 004 uses `M_ShadowGobo_LightFunction_NoAtlas`, and its stills show smooth edges, so that light does not go
+   through the atlas. **[measured: GOBOREVIEW-20261008-180257]**
+6. **Run 004 result** (GOBOREVIEW-20261008-180257, review cameras 24 m in front of each drape): the bird is upright and
+   facing right, inside a landscape soft rectangle, animating across frames 200/225/249/300. Both drapes match, and the
+   silhouette follows the drape's pleats. **[measured, by eye]**
+
+Open:
+- **Haze:** with the no-atlas master the gobo probably does not pattern the volumetric fog beam. **[inferred; untested,
+  no haze in shot]**
+- **Whether it stays in I2** is Gary's look call.
+- **The show camera** at I2 ~230 doesn't frame the drape. **[measured]** That is a directing question.
+
 ## Video to flipbook (exists since 6 Oct)
 
 `Tools/ShadowGobo/make_gobo_flipbook.py` turns a phone take into the atlas, preview GIF, contact sheet and manifest. See
