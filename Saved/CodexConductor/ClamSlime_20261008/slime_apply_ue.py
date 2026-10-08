@@ -46,7 +46,7 @@ REVEAL (checked against CLAM_APPLY, as asked): CLAM_APPLY made every clam part h
   [decl ../s3_hangar_float_hold_record.json rows "-/S3 PearlClam Lid/None" ... value true, bHiddenInGame].  The slime
   does NOT join the rise: it only needs to exist from the opening, so its single visibility section lives on its own
   LS_DevScene_03 binding (same Scene as the animation; one binding to REVERT).  Visibility channel true = visible
-  [decl: the rise reveal keys false->true]; property path bHiddenInGame set when empty [prec klara_reveal.py:3131-3135
+  [decl: the rise reveal keys false->true]; property path bHidden (NOT bHiddenInGame: inert, measured 8 Oct by Conductor 5) set when empty [prec klara_reveal.py:3131-3135
   via s4_hangar_hold.py:1128-1129, S3FLOATHOLD applied].  A visibility track keeps the display name "Visibility"
   [meas s4_hangar_hold.py:1024-1026].
 
@@ -320,7 +320,7 @@ def section_rows_problems(got, plan):
         p.append("VIS_RANGE|%s" % v["range"])
     if [list(x) for x in v["keys"]] != [list(x) for x in plan["vis_keys"]]:
         p.append("VIS_KEYS|%s" % v["keys"])
-    if v.get("property_path") != "bHiddenInGame":
+    if v.get("property_path") != "bHidden":
         p.append("VIS_PROPERTY|%s" % v.get("property_path"))
     return p
 
@@ -1068,7 +1068,7 @@ def _add_binding(ue, seq, actor, plan, anim):
     vt = b.add_track(ue.MovieSceneVisibilityTrack)
     _req(vt is not None, "ADD_VIS_TRACK")
     if str(vt.get_property_name()) in ("None", ""):            # [prec] klara_reveal.py:3131-3135
-        vt.set_property_name_and_path("bHiddenInGame", "bHiddenInGame")
+        vt.set_property_name_and_path("bHidden", "bHidden")   # 8 Oct: bHiddenInGame tracks are INERT (UMovieSceneVisibilityTrack binds AActor::bHidden, VISIBLE semantics: Conductor 5, PIES2VIS-185717; KlaraIngest/vis_fix.py)
     vs = vt.add_section()
     vs.set_range(int(plan["vis_range"][0]), int(plan["vis_range"][1]))
     ch = list(vs.get_all_channels())
