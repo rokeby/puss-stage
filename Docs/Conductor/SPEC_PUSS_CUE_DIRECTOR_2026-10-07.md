@@ -124,3 +124,17 @@
   - Every HOLD row shows **who** presses GO. The default is Klara, and the sheet can name another person.
   - **Klara's pause/resume:** one key (or an operator-window button) that pauses or resumes anywhere outside Scene 3. Scene 3 follows the cellist (DeclaredUnpausable).
   - **A "Where GO is pressed" view:** a filtered list of the HOLD rows only, as Klara's own crib sheet.
+
+## 7. Held patches as of 8 Oct, and one content step
+
+**Build order:** CD1 → CD2 → UX1 → RB1. They go in after the conductor's vamp, fixtures and rehearsal-pref patches. None is built yet.
+
+- **CD1 (07308d5):** imports the cue sheet CSV. Adds the script cursor (PageUp/PageDown), F5 to reload, and H to cycle the HUD strip, then strip plus script panel, then off.
+- **CD2 (c554a48):** run-through with Klara's GO stops after chosen segments, plus GO holds kept where marked. Settings live in `cue_director.txt`. Adds the Puss Cue Director panel, opened from Cue Desk → View.
+- **UX1 (520ce63):** Cue Desk panel toggles, splitters that actually resize, and resizable/hideable list columns. Removes the never-shown whole-Show details tree. Logs the open time.
+- **RB1 (f0736f3):** the rehearsal bar, docked at the bottom of the Cue Desk and toggled with B in PIE. Adds the Show Trims actor.
+
+**Content step needed before the Music/Ambience trims do anything:**
+- Sequencer audio sections have no sound-class field [decl], so the music waves themselves must be assigned to a **Music** SoundClass, and that class set on the Show Trims actor's *Music Sound Class*. Do the same for an Ambience class if wanted.
+- Until then only *Master Gain* acts on sound.
+- This is an editor/content write, so it's the conductor's step, with Gary's OK.
