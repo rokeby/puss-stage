@@ -1,0 +1,1008 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs b/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
+index 8b5e143..27e6fea 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
++++ b/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
+@@ -22,6 +22,9 @@ public class InfinityStage : ModuleRules
+         PrivateDependencyModuleNames.AddRange(new[]
+         {
+             "UMG",
++            // The rehearsal bar (Cue Director) is a Slate widget shown in the game viewport too.
++            "Slate",
++            "SlateCore",
+             "Niagara",
+             // Scene arrivals play a backcloth's GeometryCache before the Scene (AInfinityStageArrival).
+             "GeometryCache",
+@@ -32,9 +35,7 @@ public class InfinityStage : ModuleRules
+         {
+             PrivateDependencyModuleNames.AddRange(new[]
+             {
+-                "UnrealEd",
+-                "Slate",
+-                "SlateCore"
++                "UnrealEd"
+             });
+         }
+     }
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp
+index 062c067..5b27972 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp
+@@ -2,6 +2,11 @@
+ 
+ #include "HAL/IConsoleManager.h"
+ #include "InfinityStageTransportController.h"
++#include "InfinityStageRehearsalBar.h"
++#include "Engine/GameViewportClient.h"
++#include "Engine/World.h"
++#include "GameFramework/PlayerController.h"
++#include "Widgets/SBoxPanel.h"
+ #include "Misc/FileHelper.h"
+ #include "Misc/Paths.h"
+ 
+@@ -431,6 +436,61 @@ void UInfinityStageCueDirectorSubsystem::Initialize(FSubsystemCollectionBase& Co
+     Reload();
+ }
+ 
++void UInfinityStageCueDirectorSubsystem::ToggleRehearsalBar()
++{
++    UWorld* World = GetWorld();
++    UGameViewportClient* Viewport = World ? World->GetGameViewport() : nullptr;
++    APlayerController* Controller = World ? World->GetFirstPlayerController() : nullptr;
++    if (!Viewport)
++    {
++        return;
++    }
++    if (RehearsalBarWidget.IsValid())
++    {
++        Viewport->RemoveViewportWidgetContent(RehearsalBarWidget.ToSharedRef());
++        RehearsalBarWidget.Reset();
++        if (Controller)
++        {
++            Controller->SetShowMouseCursor(false);
++            Controller->SetInputMode(FInputModeGameOnly());
++        }
++        UE_LOG(LogInfinityStageCueSheet, Display, TEXT("INFINITY_REHEARSAL_BAR on=0"));
++        return;
++    }
++    const TWeakObjectPtr<UWorld> WeakWorld(World);
++    RehearsalBarWidget = SNew(SVerticalBox)
++        .Visibility(EVisibility::SelfHitTestInvisible)   // the show stays clickable-through above the bar
++        + SVerticalBox::Slot().FillHeight(1.0f)[SNullWidget::NullWidget]
++        + SVerticalBox::Slot().AutoHeight()
++        [
++            SNew(SInfinityStageRehearsalBar).World([WeakWorld]() { return WeakWorld.Get(); })
++        ];
++    Viewport->AddViewportWidgetContent(RehearsalBarWidget.ToSharedRef(), 20);
++    if (Controller)
++    {
++        // A cursor for the buttons; keys keep working because the buttons never take focus.
++        Controller->SetShowMouseCursor(true);
++        FInputModeGameAndUI Mode;
++        Mode.SetHideCursorDuringCapture(false);
++        Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
++        Controller->SetInputMode(Mode);
++    }
++    UE_LOG(LogInfinityStageCueSheet, Display, TEXT("INFINITY_REHEARSAL_BAR on=1"));
++}
++
++void UInfinityStageCueDirectorSubsystem::Deinitialize()
++{
++    if (RehearsalBarWidget.IsValid())
++    {
++        if (UGameViewportClient* Viewport = GetWorld() ? GetWorld()->GetGameViewport() : nullptr)
++        {
++            Viewport->RemoveViewportWidgetContent(RehearsalBarWidget.ToSharedRef());
++        }
++        RehearsalBarWidget.Reset();
++    }
++    Super::Deinitialize();
++}
++
+ void UInfinityStageCueDirectorSubsystem::OnWorldBeginPlay(UWorld& InWorld)
+ {
+     Super::OnWorldBeginPlay(InWorld);
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp
+new file mode 100644
+index 0000000..563d551
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp
+@@ -0,0 +1,292 @@
++#include "InfinityStageRehearsalBar.h"
++
++#include "Engine/World.h"
++#include "EngineUtils.h"
++#include "InfinityStageCueSheet.h"
++#include "InfinityStageDirectorHud.h"
++#include "InfinityStageShowAsset.h"
++#include "InfinityStageShowGameMode.h"
++#include "InfinityStageShowRoot.h"
++#include "InfinityStageTransportController.h"
++#include "Styling/CoreStyle.h"
++#include "Widgets/Input/SButton.h"
++#include "Widgets/Layout/SBorder.h"
++#include "Widgets/SBoxPanel.h"
++#include "Widgets/Text/STextBlock.h"
++
++#define LOCTEXT_NAMESPACE "InfinityStageRehearsalBar"
++
++namespace InfinityStageRehearsal
++{
++FString Clock(const double Seconds)
++{
++    const int32 Tenths = FMath::Max(0, FMath::RoundToInt32(Seconds * 10.0));
++    return FString::Printf(TEXT("%d:%02d.%d"), Tenths / 600, (Tenths / 10) % 60, Tenths % 10);
++}
++
++FInfinityNextStop NextStop(
++    const TArray<FInfinityTransportSegment>& Segments,
++    const TArray<FInfinityGoCue>& GoCues,
++    const FFrameNumber Now,
++    const bool bRunThrough,
++    const TArray<FGuid>& StopAfter,
++    const TArray<FString>& HoldGoNumbers)
++{
++    FInfinityNextStop Stop;
++    if (Segments.IsEmpty())
++    {
++        return Stop;
++    }
++    int32 Current = 0;
++    for (int32 Index = 0; Index < Segments.Num(); ++Index)
++    {
++        if (Segments[Index].StartFrame <= Now)
++        {
++            Current = Index;
++        }
++    }
++    const int32 StopIndex = bRunThrough
++        ? UInfinityStageTransportController::RunThroughStopIndex(Segments, Current, StopAfter)
++        : Current;
++    Stop.bValid = true;
++    Stop.Frame = Segments[StopIndex].EndFrame;
++    const bool bShowEnd = bRunThrough && StopIndex == Segments.Num() - 1 && !StopAfter.Contains(Segments[StopIndex].SegmentGuid);
++    Stop.Label = bShowEnd ? FString(TEXT("show end")) : FString::Printf(TEXT("end of %s"), *Segments[StopIndex].Label.ToString());
++    for (const FInfinityGoCue& Cue : GoCues)
++    {
++        const bool bHolds = Cue.bHold && (!bRunThrough || HoldGoNumbers.Contains(Cue.Number));
++        if (bHolds && Cue.Frame > Now && Cue.Frame < Stop.Frame)
++        {
++            Stop.Frame = Cue.Frame;
++            Stop.Label = FString::Printf(TEXT("GO %s %s"), *Cue.Number, *Cue.Label);
++        }
++    }
++    return Stop;
++}
++
++bool Gather(UWorld* World, FInfinityRehearsalState& Out)
++{
++    Out = FInfinityRehearsalState();
++    if (!World)
++    {
++        return false;
++    }
++    UInfinityStageDirectorHudSubsystem* Hud = World->GetSubsystem<UInfinityStageDirectorHudSubsystem>();
++    UInfinityStageTransportController* Transport = UInfinityStageTransportController::FindForWorld(World);
++    if (!Hud || !Transport || Transport->Segments.IsEmpty())
++    {
++        return false;
++    }
++    const FInfinityDirectorHudState HudState = Hud->GatherState();
++    if (!HudState.bHasShow)
++    {
++        return false;
++    }
++    Out.bHasShow = true;
++    Out.CueSeconds = HudState.SegmentSeconds;
++    Out.CueLengthSeconds = HudState.SegmentLengthSeconds;
++    Out.ShowSeconds = HudState.MasterSeconds;
++    Out.bPlaying = HudState.bPlaying;
++    Out.bHold = HudState.bHold;
++    Out.bRunThrough = Transport->bRunThrough;
++
++    double TicksPerSecond = 0.0;
++    for (TActorIterator<AInfinityStageShowRoot> It(World); It; ++It)
++    {
++        if (It->ShowAsset && It->ShowAsset->TickResolution.IsValid())
++        {
++            TicksPerSecond = It->ShowAsset->TickResolution.AsDecimal();
++            break;
++        }
++    }
++    if (TicksPerSecond > 0.0)
++    {
++        Out.ShowLengthSeconds = Transport->Segments.Last().EndFrame.Value / TicksPerSecond;
++        const FFrameNumber Now = Transport->GetCurrentMasterFrame();
++        const FInfinityNextStop Stop = NextStop(Transport->Segments, Transport->GoCues, Now, Transport->bRunThrough,
++            Transport->RunThroughStopAfter, Transport->RunThroughHoldGoNumbers);
++        if (Stop.bValid)
++        {
++            Out.NextStop = FString::Printf(TEXT("%s in %s"), *Stop.Label,
++                *Clock(FMath::Max(0.0, (Stop.Frame - Now).Value / TicksPerSecond)));
++        }
++    }
++
++    FString SheetCue;
++    if (UInfinityStageCueDirectorSubsystem* Director = World->GetSubsystem<UInfinityStageCueDirectorSubsystem>())
++    {
++        const FInfinityCueSheet& Sheet = Director->GetSheet();
++        const int32 Row = Director->GetCursor().Row;
++        if (Sheet.Rows.IsValidIndex(Row))
++        {
++            const FInfinityCueSheetRow& Current = Sheet.Rows[Row];
++            // The last numbered row at or before the cursor is the cue we are in.
++            for (int32 R = Row; R >= 0; --R)
++            {
++                if (!Sheet.Rows[R].Number.IsEmpty())
++                {
++                    SheetCue = Sheet.Rows[R].Number;
++                    break;
++                }
++            }
++            Out.Notes = InfinityStageCueSheet::DescribeActions(Current);
++            const TArray<FString> Lines = InfinityStageCueSheet::DescribeLines(Current);
++            Out.Script = Lines.IsEmpty() ? FString() : Lines[0];
++        }
++    }
++    Out.Cue = FString::Printf(TEXT("%d/%d  %s%s"), HudState.SegmentIndex + 1, HudState.SegmentCount, *HudState.SegmentLabel,
++        SheetCue.IsEmpty() ? TEXT("") : *FString::Printf(TEXT("   [sheet cue %s]"), *SheetCue));
++    return true;
++}
++
++void Command(UWorld* World, const ECommand Which)
++{
++    if (!World)
++    {
++        return;
++    }
++    AInfinityStageShowPlayerController* Controller = nullptr;
++    for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
++    {
++        Controller = Cast<AInfinityStageShowPlayerController>(It->Get());
++        if (Controller)
++        {
++            break;
++        }
++    }
++    UInfinityStageTransportController* Transport = UInfinityStageTransportController::FindForWorld(World);
++    switch (Which)
++    {
++    case ECommand::Back:
++        if (Controller) { Controller->PreviousShowSegment(); }
++        break;
++    case ECommand::PlayPause:
++        if (Controller) { Controller->ToggleShowPlayback(); }
++        break;
++    case ECommand::Go:
++        // RIGHT's tap: GO at a hold, release a vamp, otherwise advance.
++        if (Transport && (Transport->ReleaseActiveHold() || Transport->ReleaseActiveVamp()))
++        {
++            break;
++        }
++        if (Controller) { Controller->AdvanceShowSegment(); }
++        break;
++    case ECommand::PreviousLine:
++        if (Controller) { Controller->PreviousScriptLine(); }
++        break;
++    case ECommand::NextLine:
++        if (Controller) { Controller->NextScriptLine(); }
++        break;
++    }
++}
++}
++
++const FInfinityRehearsalState& SInfinityStageRehearsalBar::State() const
++{
++    // Gathered once per engine frame however many text bindings ask.
++    if (CachedFrame != GFrameCounter)
++    {
++        CachedFrame = GFrameCounter;
++        InfinityStageRehearsal::Gather(GetWorldFn ? GetWorldFn() : nullptr, Cached);
++    }
++    return Cached;
++}
++
++void SInfinityStageRehearsalBar::Construct(const FArguments& InArgs)
++{
++    using namespace InfinityStageRehearsal;
++    GetWorldFn = InArgs._World;
++    const FSlateFontInfo Big = FCoreStyle::GetDefaultFontStyle("Bold", 16);
++    const FSlateFontInfo Mid = FCoreStyle::GetDefaultFontStyle("Regular", 13);
++    const auto Button = [this](const FText& Label, const FText& Tip, const ECommand Which)
++    {
++        return SNew(SButton)
++            .IsFocusable(false)   // never keep focus: Space / RIGHT must stay the show keys
++            .Text(Label)
++            .ToolTipText(Tip)
++            .IsEnabled_Lambda([this]() { return State().bHasShow; })
++            .OnClicked_Lambda([this, Which]()
++            {
++                Command(GetWorldFn ? GetWorldFn() : nullptr, Which);
++                return FReply::Handled();
++            });
++    };
++
++    ChildSlot
++    [
++        SNew(SBorder)
++        .BorderImage(FCoreStyle::Get().GetBrush("GenericWhiteBox"))
++        .BorderBackgroundColor(FLinearColor(0.02f, 0.02f, 0.03f, 0.92f))
++        .Padding(FMargin(8.0f, 4.0f))
++        [
++            SNew(SVerticalBox)
++            + SVerticalBox::Slot().AutoHeight()
++            [
++                SNew(SHorizontalBox)
++                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("Back", "< Back"), LOCTEXT("BackTip", "Previous segment / shot (LEFT)"), ECommand::Back) ]
++                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)
++                [
++                    SNew(SButton)
++                    .IsFocusable(false)
++                    .Text_Lambda([this]() { return State().bPlaying ? LOCTEXT("Pause", "|| Pause") : LOCTEXT("Play", "> Play"); })
++                    .ToolTipText(LOCTEXT("PlayTip", "Play / pause (Space)"))
++                    .IsEnabled_Lambda([this]() { return State().bHasShow; })
++                    .OnClicked_Lambda([this]() { Command(GetWorldFn ? GetWorldFn() : nullptr, ECommand::PlayPause); return FReply::Handled(); })
++                ]
++                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("Go", "GO >"), LOCTEXT("GoTip", "GO: release a hold, else advance (RIGHT)"), ECommand::Go) ]
++                + SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center).Padding(12.0f, 0.0f)
++                [
++                    SNew(STextBlock).Font(Big).ColorAndOpacity(FLinearColor(1.0f, 0.86f, 0.35f))
++                    .Text_Lambda([this]()
++                    {
++                        const FInfinityRehearsalState& S = State();
++                        if (!S.bHasShow)
++                        {
++                            return LOCTEXT("NoShow", "Rehearsal bar: no show running (press Play in the editor)");
++                        }
++                        return FText::FromString(FString::Printf(TEXT("%s%s"), *S.Cue, S.bHold ? TEXT("   HOLD: waiting for GO") : TEXT("")));
++                    })
++                ]
++                + SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(12.0f, 0.0f)
++                [
++                    SNew(STextBlock).Font(Big)
++                    .Text_Lambda([this]()
++                    {
++                        const FInfinityRehearsalState& S = State();
++                        return S.bHasShow
++                            ? FText::FromString(FString::Printf(TEXT("cue %s / %s    show %s / %s"),
++                                *Clock(S.CueSeconds), *Clock(S.CueLengthSeconds), *Clock(S.ShowSeconds), *Clock(S.ShowLengthSeconds)))
++                            : FText::GetEmpty();
++                    })
++                ]
++                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("PrevLine", "< line"), LOCTEXT("PrevLineTip", "Script cursor back (PageUp)"), ECommand::PreviousLine) ]
++                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("NextLine", "line >"), LOCTEXT("NextLineTip", "Script cursor on (PageDown)"), ECommand::NextLine) ]
++            ]
++            + SVerticalBox::Slot().AutoHeight().Padding(0.0f, 3.0f, 0.0f, 0.0f)
++            [
++                SNew(STextBlock).Font(Mid).ColorAndOpacity(FLinearColor(0.45f, 0.9f, 1.0f)).AutoWrapText(true)
++                .Text_Lambda([this]()
++                {
++                    const FInfinityRehearsalState& S = State();
++                    if (!S.bHasShow)
++                    {
++                        return FText::GetEmpty();
++                    }
++                    FString Line = FString::Printf(TEXT("NEXT STOP: %s%s"), *S.NextStop, S.bRunThrough ? TEXT("  (run-through)") : TEXT(""));
++                    if (!S.Notes.IsEmpty())
++                    {
++                        Line += TEXT("      CUE: ") + S.Notes;
++                    }
++                    return FText::FromString(Line);
++                })
++            ]
++            + SVerticalBox::Slot().AutoHeight()
++            [
++                SNew(STextBlock).Font(Mid).AutoWrapText(true)
++                .Text_Lambda([this]() { return FText::FromString(State().Script); })
++            ]
++        ]
++    ];
++}
++
++#undef LOCTEXT_NAMESPACE
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+index 5399dc2..48be6d6 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+@@ -55,6 +55,7 @@ void AInfinityStageShowPlayerController::SetupInputComponent()
+     InputComponent->BindKey(EKeys::PageDown, IE_Pressed, this, &AInfinityStageShowPlayerController::NextScriptLine);
+     InputComponent->BindKey(EKeys::PageUp, IE_Pressed, this, &AInfinityStageShowPlayerController::PreviousScriptLine);
+     InputComponent->BindKey(EKeys::F5, IE_Pressed, this, &AInfinityStageShowPlayerController::ReloadCueSheet);
++    InputComponent->BindKey(EKeys::B, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleRehearsalBar);
+ }
+ 
+ void AInfinityStageShowPlayerController::NextScriptLine()
+@@ -81,6 +82,14 @@ void AInfinityStageShowPlayerController::ReloadCueSheet()
+     }
+ }
+ 
++void AInfinityStageShowPlayerController::ToggleRehearsalBar()
++{
++    if (UInfinityStageCueDirectorSubsystem* Director = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageCueDirectorSubsystem>() : nullptr)
++    {
++        Director->ToggleRehearsalBar();
++    }
++}
++
+ void AInfinityStageShowPlayerController::ToggleDirectorHud()
+ {
+     InfinityStageDirectorHud::Toggle(GetWorld());
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowTrims.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowTrims.cpp
+new file mode 100644
+index 0000000..9953c47
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowTrims.cpp
+@@ -0,0 +1,171 @@
++#include "InfinityStageShowTrims.h"
++
++#include "AudioDevice.h"
++#include "Components/PostProcessComponent.h"
++#include "Kismet/GameplayStatics.h"
++#include "Sound/SoundClass.h"
++#include "Sound/SoundMix.h"
++
++DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageShowTrims, Log, All);
++
++namespace InfinityStageShowTrims
++{
++float DbToGain(const float Db)
++{
++    return Db <= -80.0f ? 0.0f : FMath::Pow(10.0f, FMath::Clamp(Db, -80.0f, 12.0f) / 20.0f);
++}
++
++int32 BuildPostProcess(const FInfinityShowTrimValues& Values, FPostProcessSettings& Out)
++{
++    int32 Overrides = 0;
++    Out.bOverride_ColorGain = !FMath::IsNearlyZero(Values.ExposureEv, 1.0e-3f);
++    if (Out.bOverride_ColorGain)
++    {
++        const float Gain = FMath::Pow(2.0f, Values.ExposureEv);
++        Out.ColorGain = FVector4(Gain, Gain, Gain, 1.0f);
++        ++Overrides;
++    }
++    Out.bOverride_ColorSaturation = !FMath::IsNearlyEqual(Values.Saturation, 1.0f, 1.0e-3f);
++    if (Out.bOverride_ColorSaturation)
++    {
++        Out.ColorSaturation = FVector4(Values.Saturation, Values.Saturation, Values.Saturation, 1.0f);
++        ++Overrides;
++    }
++    Out.bOverride_ColorContrast = !FMath::IsNearlyEqual(Values.Contrast, 1.0f, 1.0e-3f);
++    if (Out.bOverride_ColorContrast)
++    {
++        Out.ColorContrast = FVector4(Values.Contrast, Values.Contrast, Values.Contrast, 1.0f);
++        ++Overrides;
++    }
++    Out.bOverride_WhiteTemp = !FMath::IsNearlyEqual(Values.WhiteTemp, 6500.0f, 0.5f);
++    if (Out.bOverride_WhiteTemp)
++    {
++        Out.WhiteTemp = Values.WhiteTemp;
++        ++Overrides;
++    }
++    Out.bOverride_WhiteTint = !FMath::IsNearlyZero(Values.WhiteTint, 1.0e-3f);
++    if (Out.bOverride_WhiteTint)
++    {
++        Out.WhiteTint = Values.WhiteTint;
++        ++Overrides;
++    }
++    return Overrides;
++}
++}
++
++AInfinityStageShowTrims::AInfinityStageShowTrims()
++{
++    PrimaryActorTick.bCanEverTick = true;
++    // After Sequencer has evaluated this frame's keys.
++    PrimaryActorTick.TickGroup = TG_PostUpdateWork;
++    USceneComponent* Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
++    RootComponent = Root;
++    PostProcess = CreateDefaultSubobject<UPostProcessComponent>(TEXT("PostProcess"), /*bTransient*/ true);
++    PostProcess->SetupAttachment(Root);
++    PostProcess->bUnbound = true;
++    PostProcess->BlendWeight = 1.0f;
++}
++
++void AInfinityStageShowTrims::PostRegisterAllComponents()
++{
++    Super::PostRegisterAllComponents();
++    // bTransient does not reach spawned instances (measured on the strobe, 5 Oct): flag it here.
++    if (PostProcess)
++    {
++        PostProcess->SetFlags(RF_Transient);
++    }
++}
++
++FInfinityShowTrimValues AInfinityStageShowTrims::GetValues() const
++{
++    FInfinityShowTrimValues Values;
++    Values.MasterGainDb = MasterGainDb;
++    Values.MusicGainDb = MusicGainDb;
++    Values.AmbienceGainDb = AmbienceGainDb;
++    Values.ExposureEv = ExposureEv;
++    Values.Saturation = Saturation;
++    Values.Contrast = Contrast;
++    Values.WhiteTemp = WhiteTemp;
++    Values.WhiteTint = WhiteTint;
++    return Values;
++}
++
++void AInfinityStageShowTrims::Tick(const float DeltaSeconds)
++{
++    Super::Tick(DeltaSeconds);
++    const FInfinityShowTrimValues Values = GetValues();
++    if (PostProcess)
++    {
++        // Runtime write only (no Modify): previewing keys in the editor never dirties the level.
++        PostProcess->Priority = PostProcessPriority;
++        InfinityStageShowTrims::BuildPostProcess(Values, PostProcess->Settings);
++    }
++    if (GetWorld() && GetWorld()->IsGameWorld())
++    {
++        ApplySound(Values);
++    }
++}
++
++void AInfinityStageShowTrims::ApplySound(const FInfinityShowTrimValues& Values)
++{
++    const float Master = InfinityStageShowTrims::DbToGain(Values.MasterGainDb);
++    if (!FMath::IsNearlyEqual(Master, AppliedMasterGain, 1.0e-4f))
++    {
++        FAudioDeviceHandle Device = GetWorld()->GetAudioDevice();
++        if (Device.IsValid())
++        {
++            Device->SetTransientPrimaryVolume(Master);
++            AppliedMasterGain = Master;
++        }
++    }
++    const float Music = InfinityStageShowTrims::DbToGain(Values.MusicGainDb);
++    const float Ambience = InfinityStageShowTrims::DbToGain(Values.AmbienceGainDb);
++    const bool bMusicChanged = MusicSoundClass && !FMath::IsNearlyEqual(Music, AppliedMusicGain, 1.0e-4f);
++    const bool bAmbienceChanged = AmbienceSoundClass && !FMath::IsNearlyEqual(Ambience, AppliedAmbienceGain, 1.0e-4f);
++    if (!bMusicChanged && !bAmbienceChanged)
++    {
++        return;
++    }
++    if (!SoundMix)
++    {
++        SoundMix = NewObject<USoundMix>(this, NAME_None, RF_Transient);
++    }
++    if (!bMixPushed)
++    {
++        UGameplayStatics::PushSoundMixModifier(this, SoundMix);
++        bMixPushed = true;
++    }
++    if (bMusicChanged)
++    {
++        UGameplayStatics::SetSoundMixClassOverride(this, SoundMix, MusicSoundClass, Music, 1.0f, 0.0f, true);
++        AppliedMusicGain = Music;
++    }
++    if (bAmbienceChanged)
++    {
++        UGameplayStatics::SetSoundMixClassOverride(this, SoundMix, AmbienceSoundClass, Ambience, 1.0f, 0.0f, true);
++        AppliedAmbienceGain = Ambience;
++    }
++}
++
++void AInfinityStageShowTrims::EndPlay(const EEndPlayReason::Type EndPlayReason)
++{
++    // Leave the editor's audio exactly as it was.
++    if (GetWorld() && GetWorld()->IsGameWorld())
++    {
++        if (!FMath::IsNearlyEqual(AppliedMasterGain, 1.0f))
++        {
++            FAudioDeviceHandle Device = GetWorld()->GetAudioDevice();
++            if (Device.IsValid())
++            {
++                Device->SetTransientPrimaryVolume(1.0f);
++            }
++        }
++        if (bMixPushed && SoundMix)
++        {
++            UGameplayStatics::PopSoundMixModifier(this, SoundMix);
++        }
++    }
++    AppliedMasterGain = 1.0f;
++    bMixPushed = false;
++    Super::EndPlay(EndPlayReason);
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h
+index d7b9399..1579c6b 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h
+@@ -145,6 +145,11 @@ public:
+ 
+     const FInfinityCueDirectorSettings& GetSettings() const { return Settings; }
+ 
++    /** B in the show viewport: the rehearsal bar along the bottom (with a mouse cursor for its buttons). */
++    void ToggleRehearsalBar();
++    bool IsRehearsalBarShown() const { return RehearsalBarWidget.IsValid(); }
++    virtual void Deinitialize() override;
++
+     void StepLine(int32 Delta);
+     void SyncToSegment(int32 SegmentOrdinal) { Cursor.SyncToSegment(Sheet, SegmentOrdinal); }
+ 
+@@ -159,4 +164,5 @@ private:
+     FInfinityScriptCursor Cursor;
+     FInfinityCueDirectorSettings Settings;
+     bool bSettingsApplied = false;
++    TSharedPtr<class SWidget> RehearsalBarWidget;
+ };
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h
+new file mode 100644
+index 0000000..d26695d
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h
+@@ -0,0 +1,83 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "Widgets/SCompoundWidget.h"
++
++class UWorld;
++struct FInfinityTransportSegment;
++struct FInfinityGoCue;
++
++/**
++ * Rehearsal bar (Gary, 8 Oct): "clarity around what cue we are on, cue timing and show timing,
++ * notes on that cue, play pause etc buttons". One widget, shown at the bottom of the Cue Desk
++ * and (toggled with B) at the bottom of the PIE viewport. It reads the running show; its
++ * buttons do exactly what the keys do.
++ */
++struct INFINITYSTAGE_API FInfinityRehearsalState
++{
++    bool bHasShow = false;
++    FString Cue;            // "4/19  Scene 1 - External Sound  [sheet cue 4]"
++    double CueSeconds = 0.0;
++    double CueLengthSeconds = 0.0;
++    double ShowSeconds = 0.0;
++    double ShowLengthSeconds = 0.0;
++    FString NextStop;       // "GO at end of Scene 1 in 0:45.2" or "runs to show end"
++    FString Notes;          // the cue sheet row's notes and department actions
++    FString Script;         // the current script line
++    bool bPlaying = false;
++    bool bHold = false;
++    bool bRunThrough = false;
++};
++
++struct INFINITYSTAGE_API FInfinityNextStop
++{
++    bool bValid = false;
++    FFrameNumber Frame = 0;
++    /** "end of <segment>", "GO <n> <label>" or "show end". */
++    FString Label;
++};
++
++namespace InfinityStageRehearsal
++{
++/**
++ * Pure: where the show will next wait for GO from Now. Run-through: the next ticked "stop after"
++ * segment's end, or a kept GO hold, whichever comes first (the show end otherwise). Without
++ * run-through: the current segment's end, or an earlier GO hold.
++ */
++INFINITYSTAGE_API FInfinityNextStop NextStop(
++    const TArray<FInfinityTransportSegment>& Segments,
++    const TArray<FInfinityGoCue>& GoCues,
++    FFrameNumber Now,
++    bool bRunThrough,
++    const TArray<FGuid>& StopAfter,
++    const TArray<FString>& HoldGoNumbers);
++
++/** Everything the bar shows, for the world's running show (false when there is none). */
++INFINITYSTAGE_API bool Gather(UWorld* World, FInfinityRehearsalState& Out);
++
++enum class ECommand : uint8 { Back, PlayPause, Go, PreviousLine, NextLine };
++
++/** Same as the keys: Back = LEFT, PlayPause = Space, Go = RIGHT (GO at a hold), lines = PageUp/Down. */
++INFINITYSTAGE_API void Command(UWorld* World, ECommand Command);
++
++/** "m:ss.s". */
++INFINITYSTAGE_API FString Clock(double Seconds);
++}
++
++class INFINITYSTAGE_API SInfinityStageRehearsalBar final : public SCompoundWidget
++{
++public:
++    SLATE_BEGIN_ARGS(SInfinityStageRehearsalBar) {}
++        /** The world whose show the bar follows (PIE, or the game). Polled every paint. */
++        SLATE_ARGUMENT(TFunction<UWorld*()>, World)
++    SLATE_END_ARGS()
++
++    void Construct(const FArguments& InArgs);
++
++private:
++    const FInfinityRehearsalState& State() const;
++
++    TFunction<UWorld*()> GetWorldFn;
++    mutable FInfinityRehearsalState Cached;
++    mutable uint64 CachedFrame = MAX_uint64;
++};
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
+index e5e001d..edf5b39 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
+@@ -31,6 +31,8 @@ public:
+     void NextScriptLine();
+     void PreviousScriptLine();
+     void ReloadCueSheet();
++    /** B: the rehearsal bar along the bottom of the viewport. */
++    void ToggleRehearsalBar();
+ 
+ protected:
+     virtual void SetupInputComponent() override;
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowTrims.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowTrims.h
+new file mode 100644
+index 0000000..bcc310c
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowTrims.h
+@@ -0,0 +1,114 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "Engine/Scene.h"
++#include "GameFramework/Actor.h"
++#include "InfinityStageShowTrims.generated.h"
++
++class UPostProcessComponent;
++class USoundClass;
++class USoundMix;
++
++/** The trim values, separated from the actor so the mapping is unit-testable. Neutral = no effect. */
++struct INFINITYSTAGE_API FInfinityShowTrimValues
++{
++    float MasterGainDb = 0.0f;
++    float MusicGainDb = 0.0f;
++    float AmbienceGainDb = 0.0f;
++    float ExposureEv = 0.0f;
++    float Saturation = 1.0f;
++    float Contrast = 1.0f;
++    float WhiteTemp = 6500.0f;
++    float WhiteTint = 0.0f;
++};
++
++namespace InfinityStageShowTrims
++{
++/** Writes only the non-neutral picture trims as overrides; everything neutral stays un-overridden,
++ * so a section with no trims leaves the show's own look exactly as it is. Returns how many overrides. */
++INFINITYSTAGE_API int32 BuildPostProcess(const FInfinityShowTrimValues& Values, FPostProcessSettings& OutSettings);
++
++/** dB to linear gain, clamped to a safe range (-80 dB is silence). */
++INFINITYSTAGE_API float DbToGain(float Db);
++}
++
++/**
++ * Show Trims (Gary, 8 Oct): per-section sound and picture correction, "too loud or too dark",
++ * keyed over time in each Choreography / Scene / Interaction sequence with the normal curve
++ * editor. Place ONE in the show level and add it to those sequences; set the keyed sections to
++ * Restore State so each section returns to neutral when it ends (cuts are matched by hand).
++ *
++ * Picture: a high-priority unbound post-process on this actor. Exposure is applied as a colour
++ * grading gain (2^EV), so it stacks with the show's exposure. Saturation, Contrast and White
++ * Temp/Tint REPLACE the show's value while they are away from neutral (post-process blending
++ * is a replace, not a multiply).
++ * Sound (game worlds only): master gain on the audio device; Music / Ambience gains through a
++ * transient Sound Mix on the Sound Classes named below (assign your music to its class first).
++ */
++UCLASS(ClassGroup = "Infinity Stage", meta = (DisplayName = "Infinity Stage Show Trims"))
++class INFINITYSTAGE_API AInfinityStageShowTrims : public AActor
++{
++    GENERATED_BODY()
++
++public:
++    AInfinityStageShowTrims();
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Trims|Sound", meta = (ClampMin = "-80.0", ClampMax = "12.0", Units = "dB"))
++    float MasterGainDb = 0.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Trims|Sound", meta = (ClampMin = "-80.0", ClampMax = "12.0", Units = "dB"))
++    float MusicGainDb = 0.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Trims|Sound", meta = (ClampMin = "-80.0", ClampMax = "12.0", Units = "dB"))
++    float AmbienceGainDb = 0.0f;
++
++    /** Brightness in stops (applied as colour-grading gain, stacks with the show's exposure). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Trims|Picture", meta = (ClampMin = "-6.0", ClampMax = "6.0"))
++    float ExposureEv = 0.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Trims|Picture", meta = (ClampMin = "0.0", ClampMax = "2.0"))
++    float Saturation = 1.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Trims|Picture", meta = (ClampMin = "0.0", ClampMax = "2.0"))
++    float Contrast = 1.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Trims|Picture", meta = (ClampMin = "1500.0", ClampMax = "15000.0"))
++    float WhiteTemp = 6500.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Trims|Picture", meta = (ClampMin = "-1.0", ClampMax = "1.0"))
++    float WhiteTint = 0.0f;
++
++    /** Sound Class the music rails play through (needed for Music Gain). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Trims|Sound")
++    TObjectPtr<USoundClass> MusicSoundClass;
++
++    /** Sound Class for scene / Choreography sound (needed for Ambience Gain). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Trims|Sound")
++    TObjectPtr<USoundClass> AmbienceSoundClass;
++
++    /** Above the show's look volumes, so a trim always wins while it is away from neutral. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Trims|Picture")
++    float PostProcessPriority = 1000.0f;
++
++    /** Driven every frame, so TRANSIENT (never saved): a level save cannot keep a keyed value. */
++    UPROPERTY(VisibleAnywhere, Transient, Category = "Trims")
++    TObjectPtr<UPostProcessComponent> PostProcess;
++
++    FInfinityShowTrimValues GetValues() const;
++
++    virtual void Tick(float DeltaSeconds) override;
++    virtual bool ShouldTickIfViewportsOnly() const override { return true; }
++    virtual void PostRegisterAllComponents() override;
++    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
++
++private:
++    void ApplySound(const FInfinityShowTrimValues& Values);
++
++    UPROPERTY(Transient)
++    TObjectPtr<USoundMix> SoundMix;
++
++    float AppliedMasterGain = 1.0f;
++    float AppliedMusicGain = 1.0f;
++    float AppliedAmbienceGain = 1.0f;
++    bool bMixPushed = false;
++};
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.cpp
+index 6d54e10..1acd57d 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.cpp
+@@ -1,4 +1,5 @@
+ #include "SInfinityStageCueDesk.h"
++#include "InfinityStageRehearsalBar.h"
+ 
+ #include "AssetRegistry/AssetRegistryModule.h"
+ #include "AssetRegistry/AssetData.h"
+@@ -1030,6 +1031,7 @@ void SInfinityStageCueDesk::Construct(const FArguments& InArgs)
+     GConfig->GetBool(TEXT("InfinityStage.CueDesk"), TEXT("CueListVisible"), bCueListVisible, GEditorPerProjectIni);
+     GConfig->GetBool(TEXT("InfinityStage.CueDesk"), TEXT("CueDetailsVisible"), bCueDetailsVisible, GEditorPerProjectIni);
+     GConfig->GetBool(TEXT("InfinityStage.CueDesk"), TEXT("InspectorVisible"), bInspectorVisible, GEditorPerProjectIni);
++    GConfig->GetBool(TEXT("InfinityStage.CueDesk"), TEXT("RehearsalBarVisible"), bRehearsalBarVisible, GEditorPerProjectIni);
+     {
+         FString Hidden;
+         if (GConfig->GetString(TEXT("InfinityStage.CueDesk"), TEXT("HiddenCueColumns"), Hidden, GEditorPerProjectIni))
+@@ -1283,6 +1285,16 @@ void SInfinityStageCueDesk::Construct(const FArguments& InArgs)
+         ]
+         + SVerticalBox::Slot()
+         .AutoHeight()
++        [
++            SNew(SBox)
++            .Visibility_Lambda([this]() { return bRehearsalBarVisible ? EVisibility::Visible : EVisibility::Collapsed; })
++            [
++                SNew(SInfinityStageRehearsalBar)
++                .World([]() { return GEditor ? GEditor->PlayWorld.Get() : nullptr; })
++            ]
++        ]
++        + SVerticalBox::Slot()
++        .AutoHeight()
+         [
+             SNew(SBorder)
+             .Padding(FMargin(8.0f, 4.0f))
+@@ -3142,6 +3154,7 @@ TSharedRef<SWidget> SInfinityStageCueDesk::BuildViewMenu()
+     AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowCueListPanel", "Show Cue List"), &bCueListVisible);
+     AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowCueDetailsPanel", "Show Cue Details"), &bCueDetailsVisible);
+     AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowInspectorPanel", "Show Passage / Music Inspector (right column)"), &bInspectorVisible);
++    AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowRehearsalBar", "Show Rehearsal Bar (bottom; follows PIE)"), &bRehearsalBarVisible);
+     MenuBuilder.AddMenuEntry(
+         NSLOCTEXT("InfinityStage", "ShowMusicWorkspace", "Show Music Timeline Workspace"),
+         NSLOCTEXT(
+@@ -4236,6 +4249,7 @@ void SInfinityStageCueDesk::SaveLayoutConfig() const
+     GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("CueListVisible"), bCueListVisible, GEditorPerProjectIni);
+     GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("CueDetailsVisible"), bCueDetailsVisible, GEditorPerProjectIni);
+     GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("InspectorVisible"), bInspectorVisible, GEditorPerProjectIni);
++    GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("RehearsalBarVisible"), bRehearsalBarVisible, GEditorPerProjectIni);
+     {
+         TArray<FString> Names;
+         for (const FName& Name : HiddenCueColumns)
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.h b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.h
+index c592c27..aabdbc8 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.h
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.h
+@@ -252,6 +252,8 @@ private:
+     bool bCueListVisible = true;
+     bool bCueDetailsVisible = true;
+     bool bInspectorVisible = true;
++    /** Rehearsal bar along the bottom (follows PIE). */
++    bool bRehearsalBarVisible = true;
+     /** Cue list columns hidden from the header's right-click menu; persisted. */
+     TArray<FName> HiddenCueColumns;
+     TSharedPtr<class SHeaderRow> CueHeaderRow;
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp
+new file mode 100644
+index 0000000..b6004ea
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp
+@@ -0,0 +1,89 @@
++#include "InfinityStageRehearsalBar.h"
++#include "InfinityStageShowTrims.h"
++#include "InfinityStageTransportController.h"
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++namespace
++{
++TArray<FInfinityTransportSegment> FourSegments()
++{
++    TArray<FInfinityTransportSegment> Segments;
++    for (int32 Index = 0; Index < 4; ++Index)
++    {
++        FInfinityTransportSegment& Segment = Segments.AddDefaulted_GetRef();
++        Segment.SegmentGuid = FGuid::NewGuid();
++        Segment.Label = FText::FromString(FString::Printf(TEXT("Seg%d"), Index));
++        Segment.StartFrame = Index * 1000;
++        Segment.EndFrame = (Index + 1) * 1000;
++    }
++    return Segments;
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageRehearsalNextStopTest,
++    "InfinityStage.CueDirector.RehearsalBarNextStop",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageRehearsalNextStopTest::RunTest(const FString& Parameters)
++{
++    using InfinityStageRehearsal::NextStop;
++    const TArray<FInfinityTransportSegment> Segments = FourSegments();
++    TArray<FInfinityGoCue> Gos;
++    FInfinityGoCue& Go = Gos.AddDefaulted_GetRef();
++    Go.Frame = 1500;
++    Go.bHold = true;
++    Go.Number = TEXT("10");
++    Go.Label = TEXT("curtain");
++
++    FInfinityNextStop Stop = NextStop(Segments, Gos, 1200, false, {}, {});
++    TestEqual(TEXT("Segment mode: a held GO before the segment end comes first"), Stop.Frame, FFrameNumber(1500));
++    TestEqual(TEXT("...and is named"), Stop.Label, FString(TEXT("GO 10 curtain")));
++    Stop = NextStop(Segments, Gos, 1600, false, {}, {});
++    TestEqual(TEXT("Past the GO: the segment end"), Stop.Frame, FFrameNumber(2000));
++    TestEqual(TEXT("...named by its segment"), Stop.Label, FString(TEXT("end of Seg1")));
++
++    Stop = NextStop(Segments, Gos, 1200, true, {Segments[2].SegmentGuid}, {});
++    TestEqual(TEXT("Run-through passes the unkept GO and stops after the ticked segment"), Stop.Frame, FFrameNumber(3000));
++    Stop = NextStop(Segments, Gos, 1200, true, {Segments[2].SegmentGuid}, {TEXT("10")});
++    TestEqual(TEXT("A kept GO still stops the run-through"), Stop.Frame, FFrameNumber(1500));
++    Stop = NextStop(Segments, Gos, 3200, true, {Segments[2].SegmentGuid}, {});
++    TestEqual(TEXT("Control: past the last stop it runs to the show end"), Stop.Label, FString(TEXT("show end")));
++    TestEqual(TEXT("...at the last frame"), Stop.Frame, FFrameNumber(4000));
++    TestFalse(TEXT("Control: no segments, no stop"), NextStop({}, Gos, 0, false, {}, {}).bValid);
++    TestEqual(TEXT("Clock format"), InfinityStageRehearsal::Clock(125.36), FString(TEXT("2:05.4")));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageShowTrimsTest,
++    "InfinityStage.CueDirector.ShowTrimsNeutralLeavesTheLook",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageShowTrimsTest::RunTest(const FString& Parameters)
++{
++    FPostProcessSettings Settings;
++    const FInfinityShowTrimValues Neutral;
++    TestEqual(TEXT("Neutral trims override nothing: the show's own look stays"), InfinityStageShowTrims::BuildPostProcess(Neutral, Settings), 0);
++    TestFalse(TEXT("...no colour gain override"), static_cast<bool>(Settings.bOverride_ColorGain));
++    TestFalse(TEXT("...no saturation override"), static_cast<bool>(Settings.bOverride_ColorSaturation));
++
++    FInfinityShowTrimValues Darker;
++    Darker.ExposureEv = -1.0f;
++    Darker.Saturation = 0.8f;
++    TestEqual(TEXT("Two trims away from neutral, two overrides"), InfinityStageShowTrims::BuildPostProcess(Darker, Settings), 2);
++    TestTrue(TEXT("-1 EV is half the gain"), FMath::IsNearlyEqual(static_cast<float>(Settings.ColorGain.X), 0.5f, 1.0e-4f));
++    TestTrue(TEXT("Saturation applied"), FMath::IsNearlyEqual(static_cast<float>(Settings.ColorSaturation.Y), 0.8f, 1.0e-4f));
++
++    TestEqual(TEXT("Back to neutral clears the overrides again"), InfinityStageShowTrims::BuildPostProcess(Neutral, Settings), 0);
++    TestFalse(TEXT("...gain override off"), static_cast<bool>(Settings.bOverride_ColorGain));
++
++    TestTrue(TEXT("0 dB is unity"), FMath::IsNearlyEqual(InfinityStageShowTrims::DbToGain(0.0f), 1.0f, 1.0e-5f));
++    TestTrue(TEXT("-6 dB is about half"), FMath::IsNearlyEqual(InfinityStageShowTrims::DbToGain(-6.0f), 0.501f, 1.0e-3f));
++    TestEqual(TEXT("-80 dB is silence"), InfinityStageShowTrims::DbToGain(-80.0f), 0.0f);
++    return true;
++}
++
++#endif
