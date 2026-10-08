@@ -27,6 +27,8 @@ struct INFINITYSTAGE_API FInfinityRehearsalState
     bool bPlaying = false;
     bool bHold = false;
     bool bRunThrough = false;
+    /** 0..1 position in the current segment (the scrub slider). */
+    float CueFraction = 0.0f;
 };
 
 struct INFINITYSTAGE_API FInfinityNextStop
@@ -62,6 +64,18 @@ INFINITYSTAGE_API void Command(UWorld* World, ECommand Command);
 
 /** "m:ss.s". */
 INFINITYSTAGE_API FString Clock(double Seconds);
+
+/** Scrub within the current segment: 0 = its start, 1 = its end (one frame short). Rehearsal use. */
+INFINITYSTAGE_API void ScrubCurrentSegment(UWorld* World, float Fraction);
+
+/** Jump to the start of segment Index (0-based, show order). */
+INFINITYSTAGE_API void JumpToSegmentStart(UWorld* World, int32 Index);
+
+/** Segment labels in show order, for the jump menu. */
+INFINITYSTAGE_API TArray<FString> SegmentLabels(UWorld* World);
+
+/** Pure: the Master frame for a fraction of a segment, clamped one frame inside its end. */
+INFINITYSTAGE_API FFrameNumber FrameAtFraction(FFrameNumber Start, FFrameNumber End, float Fraction);
 }
 
 class INFINITYSTAGE_API SInfinityStageRehearsalBar final : public SCompoundWidget
