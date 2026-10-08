@@ -19,10 +19,15 @@ The main slot (Shots, LS_Animals_1_S1Hangar over [594, 5769), offset 86400) is N
 
 Modes (args klara_preroll_s1_args.json; confirm "<MODE> KLARAPREROLLS1" for APPLY/REVERT):
   PROBE  PIE only, READ ONLY: arms a post-tick callback (prec klara_pendulum_s4.py run_probe [meas: its probe file
-         KLARAPENDULUM-20261007-134048 status complete]); at Scene frames args.probe.frames (default 300, 593 + 600 as
+         KLARAPENDULUM-20261007-134048 status complete]); at Scene frames args.probe.frames (default 300, 592 + 600 as
          a post-cut reference) it records, per animal, AnimationMode, anim-instance class, actor location and three
-         bone transforms on `burst` consecutive ticks -> klara_preroll_s1_probe_<run>.json;
+         bone transforms on `burst` ticks -> klara_preroll_s1_probe_<run>.json;
          KLARAPREROLLS1_PROBE_OK|run=..|answer=.. ("do they move before 594").
+         A window samples ONLY while the Master is inside the Scene segment [start, end) AND the Scene frame is in
+         [w, w+2) (pre-cut windows clipped at the cut); otherwise KLARAPREROLLS1_PROBE_NOT_IN_SCENE (throttled) and it
+         waits until timeout_s. Actors: label, then name, in her level (UEDPIE_<n>_ stripped); every
+         SkeletalMeshActor candidate is logged once (KLARAPREROLLS1_PROBE_CANDIDATE) and kept in the probe file.
+         8 Oct live fixes (first run): see the tier-marked notes at _sec_ticks, probe_gate, match_actor.
   DRY    editor, read only -> klara_preroll_s1_dry.json; KLARAPREROLLS1_DRY_OK|run=..|apply_ready=..
   APPLY  gates -> Backups/PreKlaraPrerollS1-<run>/ -> exclusive record -> duplicate -> strip -> read back -> extend
          sections + playback start -> read back + alignment from LIVE values -> sub track + section [P0, 594) ->
@@ -42,6 +47,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import shutil
 import time
 
@@ -65,6 +71,10 @@ HER_LEVELS = ("/Game/KK_S1_Animals/L_Animals", "/Game/L_KK_children", "/Game/Jap
 HER_PREFIXES = ("/Game/KK_", "/Game/L_KK_children", "/Game/Japanese_Alley/")
 KEEP_TRACK_CLASSES = ("MovieSceneSkeletalAnimationTrack", "MovieSceneControlRigParameterTrack")
 SKEL_TRACK = "MovieSceneSkeletalAnimationTrack"
+ALIGN_TOL_TICKS = 1          # clip phase at the cut: dup vs main slot, in her ticks (was: < one her frame)
+CLIP_TICK_TOL = 0.05         # a clip length must be a whole number of ticks to within float32 noise (f32 of 4.1666 s
+                             # is 0.004 ticks off 100000); the +-1 tick tolerance applies to the accumulated shift error
+LOOP_DRIFT_TOL_TICKS = 1.0   # |k * exact_clip_ticks - shift| over the k loops of the extension
 
 
 class PlanError(Exception):
@@ -190,6 +200,90 @@ def _int_ratio(a, b, what):
     return int(round(q))
 
 
+def ticks_from_seconds(sec, tick_res, what="TIME"):
+    """Exact tick from a *_seconds getter. Those getters return float32 [decl MovieSceneSectionExtensions.h:54,81;
+    MovieSceneSequenceExtensions.h:183]; live they return f32(tick / tick_res) exactly [meas 8 Oct DRY: Pig
+    Section_10 end -0.7166249752044678 s == f32(-17199/24000), bin end -17199]. Rounding recovers the tick only while
+    half a float32 ulp is < 0.5 tick (|t| < 512 s at 24000); beyond that it refuses instead of guessing."""
+    x = abs(float(sec))
+    if x:
+        _m, e = math.frexp(x)                                   # x in [2^(e-1), 2^e): f32 ulp = 2^(e-24)
+        if 2.0 ** (e - 25) * float(tick_res) >= 0.5:
+            raise PlanError("SECONDS_PRECISION: %s %r s x %s: float32 cannot carry the exact tick" % (what, sec, tick_res))
+    return int(round(float(sec) * float(tick_res)))
+
+
+def section_ticks(bounds, tick_res, tpf, what="SECTION"):
+    """bounds = [(display_frame, seconds) for start, end] -> exact (start, end) ticks. Sub-frame bounds are ALLOWED
+    (her copy has ends at -135199 / -36799 / -17199 ticks [bin S3Diag/s3_seq_sem.py over LS_Animals_1_S1Hangar.uasset
+    sha 7d0e9eaa]). Cross-check: floor(tick / tpf) must equal the display frame the int getter returned (GetStartFrame
+    floors [meas: -17199 t -> -22 at 800 t/frame; one datum, .cpp absent]); a disagreement is refused, not resolved."""
+    out = []
+    for f, sec in bounds:
+        t = ticks_from_seconds(sec, tick_res, what)
+        if t // int(tpf) != int(f):
+            raise PlanError("%s_TICK_XCHECK: %s s -> %d ticks -> frame %d at %d t/frame, int getter says %s"
+                            % (what, sec, t, t // int(tpf), int(tpf), f))
+        out.append(t)
+    return out[0], out[1]
+
+
+def normalize_pkg(p):
+    """'/Game/KK_S1_Animals/UEDPIE_0_L_Animals.L_Animals' -> '/Game/KK_S1_Animals/L_Animals' (PIE prefixes package
+    names with UEDPIE_<n>_ [prec look_bench.py:263-264, p04_rain_pie_bench.py:223])."""
+    return re.sub("UEDPIE_[0-9]+_", "",str(p or "").split(".")[0].split(":")[0])
+
+
+def match_actor(cands, label, name, her_level):
+    """cands = [{"idx", "label", "name", "level_pkg", ...}] (every SkeletalMeshActor of the PIE world). Label first,
+    then name, both restricted to actors whose level package (PIE prefix stripped) is her level, by full path or, if
+    the path differs, by short name. Exactly one hit or nothing (no guessing between several)."""
+    short = str(her_level).rsplit("/", 1)[-1]
+
+    def lvl(c):
+        n = normalize_pkg(c.get("level_pkg"))
+        return "path" if n == her_level else ("short" if n.rsplit("/", 1)[-1] == short else None)
+    by_label = [c for c in cands if c.get("label") == label]
+    by_name = [c for c in cands if c.get("name") == name]
+    lab_in = [c for c in by_label if lvl(c)]
+    nam_in = [c for c in by_name if lvl(c)]
+    pick, how = None, None
+    if len(lab_in) == 1:
+        pick, how = lab_in[0], "label"
+    elif len(lab_in) > 1:
+        both = [c for c in lab_in if c.get("name") == name]
+        if len(both) == 1:
+            pick, how = both[0], "label+name"
+    elif len(nam_in) == 1:
+        pick, how = nam_in[0], "name"
+    v = {"found": pick is not None, "matched_by": how, "hits": len(lab_in) if lab_in else len(nam_in),
+         "label_hits": len(by_label), "label_hits_in_level": len(lab_in), "name_hits": len(by_name),
+         "name_hits_in_level": len(nam_in), "idx": pick["idx"] if pick else None,
+         "level_match": lvl(pick) if pick else None, "name_agrees": bool(pick and pick.get("name") == name)}
+    if pick is None:
+        v["why"] = ("label %r: %d hit(s), %d in her level %s; name %r: %d hit(s), %d in her level; outside-level hits: %s"
+                    % (label, len(by_label), len(lab_in), her_level, name, len(by_name), len(nam_in),
+                       sorted({normalize_pkg(c.get("level_pkg")) for c in by_label + by_name if not lvl(c)})))
+    return v
+
+
+def probe_gate(mf, seg_start, seg_end, sf, windows, filled, burst, cut):
+    """Which window, if any, this tick samples. The Master must be INSIDE the Scene segment [start, end) (its own
+    start, read live) AND the Scene frame within [w, w+2); a pre-cut window never samples at/after the cut. Windows
+    fill independently (a scrub back can still fill one)."""
+    if mf is None or seg_start is None or not (int(seg_start) <= float(mf) < int(seg_end)):
+        return None, "NOT_IN_SCENE"
+    for w in windows:
+        if filled.get(w, 0) >= int(burst):
+            continue
+        hi = w + 2.0
+        if w < cut:
+            hi = min(hi, float(cut))
+        if w <= sf < hi:
+            return w, None
+    return None, "NO_WINDOW"
+
+
 def preroll_mapping(pr_range, slot, copy_play_start_frame, her_tick_res, her_fps, scene_fps):
     """slot = {"range": [C, E], "offset_ticks"} (the main slot, live) -> the pre-roll's time mapping, all in HER ticks.
     The main slot plays her tick  copy_start*her_tpf + offset + (f - C)*hps  at Scene frame f (prec klara_reveal
@@ -209,11 +303,16 @@ def preroll_mapping(pr_range, slot, copy_play_start_frame, her_tick_res, her_fps
         r.append("PREROLL_EMPTY: [%d, %d)" % (P0, P1))
     cut_tick = int(copy_play_start_frame) * her_tpf + int(slot["offset_ticks"])
     pre_start = cut_tick - (C - P0) * hps
-    dps = int(math.floor(float(pre_start) / her_tpf))
+    dps = pre_start // her_tpf                                  # exact integer floor (no float)
     off = pre_start - dps * her_tpf
+    if cut_tick % her_tpf:
+        # the mapping itself is exact in ticks; the APPLY read-back (get_parent_sequence_frame) takes whole her frames
+        r.append("CUT_NOT_ON_HER_FRAME: her tick %d at the cut is not a multiple of %d" % (cut_tick, her_tpf))
+    g = math.gcd(hps, her_tpf)                                  # smallest Scene step that is a whole her-frame step
     return {"refusals": r, "range": [P0, P1], "cut": C, "her_tpf": her_tpf, "her_ticks_per_scene_frame": hps,
             "cut_her_tick": cut_tick, "cut_her_frame": cut_tick / float(her_tpf), "pre_start_her_tick": pre_start,
-            "dup_playback_start_frame": dps, "offset_ticks": off}
+            "dup_playback_start_frame": dps, "offset_ticks": off,
+            "readback_step_scene_frames": her_tpf // g, "readback_step_her_frames": hps // g}
 
 
 def her_tick_dup(m, f):
@@ -259,20 +358,22 @@ def plan_loop_shifts(secs_by_animal, m, extra_loops=0, expected_loops=None):
             continue
         exact = float(a["len_s"]) * float(a["tick_res"])
         L = int(round(exact))
-        if abs(exact - L) > 1.0:
-            r.append("CLIP_LEN_NOT_ON_TICK: %s %.6f s = %.3f ticks" % (animal, a["len_s"], exact))
+        if abs(exact - L) > CLIP_TICK_TOL:
+            r.append("CLIP_LEN_NOT_ON_TICK: %s %.7f s = %.4f ticks (tolerance %s)" % (animal, a["len_s"], exact,
+                                                                                     CLIP_TICK_TOL))
             continue
         others = [s for s in secs if s is not a and s["start"] < cut and s["end"] > pre]
         if others:
             r.append("OTHER_SECTION_IN_PREROLL: %s %s" % (animal, [s["key"] for s in others]))
             continue
-        k = 0 if a["start"] <= pre else int(math.ceil(float(a["start"] - pre) / L)) + int(extra_loops)
-        shift = k * L
-        if shift % m["her_tpf"]:
-            r.append("SHIFT_NOT_ON_FRAME: %s %d ticks (%d loops x %d) not a multiple of %d" %
-                     (animal, shift, k, L, m["her_tpf"]))
+        k = 0 if a["start"] <= pre else -(-(int(a["start"]) - pre) // L) + int(extra_loops)   # exact integer ceil
+        shift = k * L                                            # whole loops in TICKS; sub-frame starts allowed
+        drift = abs(k * exact - shift)
+        if drift > LOOP_DRIFT_TOL_TICKS:
+            r.append("LOOP_DRIFT: %s %d loops x %.4f ticks vs shift %d = %.3f ticks (> %s)" %
+                     (animal, k, exact, shift, drift, LOOP_DRIFT_TOL_TICKS))
             continue
-        new_start = a["start"] - shift
+        new_start = int(a["start"]) - shift
         clash = [s["key"] for s in secs if s is not a and s["start"] < a["end"] and s["end"] > new_start and
                  not (s["start"] < a["end"] and s["end"] > a["start"])]
         if clash:
@@ -283,7 +384,8 @@ def plan_loop_shifts(secs_by_animal, m, extra_loops=0, expected_loops=None):
         rows.append({"animal": animal, "key": a["key"], "track": a.get("track"), "anim": a["anim"],
                      "clip_s": float(a["len_s"]), "loop_ticks": L, "loops": k, "shift_ticks": shift,
                      "shift_s": shift / float(a["tick_res"]), "old_range": [a["start"], a["end"]],
-                     "new_range": [new_start, a["end"]], "tick_res": a["tick_res"],
+                     "new_range": [new_start, a["end"]], "tick_res": a["tick_res"], "loop_drift_ticks": drift,
+                     "new_start_on_frame": new_start % m["her_tpf"] == 0,
                      "clip_time_at_cut_s": ((cut - a["start"]) % L) / float(a["tick_res"])})
     return {"rows": rows, "refusals": r}
 
@@ -295,8 +397,9 @@ def phase_gap(t_a, start_a, t_b, start_b, L):
 
 
 def check_alignment(plan_rows, m, live_new_starts=None, dup_range=None):
-    """At the cut the duplicate (continued) and the main slot must sit at the same clip phase, within ONE her frame
-    (strictly less), the extended section must cover the pre-roll start, the duplicate must end at the cut."""
+    """At the cut the duplicate (continued) and the main slot must sit at the same clip phase, within ALIGN_TOL_TICKS
+    her ticks (exact tick maths gives 0), the extended section must cover the pre-roll start, the duplicate must end at
+    the cut."""
     r = []
     C = m["cut"]
     rng = list(dup_range) if dup_range is not None else list(m["range"])
@@ -312,8 +415,8 @@ def check_alignment(plan_rows, m, live_new_starts=None, dup_range=None):
         ns = int((live_new_starts or {}).get(row["animal"], row["new_range"][0]))
         L = int(row["loop_ticks"])
         gap = phase_gap(her_tick_dup(m, C), ns, her_tick_main(m, C), int(row["old_range"][0]), L)
-        if gap >= m["her_tpf"]:
-            r.append("MISALIGNED_AT_CUT: %s phase gap %d ticks (>= one her frame %d)" % (row["animal"], gap, m["her_tpf"]))
+        if gap > ALIGN_TOL_TICKS:
+            r.append("MISALIGNED_AT_CUT: %s phase gap %d ticks (> %d)" % (row["animal"], gap, ALIGN_TOL_TICKS))
         if ns > her_tick_dup(m, rng[0]):
             r.append("PREROLL_NOT_COVERED: %s section starts %d after the pre-roll start %d" %
                      (row["animal"], ns, her_tick_dup(m, rng[0])))
@@ -410,21 +513,35 @@ def _quat_angle_deg(q1, q2):
     return math.degrees(2.0 * math.acos(min(1.0, d)))
 
 
-def classify_probe(samples, cut, tol_cm=0.01, tol_deg=0.01):
+def classify_probe(samples, cut, tol_cm=0.01, tol_deg=0.01, expected=None):
     """samples = [{"window", "animal", "scene_frame", "master_frame", "found", "mode", "anim_class",
     "bones": {name: {"t": [x,y,z], "q": [x,y,z,w]}}, "loc"}] -> per window/animal verdicts and per-animal answers
     for "do they move before the cut". A window counts only its samples BEFORE the cut (except windows at/after it).
-    UNCLEAR when fewer than two usable samples, when the transport did not advance, or when an actor was missing."""
+    UNCLEAR when fewer than two usable samples, when the transport did not advance, when an actor was missing, when a
+    sample was taken outside the Scene segment, or (expected = (windows, animals)) when a window got no samples."""
     win = {}
     for s in samples:
         win.setdefault((s["window"], s["animal"]), []).append(s)
+    if expected:
+        for w in expected[0]:
+            for animal in expected[1]:
+                win.setdefault((w, animal), [])
     out, answers = {}, {}
     for (w, animal), rows in sorted(win.items()):
+        if not rows:
+            out["%s|%s" % (w, animal)] = {"samples": 0, "used": 0, "pre_cut": float(w) < cut, "state": "unclear",
+                                          "why": "no samples in window (transport never in the Scene there)"}
+            if float(w) < cut:
+                prev = answers.get(animal)
+                answers[animal] = "UNCLEAR" if prev in (None, "UNCLEAR") else ("MOVING" if prev == "MOVING" else "UNCLEAR")
+            continue
         pre = float(w) < cut
         use = [x for x in rows if (x.get("scene_frame") is not None and x["scene_frame"] < cut) or not pre]
         v = {"samples": len(rows), "used": len(use), "modes": sorted({str(x.get("mode")) for x in use}),
              "anim_classes": sorted({str(x.get("anim_class")) for x in use}), "pre_cut": pre}
-        if any(not x.get("found") for x in rows):
+        if any(x.get("in_scene") is False for x in rows):
+            v.update(state="unclear", why="sample outside the Scene segment")
+        elif any(not x.get("found") for x in rows):
             v.update(state="unclear", why="actor not found")
         elif len(use) < 2:
             v.update(state="unclear", why="fewer than 2 samples before the cut")
@@ -542,16 +659,21 @@ def _root_rows(seq):
 
 
 def _sec_ticks(s, tick_res, tpf):
-    """(start, end) in ticks from frames AND seconds; refuses a boundary that is not on a display frame."""
+    """(start, end) in EXACT ticks (sub-frame allowed). Python has no tick-resolution getter: SectionRange's
+    TRange<FFrameNumber> Value is not a UPROPERTY [decl MovieSceneFrameMigration.h FMovieSceneFrameRange::Value,
+    MovieSceneSection.h:796-798], and GetStartFrame/GetEndFrame return display int32 [decl
+    MovieSceneSectionExtensions.h:45,72]. So: tick from the float32 *_seconds getter [decl :54,81], cross-checked
+    against the int getter (section_ticks). Was: refused any bound off a display frame (8 Oct live DRY:
+    SECTION_OFF_FRAME on Pig Section_10's end, -17199 t [bin])."""
     if not (s.has_start_frame() and s.has_end_frame()):
         return None, None, False
-    out = []
-    for f, sec in ((s.get_start_frame(), s.get_start_frame_seconds()), (s.get_end_frame(), s.get_end_frame_seconds())):
-        t = int(round(float(sec) * tick_res))
-        if abs(t - int(f) * tpf) > 1:
-            raise PlanError("SECTION_OFF_FRAME: frame %s x %d vs %s s x %d" % (f, tpf, sec, tick_res))
-        out.append(int(f) * tpf)
-    return out[0], out[1], True
+    st, en = section_ticks([(s.get_start_frame(), s.get_start_frame_seconds()),
+                            (s.get_end_frame(), s.get_end_frame_seconds())], tick_res, tpf)
+    return st, en, True
+
+
+def _tpf(seq):
+    return _int_ratio(_rate(seq.get_tick_resolution()), _rate(seq.get_display_rate()), "TICKS_PER_FRAME")
 
 
 def _params(s):
@@ -578,7 +700,7 @@ def _skel_rows(seq, animals):
     """{animal: [section rows]} from the top-level animal bindings' skeletal tracks; each row keeps a 'key' that
     survives the strip (binding|anim|start|end)."""
     tick_res = _rate(seq.get_tick_resolution())
-    tpf = int(round(tick_res / _rate(seq.get_display_rate())))
+    tpf = _tpf(seq)                         # her copy: 24000 / 30 = 800 [bin sem movie DisplayRate 30; meas -22 frame]
     want = {v["binding"]: k for k, v in animals.items()}
     out = {k: [] for k in animals}
     for b in seq.get_bindings():
@@ -602,7 +724,7 @@ def _skel_rows(seq, animals):
 def _find_skel_section(seq, key):
     hits = []
     tick_res = _rate(seq.get_tick_resolution())
-    tpf = int(round(tick_res / _rate(seq.get_display_rate())))
+    tpf = _tpf(seq)
     for b in seq.get_bindings():
         for t in b.get_tracks():
             if isinstance(t, unreal.MovieSceneSkeletalAnimationTrack):
@@ -649,9 +771,9 @@ def _transform_at_cut(copy, animals, cut_tick):
             if not isinstance(t, unreal.MovieScene3DTransformTrack):
                 continue
             for s in t.get_sections():
-                if s.has_start_frame() and int(round(float(s.get_start_frame_seconds()) * tick_res)) > cut_tick:
+                if s.has_start_frame() and ticks_from_seconds(s.get_start_frame_seconds(), tick_res) > cut_tick:
                     continue
-                if s.has_end_frame() and int(round(float(s.get_end_frame_seconds()) * tick_res)) <= cut_tick:
+                if s.has_end_frame() and ticks_from_seconds(s.get_end_frame_seconds(), tick_res) <= cut_tick:
                     continue
                 for c in s.get_all_channels():
                     nm = str(c.channel_name) if hasattr(c, "channel_name") else str(c.get_name())
@@ -682,12 +804,17 @@ def _api_table():
                                                                "find_package_referencers_for_asset")])
     probe("MovieSceneBindingExtensions.remove_track / remove", "decl MovieSceneBindingExtensions.h:136,144",
           lambda: [hasattr(u.MovieSceneBindingExtensions, n) for n in ("remove_track", "remove")])
-    probe("MovieSceneSectionExtensions.set_start_frame / get_start_frame_seconds / get_parent_sequence_frame",
-          "decl MovieSceneSectionExtensions.h:54,164,255",
-          lambda: [hasattr(u.MovieSceneSectionExtensions, n) for n in ("set_start_frame", "get_start_frame_seconds",
+    probe("MovieSceneSectionExtensions.set_start_frame / set_start_frame_seconds / get_start_frame_seconds / "
+          "get_end_frame_seconds / get_parent_sequence_frame",
+          "decl MovieSceneSectionExtensions.h:54,81,164,173,255",
+          lambda: [hasattr(u.MovieSceneSectionExtensions, n) for n in ("set_start_frame", "set_start_frame_seconds",
+                                                                       "get_start_frame_seconds",
+                                                                       "get_end_frame_seconds",
                                                                        "get_parent_sequence_frame")])
-    probe("MovieSceneSequenceExtensions.set_playback_start", "decl MovieSceneSequenceExtensions.h:210",
-          lambda: hasattr(u.MovieSceneSequenceExtensions, "set_playback_start"))
+    probe("MovieSceneSequenceExtensions.set_playback_start / get_playback_start_seconds",
+          "decl MovieSceneSequenceExtensions.h:183,210",
+          lambda: [hasattr(u.MovieSceneSequenceExtensions, n) for n in ("set_playback_start",
+                                                                        "get_playback_start_seconds")])
     probe("MovieSceneTimeWarpExtensions.to_fixed_play_rate", "decl MovieSceneTimeWarpExtensions.h:37-38",
           lambda: hasattr(u.MovieSceneTimeWarpExtensions, "to_fixed_play_rate"))
     probe("AnimSequenceBase.get_play_length", "decl AnimationAsset.h:1060-1061",
@@ -721,8 +848,19 @@ def _gather(args, world, run):
     if slot["range"] != list(rslot.get("range") or []) or slot["offset_ticks"] != rslot.get("start_offset_ticks"):
         refusals.append("SLOT_DRIFT: live %s vs reveal record %s/%s" % (slot, rslot.get("range"),
                                                                        rslot.get("start_offset_ticks")))
+    # the mapping is in whole Scene frames: the slot's TRUE tick bounds must sit on them (was: int getter only)
+    scene_tpf = _tpf(seq)
+    st_t, en_t, _b = _sec_ticks(slots[0], _rate(seq.get_tick_resolution()), scene_tpf)
+    if [st_t, en_t] != [slot["range"][0] * scene_tpf, slot["range"][1] * scene_tpf]:
+        refusals.append("SLOT_OFF_FRAME: ticks %s vs frames %s x %d" % ([st_t, en_t], slot["range"], scene_tpf))
+    slot["range_ticks"] = [st_t, en_t]
     her_tick_res = _rate(copy.get_tick_resolution())
-    m = preroll_mapping(args["preroll_range"], slot, int(copy.get_playback_start()), her_tick_res,
+    her_tpf = _tpf(copy)
+    cps = int(copy.get_playback_start())                     # display int [decl MovieSceneSequenceExtensions.h:174]
+    cps_t = ticks_from_seconds(copy.get_playback_start_seconds(), her_tick_res, "PLAYBACK_START")   # decl :183
+    if cps_t != cps * her_tpf:
+        refusals.append("COPY_PLAYBACK_START_OFF_FRAME: %d ticks vs frame %d x %d" % (cps_t, cps, her_tpf))
+    m = preroll_mapping(args["preroll_range"], slot, cps, her_tick_res,
                         _rate(copy.get_display_rate()), _rate(seq.get_display_rate()))
     refusals += m["refusals"]
     if rslot.get("her_frame_at_cut") is not None and m["cut_her_frame"] != float(rslot["her_frame_at_cut"]):
@@ -887,15 +1025,28 @@ def run_apply(args, run, world):
             _stop(run, "SECTION_NOT_FOUND_IN_DUP|%s x%d|NOTHING SAVED; Don't-Save restart" % (row["key"], len(hits)))
         s = hits[0]
         before = _params(s)
-        s.set_start_frame(int(row["new_range"][0] // tpf))      # decl MovieSceneSectionExtensions.h:164 (display frames)
-        st, en, _bd = _sec_ticks(s, _rate(dup.get_tick_resolution()), tpf)
+        target = int(row["new_range"][0])
+        dup_res = _rate(dup.get_tick_resolution())
+        if target % tpf == 0:
+            s.set_start_frame(target // tpf)                    # decl MovieSceneSectionExtensions.h:164 (display, exact)
+        else:
+            # sub-frame target: only a float32 seconds setter exists [decl :173]; its tick rounding is .cpp only
+            # [inf] -> the exact-tick read-back below decides, nothing is assumed
+            s.set_start_frame_seconds(target / dup_res)
+        try:
+            st, en, _bd = _sec_ticks(s, dup_res, tpf)
+        except PlanError as exc:
+            _stop(run, "EXTEND_READBACK|%s %s|NOTHING SAVED; Don't-Save restart" % (row["animal"], exc))
         if [st, en] != list(row["new_range"]) or _params(s) != before:
             _stop(run, "EXTEND_READBACK|%s got %s want %s params %s|NOTHING SAVED; Don't-Save restart"
                   % (row["animal"], [st, en], row["new_range"], _params(s) != before))
         live_new[row["animal"]] = st
     dup.set_playback_start(int(m["dup_playback_start_frame"]))   # decl MovieSceneSequenceExtensions.h:210
-    if int(dup.get_playback_start()) != int(m["dup_playback_start_frame"]):
-        _stop(run, "PLAYBACK_START_READBACK|%s|NOTHING SAVED; Don't-Save restart" % dup.get_playback_start())
+    dps_t = ticks_from_seconds(dup.get_playback_start_seconds(), _rate(dup.get_tick_resolution()), "PLAYBACK_START")
+    if (int(dup.get_playback_start()) != int(m["dup_playback_start_frame"]) or
+            dps_t != int(m["dup_playback_start_frame"]) * tpf):
+        _stop(run, "PLAYBACK_START_READBACK|%s (%d ticks)|NOTHING SAVED; Don't-Save restart"
+              % (dup.get_playback_start(), dps_t))
     m_live = dict(m, dup_playback_start_frame=int(dup.get_playback_start()))
     bad = check_alignment(facts["plan"], m_live, live_new)
     re_plan = plan_loop_shifts(_skel_rows(dup, args["animals"]), m_live)     # re-derive from the LIVE duplicate
@@ -915,19 +1066,24 @@ def run_apply(args, run, world):
     sec.set_editor_property("parameters", prm)
     sec.set_completion_mode(getattr(unreal.MovieSceneCompletionMode, args.get("completion", "RESTORE_STATE")))
     got = [int(sec.get_start_frame()), int(sec.get_end_frame())]
+    scene_tpf = _tpf(seq)
+    got_t = list(_sec_ticks(sec, _rate(seq.get_tick_resolution()), scene_tpf)[:2])   # exact ticks, not just frames
+    want_t = [int(m["range"][0]) * scene_tpf, int(m["range"][1]) * scene_tpf]
     off = _offset(sec)
     PSF = unreal.MovieSceneSectionExtensions.get_parent_sequence_frame    # decl :255 [prec klara_reveal live]
-    cut_hf = int(round(m["cut_her_frame"]))
-    probe_hf = cut_hf - 6                                                 # 6 her frames = 5 Scene frames at 30/25
+    cut_hf = m["cut_her_tick"] // m["her_tpf"]                            # exact: CUT_NOT_ON_HER_FRAME refused earlier
+    step_s, step_h = int(m["readback_step_scene_frames"]), int(m["readback_step_her_frames"])   # 5 / 6 at 25 / 30
+    probe_hf = cut_hf - step_h
     mapped = [int(PSF(sec, cut_hf, seq)), int(PSF(sec, probe_hf, seq))]
     main = _subsections_playing(seq, args["copy"])
     main_mapped = int(PSF(main[0], cut_hf, seq)) if len(main) == 1 else None
-    want_mapped = [m["cut"], m["cut"] - 5]
-    if got != list(m["range"]) or got[1] > m["cut"] or off != int(m["offset_ticks"]) or mapped != want_mapped or \
-            main_mapped != m["cut"] or _path(sec.get_sequence()) != args["dup_path"]:
-        _stop(run, "SECTION_READBACK|range %s want %s|offset %d want %d|her %d,%d -> %s want %s|main -> %s|NOTHING "
-                   "SAVED; Don't-Save restart" % (got, m["range"], off, m["offset_ticks"], cut_hf, probe_hf, mapped,
-                                                  want_mapped, main_mapped))
+    want_mapped = [m["cut"], m["cut"] - step_s]
+    if got != list(m["range"]) or got_t != want_t or got[1] > m["cut"] or off != int(m["offset_ticks"]) or \
+            mapped != want_mapped or main_mapped != m["cut"] or _path(sec.get_sequence()) != args["dup_path"]:
+        _stop(run, "SECTION_READBACK|range %s (ticks %s) want %s (ticks %s)|offset %d want %d|her %d,%d -> %s want %s|"
+                   "main -> %s|NOTHING SAVED; Don't-Save restart" % (got, got_t, m["range"], want_t, off,
+                                                                    m["offset_ticks"], cut_hf, probe_hf, mapped,
+                                                                    want_mapped, main_mapped))
     if len(main) != 1 or [int(main[0].get_start_frame()), int(main[0].get_end_frame())] != facts["slot"]["range"] or \
             _offset(main[0]) != facts["slot"]["offset_ticks"]:
         _stop(run, "MAIN_SLOT_CHANGED|NOTHING SAVED; Don't-Save restart")
@@ -1017,16 +1173,43 @@ def _pick_bones(names):
     return out[:3]
 
 
+def _actor_candidates(world):
+    """Every SkeletalMeshActor of the PIE world (GetAllActorsOfClass iterates the world's loaded levels [inf: .cpp
+    only; decl GameplayStatics.h]) as plain rows; the actors list stays local to the caller."""
+    acts = list(unreal.GameplayStatics.get_all_actors_of_class(world, unreal.SkeletalMeshActor))
+    rows = []
+    for i, a in enumerate(acts):
+        lv = a.get_level()                                                   # decl Actor.h:3370-3371
+        outer = lv.get_outer() if lv is not None else None
+        rows.append({"idx": i, "label": str(a.get_actor_label()),            # decl Actor.h:2732-2734 (editor builds)
+                     "name": str(a.get_name()), "path": str(a.get_path_name()),
+                     "level_pkg": _path(lv.get_outermost()) if lv is not None else None,
+                     "level_outer": str(outer.get_name()) if outer is not None else None})
+        lv = outer = None
+    return acts, rows
+
+
+def _world_levels(world):
+    try:
+        return sorted(str(_path(lv.get_outermost())) for lv in unreal.EditorLevelUtils.get_levels(world))
+    except Exception as exc:  # noqa: BLE001 - diagnostics only
+        return ["ERROR %s: %s" % (type(exc).__name__, exc)]
+
+
 def run_probe(args, run):
-    """PIE, READ ONLY. Arms a post-tick callback; returns at once (the callback logs the result later)."""
-    pa = dict({"scene_label": "Scene 1", "frames": [300, 593, 600], "burst": 3, "timeout_s": 900.0,
-               "tol_cm": 0.01, "tol_deg": 0.01}, **(args.get("probe") or {}))
+    """PIE, READ ONLY. Arms a post-tick callback; returns at once (the callback logs the result later).
+    8 Oct fix: windows fire only while the Master is INSIDE the Scene segment (live run KLARAPREROLLS1-20261008-032334
+    sampled Scene frame 14953, i.e. Scene 3); actors are matched by label then name across every level, PIE prefix
+    stripped, and every candidate is logged once."""
+    pa = dict({"scene_label": "Scene 1", "frames": [300, 592, 600], "burst": 3, "timeout_s": 900.0,
+               "tol_cm": 0.01, "tol_deg": 0.01, "master_tick_res": 24000.0, "scene_fps": 25.0,
+               "not_in_scene_log_s": 5.0}, **(args.get("probe") or {}))
     cut = int(args["preroll_range"][1])
     frames = sorted(float(f) for f in pa["frames"])
-    level_short = args["her_level"].rsplit("/", 1)[-1]
     animals = {k: dict(v) for k, v in args["animals"].items()}
-    st = {"handle": None, "samples": [], "pending": list(frames), "burst": 0, "window": None, "t0": time.time(),
-          "bones": {}, "out": os.path.join(_here(), "klara_preroll_s1_probe_%s.json" % run), "done": False}
+    st = {"handle": None, "samples": [], "filled": {w: 0 for w in frames}, "t0": time.time(), "bones": {},
+          "out": os.path.join(_here(), "klara_preroll_s1_probe_%s.json" % run), "done": False, "candidates": None,
+          "levels": None, "not_in_scene_ticks": 0, "last_nis_log": None, "segment": None}
 
     def finish(status):
         if st["done"]:
@@ -1036,38 +1219,51 @@ def run_probe(args, run):
             unreal.unregister_slate_post_tick_callback(st["handle"])
         except Exception:  # noqa: BLE001
             pass
-        verdict = classify_probe(st["samples"], cut, float(pa["tol_cm"]), float(pa["tol_deg"]))
+        verdict = classify_probe(st["samples"], cut, float(pa["tol_cm"]), float(pa["tol_deg"]),
+                                 expected=(frames, sorted(animals)))
         write_json(st["out"], {"tool": TOOL, "run": run, "status": status, "samples": st["samples"], "verdict": verdict,
-                               "probe_args": pa, "cut": cut})
+                               "probe_args": pa, "cut": cut, "candidates": st["candidates"], "levels": st["levels"],
+                               "segment": st["segment"], "not_in_scene_ticks": st["not_in_scene_ticks"],
+                               "filled": {str(k): v for k, v in st["filled"].items()}})
         if status == "complete":
             unreal.log("%s_PROBE_OK|run=%s|answer=%s|answers=%s|file=%s" % (MARK, run, verdict["answer"],
                                                                           json.dumps(verdict["answers"]), st["out"]))
         else:
-            unreal.log_error("%s_FAILED|run=%s|PROBE_%s|file=%s" % (MARK, run, status.upper(), st["out"]))
+            unreal.log_error("%s_FAILED|run=%s|PROBE_%s|filled=%s|file=%s" % (
+                MARK, run, status.upper(), json.dumps({str(k): v for k, v in st["filled"].items()}), st["out"]))
 
-    def scene_frame(world):
-        # prec klara_pendulum_s4.py:326-339 [meas: its probe file KLARAPENDULUM-20261007-134048 'complete']
+    def scene_time(world):
+        # prec klara_pendulum_s4.py:326-339 [meas: its probe file KLARAPENDULUM-20261007-134048 'complete']; segment
+        # Start/EndFrame are absolute Master ticks, EndFrame exclusive [decl InfinityStageTransportController.h:219-223,
+        # :400]
         roots = list(unreal.GameplayStatics.get_all_actors_of_class(world, unreal.InfinityStageShowRoot))
         if len(roots) != 1:
-            return None, None, "SHOW_ROOTS_%d" % len(roots)
+            return None, "SHOW_ROOTS_%d" % len(roots)
         tr = roots[0].transport
         lab = pa["scene_label"]
         segs = [g for g in list(tr.segments) if g.type == unreal.InfinityCueType.SCENE
                 and (str(g.label) == lab or str(g.label).startswith(lab + " "))]
         if len(segs) != 1:
-            return None, None, "SCENE_SEGMENTS_%d" % len(segs)
+            return None, "SCENE_SEGMENTS_%d" % len(segs)
         mf = float(tr.get_current_master_frame().value)
-        return (mf - float(segs[0].start_frame.value)) / 24000.0 * 25.0, mf, None
+        a, b = int(segs[0].start_frame.value), int(segs[0].end_frame.value)
+        sf = (mf - a) / float(pa["master_tick_res"]) * float(pa["scene_fps"])
+        return {"mf": mf, "sf": sf, "start": a, "end": b, "in_scene": a <= mf < b}, None
 
-    def sample(world, sf, mf):
-        acts = list(unreal.GameplayStatics.get_all_actors_of_class(world, unreal.SkeletalMeshActor))
+    def sample(world, t, w):
+        acts, cands = _actor_candidates(world)
+        if st["candidates"] is None:                       # log every candidate considered, once per run
+            st["candidates"], st["levels"] = cands, _world_levels(world)
+            unreal.log("%s_PROBE_LEVELS|run=%s|%s" % (MARK, run, json.dumps(st["levels"])))
+            for c in cands:
+                unreal.log("%s_PROBE_CANDIDATE|run=%s|%s" % (MARK, run, json.dumps(c, sort_keys=True)))
         for animal, v in sorted(animals.items()):
-            hits = [a for a in acts if str(a.get_name()) == v["actor_name"] and
-                    level_short in str(a.get_level().get_outer().get_name())]
-            row = {"window": st["window"], "animal": animal, "scene_frame": sf, "master_frame": mf,
-                   "found": len(hits) == 1, "hits": len(hits)}
-            if len(hits) == 1:
-                a = hits[0]
+            mv = match_actor(cands, v.get("actor_label") or v["binding"], v["actor_name"], args["her_level"])
+            row = {"window": w, "animal": animal, "scene_frame": t["sf"], "master_frame": t["mf"],
+                   "in_scene": t["in_scene"], "segment": [t["start"], t["end"]], "found": mv["found"],
+                   "hits": mv["hits"], "match": mv}
+            if mv["found"]:
+                a = acts[mv["idx"]]
                 comp = a.get_component_by_class(unreal.SkeletalMeshComponent)
                 mesh = comp.get_skinned_asset()                                  # decl SkinnedMeshComponent.h:1222-1223
                 inst = comp.get_anim_instance()                                  # decl SkeletalMeshComponent.h:1110-1111
@@ -1077,17 +1273,20 @@ def run_probe(args, run):
                     st["bones"][animal] = _pick_bones(names)
                 bones = {}
                 for bn in st["bones"][animal]:
-                    t = comp.get_socket_transform(bn, unreal.RelativeTransformSpace.RTS_COMPONENT)  # decl SceneComponent.h:42-49,800-801
-                    q = t.rotation
-                    bones[bn] = {"t": [float(t.translation.x), float(t.translation.y), float(t.translation.z)],
+                    tf = comp.get_socket_transform(bn, unreal.RelativeTransformSpace.RTS_COMPONENT)  # decl SceneComponent.h:42-49,800-801
+                    q = tf.rotation
+                    bones[bn] = {"t": [float(tf.translation.x), float(tf.translation.y), float(tf.translation.z)],
                                  "q": [float(q.x), float(q.y), float(q.z), float(q.w)]}
                 row.update(mode=_enum_name(comp.get_animation_mode()),           # decl SkeletalMeshComponent.h:1248-1249
                            anim_class=inst.get_class().get_name() if inst is not None else None,
                            mesh=_path(mesh), mesh_ok=bool(mesh is not None and _path(mesh).endswith(v.get("mesh", ""))),
                            loc=[float(loc.x), float(loc.y), float(loc.z)], bones=bones)
                 a = comp = mesh = inst = None
+            else:
+                unreal.log_warning("%s_PROBE_ACTOR_MISSING|run=%s|%s|%s" % (MARK, run, animal, mv.get("why")))
             st["samples"].append(row)
             unreal.log("%s_PROBE_SAMPLE|run=%s|%s" % (MARK, run, json.dumps(row, default=str)))
+        acts = None
 
     def tick(_dt):
         try:
@@ -1096,18 +1295,25 @@ def run_probe(args, run):
                 return finish("pie_ended")
             if time.time() - st["t0"] > float(pa["timeout_s"]):
                 return finish("timeout")
-            sf, mf, err = scene_frame(world)
-            if sf is None:
+            t, err = scene_time(world)
+            if t is None:
                 return finish("no_time_" + err)
-            if st["burst"] == 0:
-                if not st["pending"] or sf < st["pending"][0]:
-                    return None
-                st["window"] = st["pending"].pop(0)
-                st["burst"] = int(pa["burst"])
-            sample(world, sf, mf)
+            st["segment"] = [t["start"], t["end"]]
+            w, why = probe_gate(t["mf"], t["start"], t["end"], t["sf"], frames, st["filled"], pa["burst"], cut)
+            if w is None:
+                if why == "NOT_IN_SCENE":
+                    st["not_in_scene_ticks"] += 1
+                    now = time.time()
+                    if st["last_nis_log"] is None or now - st["last_nis_log"] >= float(pa["not_in_scene_log_s"]):
+                        st["last_nis_log"] = now
+                        unreal.log("%s_PROBE_NOT_IN_SCENE|run=%s|master=%d|segment=%s [%d, %d)|scene_frame=%.2f|"
+                                   "waiting" % (MARK, run, int(t["mf"]), pa["scene_label"], t["start"], t["end"],
+                                                t["sf"]))
+                return None
+            sample(world, t, w)
             world = None
-            st["burst"] -= 1
-            if st["burst"] == 0 and not st["pending"]:
+            st["filled"][w] += 1
+            if all(n >= int(pa["burst"]) for n in st["filled"].values()):
                 finish("complete")
         except Exception as exc:  # noqa: BLE001 - a probe never raises into Slate; it stops itself
             unreal.log_error("%s_PROBE_ERROR|run=%s|%s: %s" % (MARK, run, type(exc).__name__, exc))
@@ -1115,8 +1321,10 @@ def run_probe(args, run):
         return None
 
     st["handle"] = unreal.register_slate_post_tick_callback(tick)    # prec klara_pendulum_s4.py:381 [meas]
-    unreal.log("%s_PROBE_ARMED|run=%s|frames=%s|burst=%s|file=%s|read-only: no save, no transport command; play S1 "
-               "through frame %s" % (MARK, run, frames, pa["burst"], st["out"], int(frames[-1]) + 1))
+    unreal.log("%s_PROBE_ARMED|run=%s|frames=%s|burst=%s|file=%s|read-only: no save, no transport command; samples "
+               "only while the Master is inside %r; play it through frame %s" % (MARK, run, frames, pa["burst"],
+                                                                                st["out"], pa["scene_label"],
+                                                                                int(frames[-1]) + 2))
 
 
 # ---- entry -----------------------------------------------------------------------------------------------------------

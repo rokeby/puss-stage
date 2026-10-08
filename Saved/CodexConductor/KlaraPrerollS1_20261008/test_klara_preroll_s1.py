@@ -136,6 +136,12 @@ class MovieSceneSection(Obj):
         self.start = int(f) * self._tpf() + (self._tpf() if "extend_off_by_frame" in R.sabotage else 0)
         _dirty(self.owner)
 
+    def set_start_frame_seconds(self, sec):
+        # fake model [inf]: UE's seconds->tick rounding is .cpp only; the tool must not rely on it (read-back decides)
+        t = f32(sec) * _rate(self.owner.tick)
+        self.start = int(math.floor(t)) - 1 if "seconds_setter_floors" in R.sabotage else int(round(t))
+        _dirty(self.owner)
+
     def set_range(self, a, b):
         self.start, self.end = int(a) * self._tpf(), (int(b) + (1 if "range_past_cut" in R.sabotage else 0)) * self._tpf()
         _dirty(self.owner)
@@ -350,6 +356,10 @@ class LevelSequence(Obj):
     def get_playback_start(self):
         return self.pstart
 
+    def get_playback_start_seconds(self):
+        tpf = _rate(self.tick) / _rate(self.fps)
+        return f32((self.pstart * tpf + (1 if "pstart_off" in R.sabotage else 0)) / _rate(self.tick))
+
     def get_playback_end(self):
         return self.pend
 
@@ -523,11 +533,12 @@ def make_fake():
     u.get_editor_subsystem = lambda cls: cls()
     u.load_asset = lambda p: R.assets.get(p)
     u.LevelSequenceEditorBlueprintLibrary = types.SimpleNamespace(get_current_level_sequence=lambda: R.open_seq)
-    u.EditorLevelUtils = types.SimpleNamespace(get_levels=lambda w: list(R.levels))
+    u.EditorLevelUtils = types.SimpleNamespace(get_levels=lambda w: list(getattr(w, "levels", None) or R.levels))
     u.MovieSceneSectionExtensions = types.SimpleNamespace(get_parent_sequence_frame=_psf, set_start_frame=1,
-                                                          get_start_frame_seconds=1)
+                                                          set_start_frame_seconds=1, get_start_frame_seconds=1,
+                                                          get_end_frame_seconds=1)
     u.MovieSceneBindingExtensions = types.SimpleNamespace(remove_track=1, remove=1)
-    u.MovieSceneSequenceExtensions = types.SimpleNamespace(set_playback_start=1)
+    u.MovieSceneSequenceExtensions = types.SimpleNamespace(set_playback_start=1, get_playback_start_seconds=1)
     u.MovieSceneTimeWarpExtensions = types.SimpleNamespace(to_fixed_play_rate=1)
     u.MovieSceneCompletionMode = types.SimpleNamespace(RESTORE_STATE="RESTORE_STATE", KEEP_STATE="KEEP_STATE")
     u.log = lambda m: R.logs.append(("log", m))
@@ -549,7 +560,18 @@ LOC = {"Pig_anim_RM": (100.0, 200.0, 10.0), "RedDeer_Calf_anim_IP": (300.0, 250.
        "medhue_raccoon": (150.0, 400.0, 8.0)}
 
 
-def build_world(root):
+BIN_SPEC = {   # [bin] S3Diag/s3_seq_sem.py Model over Content/InfinityStage/KlaraHookin/LS_Animals_1_S1Hangar.uasset
+    # (sha256 7d0e9eaa...f998bf, 8 Oct): the skeletal sections around the cut, exact ticks. Pig Section_10's END is
+    # -17199 t = -0.7166249752 s (f32) = her frame -21.499: the bound the 8 Oct live DRY refused (SECTION_OFF_FRAME).
+    "Pig_anim_RM": [(-235200, -135199, "Pig_Eat_loop_1", 0), (-144800, -36799, "Pig_Eat_loop_2", 92000),
+                    (-43200, -17199, "Pig_Eat_loop_1", 0), (-25600, 320800, "Pig_Eat_loop_1", 0),
+                    (322400, 422401, "Pig_Eat_loop_1", 0)],
+    "RedDeer_Calf_anim_IP": [(-235200, -135199, "Deer_Eat_loop", 0), (-147200, 8000, "Deer_EatDig_loop", 0),
+                             (-5600, 94401, "Deer_EatDig_loop", 0)],
+    "medhue_raccoon": [(-234400, 347200, "Raccoon_Eating", 0)]}
+
+
+def build_world(root, spec=None):
     _reset(root)
     t = lambda s: int(round(s * 24000))
     copy = LevelSequence(COPY, 24000, 30, -310, 6008)
@@ -559,9 +581,10 @@ def build_world(root):
     for name, length in (("Pig_Eat_loop_1", 4.1666665), ("Pig_Eat_loop_2", 4.1666665), ("Deer_Eat_loop", 4.1666665),
                          ("Deer_EatDig_loop", 4.1666665), ("Raccoon_Eating", 2.7)):
         anims[name] = AnimSequenceBase("/Game/KK_S1_Animals/Anims/" + name, length)
-    spec = {"Pig_anim_RM": [(-235200, -135200, "Pig_Eat_loop_1", 0), (-144800, -36800, "Pig_Eat_loop_2", 92000)],
-            "RedDeer_Calf_anim_IP": [(-235200, -135200, "Deer_Eat_loop", 0), (-147200, 8000, "Deer_EatDig_loop", 0)],
-            "medhue_raccoon": [(-234400, 347200, "Raccoon_Eating", 0)]}
+    spec = spec or {
+        "Pig_anim_RM": [(-235200, -135200, "Pig_Eat_loop_1", 0), (-144800, -36800, "Pig_Eat_loop_2", 92000)],
+        "RedDeer_Calf_anim_IP": [(-235200, -135200, "Deer_Eat_loop", 0), (-147200, 8000, "Deer_EatDig_loop", 0)],
+        "medhue_raccoon": [(-234400, 347200, "Raccoon_Eating", 0)]}
     for i, (name, secs) in enumerate(sorted(spec.items())):
         b = copy.bind("g-animal-%d" % i, name)
         tr = b.add(MovieScene3DTransformTrack)
@@ -1109,6 +1132,546 @@ class FakeEditor(unittest.TestCase):
         self.assertNothingSaved()
 
 
+# =====================================================================================================================
+# 8 Oct live failures (first live run): tick-exact sections, Scene-gated probe, robust PIE actor match, S1 helper
+# =====================================================================================================================
+
+S1_START = 4624705                       # [meas S1PLAY line 07:23:37 start=4624705]
+S1_END = S1_START + 6176 * 960           # fake: LS_DevScene_01 length 6176 Scene frames (fixture), exclusive
+S3_START, S3_END = 18900000, 19600000    # fake S3 bracket around the live master 18979945 [meas probe file]
+LIVE_S3_MASTER = 18979945                # [meas klara_preroll_s1_probe_KLARAPREROLLS1-20261008-032334.json]
+
+
+class TickExact(unittest.TestCase):
+    def test_live_bound_reproduced_and_read_exactly(self):
+        sec = f32(-17199 / 24000.0)
+        self.assertEqual(sec, -0.7166249752044678)                    # the live log value, bit for bit
+        self.assertGreater(abs(-17199 - (-22) * 800), 1)               # why the OLD reader refused (SECTION_OFF_FRAME)
+        self.assertEqual(P.section_ticks([(-54, f32(-43200 / 24000.0)), (-22, sec)], 24000.0, 800), (-43200, -17199))
+
+    def test_section_starting_at_minus_17199(self):
+        self.assertEqual(P.section_ticks([(-22, f32(-17199 / 24000.0)), (-20, f32(-16000 / 24000.0))], 24000.0, 800),
+                         (-17199, -16000))
+
+    def test_NEG_int_getter_disagrees(self):
+        with self.assertRaises(P.PlanError) as c:
+            P.section_ticks([(-21, f32(-17199 / 24000.0)), (-20, f32(-16000 / 24000.0))], 24000.0, 800)
+        self.assertIn("TICK_XCHECK", str(c.exception))
+
+    def test_NEG_seconds_precision(self):
+        self.assertEqual(P.ticks_from_seconds(f32(511.0), 24000.0), 511 * 24000)
+        with self.assertRaises(P.PlanError) as c:
+            P.ticks_from_seconds(f32(600.0), 24000.0)
+        self.assertIn("SECONDS_PRECISION", str(c.exception))
+
+    def test_bin_sections_plan(self):
+        s = report_secs()
+        s["Pig"] = [dict(x, end=x["end"] + 1) for x in s["Pig"]]       # [bin] ends -135199 / -36799
+        s["Pig"].append(dict(s["Pig"][0], key="S10", start=-43200, end=-17199))
+        p = P.plan_loop_shifts(s, mapping(), 0, {"Pig": 3, "Deer": 3, "Raccoon": 4})
+        self.assertEqual(p["refusals"], [])
+        self.assertEqual(P.check_alignment(p["rows"], mapping()), [])
+
+    def test_subframe_active_start_allowed(self):
+        s = report_secs()
+        s["Raccoon"][0]["start"] = -234399                              # one tick off her frame -293
+        p = P.plan_loop_shifts(s, mapping(), 0, {"Pig": 3, "Deer": 3, "Raccoon": 4})
+        self.assertEqual(p["refusals"], [])
+        by = {r["animal"]: r for r in p["rows"]}
+        self.assertEqual(by["Raccoon"]["new_range"][0], -234399 - 4 * 64800)
+        self.assertFalse(by["Raccoon"]["new_start_on_frame"])
+        self.assertEqual(P.check_alignment(p["rows"], mapping()), [])
+
+    def test_NEG_loop_drift(self):
+        s = report_secs()
+        s["Raccoon"][0]["len_s"] = 64800.04 / 24000.0                   # 0.04 t off a tick (inside CLIP_TICK_TOL)
+        p = P.plan_loop_shifts(s, mapping(), 30)                       # 34 loops -> 1.36 ticks accumulated
+        self.assertTrue(any("LOOP_DRIFT" in r for r in p["refusals"]), p["refusals"])
+
+    def test_NEG_cut_not_on_her_frame(self):
+        m = P.preroll_mapping([282, 594], {"range": [594, 5769], "offset_ticks": 86401}, -310, 24000.0, 30.0, 25.0)
+        self.assertTrue(any("CUT_NOT_ON_HER_FRAME" in r for r in m["refusals"]))
+
+    def test_readback_step(self):
+        m = mapping()
+        self.assertEqual((m["readback_step_scene_frames"], m["readback_step_her_frames"]), (5, 6))
+
+    def test_NEG_misaligned_by_two_ticks(self):
+        p = P.plan_loop_shifts(report_secs(), mapping())
+        rows = _copy.deepcopy(p["rows"])
+        rows[0]["new_range"][0] -= 2                                    # was tolerated (< one her frame) before
+        self.assertTrue(any("MISALIGNED_AT_CUT" in r for r in P.check_alignment(rows, mapping())))
+
+
+class FakeEditorBin(unittest.TestCase):
+    """The fake editor over the [bin] section table, incl. Pig Section_10's end at -17199 ticks."""
+    SPEC = BIN_SPEC
+
+    def setUp(self):
+        self.root = tempfile.mkdtemp(prefix="klara_preroll_s1_bin_")
+        self.here = build_world(self.root, _copy.deepcopy(self.SPEC))
+
+    def tearDown(self):
+        shutil.rmtree(self.root, ignore_errors=True)
+
+    def failed(self, want):
+        f = markers("KLARAPREROLLS1_FAILED")
+        self.assertTrue(f and any(want in x for x in f), "want %s in %s" % (want, f))
+
+    def test_dry_live_failure_now_passes(self):
+        self.assertIsNone(run_tool(base_args("DRY")), [m for _l, m in R.logs if "FAILED" in m])
+        ok = markers("KLARAPREROLLS1_DRY_OK")
+        self.assertTrue(ok and "apply_ready=1" in ok[0], R.logs[-6:])
+        rep = P.load_json(os.path.join(self.here, P.DRY_NAME))
+        self.assertEqual({r["animal"]: r["loops"] for r in rep["facts"]["plan"]}, {"Pig": 3, "Deer": 3, "Raccoon": 4})
+        self.assertIn([-43200, -17199], [[s["start"], s["end"]] for s in rep["facts"]["skel_sections"]["Pig"]])
+
+    def test_apply_keeps_offframe_sections_exact(self):
+        self.assertIsNone(run_tool(base_args("APPLY")), [m for _l, m in R.logs if "FAILED" in m])
+        self.assertEqual(len(markers("KLARAPREROLLS1_APPLY_OK")), 1)
+        pig = [b for b in R.assets[DUP].bindings if b.name == "Pig_anim_RM"][0]
+        rng = sorted([s.start, s.end] for t in pig.tracks if isinstance(t, MovieSceneSkeletalAnimationTrack)
+                     for s in t.sections)
+        self.assertEqual(rng[0], [-535200, -135199])                   # S8 extended 3 loops, end kept
+        self.assertIn([-43200, -17199], rng)                           # S10 untouched, sub-frame end exact
+
+    def test_NEG_slot_off_frame(self):
+        R.assets[SCENE].tracks[0].sections[0].start += 1                # one tick: int getter still says 594
+        R.dirty.clear()
+        self.assertIsNotNone(run_tool(base_args("APPLY")))
+        self.failed("SLOT_OFF_FRAME")
+        self.assertEqual(R.saved, [])
+
+    def test_NEG_copy_playback_start_off_frame(self):
+        R.sabotage.add("pstart_off")
+        self.assertIsNotNone(run_tool(base_args("APPLY")))
+        self.failed("COPY_PLAYBACK_START_OFF_FRAME")
+        self.assertEqual(R.saved, [])
+
+
+class FakeEditorSubframe(FakeEditorBin):
+    """The ACTIVE section starts between frames: the extension must go through the seconds setter, exact in ticks."""
+    SPEC = dict(BIN_SPEC, medhue_raccoon=[(-234399, 347200, "Raccoon_Eating", 0)])
+
+    def test_apply_subframe_extension(self):
+        self.assertIsNone(run_tool(base_args("APPLY")), [m for _l, m in R.logs if "FAILED" in m])
+        rac = [b for b in R.assets[DUP].bindings if b.name == "medhue_raccoon"][0]
+        starts = [s.start for t in rac.tracks if isinstance(t, MovieSceneSkeletalAnimationTrack) for s in t.sections]
+        self.assertEqual(starts, [-234399 - 4 * 64800])
+
+    def test_NEG_seconds_setter_floors(self):
+        R.sabotage.add("seconds_setter_floors")
+        self.assertIsNotNone(run_tool(base_args("APPLY")))
+        self.failed("EXTEND_READBACK")
+        self.assertEqual(R.saved, [])
+
+
+# ---- PIE fakes ------------------------------------------------------------------------------------------------------
+
+class _Named:
+    def __init__(self, path):
+        self.p = path
+
+    def get_path_name(self):
+        return self.p
+
+    def get_name(self):
+        return self.p.split(".")[-1].rsplit("/", 1)[-1]
+
+
+class PieLevel:
+    """A level of the PIE world: package /Game/.../UEDPIE_0_<map>, world object named <map> (or prefixed too)."""
+    def __init__(self, pkg, world_name=None):
+        self.pkg = _Named(pkg)
+        short = pkg.rsplit("/", 1)[-1]
+        self.world = _Named("%s.%s" % (pkg, world_name or short.split("UEDPIE_0_")[-1]))
+
+    def get_outer(self):
+        return self.world
+
+    def get_outermost(self):
+        return self.pkg
+
+
+class SkeletalMeshComponent:
+    def __init__(self, actor):
+        self.actor = actor
+
+    def get_skinned_asset(self):
+        return _Named("/Game/KK_S1_Animals/X/%s.%s" % (self.actor.mesh, self.actor.mesh))
+
+    def get_anim_instance(self):
+        return None
+
+    def get_num_bones(self):
+        return 3
+
+    def get_bone_name(self, i):
+        return ["root", "pelvis", "head"][i]
+
+    def get_animation_mode(self):
+        return types.SimpleNamespace(name="ANIMATION_CUSTOM_MODE")
+
+    def get_socket_transform(self, bn, space):
+        z = float(R.transport.frame) * 1e-4 * self.actor.speed
+        return types.SimpleNamespace(translation=Vec(0.0, 0.0, z), rotation=types.SimpleNamespace(x=0.0, y=0.0, z=0.0, w=1.0))
+
+
+class SkeletalMeshActor(Obj):
+    def __init__(self, label, name, level, mesh="", speed=1.0):
+        self.label, self.name, self.level, self.mesh, self.speed = label, name, level, mesh, speed
+
+    def get_actor_label(self):
+        return self.label
+
+    def get_name(self):
+        return self.name
+
+    def get_path_name(self):
+        return "%s:PersistentLevel.%s" % (self.level.world.get_path_name(), self.name)
+
+    def get_level(self):
+        return self.level
+
+    def get_actor_location(self):
+        return Vec(1.0, 2.0, 3.0)
+
+    def get_component_by_class(self, cls):
+        return SkeletalMeshComponent(self)
+
+
+class _Seg:
+    def __init__(self, label, typ, a, b):
+        self.label, self.type, self.start_frame, self.end_frame = label, typ, FrameNumber(a), FrameNumber(b)
+
+
+class Transport:
+    """Models ScrubToMasterFrame's refusals [project source InfinityStageTransportController.cpp:1672-1690,
+    2580-2590]: NoSegment, NotReady, then UnsafeExternalClock when performance mode is on, the CURRENT segment is
+    DeclaredUnpausable and the target differs."""
+    def __init__(self, frame):
+        self.frame, self.pm, self.playing = frame, True, True
+        self.segments = [_Seg("Passage 1", "PASSAGE", 0, S1_START), _Seg("Scene 1", "SCENE", S1_START, S1_END),
+                         _Seg("Scene 3", "SCENE", S3_START, S3_END)]
+        self.unpausable = {"Scene 3"}
+
+    def _seg(self, f):
+        return next((s for s in self.segments if s.start_frame.value <= f < s.end_frame.value), None)
+
+    def get_editor_property(self, k):
+        assert k == "performance_mode", k
+        return self.pm
+
+    def set_editor_property(self, k, v):
+        assert k == "performance_mode", k
+        if "pm_stuck_false" in R.sabotage and v:
+            return
+        self.pm = bool(v)
+
+    def get_current_master_frame(self):
+        return FrameNumber(self.frame)
+
+    def is_transport_playing(self):
+        return self.playing
+
+    def scrub_to_master_frame(self, fn):
+        tgt = self._seg(fn.value)
+        if tgt is None:
+            return InfinityTransportResult.NO_SEGMENT
+        if "scrub_not_ready" in R.sabotage:
+            return InfinityTransportResult.NOT_READY
+        cur = self._seg(self.frame)
+        if self.pm and cur is not None and cur.label in self.unpausable and fn.value != self.frame:
+            return InfinityTransportResult.UNSAFE_EXTERNAL_CLOCK
+        self.playing = False
+        if "scrub_noop" not in R.sabotage:
+            self.frame = fn.value
+        return InfinityTransportResult.SUCCEEDED
+
+
+class _Player:
+    def play(self):
+        if "play_noop" not in R.sabotage:
+            R.transport.playing = True
+
+    def pause(self):
+        R.transport.playing = False
+
+
+class InfinityStageShowRoot(Obj):
+    def __init__(self):
+        self.transport = R.transport
+        self.sequence_player = _Player()
+
+
+InfinityTransportResult = types.SimpleNamespace(SUCCEEDED="SUCCEEDED", NO_PLAYER="NO_PLAYER", NO_SEGMENT="NO_SEGMENT",
+                                                NOT_READY="NOT_READY", UNSAFE_EXTERNAL_CLOCK="UNSAFE_EXTERNAL_CLOCK")
+
+
+class PieWorld:
+    def __init__(self, actors, levels):
+        self.actors, self.levels = actors, levels
+
+
+def _install_pie_fake():
+    u = sys.modules["unreal"]
+    u.SkeletalMeshActor, u.SkeletalMeshComponent, u.InfinityStageShowRoot = (SkeletalMeshActor, SkeletalMeshComponent,
+                                                                           InfinityStageShowRoot)
+    u.InfinityTransportResult = InfinityTransportResult
+    u.InfinityCueType = types.SimpleNamespace(SCENE="SCENE", PASSAGE="PASSAGE")
+    u.RelativeTransformSpace = types.SimpleNamespace(RTS_COMPONENT="RTS_COMPONENT")
+    u.GameplayStatics = types.SimpleNamespace(get_all_actors_of_class=lambda w, cls: [
+        a for a in (list(w.actors) + [InfinityStageShowRoot()]) if isinstance(a, cls)])
+
+    def reg(fn):
+        R.tick_cb = fn
+        return "handle"
+
+    def unreg(h):
+        R.tick_cb = None
+    u.register_slate_post_tick_callback, u.unregister_slate_post_tick_callback = reg, unreg
+
+
+_install_pie_fake()
+import s1_play_from_start as S  # noqa: E402  (the fake carries _PUSS_FAKE: importing runs nothing)
+
+HER_PIE = "/Game/KK_S1_Animals/UEDPIE_0_L_Animals"
+PERSIST_PIE = "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+
+
+def build_pie(root, animals=None, extra=()):
+    """A PIE world: her level STREAMED (UEDPIE_0_ package), the persistent level, decoys with her labels/names."""
+    _reset(root)
+    R.transport = Transport(LIVE_S3_MASTER)
+    R.tick_cb = None
+    her, pers = PieLevel(HER_PIE), PieLevel(PERSIST_PIE)
+    acts = [SkeletalMeshActor(lab, nm, her, mesh) for lab, nm, mesh in (animals or (
+        ("Pig_anim_RM", "SkeletalMeshActor_13", "Pig_anim_RM"),
+        ("RedDeer_Calf_anim_IP", "SkeletalMeshActor_15", "RedDeer_Calf_anim_IP"),
+        ("medhue_raccoon", "SkeletalMeshActor_7", "medhue_raccoon")))]
+    acts += [SkeletalMeshActor("Pig_anim_RM", "SkeletalMeshActor_99", pers),          # decoy label, wrong level
+             SkeletalMeshActor("Somebody", "SkeletalMeshActor_15", pers)]             # decoy name, wrong level
+    acts += list(extra)
+    R.pie_world = PieWorld(acts, [pers, her])
+    here = os.path.join(root, "Saved", "CodexConductor", P.FOLDER)
+    os.makedirs(here, exist_ok=True)
+    return here, her, pers
+
+
+def drive(ticks):
+    for f in ticks:
+        R.transport.frame = int(f)
+        if R.tick_cb is None:
+            return
+        R.tick_cb(0.025)
+
+
+def s1_ticks(f0, f1, step=0.625):
+    """Master ticks for Scene-1 frames f0..f1 at 25 fps, ~40 Hz editor ticks (0.625 Scene frames per tick)."""
+    out, f = [], float(f0)
+    while f <= f1:
+        out.append(S1_START + int(round(f * 960)))
+        f += step
+    return out
+
+
+class ProbeGate(unittest.TestCase):
+    W = [300.0, 592.0, 600.0]
+
+    def gate(self, mf, sf, filled=None):
+        return P.probe_gate(mf, S1_START, S1_END, sf, self.W, filled or {}, 3, 594)
+
+    def test_live_samples_rejected(self):
+        # the 8 Oct live sample: master 18979945, 'scene frame' 14953.375 -> every window fired before; now NOT_IN_SCENE
+        self.assertEqual(self.gate(LIVE_S3_MASTER, 14953.375), (None, "NOT_IN_SCENE"))
+
+    def test_windows(self):
+        self.assertEqual(self.gate(S1_START + 288000, 300.0), (300.0, None))
+        self.assertEqual(self.gate(S1_START + 289900, 301.98), (300.0, None))
+        self.assertEqual(self.gate(S1_START + 289920, 302.0), (None, "NO_WINDOW"))
+        self.assertEqual(self.gate(S1_START + 569000, 593.9), (592.0, None))
+        self.assertEqual(self.gate(S1_START + 570240, 594.0), (None, "NO_WINDOW"))     # pre-cut window clipped at cut
+        self.assertEqual(self.gate(S1_START + 576480, 600.5), (600.0, None))
+        self.assertEqual(self.gate(S1_START + 288000, 300.0, {300.0: 3}), (None, "NO_WINDOW"))   # window full
+
+    def test_NEG_segment_end_exclusive(self):
+        self.assertEqual(self.gate(S1_END, 300.5), (None, "NOT_IN_SCENE"))
+        self.assertEqual(self.gate(S1_START - 1, 300.5), (None, "NOT_IN_SCENE"))
+
+
+class MatchActor(unittest.TestCase):
+    def c(self, i, label, name, pkg):
+        return {"idx": i, "label": label, "name": name, "level_pkg": pkg}
+
+    def test_label_in_pie_streamed_level(self):
+        cands = [self.c(0, "Pig_anim_RM", "SkeletalMeshActor_99", PERSIST_PIE),
+                 self.c(1, "Pig_anim_RM", "SkeletalMeshActor_13", HER_PIE)]
+        v = P.match_actor(cands, "Pig_anim_RM", "SkeletalMeshActor_13", L_ANIMALS)
+        self.assertEqual((v["found"], v["idx"], v["matched_by"], v["level_match"]), (True, 1, "label", "path"))
+
+    def test_name_fallback_and_short_level(self):
+        cands = [self.c(0, "Pig (renamed)", "SkeletalMeshActor_13", "/Temp/UEDPIE_0_L_Animals")]
+        v = P.match_actor(cands, "Pig_anim_RM", "SkeletalMeshActor_13", L_ANIMALS)
+        self.assertEqual((v["found"], v["matched_by"], v["level_match"]), (True, "name", "short"))
+
+    def test_NEG_only_outside_her_level(self):
+        cands = [self.c(0, "Pig_anim_RM", "SkeletalMeshActor_13", PERSIST_PIE)]
+        v = P.match_actor(cands, "Pig_anim_RM", "SkeletalMeshActor_13", L_ANIMALS)
+        self.assertFalse(v["found"])
+        self.assertIn("L_InfinityStage_V1VerticalSlice", v["why"])
+
+    def test_NEG_ambiguous_label(self):
+        cands = [self.c(0, "Pig_anim_RM", "A", HER_PIE), self.c(1, "Pig_anim_RM", "B", HER_PIE)]
+        self.assertFalse(P.match_actor(cands, "Pig_anim_RM", "SkeletalMeshActor_13", L_ANIMALS)["found"])
+        v = P.match_actor(cands, "Pig_anim_RM", "B", L_ANIMALS)
+        self.assertEqual((v["found"], v["matched_by"]), (True, "label+name"))
+
+    def test_normalize(self):
+        self.assertEqual(P.normalize_pkg(HER_PIE + ".L_Animals"), L_ANIMALS)
+        self.assertEqual(P.normalize_pkg("/Game/X/UEDPIE_12_Map.Map:PersistentLevel"), "/Game/X/Map")
+
+
+class ProbePIE(unittest.TestCase):
+    def setUp(self):
+        self.root = tempfile.mkdtemp(prefix="klara_preroll_s1_pie_")
+        self.here, self.her, self.pers = build_pie(self.root)
+
+    def tearDown(self):
+        R.pie_world = None
+        shutil.rmtree(self.root, ignore_errors=True)
+
+    def probe(self, **kw):
+        a = base_args("PROBE")
+        a["probe"] = dict(a["probe"], **kw)
+        self.assertIsNone(run_tool(a), R.logs[-3:])
+        self.assertTrue(markers("KLARAPREROLLS1_PROBE_ARMED"))
+        return P.load_json
+
+    def result(self):
+        return P.load_json(os.path.join(self.here, "klara_preroll_s1_probe_TEST-PROBE.json"))
+
+    def test_live_failure_transport_in_scene3_waits(self):
+        self.probe(not_in_scene_log_s=0)
+        drive([LIVE_S3_MASTER + 600 * k for k in range(12)])           # the live run's situation
+        self.assertIsNotNone(R.tick_cb)                                 # still armed, nothing sampled
+        self.assertEqual(markers("KLARAPREROLLS1_PROBE_SAMPLE"), [])
+        self.assertTrue(markers("KLARAPREROLLS1_PROBE_NOT_IN_SCENE"))
+        R.pie_world = None
+        drive([LIVE_S3_MASTER])
+        self.assertTrue(any("PROBE_PIE_ENDED" in m for m in markers("KLARAPREROLLS1_FAILED")))
+        v = self.result()["verdict"]
+        self.assertEqual(v["answers"], {"Deer": "UNCLEAR", "Pig": "UNCLEAR", "Raccoon": "UNCLEAR"})
+        self.assertEqual(v["windows"]["300.0|Pig"]["samples"], 0)
+
+    def test_scene1_label_match_in_streamed_pie_level(self):
+        self.probe()
+        drive([LIVE_S3_MASTER] * 3 + s1_ticks(290, 605))
+        ok = markers("KLARAPREROLLS1_PROBE_OK")
+        self.assertEqual(len(ok), 1, [m for _l, m in R.logs if "FAILED" in m or "ERROR" in m])
+        res = self.result()
+        for s in res["samples"]:
+            self.assertTrue(s["in_scene"])
+            self.assertTrue(s["window"] <= s["scene_frame"] < s["window"] + 2, s)
+            if s["window"] < 594:
+                self.assertLess(s["scene_frame"], 594)
+            self.assertTrue(s["found"])
+            self.assertEqual(s["match"]["matched_by"], "label")
+        self.assertEqual(len(res["samples"]), 3 * 3 * 3)
+        self.assertEqual(len(markers("KLARAPREROLLS1_PROBE_CANDIDATE")), 5)          # every candidate, once
+        self.assertEqual(res["verdict"]["answer"], "MOVING")
+        self.assertIn(HER_PIE, res["levels"])
+
+    def test_scrub_back_fills_earlier_window(self):
+        self.probe()
+        drive(s1_ticks(400, 405) + s1_ticks(299, 303) + s1_ticks(590, 602))
+        self.assertEqual(len(markers("KLARAPREROLLS1_PROBE_OK")), 1)
+
+    def test_NEG_actor_missing_and_candidates_logged(self):
+        R.pie_world.actors = [a for a in R.pie_world.actors if a.label != "medhue_raccoon"]
+        self.probe()
+        drive(s1_ticks(299, 603))
+        res = self.result()
+        self.assertEqual(res["verdict"]["answers"]["Raccoon"], "UNCLEAR")
+        self.assertTrue(any("Raccoon" in m for m in markers("KLARAPREROLLS1_PROBE_ACTOR_MISSING")))
+        self.assertEqual(len(res["candidates"]), 4)
+
+    def test_NEG_only_decoys(self):
+        R.pie_world.actors = [a for a in R.pie_world.actors if a.level is self.pers]
+        self.probe()
+        drive(s1_ticks(299, 603))
+        self.assertFalse(any(s["found"] for s in self.result()["samples"]))
+
+
+class S1Play(unittest.TestCase):
+    def setUp(self):
+        self.root = tempfile.mkdtemp(prefix="s1play_")
+        self.here, _h, _p = build_pie(self.root)
+        self._orig_here = S._here
+        S._here = lambda: self.here
+
+    def tearDown(self):
+        S._here = self._orig_here
+        R.pie_world = None
+        shutil.rmtree(self.root, ignore_errors=True)
+
+    def state(self):
+        return P.load_json(os.path.join(self.here, S.STATE_NAME))
+
+    def test_live_failure_reproduced_by_the_fake(self):
+        # the 07:23:37 call: performance mode on, current segment Scene 3 (external clock) -> UNSAFE_EXTERNAL_CLOCK
+        self.assertEqual(R.transport.scrub_to_master_frame(FrameNumber(S1_START)), "UNSAFE_EXTERNAL_CLOCK")
+        self.assertEqual(R.transport.frame, LIVE_S3_MASTER)
+
+    def test_ok_from_scene3(self):
+        self.assertTrue(S.main())
+        ok = markers("S1PLAY_OK")
+        self.assertEqual(len(ok), 1, R.logs)
+        self.assertIn("scrub=SUCCEEDED", ok[0])
+        self.assertEqual(R.transport.frame, S1_START)
+        self.assertTrue(R.transport.playing)
+        self.assertTrue(R.transport.pm)                                  # restored
+        st = self.state()
+        self.assertEqual((st["performance_mode_before"], st["restored"], st["master_before"]),
+                         (True, True, LIVE_S3_MASTER))
+
+    def neg(self, sab, want):
+        R.sabotage.add(sab)
+        self.assertFalse(S.main())
+        f = markers("S1PLAY_FAILED")
+        self.assertTrue(f and want in f[0], f)
+        self.assertEqual(markers("S1PLAY_OK"), [])
+        return f
+
+    def test_NEG_scrub_refused(self):
+        self.neg("scrub_not_ready", "SCRUB_NOT_READY")
+        self.assertTrue(R.transport.pm)
+        self.assertEqual(R.transport.frame, LIVE_S3_MASTER)
+
+    def test_NEG_frame_readback(self):
+        self.neg("scrub_noop", "FRAME_READBACK")
+        self.assertTrue(R.transport.pm)
+
+    def test_NEG_not_playing(self):
+        self.neg("play_noop", "NOT_PLAYING")
+
+    def test_NEG_restore_fails(self):
+        self.neg("pm_stuck_false", "PERFORMANCE_MODE_RESTORE")
+        self.assertFalse(self.state()["restored"])
+
+    def test_unrestored_state_is_reused_not_overwritten(self):
+        P.write_json(os.path.join(self.here, S.STATE_NAME), {"run": "old", "performance_mode_before": True,
+                                                              "restored": False})
+        R.transport.pm = False                                           # an earlier run left it off
+        self.assertTrue(S.main())
+        self.assertTrue(R.transport.pm)
+        self.assertTrue(markers("S1PLAY_REUSED_STATE"))
+
+    def test_NEG_no_pie(self):
+        R.pie_world = None
+        self.assertFalse(S.main())
+        self.assertTrue(any("NO_PIE" in m for m in markers("S1PLAY_FAILED")))
+
+
 class Hygiene(unittest.TestCase):
     def test_no_unreal_calls_at_module_level(self):
         tree = ast.parse(open(os.path.join(HERE, "klara_preroll_s1.py"), encoding="utf-8").read())
@@ -1127,6 +1690,18 @@ class Hygiene(unittest.TestCase):
         self.assertEqual(r["arguments"]["tool_name"], "ExecuteProjectPythonFile")
         self.assertEqual(r["arguments"]["arguments"]["relativeSavedPath"],
                          "CodexConductor/KlaraPrerollS1_20261008/klara_preroll_s1.py")
+
+    def test_helper_no_unreal_at_module_level_and_request(self):
+        tree = ast.parse(open(os.path.join(HERE, "s1_play_from_start.py"), encoding="utf-8").read())
+        for node in tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Import, ast.ImportFrom, ast.Try, ast.If)):
+                continue
+            if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant):
+                continue
+            self.assertNotIn("unreal.", ast.unparse(node))
+        r = P.load_json(os.path.join(HERE, "s1_play_from_start_request.json"))
+        self.assertEqual(r["arguments"]["arguments"]["relativeSavedPath"],
+                         "CodexConductor/KlaraPrerollS1_20261008/s1_play_from_start.py")
 
     def test_args_file_is_dry(self):
         a = P.load_json(os.path.join(HERE, "klara_preroll_s1_args.json"))
