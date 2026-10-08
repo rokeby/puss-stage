@@ -104,7 +104,7 @@ _Walk-through complete (chunks 1–3)._
 - Crowd: **all 20 live** (cloth), "as long as it runs OK in testing, eventually video". Measure frame time + GPU
   timeouts in Play.
 
-### PAUSED for the GPU's sake (Gary 8 Oct evening: "let's pause this til later queue")
+### (Pause lifted: Gary "no wait ... continue", then chose "S3 crowd + cloth work, as planned". The list below is the order of work)
 Resume in this order when Gary says:
 1. Close-up Play check of the shoreguys' v3 cloth (applied; not yet seen up close).
 2. Underwear recolour: debug P1OUTFIT RESOLVED_READBACK on Shore01_M56 (not applied).
