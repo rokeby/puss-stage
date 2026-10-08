@@ -50,7 +50,7 @@ WHAT IT DOES (per figure <id>, all names versioned: _v<version>):
          "head", scale 1, simulation enabled; interactor config values (density, bending, collision thickness,
          iterations, substeps) reported against the asset's.
 
-Args Saved/CodexConductor/s3_sack_livecloth_args.json:
+Args Saved/CodexConductor/s3_sack_livecloth_args.json (or the file named by S3LIVESACK_ARGS):
   {"mode": "DRY"|"BUILD"|"APPLY"|"REVERT"|"VERIFY"|"SIM_START"|"SIM_READ"|"SIM_STOP"|"PIE_PROBE",
    "confirm": "<MODE> S3LIVESACK"          (write modes only: BUILD, APPLY, REVERT),
    "figures": [...]                         (default all six; BUILD/APPLY may pilot a subset),
@@ -98,6 +98,14 @@ LIVE ORDER for v2 (each step: args file, run, read the marker; stop on any _FAIL
   4. APPLY   {"mode":"APPLY","confirm":"APPLY S3LIVESACK","version":2}  -> templates + instance assets, one save.
   5. VERIFY  {"mode":"VERIFY"} ; Gary's PIE ; PIE_PROBE while it runs (reports back_pin_track_cm per leaning figure).
 
+VERSION 3 SUPPORT (written 8 Oct OFFLINE for P1; no editor/Blender run):
+  - `params.size_m` controls the generated square without changing v1/v2 records (default remains 2.0 m).
+  - `back_pin_figures` may include Shore02 at v3+, making every named figure use the crown+upper-back two-pin path.
+  - `params.head_pin_back_cm` shifts that first disc from the crown toward the rear skull along negative face-forward;
+    P1 proposes 6 cm, so its pair is rear-head + upper-back rather than crown-only + upper-back.
+  - `S3LIVESACK_ARGS` lets a versioned conductor wrapper select its own args file without overwriting the historical
+    live-sack args. P1's proposed values live in P1MetaFabric_20261008/p1_metahuman_fabric_args.json.
+
 Markers: S3LIVESACK_START / S3LIVESACK_<MODE>_OK|run=.. / S3LIVESACK_FAILED|run=..|reason
 Crash rules: no UE object at module level; editor work only inside functions; no node deletion; no level reload;
 never end PIE. Offline: importing without `unreal` defines only the pure helpers (harness
@@ -118,7 +126,7 @@ except ModuleNotFoundError:  # offline harness
 
 PROJECT = "E:/PussStage/"
 HERE = PROJECT + "Saved/CodexConductor/"
-ARGS = HERE + "s3_sack_livecloth_args.json"
+ARGS = os.environ.get("S3LIVESACK_ARGS", HERE + "s3_sack_livecloth_args.json")
 RECORDS = {"BUILD": HERE + "s3_sack_livecloth_build_record.json",
            "APPLY": HERE + "s3_sack_livecloth_apply_record.json"}
 OUT = {"DRY": HERE + "s3_sack_livecloth_dry.json", "VERIFY": HERE + "s3_sack_livecloth_verify.json",
@@ -180,11 +188,13 @@ SRC_MI_LOOK = {"Desaturate": 0.75, "Tint": [0.62, 0.60, 0.56], "GrimeColor": [0.
 # Starting point, not a tune (judge from Gary's PIE stills). Chaos PBD units; relationships carried from the
 # approved curtain (ChaosClothCurtain.md "Physics" + build_curtain_chaos_asset.py:52-71), made heavier and stiffer.
 PARAMS = {
+    "size_m": 2.0,               # authored square edge; v1/v2 records remain 2.0 m, P1 v3 proposes 1.8 m
     "quad_cm": 5.0,             # sim edge. 2.0 m -> 41 x 41 = 1681 particles (the old drape: 441)
     "fray_depth_cm": 3.5,       # torn outline inset (build_sackcloth.py --fray-depth 0.035)
     "seed": 20261006,
     "lift_cm": 2.0,             # pin point above the component origin (upright) / above the back point (Shore02)
     "back_lift_cm": 2.0,        # Shore02: above the recorded mid-back crown (Blender --lift 0.02)
+    "head_pin_back_cm": 0.0,    # v3 option: move the crown disc toward the rear skull along -face-forward
     "pin_inner_cm": 7.0,        # MaxDistance 0 inside (kinematic disc); old: 3 cm x 1.64 = 4.9 cm
     "pin_outer_cm": 20.0,       # smooth falloff to free;               old: 14 cm x 1.64 = 23 cm
     "max_distance_cm": 250.0,   # free particles' allowance (gate: >= sqrt(2) x farthest geodesic reach)
@@ -213,8 +223,9 @@ PARAMS = {
     "back_arc_radius_cm": 15.0,     # R1: chord ratio at quad 5 cm = 2R sin(q/2R)/q = 0.9954 (>= 0.99)
     "back_arc2_radius_cm": 15.0,    # R2: segment -> spine direction at B
 }
-PARAM_RANGES = {"quad_cm": (2.0, 10.0), "fray_depth_cm": (0.0, 8.0), "lift_cm": (0.0, 10.0),
-                "back_lift_cm": (0.0, 10.0), "pin_inner_cm": (2.0, 20.0), "pin_outer_cm": (5.0, 60.0),
+PARAM_RANGES = {"size_m": (1.2, 2.4), "quad_cm": (2.0, 10.0), "fray_depth_cm": (0.0, 8.0), "lift_cm": (0.0, 10.0),
+                "back_lift_cm": (0.0, 10.0), "head_pin_back_cm": (0.0, 15.0),
+                "pin_inner_cm": (2.0, 20.0), "pin_outer_cm": (5.0, 60.0),
                 "max_distance_cm": (50.0, 1000.0), "density_kg_m2": (0.05, 3.0), "stretch_stiffness": (0.1, 1.0),
                 "bending_stiffness": (0.0, 1.0), "buckling_ratio": (0.0, 1.0), "buckling_stiffness": (0.0, 1.0),
                 "damping": (0.0, 1.0), "drag": (0.0, 1.0), "lift": (0.0, 1.0),
@@ -264,9 +275,10 @@ BACK_PIN_FIGURES = tuple(leaning_figures())
 
 
 def pin_layout(fig, version, back_figs=BACK_PIN_FIGURES):
-    """v1: DECISION ("crown" / "back"). v2+: "crown+back" for the leaning figures, else the v1 layout."""
+    """v1: DECISION; v2: crown+back for selected crown figures; v3+: selected figures including Shore02."""
     if int(version) >= 2 and fig in back_figs:
-        _require(DECISION[fig]["pin"] == "crown", "LAYOUT|%s: crown+back needs a crown-pinned figure" % fig)
+        _require(int(version) >= 3 or DECISION[fig]["pin"] == "crown",
+                 "LAYOUT|%s: v2 crown+back needs a crown-pinned figure" % fig)
         return "crown+back"
     return DECISION[fig]["pin"]
 
@@ -388,8 +400,9 @@ def check_mode(args, records_exist):
         _require(os.path.exists(OUT["SIM"]), "NO_SIM_START|run SIM_START first")
     back = args.get("back_pin_figures")
     back = list(BACK_PIN_FIGURES) if back is None else back
-    _require(isinstance(back, list) and all(f in FIGURES and DECISION[f]["pin"] == "crown" for f in back),
-             "BACK_PIN_FIGURES|%r (crown-pinned figure ids only)" % back)
+    allowed_back = set(FIGURES if version >= 3 else [f for f in FIGURES if DECISION[f]["pin"] == "crown"])
+    _require(isinstance(back, list) and len(set(back)) == len(back) and set(back) <= allowed_back,
+             "BACK_PIN_FIGURES|%r (v2: crown figures only; v3+: any figure)" % back)
     accept = args.get("accept_editor_pose") or []
     _require(isinstance(accept, list) and all(f in FIGURES for f in accept), "ACCEPT_EDITOR_POSE|%r" % accept)
     look = mi_look(version, args.get("mi_look"))
@@ -913,9 +926,15 @@ def back_geometry_problems(bg):
 def plan_geometry(fig, frame, params, layout, seed_offset=None):
     """Pure: the sheet, its placement, metrics and every geometry problem for one figure (DRY and BUILD share it)."""
     seed = params["seed"] + (FIGURES.index(fig) if seed_offset is None else seed_offset)
-    sheet = build_sheet(DECISION[fig]["size_m"], params["quad_cm"], params["fray_depth_cm"], seed)
+    sheet = build_sheet(params.get("size_m", DECISION[fig]["size_m"]), params["quad_cm"],
+                        params["fray_depth_cm"], seed)
     probs = []
     if layout == "crown+back":
+        head_back = float(params.get("head_pin_back_cm", 0.0))
+        if head_back > 0.0:
+            frame["crown_pin_unshifted_local_cm"] = list(frame["pin_local_cm"])
+            frame["pin_local_cm"] = _sub(frame["pin_local_cm"], _mul(frame["fwd_local"], head_back))
+            frame["head_pin_back_cm"] = head_back
         b = frame["back"]
         bg = back_geometry(frame, b["back_local_cm"], b["down_back_local"], params)
         placed = place_sheet_back(sheet, bg, DECISION[fig]["pin_forward_m"])
