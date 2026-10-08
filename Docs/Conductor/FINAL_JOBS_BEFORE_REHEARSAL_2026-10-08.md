@@ -146,3 +146,11 @@ Resume in this order when Gary says:
     some P01 lights inside, 3 move in) plays across the tuning → opening track, between "lights up / curtain falls
     away" and "stage gloriously lit and still, then moving";
   - P13's design STAYS; the prelude is added before it.
+
+### 4.9 S3 fire light (Gary 8 Oct evening): "can the ghostlight be a flame like a torch instead of ... a small garden electric light? And maybe more of those"
+- Now: a QUICK flame on the existing ghost-light stand (particle fire + warm flicker). Then put a **torch-pole model on
+  the render queue** (Rodin: iron cresset / wrapped torch on a tall pole) to replace it later.
+- **One fire with each crowd cluster, "as if huddling"** (A, B, C), lit after the ghost light.
+- "also sanctions more fire like lighting to light the glinting fingermarks": warm flickering fire light is the
+  motivated source for the handprint glints (cf. the wall bench: point sources reflect as soft blobs, strips as
+  streaks).
