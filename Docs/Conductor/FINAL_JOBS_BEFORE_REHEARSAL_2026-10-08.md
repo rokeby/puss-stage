@@ -154,3 +154,31 @@ Resume in this order when Gary says:
 - "also sanctions more fire like lighting to light the glinting fingermarks": warm flickering fire light is the
   motivated source for the handprint glints (cf. the wall bench: point sources reflect as soft blobs, strips as
   streaks).
+
+## Gary's run-through notes, 8 Oct evening (F1–F23)
+
+Full wording + leads: Docs/Conductor/GARY_FINISHING_NOTES_2026-10-08.md. Priorities proposed by the finishing-touches session; Gary's to change. (F6, F7 = keep as is: S1 → I1 exit darkness works; I1 without light/curtain is fine for now.)
+
+| # | Segment | Job | Pri | State / notes |
+|---|---|---|---|---|
+| F1 | P01 | Practicals visible from the wings float: hide them, move them with the wings, or put the lamp bodies on the floor / bottom corner. | P2 | Finishing touches: offline list + plan running. |
+| F2 | P01 | Remove the domestic-looking lamp objects. | P2 | Conductor 5 (fixtures plan). |
+| F3 | P01 | Check gobos and more uplights. | P2 | Conductor 5 / look. |
+| F4 | P01 → S1 | Before Klara's strike her stage must be in TOTAL darkness (only the dim rig lights). | P1 | Conductor 5: likely the inert bHiddenInGame tracks; vis_fix.py ready. |
+| F5 | S1 @ 3:44 | Rig lights snap off as her street lamps come on: should fade, not snap. | P2 | Conductor 5. |
+| F8 | P02 | Overwhelmingly bright: doubled lighting? | P1 | Finishing touches: offline record diff running. |
+| F9 | P02 | Floor is a different, matte wood: needs the dark glossy floor (skipped for P02 on 5 Oct). | P1 | Conductor 5. |
+| F10 | P02 → S2 @ 9:34 | Lighting seam as the rig rises and the lights go off: match both sides. | P2 | Conductor 5. |
+| F11 | S2 arrival | Don't strike the fog actor before the cut; it should just be there in her scene. | P1 | Conductor 5 (S2 arrival re-run). |
+| F12 | S2 | All of her wings could use attention. | P2 | Wings & Textures. |
+| F13 | S2 | Her shots are quite dark: lighting pass. | P2 | Conductor 5. |
+| F14 | S2 | Fresher turnip assets. | P3 | Later. |
+| F15 | S2 exit | The fog actor stays lit into the exit darkness as a white blob: switch it off. | P1 | Conductor 5 (Humo_Par4 hidden to exit). |
+| F16 | Interaction 2 | Order: darkness → curtain ALREADY there → square light onto it → camera holds at 12:18 (8.7 s into cue 7) with the curtain filling the frame → shadow on the curtain (no wall) → curtain drops. Shadow softness stays. | P1 | Finishing touches: I2 tool being written offline. |
+| F17 | Interaction 2 | Lighting jumps at the sleight cuts (~49–50 s and the end): make them invisible. | P1 | Finishing touches: lighting diff in the I2 tool. |
+| F18 | I2 → P03 | Remove the slow ~30 s lowering onto P03 after the curtain falls (~1:07). | P1 | Finishing touches via extend_scene_playback.py (cue mode). |
+| F19 | P03 | More uplighting and lighting adjustments. | P2 | Conductor 5, later. |
+| F20 | S3 rig rise | The rig has no lid: external light and smoke actors show. The lid must always be shut so the box swallows us in darkness. | P1 | Conductor 5. |
+| F21 | S3 start | Remove the smoke actor on the stick (flame only); a bit more flicker. | P1 | Conductor 5 (s3_fires). |
+| F22 | S3 | Gary will move those lights himself: re-read before any S3 light write. | — | Standing caution. |
+| F23 | S3 clam | Small surface/edge artefact on the lid's hinge side (barely noticeable). | P3 | Finishing touches: recheck after the ligament is in. |
