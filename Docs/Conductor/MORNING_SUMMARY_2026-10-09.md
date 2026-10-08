@@ -4,9 +4,14 @@
 The GPU was lost at ~09:12 UTC on 8 Oct. `nvidia-smi` says "GPU is lost. Reboot the system". Unreal can't start until
 the PC is rebooted.
 
-**Check before rebooting:**
-- whether the Blender curtain bake (pid 36792, `unfurl_sleight_b1hop10_p02`) has finished;
-- whether Codex P17 (bone dune) has finished.
+**Before rebooting, check whether Codex P17 (bone dune) has finished.** The curtain bake has already stopped, see
+below.
+
+**Curtain bake p02** [measured]:
+- The simulation completed: all 390 frames are in `DropBake/unfurl_sleight_b1hop10_p02_stream.f32`.
+- Blender then crashed at the final Alembic export (no OpenGL: the lost GPU), so the `.abc` and report `.json` are
+  missing.
+- No re-bake is needed. Codex P19 is writing a stream → ABC converter; run it headless after the reboot.
 
 After the reboot:
 1. Run `editor_sky_toggle.py` (or the P18 auto-hide, once installed).
