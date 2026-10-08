@@ -81,3 +81,12 @@ _Walk-through complete (chunks 1–3)._
 - **When the walking music starts** (P01): the rest of the P01 lights add up to today's state.
 - For P13: set the flurry args to 1 / 2 / 3. A partial P01 light preset at flurry 2 builds up to full when P01's music
   starts.
+
+### 4.7 S3 chorus "sway together" (Gary 8 Oct, own words)
+- Calm sections arranged so the shore people **sway together in the chorus** ("we don't need the whole chorus time and
+  we can replicate some sections too, I might bring more shore people in, to create a semblance of swaying crowd").
+- Sync: **same tempo, to the music**.
+- [meas] Chorus phrase swell is ~7.2 s, so the target is 1 sway per 3.6 s; each figure plays at 0.79-1.28x.
+- Default window: shot B04, 2:25-2:55.
+- Codex P20 is building the tool (not run: the editor needs a reboot).
+- The frenzy timing problem stays open (most takes end ~2:20-2:25; frenzy is in the cello, not the crying).
