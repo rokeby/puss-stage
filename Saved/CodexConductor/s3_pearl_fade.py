@@ -1,9 +1,10 @@
 """Pearl disappears at the take (Gary 8 Oct: "it should disappear with a fade over 4s, leaving 1s of a glow halo").
-Needs Pearl_v4 (finishing touches: scalar "Fade", 1 = solid, 0 = gone; slot 0 of S3 PearlClam Pearl's StaticMeshComponent).
-Writes in LS_DevScene_03:
-  * a component-material track on the pearl's StaticMeshComponent, slot 0, scalar "Fade": 1 until 4800, linear to 0 at
-    4896 (3:20 -> 3:24), held;
-  * a False key at 4896 on the pearl's existing Visibility track (the float-hold binding; keys before stay untouched).
+REVISED 8 Oct (Gary: "like a slow alpha channel disappearance"): a TRANSLUCENT twin "S3 PearlClam Pearl Fade"
+(finishing touches, patch 2026-10-08_pearl_fade_twin: MI_PearlClam_Pearl_Fade, scalar "Fade" -> Opacity, slot 0,
+hidden in game by default, attached to S3 PearlClam).  Writes in LS_DevScene_03:
+  * a False key at 4800 on the SOLID pearl's existing Visibility track (float-hold binding; earlier keys untouched);
+  * twin: Visibility track False from 0, True at 4800, False at 4896;
+  * twin: component-material track slot 0, scalar "Fade": 1 until 4800, linear to 0 at 4896 (3:20 -> 3:24).
 The halo light was keyed separately (S3KM-20261008-023655halo).
 DRY additionally probes the Python API names this needs and prints which exist (MovieSceneComponentMaterialTrack,
 set_material_index / material_index property, add_scalar_parameter_key or channel access) [inferred until DRY].
@@ -17,6 +18,7 @@ HERE = "E:/PussStage/Saved/CodexConductor/"
 SCENE = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03"
 UASSET = "E:/PussStage/Content/InfinityStage/Dev/Sequences/LS_DevScene_03.uasset"
 PEARL = "S3 PearlClam Pearl"
+TWIN = "S3 PearlClam Pearl Fade"
 PARAM = "Fade"
 F0, F1 = 4800, 4896
 TRACK_NAME = "S3.Pearl.Fade"
@@ -37,10 +39,17 @@ def main():
         raise RuntimeError("DIRTY_AT_START|%s" % (dirty(),))
     DR = unreal.MovieSceneTimeUnit.DISPLAY_RATE
     w = ed.get_editor_world()
-    pearl = [x for x in unreal.GameplayStatics.get_all_actors_of_class(w, unreal.Actor) if str(x.get_actor_label()) == PEARL]
+    allact = list(unreal.GameplayStatics.get_all_actors_of_class(w, unreal.Actor))
+    pearl = [x for x in allact if str(x.get_actor_label()) == PEARL]
+    twin = [x for x in allact if str(x.get_actor_label()) == TWIN]
     if len(pearl) != 1:
         raise RuntimeError("PEARL_COUNT|%d" % len(pearl))
-    smc = pearl[0].get_component_by_class(unreal.StaticMeshComponent)
+    if mode != "DRY" and len(twin) != 1:
+        raise RuntimeError("TWIN_COUNT|%d" % len(twin))
+    if not twin:
+        unreal.log("S3PFADE_DRY_OK|run=%s|twin=MISSING (waiting for CLAM_PEARL_TWIN)" % run)
+        return
+    smc = twin[0].get_component_by_class(unreal.StaticMeshComponent)
     mat = smc.get_material(0)
     has_fade = False
     try:
@@ -55,7 +64,7 @@ def main():
     vis = []
     for b in scene.get_bindings():
         nm = str(b.get_display_name())
-        if nm.endswith(PEARL):
+        if nm.endswith(": " + PEARL) or nm == PEARL:
             for t in b.get_tracks():
                 if t.get_class().get_name() == "MovieSceneVisibilityTrack":
                     for s in t.get_sections():
@@ -88,10 +97,20 @@ def main():
     if got != [[(0, 1.0), (F0, 1.0), (F1, 0.0)]]:
         raise RuntimeError("FADE_READBACK|%s|NOTHING SAVED; Don't-Save restart" % got)
     _n, vch, _k = vis[0]
-    vch.add_key(unreal.FrameNumber(F1), False, time_unit=DR)
+    vch.add_key(unreal.FrameNumber(F0), False, time_unit=DR)                      # solid pearl off at the take
     vk = sorted((int(k.get_time().frame_number.value), bool(k.get_value())) for k in vch.get_keys())
-    if (F1, False) not in vk:
+    if (F0, False) not in vk:
         raise RuntimeError("VIS_READBACK|%s|NOTHING SAVED; Don't-Save restart" % vk)
+    tb = scene.add_possessable(twin[0])
+    tv = tb.add_track(unreal.MovieSceneVisibilityTrack)
+    tvs = tv.add_section()
+    tvs.set_range(0, int(scene.get_playback_end()) + 1)
+    tch = list(tvs.get_all_channels())[0]
+    for fr, v in ((0, False), (F0, True), (F1, False)):
+        tch.add_key(unreal.FrameNumber(fr), v, time_unit=DR)
+    tk = sorted((int(k.get_time().frame_number.value), bool(k.get_value())) for k in tch.get_keys())
+    if tk != [(0, False), (F0, True), (F1, False)]:
+        raise RuntimeError("TWIN_VIS_READBACK|%s|NOTHING SAVED; Don't-Save restart" % tk)
     if dirty() != ([SCENE], []):
         raise RuntimeError("CENSUS|%s|NOTHING SAVED; Don't-Save restart" % (dirty(),))
     if not unreal.EditorAssetLibrary.save_asset(SCENE, only_if_is_dirty=False) or dirty() != ([], []):
