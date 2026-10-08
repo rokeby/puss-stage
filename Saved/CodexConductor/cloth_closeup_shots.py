@@ -16,7 +16,18 @@ def main():
         u.log_error("CLOTHSHOT_FAILED|run=%s|no PIE" % run); return
     acts = {a.get_actor_label(): a for a in u.GameplayStatics.get_all_actors_of_class(world, u.Actor)}
     pcon = u.GameplayStatics.get_player_controller(world, 0)
-    cam = pcon.get_view_target()
+    orig_vt = pcon.get_view_target()
+    cam = acts.get("Shore Cast Review Camera")   # not bound by the S3 shots, so the paused sequence doesn't drive it
+    if cam is None:
+        u.log_error("CLOTHSHOT_FAILED|run=%s|no Shore Cast Review Camera" % run); return
+    root = list(u.GameplayStatics.get_all_actors_of_class(world, u.InfinityStageShowRoot))[0]
+    player = root.sequence_player
+    cuts_api = hasattr(player, "set_disable_camera_cuts")
+    orig_cuts = player.get_disable_camera_cuts() if hasattr(player, "get_disable_camera_cuts") else False
+    if cuts_api:
+        player.set_disable_camera_cuts(True)
+    u.log("CLOTHSHOT_CUTS|api=%s|orig=%s" % (cuts_api, orig_cuts))
+    pcon.set_view_target_with_blend(cam, 0.0)
     ccc = cam.get_cine_camera_component() if hasattr(cam, "get_cine_camera_component") else None
     if ccc is None:
         u.log_error("CLOTHSHOT_FAILED|run=%s|no cine view target" % run); return
@@ -54,6 +65,9 @@ def main():
         try:
             cam.set_actor_location_and_rotation(orig["loc"], orig["rot"], False, True)
             ccc.set_editor_property("focus_settings", orig["focus"]); ccc.set_editor_property("current_aperture", orig["ap"])
+            if cuts_api:
+                player.set_disable_camera_cuts(orig_cuts)
+            pcon.set_view_target_with_blend(orig_vt, 0.0)
         finally:
             u.unregister_slate_post_tick_callback(st["h"])
         if ok: u.log("CLOTHSHOT_OK|run=%s|n=%d|dir=%s" % (run, len(st["rows"]), out))

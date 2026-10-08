@@ -262,3 +262,10 @@ All [measured] by success markers unless marked.
   to judge the cloth. A close-up check is needed.
 - GPU: 2 GPU timeouts at editor STARTUP 19:56:10 (recovered), the same pattern as 04:59.
   [inferred] Correlated with the HWRT persistent-SBT build at startup; 0 timeouts in PIE/stills since.
+- Cloth close-ups [meas]: CLOTHSHOT-20261008-160615 (PIE, S3 frame 1800, "Shore Cast Review Camera" as view target,
+  LevelSequencePlayer.set_disable_camera_cuts(True) during the shots, then restored). Moving the cut camera, or only
+  switching the view target, did NOT work: the paused sequence re-asserts its cut; the pearl stills hit the same issue.
+  Reading [inferred from stills, dark scene light]:
+  - M56/F25: the shroud hangs from the head in long dark folds;
+  - F52 (bent, crown pin only): the sheet hangs in FRONT of her and her back/shirt is exposed;
+  - framing is rough because the aim uses actor bounds.
