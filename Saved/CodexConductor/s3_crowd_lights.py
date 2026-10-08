@@ -30,8 +30,8 @@ CLUSTERS = {"A": (14600.0, 160220.0), "B": (14520.0, 160700.0), "C": (13420.0, 1
 CUE = [(0, 0.0), (360, 0.0), (408, 1.0), (2160, 1.0), (2400, 1.3), (4488, 1.3), (4560, 0.5), (END, 0.5)]
 SPECS = []
 for n, (cx, cy) in sorted(CLUSTERS.items()):
-    SPECS.append({"label": "S3 Crowd Key %s" % n, "cls": "SpotLight", "loc": (cx - 250.0, cy - 650.0, 620.0),
-                  "aim": (cx, cy, 110.0), "cd": 600.0, "kelvin": 5600.0, "inner": 14.0, "outer": 34.0, "radius": 30.0,
+    SPECS.append({"label": "S3 Crowd Key %s" % n, "cls": "SpotLight", "loc": (cx - 120.0, cy - 300.0, 720.0),   # steepened 36 -> 62 deg (dune hot spot at 2:28, Gary yes 8 Oct)
+                  "aim": (cx, cy, 110.0), "cd": 600.0, "kelvin": 5600.0, "inner": 12.0, "outer": 28.0, "radius": 30.0,
                   "atten": 2200.0, "shadows": True, "keys": CUE})
     SPECS.append({"label": "S3 Crowd Rim %s" % n, "cls": "SpotLight", "loc": (cx + 150.0, 160900.0, 300.0),
                   "aim": (cx, cy, 120.0), "cd": 900.0, "kelvin": 6500.0, "inner": 10.0, "outer": 26.0, "radius": 8.0,

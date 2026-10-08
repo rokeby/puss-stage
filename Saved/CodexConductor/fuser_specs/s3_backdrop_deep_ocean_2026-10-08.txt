@@ -1,0 +1,25 @@
+FUSER PROMPT: S3 backdrop, the wave flats carried on into a foggy deep ocean. Conductor 5, 8 Oct 2026.
+Gary: "need a fuser prompt to remake the backdrop. Carrying that ocean wave look on- illusionistically into a foggy deep ocean"
+Target: "S3 Backdrop", the far-wall plane, 20 m wide x 30 m tall (2:3 portrait). The audience sees mostly the LOWER
+two-thirds. The horizon should sit about 35% up from the bottom edge.
+
+Painted theatre backdrop, a trompe-l'oeil continuation of a stage seascape. In the foreground band along the bottom
+edge are rows of flat cut-out stage waves: cream and bone-white baroque wave crests with curling scrolled tips,
+Hokusai-like, flat painted plywood with soft grey shading lines. Each row recedes behind the last, getting smaller,
+closer together and paler with distance. The waves dissolve gradually into a vast, calm, deep, foggy ocean that runs
+to a low, indistinct horizon. A thick sea fog bank swallows the far water. Above the horizon is a heavy, overcast,
+pearl-grey sky that fades darker towards the top: night falling, with no stars and no moon.
+
+Palette: muted slate blue-grey, pewter, ink-dark teal in the deep water, and ivory and bone for the wave crests.
+A faint cold silver sheen sits on the water just below the horizon. Nothing is saturated and nothing is bright.
+Style: hand-painted scenic artist's backdrop in matte distemper, soft brushwork, classical atmospheric perspective,
+melancholic and quiet. It should look like a painted theatre cloth, not a photograph.
+Even frontal lighting, no cast shadows, no vignette. No people, no boats, no birds, no land, no text, no frame.
+Avoid: photoreal surf, foam spray, sunsets, vivid blue, a hard horizon line, lens blur.
+
+Notes for the conductor (not for Fuser):
+- The bottom wave band should match the live wave flats' cream curl. Feed Fuser a still of the wave rows as the style
+  image if it takes one (e.g. Saved/CodexConductor/PassageStills/PSTILLS-S3-20261008-221152-fires2/02_f231.png).
+- The exit-door leaf crops its art from the backdrop image (rect [0.425,0.849]-[0.575,0.998],
+  Tools/FlatV3/build_s3_exit_door_crop.py). A new image means re-running the leaf crop, or the door shows old art.
+- The backdrop is lit very low in the show, so keep the values in the mid range; a dark image will read as black.

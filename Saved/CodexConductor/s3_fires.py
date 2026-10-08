@@ -26,7 +26,10 @@ GHOST_TRACK = "S3.Opening.Ghost"
 VIS_TRACK = "S3.Fire.Visible"
 END = 6240
 CLUSTERS = {"A": (14600.0, 160220.0, 230), "B": (14520.0, 160700.0, 260), "C": (13420.0, 160550.0, 290)}
-FIRE_CD, RAMP = 350.0, 24
+FIRE_CD, RAMP = 150.0, 24   # 350 -> 150 (Gary 8 Oct 19:00: "yes, remake them")
+# Fire A sat 3 m in front of the low B03 camera (Cine Camera Actor 1 at (14219,160277,13) yaw -14.4, CAMPROBE
+# 8 Oct [measured]) -> moved to the FAR side of cluster A; B/C keep the camera-side offset.
+OFFSET = {"A": (110.0, -20.0), "B": (-90.0, -60.0), "C": (-90.0, -60.0)}
 
 
 def flicker(base, start, end, phase):
@@ -109,7 +112,7 @@ def main():
         # 8 Oct: the ghost track ALREADY flickers (S3 flame pass, keys every 2 frames from 195) -> keys untouched.
         # 2. cluster fires
         for i, (n, (cx, cy, ig)) in enumerate(sorted(CLUSTERS.items())):
-            fx, fy = cx - 90.0, cy - 60.0
+            fx, fy = cx + OFFSET[n][0], cy + OFFSET[n][1]
             spawn_fire("S3 Fire %s" % n, (fx, fy, 2.0), 0.32, None, ig)
             lt = eas.spawn_actor_from_class(unreal.PointLight, unreal.Vector(fx, fy, 55.0), unreal.Rotator(0, 0, 0), False)
             lt.set_actor_label("S3 Fire %s Light" % n); lt.set_editor_property("tags", [unreal.Name(TAG)]); lt.set_folder_path(FOLDER)
