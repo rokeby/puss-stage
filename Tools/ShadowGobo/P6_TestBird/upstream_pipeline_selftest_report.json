@@ -1,0 +1,16 @@
+{
+  "marker": "GOBO_SELFTEST_OK",
+  "passed": 8,
+  "failed": 0,
+  "command": "python Tools/ShadowGobo/make_gobo_flipbook.py --self-test --out %TEMP%/p6_gobo_pipeline_selftest",
+  "checks": {
+    "frames": "32 vs 32",
+    "atlas_px": [2048, 2048],
+    "hard_matte_fraction": 0.9936,
+    "flatfield_corner_mean": 251.4,
+    "puppet_moves_right": true,
+    "blocked_area_range": [0.0401, 0.0704],
+    "gutter_px": 4,
+    "negative_no_flatfield_corner_mean": 0.0
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "generator": "Tools/ShadowGobo/make_p6_test_bird_flipbook.py",
+  "description": "24-frame hand-shadow bird with visible rod; white passes, black blocks",
+  "take": {
+    "fps": 8.0,
+    "frames_packed": 24,
+    "duration_s": 3.0
+  },
+  "atlas": {
+    "file": "T_Gobo_P6_TestBird_6x4.png",
+    "px": [
+      2048,
+      2048
+    ],
+    "cols": 6,
+    "rows": 4,
+    "cell_px": 341,
+    "gutter_px": 8,
+    "order": "row-major from top-left"
+  },
+  "light_function_params": {
+    "Cols": 6.0,
+    "Rows": 4.0,
+    "Frames": 24.0,
+    "GutterUV": 0.02346041055718475,
+    "CellUV": 0.16650390625,
+    "BlurUV": 0.00075,
+    "Softness": 0.08,
+    "Contrast": 1.35,
+    "Depth": 1.0,
+    "Scale": 1.0,
+    "FlipU": 0.0,
+    "FlipV": 0.0
+  },
+  "texture_settings": {
+    "compression": "TC_Grayscale",
+    "sRGB": false,
+    "mip_gen": "NoMipmaps",
+    "never_stream": true,
+    "filter": "Bilinear",
+    "address": "Clamp"
+  },
+  "sha256": "d1da3d4a0961b9e552fd566f5caab7f30096c93df6e26db2bb126b60e4f96c54"
+}

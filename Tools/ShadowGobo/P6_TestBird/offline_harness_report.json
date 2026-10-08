@@ -1,0 +1,372 @@
+{
+  "marker": "ANIMATED_GOBO_HARNESS",
+  "passed": 57,
+  "failed": 0,
+  "results": [
+    {
+      "name": "A01 atlas is 2048 square",
+      "pass": true,
+      "detail": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "name": "A02 manifest has 24 frames",
+      "pass": true,
+      "detail": {
+        "px": [
+          2048,
+          2048
+        ],
+        "cols": 6,
+        "rows": 4,
+        "frames": 24,
+        "cell_px": 341,
+        "gutter_px": 8
+      }
+    },
+    {
+      "name": "A03 manifest grid is 6x4",
+      "pass": true,
+      "detail": {
+        "px": [
+          2048,
+          2048
+        ],
+        "cols": 6,
+        "rows": 4,
+        "frames": 24,
+        "cell_px": 341,
+        "gutter_px": 8
+      }
+    },
+    {
+      "name": "A04 playback is 3 seconds at 8 fps",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "A05 atlas SHA-256 is verified by planner",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "A06 every used cell contains the black bird",
+      "pass": true,
+      "detail": [
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12
+      ]
+    },
+    {
+      "name": "A07 contact and animated preview ship",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "A08 gutter is non-zero and fits cell",
+      "pass": true,
+      "detail": [
+        8,
+        341
+      ]
+    },
+    {
+      "name": "B01 frame keys map range to frame 0..23",
+      "pass": true,
+      "detail": [
+        [
+          175,
+          0.0
+        ],
+        [
+          250,
+          23.0
+        ]
+      ]
+    },
+    {
+      "name": "B02 plan creates exactly master/MPC/texture/MI",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "B03 look defaults are Gary-tunable args",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "B04 planning is deterministic",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "B05 DRY confirm exact",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "B06 destructive REVERT confirm is explicit",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "B07 -control empty labels",
+      "pass": true,
+      "detail": "LIGHT_LABELS|need unique non-empty label(s)"
+    },
+    {
+      "name": "B08 -control duplicate labels",
+      "pass": true,
+      "detail": "LIGHT_LABELS|need unique non-empty label(s)"
+    },
+    {
+      "name": "B09 -control reversed frame range",
+      "pass": true,
+      "detail": "FRAME_RANGE|need 0 <= start < end|250,175"
+    },
+    {
+      "name": "B10 -control MI outside create-only root",
+      "pass": true,
+      "detail": "MI_PATH|must be create-only under /Game/InfinityStage/Lighting/Gobo and start MI_|/Game/X/MI_Bad"
+    },
+    {
+      "name": "B11 -control texture outside create-only root",
+      "pass": true,
+      "detail": "TEXTURE_PATH|must be create-only under /Game/InfinityStage/Lighting/Gobo and start T_|/Game/X/T_Bad"
+    },
+    {
+      "name": "B12 -control unknown look parameter",
+      "pass": true,
+      "detail": "UNKNOWN_PARAMS|['BlurMagic']"
+    },
+    {
+      "name": "B13 -control invalid softness",
+      "pass": true,
+      "detail": "LOOK_PARAMS|blur 0..0.003, softness 0..0.49, contrast >=0, depth 0..1, scale >0"
+    },
+    {
+      "name": "B13b -control blur exceeds cell gutter",
+      "pass": true,
+      "detail": "LOOK_PARAMS|blur 0..0.003, softness 0..0.49, contrast >=0, depth 0..1, scale >0"
+    },
+    {
+      "name": "B14 -control missing atlas",
+      "pass": true,
+      "detail": "ATLAS_MISSING|E:\\PussStage\\Tools\\ShadowGobo\\P6_TestBird\\missing.png"
+    },
+    {
+      "name": "C01 positive DRY preflight",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "C -control PIE",
+      "pass": true,
+      "detail": [
+        "PIE_OR_SIE_ACTIVE"
+      ]
+    },
+    {
+      "name": "C -control Sequencer open",
+      "pass": true,
+      "detail": [
+        "SEQUENCER_IS_OPEN"
+      ]
+    },
+    {
+      "name": "C -control wrong world",
+      "pass": true,
+      "detail": [
+        "WRONG_WORLD"
+      ]
+    },
+    {
+      "name": "C -control dirty content",
+      "pass": true,
+      "detail": [
+        "DIRTY_CENSUS|{'content': ['/Game/X'], 'maps': []}"
+      ]
+    },
+    {
+      "name": "C -control dirty map",
+      "pass": true,
+      "detail": [
+        "DIRTY_CENSUS|{'content': [], 'maps': ['/Game/M']}"
+      ]
+    },
+    {
+      "name": "C -control missing label",
+      "pass": true,
+      "detail": [
+        "LIGHT_LABEL_COUNT|Shadow Play Spot (Mouth)|0"
+      ]
+    },
+    {
+      "name": "C -control duplicate label",
+      "pass": true,
+      "detail": [
+        "LIGHT_LABEL_COUNT|Shadow Play Spot (Mouth)|2"
+      ]
+    },
+    {
+      "name": "C -control existing create target",
+      "pass": true,
+      "detail": [
+        "CREATE_ONLY_TARGET_EXISTS|['/Game/InfinityStage/Lighting/Gobo/M_ShadowGobo_LightFunction']"
+      ]
+    },
+    {
+      "name": "C -control existing record",
+      "pass": true,
+      "detail": [
+        "RECORD_EXISTS"
+      ]
+    },
+    {
+      "name": "C -control keys outside playback",
+      "pass": true,
+      "detail": [
+        "KEYS_OUTSIDE_PLAYBACK|keys=[175, 250] playback=[200, 220]"
+      ]
+    },
+    {
+      "name": "C12 -control confirm mismatch",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "C13 VERIFY allows its recorded assets to exist",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "C14 -control VERIFY without record",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "D01 apply model assigns MI to both spots",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "D02 apply model adds one named Frame track",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "D03 exact APPLY snapshot passes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "D04 exact REVERT restores before",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "D05 -control keyed frame drift is detected",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "D06 -control light-function drift is detected",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "D07 exact dirty census passes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "D08 -control unexpected dirty package fails",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "D09 -control dirty map fails",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E01 never deletes existing material expressions",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E02 never Save All/save_directory",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E03 all four operational modes ship",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E04 record is exclusive before mutation",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E05 APPLY requires independent VERIFY",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E06 success marker is generated from MARK",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E07 revert backs up before delete",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E08 runner purges Saved module cache",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E09 offline import did not load Unreal",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E10 revert refuses external referencers before delete",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E11 existing make_gobo_flipbook manifest names are accepted",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}
