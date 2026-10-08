@@ -1,0 +1,7 @@
+{
+  "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+  "tool_name": "ExecuteProjectPythonFile",
+  "arguments": {
+    "relativeSavedPath": "CodexConductor/P06FX_20261008/p06_fx_probe.py"
+  }
+}
