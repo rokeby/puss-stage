@@ -8,7 +8,7 @@ both twins: outer_cone_angle, inner_cone_angle, source_radius, soft_source_radiu
 light_function_fade_distance, attenuation_radius.  Nothing else: no keys, no tracks, no level, no Show, no Master.
 A property that is driven by a track on either twin is NOT written on either twin and is reported (KEYED).
 
-Modes: DRY (read-only), APPLY (confirm "APPLY GOBOSPOT <CIRCUMSCRIBED|INSCRIBED>"), REVERT (confirm "REVERT GOBOSPOT").
+Modes: DRY (read-only), APPLY (confirm "APPLY GOBOSPOT <CIRCUMSCRIBED|INSCRIBED|RECT_FIT>"), REVERT (confirm "REVERT GOBOSPOT").
 Markers: GOBOSPOT_DRY_OK / GOBOSPOT_APPLY_OK / GOBOSPOT_REVERT_OK |run=<id>|...   or   GOBOSPOT_STOPPED|run=<id>|...
 Module globals hold no Unreal objects.  Never Save All, never ends PIE, never reloads the level, no Sequencer UI.
 
@@ -62,8 +62,15 @@ DEFAULT_SEQUENCE = "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips"
 DEFAULT_LABELS = ["Shadow Play Spot (Hangar)", "Shadow Play Spot (Mouth)"]        # shadow_play_spot record I2
 DEFAULT_CAMERA_PATTERNS = ["Sleight Hangar Camera", "Sleight Mouth Camera"]       # curtain_sleight bindings
 MODES = ("DRY", "APPLY", "REVERT")
-VARIANTS = ("CIRCUMSCRIBED", "INSCRIBED")
-VARIANT_FACTOR = {"CIRCUMSCRIBED": 1.0, "INSCRIBED": math.sqrt(2.0)}
+VARIANTS = ("CIRCUMSCRIBED", "INSCRIBED", "RECT_FIT")
+# RECT_FIT (8 Oct): with the gobo's soft rectangular border (aspect RECT_ASPECT) only the RECTANGLE must sit inside the
+# cone disc, not the whole square cell. Cell = W / RECT_FIT_SCALE; the gobo runs with Scale = RECT_FIT_SCALE. Valid while
+# RECT_FIT_SCALE * sqrt(1 + 1/aspect^2) <= 1 (the rectangle's half-diagonal inside the disc), asserted below.
+RECT_FIT_SCALE = 0.85
+RECT_ASPECT = 1.88
+assert RECT_FIT_SCALE * math.sqrt(1.0 + 1.0 / RECT_ASPECT ** 2) <= 1.0
+VARIANT_FACTOR = {"CIRCUMSCRIBED": 1.0, "INSCRIBED": math.sqrt(2.0), "RECT_FIT": 1.0 / RECT_FIT_SCALE}
+GOBO_SCALE = {"CIRCUMSCRIBED": 1.0, "INSCRIBED": 1.0 / math.sqrt(2.0), "RECT_FIT": RECT_FIT_SCALE}
 RUN_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 CHANNEL_RE = re.compile(r"^(Location|Rotation|Scale)\.([XYZ])(_\d+)?$")   # suffixes: memory ue58-sequencer-read-traps
 FLOAT_TOL = 1.0e-3
@@ -517,7 +524,7 @@ def build_report(args, live):
             "keyed_skipped": keyed,
             "cell_side_perp_cm": 2.0 * d * math.tan(math.radians(props["outer_cone_angle"])),
             "disc_diameter_perp_cm": 2.0 * d * math.tan(math.radians(props["outer_cone_angle"])),
-            "gobo_scale_for_image_W": 1.0 if variant == "CIRCUMSCRIBED" else _r(1.0 / math.sqrt(2.0), 6),
+            "gobo_scale_for_image_W": _r(GOBO_SCALE[variant], 6),
             "cone_clips_cell_corners": variant == "CIRCUMSCRIBED",
             "cm_per_slot_px": {str(px): _r(2.0 * d * math.tan(math.radians(props["outer_cone_angle"])) / px, 3)
                                for px in sorted({32, int(_slot_px(live) or 32)})},
