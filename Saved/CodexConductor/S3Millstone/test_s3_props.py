@@ -1667,8 +1667,9 @@ SPF, SPD = specs[T["PEARL_FADE_MASTER"]], specs[T["PEARL_DITHER_MASTER"]]
 # L1. tables + lint
 check("L1.twin_specs_clean(+)", not any(k in mp for k in (T["PEARL_FADE_MASTER"], T["PEARL_DITHER_MASTER"], PF, PD)), mp)
 check("L1.twin_table_clean(+)", T["twin_table_problems"]() == [], T["twin_table_problems"]())
-check("L1.looks_untouched", T["CLAM_LOOK_MATERIALS"] == (P3, SH2, MA2) and sorted(T["CLAM_LOOKS"]) == sorted(LOOKS) and
-      T["CLAM_MAT_CHECK_MATERIALS"] == (P3, SH2, MA2, PF, PD))
+check("L1.looks_untouched", T["CLAM_LOOK_MATERIALS"] == (P3, SH2, MA2) and
+      sorted(T["CLAM_LOOKS"]) == sorted(LOOKS + (T["PEARL_V3_GO"],)) and                    # + the 8 Oct MI-only look (M.)
+      T["CLAM_MAT_CHECK_MATERIALS"] == (P3, SH2, MA2, PF, PD, T["PEARL_V3_GO"]))
 check("L1.blend_shading_tlm", SPF["blend_mode"] == "BLEND_TRANSLUCENT" and SPF["shading_model"] == "MSM_DEFAULT_LIT" and
       SPF["translucency_lighting_mode"] == "TLM_SURFACE_PER_PIXEL_LIGHTING" and SPD["blend_mode"] == "BLEND_MASKED" and
       SPD["shading_model"] == "MSM_SUBSURFACE" and "translucency_lighting_mode" not in SPD and "blend_mode" not in SP3)
@@ -2009,6 +2010,513 @@ for nm, key, args_, kw, needle in (
     check("L9.%s_refused_nothing_saved(-)" % nm, rec_ is None and err and needle in err and fe.saved == [], (err, fe.saved))
 fe, rec_, err = fake_build_twin(PF, None, readback="wrong")
 check("L9.readback_wrong_node_refused(-)", rec_ is None and err and "PROP_READBACK" in err and fe.saved == [], err)
+
+# ================================================================== M. Pearl v3 GreenOrange (8 Oct): MI-only look + twin sync
+GO = T["PEARL_V3_GO"]
+V3M = T["PEARL_V3_MASTER"]
+GOROW = T["CLAM_EXTRA_MATERIALS"][GO]
+GOD = T["GREEN_ORANGE_DEFAULTS"]
+# M1. tables + lint
+check("M1.variant_table_clean(+)", T["variant_table_problems"]() == [] and T["look_table_problems"]() == [] and
+      T["twin_sync_param_problems"]() == [] and GO not in T["material_problems"](), (T["variant_table_problems"](),
+                                                                                     T["look_table_problems"]()))
+check("M1.mi_only_row_on_live_v3_master", GOROW["mi_only"] and not GOROW.get("master_create_only") and GOROW["master"] == V3M and
+      GOROW["copy_from"] == P3 and GOROW["breath_from"] == P3 and GOROW["mi"] == "MI_PearlClam_Pearl_v3_GreenOrange" and
+      GOROW["scalars"] == {} and GOROW["vectors"] == {} and set(specs) == set(T["material_specs"]()), GOROW)
+check("M1.no_new_master_spec", V3M in specs and not any("GreenOrange" in p for p in T["material_specs"]()))
+check("M1.look_row_chain", T["CLAM_LOOKS"][GO]["from_material"] == P3 and T["CLAM_LOOKS"][GO]["requires_look"] == P3 and
+      T["CLAM_LOOKS"][GO]["targets"] == T["CLAM_LOOKS"][P3]["targets"] == {"Pearl": 0} and T["CLAM_LOOKS"][GO]["glow_check"] and
+      T["look_record_path"](GO) not in {T["look_record_path"](k) for k in LOOKS} | {T["TWIN_RECORD"], T["TWIN_SYNC_RECORD"]})
+check("M1.sync_params_equal_variant_overrides", set(T["TWIN_SYNC_SCALARS"]) == set(GOD["scalars"]) and
+      set(T["TWIN_SYNC_VECTORS"]) == set(GOD["vectors"]) and not set(T["TWIN_SYNC_FORBIDDEN"]) & (set(GOD["scalars"]) | set(GOD["vectors"])))
+check("M1.defaults_as_briefed", GOD["scalars"] == {"IridStrength": 0.45, "SubsurfaceIrid": 0.45, "FresnelExponent": 2.0, "Glow": 0.03,
+                                                    "GlowIrid": 0.0} and GOD["vectors"]["PaletteB"][:3] == [-0.22, 0.10, 0.10] and
+      GOD["vectors"]["PaletteA"][:3] == [0.72, 0.74, 0.48] and GOD["vectors"]["SubsurfaceBase"][:3] == [0.92, 0.91, 0.87] and
+      GOD["vectors"]["GlowColor"][:3] == [1.0, 0.97, 0.92] and GOD["vectors"]["PaletteC"][:3] == [1.0, 1.0, 1.0] and
+      GOD["vectors"]["PaletteD"][:3] == [0.0, 0.0, 0.0])
+saved_ov = copy.deepcopy(GOROW["overrides"])
+GOROW["overrides"]["scalars"]["BreathAmp"] = 0.0
+try:
+    check("M1.override_of_breath_in_table_caught(-)", any("VARIANT_OVERRIDE_FORBIDDEN" in x for x in T["variant_table_problems"]()),
+          T["variant_table_problems"]())
+finally:
+    GOROW["overrides"].clear()
+    GOROW["overrides"].update(saved_ov)
+GOROW["master"] = T["PEARL_V2_MASTER"]
+try:
+    check("M1.variant_on_other_master_caught(-)", any("VARIANT_ROW" in x for x in T["variant_table_problems"]()))
+finally:
+    GOROW["master"] = V3M
+check("M1.tables_restored", T["variant_table_problems"]() == [])
+# M2. palette mirror (IRID_COLOR_CODE): endpoints green / orange; negative PB component survives to the saturate
+PAL_A, PAL_B = GOD["vectors"]["PaletteA"], GOD["vectors"]["PaletteB"]
+ends = T["palette_endpoints"](PAL_A, PAL_B)
+r3 = lambda v: [round(x, 4) for x in v]  # noqa: E731
+print("INFO M2 palette endpoints: cos=+1 %s (green)  cos=-1 %s (orange)" % (r3(ends["cos_plus"]), r3(ends["cos_minus"])))
+check("M2.cos_plus_is_green(+)", T["near"](ends["cos_plus"], [0.50, 0.84, 0.58], 1e-9) and
+      ends["cos_plus"][1] > ends["cos_plus"][2] > ends["cos_plus"][0], ends)
+check("M2.cos_minus_is_orange(+)", T["near"](ends["cos_minus"], [0.94, 0.64, 0.38], 1e-9) and
+      ends["cos_minus"][0] > ends["cos_minus"][1] > ends["cos_minus"][2], ends)
+PE = T["palette_eval"]
+check("M2.palette_eval_matches_endpoints(+)", T["near"](PE(PAL_A, PAL_B, [1, 1, 1], [0, 0, 0], 0.0), ends["cos_plus"], 1e-9) and
+      T["near"](PE(PAL_A, PAL_B, [1, 1, 1], [0, 0, 0], 0.5), ends["cos_minus"], 1e-9) and
+      T["near"](PE(PAL_A, PAL_B, [1, 1, 1], [0, 0, 0], 1.0), ends["cos_plus"], 1e-9))
+check("M2.code_saturates_after_the_sum(decl: IRID_COLOR_CODE)", T["IRID_COLOR_CODE"].startswith(
+    "float3 pal = saturate(PA.rgb + PB.rgb * cos(6.2831853 * (PC.rgb * P + PD.rgb)));") and "saturate(PB" not in T["IRID_COLOR_CODE"])
+clamped = T["palette_endpoints"](PAL_A, [max(0.0, x) for x in PAL_B])
+check("M2.negative_red_is_needed(-control: PB clamped to >= 0 loses the green end)", not T["near"](clamped["cos_plus"], ends["cos_plus"], 0.05)
+      and clamped["cos_plus"][0] > 0.7, clamped)
+check("M2.all_endpoints_in_gamut(no saturate clipping at the defaults)", all(0.0 < x < 1.0 for v in ends.values() for x in v), ends)
+# where the copied v3 phase lands: phase = fresnel^E * IridScale + nacre * NacreScale (IRID_PHASE_CODE)
+v3s_ = v3_live["scalars"]
+sweep = []
+for nm, ndv, nac in (("facing_nacre_p5", 1.0, 0.18), ("facing_nacre_p50", 1.0, 0.44), ("facing_nacre_p95", 1.0, 0.75),
+                     ("mid_ndotv_0.5", 0.5, 0.44), ("rim_ndotv_0.1", 0.1, 0.44)):
+    ph = T["irid_phase_eval"](ndv, GOD["scalars"]["FresnelExponent"], v3s_["IridScale"], nac, v3s_["NacreScale"])
+    pal = PE(PAL_A, PAL_B, [1, 1, 1], [0, 0, 0], ph)
+    surf = T["irid_color_eval"](v3_live["vectors"]["BaseColor"], PAL_A, PAL_B, [1, 1, 1], [0, 0, 0], ph, GOD["scalars"]["IridStrength"])
+    sweep.append((nm, round(ph, 3), r3(pal), r3(surf)))
+print("INFO M2 phase sweep (IridScale %.2f, NacreScale %.2f copied from live v3): %s" % (v3s_["IridScale"], v3s_["NacreScale"], sweep))
+check("M2.sweep_spans_green_and_orange(inf: on-screen look unproven)", any(s[2][1] > s[2][0] for s in sweep) and
+      any(s[2][0] > s[2][1] for s in sweep), sweep)
+gmax = max(max(T["inner_glow_eval"](1.0, v3s_["GlowFresnelExponent"], v3s_["GlowFalloff"], GOD["scalars"]["Glow"],
+                                    GOD["vectors"]["GlowColor"], [1, 1, 1], GOD["scalars"]["GlowIrid"])),
+           max(T["inner_glow_eval"](0.3, v3s_["GlowFresnelExponent"], v3s_["GlowFalloff"], GOD["scalars"]["Glow"],
+                                    GOD["vectors"]["GlowColor"], [1, 1, 1], GOD["scalars"]["GlowIrid"])))
+check("M2.emissive_is_slight_and_uncoloured(+)", gmax <= 0.03 + 1e-12 and GOD["scalars"]["GlowIrid"] == 0.0, gmax)
+# M3. copy-from-live plan (MI_PearlClam_Pearl_v3 as the owning session recorded it, Glow tuned live to 0.42)
+MVV = T["mi_variant_values"]
+vv = MVV(GO, copy.deepcopy(v3_live))
+not_over = set(SP3["scalars"]) - set(GOD["scalars"])
+check("M3.every_non_override_value_copied(+)", all(vv["scalars"][k] == float(v3_live["scalars"][k]) for k in not_over) and
+      all(vv["vectors"][k] == v3_live["vectors"][k] for k in set(SP3["vectors"]) - set(GOD["vectors"])) and
+      set(vv["scalars"]) == set(SP3["scalars"]) and set(vv["vectors"]) == set(SP3["vectors"]), sorted(not_over))
+check("M3.overrides_applied(+)", all(vv["scalars"][k] == v for k, v in GOD["scalars"].items()) and
+      all(vv["vectors"][k] == v for k, v in GOD["vectors"].items()) and vv["scalars"]["Glow"] == 0.03, vv["overrides"])
+check("M3.breath_copied_unchanged(+)", vv["breath"] == {"BreathAmp": 1.5, "BreathPeriod": 6.0} and
+      vv["scalars"]["BreathAmp"] == v3_live["scalars"]["BreathAmp"], vv["breath"])
+check("M3.changed_list", set(vv["changed"]) <= set(GOD["scalars"]) | set(GOD["vectors"]) and "Glow" in vv["changed"] and
+      "PaletteB" in vv["changed"] and vv["parent"] == V3M, vv["changed"])
+vv2 = MVV(GO, copy.deepcopy(v3_live), {"variant": {"scalars": {"IridStrength": 0.5}, "vectors": {"PaletteD": [0.0, 0.05, 0.0]}}})
+check("M3.arg_overrides_each_value(+)", vv2["scalars"]["IridStrength"] == 0.5 and vv2["vectors"]["PaletteD"] == [0.0, 0.05, 0.0, 1.0]
+      and vv2["scalars"]["Glow"] == 0.03, (vv2["scalars"]["IridStrength"], vv2["vectors"]["PaletteD"]))
+check("M3.bright_glow_allowed_by_arg(+)", MVV(GO, copy.deepcopy(v3_live), {"variant": {"scalars": {"Glow": 0.5}},
+                                                                         "allow_glow_above_max": True})["scalars"]["Glow"] == 0.5)
+for nm, src_fn, args_, needle in (
+        ("wrong_parent", lambda s: s.update(parent=T["PEARL_V2_MASTER"]), None, "COPY_SOURCE_PARENT"),
+        ("wrong_source_mi", lambda s: s.update(mi=MI(T["PEARL_V2"])), None, "COPY_SOURCE|"),
+        ("source_scalar_unread", lambda s: s["scalars"].pop("IridScale"), None, "COPY_SCALARS_UNREAD"),
+        ("source_texture_differs", lambda s: s["textures"].update(Nacre="/Game/X/T_Other"), None, "COPY_TEXTURE_DIFFERS"),
+        ("override_breath", None, {"variant": {"scalars": {"BreathAmp": 0.0}}}, "VARIANT_FORBIDDEN"),
+        ("override_fade", None, {"variant": {"scalars": {"Fade": 0.5}}}, "VARIANT_PARAM_UNKNOWN"),
+        ("override_unknown", None, {"variant": {"vectors": {"PaletteE": [0, 0, 0]}}}, "VARIANT_PARAM_UNKNOWN"),
+        ("glow_not_slight", None, {"variant": {"scalars": {"Glow": 0.5}}}, "VARIANT_GLOW_NOT_SLIGHT"),
+        ("glow_negative", None, {"variant": {"scalars": {"Glow": -0.1}}, "allow_glow_above_max": True}, "VARIANT_GLOW_NOT_SLIGHT"),
+        ("strength_range", None, {"variant": {"scalars": {"IridStrength": 1.5}}}, "VARIANT_SCALAR_RANGE"),
+        ("fresnel_zero", None, {"variant": {"scalars": {"FresnelExponent": 0.0}}}, "VARIANT_SCALAR_RANGE"),
+        ("nan", None, {"variant": {"scalars": {"SubsurfaceIrid": float("nan")}}}, "VARIANT_SCALAR_VALUE"),
+        ("colour_range", None, {"variant": {"vectors": {"SubsurfaceBase": [1.2, 0.9, 0.9]}}}, "VARIANT_COLOUR_RANGE"),
+        ("vector_shape", None, {"variant": {"vectors": {"PaletteA": [0.7, 0.7]}}}, "VARIANT_VECTOR_SHAPE"),
+        ("bad_arg_shape", None, {"variant": {"colours": {}}}, "VARIANT_ARG")):
+    src_ = copy.deepcopy(v3_live)
+    if src_fn:
+        src_fn(src_)
+    ok, msg = refuses(lambda src_=src_, a_=args_: MVV(GO, src_, a_), needle)
+    check("M3.%s_refused(-)" % nm, ok, msg)
+ok, msg = refuses(lambda: MVV(P3, copy.deepcopy(v3_live)), "NOT_AN_MI_VARIANT")
+check("M3.non_variant_key_refused(-)", ok, msg)
+
+
+# M4. BUILD_MAT end to end (FAKE editor holding the LIVE v3 master + MI): MI-only, nothing else created or saved
+def fake_v3_env(v3mi=None, existing=(), with_master=True):
+    fe = FakeEd(existing=existing)
+    fe.BlendMode = _Obj(**{n: n for n in T["BLEND_MODES"]})
+    fe.TranslucencyLightingMode = _Obj(**{n: n for n in T["TLM_MODES"]})
+    fe.log = lambda s: None
+    base_create = fe.AssetToolsHelpers.get_asset_tools().create_asset
+
+    def create(name, folder, cls, f):
+        a_ = base_create(name, folder, cls, f)
+        if cls is fe.Material:
+            a_.props["opacity_mask_clip_value"] = 0.3333
+        return a_
+    fe.AssetToolsHelpers = _Obj(get_asset_tools=lambda: _Obj(create_asset=create))
+    keep = {k: G[k] for k in ("unreal", "HERE")}
+    G.update(unreal=fe)
+    try:
+        if with_master:
+            T["_build_material"](V3M, SP3, {"Nacre": fe.load_asset(NACRE)})
+        src = copy.deepcopy(v3mi if v3mi is not None else v3_live)
+        o = fe.MaterialInstanceConstant(MI(P3), "MaterialInstanceConstant")
+        o.sc = dict(src["scalars"])
+        o.vc = {k: _Obj(r=v[0], g=v[1], b=v[2], a=v[3]) for k, v in src["vectors"].items()}
+        o.tx = {k: _FObj(v, "Texture2D") for k, v in src["textures"].items()}
+        par = fe.mats.get(src["parent"]) or _FObj(src["parent"], "Material")
+        o.parent_, o.props["parent"] = par, par
+        fe.mats[MI(P3)] = o
+        fe.assets.add(MI(P3))
+    finally:
+        G.update(keep)
+    fe.dirty.clear()
+    fe.saved.clear()
+    return fe
+
+
+def fake_build_go(fe, args=None):
+    tmpb = tempfile.mkdtemp(prefix="s3go_")
+    keep = {k: G[k] for k in ("unreal", "HERE")}
+    G.update(unreal=fe, HERE=tmpb + "/")
+    try:
+        try:
+            return T["run_build_clam_mat"]("RUNGO", GO, args or {}), None
+        except PlanError as exc:
+            return None, str(exc)
+    finally:
+        G.update(keep)
+
+
+fe = fake_v3_env()
+n_mats0 = len(fe.mats)
+rec_, err = fake_build_go(fe)
+gmi = fe.mats.get(MI(GO))
+check("M4.build_ok_mi_only(+)", rec_ is not None and fe.saved == [MI(GO)] and not fe.dirty and len(fe.mats) == n_mats0 + 1 and
+      rec_["master_created"] is False and rec_["mi_only"] is True, err or fe.saved)
+if rec_ is not None:
+    check("M4.parent_is_the_live_v3_master(+)", gmi.props["parent"] is fe.mats[V3M] and rec_["master"] == V3M and
+          rec_["copied_from"]["parent"] == V3M)
+    check("M4.every_value_read_back(+)", all(abs(rec_["scalars"][k] - vv["scalars"][k]) < 1e-9 for k in SP3["scalars"]) and
+          all(T["near"](rec_["vectors"][k], vv["vectors"][k], 1e-9) for k in SP3["vectors"]) and
+          rec_["vectors"]["PaletteB"][0] == -0.22, rec_["vectors"]["PaletteB"])
+    check("M4.record_fields", rec_["palette_endpoints"] == ends and rec_["breath_inherited"] == {"BreathAmp": 1.5, "BreathPeriod": 6.0}
+          and rec_["overrides"] == vv["overrides"] and gmi.tx.get("Nacre") is not None)
+    check("M4.master_not_touched(+)", V3M not in fe.saved and len(fe.mats[V3M].nodes) == len(SP3["nodes"]))
+fe = fake_v3_env(existing=[MI(GO)])
+rec_, err = fake_build_go(fe)
+check("M4.build_over_existing_mi_refused_nothing_saved(-)", rec_ is None and "MI_EXISTS" in (err or "") and fe.saved == [], err)
+fe = fake_v3_env(with_master=False)
+rec_, err = fake_build_go(fe)
+check("M4.master_missing_refused_never_created(-)", rec_ is None and "VARIANT_MASTER_MISSING" in (err or "") and fe.saved == [] and
+      V3M not in fe.mats, err)
+fe = fake_v3_env(v3mi=dict(copy.deepcopy(v3_live), parent=T["PEARL_V2_MASTER"]))
+rec_, err = fake_build_go(fe)
+check("M4.wrong_parent_refused_nothing_saved(-)", rec_ is None and "COPY_SOURCE_PARENT" in (err or "") and fe.saved == [], err)
+fe = fake_v3_env()
+_vset = fe.MaterialEditingLibrary.set_material_instance_vector_parameter_value
+fe.MaterialEditingLibrary.set_material_instance_vector_parameter_value = lambda mi, k, v: _vset(
+    mi, k, _Obj(r=max(0.0, v.r), g=max(0.0, v.g), b=max(0.0, v.b), a=v.a))     # a setter that clamps negatives
+rec_, err = fake_build_go(fe)
+check("M4.clamped_negative_palette_caught_nothing_saved(-)", rec_ is None and "MI_VECTORS" in (err or "") and fe.saved == [], err)
+fe = fake_v3_env()
+rec_, err = fake_build_go(fe, {"variant": {"scalars": {"Glow": 0.6}}})
+check("M4.bright_glow_refused_nothing_created(-)", rec_ is None and "VARIANT_GLOW_NOT_SLIGHT" in (err or "") and fe.saved == [] and
+      MI(GO) not in fe.mats, err)
+# M5. mode gates (swap chain, unswap ordering, twin interaction, sync)
+SY, SYR = "CLAM_PEARL_TWIN_SYNC", "CLAM_PEARL_TWIN_SYNC_REVERT"
+check("M5.build_mat_ok(+)", CM({"mode": "BUILD_MAT", "confirm": "BUILD_MAT S3PROPS", "prop": "PearlClam", "material": GO},
+                               True, False, False, True) == "BUILD_MAT")
+check("M5.mat_check_ok_read_only(+)", CM({"mode": "CLAM_LOOK_MAT_CHECK", "material": GO}, True, False) == "CLAM_LOOK_MAT_CHECK")
+check("M5.swap_after_v3_ok(+)", CM(LS(look=GO), True, False, False, True, True, [P3]) == "CLAM_LOOK_SWAP")
+check("M5.swap_not_blocked_by_twin(+)", CM(LS(look=GO), True, False, False, True, True, [P3], True) == "CLAM_LOOK_SWAP")
+check("M5.unswap_ok(+)", CM(LU(look=GO), True, False, False, True, True, [P3, GO], True) == "CLAM_LOOK_UNSWAP")
+check("M5.unswap_v3_after_variant_gone(+)", CM(LU(look=P3), True, False, False, True, True, [P3], True) == "CLAM_LOOK_UNSWAP")
+check("M5.sync_ok(+)", CM(TW(SY), True, False, False, True, True, [P3, GO], True) == SY)
+check("M5.sync_revert_ok(+)", CM(TW(SYR), True, False, False, True, True, [P3, GO], True, True) == SYR)
+check("M5.sync_revert_ok_after_twin_reverted(+)", CM(TW(SYR), True, False, False, True, True, [P3, GO], False, True) == SYR)
+check("M5.twin_revert_not_blocked_by_sync(+)", CM(TW("CLAM_PEARL_TWIN_REVERT"), True, False, False, True, True, [P3, GO], True, True)
+      == "CLAM_PEARL_TWIN_REVERT")
+for nm, call, needle in (
+        ("swap_without_v3_record", lambda: CM(LS(look=GO), True, False, False, True, True, []), "LOOK_CHAIN"),
+        ("swap_without_pearl_swap", lambda: CM(LS(look=GO), True, False, False, True, False, [P3]), "LOOK_CHAIN"),
+        ("swap_twice", lambda: CM(LS(look=GO), True, False, False, True, True, [P3, GO]), "LOOK_ALREADY_SWAPPED"),
+        ("unswap_v3_while_variant", lambda: CM(LU(look=P3), True, False, False, True, True, [P3, GO]), "LOOK_DEPENDENT_SWAPPED"),
+        ("unswap_variant_while_synced", lambda: CM(LU(look=GO), True, False, False, True, True, [P3, GO], True, True), "TWIN_SYNCED"),
+        ("clam_revert_with_variant", lambda: CM(TW("CLAM_REVERT"), True, False, False, True, False, [GO]), "LOOK_SWAPPED"),
+        ("pearl_swap_with_variant", lambda: CM(TW("PEARL_SWAP"), True, False, False, True, False, [GO]), "PEARL_LOOK_SWAPPED"),
+        ("pearl_unswap_with_variant", lambda: CM(TW("PEARL_UNSWAP"), True, False, False, True, True, [GO]), "PEARL_LOOK_SWAPPED"),
+        ("sync_without_twin_record", lambda: CM(TW(SY), True, False, False, True, True, [P3, GO], False), "NO_TWIN_RECORD"),
+        ("sync_twice", lambda: CM(TW(SY), True, False, False, True, True, [P3, GO], True, True), "TWIN_SYNC_ALREADY"),
+        ("sync_without_clam", lambda: CM(TW(SY), True, False, False, False, True, [], True), "NO_CLAM_RECORD"),
+        ("sync_confirm", lambda: CM({"mode": SY, "confirm": SY}, True, False, False, True, True, [P3, GO], True), "CONFIRM_MISSING"),
+        ("sync_while_tex_pending", lambda: CM(TW(SY), True, False, True, True, True, [P3, GO], True), "TEX_PENDING"),
+        ("sync_revert_without_record", lambda: CM(TW(SYR), True, False, False, True, True, [P3, GO], True, False), "NO_TWIN_SYNC_RECORD")):
+    ok, msg = refuses(call, needle)
+    check("M5.%s_refused(-)" % nm, ok, msg)
+check("M5.sync_modes_write_modes", SY in T["MODES"] and SYR in T["MODES"] and SY not in T["READ_ONLY_MODES"] and
+      SYR not in T["READ_ONLY_MODES"])
+# M6. CLAM_LOOK_SWAP plan for the variant against the REAL clam record (pearl on v2 mesh + v3 MI), glow read back
+LGO = look_live(GO)
+LGO["actors"]["Pearl"].update(materials=[MI(P3)], override_materials=[MI(P3)])
+LGO["glow"] = dict(GLOW0)
+pgo = LP(GO, crec, copy.deepcopy(LGO))
+tgo = pgo["targets"][0]
+check("M6.plan_from_v3_to_variant(+)", pgo["old_mi"] == MI(P3) and pgo["new_mi"] == MI(GO) and pgo["master"] == V3M and
+      [(t["part"], t["slot"]) for t in pgo["targets"]] == [("Pearl", 0)] and tgo["after"]["materials"] == [MI(GO)] and
+      tgo["after"]["mesh"] == T["clam_mesh_path"](T["PEARL_V2"]) and tgo["after"]["rel"] == tgo["before"]["rel"], pgo["old_mi"])
+check("M6.glow_recorded(+)", pgo["glow_before"] == GLOW0)
+w0 = {tgo["object_path"]: copy.deepcopy(tgo["before"])}
+w1 = T["clam_look_simulate"](w0, T["clam_look_swap_ops"](pgo))
+w2 = T["clam_look_simulate"](w1, T["clam_look_unswap_ops"]({"plan": json.loads(json.dumps(pgo))}))
+check("M6.swap_then_unswap_restores_v3_exactly(+)", w2 == w0 and w2[tgo["object_path"]]["materials"] == [MI(P3)] and
+      T["clam_look_state_problems"]({"Pearl": dict(w1[tgo["object_path"]], count=1)}, pgo["targets"], "after") == [])
+check("M6.glow_unchanged_passes(+)", T["look_glow_problems"](GLOW0, dict(GLOW0)) == [])
+check("M6.glow_detached_caught(-)", T["look_glow_problems"](GLOW0, {"count": 1, "parent_path": None}) != [] and
+      T["look_glow_problems"](GLOW0, {"count": 0, "parent_path": None}) != [])
+check("M6.v3_look_has_no_glow_gate(+, unchanged behaviour)", "glow_before" not in plans[P3])
+# the glue read-back (_look_check) with the actor + glow lookups faked: a detached glow fails the swap read-back
+for nm, glow_now, want_ok in (("glow_kept_passes(+)", dict(GLOW0), True), ("glow_detached_fails(-)", {"count": 1, "parent_path": None}, False)):
+    over_ = {"_index": lambda w: {}, "_look_actor_live": lambda w, i, part, with_tracks=True: dict(w1[tgo["object_path"]], count=1),
+             "_glow_live": lambda w, g=glow_now: dict(g)}
+    keep_ = {k: G[k] for k in over_}
+    G.update(over_)
+    try:
+        try:
+            G["_look_check"](None, GO, pgo["targets"], "after", pgo["glow_before"])
+            got_ok, msg = True, ""
+        except PlanError as exc:
+            got_ok, msg = False, str(exc)
+    finally:
+        G.update(keep_)
+    check("M6.look_check_" + nm, got_ok == want_ok and (want_ok or "GLOW_TOUCHED" in msg), msg)
+for nm, fn, needle in (
+        ("pearl_still_on_v2_mi", lambda L: L["actors"]["Pearl"].update(materials=[MI(T["PEARL_V2"])],
+                                                                       override_materials=[MI(T["PEARL_V2"])]), "LOOK_MATERIAL_NOT_CURRENT"),
+        ("glow_unread", lambda L: L.pop("glow"), "LOOK_GLOW_UNREAD"),
+        ("variant_not_built", lambda L: L["assets"].update({MI(GO): False}), "LOOK_ASSETS_MISSING"),
+        ("breath_mismatch", lambda L: L["breath"][MI(GO)].update(BreathAmp=0.0), "LOOK_BREATH_MISMATCH"),
+        ("material_track", lambda L: L["tracks"]["Pearl"].update({T["SCENE3"]: ["MovieSceneComponentMaterialTrack"]}),
+         "LOOK_MATERIAL_TRACKS"),
+        ("already_on", lambda L: L["actors"]["Pearl"].update(materials=[MI(GO)], override_materials=[MI(GO)]), "LOOK_MATERIAL_NOT_CURRENT")):
+    L = copy.deepcopy(LGO)
+    fn(L)
+    ok, msg = refuses(lambda L=L: LP(GO, crec, L), needle)
+    check("M6.%s_refused(-)" % nm, ok, msg)
+# the twin's own gates with the pearl on the variant: CLAM_PEARL_TWIN still plans (breath equal), the variant is not blocked
+tp_go = TP(crec, twin_live(pearl=dict(copy.deepcopy(pearl_live), materials=[MI(GO)], override_materials=[MI(GO)]),
+                           breath={MI(GO): {"BreathAmp": 1.5, "BreathPeriod": 6.0}, MI(PF): {"BreathAmp": 1.5, "BreathPeriod": 6.0},
+                                   MI(PD): {"BreathAmp": 1.5, "BreathPeriod": 6.0}}))
+check("M6.twin_plan_with_pearl_on_variant(+)", tp_go["breath"]["pearl_mi"] == MI(GO) and tp_go["mi"] == MI(PF))
+# M7. TWIN_SYNC plan: pearl on the variant, twin MIs as BUILD_MAT made them (every v3 value copied)
+TSP = T["twin_sync_plan"]
+go_full = {"mi": MI(GO), "exists": True, "parent": V3M, "scalar_names": sorted(vv["scalars"]), "vector_names": sorted(vv["vectors"]),
+           "scalars": dict(vv["scalars"]), "vectors": copy.deepcopy(vv["vectors"])}
+
+
+def twin_target(key):
+    cp = LCV(key, copy.deepcopy(v3_live))
+    return {"mi": MI(key), "exists": True, "parent": T["CLAM_EXTRA_MATERIALS"][key]["master"], "scalar_names": sorted(cp["scalars"]),
+            "vector_names": sorted(cp["vectors"]), "scalars": dict(cp["scalars"]), "vectors": copy.deepcopy(cp["vectors"])}
+
+
+def sync_live(**over):
+    L = {"pearl": {"count": 1, "label": T["CLAM_LABELS"]["Pearl"], "object_path": crec["actor_paths"]["Pearl"], "materials": [MI(GO)]},
+         "source": copy.deepcopy(go_full), "targets": {MI(PF): twin_target(PF), MI(PD): twin_target(PD)}}
+    L.update(over)
+    return L
+
+
+TREC = {"applied": True, "saved": True, "object_path": "PersistentLevel.StaticMeshActor_TWIN", "twin_material": PF}
+spl = TSP(TREC, crec, sync_live())
+sync_names = set(T["TWIN_SYNC_SCALARS"]) | set(T["TWIN_SYNC_VECTORS"])
+for t in spl["targets"]:
+    k = t["key"]
+    check("M7.writes_are_the_changed_sync_params(+)|" + k, set(t["writes"]) == set(vv["changed"]) & sync_names and
+          set(t["writes"]) | set(t["unchanged"]) == sync_names and t["skipped"] == [], (sorted(t["writes"]), t["skipped"]))
+    check("M7.after_equals_source_on_synced(+)|" + k, all(T["_snap_close"](t["after"][("scalars" if p in T["TWIN_SYNC_SCALARS"] else "vectors")][p],
+                                                                        go_full["scalars"].get(p, go_full["vectors"].get(p)))
+                                                       for p in sync_names), t["writes"])
+    rest = [p for p in t["before"]["scalars"] if p not in sync_names] + [p for p in t["before"]["vectors"] if p not in sync_names]
+    check("M7.everything_else_untouched(+)|" + k, all(t["after"]["scalars"].get(p, t["after"]["vectors"].get(p)) ==
+                                                     t["before"]["scalars"].get(p, t["before"]["vectors"].get(p)) for p in rest) and
+          t["after"]["scalars"]["Fade"] == 1.0 and t["after"]["scalars"]["BreathAmp"] == 1.5 and
+          set(t["untouched"]) == ({"Fade", "BaseOpacity", "BreathAmp", "BreathPeriod"} if k == PF else {"Fade", "BreathAmp", "BreathPeriod"}),
+          t["untouched"])
+MAPT = spl["mapping"]
+print("INFO M7 sync mapping (param -> target param | v3 drives -> target drives):")
+for k in (PF, PD):
+    for p, r in MAPT[k].items():
+        print("INFO   %-12s %-15s -> %-15s | %s -> %s" % (k, p, r["target_param"], ",".join(r["v3_drives"]), ",".join(r["target_drives"])))
+check("M7.mapping_identity_on_both(+)", all(r["target_param"] == p and r["on_target_spec"] for k in (PF, PD) for p, r in MAPT[k].items()))
+check("M7.fade_subsurface_goes_to_basecolor(decl: spec)", all("MP_BASE_COLOR" in MAPT[PF][p]["target_drives"] and
+                                                              "MP_SUBSURFACE_COLOR" not in MAPT[PF][p]["target_drives"] and
+                                                              "MP_SUBSURFACE_COLOR" in MAPT[PF][p]["v3_drives"]
+                                                              for p in ("SubsurfaceIrid", "SubsurfaceBase")), MAPT[PF]["SubsurfaceIrid"])
+check("M7.dither_drives_like_v3(decl: spec)", all(set(MAPT[PD][p]["target_drives"]) == set(MAPT[PD][p]["v3_drives"]) for p in MAPT[PD]),
+      {p: (r["v3_drives"], r["target_drives"]) for p, r in MAPT[PD].items() if set(r["v3_drives"]) != set(r["target_drives"])})
+check("M7.palette_reaches_fade_basecolor_and_emissive", set(MAPT[PF]["PaletteB"]["target_drives"]) >= {"MP_BASE_COLOR", "MP_EMISSIVE_COLOR"})
+# skip path: a target that lacks a parameter (live names) is listed, not written
+L = sync_live()
+tf_ = L["targets"][MI(PF)]
+for p in ("SubsurfaceIrid", "SubsurfaceBase"):
+    for kk in ("scalars", "vectors"):
+        tf_[kk].pop(p, None)
+    tf_["scalar_names"] = sorted(tf_["scalars"])
+    tf_["vector_names"] = sorted(tf_["vectors"])
+sk = TSP(TREC, crec, L)["targets"][0]
+check("M7.missing_param_skipped_and_listed(+)", sorted(s["param"] for s in sk["skipped"]) == ["SubsurfaceBase", "SubsurfaceIrid"] and
+      not {"SubsurfaceBase", "SubsurfaceIrid"} & set(sk["writes"]), sk["skipped"])
+# ops round trip: sync -> after on both, revert -> before EXACTLY; a forbidden op is refused
+vals0 = {t["mi"]: copy.deepcopy(t["before"]) for t in spl["targets"]}
+ops_ = T["twin_sync_ops"](spl, "to")
+vals1 = T["twin_sync_simulate"](vals0, ops_)
+check("M7.sync_effect(+)", all(T["twin_sync_state_problems"](vals1[t["mi"]], t["after"]) == [] for t in spl["targets"]) and
+      not any(op["param"] in T["TWIN_SYNC_FORBIDDEN"] for op in ops_) and {op["mi"] for op in ops_} == {MI(PF), MI(PD)}, len(ops_))
+rp_ = T["twin_sync_revert_plan"]({"applied": True, "saved": True, "plan": json.loads(json.dumps(spl))},
+                                {"targets": {m_: dict(v, exists=True) for m_, v in vals1.items()}})
+vals2 = T["twin_sync_simulate"](vals1, rp_["ops"])
+check("M7.revert_exact(+)", vals2 == vals0, json.dumps(vals2)[:200])
+check("M7.synced_differs_from_before(-)", any(T["twin_sync_state_problems"](vals1[t["mi"]], t["before"]) for t in spl["targets"]))
+bad_ = json.loads(json.dumps(spl))
+bad_["targets"][0]["writes"]["Fade"] = {"kind": "scalar", "from": 1.0, "to": 0.0}
+ok, msg = refuses(lambda: T["twin_sync_ops"](bad_, "to"), "TWIN_SYNC_FORBIDDEN_WRITE")
+check("M7.sync_op_touching_fade_refused(-)", ok, msg)
+bad_ = json.loads(json.dumps(spl))
+bad_["targets"][1]["writes"]["BreathAmp"] = {"kind": "scalar", "from": 1.5, "to": 0.0}
+ok, msg = refuses(lambda: T["twin_sync_ops"](bad_, "to"), "TWIN_SYNC_FORBIDDEN_WRITE")
+check("M7.sync_op_touching_breath_refused(-)", ok, msg)
+wrong = T["twin_sync_simulate"](vals1, [{"op": "set_param", "mi": MI(PF), "kind": "scalar", "param": "Fade", "value": 0.0}])
+check("M7.fade_change_caught_by_readback(-)", any("SCALARS|Fade" in x for x in T["twin_sync_state_problems"](wrong[MI(PF)],
+                                                                                                         spl["targets"][0]["after"])))
+for nm, val in (("Fade", ("IridStrength", "Fade")), ("BreathPeriod", ("IridStrength", "BreathPeriod"))):
+    keep_ = G["TWIN_SYNC_SCALARS"]
+    G["TWIN_SYNC_SCALARS"] = keep_ + val[1:]
+    try:
+        ok, msg = refuses(lambda: TSP(TREC, crec, sync_live()), "TWIN_SYNC_PARAMS")
+        check("M7.sync_table_with_%s_refused(-)" % nm, ok and "TWIN_SYNC_FORBIDDEN_PARAM" in msg, msg)
+    finally:
+        G["TWIN_SYNC_SCALARS"] = keep_
+check("M7.sync_table_restored", T["twin_sync_param_problems"]() == [])
+for nm, rec_, L, needle in (
+        ("twin_record_invalid", dict(TREC, saved=False), sync_live(), "TWIN_RECORD_INVALID"),
+        ("clam_unapplied", TREC, sync_live(), "CLAM_RECORD_NOT_APPLIED"),
+        ("pearl_missing", TREC, sync_live(pearl={"count": 0}), "TWIN_SYNC_PEARL"),
+        ("source_is_twin_mi", TREC, sync_live(pearl=dict(sync_live()["pearl"], materials=[MI(PF)])), "TWIN_SYNC_SOURCE|"),
+        ("source_read_other_mi", TREC, sync_live(source=dict(copy.deepcopy(go_full), mi=MI(P3))), "TWIN_SYNC_SOURCE_READ"),
+        ("source_parent_v2", TREC, sync_live(source=dict(copy.deepcopy(go_full), parent=T["PEARL_V2_MASTER"])), "TWIN_SYNC_SOURCE_PARENT"),
+        ("source_unread", TREC, sync_live(source=dict(copy.deepcopy(go_full), vectors={})), "TWIN_SYNC_SOURCE_UNREAD"),
+        ("target_missing", TREC, sync_live(targets={MI(PF): twin_target(PF), MI(PD): {"exists": False}}), "TWIN_SYNC_TARGET_MISSING"),
+        ("target_parent", TREC, sync_live(targets={MI(PF): dict(twin_target(PF), parent=V3M), MI(PD): twin_target(PD)}),
+         "TWIN_SYNC_TARGET_PARENT"),
+        ("target_unread", TREC, sync_live(targets={MI(PF): dict(twin_target(PF), scalar_names=[]), MI(PD): twin_target(PD)}),
+         "TWIN_SYNC_TARGET_UNREAD"),
+        ("noop_pearl_on_v3", TREC, sync_live(pearl=dict(sync_live()["pearl"], materials=[MI(P3)]),
+                                             source={"mi": MI(P3), "exists": True, "parent": V3M,
+                                                     "scalar_names": sorted(v3_live["scalars"]), "vector_names": sorted(v3_live["vectors"]),
+                                                     "scalars": dict(v3_live["scalars"]), "vectors": copy.deepcopy(v3_live["vectors"])}),
+         "TWIN_SYNC_NOOP")):
+    cr_ = dict(crec, applied=False) if nm == "clam_unapplied" else crec
+    ok, msg = refuses(lambda r=rec_, L=L, c=cr_: TSP(r, c, L), needle)
+    check("M7.sync_%s_refused(-)" % nm, ok, msg)
+srec = {"applied": True, "saved": True, "plan": json.loads(json.dumps(spl))}
+for nm, fn, needle in (("synced_value_drift", lambda v: v[MI(PF)]["scalars"].update(Glow=0.2), "TWIN_SYNC_DRIFT"),
+                       ("fade_drift", lambda v: v[MI(PD)]["scalars"].update(Fade=0.0), "TWIN_SYNC_DRIFT"),
+                       ("unsynced_drift", lambda v: v[MI(PF)]["vectors"]["BaseColor"].__setitem__(0, 0.5), "TWIN_SYNC_DRIFT")):
+    v_ = copy.deepcopy(vals1)
+    fn(v_)
+    ok, msg = refuses(lambda v_=v_: T["twin_sync_revert_plan"](srec, {"targets": {m_: dict(x, exists=True) for m_, x in v_.items()}}),
+                      needle)
+    check("M7.sync_revert_with_%s_refused(-)" % nm, ok, msg)
+ok, msg = refuses(lambda: T["twin_sync_revert_plan"](dict(srec, saved=False), {"targets": {}}), "TWIN_SYNC_RECORD_INVALID")
+check("M7.sync_revert_unsaved_record_refused(-)", ok, msg)
+
+
+# M8. TWIN_SYNC + REVERT end to end (FAKE editor: v3 master/MI -> twin masters/MIs -> variant MI); only the actor lookup faked
+def fake_sync_env(setter_lies=False):
+    fe = fake_v3_env()
+    tmpb = tempfile.mkdtemp(prefix="s3sync_")
+    keep = {k: G[k] for k in ("unreal", "HERE")}
+    G.update(unreal=fe, HERE=tmpb + "/")
+    try:
+        for k in (PF, PD):
+            T["run_build_clam_mat"]("RUNT", k, {})
+        T["run_build_clam_mat"]("RUNGO", GO, {})
+    finally:
+        G.update(keep)
+    fe.dirty.clear()
+    fe.saved.clear()
+    mel = fe.MaterialEditingLibrary
+    s0, v0 = mel.set_material_instance_scalar_parameter_value, mel.set_material_instance_vector_parameter_value
+
+    def ss(mi, k, v):
+        fe.dirty.add(mi.path)
+        if not setter_lies:
+            s0(mi, k, v)
+
+    def vs(mi, k, v):
+        fe.dirty.add(mi.path)
+        if not setter_lies:
+            v0(mi, k, v)
+    mel.set_material_instance_scalar_parameter_value, mel.set_material_instance_vector_parameter_value = ss, vs
+    proj = tmpb + "/proj/"
+    for k in (PF, PD):                                       # stand-in .uasset files for the byte backup
+        f = proj + "Content/" + MI(k)[len("/Game/"):] + ".uasset"
+        os.makedirs(os.path.dirname(f), exist_ok=True)
+        with open(f, "wb") as h:
+            h.write(("fake uasset " + k).encode())
+    with open(tmpb + "/twin.json", "w", encoding="utf-8") as h:
+        json.dump(TREC, h)
+    over = {"unreal": fe, "HERE": tmpb + "/", "PROJECT": proj, "TWIN_RECORD": tmpb + "/twin.json",
+            "TWIN_SYNC_RECORD": tmpb + "/sync.json", "BACKUP_ROOT_TWIN_SYNC": tmpb + "/bk/PreS3PearlTwinSync-",
+            "_twin_sync_live": lambda world: {"pearl": sync_live()["pearl"],
+                                              "targets": {MI(k): G["_mi_full_values"](MI(k)) for k in (PF, PD)},
+                                              "source": G["_mi_full_values"](MI(GO))}}
+    os.makedirs(tmpb + "/bk")
+    return fe, tmpb, over
+
+
+def with_globals(over, fn):
+    keep = {k: G[k] for k in over}
+    G.update(over)
+    try:
+        try:
+            return fn(), None
+        except PlanError as exc:
+            return None, str(exc)
+    finally:
+        G.update(keep)
+
+
+fe, tmpb, over = fake_sync_env()
+vals_mi = lambda k: {"scalars": dict(fe.mats[MI(k)].sc), "vectors": {q: [c.r, c.g, c.b, c.a] for q, c in fe.mats[MI(k)].vc.items()}}  # noqa: E731
+orig = {k: vals_mi(k) for k in (PF, PD)}
+check("M8.env_twins_carry_v3_values(+)", all(orig[k]["scalars"]["Glow"] == 0.42 and orig[k]["scalars"]["Fade"] == 1.0 for k in (PF, PD))
+      and fe.mats[MI(GO)].sc["Glow"] == 0.03, orig[PF]["scalars"].get("Glow"))
+r_, err = with_globals(over, lambda: G["run_clam_pearl_twin_sync"]("RUNS", {}, None))
+now = {k: vals_mi(k) for k in (PF, PD)}
+check("M8.sync_ok_saves_only_the_two_mis(+)", r_ is not None and sorted(fe.saved) == sorted([MI(PF), MI(PD)]) and not fe.dirty and
+      os.path.exists(tmpb + "/sync.json"), err or fe.saved)
+if r_ is not None:
+    srec_ = json.load(open(tmpb + "/sync.json", encoding="utf-8"))
+    check("M8.synced_values_equal_variant(+)", all(T["_snap_close"](now[k]["scalars"][p], vv["scalars"][p]) for k in (PF, PD)
+                                                   for p in T["TWIN_SYNC_SCALARS"]) and
+          all(T["near"](now[k]["vectors"][p], vv["vectors"][p], 1e-9) for k in (PF, PD) for p in T["TWIN_SYNC_VECTORS"]),
+          now[PF]["scalars"].get("Glow"))
+    check("M8.fade_baseopacity_breath_untouched(+)", all(now[k]["scalars"][p] == orig[k]["scalars"][p] for k in (PF, PD)
+                                                         for p in T["TWIN_SYNC_FORBIDDEN"] if p in orig[k]["scalars"]) and
+          now[PF]["scalars"]["BaseOpacity"] == 1.0, {k: {p: now[k]["scalars"].get(p) for p in T["TWIN_SYNC_FORBIDDEN"]} for k in (PF, PD)})
+    check("M8.record_holds_originals_and_backup(+)", srec_["saved"] and srec_["applied"] and
+          all(t["before"] == json.loads(json.dumps(orig[t["key"]])) for t in srec_["plan"]["targets"]) and
+          sorted(os.listdir(r_["backup"])) == sorted(["MI_PearlClam_Pearl_Fade.uasset", "MI_PearlClam_Pearl_Dither.uasset", "sync.json"]),
+          os.listdir(r_["backup"]))
+    check("M8.skipped_none_on_built_twins(+)", r_["skipped"] == {PF: [], PD: []}, r_["skipped"])
+    fe.saved.clear()
+    r2_, err2 = with_globals(over, lambda: G["run_clam_pearl_twin_sync_revert"]("RUNR", None))
+    back = {k: vals_mi(k) for k in (PF, PD)}
+    check("M8.revert_exact_and_saved(+)", r2_ is not None and back == orig and sorted(fe.saved) == sorted([MI(PF), MI(PD)]) and
+          not os.path.exists(tmpb + "/sync.json") and os.path.exists(tmpb + "/sync.json.reverted-RUNR"), err2)
+fe, tmpb, over = fake_sync_env()
+r_, err = with_globals(over, lambda: G["run_clam_pearl_twin_sync"]("RUNS", {}, None))
+fe.saved.clear()
+fe.mats[MI(PF)].sc["Glow"] = 0.25                                  # someone tuned the twin after the sync
+r2_, err2 = with_globals(over, lambda: G["run_clam_pearl_twin_sync_revert"]("RUNR", None))
+check("M8.revert_with_drift_refused_nothing_saved(-)", r_ is not None and r2_ is None and "TWIN_SYNC_DRIFT" in (err2 or "") and
+      fe.saved == [] and os.path.exists(tmpb + "/sync.json"), err2)
+fe, tmpb, over = fake_sync_env(setter_lies=True)
+r_, err = with_globals(over, lambda: G["run_clam_pearl_twin_sync"]("RUNS", {}, None))
+check("M8.lying_setter_caught_by_readback_nothing_saved(-)", r_ is None and "TWIN_SYNC_READBACK" in (err or "") and fe.saved == [], err)
+fe, tmpb, over = fake_sync_env()
+fe.dirty.add("/Game/Someone/Else")
+r_, err = with_globals(over, lambda: G["run_clam_pearl_twin_sync"]("RUNS", {}, None))
+check("M8.foreign_dirty_package_refused_nothing_saved(-)", r_ is None and "DIRTY_SCOPE" in (err or "") and fe.saved == [], err)
 
 # ------------------------------------------------------------------ report
 fails = [r for r in RESULTS if not r["ok"]]

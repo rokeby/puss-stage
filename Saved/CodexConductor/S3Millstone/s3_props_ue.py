@@ -96,6 +96,24 @@ Modes (every write mode: confirm string, no PIE, editor world = the show level, 
   CLAM_PEARL_TWIN_SET_MATERIAL  same "twin" args: swaps ONLY the twin's slot 0 (+ its cast_shadow default).
   CLAM_PEARL_TWIN_REVERT  destroys only the recorded tagged twin (refuses if a sequence binds it unless
                "allow_bound_revert").  CLAM_REVERT, PEARL_SWAP and PEARL_UNSWAP refuse while the twin record exists.
+  --- 8 Oct: Pearl v3 GreenOrange (Gary: "not really emitting or giving light ... the slightest brightness ... a
+      pearlescent green sheen. Green and orange iridescence"; written OFFLINE, never run) ---
+  BUILD_MAT    prop "PearlClam" material "Pearl_v3_GreenOrange": MI-ONLY.  Create-only MI_PearlClam_Pearl_v3_GreenOrange
+               on the EXISTING M_PearlClam_Pearl_v3 (refuses if the MI exists, if the master is missing, or if the live
+               MI_PearlClam_Pearl_v3's parent is not that master).  Copies EVERY live v3 value, then the overrides
+               (GREEN_ORANGE_DEFAULTS; args "variant": {"scalars": {...}, "vectors": {...}} override each one; Glow above
+               VARIANT_MAX_GLOW refuses unless "allow_glow_above_max").  Every parameter read back; MI-only save.
+  CLAM_LOOK_MAT_CHECK  also accepts "Pearl_v3_GreenOrange" (read-only: master spec, parent, every value vs the record).
+  CLAM_LOOK_SWAP   look "Pearl_v3_GreenOrange": the pearl's slot 0 FROM MI_PearlClam_Pearl_v3 (needs the Pearl_v3 look
+               record: a chain), own record, "S3 Drama Pearl Glow" read back unchanged.  CLAM_LOOK_UNSWAP Pearl_v3 refuses
+               while it is swapped; its own UNSWAP restores the v3 MI exactly (and refuses while the twin sync record
+               exists).  The twin record does NOT block it: the twin is a separate actor.
+  CLAM_PEARL_TWIN_SYNC  needs the twin record.  Copies TWIN_SYNC_SCALARS / TWIN_SYNC_VECTORS from the pearl's CURRENT
+               slot-0 MI onto MI_PearlClam_Pearl_Fade AND MI_PearlClam_Pearl_Dither (only the parameters each declares;
+               the skipped ones listed).  Never Fade / BaseOpacity / BreathAmp / BreathPeriod.  Record first (every
+               original value), .uasset backups (Backups/PreS3PearlTwinSync-<run>), every parameter read back, saves only
+               those two MI assets (no map).  S3PEARLTWIN_SYNC_OK.  CLAM_PEARL_TWIN_SYNC_REVERT: drift since the sync ->
+               refuse; else the originals are written back exactly.  S3PEARLTWIN_SYNC_REVERT_OK.
   The tool refuses PIE.  In PIE get_editor_world() is None and EditorAssetLibrary.load_asset returns None
   [meas 7 Oct]: every load here is unreal.load_asset, and any future PIE path must keep it so.
 
@@ -359,6 +377,42 @@ TWIN_STATE_KEYS = ("label", "tags", "parent_path", "mesh", "materials", "overrid
 TWIN_DRIFT_KEYS = tuple(k for k in TWIN_STATE_KEYS if k != "hidden")   # the sequence keys visibility; level saves can
 #                                                                        persist the evaluated state (memory)
 
+# ------------------------------------------------------------------ Pearl v3 GreenOrange (Gary 8 Oct: "not really emitting
+# or giving light. Maybe just the slightest brightness ... a pearlescent green sheen. Green and orange iridescence").
+# MI-ONLY: a NEW MI on the EXISTING M_PearlClam_Pearl_v3 (no master is created, no node is edited).  The MI copies EVERY
+# live value of MI_PearlClam_Pearl_v3 (look_copy_values, as the twins do), then applies the overrides below (each one an
+# arg: args "variant": {"scalars": {...}, "vectors": {...}}).  Palette = saturate(PA + PB * cos(2 pi (PC * phase + PD)))
+# (IRID_COLOR_CODE); with PC = 1, PD = 0: cos = +1 -> PA + PB = green (0.50, 0.84, 0.58), cos = -1 -> PA - PB = orange
+# (0.94, 0.64, 0.38).  PB carries a NEGATIVE red: FLinearColor stores components unclamped (Color.h:130 [decl]) and the
+# palette is saturate()d only AFTER the sum (IRID_COLOR_CODE below); that SetMaterialInstanceVectorParameterValue keeps a
+# negative component is [inf] (its .cpp is not shipped) -> BUILD_MAT reads every vector back and fails closed.
+PEARL_V3_GO = "Pearl_v3_GreenOrange"
+GREEN_ORANGE_DEFAULTS = {
+    "scalars": {"IridStrength": 0.45, "SubsurfaceIrid": 0.45, "FresnelExponent": 2.0, "Glow": 0.03, "GlowIrid": 0.0},
+    "vectors": {"PaletteA": [0.72, 0.74, 0.48, 1.0], "PaletteB": [-0.22, 0.10, 0.10, 1.0], "PaletteC": [1.0, 1.0, 1.0, 1.0],
+                "PaletteD": [0.0, 0.0, 0.0, 1.0], "SubsurfaceBase": [0.92, 0.91, 0.87, 1.0],
+                "GlowColor": [1.0, 0.97, 0.92, 1.0]}}
+VARIANT_MAX_GLOW = 0.1          # "not really emitting": Glow above this refuses unless args "allow_glow_above_max"
+VARIANT_UNIT_SCALARS = ("IridStrength", "SubsurfaceIrid", "GlowIrid")          # saturate()d lerp weights: keep in [0, 1]
+VARIANT_COLOUR_VECTORS = ("SubsurfaceBase", "GlowColor", "BaseColor")          # plain colours: keep in [0, 1]
+CLAM_EXTRA_MATERIALS[PEARL_V3_GO] = {
+    "mi": "MI_PearlClam_Pearl_v3_GreenOrange", "master": PEARL_V3_MASTER, "tex_set": "Pearl", "scalars": {}, "vectors": {},
+    "breath_from": PEARL_V3, "copy_from": PEARL_V3, "mi_only": True, "overrides": GREEN_ORANGE_DEFAULTS}
+# Slot 0 of the solid pearl, FROM MI_PearlClam_Pearl_v3 (chain: needs the Pearl_v3 look record).  "glow_check": the
+# attached "S3 Drama Pearl Glow" is recorded and read back unchanged after the swap / unswap.
+CLAM_LOOKS[PEARL_V3_GO] = {"targets": {"Pearl": 0}, "slot_name": "M_PearlClam_Pearl", "from_material": PEARL_V3,
+                           "mesh_part": {"Pearl": PEARL_V2}, "breathes": True, "requires_look": PEARL_V3,
+                           "glow_check": True}
+CLAM_MAT_CHECK_MATERIALS = CLAM_MAT_CHECK_MATERIALS + (PEARL_V3_GO,)
+# CLAM_PEARL_TWIN_SYNC: the look values copied from the pearl's CURRENT MI onto BOTH twin MIs (the twin must wear the
+# solid pearl's look or the 4944 switch jumps).  Never Fade / BaseOpacity (the sequence keys Fade) nor the breath.
+TWIN_SYNC_SCALARS = ("IridStrength", "SubsurfaceIrid", "FresnelExponent", "Glow", "GlowIrid")
+TWIN_SYNC_VECTORS = ("PaletteA", "PaletteB", "PaletteC", "PaletteD", "SubsurfaceBase", "GlowColor")
+TWIN_SYNC_FORBIDDEN = ("Fade", "BaseOpacity") + BREATH_PARAMS
+TWIN_SYNC_TARGETS = (PEARL_FADE, PEARL_DITHER)
+TWIN_SYNC_RECORD = HERE + "s3_pearl_twin_sync_record.json"
+BACKUP_ROOT_TWIN_SYNC = PROJECT + "Backups/PreS3PearlTwinSync-"
+
 
 def look_record_path(look):
     _req(look in CLAM_LOOKS, "LOOK|%r" % look)
@@ -474,12 +528,14 @@ def gate_census(census, mode, pending_asset=None):
 MODES = ("DRY", "IMPORT_MESH", "IMPORT_TEX", "VERIFY_TEX", "BUILD_MAT", "APPLY", "REVERT", "PLACE", "UNPLACE",
          "CLAM_DRY", "CLAM_APPLY", "CLAM_REVERT", "PEARL_MAT_CHECK", "PEARL_SWAP", "PEARL_UNSWAP",
          "CLAM_LOOK_MAT_CHECK", "CLAM_LOOK_SWAP", "CLAM_LOOK_UNSWAP",
-         "CLAM_PEARL_TWIN", "CLAM_PEARL_TWIN_SET_MATERIAL", "CLAM_PEARL_TWIN_REVERT")
+         "CLAM_PEARL_TWIN", "CLAM_PEARL_TWIN_SET_MATERIAL", "CLAM_PEARL_TWIN_REVERT",
+         "CLAM_PEARL_TWIN_SYNC", "CLAM_PEARL_TWIN_SYNC_REVERT")
 
 
 def check_mode(args, apply_record_exists, place_record_exists, tex_pending_exists=False, clam_record_exists=False,
-               pearl_swap_exists=False, look_swaps=(), twin_exists=False):
-    """look_swaps: the looks whose CLAM_LOOK_SWAP record exists on disk (main() lists them); twin_exists: TWIN_RECORD."""
+               pearl_swap_exists=False, look_swaps=(), twin_exists=False, twin_sync_exists=False):
+    """look_swaps: the looks whose CLAM_LOOK_SWAP record exists on disk (main() lists them); twin_exists: TWIN_RECORD;
+    twin_sync_exists: TWIN_SYNC_RECORD."""
     mode = str(args.get("mode", "DRY")).upper()
     _req(mode in MODES, "MODE|%s" % mode)
     if mode not in READ_ONLY_MODES:
@@ -514,8 +570,9 @@ def check_mode(args, apply_record_exists, place_record_exists, tex_pending_exist
     look_swaps = sorted(look_swaps or ())
     _req(set(look_swaps) <= set(CLAM_LOOKS), "LOOK_RECORDS_UNKNOWN|%s" % look_swaps)
     _req(not (mode == "CLAM_REVERT" and look_swaps), "LOOK_SWAPPED|%s: run CLAM_LOOK_UNSWAP first" % look_swaps)
-    _req(not (mode in ("PEARL_SWAP", "PEARL_UNSWAP") and PEARL_V3 in look_swaps),
-         "PEARL_LOOK_SWAPPED|CLAM_LOOK_UNSWAP %s first" % PEARL_V3)
+    pearl_looks = [lk for lk in look_swaps if "Pearl" in CLAM_LOOKS[lk]["targets"]]   # Pearl_v3 and Pearl_v3_GreenOrange
+    _req(not (mode in ("PEARL_SWAP", "PEARL_UNSWAP") and pearl_looks),
+         "PEARL_LOOK_SWAPPED|CLAM_LOOK_UNSWAP %s first" % pearl_looks)
     if mode == "CLAM_LOOK_MAT_CHECK":
         _req(args.get("material") in CLAM_MAT_CHECK_MATERIALS, "LOOK_MATERIAL|%r" % args.get("material"))
     _req(not (mode == "CLAM_REVERT" and twin_exists), "TWIN_EXISTS|run CLAM_PEARL_TWIN_REVERT before CLAM_REVERT")
@@ -537,8 +594,22 @@ def check_mode(args, apply_record_exists, place_record_exists, tex_pending_exist
             _req(look not in look_swaps, "LOOK_ALREADY_SWAPPED|%s" % look)
             _req(not (look == PEARL_V3 and not pearl_swap_exists),
                  "PEARL_V3_NEEDS_V2|the v3 MI goes on SM_PearlClam_Pearl_v2: PEARL_SWAP first")
+            need = CLAM_LOOKS[look].get("requires_look")             # chain: GreenOrange replaces the v3 MI
+            _req(not need or (need in look_swaps and pearl_swap_exists),
+                 "LOOK_CHAIN|%s swaps FROM %s: CLAM_LOOK_SWAP %s first (record missing)" % (look, need, need))
         else:
             _req(look in look_swaps, "NO_LOOK_SWAP_RECORD|%s" % look)
+            deps = sorted(lk for lk in look_swaps if CLAM_LOOKS[lk].get("requires_look") == look)
+            _req(not deps, "LOOK_DEPENDENT_SWAPPED|%s: CLAM_LOOK_UNSWAP %s first (it swapped FROM %s)" % (deps, deps, look))
+            _req(not (look == PEARL_V3_GO and twin_sync_exists),
+                 "TWIN_SYNCED|the twin MIs carry the %s values: CLAM_PEARL_TWIN_SYNC_REVERT first" % look)
+    if mode in ("CLAM_PEARL_TWIN_SYNC", "CLAM_PEARL_TWIN_SYNC_REVERT"):
+        if mode == "CLAM_PEARL_TWIN_SYNC":
+            _req(clam_record_exists, "NO_CLAM_RECORD|the clam must be applied before a twin sync")
+            _req(twin_exists, "NO_TWIN_RECORD|%s (CLAM_PEARL_TWIN first: the twin MIs are synced for it)" % TWIN_RECORD)
+            _req(not twin_sync_exists, "TWIN_SYNC_ALREADY|%s (CLAM_PEARL_TWIN_SYNC_REVERT first)" % TWIN_SYNC_RECORD)
+        else:   # the revert restores two MI ASSETS: it must still work after CLAM_PEARL_TWIN_REVERT destroyed the twin
+            _req(twin_sync_exists, "NO_TWIN_SYNC_RECORD|%s" % TWIN_SYNC_RECORD)
     _req(not (mode == "APPLY" and apply_record_exists), "ALREADY_APPLIED|" + APPLY_RECORD)
     _req(not (mode == "REVERT" and not apply_record_exists), "NO_APPLY_RECORD")
     _req(not (mode == "PLACE" and place_record_exists), "ALREADY_PLACED|" + PLACE_RECORD)
@@ -1292,9 +1363,13 @@ def look_table_problems():
     specs = material_specs()
     for look, row in CLAM_LOOKS.items():
         m = CLAM_EXTRA_MATERIALS.get(look)
-        if not m or not m.get("master_create_only"):
+        if not m or not (m.get("master_create_only") or m.get("mi_only")):
             probs.append("LOOK_MATERIAL_ROW|%s" % look)
             continue
+        if row.get("requires_look") and (row["requires_look"] != row["from_material"] or row["requires_look"] not in CLAM_LOOKS
+                                         or sorted(CLAM_LOOKS[row["requires_look"]]["targets"].items())
+                                         != sorted(row["targets"].items())):
+            probs.append("LOOK_CHAIN_TABLE|%s" % look)          # the chained look must replace the SAME slot(s)
         s = specs.get(m["master"], {})
         if row["breathes"] != bool(m.get("breath_from")) or row["breathes"] != ("BreathAmp" in s.get("scalars", {})):
             probs.append("LOOK_BREATH_TABLE|%s" % look)
@@ -1377,6 +1452,91 @@ def look_copy_values(key, src):
              "COPY_TEXTURE_DIFFERS|%s|%s want %s" % (param, (src.get("textures") or {}).get(param), want))
     return {"scalars": dict({k: float(v) for k, v in sc.items()}, **{k: float(v) for k, v in m["scalars"].items()}),
             "vectors": {k: [float(x) for x in v] for k, v in vc.items()}, "source": json.loads(json.dumps(src))}
+
+
+# ------------------------------------------------------------------------------- MI-only look variants (pure)
+def palette_endpoints(a, b):
+    """IRID_COLOR_CODE at cos = +1 and cos = -1 (saturate(PA +/- PB)), rgb only."""
+    return {"cos_plus": [_sat(a[i] + b[i]) for i in range(3)], "cos_minus": [_sat(a[i] - b[i]) for i in range(3)]}
+
+
+def variant_table_problems():
+    """Static lint of the mi_only rows: parent = an existing look master; copies from the look whose MI it replaces;
+    overrides name parameters of that master and never the breath / fade."""
+    probs = []
+    specs = material_specs()
+    for key, m in CLAM_EXTRA_MATERIALS.items():
+        if not m.get("mi_only"):
+            continue
+        src = CLAM_EXTRA_MATERIALS.get(m.get("copy_from"), {})
+        if m.get("master_create_only") or src.get("master") != m["master"] or m.get("breath_from") != m.get("copy_from"):
+            probs.append("VARIANT_ROW|%s" % key)
+            continue
+        if m["scalars"] or m["vectors"]:
+            probs.append("VARIANT_ROW_VALUES|%s (MI-only: every value is copied or an override)" % key)
+        s = specs[m["master"]]
+        ov = m.get("overrides") or {}
+        bad = sorted(set(ov.get("scalars", {})) - set(s["scalars"])) + sorted(set(ov.get("vectors", {})) - set(s["vectors"]))
+        if bad:
+            probs.append("VARIANT_OVERRIDE_NOT_ON_MASTER|%s|%s" % (key, bad))
+        forb = sorted((set(ov.get("scalars", {})) | set(ov.get("vectors", {}))) & set(TWIN_SYNC_FORBIDDEN))
+        if forb:
+            probs.append("VARIANT_OVERRIDE_FORBIDDEN|%s|%s" % (key, forb))
+        if key in CLAM_LOOKS and CLAM_LOOKS[key]["from_material"] != m["copy_from"]:
+            probs.append("VARIANT_LOOK_SOURCE|%s" % key)
+    return probs
+
+
+def _vec4(v, alpha):
+    _req(isinstance(v, (list, tuple)) and len(v) in (3, 4), "VARIANT_VECTOR_SHAPE|%r" % (v,))
+    out = [float(x) for x in v] + ([] if len(v) == 4 else [float(alpha)])
+    _req(all(math.isfinite(x) for x in out), "VARIANT_VECTOR_VALUE|%r" % (v,))
+    return out
+
+
+def mi_variant_values(key, src, args=None):
+    """src = the LIVE MI_PearlClam_Pearl_v3 as read (look_copy_values gates it: path, parent == the v3 master, every
+    parameter read, the Nacre texture, the breath range).  args = BUILD_MAT args: "variant": {"scalars", "vectors"}
+    (merged over the row's overrides) and "allow_glow_above_max".  Returns the full explicit value set + the plan."""
+    a = args or {}
+    m = clam_material_row(key)
+    _req(m.get("mi_only"), "NOT_AN_MI_VARIANT|%s" % key)
+    _req(not variant_table_problems(), "VARIANT_TABLE|%s" % variant_table_problems())
+    copied = look_copy_values(key, src)
+    spec = material_specs()[m["master"]]
+    user = a.get("variant") or {}
+    _req(isinstance(user, dict) and set(user) <= {"scalars", "vectors"}, "VARIANT_ARG|%r" % (user,))
+    ov_s = dict(m["overrides"].get("scalars", {}), **(user.get("scalars") or {}))
+    ov_v = dict(m["overrides"].get("vectors", {}), **(user.get("vectors") or {}))
+    unknown = sorted(set(ov_s) - set(spec["scalars"])) + sorted(set(ov_v) - set(spec["vectors"]))
+    _req(not unknown, "VARIANT_PARAM_UNKNOWN|%s (not a parameter of %s)" % (unknown, m["master"]))
+    forb = sorted((set(ov_s) | set(ov_v)) & set(TWIN_SYNC_FORBIDDEN))
+    _req(not forb, "VARIANT_FORBIDDEN|%s (the breath is copied unchanged)" % forb)
+    sc = {}
+    for k, v in ov_s.items():
+        _req(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(float(v)), "VARIANT_SCALAR_VALUE|%s|%r" % (k, v))
+        sc[k] = float(v)
+    for k in VARIANT_UNIT_SCALARS:
+        _req(k not in sc or 0.0 <= sc[k] <= 1.0, "VARIANT_SCALAR_RANGE|%s|%s (a saturate()d weight)" % (k, sc.get(k)))
+    _req("FresnelExponent" not in sc or 0.01 <= sc["FresnelExponent"] <= 16.0, "VARIANT_SCALAR_RANGE|FresnelExponent|%s" %
+         sc.get("FresnelExponent"))
+    _req("Glow" not in sc or 0.0 <= sc["Glow"] <= VARIANT_MAX_GLOW or (sc["Glow"] >= 0.0 and a.get("allow_glow_above_max")),
+         "VARIANT_GLOW_NOT_SLIGHT|Glow=%s > %s (Gary: 'not really emitting'; allow_glow_above_max to override)" % (
+             sc.get("Glow"), VARIANT_MAX_GLOW))
+    vc = {k: _vec4(v, copied["vectors"][k][3]) for k, v in ov_v.items()}
+    for k in VARIANT_COLOUR_VECTORS:
+        _req(k not in vc or all(0.0 <= x <= 1.0 for x in vc[k][:3]), "VARIANT_COLOUR_RANGE|%s|%s" % (k, vc.get(k)))
+    for k in ("PaletteA", "PaletteB", "PaletteC", "PaletteD"):
+        _req(k not in vc or all(-2.0 <= x <= 2.0 for x in vc[k][:3]), "VARIANT_PALETTE_RANGE|%s|%s" % (k, vc.get(k)))
+    scal = dict(copied["scalars"], **sc)
+    vec = dict(copied["vectors"], **vc)
+    _req(all(abs(scal[k] - copied["scalars"][k]) < 1e-9 for k in BREATH_PARAMS), "VARIANT_BREATH_CHANGED")
+    changed = sorted([k for k in sc if abs(sc[k] - copied["scalars"][k]) > 1e-9] +
+                     [k for k in vc if not near(vc[k], copied["vectors"][k], 1e-9)])
+    ends = palette_endpoints(vec["PaletteA"], vec["PaletteB"])
+    return {"scalars": scal, "vectors": vec, "source": copied["source"], "overrides": {"scalars": sc, "vectors": vc},
+            "changed": changed, "palette_endpoints": ends, "parent": m["master"],
+            "breath": {k: scal[k] for k in BREATH_PARAMS}}
 
 
 def glow_fade_eval(e, f):
@@ -1537,6 +1697,169 @@ def twin_revert_plan(record, live, args_twin=None):
     return {"op": "destroy_twin", "object_path": t["object_path"], "label": TWIN_LABEL, "bound": bound}
 
 
+# ------------------------------------------------------------------------------- twin look sync (pure; harness-checkable)
+def props_reached(spec, param):
+    """The material properties whose input subgraph contains `param` (what the parameter actually drives)."""
+    return sorted(prop for s, _o, prop in spec["props"] if param in _subgraph(spec, s)[0])
+
+
+def twin_sync_param_problems():
+    probs = []
+    params = list(TWIN_SYNC_SCALARS) + list(TWIN_SYNC_VECTORS)
+    forb = sorted(set(params) & set(TWIN_SYNC_FORBIDDEN))
+    if forb:
+        probs.append("TWIN_SYNC_FORBIDDEN_PARAM|%s (never Fade / BaseOpacity / breath)" % forb)
+    if len(set(params)) != len(params) or set(TWIN_SYNC_SCALARS) & set(TWIN_SYNC_VECTORS):
+        probs.append("TWIN_SYNC_PARAM_DUP")
+    v3 = material_specs()[PEARL_V3_MASTER]
+    if not (set(TWIN_SYNC_SCALARS) <= set(v3["scalars"]) and set(TWIN_SYNC_VECTORS) <= set(v3["vectors"])):
+        probs.append("TWIN_SYNC_NOT_ON_V3|%s" % sorted(set(params) - set(v3["scalars"]) - set(v3["vectors"])))
+    ov = CLAM_EXTRA_MATERIALS[PEARL_V3_GO]["overrides"]
+    if set(ov["scalars"]) != set(TWIN_SYNC_SCALARS) or set(ov["vectors"]) != set(TWIN_SYNC_VECTORS):
+        probs.append("TWIN_SYNC_VS_VARIANT_OVERRIDES|the sync must carry exactly what the variant changes")
+    return probs
+
+
+def twin_sync_mapping():
+    """Per twin target and synced parameter: does the target master declare it (same name, same kind), and which
+    material properties it drives in v3 vs in the target.  Pearl_Fade is translucent DefaultLit: it has no
+    MP_SUBSURFACE_COLOR, but its SubsurfaceBase / SubsurfaceIrid still feed IridSubsurface, which FadeBase mixes into
+    BaseColor by the (copied, unsynced) SubsurfaceAmount -- so the SAME parameter is the correct target (identity map)."""
+    specs = material_specs()
+    v3 = specs[PEARL_V3_MASTER]
+    out = {}
+    for key in TWIN_SYNC_TARGETS:
+        s = specs[clam_material_row(key)["master"]]
+        rows = {}
+        for kind, names in (("scalar", TWIN_SYNC_SCALARS), ("vector", TWIN_SYNC_VECTORS)):
+            for p in names:
+                on = p in (s["scalars"] if kind == "scalar" else s["vectors"])
+                rows[p] = {"kind": kind, "target_param": p if on else None, "on_target_spec": on,
+                           "v3_drives": props_reached(v3, p), "target_drives": props_reached(s, p) if on else []}
+        out[key] = rows
+    return out
+
+
+def _snap_close(a, b, tol=1e-5):
+    return (isinstance(a, list) and isinstance(b, list) and len(a) == len(b) and near(a, b, tol)) if isinstance(a, list) \
+        else (isinstance(a, (int, float)) and isinstance(b, (int, float)) and abs(float(a) - float(b)) <= tol)
+
+
+def twin_sync_state_problems(got, want):
+    """got / want = {"scalars": {...every parameter}, "vectors": {...}} of ONE MI; [] when every value matches."""
+    probs = []
+    got = got or {}
+    for kind in ("scalars", "vectors"):
+        g, w = got.get(kind) or {}, want[kind]
+        if sorted(g) != sorted(w):
+            probs.append("%s_NAMES|%s" % (kind.upper(), sorted(set(g) ^ set(w))))
+        for k in sorted(set(g) & set(w)):
+            if not _snap_close(g[k], w[k]):
+                probs.append("%s|%s|got %s|want %s" % (kind.upper(), k, g[k], w[k]))
+    return probs
+
+
+def twin_sync_plan(twin_record, clam_record, live, args_sync=None):
+    """live = {"pearl": {count, label, object_path, materials}, "source": MI read of the pearl's slot-0 MI,
+    "targets": {mi: {exists, parent, scalar_names, vector_names, scalars, vectors}}}.  Copies TWIN_SYNC_* from the
+    pearl's CURRENT MI onto every twin MI that declares the parameter; lists the skipped ones."""
+    a = dict({"allow_noop": False}, **(args_sync or {}))
+    _req(not twin_sync_param_problems(), "TWIN_SYNC_PARAMS|%s" % twin_sync_param_problems())
+    _req(twin_record.get("applied") and twin_record.get("saved"), "TWIN_RECORD_INVALID")
+    _req(clam_record.get("applied") and clam_record.get("saved"), "CLAM_RECORD_NOT_APPLIED")
+    P = live.get("pearl") or {}
+    _req(P.get("count") == 1 and P.get("label") == CLAM_LABELS["Pearl"] and
+         P.get("object_path") == (clam_record.get("actor_paths") or {}).get("Pearl"), "TWIN_SYNC_PEARL|%s" % P)
+    src_mi = (P.get("materials") or [None])[0]
+    twin_mis = [clam_mi_path(k) for k in TWIN_SYNC_TARGETS]
+    _req(src_mi and src_mi not in twin_mis, "TWIN_SYNC_SOURCE|%s" % src_mi)
+    S = live.get("source") or {}
+    _req(S.get("mi") == src_mi, "TWIN_SYNC_SOURCE_READ|%s vs pearl slot 0 %s" % (S.get("mi"), src_mi))
+    _req(S.get("parent") == PEARL_V3_MASTER, "TWIN_SYNC_SOURCE_PARENT|%s want %s (the twins are built from the v3 spec)"
+         % (S.get("parent"), PEARL_V3_MASTER))
+    for kind, names in (("scalars", TWIN_SYNC_SCALARS), ("vectors", TWIN_SYNC_VECTORS)):
+        for p in names:
+            v = (S.get(kind) or {}).get(p)
+            ok = (isinstance(v, (int, float)) and math.isfinite(float(v))) if kind == "scalars" else \
+                (isinstance(v, list) and len(v) == 4 and all(math.isfinite(float(x)) for x in v))
+            _req(ok, "TWIN_SYNC_SOURCE_UNREAD|%s|%r" % (p, v))
+    targets = []
+    for key in TWIN_SYNC_TARGETS:
+        mi = clam_mi_path(key)
+        Tt = (live.get("targets") or {}).get(mi) or {}
+        _req(Tt.get("exists"), "TWIN_SYNC_TARGET_MISSING|%s (BUILD_MAT %s first)" % (mi, key))
+        _req(Tt.get("parent") == clam_material_row(key)["master"], "TWIN_SYNC_TARGET_PARENT|%s|%s" % (mi, Tt.get("parent")))
+        before = {"scalars": json.loads(json.dumps(Tt.get("scalars") or {})),
+                  "vectors": json.loads(json.dumps(Tt.get("vectors") or {}))}
+        _req(sorted(before["scalars"]) == sorted(Tt.get("scalar_names") or []) and
+             sorted(before["vectors"]) == sorted(Tt.get("vector_names") or []), "TWIN_SYNC_TARGET_UNREAD|%s" % mi)
+        writes, same, skipped = {}, [], []
+        for kind, names in (("scalars", TWIN_SYNC_SCALARS), ("vectors", TWIN_SYNC_VECTORS)):
+            for p in names:
+                if p not in before[kind]:
+                    skipped.append({"param": p, "kind": kind[:-1], "reason": "NOT_ON_TARGET"})
+                    continue
+                to = float(S[kind][p]) if kind == "scalars" else [float(x) for x in S[kind][p]]
+                if _snap_close(before[kind][p], to, 1e-6):
+                    same.append(p)
+                else:
+                    writes[p] = {"kind": kind[:-1], "from": before[kind][p], "to": to}
+        _req(not (set(writes) & set(TWIN_SYNC_FORBIDDEN)), "TWIN_SYNC_FORBIDDEN_WRITE|%s" % sorted(set(writes)))
+        after = json.loads(json.dumps(before))
+        for p, w in writes.items():
+            after[w["kind"] + "s"][p] = json.loads(json.dumps(w["to"]))
+        untouched = {k: before["scalars"][k] for k in TWIN_SYNC_FORBIDDEN if k in before["scalars"]}
+        targets.append({"key": key, "mi": mi, "writes": writes, "unchanged": same, "skipped": skipped, "before": before,
+                        "after": after, "untouched": untouched})
+    _req(any(t["writes"] for t in targets) or a["allow_noop"],
+         "TWIN_SYNC_NOOP|the twin MIs already carry %s's values (nothing to write)" % src_mi)
+    return {"source_mi": src_mi, "source_parent": S["parent"], "targets": targets,
+            "params": {"scalars": list(TWIN_SYNC_SCALARS), "vectors": list(TWIN_SYNC_VECTORS)},
+            "mapping": twin_sync_mapping(), "twin_object_path": twin_record.get("object_path"),
+            "twin_material": twin_record.get("twin_material"), "args": a}
+
+
+def twin_sync_ops(plan, which="to"):
+    """which = "to" (SYNC) | "from" (REVERT).  Only the planned writes; a forbidden parameter refuses."""
+    ops = []
+    for t in plan["targets"]:
+        for p, w in sorted(t["writes"].items()):
+            _req(p not in TWIN_SYNC_FORBIDDEN, "TWIN_SYNC_FORBIDDEN_WRITE|%s" % p)
+            ops.append({"op": "set_param", "mi": t["mi"], "kind": w["kind"], "param": p,
+                        "value": json.loads(json.dumps(w[which]))})
+    return ops
+
+
+def twin_sync_simulate(values, ops):
+    """values = {mi: {"scalars", "vectors"}} (harness).  A write to a missing parameter refuses."""
+    v = json.loads(json.dumps(values))
+    for op in ops:
+        _req(op["op"] == "set_param" and op["mi"] in v, "SIM_SYNC_TARGET|%s" % op.get("mi"))
+        bucket = v[op["mi"]][op["kind"] + "s"]
+        _req(op["param"] in bucket, "SIM_SYNC_PARAM|%s|%s" % (op["mi"], op["param"]))
+        bucket[op["param"]] = json.loads(json.dumps(op["value"]))
+    return v
+
+
+def twin_sync_revert_plan(record, live):
+    """Exact restore: every target must still read exactly as the SYNC left it (drift -> refuse), then the recorded
+    originals are written back to the synced parameters only."""
+    _req(record.get("applied") and record.get("saved"), "TWIN_SYNC_RECORD_INVALID")
+    plan = record["plan"]
+    for t in plan["targets"]:
+        Tt = (live.get("targets") or {}).get(t["mi"]) or {}
+        _req(Tt.get("exists"), "TWIN_SYNC_TARGET_MISSING|%s" % t["mi"])
+        drift = twin_sync_state_problems({"scalars": Tt.get("scalars"), "vectors": Tt.get("vectors")}, t["after"])
+        _req(not drift, "TWIN_SYNC_DRIFT|%s|%s" % (t["mi"], ";".join(drift)))
+    return {"ops": twin_sync_ops(plan, "from"), "targets": [{"mi": t["mi"], "want": t["before"]} for t in plan["targets"]]}
+
+
+def look_glow_problems(before, now):
+    if json.dumps(now or {}, sort_keys=True) != json.dumps(before or {}, sort_keys=True):
+        return ["GLOW_TOUCHED|%s|was %s" % (now, before)]
+    return []
+
+
 # ------------------------------------------------------------------------------- clam look swap (pure; harness-checkable)
 def _breath_close(a, b):
     return all(abs(float(a[k]) - float(b[k])) < 1e-4 for k in BREATH_PARAMS)
@@ -1598,8 +1921,13 @@ def clam_look_swap_plan(look, clam_record, live, args_swap=None):
         _req(_breath_close(ob, nb) or a["allow_breath_change"],
              "LOOK_BREATH_MISMATCH|old %s|new %s (set the new MI or allow_breath_change)" % (ob, nb))
         breath = {"old": ob, "new": nb}
-    return {"look": look, "old_mi": old_mi, "new_mi": new_mi, "master": master, "targets": targets, "breath": breath,
-            "args": a}
+    out = {"look": look, "old_mi": old_mi, "new_mi": new_mi, "master": master, "targets": targets, "breath": breath,
+           "args": a}
+    if row.get("glow_check"):                     # the attached glow light (another session's) must read back unchanged
+        G = live.get("glow")
+        _req(isinstance(G, dict) and isinstance(G.get("count"), int) and "parent_path" in G, "LOOK_GLOW_UNREAD|%s" % G)
+        out["glow_before"] = json.loads(json.dumps(G))
+    return out
 
 
 def clam_look_swap_ops(plan):
@@ -3318,6 +3646,8 @@ def run_build_clam_mat(run, key, args=None):
     """One clam MI per call (Shell | InteriorBottom | InteriorLid | Mantle | Pearl); its master is created first if missing.
     Look materials (Pearl_v3 | Shell_v2 | Mantle_v2): master AND MI must both be new; breathing scalars copied from the
     MI being replaced; connected properties read back."""
+    if clam_material_row(key).get("mi_only"):
+        return run_build_clam_mi_variant(run, key, args)
     eal, mel = unreal.EditorAssetLibrary, unreal.MaterialEditingLibrary
     probs = material_problems()
     _req(not probs, "GRAPH|%s" % probs)
@@ -3414,6 +3744,72 @@ def run_build_clam_mat(run, key, args=None):
     if copied:
         rec.update(copied_from=copied["source"], mi_explicit_vectors=mi_vec, material_readback=mat_rb,
                    blend_mode=spec.get("blend_mode"), translucency_lighting_mode=spec.get("translucency_lighting_mode"))
+    _write(HERE + "s3_props_build_mat_PearlClam_%s.json" % key, rec)
+    return rec
+
+
+def run_build_clam_mi_variant(run, key, args=None):
+    """MI-ONLY look (Pearl_v3_GreenOrange): create-only MI on the EXISTING live master (never creates or edits a
+    master).  Every value of the live copy-source MI is copied, then the overrides applied; every parameter read back."""
+    eal, mel = unreal.EditorAssetLibrary, unreal.MaterialEditingLibrary
+    probs = material_problems()
+    _req(not probs, "GRAPH|%s" % probs)
+    _req(not look_table_problems(), "LOOK_TABLE|%s" % look_table_problems())
+    m = clam_material_row(key)
+    spec = material_specs()[m["master"]]
+    mi_path = clam_mi_path(key)
+    _req(not eal.does_asset_exist(mi_path), "MI_EXISTS|%s" % mi_path)
+    _req(eal.does_asset_exist(m["master"]), "VARIANT_MASTER_MISSING|%s (MI-only: never creates a master)" % m["master"])
+    src = _read_mi_values(clam_mi_path(m["copy_from"]), spec)
+    vals = mi_variant_values(key, src, args)                      # refuses a wrong source parent (not the v3 master)
+    mat = unreal.load_asset(m["master"])
+    _req(isinstance(mat, unreal.Material), "MASTER_LOAD|%s" % m["master"])
+    _req(_asset_path(mat) == src["parent"] == vals["parent"], "VARIANT_PARENT_NOT_LIVE|%s vs live %s parent %s" % (
+        _asset_path(mat), clam_mi_path(m["copy_from"]), src["parent"]))
+    mat_rb = _verify_material(mat, spec)                          # the live master still declares exactly the v3 params
+    textures = {}
+    for r in CLAM_TEX[m["tex_set"]]:
+        t = tex_target(CLAM, m["tex_set"], r)
+        tex = unreal.load_asset(t["asset"])
+        _req(isinstance(tex, unreal.Texture2D), "TEX_MISSING|%s" % t["asset"])
+        textures[r] = tex
+    tools = unreal.AssetToolsHelpers.get_asset_tools()
+    mi = tools.create_asset(m["mi"], CLAM_FOLDER, unreal.MaterialInstanceConstant,
+                            unreal.MaterialInstanceConstantFactoryNew())
+    _req(mi is not None, "MI_CREATE")
+    mi.modify()
+    mel.set_material_instance_parent(mi, mat)
+    for param, role in spec["tex_params"].items():
+        mel.set_material_instance_texture_parameter_value(mi, param, textures[role])      # bool lies: read back
+    for k, v in vals["scalars"].items():
+        mel.set_material_instance_scalar_parameter_value(mi, k, float(v))
+    for k, v in vals["vectors"].items():
+        mel.set_material_instance_vector_parameter_value(mi, k, unreal.LinearColor(*[float(c) for c in v]))
+    mel.update_material_instance(mi)
+    _req(_path(mi.get_editor_property("parent")) == _path(mat), "MI_PARENT")
+    for param, role in spec["tex_params"].items():
+        got = mel.get_material_instance_texture_parameter_value(mi, param)
+        _req(_path(got) == _path(textures[role]), "MI_TEX|%s|%s" % (param, _path(got)))
+    scal = {k: float(mel.get_material_instance_scalar_parameter_value(mi, k)) for k in spec["scalars"]}
+    _req(all(abs(scal[k] - vals["scalars"][k]) < 1e-4 for k in spec["scalars"]), "MI_SCALARS|%s" % scal)
+    vec = {}
+    for k in spec["vectors"]:
+        c = mel.get_material_instance_vector_parameter_value(mi, k)
+        vec[k] = [float(c.r), float(c.g), float(c.b), float(c.a)]
+    # a clamped negative PaletteB component (red -0.22) fails HERE, before anything is saved
+    _req(all(near(vec[k], vals["vectors"][k], 1e-4) for k in spec["vectors"]), "MI_VECTORS|%s" % vec)
+    _req(_census() == {"content": [mi_path], "maps": []}, "DIRTY_SCOPE|%s" % _census())
+    _req(eal.save_asset(mi_path, only_if_is_dirty=False), "SAVE|%s" % mi_path)
+    _req(_census() == {"content": [], "maps": []}, "POST_SAVE_DIRTY|%s" % _census())
+    mi, mat, textures = None, None, None
+    unreal.SystemLibrary.collect_garbage()
+    rec = {"run": run, "prop": CLAM, "material": key, "mi": mi_path, "master": m["master"], "master_created": False,
+           "mi_only": True, "scalars": scal, "vectors": vec, "saved": True, "copied_from": vals["source"],
+           "overrides": vals["overrides"], "changed": vals["changed"], "palette_endpoints": vals["palette_endpoints"],
+           "breath_source": clam_mi_path(m["breath_from"]), "breath_inherited": vals["breath"],
+           "mi_explicit_scalars": vals["scalars"], "mi_explicit_vectors": vals["vectors"], "material_readback": mat_rb,
+           "shading_model": spec.get("shading_model"), "args": {k: v for k, v in (args or {}).items()
+                                                                if k in ("variant", "allow_glow_above_max")}}
     _write(HERE + "s3_props_build_mat_PearlClam_%s.json" % key, rec)
     return rec
 
@@ -3912,7 +4308,7 @@ def run_clam_look_mat_check(run, key):
     rec = {"run": run, "material": key, "log": log, "build_marker_in_log": bool(built), "named_errors": named,
            "unattributed_failed_to_compile": unattributed[-10:], "stats": stats, "scalars": scal,
            "prop_readback": rows, "prop_readback_unavailable": bool(rb), "shading_model": spec.get("shading_model"),
-           "material_readback": mat_rb}
+           "material_readback": mat_rb, "mi_only": bool(m.get("mi_only"))}
     _write(HERE + "s3_clam_look_mat_check_%s_%s.json" % (key, run), rec)
     return rec
 
@@ -3957,6 +4353,8 @@ def _look_live(world, look, with_tracks=True):
             _req(isinstance(sm, unreal.StaticMesh), "LOOK_MESH_LOAD|%s" % mesh)
             live["mesh_slots"][mesh] = [str(s.get_editor_property("material_slot_name"))
                                         for s in sm.get_editor_property("static_materials")]
+    if row.get("glow_check"):
+        live["glow"] = _glow_live(world)
     if row["breathes"]:
         for p in (old_mi, new_mi):
             if live["assets"][p]:
@@ -3978,11 +4376,21 @@ def _set_slot_material(world, op):
     c.set_material(int(op["slot"]), mi)             # return value not trusted: read back by the caller
 
 
-def _look_check(world, look, targets, which):
+def _glow_live(world):
+    """{count, parent_path} of GLOW_LABEL (same read as _twin_live); plain data only."""
+    rows = _index(world).get(GLOW_LABEL, [])
+    out = {"count": len(rows), "parent_path": _path(rows[0].get_attach_parent_actor()) if len(rows) == 1 else None}
+    rows = None
+    return out
+
+
+def _look_check(world, look, targets, which, glow_before=None):
     idx = _index(world)
     actors = {t["part"]: _look_actor_live(world, idx, t["part"], with_tracks=False) for t in targets}
     idx = None
     probs = clam_look_state_problems(actors, targets, which)
+    if glow_before is not None:                      # Pearl_v3_GreenOrange: the attached glow light stays attached
+        probs += look_glow_problems(glow_before, _glow_live(world))
     _req(not probs, "LOOK_READBACK|%s|%s|%s" % (look, which, ";".join(probs)))
     return actors
 
@@ -3994,8 +4402,14 @@ def run_clam_look_swap(run, args, world):
         clam = json.load(h)
     live = _look_live(world, look)
     plan = clam_look_swap_plan(look, clam, live, args.get("look_swap"))
+    gb = plan.get("glow_before")                                       # None for the looks without "glow_check"
     record = {"run": run, "world": WORLD, "look": look, "plan": plan, "clam_record_run": clam.get("run"),
               "census_before": _census(), "saved": False, "applied": False}
+    if "Pearl" in CLAM_LOOKS[look]["targets"]:
+        # the fade twin is a separate actor (never touched here); its MIs carry the PREVIOUS pearl look until
+        # CLAM_PEARL_TWIN_SYNC copies this one onto them (the 4944 switch would jump otherwise)
+        record["twin_record_exists"] = os.path.exists(TWIN_RECORD)
+        record["twin_sync_needed"] = record["twin_record_exists"]
     _write(path, record, exclusive=True)                               # RECORD FIRST (old MI per slot)
     unreal.log("S3CLAMLOOK_RECORD|run=%s|look=%s|path=%s|old_mi=%s|slots=%s" % (
         run, look, path, plan["old_mi"], [(t["part"], t["slot"]) for t in plan["targets"]]))
@@ -4003,15 +4417,16 @@ def run_clam_look_swap(run, args, world):
     _write(path, record)
     for op in clam_look_swap_ops(plan):
         _set_slot_material(world, op)
-    _look_check(world, look, plan["targets"], "after")
+    _look_check(world, look, plan["targets"], "after", gb)
     _save(world, [])                                                   # map only (census-exact)
     record["saved"] = True
     _write(path, record)
-    got = _look_check(world, look, plan["targets"], "after")           # fresh lookup after the save
+    got = _look_check(world, look, plan["targets"], "after", gb)       # fresh lookup after the save
     record["applied"], record["after_readback"] = True, got
     _write(path, record)
     return {"look": look, "mi": plan["new_mi"], "targets": [(t["part"], t["slot"]) for t in plan["targets"]],
-            "breath": plan["breath"], "backup": record["backup"]}
+            "breath": plan["breath"], "glow": gb, "twin_sync_needed": record.get("twin_sync_needed", False),
+            "backup": record["backup"]}
 
 
 def run_clam_look_unswap(run, args, world):
@@ -4021,14 +4436,15 @@ def run_clam_look_unswap(run, args, world):
         record = json.load(h)
     _req(record.get("saved") and record.get("applied") and record.get("look") == look, "LOOK_RECORD_INVALID|%s" % path)
     plan = record["plan"]
-    _look_check(world, look, plan["targets"], "after")                 # drift since the swap -> refuse before mutating
+    gb = plan.get("glow_before")                                       # older records have none: not checked
+    _look_check(world, look, plan["targets"], "after", gb)             # drift since the swap -> refuse before mutating
     ops = clam_look_unswap_ops(record)
     backup = _backup(BACKUP_ROOT_LOOK, run + "-UNSWAP", (path,))
     for op in ops:
         _set_slot_material(world, op)
-    _look_check(world, look, plan["targets"], "before")
+    _look_check(world, look, plan["targets"], "before", gb)
     _save(world, [])
-    _look_check(world, look, plan["targets"], "before")
+    _look_check(world, look, plan["targets"], "before", gb)
     os.replace(path, path + ".unswapped-" + run)
     return {"look": look, "restored_mi": plan["old_mi"], "targets": [(t["part"], t["slot"]) for t in plan["targets"]],
             "backup": backup}
@@ -4216,6 +4632,147 @@ def run_clam_pearl_twin_revert(run, args, world):
     return {"destroyed": plan["object_path"], "bound_left_dangling": plan["bound"], "backup": backup}
 
 
+# ------------------------------------------------------------------------------------------- twin look sync glue
+def _uasset_file(asset_path):
+    _req(asset_path.startswith("/Game/"), "NOT_GAME_ASSET|%s" % asset_path)
+    return PROJECT + "Content/" + asset_path[len("/Game/"):] + ".uasset"
+
+
+def _backup_assets(root, run, asset_paths, extra=()):
+    """Byte copies of the named .uasset files (+ extra files), hash-verified.  No map: the sync writes no level."""
+    d = root + run
+    os.makedirs(d)
+    for src in [_uasset_file(p) for p in asset_paths] + list(extra):
+        _req(os.path.isfile(src), "BACKUP_SOURCE_MISSING|%s" % src)
+        dst = os.path.join(d, os.path.basename(src))
+        shutil.copy2(src, dst)
+        _req(os.path.getsize(dst) == os.path.getsize(src), "BACKUP_SIZE|%s" % dst)
+        _req(sha256_file(dst) == sha256_file(src), "BACKUP_HASH|%s" % dst)
+    return d
+
+
+def _mi_full_values(mi_path):
+    """Every scalar + vector the MI's parent declares, with the MI's effective values (plain data only).  Parameter
+    names are read on the PARENT material (GetScalarParameterNames takes a UMaterialInterface, MaterialEditingLibrary.h:502
+    [decl]; on a UMaterial it is how _verify_material already reads them [meas: the BUILD_MAT runs])."""
+    eal, mel = unreal.EditorAssetLibrary, unreal.MaterialEditingLibrary
+    if not eal.does_asset_exist(mi_path):
+        return {"mi": mi_path, "exists": False}
+    mi = unreal.load_asset(mi_path)
+    _req(mi is not None, "MI_LOAD|%s" % mi_path)
+    parent = mi.get_editor_property("parent")
+    _req(isinstance(parent, unreal.Material), "MI_PARENT_NOT_MATERIAL|%s" % mi_path)
+    sn = sorted(str(x) for x in mel.get_scalar_parameter_names(parent))
+    vn = sorted(str(x) for x in mel.get_vector_parameter_names(parent))
+    out = {"mi": mi_path, "exists": True, "parent": _asset_path(parent), "scalar_names": sn, "vector_names": vn,
+           "scalars": {k: float(mel.get_material_instance_scalar_parameter_value(mi, k)) for k in sn}, "vectors": {}}
+    for k in vn:
+        c = mel.get_material_instance_vector_parameter_value(mi, k)
+        out["vectors"][k] = [float(c.r), float(c.g), float(c.b), float(c.a)]
+    mi, parent = None, None
+    return out
+
+
+def _twin_sync_live(world):
+    idx = _index(world)
+    rows = idx.get(CLAM_LABELS["Pearl"], [])
+    pearl = {"count": len(rows)}
+    if len(rows) == 1:
+        c = _smc(rows[0])
+        pearl.update(label=str(rows[0].get_actor_label()), object_path=_path(rows[0]),
+                     materials=[_asset_path(c.get_material(i)) for i in range(int(c.get_num_materials()))])
+        c = None
+    rows, idx = None, None
+    live = {"pearl": pearl, "targets": {clam_mi_path(k): _mi_full_values(clam_mi_path(k)) for k in TWIN_SYNC_TARGETS}}
+    src = (pearl.get("materials") or [None])[0]
+    live["source"] = _mi_full_values(src) if src else {}
+    return live
+
+
+def _apply_param_ops(ops):
+    mel = unreal.MaterialEditingLibrary
+    by_mi = {}
+    for op in ops:
+        _req(op["op"] == "set_param" and op["param"] not in TWIN_SYNC_FORBIDDEN, "TWIN_SYNC_FORBIDDEN_WRITE|%s" % op)
+        by_mi.setdefault(op["mi"], []).append(op)
+    for path, rows in sorted(by_mi.items()):
+        mi = unreal.load_asset(path)
+        _req(mi is not None, "MI_LOAD|%s" % path)
+        mi.modify()
+        for op in rows:                                  # setter bools lie: the caller reads every parameter back
+            if op["kind"] == "scalar":
+                mel.set_material_instance_scalar_parameter_value(mi, op["param"], float(op["value"]))
+            else:
+                mel.set_material_instance_vector_parameter_value(mi, op["param"],
+                                                                 unreal.LinearColor(*[float(c) for c in op["value"]]))
+        mel.update_material_instance(mi)
+        mi = None
+    return sorted(by_mi)
+
+
+def _twin_sync_check(targets, which):
+    """Every parameter (synced or not) of every target reads exactly as targets[i][which]."""
+    got = {}
+    for t in targets:
+        live = _mi_full_values(t["mi"])
+        probs = twin_sync_state_problems(live, t[which])
+        _req(not probs, "TWIN_SYNC_READBACK|%s|%s|%s" % (t["mi"], which, ";".join(probs)))
+        got[t["mi"]] = {"scalars": live["scalars"], "vectors": live["vectors"]}
+    return got
+
+
+def _save_assets_only(paths):
+    """Census-exact asset save (no map): exactly `paths` dirty before, nothing after."""
+    c = _census()
+    _req(c == {"content": sorted(paths), "maps": []}, "DIRTY_SCOPE|%s" % json.dumps(c))
+    for p in sorted(paths):
+        _req(unreal.EditorAssetLibrary.save_asset(p, only_if_is_dirty=False), "SAVE|" + p)
+    after = _census()
+    _req(after == {"content": [], "maps": []}, "POST_SAVE_DIRTY|%s" % json.dumps(after))
+
+
+def run_clam_pearl_twin_sync(run, args, world):
+    with open(TWIN_RECORD, encoding="utf-8") as h:
+        twin = json.load(h)
+    with open(CLAM_RECORD, encoding="utf-8") as h:
+        clam = json.load(h)
+    plan = twin_sync_plan(twin, clam, _twin_sync_live(world), args.get("twin_sync"))
+    written = sorted(t["mi"] for t in plan["targets"] if t["writes"])
+    record = {"run": run, "world": WORLD, "plan": plan, "written": written, "census_before": _census(),
+              "saved": False, "applied": False}
+    _write(TWIN_SYNC_RECORD, record, exclusive=True)                 # RECORD FIRST (every original value of both MIs)
+    unreal.log("S3PEARLTWIN_SYNC_RECORD|run=%s|path=%s|source=%s|writes=%s" % (
+        run, TWIN_SYNC_RECORD, plan["source_mi"], {t["key"]: sorted(t["writes"]) for t in plan["targets"]}))
+    record["backup"] = _backup_assets(BACKUP_ROOT_TWIN_SYNC, run, [t["mi"] for t in plan["targets"]], (TWIN_SYNC_RECORD,))
+    _write(TWIN_SYNC_RECORD, record)
+    _apply_param_ops(twin_sync_ops(plan, "to"))
+    _twin_sync_check(plan["targets"], "after")                       # Fade / BaseOpacity / breath read back unchanged too
+    _save_assets_only(written)
+    record["saved"] = True
+    _write(TWIN_SYNC_RECORD, record)
+    got = _twin_sync_check(plan["targets"], "after")                 # fresh loads after the save
+    record["applied"], record["after_readback"] = True, got
+    _write(TWIN_SYNC_RECORD, record)
+    return {"source": plan["source_mi"], "written": written,
+            "writes": {t["key"]: sorted(t["writes"]) for t in plan["targets"]},
+            "skipped": {t["key"]: [s["param"] for s in t["skipped"]] for t in plan["targets"]},
+            "untouched": {t["key"]: t["untouched"] for t in plan["targets"]}, "backup": record["backup"]}
+
+
+def run_clam_pearl_twin_sync_revert(run, world):
+    with open(TWIN_SYNC_RECORD, encoding="utf-8") as h:
+        record = json.load(h)
+    rp = twin_sync_revert_plan(record, {"targets": {t["mi"]: _mi_full_values(t["mi"]) for t in record["plan"]["targets"]}})
+    backup = _backup_assets(BACKUP_ROOT_TWIN_SYNC, run + "-REVERT", [t["mi"] for t in record["plan"]["targets"]],
+                            (TWIN_SYNC_RECORD,))
+    _apply_param_ops(rp["ops"])
+    _twin_sync_check(record["plan"]["targets"], "before")
+    _save_assets_only(record["written"])
+    _twin_sync_check(record["plan"]["targets"], "before")
+    os.replace(TWIN_SYNC_RECORD, TWIN_SYNC_RECORD + ".reverted-" + run)
+    return {"restored": record["written"], "params": sorted({op["param"] for op in rp["ops"]}), "backup": backup}
+
+
 def run_clam_dry(run, args, world, census):
     a = dict(CLAM_DEFAULTS, **(args.get("apply_clam") or {}))
     man = json.load(open(CLAM_MANIFEST, encoding="utf-8"))
@@ -4267,7 +4824,7 @@ def main():
         look_swaps = [lk for lk in CLAM_LOOKS if os.path.exists(look_record_path(lk))]
         mode = check_mode(args, os.path.exists(APPLY_RECORD), os.path.exists(PLACE_RECORD), pending is not None,
                           os.path.exists(CLAM_RECORD), os.path.exists(PEARL_SWAP_RECORD), look_swaps,
-                          os.path.exists(TWIN_RECORD))
+                          os.path.exists(TWIN_RECORD), os.path.exists(TWIN_SYNC_RECORD))
         unreal.log("S3PROPS_START|run=%s|mode=%s|prop=%s" % (run, mode, args.get("prop")))
         ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
         _req(ed.get_game_world() is None, "PIE_ACTIVE")
@@ -4389,6 +4946,22 @@ def main():
         elif mode == "CLAM_PEARL_TWIN_REVERT":
             r = run_clam_pearl_twin_revert(run, args, world)
             unreal.log("S3PEARLTWIN_REVERT_OK|run=%s|level_saved=1|dirty_after=0+0|%s" % (run, json.dumps(r)))
+        elif mode == "CLAM_PEARL_TWIN_SYNC":
+            try:
+                r = run_clam_pearl_twin_sync(run, args, world)
+            except Exception:
+                if os.path.exists(TWIN_SYNC_RECORD):
+                    with open(TWIN_SYNC_RECORD, encoding="utf-8") as h:
+                        saved = json.load(h).get("saved")
+                    if not saved:
+                        os.replace(TWIN_SYNC_RECORD, TWIN_SYNC_RECORD + ".failed-" + run)
+                raise
+            unreal.log("S3PEARLTWIN_SYNC_OK|run=%s|assets_saved=%d|level_saved=0|dirty_after=0+0|%s" % (
+                run, len(r["written"]), json.dumps(r)))
+        elif mode == "CLAM_PEARL_TWIN_SYNC_REVERT":
+            r = run_clam_pearl_twin_sync_revert(run, world)
+            unreal.log("S3PEARLTWIN_SYNC_REVERT_OK|run=%s|assets_saved=%d|level_saved=0|dirty_after=0+0|%s" % (
+                run, len(r["restored"]), json.dumps(r)))
         elif mode == "CLAM_REVERT":
             r = run_clam_revert(run, world)
             unreal.log("S3CLAM_REVERT_OK|run=%s|%s" % (run, json.dumps(r)))
