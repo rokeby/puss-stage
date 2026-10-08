@@ -53,3 +53,6 @@ All [measured] by success markers unless marked.
   done (S3KM-20261008-023655halo: 12 cd to 4800, 18 cd 4872–4896, 0 at 4920). The pearl MESH fade needs a keyable Fade
   param on the pearl material; that was requested from finishing touches (they own the pearl look). Pending.
   Tests green after (SceneCutBindingsResolve re-run singly).
+- ~03:25 Bones imported (Gary: "Import only", then "just do the bone import for now"): SM/T×3/MI for HominidJaw,
+  HominidLegBone (MI RoughnessMultiplier 1.95), HominidRibcage under /Game/InfinityStage/Dev/Generated/S3Props/
+  (runs S3PROPS-20261007-2318xx…232443, each VERIFY_TEX 4096², BUILD_MAT OK) [measured markers]. Not placed.
