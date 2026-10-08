@@ -98,8 +98,8 @@ def capture(u, run, world, here):
     pc = pearl.get_component_by_class(u.StaticMeshComponent)
     tc = twin.get_component_by_class(u.StaticMeshComponent)
     lc = glow.get_component_by_class(u.LightComponent)
-    orig = {"pearl_mat": pc.get_material(0), "twin_mat": tc.get_material(0), "pearl_hidden": pearl.is_hidden(),
-            "twin_hidden": twin.is_hidden(), "glow": float(lc.get_editor_property("intensity"))}
+    orig = {"pearl_mat": pc.get_material(0), "twin_mat": tc.get_material(0), "pearl_hidden": bool(pearl.get_editor_property("hidden")),
+            "twin_hidden": bool(twin.get_editor_property("hidden")), "glow": float(lc.get_editor_property("intensity"))}
     tgt = pearl.get_actor_location()
     out = os.path.join(u.Paths.convert_relative_path_to_full(u.Paths.project_saved_dir()), "CodexConductor",
                        "Captures", run)
