@@ -1312,6 +1312,9 @@ def main():
         with open(os.path.join(_here(), ARGS_NAME), "r", encoding="utf-8") as handle:
             args = json.load(handle)
     ARGS_CACHE = args
+    if args.get("seq_record"):    # 8 Oct conductor: S2 hooks in later than S1/S4 -> its own record, so S1/S4 stay applied
+        global SEQ_RECORD
+        SEQ_RECORD = str(args["seq_record"])
     run = str(args.get("run_id") or datetime.datetime.now().strftime("KLARAHOOK-%Y%m%d-%H%M%S"))
     mode = str(args.get("mode") or "").upper()
     bad = validate_args(args)

@@ -1,0 +1,153 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "run_id": null,
+ "decided_by": "Gary 8 Oct evening (own answers, conductor questionnaire): Klara's new shrine 'replaces everything we have in that scene'; opening 'Same as S1/S4' (land in the dark, then her shot); our S2 kept in the file but deactivated. Stand-in narration muted (her LS carries Shrine_Stereo audio) - conductor, reversible.",
+ "copy_folder": "/Game/InfinityStage/KlaraHookin",
+ "margin_cm": 100.0,
+ "hangars": {
+  "1": {
+   "source": "Saved/CodexStructure/hangar_s1_record.json (30 Sep) [meas, stale: DRY checks the live S1 Hangar Apron]",
+   "dock": {
+    "loc": [
+     28784.0135,
+     0.0,
+     0.0
+    ],
+    "yaw": 0.0
+   },
+   "apron": 500.0,
+   "depth": 6000.0,
+   "half_w": 1000.0,
+   "height": 3000.0,
+   "lattice_z": 1200.0,
+   "floor_t": 20.0,
+   "dock_z_note": "7 Oct live: apron centre z -10 with floor_t 20 => floor top z 0 (the 30 Sep record z 140/150/170 was stale); measured by DRY KLARAHOOK-20261006-224355"
+  },
+  "2": {
+   "source": "Saved/CodexStructure/hangar_s2_record.json (30 Sep) [meas, stale]",
+   "dock": {
+    "loc": [
+     10742.232211654631,
+     81299.0241181779,
+     0.0
+    ],
+    "yaw": -43.57251940082824
+   },
+   "apron": 500.0,
+   "depth": 6000.0,
+   "half_w": 1000.0,
+   "height": 3000.0,
+   "lattice_z": 1200.0,
+   "floor_t": 20.0,
+   "dock_z_note": "7 Oct live: apron centre z -10 with floor_t 20 => floor top z 0 (the 30 Sep record z 140/150/170 was stale); measured by DRY KLARAHOOK-20261006-224355"
+  },
+  "4": {
+   "source": "Saved/CodexStructure/hangar_resize_s4_args.json new (7 Oct S4 resize; valid once HANGAR_RESIZE_S4_APPLY_OK; was hangar_s4_plan.json half_w 1000 / lattice_z 1200)",
+   "dock": {
+    "loc": [
+     10668.4695,
+     240000.0,
+     0.0
+    ],
+    "yaw": 0.0
+   },
+   "apron": 500.0,
+   "depth": 6000.0,
+   "half_w": 1400.0,
+   "height": 3000.0,
+   "lattice_z": 1700.0,
+   "floor_t": 20.0,
+   "dock_z_note": "7 Oct live: apron centre z -10 with floor_t 20 => floor top z 0 (the 30 Sep record z 140/150/170 was stale); measured by DRY KLARAHOOK-20261006-224355"
+  }
+ },
+ "levels": {
+  "/Game/KK_S1_Animals/L_Animals": {
+   "scene": "1",
+   "footprint_her": [
+    -1200,
+    656,
+    -630,
+    386
+   ],
+   "floor_z_her": 0.0,
+   "z_top_her": 554.0,
+   "anchor": "center",
+   "local_yaw_options": [
+    0,
+    180,
+    90,
+    270
+   ],
+   "footprint_note": "2-98% component RelativeLocation pivots, offline parse of her .umap [meas]; pivots understate mesh extent - DRY re-measures live bounds once streamed"
+  },
+  "/Game/Japanese_Alley/Maps/Japanese_Alley": {
+   "scene": "2",
+   "footprint_her": [
+    -2579,
+    811,
+    -1147,
+    1409
+   ],
+   "floor_z_her": 790.0,
+   "z_top_her": 2010.0,
+   "anchor": "center",
+   "local_yaw_options": [
+    0,
+    180,
+    90,
+    270
+   ],
+   "footprint_note": "as above; her ground is ~790 cm (10th-percentile z) [meas]"
+  },
+  "/Game/L_KK_children": {
+   "scene": "4",
+   "footprint_her": [
+    -600,
+    1657,
+    -674,
+    657
+   ],
+   "floor_z_her": 0.0,
+   "z_top_her": 700.0,
+   "anchor": "center",
+   "local_yaw_options": [
+    0,
+    180,
+    90,
+    270
+   ],
+   "footprint_note": "as above"
+  }
+ },
+ "lighting": {
+  "ours_off": true,
+  "hers_on": true,
+  "note": "hers_on needs the proposed CelestialRig exemption (HOOKIN_PLAN.md section 4); DRY refuses until it is built"
+ },
+ "import_only": {},
+ "scenes": {
+  "2": {
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_02",
+   "current_nested": "/Game/Scenes/LS_Shrine",
+   "her_sequence": "/Game/KK_S2_Shrine/LS_NEW_SHRINE",
+   "level_packages": [
+    "/Game/Japanese_Alley/Maps/Japanese_Alley"
+   ],
+   "visible_levels": [
+    "Japanese_Alley"
+   ],
+   "start_option": "land_plus_strike",
+   "wide_hold_s": 5.0,
+   "narration_rule": "mute",
+   "narration_track": "Narration (stand-in)",
+   "tail_s": 0.0,
+   "allow_truncate": [
+    "Camera Cuts"
+   ],
+   "ours_off": true,
+   "hers_dark_until_cut": true
+  }
+ },
+ "seq_record": "klara_hookin_seq_record_S2.json"
+}
