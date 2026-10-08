@@ -89,8 +89,12 @@ def main():
     t.set_display_name(TRACK_NAME)
     s = t.add_section()
     s.set_range(0, int(scene.get_playback_end()) + 1)
+    info = unreal.MaterialParameterInfo()
+    info.set_editor_property("name", unreal.Name(PARAM))
+    tpf = int(round(scene.get_tick_resolution().numerator / float(scene.get_display_rate().numerator)))
     for fr, v in ((0, 1.0), (F0, 1.0), (F1, 0.0)):
-        s.add_scalar_parameter_key(unreal.Name(PARAM), unreal.FrameNumber(fr), v)
+        # 5.8: MovieSceneComponentMaterialParameterSection.add_scalar_parameter_key(info, time[TICKS], value, layer, asset, interp)
+        s.add_scalar_parameter_key(info, unreal.FrameNumber(fr * tpf), v, "", "", unreal.MovieSceneKeyInterpolation.LINEAR)
     got = []
     for ch in s.get_all_channels():
         got.append(sorted((int(k.get_time().frame_number.value), round(k.get_value(), 3)) for k in ch.get_keys()))

@@ -95,3 +95,24 @@ All [measured] by success markers unless marked.
 - Lumen hardware RT [measured]: on the 2:10 frame, r.Lumen.HardwareRayTracing 1 shows extra wall reflections (a pink
   smear Gary doubts is the clam: he saw the rock visible before the clam). Frame time 16.3 -> ~17.5 ms (paused frame,
   6 samples × 2). NOT made permanent; Gary's call pending.
+
+## ~07:10–07:35 Overnight Phase A
+- Codex P1–P4 dispatched (--worktree, codex_briefs/); P5 (mocap calm/frenzy timeline, Gary) dispatched. P2 done: held
+  patch Scripts/patches/2026-10-08_vamp_end_jump.patch (sha 43e54bf7…, git apply --check OK on main; not built).
+  Diagnosis [declaration]: start-at-playhead schedules PlayTo(Scene end); Vamp Tick returns early while the player
+  reports paused at that bounded target, so the Scene-end PlayTo wins [inferred race].
+- Finishing touches A1 (pearl twin, Fade/Dither MIs, twin StaticMeshActor_546) + A3 (lid 55°) done; A4 S1 pre-roll
+  refused safely (probe gating + sub-frame section) — their tool fixes pending.
+- A2 pearl fade keys S3PFADE-20261008-072738 OK (twin Fade 1→0 4944→5040, solid off 4944/twin vis 4944–5040). Two
+  failed APPLYs before it (5.8 signature: MovieSceneComponentMaterialParameterSection.add_scalar_parameter_key(
+  MaterialParameterInfo, time[ticks], value, layer, asset, interp)) → two Don't-Save restarts; sky toggle + HWRT cvar
+  re-applied after each.
+- Gary's leftover PIE ended; his level saved on his word ("Save it").
+- W&T production curtain bake relaunched as unfurl_sleight_b1hop10_p02 (launcher copied to
+  Saved/CodexSoftGoods/run_prod_unfurl.ps1; p01 died at ~frame 231/390 in the 7 Oct crash). ~6–7 h.
+- A5 S1 snap probe S1SNAP-20261008-072753 (arm: scrub to P01 end −1 s, play through): camera continuous at the cut
+  (Δ 0.001 cm, 0.0°, FOV 0), hangar root pitch smooth −33.8° → −31.6° across it; flag EXPOSURE_SETTINGS_CHANGE at the
+  cut. [measured] No snap in a scrub-started play; Gary's screenshots were paused frames. Next: 'watch' mode in his
+  natural play from P01 start.
+- A6 clam SDF probe inconclusive (read the wrong flag); HW RT now on, so reflections trace real geometry.
+- No renders tonight (Gary). Tests green after Phase A.
