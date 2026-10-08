@@ -116,3 +116,10 @@ All [measured] by success markers unless marked.
   natural play from P01 start.
 - A6 clam SDF probe inconclusive (read the wrong flag); HW RT now on, so reflections trace real geometry.
 - No renders tonight (Gary). Tests green after Phase A.
+- ~07:35–07:45 P01→S1 SNAP FOUND + FIXED [measured, pie_s1_rig_tap]: at the cut the S1 roof hinge flipped (world pitch
+  −36.1 → −57.8, yaw 0 → 180), the roof jumped ~4 m and the lattice +1.57 m; root and camera continuous (S1SNAP). Cause:
+  every Arrival logged INFINITY_HANGAR_INITIAL_POSE movers=1 — AdditionalInitialTransformDrives was empty, so roof/lattice
+  sat in the saved LANDED pose through the Passage and the rise snapped them at Scene frame 0. Fix ARRMOV-20261008-073648:
+  roof hinge + lattice fly drives on S1–S5, lattice on S6 (map saved, backup PreArrivalMovers-…). Re-measured: movers=3
+  (S6 2), and the roof hinge −47.9 → −52.1 → −56.3 → −60.1° and lattice 64 → 1461 cm move smoothly across the cut. Same
+  fault latent at every Passage→Scene cut [inferred]; fixed for all six. Tests green.
