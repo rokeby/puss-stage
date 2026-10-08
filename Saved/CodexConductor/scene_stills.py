@@ -112,6 +112,9 @@ def passage_label(passage):
     """'P05' -> (5, 'Passage 5'), the runtime segment label (lighting_looks_p04_driver.py:166)."""
     if str(passage).strip().lower() == "opening":   # 8 Oct: the Opening segment (stage front stills)
         return 0, "Opening"
+    mi = re.fullmatch(r"[Ii](\d)", str(passage).strip())
+    if mi:                                   # 8 Oct: Interaction segments ('Interaction 2 — Turnips')
+        return int(mi.group(1)), "Interaction %d" % int(mi.group(1))
     ms = re.fullmatch(r"[Ss](\d{1,2})", str(passage).strip())
     if ms:                                   # scene_stills variant (7 Oct): 'S1' -> segment label prefix 'Scene 1'
         return int(ms.group(1)), "Scene %d" % int(ms.group(1))
@@ -640,7 +643,9 @@ def make_pie_adapter(unreal):
                     "content": package_names(unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages())}
 
         def passage_segment(self, label):
-            if label == "Opening":                     # 8 Oct: 'Opening — Curtain' (any cue type)
+            if label.startswith("Interaction "):      # 8 Oct: Interaction segments (any cue type), prefix match
+                segs = [s for s in list(show_root().transport.segments) if str(s.label).startswith(label + " ") or str(s.label) == label]
+            elif label == "Opening":                     # 8 Oct: 'Opening — Curtain' (any cue type)
                 segs = [s for s in list(show_root().transport.segments) if str(s.label).startswith("Opening")]
             elif label.startswith("Scene "):
                 segs = [s for s in list(show_root().transport.segments)

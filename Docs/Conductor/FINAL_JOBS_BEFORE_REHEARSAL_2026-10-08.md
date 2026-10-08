@@ -122,7 +122,7 @@ Resume in this order when Gary says:
 - Live shot layout read 8 Oct (LS_Clams frames): B03 420-860, B02 856-1733, B07 1540-2828, B06 2820-4548, B08
   4538-4858, ... P21's plan must be rebuilt against these.
 
-### 4.2b OPENING, revised direction (Gary 8 Oct evening, in the "Blender MCP Hyper3D" session, his own words relayed). SUPERSEDES P13's spots-to-centre design
+### 4.2b OPENING, added direction (Gary 8 Oct evening, in the "Blender MCP Hyper3D" session, his own words relayed). ADDS a prelude; does NOT replace the three-flurry design
 - Same theatre at the very END, after the Void, but a different sequence there; no drive-by repeat.
 - "Empty theatre ... dusty, motes in the air, a bit of a moonlit glow on its proscenium and curtain". The moon is a
   moonlit QUALITY raking from the SIDE across the curtain and stage front.
@@ -138,5 +138,11 @@ Resume in this order when Gary says:
   and so do we. P1 lighting less moody, more uplit.
 - Physical stage: baroque stage forms (Gary adding references) replace the primitive frame and wings.
 - Gobo textures (window top, chandelier, side-moon breakup) are being made in the Blender MCP Hyper3D session.
-- Reconcile with the music flurries (P11: 37.4 / 57.4 / 70.4 s) and the earlier cue order (curtain on flurry 1, lights
-  2, move-in 3): the new order puts lights BEFORE/WITH the curtain fall. P13's tool needs a redesign; nothing applied.
+- **CORRECTION (Gary, conductor session, 8 Oct evening): "This doesn't replace the earlier opening lighting design with
+  the three flurries, all that happens with the instrument tuning to opening track between your last two points".**
+  So:
+  - the dark theatre / moon / drive-by / dog up / tuning reveal is a PRELUDE;
+  - the three-flurry sequence (P11 peaks 37.4 / 57.4 / 70.4 s: 1 curtain falls, 2 lights, parcans on the facade +
+    some P01 lights inside, 3 move in) plays across the tuning → opening track, between "lights up / curtain falls
+    away" and "stage gloriously lit and still, then moving";
+  - P13's design STAYS; the prelude is added before it.
