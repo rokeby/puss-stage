@@ -1,0 +1,14 @@
+{
+  "mode": "DRY",
+  "confirm": "",
+  "run": "P20-DRY-SET-ME",
+  "plan_path": "E:/PussStage/Saved/CodexConductor/s3_chorus_sway_plan.json",
+  "window_start": 3480,
+  "window_end": 4200,
+  "target_period_s": 3.6,
+  "ease_seconds": 1.5,
+  "loop_blend_seconds": 1.0,
+  "phase_nudges_seconds": {},
+  "extra_crowd_count": 0,
+  "extra_crowd_mode": "DESIGN_ONLY"
+}

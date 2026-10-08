@@ -1,0 +1,579 @@
+{
+  "schema": "p20_chorus_sway/1",
+  "run": "P20PLAN-20261008-CODEX",
+  "created_utc": "2026-10-08T16:24:34.793814+00:00",
+  "evidence_tier": "measured curves/audio; phase and staging interpretation inferred",
+  "sequence": "/Game/Scenes/LS_Clams",
+  "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03",
+  "window_scene_frames": [
+    3480,
+    4200
+  ],
+  "window_ls_clams_frames": [
+    3502,
+    4222
+  ],
+  "fps": 24.0,
+  "scene_to_ls_clams_frames": 22,
+  "target_period_s": 3.6,
+  "ease_seconds": 1.5,
+  "loop_blend_seconds": 1.0,
+  "phase_definition": "degrees of least-squares fitted dominant sinusoid; 0 degrees is fitted signal maximum",
+  "inputs": {
+    "segments": "E:/PussStage/DerivedAssets/S3MocapIntensity/s3_mocap_intensity_segments.json",
+    "segments_sha256": "f1f52cd50c8181ab7d8df72f4cec43d4b85ec21bca52067013b3db097542afde",
+    "sway": "E:/PussStage/DerivedAssets/S3MocapIntensity/s3_sway_runs.json",
+    "sway_sha256": "ea53a16b1f5030800188501c641202d1b0649b92f15a98c873e9a45c187c5540",
+    "wav": "E:/PussStage/DerivedAssets/Audio/Scenes_20261006/S03_Shore_People_Stereo.wav",
+    "wav_sha256": "46cc34c76e14934a4ca2fde375da1e6f1c99d9d62c75526d17658b13a7aba63e"
+  },
+  "phrase": {
+    "wav": "E:/PussStage/DerivedAssets/Audio/Scenes_20261006/S03_Shore_People_Stereo.wav",
+    "sample_rate": 44100,
+    "channels": 2,
+    "chorus_s": [
+      128.0,
+      187.0
+    ],
+    "period_s": 7.32,
+    "autocorrelation": 0.794,
+    "maxima_s": [
+      131.725,
+      139.225,
+      147.125,
+      154.175,
+      162.125,
+      168.725,
+      177.425,
+      184.275
+    ],
+    "method": "50 ms RMS, 1.4 s Hann smoothing, 6.8-7.6 s grid search, local +/-1 s refinement"
+  },
+  "figures": [
+    {
+      "id": "Shore01_M56",
+      "animation": "AS_Shore01_M56_shoreguy1_Full",
+      "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore01_M56/Shore01_M56_Anim.fbx",
+      "source_sha256": "8d91a6cadacb9391aba6416f110fc05559638704b0b963305e58ab01b8284f46",
+      "spans": [
+        {
+          "source_in": 5.7083,
+          "source_out": 12.0833,
+          "scene_len_s": 10.625,
+          "signal": "spine_02.rotation.Z",
+          "period_s_source": 1.83,
+          "period_s_scene": 3.06,
+          "periodicity": 0.382,
+          "amplitude_std": 0.655,
+          "play_rate": 0.5083333333333333
+        },
+        {
+          "source_in": 25.6667,
+          "source_out": 32.875,
+          "scene_len_s": 12.0139,
+          "signal": "spine_02.rotation.X",
+          "period_s_source": 1.92,
+          "period_s_scene": 3.19,
+          "periodicity": 0.336,
+          "amplitude_std": 0.558,
+          "play_rate": 0.5333333333333333
+        }
+      ],
+      "phase_fit_r2": 0.4219,
+      "base_phase_deg": 107.38,
+      "target_phase_deg": 0.0,
+      "default_phase_nudge_s": -1.073795,
+      "phase_at_window_start_deg": 0.0,
+      "sections_ls_clams": [
+        {
+          "scene_range": [
+            3502,
+            3742
+          ],
+          "source_in": 6.992454,
+          "source_out_limit": 12.0833,
+          "signal": "spine_02.rotation.Z",
+          "play_rate": 0.50833333,
+          "span_index": 0,
+          "ease_in_frames": 36,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            3718,
+            4042
+          ],
+          "source_in": 25.6667,
+          "source_out_limit": 32.875,
+          "signal": "spine_02.rotation.X",
+          "play_rate": 0.53333333,
+          "span_index": 1,
+          "ease_in_frames": 24,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            4018,
+            4222
+          ],
+          "source_in": 5.7083,
+          "source_out_limit": 12.0833,
+          "signal": "spine_02.rotation.Z",
+          "play_rate": 0.50833333,
+          "span_index": 0,
+          "ease_in_frames": 24,
+          "ease_out_frames": 36
+        }
+      ],
+      "sections_scene": [
+        {
+          "scene_range": [
+            3480,
+            3720
+          ],
+          "source_in": 6.992454,
+          "source_out_limit": 12.0833,
+          "signal": "spine_02.rotation.Z",
+          "play_rate": 0.50833333,
+          "span_index": 0,
+          "ease_in_frames": 36,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            3696,
+            4020
+          ],
+          "source_in": 25.6667,
+          "source_out_limit": 32.875,
+          "signal": "spine_02.rotation.X",
+          "play_rate": 0.53333333,
+          "span_index": 1,
+          "ease_in_frames": 24,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            3996,
+            4200
+          ],
+          "source_in": 5.7083,
+          "source_out_limit": 12.0833,
+          "signal": "spine_02.rotation.Z",
+          "play_rate": 0.50833333,
+          "span_index": 0,
+          "ease_in_frames": 24,
+          "ease_out_frames": 36
+        }
+      ]
+    },
+    {
+      "id": "Shore02_F52",
+      "animation": "AS_Shore02_F52_shoreguy12_Full",
+      "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore02_F52/Shore02_F52_Anim.fbx",
+      "source_sha256": "e2db7fd16944785aff9accec24d7517b037db255fae8d9af952aed536d9e3fd3",
+      "spans": [
+        {
+          "source_in": 4.375,
+          "source_out": 13.2083,
+          "scene_len_s": 14.7222,
+          "signal": "spine_02.rotation.Z",
+          "period_s_source": 1.71,
+          "period_s_scene": 2.85,
+          "periodicity": 0.422,
+          "amplitude_std": 1.414,
+          "play_rate": 0.475
+        }
+      ],
+      "phase_fit_r2": 0.217,
+      "base_phase_deg": 261.419,
+      "target_phase_deg": 60.0,
+      "default_phase_nudge_s": 1.58581,
+      "phase_at_window_start_deg": 60.0,
+      "sections_ls_clams": [
+        {
+          "scene_range": [
+            3502,
+            3910
+          ],
+          "source_in": 5.12826,
+          "source_out_limit": 13.2083,
+          "signal": "spine_02.rotation.Z",
+          "play_rate": 0.475,
+          "span_index": 0,
+          "ease_in_frames": 36,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            3886,
+            4222
+          ],
+          "source_in": 4.375,
+          "source_out_limit": 13.2083,
+          "signal": "spine_02.rotation.Z",
+          "play_rate": 0.475,
+          "span_index": 0,
+          "ease_in_frames": 24,
+          "ease_out_frames": 36
+        }
+      ],
+      "sections_scene": [
+        {
+          "scene_range": [
+            3480,
+            3888
+          ],
+          "source_in": 5.12826,
+          "source_out_limit": 13.2083,
+          "signal": "spine_02.rotation.Z",
+          "play_rate": 0.475,
+          "span_index": 0,
+          "ease_in_frames": 36,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            3864,
+            4200
+          ],
+          "source_in": 4.375,
+          "source_out_limit": 13.2083,
+          "signal": "spine_02.rotation.Z",
+          "play_rate": 0.475,
+          "span_index": 0,
+          "ease_in_frames": 24,
+          "ease_out_frames": 36
+        }
+      ]
+    },
+    {
+      "id": "Shore03_M59",
+      "animation": "AS_Shore03_M59_shoreguy3_Full",
+      "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore03_M59/Shore03_M59_Anim.fbx",
+      "source_sha256": "e01f5d1a13632e012801af4f13c644bf5f86fdeed7330174bd598a620ca3f731",
+      "spans": [
+        {
+          "source_in": 1.1667,
+          "source_out": 19.125,
+          "scene_len_s": 29.9306,
+          "signal": "spine_02.rotation.Z",
+          "period_s_source": 2.42,
+          "period_s_scene": 4.03,
+          "periodicity": 0.475,
+          "amplitude_std": 1.362,
+          "play_rate": 0.6722222222222222
+        }
+      ],
+      "phase_fit_r2": 0.2471,
+      "base_phase_deg": 48.853,
+      "target_phase_deg": 120.0,
+      "default_phase_nudge_s": 0.711471,
+      "phase_at_window_start_deg": 120.0,
+      "sections_ls_clams": [
+        {
+          "scene_range": [
+            3502,
+            4126
+          ],
+          "source_in": 1.644966,
+          "source_out_limit": 19.125,
+          "signal": "spine_02.rotation.Z",
+          "play_rate": 0.67222222,
+          "span_index": 0,
+          "ease_in_frames": 36,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            4102,
+            4222
+          ],
+          "source_in": 1.1667,
+          "source_out_limit": 19.125,
+          "signal": "spine_02.rotation.Z",
+          "play_rate": 0.67222222,
+          "span_index": 0,
+          "ease_in_frames": 24,
+          "ease_out_frames": 36
+        }
+      ],
+      "sections_scene": [
+        {
+          "scene_range": [
+            3480,
+            4104
+          ],
+          "source_in": 1.644966,
+          "source_out_limit": 19.125,
+          "signal": "spine_02.rotation.Z",
+          "play_rate": 0.67222222,
+          "span_index": 0,
+          "ease_in_frames": 36,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            4080,
+            4200
+          ],
+          "source_in": 1.1667,
+          "source_out_limit": 19.125,
+          "signal": "spine_02.rotation.Z",
+          "play_rate": 0.67222222,
+          "span_index": 0,
+          "ease_in_frames": 24,
+          "ease_out_frames": 36
+        }
+      ]
+    },
+    {
+      "id": "Shore04_F55",
+      "animation": "AS_Shore04_F55_shoreguy4_Full",
+      "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore04_F55/Shore04_F55_Anim.fbx",
+      "source_sha256": "aa275365070cf534633a384d37c50a1c0276e4e856a185fcf3aa45822f2e8b27",
+      "spans": [
+        {
+          "source_in": 71.7083,
+          "source_out": 89.5417,
+          "scene_len_s": 29.7222,
+          "signal": "pelvis.rotation.Y",
+          "period_s_source": 2.75,
+          "period_s_scene": 4.58,
+          "periodicity": 0.474,
+          "amplitude_std": 1.722,
+          "play_rate": 0.7638888888888888
+        }
+      ],
+      "phase_fit_r2": 0.0733,
+      "base_phase_deg": 76.468,
+      "target_phase_deg": 180.0,
+      "default_phase_nudge_s": 1.035322,
+      "phase_at_window_start_deg": 180.0,
+      "sections_ls_clams": [
+        {
+          "scene_range": [
+            3502,
+            4037
+          ],
+          "source_in": 72.499171,
+          "source_out_limit": 89.5417,
+          "signal": "pelvis.rotation.Y",
+          "play_rate": 0.76388889,
+          "span_index": 0,
+          "ease_in_frames": 36,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            4013,
+            4222
+          ],
+          "source_in": 71.7083,
+          "source_out_limit": 89.5417,
+          "signal": "pelvis.rotation.Y",
+          "play_rate": 0.76388889,
+          "span_index": 0,
+          "ease_in_frames": 24,
+          "ease_out_frames": 36
+        }
+      ],
+      "sections_scene": [
+        {
+          "scene_range": [
+            3480,
+            4015
+          ],
+          "source_in": 72.499171,
+          "source_out_limit": 89.5417,
+          "signal": "pelvis.rotation.Y",
+          "play_rate": 0.76388889,
+          "span_index": 0,
+          "ease_in_frames": 36,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            3991,
+            4200
+          ],
+          "source_in": 71.7083,
+          "source_out_limit": 89.5417,
+          "signal": "pelvis.rotation.Y",
+          "play_rate": 0.76388889,
+          "span_index": 0,
+          "ease_in_frames": 24,
+          "ease_out_frames": 36
+        }
+      ]
+    },
+    {
+      "id": "Shore05_M53",
+      "animation": "AS_Shore05_M53_shoreguy5_Full",
+      "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore05_M53/Shore05_M53_Anim.fbx",
+      "source_sha256": "3eac3fff05ffdb896486283b6e06b2adafc424cdb2eda134f381a088fdacf6d8",
+      "spans": [
+        {
+          "source_in": 18.3333,
+          "source_out": 32.375,
+          "scene_len_s": 23.4028,
+          "signal": "spine_02.rotation.Y",
+          "period_s_source": 2.08,
+          "period_s_scene": 3.47,
+          "periodicity": 0.532,
+          "amplitude_std": 4.904,
+          "play_rate": 0.5777777777777778
+        }
+      ],
+      "phase_fit_r2": 0.0041,
+      "base_phase_deg": 287.74,
+      "target_phase_deg": 240.0,
+      "default_phase_nudge_s": -0.477398,
+      "phase_at_window_start_deg": 240.0,
+      "sections_ls_clams": [
+        {
+          "scene_range": [
+            3502,
+            4010
+          ],
+          "source_in": 20.13747,
+          "source_out_limit": 32.375,
+          "signal": "spine_02.rotation.Y",
+          "play_rate": 0.57777778,
+          "span_index": 0,
+          "ease_in_frames": 36,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            3986,
+            4222
+          ],
+          "source_in": 18.3333,
+          "source_out_limit": 32.375,
+          "signal": "spine_02.rotation.Y",
+          "play_rate": 0.57777778,
+          "span_index": 0,
+          "ease_in_frames": 24,
+          "ease_out_frames": 36
+        }
+      ],
+      "sections_scene": [
+        {
+          "scene_range": [
+            3480,
+            3988
+          ],
+          "source_in": 20.13747,
+          "source_out_limit": 32.375,
+          "signal": "spine_02.rotation.Y",
+          "play_rate": 0.57777778,
+          "span_index": 0,
+          "ease_in_frames": 36,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            3964,
+            4200
+          ],
+          "source_in": 18.3333,
+          "source_out_limit": 32.375,
+          "signal": "spine_02.rotation.Y",
+          "play_rate": 0.57777778,
+          "span_index": 0,
+          "ease_in_frames": 24,
+          "ease_out_frames": 36
+        }
+      ]
+    },
+    {
+      "id": "Shore06_F25",
+      "animation": "AS_Shore06_F25_shoreguy6_Full",
+      "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore06_F25/Shore06_F25_Anim.fbx",
+      "source_sha256": "3b3e2e80ca601292de3a2c7630c9a92003618a946ec0ed812e9ec1e4ccfef7a9",
+      "spans": [
+        {
+          "source_in": 78.1667,
+          "source_out": 91.4583,
+          "scene_len_s": 22.1528,
+          "signal": "pelvis.rotation.Y",
+          "period_s_source": 1.96,
+          "period_s_scene": 3.26,
+          "periodicity": 0.68,
+          "amplitude_std": 2.114,
+          "play_rate": 0.5444444444444444
+        }
+      ],
+      "phase_fit_r2": 0.5808,
+      "base_phase_deg": 238.995,
+      "target_phase_deg": 300.0,
+      "default_phase_nudge_s": 0.610054,
+      "phase_at_window_start_deg": 300.0,
+      "sections_ls_clams": [
+        {
+          "scene_range": [
+            3502,
+            4073
+          ],
+          "source_in": 78.49884,
+          "source_out_limit": 91.4583,
+          "signal": "pelvis.rotation.Y",
+          "play_rate": 0.54444444,
+          "span_index": 0,
+          "ease_in_frames": 36,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            4049,
+            4222
+          ],
+          "source_in": 78.1667,
+          "source_out_limit": 91.4583,
+          "signal": "pelvis.rotation.Y",
+          "play_rate": 0.54444444,
+          "span_index": 0,
+          "ease_in_frames": 24,
+          "ease_out_frames": 36
+        }
+      ],
+      "sections_scene": [
+        {
+          "scene_range": [
+            3480,
+            4051
+          ],
+          "source_in": 78.49884,
+          "source_out_limit": 91.4583,
+          "signal": "pelvis.rotation.Y",
+          "play_rate": 0.54444444,
+          "span_index": 0,
+          "ease_in_frames": 36,
+          "ease_out_frames": 24
+        },
+        {
+          "scene_range": [
+            4027,
+            4200
+          ],
+          "source_in": 78.1667,
+          "source_out_limit": 91.4583,
+          "signal": "pelvis.rotation.Y",
+          "play_rate": 0.54444444,
+          "span_index": 0,
+          "ease_in_frames": 24,
+          "ease_out_frames": 36
+        }
+      ]
+    }
+  ],
+  "extra_crowd": {
+    "count": 0,
+    "mode": "DESIGN_ONLY",
+    "apply_supported": false,
+    "full_character_cost_units_each": 1.0
+  },
+  "backup": "Backups/PreS3ChorusSwayPlan-P20PLAN-20261008-CODEX",
+  "preview_sha256": "4a03422a6c174aab76212004cc405a054557bbe663041b6d60867920a4d73658"
+}
