@@ -4,6 +4,9 @@ The S3 hangar lights are KEYED in LS_S3_HangarRise (fade/strike keys, probe_s3_l
 intensity change is overridden in PIE.  This tool sets a group's LIT level in both places:
   * every NONZERO Intensity key of the group's tracks in LS_S3_HangarRise -> target (zero keys stay zero: the fade
     and strike timing is untouched);
+  * the S3 FLOAT HOLD in LS_DevScene_03 (s4_hangar_hold.py FLOAT mode: keyless channels whose DEFAULT holds the
+    rise's end value over [fold_end, scene_end)) -> target where the default is nonzero (fixed 8 Oct: the first two
+    runs changed only the rise, so after 31 s the hold still played the old 8 cd / 4000 cd);
   * the editor actor's LightComponent intensity -> target (so the viewport matches).  The MAP IS NOT SAVED here:
     it stays dirty for Gary's own save (he is working in the level).  Only the rise asset is saved.
 Groups = actor-label prefix after "S3 " (e.g. "Lattice Glow", "Uplight", "Practical L").
@@ -17,6 +20,9 @@ import shutil
 HERE = "E:/PussStage/Saved/CodexConductor/"
 RISE = "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise"
 RISE_FILE = "E:/PussStage/Content/InfinityStage/RigAtmos/LS_S3_HangarRise.uasset"
+SCENE = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03"
+SCENE_FILE = "E:/PussStage/Content/InfinityStage/Dev/Sequences/LS_DevScene_03.uasset"
+HOLD_PREFIX = "S3 Hangar Float Hold: "
 RUN = {"run": "?"}
 
 
@@ -54,8 +60,27 @@ def main():
         names = sorted(sets)
     seq = unreal.load_asset(RISE)
     c0 = census()
-    if RISE in c0[0]:
-        raise RuntimeError("RISE_ALREADY_DIRTY")
+    if RISE in c0[0] or SCENE in c0[0]:
+        raise RuntimeError("SEQ_ALREADY_DIRTY")
+    scene = unreal.load_asset(SCENE)
+    holds = []
+    for b in scene.get_bindings():
+        p = b.get_parent()
+        disp = str(p.get_display_name()) if p is not None and p.is_valid() else ""
+        if not disp.startswith(HOLD_PREFIX):
+            continue
+        owner = disp[len(HOLD_PREFIX):]
+        g = _group(owner, names)
+        if g is None:
+            continue
+        for t in b.get_tracks():
+            if t.get_class().get_name() != "MovieSceneFloatTrack":
+                continue
+            for s_ in t.get_sections():
+                for ch in s_.get_all_channels():
+                    if ch.get_num_keys() != 0 or not ch.has_default():
+                        raise RuntimeError("HOLD_SHAPE|%s" % owner)
+                    holds.append((owner, g, ch))
     # tracks
     tracks = []
     for b in seq.get_bindings():
@@ -94,9 +119,19 @@ def main():
                                         "before": v, "target": tgt})
                     plan.append((k, tgt))
                     idx += 1
+    hold_plan, holds_before = [], {}
+    for owner, g, ch in holds:
+        v = ch.get_default()
+        if mode == "REVERT":
+            tgt = rec.get("holds", {}).get(owner, v)
+        else:
+            tgt = sets[g] if abs(v) > 1e-6 else v
+        holds_before[owner] = v
+        hold_plan.append((owner, ch, tgt))
     actors_before = {lab: lc.intensity for lab, (g, lc) in actors.items()}
     summary = {g: {"tracks": sum(1 for _, gg, _ in tracks if gg == g),
                    "actors": sum(1 for _, (gg, _) in actors.items() if gg == g),
+                   "holds": sorted(set(round(holds_before[o], 3) for o, gg, _ in holds if gg == g)),
                    "lit_before": sorted(set(round(r["before"], 3) for r in keys_before if r["group"] == g and abs(r["before"]) > 1e-6)),
                    "lit_after": sorted(set(round(r["target"], 3) for r in keys_before if r["group"] == g and abs(r["target"]) > 1e-6))}
                for g in names}
@@ -107,12 +142,17 @@ def main():
         rec_path = HERE + "s3_light_levels_record_%s.json" % run
         if os.path.exists(rec_path):
             raise RuntimeError("RECORD_EXISTS")
-        json.dump({"run": run, "state": "applying", "set": sets, "keys": keys_before, "actors": actors_before,
+        json.dump({"run": run, "state": "applying", "set": sets, "keys": keys_before, "actors": actors_before, "holds": holds_before,
                    "census_before": c0}, open(rec_path, "w"), indent=1)
         bdir = "E:/PussStage/Backups/PreS3LightLevels-%s" % run
         os.makedirs(bdir)
         shutil.copy2(RISE_FILE, bdir)
+        shutil.copy2(SCENE_FILE, bdir)
     seq.modify()
+    if hold_plan:
+        scene.modify()
+    for owner, ch, tgt in hold_plan:
+        ch.set_default(tgt)
     for k, tgt in plan:
         k.set_value(tgt)
     for lab, (g, lc) in actors.items():
@@ -132,14 +172,22 @@ def main():
         tgt = target_actor[lab] if mode == "REVERT" else sets[g]
         if abs(lc.intensity - tgt) > 1e-4:
             raise RuntimeError("ACTOR_READBACK|%s" % lab)
+    for owner, ch, tgt in hold_plan:
+        if abs(ch.get_default() - tgt) > 1e-4:
+            raise RuntimeError("HOLD_READBACK|%s|NOTHING SAVED; Don't-Save restart" % owner)
     c1 = census()
     extra_content = sorted(set(c1[0]) - set(c0[0]))
-    if extra_content != [RISE]:
+    want = sorted([RISE] + ([SCENE] if hold_plan else []))
+    if not set(extra_content) <= set(want) or RISE not in extra_content:
         raise RuntimeError("CENSUS|%s|NOTHING SAVED; Don't-Save restart" % (extra_content,))
-    if not unreal.EditorAssetLibrary.save_asset(RISE, only_if_is_dirty=False):
-        raise RuntimeError("SAVE_FAILED")
-    if RISE in census()[0]:
-        raise RuntimeError("RISE_DIRTY_AFTER_SAVE")
+    for pkg in extra_content:
+        if not unreal.EditorAssetLibrary.save_asset(pkg, only_if_is_dirty=False):
+            raise RuntimeError("SAVE_FAILED|%s" % pkg)
+    if set(extra_content) & set(census()[0]):
+        raise RuntimeError("SEQ_DIRTY_AFTER_SAVE")
+    for owner, ch, tgt in hold_plan:
+        if abs(ch.get_default() - tgt) > 1e-4:
+            raise RuntimeError("HOLD_READBACK_AFTER_SAVE|%s" % owner)
     seq2 = unreal.load_asset(RISE)
     n_ok = 0
     for b in seq2.get_bindings():
@@ -161,8 +209,8 @@ def main():
         json.dump(rec, open(rec_path, "w"), indent=1)
     else:
         os.rename(rec_path, rec_path + ".reverted")
-    unreal.log("S3LIGHTS_%s_OK|run=%s|%s|lit_keys=%d|map_left_dirty_for_gary=%s" % (
-        mode, run, json.dumps(summary), n_ok, census()[1]))
+    unreal.log("S3LIGHTS_%s_OK|run=%s|%s|lit_keys=%d|holds=%d|saved=%s|map_left_dirty_for_gary=%s" % (
+        mode, run, json.dumps(summary), n_ok, len(hold_plan), extra_content, census()[1]))
 
 
 try:
