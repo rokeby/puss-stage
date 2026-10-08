@@ -238,7 +238,8 @@ check("G02b atlas choice changes the digest", NOATLAS["digest"] != PLAN["digest"
 raises("G03 -control atlas_compatible must be a bool", "ATLAS_COMPATIBLE",
        lambda: ag.normalized_args(dict(RAW, atlas_compatible="no")))
 check("G04 border defaults off (beam keeps its own edge)", PLAN["params"]["BorderDepth"] == 0.0)
-BORDER = dict(PLAN["params"], BorderDepth=1.0, BorderWidth=1.0, BorderAspect=1.88, BorderFeather=0.03, Scale=0.85)
+BORDER = dict(PLAN["params"], BorderDepth=1.0, BorderWidth=1.0, BorderAspect=1.88, BorderFeather=0.03, Scale=0.85,
+              SpotAxes=0.0)  # G tests image-space geometry; section H covers the axis remap
 check("G05 border centre is lit", abs(ag.border_mask(0.5, 0.5, BORDER) - 1.0) < 1e-9)
 # Image half-width in cone UV = 0.5*Scale; height = width/1.88.
 hx, hy = 0.5 * 0.85, 0.5 * 0.85 / 1.88
@@ -276,6 +277,31 @@ check("G22 border shader and Python twin share the formula", "smoothstep(0.0, f,
       in ag.CODE_BORDER and "rect = smooth(0.0, f, hx - qx) * smooth(0.0, f, hy - qy)" in (HERE / "animated_gobo.py").read_text(encoding="utf-8"))
 check("G23 border multiplies the final output", "* Border;" in ag.CODE_EDGE)
 check("G24 UV maths centring matches the border", "(UV + UVCentre - 0.5)" in ag.CODE_UV and "(UV + UVCentre - 0.5)" in ag.CODE_BORDER)
+
+# H. UE light-function axes (measured 8 Oct, GOBOREVIEW-20261008-175603: portrait border + sideways bird with
+#    SpotAxes absent; offline prediction with U=up, V=right matched the render).
+check("H01 SpotAxes defaults on", PLAN["params"]["SpotAxes"] == 1.0)
+# Screen (sx right, sy down) seen from behind the light: U = 1 - sy (up), V = sx (right).
+def screen_to_image(sx, sy, params):
+    return ag.spot_axes(1.0 - sy, sx, params)
+img = screen_to_image(0.9, 0.5, dict(PLAN["params"]))
+check("H02 screen right maps to image right", img[0] > 0.5 and abs(img[1] - 0.5) < 1e-9, img)
+img = screen_to_image(0.5, 0.9, dict(PLAN["params"]))
+check("H03 screen down maps to image down", img[1] > 0.5 and abs(img[0] - 0.5) < 1e-9, img)
+img = screen_to_image(0.9, 0.5, dict(PLAN["params"], SpotAxes=0.0))
+check("H04 -control SpotAxes 0 reproduces the measured transpose (screen right -> image down)",
+      img[1] > 0.5 and abs(img[0] - 0.5) < 1e-9, img)
+LAND = dict(PLAN["params"], BorderDepth=1.0, BorderAspect=1.88, Scale=0.85)
+# Border is landscape on screen: lit 0.35 to the right of centre, dark 0.35 above it.
+check("H05 border is LANDSCAPE on screen with SpotAxes 1",
+      ag.border_mask(1.0 - 0.5, 0.5 + 0.35, LAND) > 0.99 and ag.border_mask(1.0 - 0.15, 0.5, LAND) == 0.0)
+check("H06 -control SpotAxes 0 gives the measured PORTRAIT border",
+      ag.border_mask(1.0 - 0.5, 0.5 + 0.35, dict(LAND, SpotAxes=0.0)) == 0.0 and
+      ag.border_mask(1.0 - 0.15, 0.5, dict(LAND, SpotAxes=0.0)) > 0.99)
+raises("H07 -control SpotAxes other than 0/1", "BORDER_PARAMS", lambda: ag.plan_from_args(
+    ag.normalized_args(dict(RAW, params={"SpotAxes": 0.5}))))
+src = (HERE / "animated_gobo.py").read_text(encoding="utf-8")
+check("H08 both shader nodes carry the remap", ag.CODE_UV.count("2.0 * c - UV.x") == 1 and ag.CODE_BORDER.count("2.0 * c - UV.x") == 1)
 
 # E. Static safety contract: cheap but catches accidental erosion of house rules.
 source = (HERE / "animated_gobo.py").read_text(encoding="utf-8")
