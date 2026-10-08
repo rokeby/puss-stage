@@ -1,0 +1,4 @@
+# P4 — Fixtures: parcans 3x, bulbs 2x, placement proposals, glimmer bulbs on cords
+Gary 7 Oct: bare bulbs out of the parcans, on the ground and hanging for reflections; parcans 3x, bulbs 2x (bulbs already ~3.2x real); glowing filament + dim point light; conductor proposes placements per passage with overhead stills before apply; glimmer lamps replaced by a bare bulb on a cord off a wing, swinging gently (deterministic sine, per-bulb phase; not physics).
+Start from: Saved/CodexConductor/FixturesFollow/ (fixtures_follow.py FOLLOW/SCALE/RELOCATE, scores_glimmer_config.py, fixtures_preview.py, test 46/46), Docs/Conductor/FIXTURES_FOLLOW_SCALE_BULBS_2026-10-07.md.
+Deliver: per-passage placement proposal JSON (ground bulbs near reflective floor, hanging bulbs at head height, clear of the camera route), overhead preview PNGs generated offline from the level data available in repo files, the scale/glow/cord-sway modes in the tool with harness. Apply nothing.
