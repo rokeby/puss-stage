@@ -59,7 +59,7 @@ to have.
 ## Carried over (already on other lists, for reference)
 - S3: done or in progress tonight (see GARY_NOTES_LIST_2026-10-08.md). Open items: pearl twin look-match stills; dunes 2× (with the wall-camera clash); fabric and MetaHuman look (texture A/B/C, full-body rebuild?); the vamp fix in the build window.
 - Fixtures: proposals in; the C++ patch is held for a build.
-- W&T curtain production bake: running overnight (unfurl_sleight_b1hop10_p02).
+- W&T curtain unfurl bake (unfurl_sleight_b1hop10_p02): CANCELLED by Gary 8 Oct evening. The curtain falls AWAY (existing drop), it never unfurls into view.
 
 _Walk-through complete (chunks 1–3)._
 

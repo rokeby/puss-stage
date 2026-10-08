@@ -109,3 +109,12 @@ Require `CURTAIN_STREAM_TO_ABC_REVERT_SUCCESS`.
   up the curtain. That is a simulation defect: plausibly self-collision thickness 0.03 m against 9.1 cm quads (the
   log's own >0.2 warning) snagging folds. Smoothing cannot remove it, so a re-bake (QUALITY ~40, SELF_DIST
   ~0.015-0.018 m, mass scaled) is the real fix.
+
+## DECISION, Gary 8 Oct evening (own words): this curtain is NOT needed
+"Why do we even need this curtain again. We don't... the transition is now to go to black and we see a curtain we
+didn't see before, then it FALLS away not falls into view."
+- The unfurl (falls INTO view) bake `unfurl_sleight_b1hop10_p02` is CANCELLED: no stream_to_abc APPLY, no smoothing
+  import, no re-bake.
+- The p02 / p02s streams and the preview stay on disk, unused.
+- The Interaction transition uses: black → the spot discovers an already-hanging curtain → shadow play → the curtain
+  DROPS AWAY (the existing drop bakes; FINAL_JOBS 1.9, 1.10).
