@@ -110,6 +110,8 @@ def utc_iso():
 
 def passage_label(passage):
     """'P05' -> (5, 'Passage 5'), the runtime segment label (lighting_looks_p04_driver.py:166)."""
+    if str(passage).strip().lower() == "opening":   # 8 Oct: the Opening segment (stage front stills)
+        return 0, "Opening"
     ms = re.fullmatch(r"[Ss](\d{1,2})", str(passage).strip())
     if ms:                                   # scene_stills variant (7 Oct): 'S1' -> segment label prefix 'Scene 1'
         return int(ms.group(1)), "Scene %d" % int(ms.group(1))
