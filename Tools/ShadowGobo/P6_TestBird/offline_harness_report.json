@@ -1,6 +1,6 @@
 {
   "marker": "ANIMATED_GOBO_HARNESS",
-  "passed": 128,
+  "passed": 129,
   "failed": 0,
   "results": [
     {
@@ -772,6 +772,11 @@
     },
     {
       "name": "E07 revert backs up before delete",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E07b revert deletes before it saves the sequence (delete re-dirties referencers)",
       "pass": true,
       "detail": ""
     },

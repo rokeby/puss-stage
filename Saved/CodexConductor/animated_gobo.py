@@ -1027,17 +1027,24 @@ def run_revert(args, run):
     problems.extend(exact_dirty(_census(), [plan["sequence"]]))
     if problems:
         _stop(run, "REVERT_PRESAVE|%s|NOTHING SAVED; Don't-Save restart" % problems)
-    if not unreal.EditorAssetLibrary.save_asset(plan["sequence"], only_if_is_dirty=True):
-        _stop(run, "REVERT_SEQUENCE_SAVE|%s" % plan["sequence"])
     deleted = []
-    # Dependency order: MI -> master -> MPC -> texture; only what this run created.
+    # Dependency order: MI -> master -> MPC -> texture; only what this run created.  Delete BEFORE saving the
+    # sequence: delete_asset re-dirtied the already-saved sequence in AG-I2-TEST-002-R [measured, 8 Oct].
     for path in (plan["mi"], plan["master"], plan["mpc"], plan["texture"]):
         if path in created and unreal.EditorAssetLibrary.does_asset_exist(path) and \
                 unreal.EditorAssetLibrary.delete_asset(path):
             deleted.append(path)
     survivors = [p for p in created if unreal.EditorAssetLibrary.does_asset_exist(p)]
-    if survivors or _census() != {"content": [], "maps": []}:
+    if survivors:
         _stop(run, "REVERT_DELETE_READBACK|survivors=%s|census=%s|recover=%s" % (survivors, _census(), backup))
+    after_delete = snapshot_diff(_snapshot(seq, plan["light_labels"], run), record["snapshot_before"])
+    after_delete.extend(exact_dirty(_census(), [plan["sequence"]]))
+    if after_delete:
+        _stop(run, "REVERT_POSTDELETE|%s|NOTHING SAVED; recover=%s" % (after_delete, backup))
+    if not unreal.EditorAssetLibrary.save_asset(plan["sequence"], only_if_is_dirty=False):
+        _stop(run, "REVERT_SEQUENCE_SAVE|%s" % plan["sequence"])
+    if _census() != {"content": [], "maps": []}:
+        _stop(run, "REVERT_FINAL_CENSUS|%s|recover=%s" % (_census(), backup))
     archived = record_path + ".reverted-" + run
     os.rename(record_path, archived)
     unreal.log("%s_REVERT_OK|run=%s|apply_run=%s|restored_sequence=%s|deleted=%d|kept_shared=%s|recoverable_from=%s|record=%s" %
