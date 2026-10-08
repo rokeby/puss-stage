@@ -24,3 +24,14 @@ All [measured] by success markers unless marked.
   NOT seen rendered.
 - Both tests green after the writes (SavedMasterMatchesShow, SceneCutBindingsResolve singly).
 - Grease red tint: subagent building an offline v2 master + swap (not run).
+
+## 02:00–02:10 — S3 retime to the audio (Gary questionnaire ~02:05)
+- Gary: grease red tint stays BUILT, not placed (swatch E chosen; 6424067). Lights and audio "good".
+- SLOT BACK from finishing touches 02:05 (clam looks v3 swapped: Pearl_v3/Shell_v2/Mantle_v2; tests green).
+- S3RETIME-20261008-020659 [measured APPLY_OK, tests green after]: clam rise 3593–4170 → 1080–1440 (0:45–1:00; 100 keys on
+  clam/lid/mantle/pearl/millstone); Clam Key + Pearl Glow keys follow (glow bright 1440→1560); B07 orbit cut + 721-key
+  VampOrbit → 1440–2880 (×2 slower, the cello); B04 cut + keys → 3480–4200 (×0.5); B02 cut 15–30 s, B03 30–45 s
+  (45–60 falls to S3 Wide); figures' teleport LS_Clams 1494/1495 → 1461/1462 = Scene 1439/1440, on the 1:00 cut
+  (Gary: teleport while the camera is distracted, no turn). Backup Backups/PreS3Retime-S3RETIME-20261008-020659.
+- OPEN: VampStart/VampEnd still 145–175 s, the window the orbit was built for; now B04's compressed move plays there.
+  Gary to say whether the vamp follows the orbit to 1:00.
