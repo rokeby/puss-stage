@@ -1,32 +1,47 @@
 {
-  "mode": "DRY",
-  "confirm": "",
-  "expected_plan_sha256": "",
-  "match_p01_atmosphere": true,
-  "special_label_tokens": [
-    "car",
-    "moving",
-    "move",
-    "event",
-    "fx",
-    "smoke",
-    "haze",
-    "fire",
-    "rain",
-    "spark",
-    "mote",
-    "pyro",
-    "polaroid",
-    "flash"
+ "mode": "DRY",
+ "confirm": "",
+ "expected_plan_sha256": "baa9a8634dc16bc5f2f7f65f138d8c3b0d816b5c59768c65d3d676ca2b7e3af0",
+ "match_p01_atmosphere": true,
+ "special_label_tokens": [
+  "car",
+  "moving",
+  "move",
+  "event",
+  "fx",
+  "smoke",
+  "haze",
+  "fire",
+  "rain",
+  "spark",
+  "mote",
+  "pyro",
+  "polaroid",
+  "flash"
+ ],
+ "atmosphere": {
+  "source_tag": "P01ATMOS",
+  "target_tag": "P03ATMOS",
+  "beam_tag": "InfinityStage.BeamLook",
+  "smoke_tag": "InfinityStage.SmokeTest",
+  "footprint_x_cm": [
+   -2000.0,
+   20000.0
   ],
-  "atmosphere": {
-    "source_tag": "P01ATMOS",
-    "target_tag": "P03ATMOS",
-    "beam_tag": "InfinityStage.BeamLook",
-    "smoke_tag": "InfinityStage.SmokeTest",
-    "footprint_x_cm": [-2000.0, 20000.0],
-    "footprint_half_y_cm": 6000.0,
-    "footprint_half_z_cm": 6000.0
-  },
-  "ack_records": []
+  "footprint_half_y_cm": 6000.0,
+  "footprint_half_z_cm": 6000.0
+ },
+ "ack_records": [
+  "E:\\PussStage\\Saved\\CodexConductor\\choreo_song_markers_refresh_record_P01-P02-P03-P04-P05.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\curtain_image_assign_record_P03.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P03.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\p03_atmos_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\p03_floor_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\p03_housing_drop_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\p03_rig_pattern_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\passage_retime_to_music_record_P03-P04.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\passage_slow_walk_record_P03.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P03.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\walking_music_swap_record_P02-P03-P04-P05.json"
+ ]
 }

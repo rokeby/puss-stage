@@ -961,7 +961,12 @@ def _verify_atmos_result(atmosphere, actual_rows, message):
             keys = ("relative_transform", "static_mesh", "materials", "visible", "hidden_game")
             expected = {key: source.get(key) for key in keys}
             got = {key: actual.get(key) for key in keys}
-            diff = S.state_differences(expected, got)
+            diff = [d for d in S.state_differences(expected, got)
+                    # 8 Oct conductor: actor transforms round-trip with ~1e-8 float noise (live APPLY
+                    # 20261008-050947 stopped on -699.126 vs -699.1259999999893); accept numeric drift < 1e-3.
+                    if not (isinstance(d.get("before"), (int, float)) and isinstance(d.get("after"), (int, float))
+                            and not isinstance(d.get("before"), bool)
+                            and abs(float(d["before"]) - float(d["after"])) < 1.0e-3)]
             require(not diff, "%s|BEAM_MISMATCH|%s|diff=%s" %
                     (message, target_id, canonical(diff[:8])))
         elif change["action"] == "suppress_actor":

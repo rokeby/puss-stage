@@ -189,3 +189,32 @@ All [measured] by success markers unless marked.
 - **Pearl** (finishing touches, merged 1caceb9): BUILD_MAT Pearl_v3_GreenOrange OK, no swap. Their stills [meas]: the
   keyed 40 cd "S3 Drama Pearl Glow" clips every subsurface pearl to white. Held A/B: s3_key_move_args_pearlglow_low.json
   (peak 3 cd), not applied.
+
+## ~09:00-09:25 UTC: P03 relight applied, then GPU LOST (machine needs a reboot)
+- **P03 = P01 lighting APPLIED** P03ASP01 APPLY run 20261008-051137 [meas]: removed 286, added 377, kept 69 specials
+  (score/keyed lights), 7 atmosphere changes; Show + level saved; read back; SavedMasterMatchesShow +
+  SceneCutBindingsResolve green.
+  - Backup: Backups/PreP03LightingAsP01-20261008-051137. Record p03_lighting_as_p01_record.json.
+  - REVERT: args mode REVERT, confirm "REVERT P03ASP01".
+  - Tool fixes before it ran:
+    - hue-only colours (P03 dims its 42 "Low" lights via near-black RGB);
+    - read-only GUIDs set via import_text (AttachmentGuid, ReplicatedFromAttachmentGuid);
+    - original-error logging;
+    - 1e-3 float tolerance on the atmosphere read-back.
+  - Three failed APPLYs before it, each rolled back in memory, followed by a Don't-Save restart.
+  - Before stills: PSTILLS-P03-20261008-085231-p03_before_asp01. NO after stills (see crash).
+- **Crash 09:12:34** [meas, Saved/Logs + Aftermath dump D3D12.0.2026.10.08-05.12.32.nv-gpudmp]: during the P03 after-stills
+  in PIE, DXGI_ERROR_DEVICE_REMOVED (DeviceRemovedNoGpuFault), breadcrumbs VolumetricFog::LightScattering, frame
+  3524-3525; access violation in Background Worker #4. VRAM 10.3 of 15.2 GB.
+- **Relaunch 09:22**: `nvidia-smi`: "GPU is lost. Reboot the system to recover this GPU". The editor falls back to D3D11
+  (unsupported) and cannot run. Stuck editor killed. **Machine reboot needed: Gary's call** (the curtain bake pid 36792
+  and Codex P17 are still running on CPU).
+- Cause, [inferred, NOT proven]: the P03 relight adds ~91 lights (377 vs 286), all P01-style, inside P03's
+  volumetric fog. That is a plausible GPU overload at the TDR limit (TDR delay 2 s). Against it: a GPU timeout already
+  hung the editor at startup at 08:59 [meas], BEFORE the P03 APPLY, so the GPU was unstable earlier tonight.
+- **Morning order:**
+  1. reboot;
+  2. editor_sky_toggle;
+  3. P03 in Play from the start with PERF_OFF, watching for GPU timeouts.
+  4. If it fails again → REVERT P03ASP01 and re-test, so P03 vs the GPU is the measured difference. Also check
+     volumetric scattering on the new P03 lights (P01's volumetric settings were copied).
