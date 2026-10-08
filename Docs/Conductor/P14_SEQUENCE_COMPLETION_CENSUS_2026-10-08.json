@@ -1,0 +1,807 @@
+{
+  "assets": [
+    {
+      "candidates": [
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_21.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 1-6",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_45.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 3-2",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_39.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 2-7",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_17.MovieSceneVisibilitySection_0",
+          "owner": "VolumetricCloud",
+          "range": [
+            99840,
+            270720
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_14.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 1-4",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_41.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 2-8",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_37.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 2-6",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_9.MovieSceneVisibilitySection_0",
+          "owner": "DirectionalLight",
+          "range": [
+            99840,
+            270720
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_43.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 3-1",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_29.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 2-2",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_35.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 2-5",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_2.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 1-1",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_57.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 3-8",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_25.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 1-8",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_53.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 3-6",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_23.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 1-7",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_49.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 3-4",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_13.MovieSceneVisibilitySection_0",
+          "owner": "SkyLight",
+          "range": [
+            99840,
+            270720
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_51.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 3-5",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_10.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 1-3",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_47.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 3-3",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_55.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 3-7",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_11.MovieSceneVisibilitySection_0",
+          "owner": "SkyAtmosphere",
+          "range": [
+            99840,
+            270720
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_19.MovieSceneVisibilitySection_0",
+          "owner": "PostProcessVolume",
+          "range": [
+            99840,
+            270720
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_15.MovieSceneVisibilitySection_0",
+          "owner": "ExponentialHeightFog",
+          "range": [
+            99840,
+            270720
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_31.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 2-3",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_33.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 2-4",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_6.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 1-2",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_18.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 1-5",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneVisibilityTrack_27.MovieSceneVisibilitySection_0",
+          "owner": "S1 Lattice Bulb 2-1",
+          "range": [
+            270720,
+            5760960
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "PROJECT_DEFAULT",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneSubTrack_0.MovieSceneSubSection_0",
+          "owner": "<master>",
+          "range": [
+            0,
+            744000
+          ],
+          "sub_sequence": "/Game/InfinityStage/RigAtmos/LS_S1_HangarRise.LS_S1_HangarRise",
+          "track_class": "MovieSceneSubTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_01.MovieScene_0.MovieSceneSubTrack_1.MovieSceneSubSection_0",
+          "owner": "<master>",
+          "range": [
+            270720,
+            570240
+          ],
+          "sub_sequence": "/Game/InfinityStage/KlaraHookin/LS_Animals_1_S1Preroll.LS_Animals_1_S1Preroll",
+          "track_class": "MovieSceneSubTrack"
+        }
+      ],
+      "file": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Sequences\\LS_DevScene_01.uasset",
+      "label": "LS_DevScene_01",
+      "playback": [
+        0,
+        5928960
+      ],
+      "sha256": "794fbfe810c579f634c78c16b0133674e824a00bf1bac8f02e9222fb48af25d3",
+      "track_count": 111
+    },
+    {
+      "candidates": [
+        {
+          "completion": "PROJECT_DEFAULT",
+          "id": "LS_DevScene_02.MovieScene_0.MovieSceneSubTrack_0.MovieSceneSubSection_0",
+          "owner": "<master>",
+          "range": [
+            0,
+            744000
+          ],
+          "sub_sequence": "/Game/InfinityStage/RigAtmos/LS_S2_HangarRise.LS_S2_HangarRise",
+          "track_class": "MovieSceneSubTrack"
+        }
+      ],
+      "file": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Sequences\\LS_DevScene_02.uasset",
+      "label": "LS_DevScene_02",
+      "playback": [
+        0,
+        1944000
+      ],
+      "sha256": "74dc0725391538d82110aeacf50f18c1012f1d4ef0dbee235899b23e7989d40e",
+      "track_count": 7
+    },
+    {
+      "candidates": [
+        {
+          "completion": "PROJECT_DEFAULT",
+          "id": "LS_DevScene_03.MovieScene_0.MovieSceneSubTrack_0.MovieSceneSubSection_0",
+          "owner": "<master>",
+          "range": [
+            0,
+            777000
+          ],
+          "sub_sequence": "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise.LS_S3_HangarRise",
+          "track_class": "MovieSceneSubTrack"
+        }
+      ],
+      "file": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Sequences\\LS_DevScene_03.uasset",
+      "label": "LS_DevScene_03",
+      "playback": [
+        0,
+        6240000
+      ],
+      "sha256": "872a39b79472e68f1950d7fb4a7a6aadc038db4d5adde31f98953f4ee22d45f3",
+      "track_count": 174
+    },
+    {
+      "candidates": [
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_15.MovieSceneVisibilitySection_0",
+          "owner": "SkyLight",
+          "range": [
+            99840,
+            307200
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_100.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 3-5",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_66.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 1-4",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_82.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 2-4",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_94.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 3-2",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_68.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 1-5",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_92.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 3-1",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_72.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 1-7",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_88.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 2-7",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_13.MovieSceneVisibilitySection_0",
+          "owner": "SkyAtmosphere",
+          "range": [
+            99840,
+            307200
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_76.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 2-1",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_9.MovieSceneVisibilitySection_0",
+          "owner": "DirectionalLight",
+          "range": [
+            99840,
+            307200
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_70.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 1-6",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_86.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 2-6",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_62.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 1-2",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_74.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 1-8",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_17.MovieSceneVisibilitySection_0",
+          "owner": "VolumetricCloud",
+          "range": [
+            99840,
+            307200
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_106.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 3-8",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_78.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 2-2",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_60.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 1-1",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_90.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 2-8",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_11.MovieSceneVisibilitySection_0",
+          "owner": "ExponentialHeightFog",
+          "range": [
+            99840,
+            307200
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_80.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 2-3",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_64.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 1-3",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_104.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 3-7",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_98.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 3-4",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_102.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 3-6",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_96.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 3-3",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "RESTORE_STATE",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneVisibilityTrack_84.MovieSceneVisibilitySection_0",
+          "owner": "S4 Lattice Bulb 2-5",
+          "range": [
+            307200,
+            4441920
+          ],
+          "sub_sequence": null,
+          "track_class": "MovieSceneVisibilityTrack"
+        },
+        {
+          "completion": "PROJECT_DEFAULT",
+          "id": "LS_DevScene_04.MovieScene_0.MovieSceneSubTrack_0.MovieSceneSubSection_0",
+          "owner": "<master>",
+          "range": [
+            0,
+            744000
+          ],
+          "sub_sequence": "/Game/InfinityStage/RigAtmos/LS_S4_HangarRise.LS_S4_HangarRise",
+          "track_class": "MovieSceneSubTrack"
+        }
+      ],
+      "file": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Sequences\\LS_DevScene_04.uasset",
+      "label": "LS_DevScene_04",
+      "playback": [
+        0,
+        4694400
+      ],
+      "sha256": "d86b50360ac30703c2a38dd300cfcb3d413d57eda4f91025b32b5672bdbf14ee",
+      "track_count": 106
+    },
+    {
+      "candidates": [],
+      "file": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Sequences\\LS_DevScene_05.uasset",
+      "label": "LS_DevScene_05",
+      "playback": [
+        0,
+        1176000
+      ],
+      "sha256": "6d5e31b844f9ea6fadc0f967134db3835bed5287e47801d15f4e789dcc6613d6",
+      "track_count": 3
+    },
+    {
+      "candidates": [
+        {
+          "completion": "PROJECT_DEFAULT",
+          "id": "LS_DevScene_06.MovieScene_0.MovieSceneSubTrack_0.MovieSceneSubSection_0",
+          "owner": "<master>",
+          "range": [
+            0,
+            744000
+          ],
+          "sub_sequence": "/Game/InfinityStage/RigAtmos/LS_S6_HangarRise.LS_S6_HangarRise",
+          "track_class": "MovieSceneSubTrack"
+        }
+      ],
+      "file": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Sequences\\LS_DevScene_06.uasset",
+      "label": "LS_DevScene_06",
+      "playback": [
+        0,
+        5269440
+      ],
+      "sha256": "fab4421cbe0408887773c44d89e95d440de8056b93c24258ec2a2fcfd474b641",
+      "track_count": 169
+    },
+    {
+      "candidates": [],
+      "file": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Sequences\\LS_InfinityStage_V1Master.uasset",
+      "label": "LS_InfinityStage_V1Master",
+      "playback": [
+        0,
+        51006259
+      ],
+      "sha256": "b4be9edebcdbafeaa79108cd0e5073fcf8fb7a0d905f3f1b4303ccb3527d1a84",
+      "track_count": 4
+    }
+  ],
+  "candidate_count": 65,
+  "interpretation": "candidate means Sub/Visibility/Spawn section ends before its sequence and is not explicit KEEP_STATE; it is a review list, not permission to change creative visibility",
+  "mode": "DRY_OFFLINE",
+  "schema": 1,
+  "tool": "p14_sequence_completion_guard",
+  "written_utc": "2026-10-08T08:37:44.549074+00:00"
+}

@@ -1,0 +1,125 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.h b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.h
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.h
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.h
+@@ -41,6 +41,13 @@ struct FInfinityCueListItem
+     bool bPassageCollapsed = false;
+ };
+ 
++enum class EInfinityCueDeskPostPieAction : uint8
++{
++    None,
++    ApplyTransportPreference,
++    ApplyTransportPreferenceAndSeek
++};
++
+ class SInfinityStageCueDesk final : public SCompoundWidget
+ {
+ public:
+@@ -61,6 +68,11 @@ public:
+      * more specific wanted it. */
+     virtual FReply OnKeyDown(const FGeometry& Geometry, const FKeyEvent& KeyEvent) override;
+ 
++    /** Pure plan for PostPIEStarted. The rehearsal preference is independent of
++     * the optional start-at-playhead seek, so a normal PIE start must still push it. */
++    static EInfinityCueDeskPostPieAction ResolvePostPieAction(
++        bool bIsSimulating, bool bHasShow, bool bHasEngine, bool bStartsAtPlayhead);
++
+ private:
+     using FCueItem = TSharedPtr<FInfinityCueListItem>;
+ 
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.cpp
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.cpp
+@@ -5401,12 +5401,36 @@ bool SInfinityStageCueDesk::GetCueDeskPlayheadFrame(FFrameNumber& OutFrame) con
+     return false;
+ }
+ 
++EInfinityCueDeskPostPieAction SInfinityStageCueDesk::ResolvePostPieAction(
++    const bool bIsSimulating,
++    const bool bHasShow,
++    const bool bHasEngine,
++    const bool bStartsAtPlayhead)
++{
++    if (bIsSimulating || !bHasShow || !bHasEngine)
++    {
++        return EInfinityCueDeskPostPieAction::None;
++    }
++    return bStartsAtPlayhead
++        ? EInfinityCueDeskPostPieAction::ApplyTransportPreferenceAndSeek
++        : EInfinityCueDeskPostPieAction::ApplyTransportPreference;
++}
++
+ void SInfinityStageCueDesk::HandlePostPieStarted(const bool bIsSimulating)
+ {
+-    if (!bPieStartsAtPlayhead || bIsSimulating || !ShowAsset.IsValid() || !GEngine)
++    const EInfinityCueDeskPostPieAction Action = ResolvePostPieAction(
++        bIsSimulating, ShowAsset.IsValid(), GEngine != nullptr, bPieStartsAtPlayhead);
++    if (Action == EInfinityCueDeskPostPieAction::None)
+     {
+         return;
+     }
++    const int32 Applied = ApplyRehearsalTransportToLivePIE();
++    UE_LOG(LogTemp, Display, TEXT("INFINITY_REHEARSAL_PREFERENCE_ON_PIE rehearsal=%d transports=%d"),
++        bRehearsalTransport ? 1 : 0, Applied);
++    if (Action != EInfinityCueDeskPostPieAction::ApplyTransportPreferenceAndSeek)
++    {
++        return;
++    }
+     FFrameNumber StartFrame;
+     if (!GetCueDeskPlayheadFrame(StartFrame) || StartFrame.Value <= 0)
+     {
+@@ -5427,7 +5445,6 @@ void SInfinityStageCueDesk::HandlePostPieStarted(const bool bIsSimulating)
+             {
+                 continue;
+             }
+-            ApplyRehearsalTransportToLivePIE();
+             EInfinityTransportResult Result = It->Transport->ScrubToMasterFrame(StartFrame);
+             // Starting at the rehearsal playhead must respect the Show's
+             // autoplay preference; ScrubToMasterFrame deliberately pauses.
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCueDeskRehearsalTests.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCueDeskRehearsalTests.cpp
+new file mode 100644
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCueDeskRehearsalTests.cpp
+@@ -0,0 +1,42 @@
++#include "SInfinityStageCueDesk.h"
++
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageCueDeskRehearsalPreferenceOnPieStartTest,
++    "InfinityStage.Editor.CueDesk.RehearsalPreferenceAppliedOnPIEStart",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageCueDeskRehearsalPreferenceOnPieStartTest::RunTest(const FString& Parameters)
++{
++    // Positive control: a normal PIE start still pushes the saved Rehearsal /
++    // Performance preference when start-at-playhead is disabled.
++    TestEqual(
++        TEXT("Normal PIE applies the preference without seeking"),
++        SInfinityStageCueDesk::ResolvePostPieAction(false, true, true, false),
++        EInfinityCueDeskPostPieAction::ApplyTransportPreference);
++
++    TestEqual(
++        TEXT("Start-at-playhead applies the same preference before seeking"),
++        SInfinityStageCueDesk::ResolvePostPieAction(false, true, true, true),
++        EInfinityCueDeskPostPieAction::ApplyTransportPreferenceAndSeek);
++
++    // Negative controls: simulation and an unbound desk must not touch a PIE transport.
++    TestEqual(
++        TEXT("Simulate does not push the PIE preference"),
++        SInfinityStageCueDesk::ResolvePostPieAction(true, true, true, true),
++        EInfinityCueDeskPostPieAction::None);
++    TestEqual(
++        TEXT("A desk without a Show does nothing"),
++        SInfinityStageCueDesk::ResolvePostPieAction(false, false, true, false),
++        EInfinityCueDeskPostPieAction::None);
++    TestEqual(
++        TEXT("No engine means no PIE transports"),
++        SInfinityStageCueDesk::ResolvePostPieAction(false, true, false, false),
++        EInfinityCueDeskPostPieAction::None);
++    return true;
++}
++
++#endif
