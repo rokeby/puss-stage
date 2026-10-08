@@ -38,13 +38,18 @@ def raises(fn,*args,contains="",**kwargs):
 
 def args(source):
     return argparse.Namespace(source_root=source,project_root=str(ROOT),run="HARNESS",target_count=20,seed=2103,
-                              target_period=3.6,roll_degrees=2.5,mode="DRY",confirm="",revert_run="")
+                              target_period=3.6,roll_degrees=2.5,camera_clearance_cm=185.0,
+                              teleport_threshold_cm=250.0,mode="DRY",confirm="",revert_run="")
 
 
 def main(source):
     plan=P.build_plan(args(source)); P.validate_plan(plan)
     check("20 total is five retained plus fifteen copies",len(plan["members"])==20 and
           sum(m["role"]=="existing" for m in plan["members"])==5 and len(plan["duplicate_placements"])==15,"POS")
+    check("placement authority separates originals from copies",all(m["placement_authority"]==
+          ("existing_transform_track" if m["role"]=="existing" else "new_transform_track") for m in plan["members"]),"POS")
+    check("three live transform census windows declared",plan["existing_position_policy"]["crowd_windows_scene"]==
+          {"establishing":[360,552],"frenzy":[552,2160],"choir":[2828,4488]},"POS")
     check("three clusters each contain five to eight",len(plan["clusters"])==3 and
           sorted(c["size"] for c in plan["clusters"])==[5,7,8],"POS")
     check("absolute main-tree inputs",all(str(v).replace("\\","/").startswith("E:/PussStage/DerivedAssets/")
@@ -93,8 +98,17 @@ def main(source):
         def __init__(self): self.calls=[]
         def __getattr__(self,name): return lambda:self.calls.append(name)
     fake=Fake(); E.execute_order(fake)
-    check("mutation contract order",fake.calls==["preflight","record","backup","reposition","duplicate","bind",
+    check("mutation contract order",fake.calls==["preflight","record","backup","preserve_original_transforms","duplicate","bind",
           "animate","sway","cameras","cuts","census","save_named","readback","commit"],"POS")
+    absolute={"name":"Transform","sections":[{"name":"Absolute","range":[0,6263],
+              "blend":{"value":"ABSOLUTE"},"channels":{"Location.X":{"keys":[[1461,0.0],[1462,900.0]]},
+              "Rotation.X":{"keys":[[1461,0.0]]}}}]}
+    accepted=E.transform_conflicts([absolute],[[382,574],[2850,4510]])
+    check("location teleport keys do not block additive sway",accepted=={"foreign_additive":[],"roll_key_ranges":[]},"POS")
+    jumps=E.teleport_rows([{"frame":1461,"xyz":[0,0,0]},{"frame":1462,"xyz":[900,0,0]}],250.0)
+    check("teleport inside a crowd window is reported",jumps and jumps[0]["range"]==[1461,1463],"POS")
+    check("frame refusals compress to half-open ranges",E.frames_to_ranges([382,383,400])==[[382,384],[400,401]],"POS")
+    check("float readback accepts UE tolerance",E.snapshot_equal({"v":[1.0]},{"v":[1.00009]}),"POS")
 
     check("target other than twenty refused",raises(P.build_cluster_layout,2103,19,contains="TARGET_COUNT_MUST_BE_20"),"NEG")
     check("clam placement detected",P.placement_violations(P.CLAM_LOCAL)==["clam"],"NEG")
@@ -120,6 +134,13 @@ def main(source):
     check("coverage gap detected",E.coverage_gaps([[0,100],[120,200]],[0,200])==[[100,120]],"NEG")
     wrong_cuts=copy.deepcopy(live_rows); next(r for r in wrong_cuts if r["camera"]=="S3 Shot B06")["range"]=[2798,4525]
     check("live B06 mismatch detected",bool(E.live_cut_mismatches(wrong_cuts,plan["expected_live_cuts"])),"NEG")
+    roll=copy.deepcopy(absolute); roll["sections"][0]["channels"]["Rotation.X"]["keys"]=[[400,1.0],[401,2.0]]
+    check("roll keys inside sway window refused",E.transform_conflicts([roll],[[382,574]])["roll_key_ranges"]==[[400,402]],"NEG")
+    additive=copy.deepcopy(absolute); additive["sections"][0]["blend"]["value"]="ADDITIVE"
+    check("foreign additive section refused",bool(E.transform_conflicts([additive],[[382,574]])["foreign_additive"]),"NEG")
+    check("sub-threshold movement is not called teleport",E.teleport_rows(
+          [{"frame":10,"xyz":[0,0,0]},{"frame":11,"xyz":[249.9,0,0]}],250.0)==[],"NEG")
+    check("float readback rejects drift outside UE tolerance",not E.snapshot_equal({"v":1.0},{"v":1.00011}),"NEG")
     print("S3_CROWD_HARNESS|passed=%d|failed=%d|positive=%d|negative=%d"%(passed,failed,positive,negative))
     return 1 if failed else 0
 

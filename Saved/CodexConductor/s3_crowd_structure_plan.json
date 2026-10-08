@@ -1,7 +1,7 @@
 {
-  "schema": "p21b_s3_crowd_replan/1",
-  "run": "P21B-PLAN-20261008-FIX",
-  "created_utc": "2026-10-08T20:58:06.874802+00:00",
+  "schema": "p21c_s3_crowd_transforms/1",
+  "run": "P21C-PLAN-20261008-1",
+  "created_utc": "2026-10-08T21:07:26.953809+00:00",
   "evidence_tier": "measured source JSON; inferred staging defaults pending DRY and rendered acceptance",
   "fps": 24,
   "scene_to_ls_clams_frames": 22,
@@ -723,6 +723,7 @@
       "cluster_index": 1,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "existing_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -798,6 +799,7 @@
       "cluster_index": 2,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "existing_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -873,6 +875,7 @@
       "cluster_index": 3,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "existing_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -948,6 +951,7 @@
       "cluster_index": 4,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "existing_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1023,6 +1027,7 @@
       "cluster_index": 5,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "existing_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1098,6 +1103,7 @@
       "cluster_index": 1,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1173,6 +1179,7 @@
       "cluster_index": 2,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1248,6 +1255,7 @@
       "cluster_index": 3,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1323,6 +1331,7 @@
       "cluster_index": 4,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1398,6 +1407,7 @@
       "cluster_index": 5,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1473,6 +1483,7 @@
       "cluster_index": 6,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1548,6 +1559,7 @@
       "cluster_index": 7,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1623,6 +1635,7 @@
       "cluster_index": 1,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1698,6 +1711,7 @@
       "cluster_index": 2,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1773,6 +1787,7 @@
       "cluster_index": 3,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1848,6 +1863,7 @@
       "cluster_index": 4,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1923,6 +1939,7 @@
       "cluster_index": 5,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -1998,6 +2015,7 @@
       "cluster_index": 6,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -2073,6 +2091,7 @@
       "cluster_index": 7,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -2148,6 +2167,7 @@
       "cluster_index": 8,
       "tag": "P21.S3Crowd",
       "random_draws": 4,
+      "placement_authority": "new_transform_track",
       "timeline": [
         {
           "class": "CALM",
@@ -2341,6 +2361,27 @@
       4538,
       4858
     ]
+  },
+  "existing_position_policy": {
+    "authority": "LS_Clams existing actor Transform tracks",
+    "scene_to_ls_clams_frames": 22,
+    "crowd_windows_scene": {
+      "establishing": [
+        360,
+        552
+      ],
+      "frenzy": [
+        552,
+        2160
+      ],
+      "choir": [
+        2828,
+        4488
+      ]
+    },
+    "camera_clearance_cm": 185.0,
+    "teleport_threshold_cm": 250.0,
+    "planned_local_xy_is_ignored_for_existing": true
   },
   "cut_policy": {
     "nested_cuts_must_be_inactive": true,

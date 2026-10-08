@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline P21B Scene 3 clustered-crowd planner and review previews.
+"""Offline P21C Scene 3 clustered-crowd planner and review previews.
 
 Inputs are read only from --source-root (normally E:/PussStage). APPLY writes
 the plan and three PNGs in --project-root after recording a backup. REVERT
@@ -26,6 +26,8 @@ FPS = 24
 SCENE_TO_CLAMS = 22
 TARGET_COUNT = 20
 TARGET_PERIOD_S = 3.6
+DEFAULT_CAMERA_CLEARANCE_CM = 185.0
+DEFAULT_TELEPORT_THRESHOLD_CM = 250.0
 DOCK_ORIGIN = (10921.973, 160000.0, 0.0)
 CLAM_LOCAL = (4562.427, 169.5)
 MILLSTONE_LOCAL = (2995.03, 0.0)
@@ -271,7 +273,10 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
         source_id, phase = row["source_id"], row["phase_deg"]
         bands = timeline(i)
         choir_calm = next(row["range"][0] for row in bands if row["class"]=="CALM" and row["range"][0]>2160)
-        members.append({**row, "timeline": bands,
+        members.append({**row,
+                        "placement_authority": ("existing_transform_track" if row["role"] == "existing"
+                                                else "new_transform_track"),
+                        "timeline": bands,
                         "transform_sway": {"roll_degrees": args.roll_degrees,
                                            "period_seconds": args.target_period,
                                            "phase_deg": phase,
@@ -282,7 +287,7 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
         camera["rotation_rpy_deg"] = look_rotation(camera["location_local"], camera["look_local"])
         shots.append(camera)
     return {
-        "schema": "p21b_s3_crowd_replan/1", "run": args.run,
+        "schema": "p21c_s3_crowd_transforms/1", "run": args.run,
         "created_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "evidence_tier": "measured source JSON; inferred staging defaults pending DRY and rendered acceptance",
         "fps": FPS, "scene_to_ls_clams_frames": SCENE_TO_CLAMS,
@@ -303,6 +308,18 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
                                             "duration_frames": 360,
                                             "original_end_frame": EXPECTED_LIVE_CUTS["S3 Shot B06"][1]},
         "expected_live_cuts": EXPECTED_LIVE_CUTS,
+        "existing_position_policy": {
+            "authority": "LS_Clams existing actor Transform tracks",
+            "scene_to_ls_clams_frames": SCENE_TO_CLAMS,
+            "crowd_windows_scene": {
+                "establishing": [360, 552],
+                "frenzy": [552, 2160],
+                "choir": [2828, 4488],
+            },
+            "camera_clearance_cm": args.camera_clearance_cm,
+            "teleport_threshold_cm": args.teleport_threshold_cm,
+            "planned_local_xy_is_ignored_for_existing": True,
+        },
         "cut_policy": {"nested_cuts_must_be_inactive": True, "root_playback": [0, 6240],
                        "live_scene_offset_frames": SCENE_TO_CLAMS,
                        "chorus_start": 3072, "b03_starts_after_establishing": 552},
@@ -313,13 +330,16 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def validate_plan(plan: dict[str, Any]) -> None:
-    if plan.get("schema") != "p21b_s3_crowd_replan/1" or len(plan.get("members", [])) != plan.get("target_count"):
+    if plan.get("schema") != "p21c_s3_crowd_transforms/1" or len(plan.get("members", [])) != plan.get("target_count"):
         raise PlanError("PLAN_SCHEMA_OR_COUNT")
     labels = [m["label"] for m in plan["members"]]
     if len(labels) != len(set(labels)):
         raise PlanError("DUPLICATE_MEMBER_LABEL")
     if sum(m["role"] == "existing" for m in plan["members"]) != 5 or len(plan["duplicate_placements"]) != 15:
         raise PlanError("FIVE_PLUS_FIFTEEN_REQUIRED")
+    if any(m.get("placement_authority") != ("existing_transform_track" if m["role"] == "existing"
+                                             else "new_transform_track") for m in plan["members"]):
+        raise PlanError("PLACEMENT_AUTHORITY")
     if not 2 <= len(plan["clusters"]) <= 3 or any(not 5 <= c["size"] <= 8 for c in plan["clusters"]):
         raise PlanError("CLUSTER_COUNT_OR_SIZE")
     if any(placement_violations(tuple(m["local_xy_cm"])) for m in plan["members"]):
@@ -338,6 +358,12 @@ def validate_plan(plan: dict[str, Any]) -> None:
         raise PlanError("HANDPRINT_FINAL_GLINT_MOVED")
     if plan["shots"][0]["range"] != [360, 552] or plan["shots"][1]["range"][0] != EXPECTED_LIVE_CUTS["S3 Shot B07"][1]:
         raise PlanError("SHOT_LAYOUT_NOT_LIVE_ALIGNED")
+    policy = plan.get("existing_position_policy", {})
+    if policy.get("crowd_windows_scene") != {"establishing": [360, 552], "frenzy": [552, 2160],
+                                               "choir": [2828, 4488]}:
+        raise PlanError("CROWD_WINDOWS")
+    if float(policy.get("camera_clearance_cm", 0.0)) <= 0.0 or float(policy.get("teleport_threshold_cm", 0.0)) <= 0.0:
+        raise PlanError("TRANSFORM_REPORT_THRESHOLDS")
 
 
 def canvas(width: int, height: int, title: str, subtitle: str):
@@ -353,8 +379,8 @@ def png_bytes(im: Image.Image) -> bytes:
 
 
 def render_placement(plan: dict[str, Any]) -> bytes:
-    im, d, font = canvas(1600, 980, "P21B - S3 clustered crowd placement (offline plan)",
-                         "20 total in clusters 5/7/8 | local cm | protected set pieces and camera points")
+    im, d, font = canvas(1600, 980, "P21C - S3 clustered crowd placement (offline plan)",
+                         "Cluster A squares are references only: live Transform tracks own their window positions")
     left, top, w, h = 120, 100, 1380, 790
     xmin, xmax, ymin, ymax = 2100, 4850, -1100, 1100
     sx=lambda x: left+(x-xmin)/(xmax-xmin)*w; sy=lambda y: top+(ymax-y)/(ymax-ymin)*h
@@ -383,12 +409,12 @@ def render_placement(plan: dict[str, Any]) -> bytes:
         x,y=sx(shot["location_local"][0]),sy(shot["location_local"][1]); tx,ty=sx(shot["look_local"][0]),sy(shot["look_local"][1])
         d.polygon([(x-7,y+7),(x+7,y+7),(x,y-8)],fill="#e58fc8"); d.line((x,y,tx,ty),fill="#8e5d83",width=2)
         d.text((x+9,y-7),shot["label"],fill="#e58fc8",font=font)
-    d.text((left,920),"squares = five retained actors; circles = 15 copies; colour = cluster; pink = proposed cameras",fill="#c6cfda",font=font)
+    d.text((left,920),"squares = five retained/keyed actors (reference only); circles = 15 newly tracked copies; pink = cameras",fill="#c6cfda",font=font)
     return png_bytes(im)
 
 
 def render_timeline(plan: dict[str, Any]) -> bytes:
-    im,d,font=canvas(1800,1280,"P21B - S3 clustered crowd timeline (offline plan)",
+    im,d,font=canvas(1800,1280,"P21C - S3 clustered crowd timeline (offline plan)",
                      "phase ripples within clusters; cluster bases offset by one quarter-period")
     left,right,top,row_h=230,45,95,52; x0,x1=360,4488; pw=1800-left-right
     colors={"CALM":"#4db6ac","MEDIUM":"#d8a13d","FRENZY":"#d75a64","ORIGINAL":"#637083"}
@@ -408,7 +434,7 @@ def render_timeline(plan: dict[str, Any]) -> bytes:
 
 
 def render_shots(plan: dict[str, Any]) -> bytes:
-    im,d,font=canvas(1800,720,"P21B - S3 shot plan over audio beats",
+    im,d,font=canvas(1800,720,"P21C - S3 shot plan over audio beats",
                      "live cut layout (root frames) | crowd wide/close-ups first, then final 15 s of B06")
     left,right,top,pw=100,50,125,1650; x=lambda f:left+f/6240*pw
     beats=[(0,"arrival"),(360,"sway"),(552,"frenzy"),(1080,"clam"),(1440,"cello"),(2160,"soothe"),(2880,"choir"),(4488,"crying")]
@@ -470,6 +496,8 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--source-root",default="E:/PussStage"); p.add_argument("--project-root",default=str(Path(__file__).resolve().parents[2]))
     p.add_argument("--target-count",type=int,default=20); p.add_argument("--seed",type=int,default=2103)
     p.add_argument("--target-period",type=float,default=3.6); p.add_argument("--roll-degrees",type=float,default=2.5)
+    p.add_argument("--camera-clearance-cm",type=float,default=DEFAULT_CAMERA_CLEARANCE_CM)
+    p.add_argument("--teleport-threshold-cm",type=float,default=DEFAULT_TELEPORT_THRESHOLD_CM)
     p.add_argument("--revert-run",default=""); return p
 
 
