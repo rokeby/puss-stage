@@ -1,0 +1,31 @@
+{
+ "run": "S3CL-20261008-1",
+ "state": "applied",
+ "wave_before": {},
+ "created": [
+  {
+   "label": "S3 Crowd Key A",
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_359"
+  },
+  {
+   "label": "S3 Crowd Rim A",
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_360"
+  },
+  {
+   "label": "S3 Crowd Key B",
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_361"
+  },
+  {
+   "label": "S3 Crowd Rim B",
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_362"
+  },
+  {
+   "label": "S3 Crowd Key C",
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_363"
+  },
+  {
+   "label": "S3 Crowd Rim C",
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_364"
+  }
+ ]
+}
