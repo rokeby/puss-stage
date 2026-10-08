@@ -808,6 +808,7 @@ bool UInfinityStageTransportController::StepJumpResettle(
 
 void UInfinityStageTransportController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    bVideoAudioMuted = false;
     SetManagedMasterAudioMuted(false);
     UnregisterForWorld();
     CameraRigCache.Reset();
@@ -819,6 +820,7 @@ void UInfinityStageTransportController::EndPlay(const EEndPlayReason::Type EndPl
 
 void UInfinityStageTransportController::BeginDestroy()
 {
+    bVideoAudioMuted = false;
     SetManagedMasterAudioMuted(false);
     UnregisterForWorld();
     Super::BeginDestroy();
@@ -2775,8 +2777,17 @@ bool UInfinityStageTransportController::ReleaseActiveHold()
     return true;
 }
 
-void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bMuted)
+void UInfinityStageTransportController::SetVideoAudioMuted(const bool bMuted)
 {
+    bVideoAudioMuted = bMuted;
+    SetManagedMasterAudioMuted(bFastForwardActive || bRewindActive);
+}
+
+void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bRequestedMuted)
+{
+    // A Scene showing its fallback video keeps the Master's own sound muted whatever
+    // fast-forward or rewind ask for (Cue Director CD4): no double sound.
+    const bool bMuted = bRequestedMuted || bVideoAudioMuted;
     // Restore nested mutes first and unconditionally: EndPlay may arrive with no
     // Player, and the early return below must not strand a muted Scene or Choreo.
     if (!bMuted && !NestedAudioMutedForFastForward.IsEmpty())

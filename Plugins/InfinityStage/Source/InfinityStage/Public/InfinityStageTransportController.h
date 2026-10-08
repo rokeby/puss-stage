@@ -499,6 +499,9 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cue Director")
     TArray<FString> RunThroughHoldGoNumbers;
 
+    /** A Scene playing its fallback video mutes the Master's own audio (no double sound). */
+    void SetVideoAudioMuted(bool bMuted);
+
     /** Sets run-through, its stops and its kept holds in one go (the Cue Director's settings file). */
     void ApplyCueDirector(bool bInRunThrough, const TArray<FGuid>& StopAfter, const TArray<FString>& HoldGoNumbers);
 
@@ -891,6 +894,7 @@ private:
 
     bool bFastForwardActive = false;
     bool bRewindActive = false;
+    bool bVideoAudioMuted = false;
     bool bMasterAudioMutedForFastForward = false;
     bool bMasterAudioWasEvalDisabled = false;
 

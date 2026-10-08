@@ -3,6 +3,7 @@
 #include "HAL/IConsoleManager.h"
 #include "InfinityStageTransportController.h"
 #include "InfinityStageRehearsalBar.h"
+#include "InfinityStageVideoFallback.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
@@ -294,6 +295,8 @@ void FInfinityCueDirectorSettings::Parse(const FString& Text, TArray<FString>& O
     bRunThrough = false;
     StopAfterSegments.Reset();
     HoldGoNumbers.Reset();
+    UseVideoScenes.Reset();
+    VideoAudio = TEXT("ue");
     TArray<FString> Lines;
     Text.ParseIntoArrayLines(Lines);
     for (int32 LineIndex = 0; LineIndex < Lines.Num(); ++LineIndex)
@@ -338,6 +341,21 @@ void FInfinityCueDirectorSettings::Parse(const FString& Text, TArray<FString>& O
         {
             HoldGoNumbers.AddUnique(Value);
         }
+        else if (Key.Equals(TEXT("use_video"), ESearchCase::IgnoreCase))
+        {
+            UseVideoScenes.AddUnique(Value.ToUpper());
+        }
+        else if (Key.Equals(TEXT("video_audio"), ESearchCase::IgnoreCase))
+        {
+            if (Value.Equals(TEXT("ue"), ESearchCase::IgnoreCase) || Value.Equals(TEXT("desk"), ESearchCase::IgnoreCase))
+            {
+                VideoAudio = Value.ToLower();
+            }
+            else
+            {
+                OutWarnings.Add(FString::Printf(TEXT("line %d: video_audio must be 'ue' or 'desk', got '%s'"), LineIndex + 1, *Value));
+            }
+        }
         else
         {
             OutWarnings.Add(FString::Printf(TEXT("line %d: unknown key '%s'"), LineIndex + 1, *Key));
@@ -358,6 +376,11 @@ FString FInfinityCueDirectorSettings::Serialize(TFunctionRef<FString(const FGuid
     {
         Out += FString::Printf(TEXT("hold_go = %s\n"), *Number);
     }
+    for (const FString& Scene : UseVideoScenes)
+    {
+        Out += FString::Printf(TEXT("use_video = %s\n"), *Scene);
+    }
+    Out += FString::Printf(TEXT("video_audio = %s\n"), *VideoAudio);
     return Out;
 }
 
@@ -537,6 +560,10 @@ bool UInfinityStageCueDirectorSubsystem::Reload()
             UE_LOG(LogInfinityStageCueSheet, Warning, TEXT("INFINITY_CUE_DIRECTOR_SETTINGS_WARNING %s: %s"), *SettingsPath, *Warning);
         }
         bSettingsApplied = ApplyToTransport();
+        if (UInfinityStageVideoFallbackSubsystem* Video = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageVideoFallbackSubsystem>() : nullptr)
+        {
+            Video->ReloadRegistry();
+        }
     }
     const bool bOk = Sheet.LoadFromFile(InfinityStageCueSheet::ResolvePath());
     Cursor.Row = Sheet.Rows.IsEmpty() ? 0 : FMath::Clamp(KeepRow, 0, Sheet.Rows.Num() - 1);

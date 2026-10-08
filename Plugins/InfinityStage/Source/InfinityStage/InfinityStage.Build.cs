@@ -25,6 +25,9 @@ public class InfinityStage : ModuleRules
             // The rehearsal bar (Cue Director) is a Slate widget shown in the game viewport too.
             "Slate",
             "SlateCore",
+            // Scene video fallbacks (Cue Director CD4).
+            "MediaAssets",
+            "Json",
             "Niagara",
             // Scene arrivals play a backcloth's GeometryCache before the Scene (AInfinityStageArrival).
             "GeometryCache",
