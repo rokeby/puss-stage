@@ -123,3 +123,30 @@ All [measured] by success markers unless marked.
   roof hinge + lattice fly drives on S1–S5, lattice on S6 (map saved, backup PreArrivalMovers-…). Re-measured: movers=3
   (S6 2), and the roof hinge −47.9 → −52.1 → −56.3 → −60.1° and lattice 64 → 1461 cm move smoothly across the cut. Same
   fault latent at every Passage→Scene cut [inferred]; fixed for all six. Tests green.
+
+## S4 entry check (P04 -> S4), 8 Oct ~08:00 UTC (final jobs 3.3)
+- [meas] PIE taps (pie_s4_tap, 1 s spacing, S4 -2 s to +32 s). Her L_KK_children actors appear at S4 +4.4 s. From then
+  until the cut into her slot (S4 +16.2 s, Scene frame 405) the children and pigeon do not move at all.
+  - Pigeon at (11477, 239979, 88); it jumps 33.6 m at the cut.
+  - Pendulum: the anchor stays at the level location (12301, 240040), but the ball swings ~1-1.2 m every second (its own
+    BP tick). At the cut the anchor jumps 5.1 m to her LS location (12811, 240090), and the ball keeps tick-swinging
+    there.
+- [meas] Stills PSTILLS-S4-20261008-080010-s4entry_check:
+  - 5 s: children lit in BIND POSE (arms out) with the pigeon frozen;
+  - 9 s: the pendulum ball passes the lens;
+  - 13 s: black;
+  - 16.4 s: her first shot, ball still;
+  - 17 s: ball swinging hard, which is the tick (her LS holds it for 6.4 s) [inferred from KLARAPENDULUM-20261007 probe].
+- [meas] DRYs:
+  - KLARAPENDULUM-20261008-035930 apply_ready=1 (tick-off event repeater in LS_DevScene_04).
+  - KLARAPREROLL-20261008-035930 apply_ready=0. The single refusal is REVEAL_NOT_V5: the v5 reveal (arrive in the dark)
+    was never applied, and the live S4 is still v4.
+- **Pendulum tick-off APPLIED** KLARAPENDULUM-20261008-041003 (Gary's own yes, questionnaire ~08:05 UTC). First try
+  -040829 hit ENDPOINT_INVALID, because quick binding needs the UFunction name SetActorTickEnabled. That left a
+  Don't-Save restart, and the record was renamed .failed-*. Tests: SavedMasterMatchesShow + SceneCutBindingsResolve
+  green [meas].
+  - PIE re-tap [meas]: the ball is static (12319, 240048, 44) from 6.4 to 16.0 s. At the cut the anchor moves to her
+    LS location and the ball holds still there (her +30° hold). Her swing from her frame 191 was NOT reached in the tap
+    (the tap ends at 18.5 s).
+- Gary on S4 children: "If Klara's first cut is black then start with black, if not then v5". Her first shot is NOT
+  black (16.4 s still: lit pendulum close-up) [meas] -> v5.
