@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "sourceRoot": "E:/PussStage/DerivedAssets/Audio",
+  "tracks": [
+    {
+      "segment": "Opening",
+      "file": "Opening_Sketch2/Opening_Tuning_sketch2_16.wav",
+      "selectedStartSeconds": 0.0,
+      "selectedEndSeconds": 95.503673,
+      "sha256": "8e43fbe21e40149b3f8cb9f156b31ad131da9567ec231bbe2a18c6aa03b3bb2f",
+      "selectionNote": "16-bit PCM render of the maintained 24-bit Opening source, used because the shared NumPy analyzer accepts PCM16/PCM32/float WAV. Duration matches the 24-bit source exactly."
+    },
+    {
+      "segment": "P01",
+      "file": "WalkingMusic_Cameron_20261005/P01_Walking1.wav",
+      "selectedStartSeconds": 0.0,
+      "selectedEndSeconds": 73.516032,
+      "sha256": "9dc719d10cc71e1be8b03a0dfd289fd7a3f76d2fdec14bd0371db8ab146d44e4"
+    },
+    {
+      "segment": "P02",
+      "file": "WalkingMusic_Cameron_20261005/P02_Walking2.wav",
+      "selectedStartSeconds": 0.0,
+      "selectedEndSeconds": 45.51424,
+      "sha256": "1ce5bd98b934d644b83d38311c8923e8e3e048581867f0e522fc5157b4f1446f"
+    },
+    {
+      "segment": "P03",
+      "file": "WalkingMusic_Cameron_20261005/P03_Walking3.wav",
+      "selectedStartSeconds": 0.0,
+      "selectedEndSeconds": 40.217914,
+      "sha256": "d464592f8a0cab28a12279726ab7c947e1e1f5cc0d374723bdd83abcc538e691"
+    },
+    {
+      "segment": "P04",
+      "file": "WalkingMusic_Cameron_20261005/P04_Walking4_pad10.wav",
+      "selectedStartSeconds": 0.0,
+      "selectedEndSeconds": 48.397664,
+      "sha256": "aeff66f86b1864bc29a78c341291d2eba9e51e27201c05c1871ca9a7632cfa7b"
+    },
+    {
+      "segment": "P05",
+      "file": "WalkingMusic_Cameron_20261005/P05_Walking5.wav",
+      "selectedStartSeconds": 0.0,
+      "selectedEndSeconds": 42.022472,
+      "sha256": "da01323b9e0036488e8fe58d0192c88b946987ff65a4768c404e703eb08b40e6"
+    },
+    {
+      "segment": "P06",
+      "file": "WalkingMusic_Cameron_20261005/P06_Walking6.wav",
+      "selectedStartSeconds": 0.0,
+      "selectedEndSeconds": 110.561125,
+      "sha256": "10b2b017fef21308e06b1a197be8c19ee91cf3448ddb8cd8542b460da100c6dc",
+      "selectionNote": "The source WAV is 125.0 s; P11 uses the measured 110.561125 s Master music interval, not the unused source tail."
+    }
+  ]
+}

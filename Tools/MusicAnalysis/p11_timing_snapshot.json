@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "evidence": {
+    "segments": "Saved/CodexConductor/passage_retime_to_music_record_P02.json after.segments, run RETIME-20261007-021031",
+    "passageKeys": "Saved/CodexConductor/passage_retime_to_music_record_P02.json after.keys",
+    "musicDurations": "Docs/Conductor/FINAL_JOBS_BEFORE_REHEARSAL_2026-10-08.md:30 and source manifests",
+    "limitations": [
+      "This is a saved offline read-back, not a fresh Unreal read-back.",
+      "The snapshot proves Master Passage-channel keys but does not prove every key in every nested Choreo sequence.",
+      "P06 analysis is limited to the measured 110.561125 s Master music interval although the source WAV is 125.0 s."
+    ]
+  },
+  "tickRate": 24000,
+  "displayRate": 25,
+  "segments": [
+    ["Opening - Curtain", 0, 2312640],
+    ["Passage 1", 2312640, 4624705],
+    ["Scene 1 - External Sound", 4624705, 10553665],
+    ["Interaction 1 - Washing the Boy", 10553665, 12649345],
+    ["Passage 2", 12649345, 13789825],
+    ["Scene 2 - External Sound", 13789825, 15733825],
+    ["Interaction 2 - Turnips", 15733825, 17870785],
+    ["Passage 3", 17870785, 18884545],
+    ["Scene 3 - External Sound", 18884545, 25124545],
+    ["Interaction 3 - Forgets His Name", 25124545, 27273025],
+    ["Passage 4", 27273025, 28482625],
+    ["Scene 4 - External Sound", 28482625, 29226625],
+    ["Interaction 4 - Gets a Name", 29226625, 30990145],
+    ["Passage 5", 30990145, 35462872],
+    ["Scene 5 - External Sound", 35462872, 36638872],
+    ["Interaction 5 - Becomes King", 36638872, 38402392],
+    ["Passage 6", 38402392, 41426419],
+    ["Scene 6 - External Sound", 41426419, 46695859],
+    ["Closing - Sweeping Up", 46695859, 47055859]
+  ],
+  "musicSeconds": {
+    "Passage 1": 73.516032,
+    "Passage 2": 45.51424,
+    "Passage 3": 40.217914,
+    "Passage 4": 48.397664,
+    "Passage 5": 42.022472,
+    "Passage 6": 110.561125
+  },
+  "keyedTracks": [
+    {"passage": "Passage 1", "track": "Wing.CycleRateScale", "absoluteTicks": [2312640, 2393280, 2661120]},
+    {"passage": "Passage 1", "track": "Wing.InwardTravelScale", "absoluteTicks": [2312640, 2393280, 2661120]},
+    {"passage": "Passage 1", "track": "Wing.PhaseBiasCycles", "absoluteTicks": [2312640, 2393280, 2661120]},
+    {"passage": "Passage 2", "track": "Camera.FocusDistanceCm", "absoluteTicks": [7950145], "constant": true},
+    {"passage": "Passage 2", "track": "Camera.LongitudinalOffsetCm", "absoluteTicks": [7950145], "constant": true},
+    {"passage": "Passage 3", "track": "Camera.FocalLengthMm", "absoluteTicks": [11851585, 11971585], "constant": true},
+    {"passage": "Passage 5", "track": "Camera.HeightOffsetCm", "absoluteTicks": [30990145, 31026145, 35426872, 35462872]},
+    {"passage": "Passage 6", "track": "Camera.SpeedMultiplier", "absoluteTicks": [29346192], "constant": true}
+  ]
+}
