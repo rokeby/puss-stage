@@ -72,3 +72,12 @@ _Walk-through complete (chunks 1–3)._
 | 4.4 | P03 | **Lighting identical to P01** in structure, direction and position relative to the wings; colour stays. Keep P03's special effects (e.g. the "car lighting move", if it is in P03). Replaces 2.7. | P1 | Tonight: conductor (census first). |
 | 4.5 | S3 | **Handprints not readable** (Cameron, on the latest S3 video). They need to read as handprints: darker marks; scrabbling, scratching, desperate, very many people. Only where the camera shot is (the B06 wall); about **2× density** there, none needed elsewhere. | P1 | Tonight: Codex P12 (placement + darker variant), stills for Gary. |
 | 4.6 | P01 | **Hide the smoke machines** ("little graphical patches of smoke"). | P1 | Tonight: conductor. |
+
+### 4.2 Opening cue order, Gary's clarification (8 Oct, own words, after bed-time note)
+- **Flurry 1** (peak 37.44 s, P11 analysis): **curtain falls**.
+- **Flurry 2** (peak 57.36 s): **lights.** Parcans "lighting gloriously the front facade of the stage", plus SOME lights
+  inside the Passage, so it is not totally dark in there and outside and inside connect.
+- **Flurry 3** (peak 70.44 s): **moving in to the stage** (the perspective adjustment / camera move in).
+- **When the walking music starts** (P01): the rest of the P01 lights add up to today's state.
+- For P13: set the flurry args to 1 / 2 / 3. A partial P01 light preset at flurry 2 builds up to full when P01's music
+  starts.
