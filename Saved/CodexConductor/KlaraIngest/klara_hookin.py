@@ -1917,8 +1917,15 @@ def run_apply_seq(args, run, world):
         child = sec.get_sequence()
         mapped = [int(unreal.MovieSceneSectionExtensions.get_parent_sequence_frame(sec, int(child.get_playback_start()), seq)),
                   int(unreal.MovieSceneSectionExtensions.get_parent_sequence_frame(sec, int(child.get_playback_end()), seq))]
-        if mapped != plan["section"]:
-            _stop(run, "S%s MAPPING_READBACK|%s vs %s|NOTHING SAVED; Don't-Save restart" % (k, mapped, plan["section"]))
+        # The section is laid on the parent grid at the CEILED length (LENGTH_OFF_GRID: 3514.167 -> 3515 holds the last
+        # frame), so her own playback end maps to a fractional parent frame that int() floors one short (live APPLY_SEQ
+        # 8 Oct: [376, 3890] vs [376, 3891]).  Assert the section range exactly, the child start exactly, and the child
+        # end within the one ceiled frame.
+        sec_range = [int(sec.get_start_frame()), int(sec.get_end_frame())]
+        if sec_range != plan["section"] or mapped[0] != plan["section"][0] or not (
+                plan["section"][1] - 1 <= mapped[1] <= plan["section"][1]):
+            _stop(run, "S%s MAPPING_READBACK|child %s section %s vs %s|NOTHING SAVED; Don't-Save restart" % (
+                k, mapped, sec_range, plan["section"]))
         if plan["narration"].get("action") == "mute":
             for t in seq.get_tracks():
                 if str(t.get_display_name()) == row["narration_track"] and isinstance(t, unreal.MovieSceneAudioTrack):
