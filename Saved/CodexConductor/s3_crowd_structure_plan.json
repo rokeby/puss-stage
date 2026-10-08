@@ -1,7 +1,7 @@
 {
   "schema": "p21b_s3_crowd_replan/1",
-  "run": "P21B-PLAN-20261008-1",
-  "created_utc": "2026-10-08T20:53:17.073969+00:00",
+  "run": "P21B-PLAN-20261008-FIX",
+  "created_utc": "2026-10-08T20:58:06.874802+00:00",
   "evidence_tier": "measured source JSON; inferred staging defaults pending DRY and rendered acceptance",
   "fps": 24,
   "scene_to_ls_clams_frames": 22,
@@ -2237,8 +2237,8 @@
     {
       "label": "S3 Choir Cluster Wide",
       "range": [
-        2806,
-        3360
+        2828,
+        3382
       ],
       "lens_mm": 35.0,
       "location_local": [
@@ -2261,8 +2261,8 @@
     {
       "label": "S3 Choir Close A",
       "range": [
-        3360,
-        3720
+        3382,
+        3742
       ],
       "lens_mm": 50.0,
       "location_local": [
@@ -2285,8 +2285,8 @@
     {
       "label": "S3 Choir Close B",
       "range": [
-        3720,
-        4166
+        3742,
+        4188
       ],
       "lens_mm": 50.0,
       "location_local": [
@@ -2310,36 +2310,36 @@
   "handprint_trim": {
     "camera": "S3 Shot B06",
     "expected_before": [
-      2798,
-      4526
+      2820,
+      4548
     ],
     "after": [
-      4166,
-      4526
+      4188,
+      4548
     ],
     "duration_frames": 360,
-    "original_end_frame": 4526
+    "original_end_frame": 4548
   },
   "expected_live_cuts": {
     "S3 Shot B03": [
-      398,
-      838
+      420,
+      860
     ],
     "S3 Shot B02": [
-      834,
-      1711
+      856,
+      1733
     ],
     "S3 Shot B07": [
-      1518,
-      2806
+      1540,
+      2828
     ],
     "S3 Shot B06": [
-      2798,
-      4526
+      2820,
+      4548
     ],
     "S3 Shot B08": [
-      4516,
-      4836
+      4538,
+      4858
     ]
   },
   "cut_policy": {

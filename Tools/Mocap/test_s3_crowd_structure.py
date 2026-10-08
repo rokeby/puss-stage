@@ -84,9 +84,9 @@ def main(source):
     check("live cut census matches converted ranges",E.live_cut_mismatches(live_rows,plan["expected_live_cuts"])==[],"POS")
     planned=E.planned_cut_rows(live_rows,plan)
     affected=[r["range"] for r in planned if r["active"]]+[s["range"] for s in plan["shots"]]
-    check("planned cuts cover affected live span with no gaps",E.coverage_gaps(affected,[0,4836])==[],"POS")
+    check("planned cuts cover affected live span with no gaps",E.coverage_gaps(affected,[0,4858])==[],"POS")
     b03=[r["range"] for r in planned if r["camera"]=="S3 Shot B03"]
-    check("B03 resumes at establishing end",[552,838] in b03,"POS")
+    check("B03 resumes at establishing end",[552,860] in b03,"POS")
     schedule=E.build_source_schedule(plan["members"][0],plan["sources"][plan["members"][0]["source_id"]])
     check("schedule contains all four handoff classes",set(r["class"] for r in schedule)=={"CALM","MEDIUM","FRENZY","ORIGINAL"},"POS")
     class Fake:

@@ -597,7 +597,9 @@ def main():
     discovered=_discover(plan,clams)
     actor_rows=[{"id":r["id"],"label":r["actor_label"],"exists":r["actor_hits"]==1,"hidden":r["hidden"],
                  "components":r["components"],"binding":r["binding_path"],"actor_tracks":r["actor_tracks"]} for r in discovered]
-    visible=[r for r in discovered if r["actor_hits"]==1 and not r["hidden"]]
+    # 8 Oct conductor: the shore figures are hidden in the EDITOR level by design (the S3 sequence reveals them), so
+    # "present" (exactly one actor) is the right census, not editor visibility [measured DRY P21B-DRY-20261008-1].
+    visible=[r for r in discovered if r["actor_hits"]==1]
     transform_owned=[r["id"] for r in visible if any(t["class"]=="MovieScene3DTransformTrack" for t in r["actor_tracks"])]
     cut_mismatches=live_cut_mismatches(cut_before,plan["expected_live_cuts"])
     gate_ok,gate_reason=False,"BENCH_MISSING"

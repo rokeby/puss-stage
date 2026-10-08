@@ -69,8 +69,8 @@ CLUSTER_SPECS = [
                     (0, 0), (120, 0), (-60, 120), (60, 120)]},
 ]
 
-# Ranges below are root Scene frames. The 8 Oct live census was reported in
-# LS_Clams frames; subtract SCENE_TO_CLAMS (22) to compare with root cuts.
+# 8 Oct conductor correction: the live census values ARE root Scene-3 frames (DRY S3_CROWD_CUTS reads
+# LS_DevScene_03's root camera-cut track); the brief mislabelled them as LS_Clams frames. No offset.
 LIVE_CUTS_LS_CLAMS = {
     "S3 Shot B03": [420, 860],
     "S3 Shot B02": [856, 1733],
@@ -78,22 +78,19 @@ LIVE_CUTS_LS_CLAMS = {
     "S3 Shot B06": [2820, 4548],
     "S3 Shot B08": [4538, 4858],
 }
-EXPECTED_LIVE_CUTS = {
-    label: [a - SCENE_TO_CLAMS, b - SCENE_TO_CLAMS]
-    for label, (a, b) in LIVE_CUTS_LS_CLAMS.items()
-}
+EXPECTED_LIVE_CUTS = {label: [a, b] for label, (a, b) in LIVE_CUTS_LS_CLAMS.items()}
 
 SHOT_PLAN = [
     {"label": "S3 Crowd Establishing", "range": [360, 552], "lens_mm": 35.0,
      "location_local": [2250.0, -960.0, 360.0], "look_local": [3350.0, 0.0, 95.0],
      "purpose": "wide establishing; replaces the active cut in this interval"},
-    {"label": "S3 Choir Cluster Wide", "range": [2806, 3360], "lens_mm": 35.0,
+    {"label": "S3 Choir Cluster Wide", "range": [2828, 3382], "lens_mm": 35.0,
      "location_local": [2500.0, 1050.0, 180.0], "look_local": [3600.0, 700.0, 105.0],
      "purpose": "cluster wide bridges the live B07 end and carries into chorus at 3072"},
-    {"label": "S3 Choir Close A", "range": [3360, 3720], "lens_mm": 50.0,
+    {"label": "S3 Choir Close A", "range": [3382, 3742], "lens_mm": 50.0,
      "location_local": [4300.0, 1000.0, 165.0], "look_local": [3600.0, 700.0, 105.0],
      "purpose": "50 mm group close-up of 3-4 singers in cluster B"},
-    {"label": "S3 Choir Close B", "range": [3720, 4166], "lens_mm": 50.0,
+    {"label": "S3 Choir Close B", "range": [3742, 4188], "lens_mm": 50.0,
      "location_local": [4500.0, -950.0, 165.0], "look_local": [4000.0, -500.0, 105.0],
      "purpose": "50 mm group close-up of 3-4 singers in cluster A before B06 tail"},
 ]
@@ -302,7 +299,7 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
         "duplicate_placements": placements, "members": members,
         "shots": shots, "handprint_trim": {"camera": "S3 Shot B06",
                                             "expected_before": EXPECTED_LIVE_CUTS["S3 Shot B06"],
-                                            "after": [4166, EXPECTED_LIVE_CUTS["S3 Shot B06"][1]],
+                                            "after": [4188, EXPECTED_LIVE_CUTS["S3 Shot B06"][1]],
                                             "duration_frames": 360,
                                             "original_end_frame": EXPECTED_LIVE_CUTS["S3 Shot B06"][1]},
         "expected_live_cuts": EXPECTED_LIVE_CUTS,
@@ -412,7 +409,7 @@ def render_timeline(plan: dict[str, Any]) -> bytes:
 
 def render_shots(plan: dict[str, Any]) -> bytes:
     im,d,font=canvas(1800,720,"P21B - S3 shot plan over audio beats",
-                     "live cut layout -22f | crowd wide/close-ups first, then final 15 s of B06")
+                     "live cut layout (root frames) | crowd wide/close-ups first, then final 15 s of B06")
     left,right,top,pw=100,50,125,1650; x=lambda f:left+f/6240*pw
     beats=[(0,"arrival"),(360,"sway"),(552,"frenzy"),(1080,"clam"),(1440,"cello"),(2160,"soothe"),(2880,"choir"),(4488,"crying")]
     for f,name in beats:
