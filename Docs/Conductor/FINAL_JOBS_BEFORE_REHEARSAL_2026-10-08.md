@@ -21,6 +21,24 @@ to have.
 | 1.9b | All Interactions | **Bring the shadow-play spot into place** on the curtain, as set up in the Interaction Gary remembers (I4's "Shadow Play Spot", shadow_play_spot.py: 7483 cd, cast shadows), and make it come up **slowly**. | P1 | Today the spot snaps up in 0.5 s (plan: frames 175–187) and needs a slow fade. Next step: confirm with Gary which Interaction is the reference, then replicate it to I1–I5. |
 | 1.10 | Interaction 1 → P02 | Curtain drop. | — | OK as is. |
 
+
+## Chunk 2: P02 → Interaction 3 (Gary 8 Oct)
+
+| # | Segment | Job | Pri | State / notes |
+|---|---|---|---|---|
+| 2.1 | P02 | **Lighting** "really doesn't look good", likely quick to fix. Timing is correct. | P1 | Not started. |
+| 2.2 | P01 (all walks) | **Check the Passage timings.** Gary thinks P01 may be a little too long, and that the walking music up to P06 is all about 1:07. | P2 | [measured, Master music track, 25 fps] Track lengths do NOT match: P01 73.5 s (section 96.3 s), P02 45.5 s (47.5), P03 40.2 s (42.2), P04 48.4 s (50.4), P05 42.0 s (section 186.4 s), P06 110.6 s (126.0). Next step: compare each Passage segment with its music and with Gary's "about 1:07", then decide trims. |
+| 2.3 | P02 → S2 (Shrine) | Waiting on **Klara's final shrine (arrives tomorrow)**. The shrine, and maybe her school scene, need **Klara's wings upgraded to V3**. | P1 | Feasibility: Docs/Conductor/KLARA_WINGS_V3_FEASIBILITY_2026-10-07.md (replace in position/scale exactly). |
+| 2.4 | S2 → Interaction 2 | The transition is the known pattern (darkness, spot discovers the curtain). **Do it.** | P1 | Same as 1.9. |
+| 2.5 | Interaction 2 | The interaction itself is not known yet: we design it together. **URGENT investigation: animated gobos / shadow puppetry with spotlights in Unreal.** | P1 | Existing groundwork: Docs/ShadowGoboPipeline_2026-10-06.md + Tools/ShadowGobo/make_gobo_flipbook.py (flipbook pipeline), Docs/ShadowPuppetCaptureSpec.md. Next step: a working test (a spotlight light function playing a flipbook onto a curtain), stills/clip to Gary. |
+| 2.6 | Interaction 2 → P03 | The known curtain-drop pattern; just needs doing. | P1 | — |
+| 2.7 | P03 | **Lighting**: it looks "quite milky". | P1 | Not started (haze/fog suspect [inferred]). |
+| 2.8 | P03 → S3 | Transition OK, but some external or rig light comes on too bright and spoils the deep-darkness sleight of hand while the MetaHumans spawn (S3 0:04). | P1 | Tonight S3's strike and rig lights are 0 and the rects off until 0:15; whatever is left still needs measuring (every light's intensity over S3 0–8 s in Play). |
+| 2.9 | S3 → Interaction 3 | Where the curtain goes is undecided; **S3's backdrop needs changing**, and the two may solve each other. | P2 | Backdrop: Gary directs it in Blender/Fuser. |
+| 2.10 | Interaction 3 | Same as all Interactions (cards out, spot in, gobo play). | P1 | Same as 1.9. |
+
+_Paused at Interaction 3 → P04 (Gary)._
+
 ## Carried over (already on other lists, for reference)
 - S3: done or in progress tonight (see GARY_NOTES_LIST_2026-10-08.md). Open items: pearl twin look-match stills; dunes 2× (with the wall-camera clash); fabric and MetaHuman look (texture A/B/C, full-body rebuild?); the vamp fix in the build window.
 - Fixtures: proposals in; the C++ patch is held for a build.
