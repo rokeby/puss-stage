@@ -1,6 +1,6 @@
 {
   "marker": "ANIMATED_GOBO_HARNESS",
-  "passed": 127,
+  "passed": 128,
   "failed": 0,
   "results": [
     {
@@ -792,6 +792,11 @@
     },
     {
       "name": "E11 existing make_gobo_flipbook manifest names are accepted",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E17 sRGB-off atlas is sampled as LINEAR_GRAYSCALE (2 sampler sites)",
       "pass": true,
       "detail": ""
     },
