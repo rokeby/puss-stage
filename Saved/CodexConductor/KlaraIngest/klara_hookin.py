@@ -24,6 +24,8 @@ MECHANISM (HOOKIN_PLAN.md section 2)
          cannot enable it [inf; probed]. So the tool makes a RE-KEYED COPY of her LS (her original is never edited) and
          rigidly re-keys every ABSOLUTE top-level, unattached, non-additive 3D-transform section. Location XY values
          and tangents rotate about the level pivot, location XYZ translate, and Rotation.Z receives the level yaw.
+         When X/Y key times differ, X/Y and yaw are evaluated by the UE channel at every display frame across the
+         binding's keyed range and replaced by dense LINEAR keys before rotation; Z keeps its authored curve.
          Attached/child bindings and additive/relative sections are recorded but left unchanged. Rotation is opt-in
          with row.rekey_rotation; yaw-zero S1/S4 retain the v2 translation-only path.
   TIME   [0, land) dark hangar, her level hidden | [land, cut) her level visible, our hangar strike reveals it (wide shot,
@@ -402,6 +404,65 @@ def is_relative_blend(name):
     return "ADDITIVE" in n or "RELATIVE" in n
 
 
+def binding_motion_mode(has_binding_parent, actor_count, actor_attached):
+    """Classify whether transform keys are world-space. Attached/child keys are relative and must not be rotated."""
+    if has_binding_parent:
+        return "child-relative"
+    if actor_count > 1:
+        return "ambiguous"
+    if actor_count == 1 and actor_attached:
+        return "attached-relative"
+    return "world-space"
+
+
+def bake_rigid_sample_rows(rows, transform):
+    """Pure dense-bake transform. `rows` are channel-evaluated display-frame samples, never interpolated key rows."""
+    yaw = float(transform["yaw"])
+    c, s = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
+    yaw_values = unwrap_yaw_values([r["yaw"] for r in rows]) if rows and "yaw" in rows[0] else []
+    out = []
+    for index, row in enumerate(rows):
+        x, y = float(row["x"]), float(row["y"])
+        baked = {"frame": int(row["frame"]),
+                 "x": c * x - s * y + float(transform["loc"][0]),
+                 "y": s * x + c * y + float(transform["loc"][1])}
+        if yaw_values:
+            baked["yaw"] = yaw_values[index] + yaw
+        out.append(baked)
+    return out
+
+
+def linear_baked_value(rows, field, frame):
+    """Evaluate one per-frame LINEAR bake at a sub-frame; used only for offline error measurement."""
+    if not rows:
+        raise PlanError("BAKE_ROWS_EMPTY")
+    if frame <= rows[0]["frame"]:
+        return float(rows[0][field])
+    if frame >= rows[-1]["frame"]:
+        return float(rows[-1][field])
+    lo = int(math.floor(frame)) - int(rows[0]["frame"])
+    a, b = rows[lo], rows[lo + 1]
+    alpha = float(frame) - float(a["frame"])
+    return float(a[field]) + alpha * (float(b[field]) - float(a[field]))
+
+
+def bake_subframe_deviation(source_fn, baked_rows, transform, substeps=4):
+    """Maximum XY/yaw deviation between a source curve and its dense LINEAR bake at sub-frame samples."""
+    if substeps < 2 or len(baked_rows) < 2:
+        raise PlanError("BAKE_DEVIATION_SAMPLE_INVALID")
+    max_xy, max_yaw = 0.0, 0.0
+    for frame in range(int(baked_rows[0]["frame"]), int(baked_rows[-1]["frame"])):
+        for step in range(1, int(substeps)):
+            at = frame + step / float(substeps)
+            source = source_fn(at)
+            exact = bake_rigid_sample_rows([dict(source, frame=frame)], transform)[0]
+            bx, by = linear_baked_value(baked_rows, "x", at), linear_baked_value(baked_rows, "y", at)
+            max_xy = max(max_xy, math.hypot(bx - exact["x"], by - exact["y"]))
+            if "yaw" in exact and "yaw" in baked_rows[0]:
+                max_yaw = max(max_yaw, abs(wrap_yaw(linear_baked_value(baked_rows, "yaw", at) - exact["yaw"])))
+    return {"max_xy_cm": max_xy, "max_yaw_deg": max_yaw, "substeps_per_frame": int(substeps)}
+
+
 def placement_geometry(lrow, hangar, fit):
     """Four footprint corners in her/local/world space and exact penetration of the physical hangar walls."""
     xmin, xmax, ymin, ymax = [float(v) for v in (lrow.get("footprint_live") or lrow["footprint_her"])]
@@ -746,7 +807,8 @@ def _channel_map(section):
 
 
 def _key_rows(channel):
-    return [{"t": int(k.get_time().frame_number.value), "v": float(k.get_value()),
+    return [{"t": int(k.get_time(time_unit=unreal.MovieSceneTimeUnit.DISPLAY_RATE).frame_number.value),
+             "v": float(k.get_value()),
              "interp": _enum_name(k.get_interpolation_mode()), "tmode": _enum_name(k.get_tangent_mode()),
              "arrive": float(k.get_arrive_tangent()), "leave": float(k.get_leave_tangent()),
              "wmode": _enum_name(k.get_tangent_weight_mode())} for k in channel.get_keys()]
@@ -758,23 +820,79 @@ def _channel_rows(channel):
             "post": _enum_name(channel.get_post_infinity_extrapolation())}
 
 
-def _channel_eval(channel, frame):
-    try:
-        if hasattr(channel, "evaluate"):
-            return float(channel.evaluate(unreal.FrameTime(unreal.FrameNumber(int(frame)))))
-    except Exception:  # noqa: BLE001 - DRY reports an unresolved camera below
-        pass
-    keys = sorted((r["t"], r["v"]) for r in _key_rows(channel))
-    if not keys:
-        return float(channel.get_default()) if channel.has_default() else None
-    for t, value in keys:
-        if t == int(frame):
-            return value
-    if frame < keys[0][0]:
-        return keys[0][1]
-    if frame > keys[-1][0]:
-        return keys[-1][1]
-    return None
+def _channel_keyed_range(channels):
+    frames = [r["t"] for channel in channels for r in _key_rows(channel)]
+    return None if not frames else [min(frames), max(frames)]
+
+
+def _channel_eval_frames(channel, sequence, first_frame, last_frame):
+    """Evaluate the UE channel itself at every display frame in the inclusive range."""
+    scripting_range = unreal.SequencerScriptingRange()
+    scripting_range.set_start_frame(int(first_frame))
+    scripting_range.set_end_frame(int(last_frame) + 1)
+    values = [float(v) for v in channel.evaluate_keys(scripting_range, sequence.get_display_rate())]
+    expected = int(last_frame) - int(first_frame) + 1
+    if len(values) != expected:
+        raise PlanError("CHANNEL_EVALUATE_COUNT: got %d want %d over [%d,%d]" %
+                        (len(values), expected, first_frame, last_frame))
+    return values
+
+
+def _dense_rekey(channels, sequence, transform):
+    """Bake X/Y and yaw at display-frame density using UE's own channel evaluation, then rigidly transform them."""
+    relevant = [channels["Location.X"], channels["Location.Y"]]
+    relevant += [channels[n] for n in ("Location.Z", "Rotation.Z") if n in channels]
+    keyed_range = _channel_keyed_range(relevant)
+    if keyed_range is None:
+        raise PlanError("BAKE_KEYED_RANGE_EMPTY")
+    first, last = keyed_range
+    names = {"x": "Location.X", "y": "Location.Y", "yaw": "Rotation.Z"}
+    evaluated = {axis: _channel_eval_frames(channels[name], sequence, first, last)
+                 for axis, name in names.items() if name in channels}
+    rows = []
+    for index, frame in enumerate(range(first, last + 1)):
+        row = {"frame": frame, "x": evaluated["x"][index], "y": evaluated["y"][index]}
+        if "yaw" in evaluated:
+            row["yaw"] = evaluated["yaw"][index]
+        rows.append(row)
+    baked = bake_rigid_sample_rows(rows, transform)
+    out = {}
+    for axis in ("x", "y", "yaw"):
+        if axis not in baked[0]:
+            continue
+        out[axis] = {"keys": [{"t": r["frame"], "v": r[axis], "interp": "RCIM_LINEAR",
+                                "tmode": "RCTM_AUTO", "arrive": 0.0, "leave": 0.0,
+                                "wmode": "RCTWM_WEIGHTED_NONE"} for r in baked],
+                     "default": None, "replace": True}
+    return out, {"first_frame": first, "last_frame": last, "display_frame_keys": len(baked),
+                 "interpolation": "LINEAR", "evaluated_by": "MovieSceneScriptingDoubleChannel.evaluate_keys"}
+
+
+def _rekey_section(channels, sequence, transform):
+    """Exact tangent rotation when aligned; channel-evaluated dense bake when X/Y key times differ."""
+    has_location = all("Location." + axis in channels for axis in "XYZ")
+    source = {axis: _channel_rows(channels["Location." + axis.upper()]) for axis in "xyz"} \
+        if has_location else {}
+    if "Rotation.Z" in channels:
+        source["yaw"] = _channel_rows(channels["Rotation.Z"])
+    result = rekey_rigid(source, transform)
+    mismatch = any(p.startswith("XY_KEY_TIMES_DIFFER") for p in result["problems"])
+    if mismatch:
+        # The bake is bounded by the binding's own keyed range, so pre/post extrapolation differences are irrelevant.
+        remaining = [p for p in result["problems"] if not p.startswith(("XY_KEY_TIMES_DIFFER",
+                                                                         "XY_EXTRAPOLATION_DIFFERS"))]
+        if remaining:
+            result["problems"] = remaining
+            return result
+        try:
+            dense, bake = _dense_rekey(channels, sequence, transform)
+        except Exception as exc:  # noqa: BLE001 - becomes an explicit DRY refusal
+            result["problems"] = ["BAKE_EVALUATION_FAILED:%s:%s" % (type(exc).__name__, exc)]
+            return result
+        result.update(dense)
+        result["problems"] = []
+        result["bake"] = bake
+    return result
 
 
 def _section_blend(section):
@@ -847,9 +965,10 @@ def _api_table():
               "get_leave_tangent", "set_leave_tangent", "get_interpolation_mode", "get_tangent_weight_mode")))
     probe("MovieSceneSection.get_blend_type (additive/relative leave unchanged)",
           "prec klara_reveal.py:3183-3186", lambda: hasattr(u.MovieSceneSection, "get_blend_type"))
-    probe("MovieSceneDoubleChannel evaluate + infinity extrapolation", "decl MovieSceneScriptingDouble.h:316-366",
-          lambda: [hasattr(u.MovieSceneScriptingDoubleChannel, "evaluate"),
-                   hasattr(u.MovieSceneScriptingDoubleChannel, "get_pre_infinity_extrapolation")])
+    probe("MovieSceneDoubleChannel evaluate_keys/add_key/remove_key + infinity extrapolation",
+          "decl MovieSceneScriptingDouble.h:245-298,316-366",
+          lambda: [hasattr(u.MovieSceneScriptingDoubleChannel, n) for n in
+                   ("evaluate_keys", "add_key", "remove_key", "get_pre_infinity_extrapolation")])
     probe("MovieSceneSection.set_is_active", "inf (is_active is prec scene_audio_import.py:668)",
           lambda: hasattr(u.MovieSceneSection, "set_is_active"))
     probe("InfinityStageCelestialRig foreign_lighting_exempt_levels (proposed C++ flag)",
@@ -1153,15 +1272,19 @@ def _rekey_preview(sequence, transform, world, level_pkgs):
     for binding in sequence.get_bindings():
         parent = binding.get_parent()
         name = str(binding.get_display_name())
-        if parent is not None and hasattr(parent, "is_valid") and parent.is_valid():
-            rows.append({"binding": name, "skipped": "child binding (relative)"})
-            continue
+        has_parent = bool(parent is not None and hasattr(parent, "is_valid") and parent.is_valid())
         actors = names.get(name, [])
-        if len(actors) > 1:
-            rows.append({"binding": name, "problems": ["REKEY_ACTOR_AMBIGUOUS:%d" % len(actors)]})
+        attached = bool(len(actors) == 1 and actors[0].get_attach_parent_actor() is not None)
+        motion = binding_motion_mode(has_parent, len(actors), attached)
+        if motion == "child-relative":
+            rows.append({"binding": name, "motion_mode": motion, "skipped": "child binding (relative)"})
             continue
-        if actors and actors[0].get_attach_parent_actor() is not None:
-            rows.append({"binding": name, "skipped": "attached (keys are relative)"})
+        if motion == "ambiguous":
+            rows.append({"binding": name, "motion_mode": motion,
+                         "problems": ["REKEY_ACTOR_AMBIGUOUS:%d" % len(actors)]})
+            continue
+        if motion == "attached-relative":
+            rows.append({"binding": name, "motion_mode": motion, "skipped": "attached (keys are relative)"})
             continue
         for track in [t for t in binding.get_tracks() if isinstance(t, unreal.MovieScene3DTransformTrack)]:
             for section in track.get_sections():
@@ -1186,15 +1309,16 @@ def _rekey_preview(sequence, transform, world, level_pkgs):
                     if has_location else {}
                 if has_yaw:
                     source["yaw"] = _channel_rows(channels["Rotation.Z"])
-                result = rekey_rigid(source, transform)
+                result = _rekey_section(channels, sequence, transform)
                 rows.append({"binding": name, "blend": blend, "problems": result["problems"],
-                             "keys": {axis: len(source[axis]["keys"]) for axis in source},
-                             "actor": "level" if actors else "spawnable/free"})
+                              "keys": {axis: len(source[axis]["keys"]) for axis in source},
+                              "actor": "level" if actors else "spawnable/free", "motion_mode": motion,
+                              "bake": result.get("bake")})
     return rows
 
 
 def _camera_preview_rows(sequence, transform, world, level_pkgs, plan, her_facts, default_hfov):
-    """Every camera cut's start pose after the planned rigid transform; read-only and used only by DRY."""
+    """Every cut camera's full keyed path after the planned rigid transform, plus a first-key frustum."""
     bindings = {_guid_string(b.get_id()): b for b in sequence.get_bindings()}
     actors = {}
     for pkg in level_pkgs:
@@ -1218,6 +1342,16 @@ def _camera_preview_rows(sequence, transform, world, level_pkgs, plan, her_facts
             continue
         name, frame = str(binding.get_display_name()), cut["frames"][0]
         row["binding"] = name
+        parent = binding.get_parent()
+        has_parent = bool(parent is not None and hasattr(parent, "is_valid") and parent.is_valid())
+        matches = actors.get(name, [])
+        attached = bool(len(matches) == 1 and matches[0].get_attach_parent_actor() is not None)
+        motion = binding_motion_mode(has_parent, len(matches), attached)
+        row["motion_mode"] = motion
+        if motion != "world-space":
+            row["error"] = "CAMERA_%s_PATH_REQUIRES_PARENT" % motion.upper().replace("-", "_")
+            rows.append(row)
+            continue
         sections = [s for t in binding.get_tracks() if isinstance(t, unreal.MovieScene3DTransformTrack)
                     for s in t.get_sections() if (not s.has_start_frame() or int(s.get_start_frame()) <= frame) and
                     (not s.has_end_frame() or frame < int(s.get_end_frame())) and not is_relative_blend(_section_blend(s))]
@@ -1226,17 +1360,32 @@ def _camera_preview_rows(sequence, transform, world, level_pkgs, plan, her_facts
             rows.append(row)
             continue
         channel_map = _channel_map(sections[0])
-        values = {n: _channel_eval(channel_map[n], frame) if n in channel_map else None
-                  for n in ("Location.X", "Location.Y", "Location.Z", "Rotation.X", "Rotation.Y", "Rotation.Z")}
-        if not all(values[n] is not None for n in ("Location.X", "Location.Y", "Location.Z")):
-            row["error"] = "CAMERA_LOCATION_UNRESOLVED"
+        required = ("Location.X", "Location.Y", "Location.Z")
+        if not all(n in channel_map for n in required):
+            row["error"] = "CAMERA_LOCATION_CHANNELS_MISSING"
             rows.append(row)
             continue
-        local = [values["Location." + a] for a in "XYZ"]
-        local_yaw = values["Rotation.Z"]
-        world_pos = world_point(transform, local)
-        world_yaw = None if local_yaw is None else float(local_yaw) + wrap_yaw(transform["yaw"])
-        matches = actors.get(name, [])
+        keyed_range = _channel_keyed_range([channel_map[n] for n in required + (("Rotation.Z",) if
+                                           "Rotation.Z" in channel_map else ())])
+        if keyed_range is None:
+            row["error"] = "CAMERA_KEYED_RANGE_EMPTY"
+            rows.append(row)
+            continue
+        first, last = keyed_range
+        try:
+            values = {n: _channel_eval_frames(channel_map[n], sequence, first, last) for n in required}
+            yaw_values = _channel_eval_frames(channel_map["Rotation.Z"], sequence, first, last) \
+                if "Rotation.Z" in channel_map else None
+        except Exception as exc:  # noqa: BLE001 - DRY makes the cause explicit
+            row["error"] = "CAMERA_CHANNEL_EVALUATION:%s:%s" % (type(exc).__name__, exc)
+            rows.append(row)
+            continue
+        path_local = [[values["Location.X"][i], values["Location.Y"][i], values["Location.Z"][i]]
+                      for i in range(last - first + 1)]
+        path_world = [world_point(transform, p) for p in path_local]
+        path_yaw = None
+        if yaw_values is not None:
+            path_yaw = [v + float(transform["yaw"]) for v in unwrap_yaw_values(yaw_values)]
         component = matches[0].get_cine_camera_component() if len(matches) == 1 and hasattr(
             matches[0], "get_cine_camera_component") else None
         focal = float(component.get_editor_property("current_focal_length")) if component is not None else None
@@ -1245,7 +1394,11 @@ def _camera_preview_rows(sequence, transform, world, level_pkgs, plan, her_facts
         hfov = math.degrees(2.0 * math.atan(sensor / (2.0 * focal))) if focal and sensor else float(default_hfov)
         relative_s = (frame - int(her_facts["lower_frame"])) / float(her_facts["fps"])
         scene_frame = int(plan["section"][0]) + ceil_frames(relative_s, float(plan["fps"]))
-        row.update(local_cm=local, world_cm=world_pos, local_yaw_deg=local_yaw, world_yaw_deg=world_yaw,
+        row.update(path_frames=[first, last], path_sample_count=len(path_world), path_local_cm=path_local,
+                   path_world_cm=path_world, path_world_yaw_deg=path_yaw,
+                   local_cm=path_local[0], world_cm=path_world[0],
+                   local_yaw_deg=None if yaw_values is None else yaw_values[0],
+                   world_yaw_deg=None if path_yaw is None else path_yaw[0],
                    focal_mm=focal, sensor_width_mm=sensor, hfov_deg=hfov,
                    hfov_source="camera component" if focal and sensor else "args preview_default_hfov_deg",
                    scene_frame=scene_frame,
@@ -1256,25 +1409,42 @@ def _camera_preview_rows(sequence, transform, world, level_pkgs, plan, her_facts
 
 
 def _preview_model(placement, hangar, cameras, frustum_cm):
-    """World data -> hangar-local 2D primitives, so the renderer itself is testable without Unreal."""
+    """World-space primitives. Hangar, footprint and cameras remain in the same rotated frame."""
     dock = hangar["dock"]
-    footprint = [[p[0], p[1]] for p in placement["geometry"]["corners_hangar_local_cm"]]
+    x0, x1 = float(hangar["apron"]), float(hangar["apron"]) + float(hangar["depth"])
+    y0, y1 = -float(hangar["half_w"]), float(hangar["half_w"])
+    hangar_world = [world_point(dock, [x0, y0, 0.0]), world_point(dock, [x1, y0, 0.0]),
+                    world_point(dock, [x1, y1, 0.0]), world_point(dock, [x0, y1, 0.0])]
+    footprint = [[p[0], p[1]] for p in placement["geometry"]["corners_world_cm"]]
+    her = placement["geometry"]["corners_her_cm"]
+    xmin, xmax = min(p[0] for p in her), max(p[0] for p in her)
+    ymin, ymax = min(p[1] for p in her), max(p[1] for p in her)
+    level_transform = placement["fit"]["level_transform"]
     cam_rows = []
     for row in cameras:
-        if row.get("world_cm") is None or row.get("world_yaw_deg") is None:
+        path = row.get("path_world_cm") or []
+        if not path or row.get("world_yaw_deg") is None:
             continue
-        p = row["world_cm"]
-        x, y = _rot(p[0] - dock["loc"][0], p[1] - dock["loc"][1], -dock["yaw"])
-        yaw = float(row["world_yaw_deg"]) - float(dock["yaw"])
+        p, yaw = path[0], float(row["world_yaw_deg"])
         half = math.tan(math.radians(float(row["hfov_deg"])) / 2.0) * float(frustum_cm)
         tip = _rot(float(frustum_cm), 0.0, yaw)
         left = _rot(float(frustum_cm), half, yaw)
         right = _rot(float(frustum_cm), -half, yaw)
-        cam_rows.append(dict(row, hangar_local_cm=[x, y], frustum_hangar_local_cm=[
-            [x, y], [x + left[0], y + left[1]], [x + tip[0], y + tip[1]], [x + right[0], y + right[1]]]))
-    return {"hangar_rect_cm": [float(hangar["apron"]), -float(hangar["half_w"]),
-                                float(hangar["apron"]) + float(hangar["depth"]), float(hangar["half_w"])],
-            "footprint_cm": footprint, "cameras": cam_rows, "frustum_cm": float(frustum_cm)}
+        outside = []
+        for index, point in enumerate(path):
+            lx, ly = _rot(point[0] - level_transform["loc"][0], point[1] - level_transform["loc"][1],
+                          -level_transform["yaw"])
+            if not (xmin - 1000.0 <= lx <= xmax + 1000.0 and ymin - 1000.0 <= ly <= ymax + 1000.0):
+                outside.append(index)
+        cam_rows.append(dict(row, path_cm=[[q[0], q[1]] for q in path],
+                             frustum_cm=[[p[0], p[1]], [p[0] + left[0], p[1] + left[1]],
+                                         [p[0] + tip[0], p[1] + tip[1]], [p[0] + right[0], p[1] + right[1]]],
+                             footprint_margin_cm=1000.0, outside_footprint_margin_samples=outside,
+                             preview_suspect=bool(outside)))
+    suspect = [r["binding"] for r in cam_rows if r["preview_suspect"]]
+    return {"hangar_world_cm": [[p[0], p[1]] for p in hangar_world], "footprint_world_cm": footprint,
+            "cameras": cam_rows, "frustum_cm": float(frustum_cm), "preview_suspect": suspect,
+            "assertion": "all camera path samples inside footprint expanded by 1000 cm"}
 
 
 def _png_chunk(kind, data):
@@ -1282,13 +1452,13 @@ def _png_chunk(kind, data):
 
 
 def render_topdown_png(path, model, size=1200):
-    """Dependency-free DRY preview. Blue=walls, gold=footprint, green/cyan=cameras/frusta, red=outside walls."""
+    """Dependency-free DRY preview. Blue=hangar, red=footprint, coloured polylines=camera paths, cyan=frusta."""
     size = max(320, min(2400, int(size)))
     points = []
-    x0, y0, x1, y1 = model["hangar_rect_cm"]
-    points += [[x0, y0], [x1, y1]] + model["footprint_cm"]
+    walls = model["hangar_world_cm"]
+    points += walls + model["footprint_world_cm"]
     for row in model["cameras"]:
-        points += row["frustum_hangar_local_cm"]
+        points += row["frustum_cm"] + row["path_cm"]
     lo_x, hi_x = min(p[0] for p in points), max(p[0] for p in points)
     lo_y, hi_y = min(p[1] for p in points), max(p[1] for p in points)
     pad = max(200.0, 0.08 * max(hi_x - lo_x, hi_y - lo_y))
@@ -1321,26 +1491,29 @@ def render_topdown_png(path, model, size=1200):
             if e2 < dx:
                 err += dx; y0p += sy
 
-    walls = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
     for a, b in zip(walls, walls[1:] + walls[:1]):
         line(a, b, (70, 145, 235), 4)
-    fp = model["footprint_cm"]
+    fp = model["footprint_world_cm"]
     for a, b in zip(fp, fp[1:] + fp[:1]):
-        color = (240, 75, 75) if abs(a[1]) > max(abs(y0), abs(y1)) or abs(b[1]) > max(abs(y0), abs(y1)) \
-            else (245, 190, 70)
-        line(a, b, color, 4)
-    for row in model["cameras"]:
-        frustum = row["frustum_hangar_local_cm"]
+        line(a, b, (240, 75, 75), 4)
+    palette = [(90, 240, 120), (225, 110, 245), (245, 205, 80), (100, 190, 255)]
+    for camera_index, row in enumerate(model["cameras"]):
+        color = palette[camera_index % len(palette)]
+        for a, b in zip(row["path_cm"], row["path_cm"][1:]):
+            line(a, b, color, 3)
+        frustum = row["frustum_cm"]
         line(frustum[0], frustum[1], (70, 225, 220), 2)
         line(frustum[0], frustum[3], (70, 225, 220), 2)
         line(frustum[1], frustum[3], (50, 125, 130), 1)
-        dot(*pt(frustum[0]), (90, 240, 120), 4)
+        dot(*pt(frustum[0]), color, 4)
     raw = b"".join(b"\x00" + bytes(pixels[y * width * 3:(y + 1) * width * 3]) for y in range(height))
     data = b"\x89PNG\r\n\x1a\n" + _png_chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)) + \
         _png_chunk(b"IDAT", zlib.compress(raw, 9)) + _png_chunk(b"IEND", b"")
     with open(path, "wb") as handle:
         handle.write(data)
-    return {"path": path, "width": width, "height": height, "bytes": len(data), "camera_count": len(model["cameras"])}
+    return {"path": path, "width": width, "height": height, "bytes": len(data),
+            "camera_count": len(model["cameras"]), "preview_suspect": model["preview_suspect"],
+            "assertion": model["assertion"]}
 
 
 def run_dry(args, run, world):
@@ -1377,6 +1550,9 @@ def run_dry(args, run, world):
                                    args.get("preview_frustum_cm", 1200.0))
             preview_files[key] = render_topdown_png(os.path.join(_here(), args["preview_png"]), model,
                                                     args.get("preview_size_px", 1200))
+            if model["preview_suspect"]:
+                warnings.append("S%s PREVIEW_SUSPECT: camera paths outside footprint +/- 10 m: %s" %
+                                (key, model["preview_suspect"]))
     rig_info = {}
     try:
         rig = _rig()
@@ -1566,6 +1742,15 @@ def _add_replacement_target(seq, row, sequence_path, start, end, offset_tick):
 
 
 def _apply_channel(channel, want, run, label):
+    if want.get("replace"):
+        for key in list(channel.get_keys()):
+            channel.remove_key(key)
+        for row in want["keys"]:
+            made = channel.add_key(unreal.FrameNumber(int(row["t"])), float(row["v"]),
+                                   time_unit=unreal.MovieSceneTimeUnit.DISPLAY_RATE,
+                                   interpolation=unreal.MovieSceneKeyInterpolation.LINEAR)
+            if made is None:
+                _stop(run, "REKEY_BAKE_ADD|%s|t=%s|NOTHING SAVED; Don't-Save restart" % (label, row["t"]))
     keys = list(channel.get_keys())
     if len(keys) != len(want["keys"]):
         _stop(run, "REKEY_KEYCOUNT|%s|NOTHING SAVED; Don't-Save restart" % label)
@@ -1584,7 +1769,8 @@ def _apply_channel(channel, want, run, label):
         tangent_bad = expected["tmode"] in (USER, BREAK) and (
             abs(actual["arrive"] - expected["arrive"]) > 1e-3 * max(1.0, abs(expected["arrive"])) or
             abs(actual["leave"] - expected["leave"]) > 1e-3 * max(1.0, abs(expected["leave"])))
-        if actual["t"] != expected["t"] or abs(actual["v"] - expected["v"]) > 1e-4 or tangent_bad:
+        interp_bad = want.get("replace") and actual["interp"] != "RCIM_LINEAR"
+        if actual["t"] != expected["t"] or abs(actual["v"] - expected["v"]) > 1e-4 or tangent_bad or interp_bad:
             _stop(run, "REKEY_READBACK|%s|t=%s|NOTHING SAVED; Don't-Save restart" % (label, actual["t"]))
 
 
@@ -1606,7 +1792,8 @@ def _make_rekeyed_copy(args, key, row, transform, world, level_pkgs, run):
                 bucket.setdefault(str(a.get_name()), []).append(a)
     for b in copy.get_bindings():
         parent = b.get_parent()
-        if parent is not None and hasattr(parent, "is_valid") and parent.is_valid():
+        has_parent = bool(parent is not None and hasattr(parent, "is_valid") and parent.is_valid())
+        if has_parent:
             continue                                      # component/child binding: relative to its parent
         tracks = [t for t in b.get_tracks() if isinstance(t, unreal.MovieScene3DTransformTrack)]
         if not tracks:
@@ -1617,14 +1804,16 @@ def _make_rekeyed_copy(args, key, row, transform, world, level_pkgs, run):
             # e.g. LS_Children's 5 L_Animals SpotLights [meas]: that level sits in ANOTHER hangar; not moved here
             log.append({"binding": name, "skipped": "cross-level binding (actor lives in another Scene's hangar)"})
             continue
-        if len(actors) > 1:
+        attached = bool(len(actors) == 1 and actors[0].get_attach_parent_actor() is not None)
+        motion = binding_motion_mode(False, len(actors), attached)
+        if motion == "ambiguous":
             _stop(run, "S%s REKEY_ACTOR_AMBIGUOUS|%r matches %d actors in %s|NOTHING SAVED; Don't-Save restart"
                   % (key, name, len(actors), level_pkgs))
         if not actors:
             # 7 Oct live ('Pendulum' in LS_Children): no level actor -> a spawnable or a free binding whose keys are
             # absolute world positions; shift them with the set (an unbound possessable is unaffected either way)
             log.append({"binding": name, "note": "no level actor: keys shifted as absolute (spawnable/free)"})
-        elif actors[0].get_attach_parent_actor() is not None:      # prec curtain_sleight.py:1405
+        elif motion == "attached-relative":                       # prec curtain_sleight.py:1405
             log.append({"binding": name, "skipped": "attached (keys are relative)"})
             continue
         for t in tracks:
@@ -1648,7 +1837,7 @@ def _make_rekeyed_copy(args, key, row, transform, world, level_pkgs, run):
                     if has_location else {}
                 if has_yaw:
                     before["yaw"] = _channel_rows(channels["Rotation.Z"])
-                want = rekey_rigid(before, transform)
+                want = _rekey_section(channels, copy, transform)
                 if want["problems"]:
                     _stop(run, "S%s REKEY_NOT_EXACT|%s|%s|NOTHING SAVED; Don't-Save restart" %
                           (key, name, want["problems"]))
@@ -1660,7 +1849,8 @@ def _make_rekeyed_copy(args, key, row, transform, world, level_pkgs, run):
                     _apply_channel(channels["Rotation.Z"], want["yaw"], run, "S%s %s Rotation.Z" % (key, name))
                 log.append({"binding": name, "blend": blend,
                             "keys": {axis: len(before[axis]["keys"]) for axis in before},
-                            "actor": "level" if actors else "none (spawnable/free: keys absolute)"})
+                            "actor": "level" if actors else "none (spawnable/free: keys absolute)",
+                            "motion_mode": motion, "bake": want.get("bake")})
     return dst, log
 
 

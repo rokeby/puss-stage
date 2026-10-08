@@ -11,6 +11,7 @@ import json
 import math
 import os
 import sys
+import types
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -24,6 +25,14 @@ with open(os.path.join(HERE, "klara_hookin_args.json"), encoding="utf-8") as _h:
 with open(os.path.join(HERE, "klara_hookin_s2_args.json"), encoding="utf-8") as _h:
     S2_ARGS = json.load(_h)
 HANGARS = ARGS["hangars"]
+
+
+def synthetic_bake_metrics():
+    transform = {"loc": [100.0, -50.0, 0.0], "yaw": 37.0}
+    source = lambda t: {"x": t * t, "y": 0.5 * t * t, "yaw": t * t}  # noqa: E731 - compact test curve
+    rows = [dict(source(frame), frame=frame) for frame in range(5)]
+    baked = K.bake_rigid_sample_rows(rows, transform)
+    return K.bake_subframe_deviation(source, baked, transform, substeps=4)
 
 
 def her(lo, hi, audio=(), fps=30.0, tick=24000.0, exists=True):
@@ -290,6 +299,65 @@ class Rekey(unittest.TestCase):
         self.assertTrue(any(x.startswith("WEIGHTED_TANGENT") for x in
                             K.rekey_rigid(bad_weight, {"loc": [0, 0, 0], "yaw": 30})["problems"]))
 
+    def test_mismatched_xy_uses_channel_evaluation_dense_bake(self):
+        class FakeRange:
+            def set_start_frame(self, value): self.start = int(value)
+            def set_end_frame(self, value): self.end = int(value)
+
+        class FakeKey:
+            def __init__(self, t, v): self.t, self.v = t, v
+            def get_time(self, time_unit=None):
+                return types.SimpleNamespace(frame_number=types.SimpleNamespace(value=self.t))
+            def get_value(self): return self.v
+            def get_interpolation_mode(self): return "RCIM_CUBIC"
+            def get_tangent_mode(self): return "RCTM_AUTO"
+            def get_arrive_tangent(self): return 0.0
+            def get_leave_tangent(self): return 0.0
+            def get_tangent_weight_mode(self): return "RCTWM_WEIGHTED_NONE"
+
+        class FakeChannel:
+            def __init__(self, times, fn):
+                self.keys, self.fn, self.calls = [FakeKey(t, fn(t)) for t in times], fn, []
+            def get_keys(self): return self.keys
+            def has_default(self): return False
+            def get_pre_infinity_extrapolation(self): return "RCCE_CONSTANT"
+            def get_post_infinity_extrapolation(self): return "RCCE_CONSTANT"
+            def evaluate_keys(self, scripting_range, frame_rate):
+                self.calls.append((scripting_range.start, scripting_range.end, frame_rate))
+                return [self.fn(t) for t in range(scripting_range.start, scripting_range.end)]
+
+        fake_unreal = types.SimpleNamespace(
+            MovieSceneTimeUnit=types.SimpleNamespace(DISPLAY_RATE="DISPLAY_RATE"),
+            SequencerScriptingRange=FakeRange)
+        channels = {"Location.X": FakeChannel([0, 2], lambda t: t * t),
+                    "Location.Y": FakeChannel([0, 1, 2], lambda t: 10.0 + t),
+                    "Location.Z": FakeChannel([0, 2], lambda t: 5.0),
+                    "Rotation.Z": FakeChannel([0, 2], lambda t: 359.0 + t)}
+        sequence = types.SimpleNamespace(get_display_rate=lambda: "30fps")
+        old_unreal = K.unreal
+        K.unreal = fake_unreal
+        try:
+            out = K._rekey_section(channels, sequence, {"loc": [100.0, 200.0, 300.0], "yaw": 90.0})
+        finally:
+            K.unreal = old_unreal
+        self.assertEqual(out["problems"], [])
+        self.assertEqual(out["bake"]["display_frame_keys"], 3)
+        self.assertEqual(out["x"]["keys"][1]["interp"], "RCIM_LINEAR")
+        self.assertAlmostEqual(out["x"]["keys"][1]["v"], 89.0)
+        self.assertAlmostEqual(out["y"]["keys"][1]["v"], 201.0)
+        self.assertEqual([k["v"] for k in out["yaw"]["keys"]], [449.0, 450.0, 451.0])
+        self.assertTrue(all(ch.calls == [(0, 3, "30fps")] for name, ch in channels.items()
+                            if name != "Location.Z"))
+        self.assertEqual(channels["Location.Z"].calls, [])  # Z keeps its original curve; only translation is added.
+
+    def test_dense_bake_subframe_deviation_is_measured(self):
+        metrics = synthetic_bake_metrics()
+        self.assertAlmostEqual(metrics["max_xy_cm"], math.hypot(0.25, 0.125), places=9)
+        self.assertAlmostEqual(metrics["max_yaw_deg"], 0.25, places=9)
+        with self.assertRaises(K.PlanError):  # negative control: no sub-frame probes cannot claim a deviation bound
+            K.bake_subframe_deviation(lambda t: {"x": t, "y": t}, [{"frame": 0, "x": 0, "y": 0}],
+                                      {"loc": [0, 0, 0], "yaw": 0}, substeps=1)
+
     def test_euler_wrap_continuity(self):
         src = self.rich(yaw_values=(359.0, 0.0))
         src["yaw"]["keys"].append(dict(src["yaw"]["keys"][-1], t=20, v=1.0))
@@ -304,6 +372,12 @@ class Rekey(unittest.TestCase):
         self.assertTrue(K.is_relative_blend("ADDITIVE"))
         self.assertTrue(K.is_relative_blend("EMovieSceneBlendType::RELATIVE"))
         self.assertFalse(K.is_relative_blend("ABSOLUTE"))
+
+    def test_attached_camera_is_relative_not_rotated(self):
+        self.assertEqual(K.binding_motion_mode(False, 1, True), "attached-relative")
+        self.assertEqual(K.binding_motion_mode(True, 1, False), "child-relative")
+        self.assertEqual(K.binding_motion_mode(False, 1, False), "world-space")  # positive control
+        self.assertEqual(K.binding_motion_mode(False, 2, False), "ambiguous")    # negative control
 
     def test_rekey_matches_level_transform(self):
         """A keyed camera at her point p ends where the LevelTransform puts a static actor at p (translation-only)."""
@@ -354,10 +428,18 @@ class ArgsAndGates(unittest.TestCase):
         lv = "/Game/Japanese_Alley/Maps/Japanese_Alley"
         row = dict(S2_ARGS["levels"][lv], rekey_rotation=True)
         p = K.plan_placement(lv, row, S2_ARGS["hangars"], 100.0, 400.0)
-        cameras = [{"binding": "CineCameraActor", "world_cm": K.world_point(p["fit"]["level_transform"], [0, 0, 100]),
+        inside = K.world_point(p["fit"]["level_transform"], [0, 0, 100])
+        cameras = [{"binding": "CineCameraActor", "path_world_cm": [inside, [inside[0] + 100, inside[1], inside[2]]],
                     "world_yaw_deg": 316.42748059917176, "hfov_deg": 50.0}]
         model = K._preview_model(p, S2_ARGS["hangars"]["2"], cameras, 1200.0)
-        self.assertEqual(len(model["footprint_cm"]), 4)
+        self.assertEqual(len(model["footprint_world_cm"]), 4)
+        edge = [model["hangar_world_cm"][1][i] - model["hangar_world_cm"][0][i] for i in (0, 1)]
+        self.assertAlmostEqual(K.norm_yaw(math.degrees(math.atan2(edge[1], edge[0]))),
+                               K.norm_yaw(S2_ARGS["hangars"]["2"]["dock"]["yaw"]), places=6)
+        self.assertEqual(model["preview_suspect"], [])
+        outside = K.world_point(p["fit"]["level_transform"], [5000, 5000, 100])
+        bad_model = K._preview_model(p, S2_ARGS["hangars"]["2"], [dict(cameras[0], path_world_cm=[outside])], 1200)
+        self.assertEqual(bad_model["preview_suspect"], ["CineCameraActor"])  # negative preview-frame control
         with tempfile.TemporaryDirectory() as td:
             path = os.path.join(td, "preview.png")
             info = K.render_topdown_png(path, model, 480)
@@ -401,5 +483,9 @@ class ArgsAndGates(unittest.TestCase):
 
 if __name__ == "__main__":
     result = unittest.main(exit=False, verbosity=1).result
-    print("KLARAHOOK_HARNESS|run=%d|failures=%d|errors=%d" % (result.testsRun, len(result.failures), len(result.errors)))
+    metrics = synthetic_bake_metrics()
+    print("KLARAHOOK_HARNESS|run=%d|failures=%d|errors=%d|max_bake_subframe_xy_cm=%.9f|"
+          "max_bake_subframe_yaw_deg=%.9f|substeps=%d" %
+          (result.testsRun, len(result.failures), len(result.errors), metrics["max_xy_cm"],
+           metrics["max_yaw_deg"], metrics["substeps_per_frame"]))
     sys.exit(0 if result.wasSuccessful() else 1)
