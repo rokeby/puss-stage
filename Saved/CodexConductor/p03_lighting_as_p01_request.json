@@ -1,0 +1,9 @@
+{
+  "name": "execute_project_python_file",
+  "arguments": {
+    "tool_name": "ExecuteProjectPythonFile",
+    "arguments": {
+      "relativeSavedPath": "CodexConductor/p03_lighting_as_p01_run.py"
+    }
+  }
+}

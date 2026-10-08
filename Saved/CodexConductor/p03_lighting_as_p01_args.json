@@ -1,0 +1,32 @@
+{
+  "mode": "DRY",
+  "confirm": "",
+  "expected_plan_sha256": "",
+  "match_p01_atmosphere": true,
+  "special_label_tokens": [
+    "car",
+    "moving",
+    "move",
+    "event",
+    "fx",
+    "smoke",
+    "haze",
+    "fire",
+    "rain",
+    "spark",
+    "mote",
+    "pyro",
+    "polaroid",
+    "flash"
+  ],
+  "atmosphere": {
+    "source_tag": "P01ATMOS",
+    "target_tag": "P03ATMOS",
+    "beam_tag": "InfinityStage.BeamLook",
+    "smoke_tag": "InfinityStage.SmokeTest",
+    "footprint_x_cm": [-2000.0, 20000.0],
+    "footprint_half_y_cm": 6000.0,
+    "footprint_half_z_cm": 6000.0
+  },
+  "ack_records": []
+}
