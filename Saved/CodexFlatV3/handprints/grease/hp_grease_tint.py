@@ -69,8 +69,8 @@ MIN_FREE_RAM_GB = 8.0
 # Defaults: gate on the RAW print thickness (GreaseMask.r, atlas R = feathered grease opacity), so faint (gain 0.6)
 # prints keep a red core too.  Measured on T_S3MG_GreaseAtlas.png (texels with R > 0.02): 0.40/0.70 touches 21 %,
 # > half strength on 5.7 %; the brief's 0.65/0.95 touches 1.7 % (atlas R max 0.949, p99 0.671) = effectively nothing.
-TINT_SCALARS = {"TintStrength": 0.35, "TintLo": 0.40, "TintHi": 0.70}
-TINT_COLOR = (0.25, 0.03, 0.02, 1.0)                 # linear, dark dried red
+TINT_SCALARS = {"TintStrength": 0.55, "TintLo": 0.45, "TintHi": 0.75}   # swatch E (previews/tint_swatch_EFG.png)
+TINT_COLOR = (0.155, 0.007, 0.005, 1.0)              # linear, dried blood (sRGB ~110,20,15); Gary picked swatch E 8 Oct
 ATLAS_PARAMS = ("AtlasU0", "AtlasV0", "AtlasUSize", "AtlasVSize", "FlipU", "GlobalFlipU", "GlobalFlipV")
 MASTER_SCALARS = ATLAS_PARAMS + tuple(TINT_SCALARS)
 MI_SCALARS = ("AtlasU0", "AtlasV0", "AtlasUSize", "AtlasVSize", "FlipU")
