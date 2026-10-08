@@ -785,7 +785,8 @@ class Revert(unittest.TestCase):
 # fragments). Every S4 number below is [meas] from these bytes unless marked.
 # =====================================================================================================================
 
-PROJECT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+PROJECT = os.path.abspath(os.environ.get("PUSS_ASSET_PROJECT",
+                                        os.path.join(HERE, "..", "..", "..")))
 LS_CHILDREN = os.path.join(PROJECT, "Content", "LS_Children.uasset")
 LS_CHILDREN_COPY = os.path.join(PROJECT, "Content", "InfinityStage", "KlaraHookin", "LS_Children_S4Hangar.uasset")
 L_CHILDREN = os.path.join(PROJECT, "Content", "L_KK_children.umap")

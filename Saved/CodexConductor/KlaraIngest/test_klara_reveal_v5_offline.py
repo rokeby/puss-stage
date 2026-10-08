@@ -32,7 +32,7 @@ import test_klara_reveal_offline as T   # noqa: E402  (bytes readers; defines te
 
 FPS = 25.0
 DRY4 = R.load_json(os.path.join(HERE, "klara_reveal_dry_S4.json"))
-# The args FILE now carries Gary's 7 Oct evening call (strike_lights "none", preroll "off"). The pre-existing tests
+# The args FILE now carries Gary's 8 Oct P8 call (strike_lights "none", preroll "whole_glide"). The pre-existing tests
 # below were written for the strike entry, so V5ARGS is the file with strike_lights "auto" and no preroll key (the
 # 7 Oct v5 default); DarkArrival / Preview test the file as it stands (V5ARGS_LIVE).
 V5ARGS_LIVE = R.load_json(os.path.join(HERE, "klara_reveal_s4v5_args.json"))
@@ -394,6 +394,58 @@ class PrerollRange(unittest.TestCase):
         self.assertTrue(any("AFTER_FIRST_STRIKE" in x for x in P.preroll_plan(late, [0, 4920], 800.0, 960.0)["refusals"]))
 
 
+class PrerollLiveFixes(unittest.TestCase):
+    """Pure controls for the S1 8 Oct fixes that apply to S4."""
+
+    def test_subframe_tick_recovery(self):
+        self.assertEqual(P.ticks_from_seconds(-17199 / 24000.0, 24000.0), -17199)
+        self.assertEqual(P.section_ticks([(-22, -17199 / 24000.0), (2, 1600 / 24000.0)],
+                                         24000.0, 800), [-17199, 1600])
+        with self.assertRaises(P.PlanError):
+            P.section_ticks([(-21, -17199 / 24000.0)], 24000.0, 800)
+
+    def test_motion_coverage_gaps(self):
+        self.assertEqual(P.coverage_gaps([[100, 200], [200, 260]], [100, 260]), [])
+        self.assertEqual(P.coverage_gaps([[100, 150], [170, 260]], [100, 260]), [[150, 170]])
+        self.assertEqual(P.coverage_gaps([], [100, 260]), [[100, 260]])
+
+    def test_probe_gated_to_scene4_segment(self):
+        filled = {119.0: 0, 374.0: 0}
+        self.assertEqual(P.probe_gate(100119, 100000, 200000, 119.2, list(filled), filled, 3, 376),
+                         (119.0, None))
+        self.assertEqual(P.probe_gate(300119, 100000, 200000, 119.2, list(filled), filled, 3, 376),
+                         (None, "NOT_IN_SCENE"))
+        self.assertEqual(P.probe_gate(100376, 100000, 200000, 376.0, [374.0], {374.0: 0}, 3, 376),
+                         (None, "NO_WINDOW"))
+
+    def test_actor_match_stays_in_klara_level(self):
+        c = [{"idx": 0, "label": "BP_MHC_Child", "name": "Wrong", "level_pkg": "/Game/Other/L"},
+             {"idx": 1, "label": "BP_MHC_Child", "name": "Right", "level_pkg": "/Game/UEDPIE_0_L_KK_children"}]
+        v = P.match_actor(c, "BP_MHC_Child", "Right", "/Game/L_KK_children")
+        self.assertEqual((v["found"], v["idx"], v["level_match"]), (True, 1, "path"))
+        self.assertFalse(P.match_actor(c[:1], "BP_MHC_Child", "Wrong", "/Game/L_KK_children")["found"])
+
+    def test_probe_classification_positive_and_negative(self):
+        moving = [{"subject": "Pigeon", "window": 119, "found": True, "pose": {"root": [0]}},
+                  {"subject": "Pigeon", "window": 119, "found": True, "pose": {"root": [1]}}]
+        self.assertEqual(P.classify_probe(moving)["answer"], "MOVING")
+        static = copy.deepcopy(moving)
+        static[1]["pose"] = {"root": [0]}
+        self.assertEqual(P.classify_probe(static)["answer"], "STATIC_OR_UNCLEAR")
+        tiny_drift = copy.deepcopy(moving)
+        tiny_drift[1]["pose"] = {"root": [0.000001]}
+        self.assertEqual(P.classify_probe(tiny_drift, tol=1e-5)["answer"], "STATIC_OR_UNCLEAR")
+
+    def test_motion_signature_ignores_duplicate_guids_not_coverage(self):
+        a = {"bindings": [{"binding": "Body", "guid": "SOURCE", "classes": ["Anim"],
+                            "ranges_tick": [[0, 20]], "wanted_tick": [0, 20], "gaps_tick": []}]}
+        b = copy.deepcopy(a)
+        b["bindings"][0]["guid"] = "DUPLICATE"
+        self.assertEqual(P.motion_coverage_signature(a), P.motion_coverage_signature(b))
+        b["bindings"][0]["ranges_tick"] = [[0, 19]]
+        self.assertNotEqual(P.motion_coverage_signature(a), P.motion_coverage_signature(b))
+
+
 def copy_binding_rows(path=None):
     """klara_preroll_s4._binding_rows, from BYTES."""
     V = T._reader()
@@ -549,7 +601,7 @@ class Args(unittest.TestCase):
         self.assertEqual(V5ARGS_LIVE["mode"], "DRY")
         self.assertEqual(V5ARGS_LIVE["decided_by"], "")                            # APPLY refuses until filled
         self.assertEqual(V5ARGS_LIVE["scenes"]["4"]["v5"]["strike_lights"], "none")   # Gary 7 Oct ~18:00
-        self.assertEqual(V5ARGS_LIVE["scenes"]["4"]["v5"]["preroll"], "off")
+        self.assertEqual(V5ARGS_LIVE["scenes"]["4"]["v5"]["preroll"], "whole_glide")
         bad = copy.deepcopy(V5ARGS)
         bad["scenes"]["4"]["v5"]["glide_end"]["mode"] = "sideways"
         self.assertTrue(R.validate_args(bad))
@@ -635,9 +687,13 @@ class DarkArrival(unittest.TestCase):
         self.assertFalse(any(x.startswith("V5_NO_CHARACTER_LIGHT_STRIKES") for x in p["refusals"]))
         self.assertFalse(any(w.startswith("V5_LIGHT_DROP_AT_HARD_CUT") for w in p["warnings"]))    # Gary's question
         self.assertTrue(any(w.startswith("V5_DARK_ARRIVAL") for w in p["warnings"]))
-        self.assertEqual(p["preroll"]["mode"], "off")
-        self.assertIsNone(p["preroll"]["range"])
-        self.assertIsNone(tl["preroll"])
+        self.assertIn(p["preroll"]["mode"], ("off", "whole_glide"))
+        if p["preroll"]["mode"] == "off":
+            self.assertIsNone(p["preroll"]["range"])
+            self.assertIsNone(tl["preroll"])
+        else:
+            self.assertEqual(p["preroll"]["range"], [tl["glide_in"][0], tl["cut"]])
+            self.assertEqual(tl["preroll"], p["preroll"]["range"])
         keys = {k[0]: k for k in p["glide"]["keys"]}
         ge = p["glide_end"]["pose"]
         self.assertEqual(keys[tl["glide_in"][1]][1:7], ge["loc"] + ge["rot"])     # glides in the dark to the pose
@@ -648,8 +704,9 @@ class DarkArrival(unittest.TestCase):
     def test_none_zero_strikes_no_refusal(self):
         p, _a = plan5(HELD, strike_lights="none")                    # preroll absent -> off
         self._assert_dark(p)
-        q = R.build_plan(v5facts(HELD, V5ARGS_LIVE), V5ARGS_LIVE)   # the args FILE as it stands
+        q = R.build_plan(v5facts(HELD, V5ARGS_LIVE), V5ARGS_LIVE)   # shipped args: dark + whole-glide pre-roll
         self._assert_dark(q)
+        self.assertEqual(q["preroll"]["mode"], "whole_glide")
         self.assertEqual(jsn(q["her_lights"]), jsn(p["her_lights"]))
         a, _a2 = plan5(HELD)                                          # control: auto still strikes
         self.assertGreater(len(a["strike_schedule"]["frames"]), 0)
@@ -689,7 +746,7 @@ class DarkArrival(unittest.TestCase):
         self.assertEqual(R.v5_preroll_mode({"strike_lights": "auto"}), "from_first_strike")
 
     def test_env_ramp_flagged_when_preroll_off(self):
-        p, _a = plan5(HELD, strike_lights="none")
+        p, _a = plan5(HELD, strike_lights="none", preroll="off")
         w = [x for x in p["warnings"] if x.startswith("V5_PREROLL_OFF_ENV_RAMPS")]
         self.assertEqual(len(w), 1)
         self.assertIn("DirectionalLight", w[0])
@@ -731,7 +788,7 @@ class Preview(unittest.TestCase):
         self.assertEqual(pose["v5_frames"], pose2["v5_frames"])
         self.assertTrue(pose["ok"], (pose["plan_refusals_other"], pose["live"].get("why")))
         self.assertEqual(pose["n_strikes"], 0)
-        self.assertEqual(pose["preroll"], "off")
+        self.assertEqual(pose["preroll"], "whole_glide")
         ge = pose["poses"]["glide_end"]
         for got, want in zip(ge["loc"] + ge["rot_roll_pitch_yaw"], [11527.667, 240000.0, 211.0, 0.0, -4.0, 5.0]):
             self.assertAlmostEqual(got, want, places=2)
@@ -861,7 +918,8 @@ V5_MUTATIONS += [                     # 7 Oct evening: strike_lights none / prer
      "    out[\"valid\"] = True or max(abs(v) for v in dl) <= LT_TOL_CM"),
     ("PV", "    if cfg5.get(\"strike_lights\") != \"none\":", "    if False:"),
 ]
-V5_TESTS = ("S1Unchanged", "PathGate", "Plan5", "PrerollRange", "PrerollStrip", "Pendulum", "DarkArrival", "Preview")
+V5_TESTS = ("S1Unchanged", "PathGate", "Plan5", "PrerollRange", "PrerollLiveFixes", "PrerollStrip",
+            "Pendulum", "DarkArrival", "Preview")
 
 
 def run_v5_mutations():

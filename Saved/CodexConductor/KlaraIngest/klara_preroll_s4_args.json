@@ -10,5 +10,24 @@
  "track_name": "Klara Preroll - S4",
  "reveal_record": "klara_reveal_record_S4.json",
  "her_level": "/Game/L_KK_children",
- "completion": "RESTORE_STATE"
+ "completion": "RESTORE_STATE",
+ "probe": {
+  "scene_label": "Scene 4",
+  "frames": [],
+  "burst": 3,
+  "timeout_s": 900.0,
+  "master_tick_res": 24000.0,
+  "scene_fps": 25.0,
+  "not_in_scene_log_s": 5.0,
+  "subjects": {
+   "Child1": {"actor_label": "BP_MHC_Child", "component": "Body"},
+   "Child2": {"actor_label": "BP_MHC_Child2", "component": "Body"},
+   "Child3": {"actor_label": "BP_MHC_Child3", "component": "Body"},
+   "Child4": {"actor_label": "BP_MHC_Child4", "component": "Body"},
+   "Child5": {"actor_label": "BP_MHC_Child5", "component": "Body"},
+   "Child6": {"actor_label": "BP_MHC_Child6", "component": "Body"},
+   "Child7": {"actor_label": "BP_MHC_Child7", "component": "Body"},
+   "Pigeon": {"actor_label": "SK_Pigeon_01", "component": null}
+  }
+ }
 }

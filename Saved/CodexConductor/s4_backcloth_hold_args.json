@@ -1,0 +1,16 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "run_id": null,
+ "decided_by": "",
+ "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04",
+ "rise_sequence": "/Game/InfinityStage/RigAtmos/LS_S4_HangarRise",
+ "actor_label": "P04 Backcloth (baked)",
+ "expected_cache": "/Game/Scenes/Curtain/Baked/GC_CurtainBackcloth_P04",
+ "track_name": "S4 Backcloth Cache Hold",
+ "completion": "KEEP_STATE",
+ "section_frames": 1,
+ "down_cache_s": 9.0,
+ "end_margin_s": 0.04,
+ "look_note": "Technical defaults only: sample one 25-fps frame before the cache duration, then KEEP_STATE. No look is applied by the shipped DRY args; PIE probe and Gary's stills decide."
+}
