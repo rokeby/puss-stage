@@ -11,5 +11,6 @@ Status: OPEN unless marked. Tiers per claim: measured / declaration / inferred.
 | S3-3 | Grazes: angle them onto the prints | Conductor | After S3-2 (B06 leaves the chorus; aim them for the wide). |
 | S3-4 | Grease prints red (dried blood, swatch E): built, **held** | — | Gary: keep built, not placed. |
 | S3-5 | Dunes ×2; waves thicker and more spaced; figure cloth too stiff / shows through; figure anim intensity per shot | Codex team packages 1, 2, 6, 7 | CODEX_TEAM_BRIEF_2026-10-08.md. |
+| S3-6 | **All hessians need pinning to the back at least**: they often flip out and hang on the head | Codex package 6 (cloth) / whoever owns the sack cloth | Sack cloth plan: Docs/Conductor/S3_SACKCLOTH_PLAN_2026-10-06.md; tools Saved/CodexConductor/s3_sack_install.py, s3_sack_livecloth_*, s3_sack_follower_bp_* [declaration: file names]. Fix [inferred]: cloth max-distance 0 (kinematic) on a back strip, or extra back attach points on the follower. |
 | F-1 | Fixtures: parcans 3×, bulbs 2×, glowing filament + dim light, placement proposed per passage; glimmer → bulb on a cord off a wing with sway | Codex package 3/4 | Gary's answers 7 Oct, logged. |
 | R-1 | Video fallbacks, six scenes, Sun 11 Oct lunch: S5 10 s test both tiers tonight | Conductor | Needs the editor closed. |

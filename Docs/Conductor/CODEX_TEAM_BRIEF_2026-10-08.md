@@ -38,7 +38,7 @@ through `head`/`tail` (it buffers and looks hung).
 | 3 | **Fixtures: parcans 3×, bulbs 2×, glowing filament + dim light, per-passage placement proposals** | worktree + stills slot | `FixturesFollow/` (46/46), Docs/Conductor/FIXTURES_FOLLOW_SCALE_BULBS_2026-10-07.md | overhead stills per passage for Gary to approve |
 | 4 | **Glimmer lamps → bare bulb on a cord off a wing, gentle deterministic sway** | worktree | scores_glimmer_config.py; wing mechanisms freeze outside their Passage (memory) | which wings move, per passage; cords clear of the camera path |
 | 5 | **Standing stones ×3, half-buried** | worktree | `S3Shore/standing_stones_proposal.json`, `S3Millstone/s3_props_ue.py` (needs lean support + a relaxed buried-stone guard) | props tool mode + harness |
-| 6 | **Cloth: "wearing a carpet" + collision show-through** (Gary: secondary) | read-only investigation | Docs/ChaosClothCurtain.md, the figures' cloth assets | ranked causes with tiers; no edits |
+| 6 | **Cloth: "wearing a carpet" + collision show-through + hessians must be pinned to the back (they flip onto the head)** (Gary) | read-only investigation | Docs/ChaosClothCurtain.md, the figures' cloth assets | ranked causes with tiers; no edits |
 | 7 | **Figure animation intensity per shot without breaking cloth** (Gary wants to tune it himself) | read-only research | LS_Clams skeletal sections (play rate, offsets, weights) | a 1-page how-to for Gary, tested on one figure in a duplicate sequence |
 | 8 | **S4 entry v5 / scene-exit shadow curtain** | worktree | S4_ENTRY_*_2026-10-07.md, SCENE_EXIT_SHADOW_CURTAIN_PLAN | preview stills before apply (Gary) |
 | 9 | **Klara wings → V3** (not now) | read-only | KLARA_WINGS_V3_FEASIBILITY_2026-10-07.md | — |
