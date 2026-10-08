@@ -1,0 +1,273 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp
+index 563d551..323c70e 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp
+@@ -9,7 +9,10 @@
+ #include "InfinityStageShowRoot.h"
+ #include "InfinityStageTransportController.h"
+ #include "Styling/CoreStyle.h"
++#include "Framework/MultiBox/MultiBoxBuilder.h"
+ #include "Widgets/Input/SButton.h"
++#include "Widgets/Input/SComboButton.h"
++#include "Widgets/Input/SSlider.h"
+ #include "Widgets/Layout/SBorder.h"
+ #include "Widgets/SBoxPanel.h"
+ #include "Widgets/Text/STextBlock.h"
+@@ -84,6 +87,9 @@ bool Gather(UWorld* World, FInfinityRehearsalState& Out)
+     }
+     Out.bHasShow = true;
+     Out.CueSeconds = HudState.SegmentSeconds;
++    Out.CueFraction = HudState.SegmentLengthSeconds > 0.0
++        ? static_cast<float>(FMath::Clamp(HudState.SegmentSeconds / HudState.SegmentLengthSeconds, 0.0, 1.0))
++        : 0.0f;
+     Out.CueLengthSeconds = HudState.SegmentLengthSeconds;
+     Out.ShowSeconds = HudState.MasterSeconds;
+     Out.bPlaying = HudState.bPlaying;
+@@ -139,6 +145,56 @@ bool Gather(UWorld* World, FInfinityRehearsalState& Out)
+     return true;
+ }
+ 
++FFrameNumber FrameAtFraction(const FFrameNumber Start, const FFrameNumber End, const float Fraction)
++{
++    const int32 Length = FMath::Max(1, (End - Start).Value);
++    return Start + FFrameNumber(FMath::Clamp(FMath::RoundToInt32(FMath::Clamp(Fraction, 0.0f, 1.0f) * Length), 0, Length - 1));
++}
++
++void ScrubCurrentSegment(UWorld* World, const float Fraction)
++{
++    UInfinityStageTransportController* Transport = UInfinityStageTransportController::FindForWorld(World);
++    if (!Transport || Transport->Segments.IsEmpty())
++    {
++        return;
++    }
++    const FFrameNumber Now = Transport->GetCurrentMasterFrame();
++    int32 Current = 0;
++    for (int32 Index = 0; Index < Transport->Segments.Num(); ++Index)
++    {
++        if (Transport->Segments[Index].StartFrame <= Now)
++        {
++            Current = Index;
++        }
++    }
++    const FInfinityTransportSegment& Segment = Transport->Segments[Current];
++    // Same path as the Cue Desk scrub: pauses and evaluates that frame (Scenes included,
++    // since the Master evaluates the nested Scene sequence: one clock).
++    Transport->ScrubToMasterFrame(FrameAtFraction(Segment.StartFrame, Segment.EndFrame, Fraction));
++}
++
++void JumpToSegmentStart(UWorld* World, const int32 Index)
++{
++    UInfinityStageTransportController* Transport = UInfinityStageTransportController::FindForWorld(World);
++    if (Transport && Transport->Segments.IsValidIndex(Index))
++    {
++        Transport->ScrubToMasterFrame(Transport->Segments[Index].StartFrame);
++    }
++}
++
++TArray<FString> SegmentLabels(UWorld* World)
++{
++    TArray<FString> Labels;
++    if (UInfinityStageTransportController* Transport = UInfinityStageTransportController::FindForWorld(World))
++    {
++        for (int32 Index = 0; Index < Transport->Segments.Num(); ++Index)
++        {
++            Labels.Add(FString::Printf(TEXT("%d  %s"), Index + 1, *Transport->Segments[Index].Label.ToString()));
++        }
++    }
++    return Labels;
++}
++
+ void Command(UWorld* World, const ECommand Which)
+ {
+     if (!World)
+@@ -263,6 +319,41 @@ void SInfinityStageRehearsalBar::Construct(const FArguments& InArgs)
+                 + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("NextLine", "line >"), LOCTEXT("NextLineTip", "Script cursor on (PageDown)"), ECommand::NextLine) ]
+             ]
+             + SVerticalBox::Slot().AutoHeight().Padding(0.0f, 3.0f, 0.0f, 0.0f)
++            [
++                SNew(SHorizontalBox)
++                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)
++                [
++                    SNew(SComboButton)
++                    .IsFocusable(false)
++                    .ToolTipText(LOCTEXT("JumpTip", "Jump to the start of any Passage, Scene or Interaction (pauses there)"))
++                    .ButtonContent()[ SNew(STextBlock).Text(LOCTEXT("Jump", "Jump to...")) ]
++                    .OnGetMenuContent_Lambda([this]()
++                    {
++                        FMenuBuilder Menu(true, nullptr);
++                        const TArray<FString> Labels = SegmentLabels(GetWorldFn ? GetWorldFn() : nullptr);
++                        for (int32 Index = 0; Index < Labels.Num(); ++Index)
++                        {
++                            Menu.AddMenuEntry(FText::FromString(Labels[Index]), FText::GetEmpty(), FSlateIcon(),
++                                FUIAction(FExecuteAction::CreateLambda([this, Index]()
++                                {
++                                    JumpToSegmentStart(GetWorldFn ? GetWorldFn() : nullptr, Index);
++                                })));
++                        }
++                        return Menu.MakeWidget();
++                    })
++                ]
++                + SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center).Padding(8.0f, 0.0f)
++                [
++                    // Scrub through the current Passage or Scene. One clock: the Master evaluates the Scene.
++                    SNew(SSlider)
++                    .IsFocusable(false)
++                    .ToolTipText(LOCTEXT("ScrubTip", "Scrub through the current Passage / Scene (pauses). Hold the Scene 3 lock off with Rehearsal Transport."))
++                    .IsEnabled_Lambda([this]() { return State().bHasShow; })
++                    .Value_Lambda([this]() { return State().CueFraction; })
++                    .OnValueChanged_Lambda([this](const float Value) { ScrubCurrentSegment(GetWorldFn ? GetWorldFn() : nullptr, Value); })
++                ]
++            ]
++            + SVerticalBox::Slot().AutoHeight().Padding(0.0f, 3.0f, 0.0f, 0.0f)
+             [
+                 SNew(STextBlock).Font(Mid).ColorAndOpacity(FLinearColor(0.45f, 0.9f, 1.0f)).AutoWrapText(true)
+                 .Text_Lambda([this]()
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+index e5871a2..97e13f0 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+@@ -2643,7 +2643,8 @@ void UInfinityStageTransportController::RefreshSelectedSegment()
+ bool UInfinityStageTransportController::HandleVampPlayback(const FFrameNumber CurrentFrame)
+ {
+     FFrameNumber LoopFrame = CurrentFrame;
+-    VampPlaybackState.bPlayOnce = bRunThrough;
++    // Run-through, and fast-forward (a skim): a vamp plays once instead of looping.
++    VampPlaybackState.bPlayOnce = bRunThrough || bFastForwardActive;
+     const EInfinityVampPlaybackAction Action = VampPlaybackState.Tick(
+         CurrentFrame,
+         Player && Player->IsPlaying(),
+@@ -2709,7 +2710,10 @@ bool UInfinityStageTransportController::HandleGoHold(const FFrameNumber CurrentF
+     {
+         return false;
+     }
+-    GoHoldState.bPassAll = bRunThrough;
++    // Run-through passes unkept holds; a fast-forward skim passes every hold, kept ones too,
++    // and the kept ones hold again once RIGHT is released.
++    GoHoldState.bPassAll = bRunThrough || bFastForwardActive;
++    GoHoldState.KeepNumbers = bFastForwardActive ? TSet<FString>() : TSet<FString>(RunThroughHoldGoNumbers);
+     const int32 Hit = GoHoldState.Tick(
+         CurrentFrame,
+         Player->IsPlaying() && !Player->IsReversed(),
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h
+index d26695d..0956b90 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h
+@@ -27,6 +27,8 @@ struct INFINITYSTAGE_API FInfinityRehearsalState
+     bool bPlaying = false;
+     bool bHold = false;
+     bool bRunThrough = false;
++    /** 0..1 position in the current segment (the scrub slider). */
++    float CueFraction = 0.0f;
+ };
+ 
+ struct INFINITYSTAGE_API FInfinityNextStop
+@@ -62,6 +64,18 @@ INFINITYSTAGE_API void Command(UWorld* World, ECommand Command);
+ 
+ /** "m:ss.s". */
+ INFINITYSTAGE_API FString Clock(double Seconds);
++
++/** Scrub within the current segment: 0 = its start, 1 = its end (one frame short). Rehearsal use. */
++INFINITYSTAGE_API void ScrubCurrentSegment(UWorld* World, float Fraction);
++
++/** Jump to the start of segment Index (0-based, show order). */
++INFINITYSTAGE_API void JumpToSegmentStart(UWorld* World, int32 Index);
++
++/** Segment labels in show order, for the jump menu. */
++INFINITYSTAGE_API TArray<FString> SegmentLabels(UWorld* World);
++
++/** Pure: the Master frame for a fraction of a segment, clamped one frame inside its end. */
++INFINITYSTAGE_API FFrameNumber FrameAtFraction(FFrameNumber Start, FFrameNumber End, float Fraction);
+ }
+ 
+ class INFINITYSTAGE_API SInfinityStageRehearsalBar final : public SCompoundWidget
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.cpp
+index 1acd57d..9333f8e 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/SInfinityStageCueDesk.cpp
+@@ -3155,6 +3155,33 @@ TSharedRef<SWidget> SInfinityStageCueDesk::BuildViewMenu()
+     AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowCueDetailsPanel", "Show Cue Details"), &bCueDetailsVisible);
+     AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowInspectorPanel", "Show Passage / Music Inspector (right column)"), &bInspectorVisible);
+     AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowRehearsalBar", "Show Rehearsal Bar (bottom; follows PIE)"), &bRehearsalBarVisible);
++    // Rehearsal: one row per Passage, no wing bays (Gary, 8 Oct). Needs the nested list mode.
++    MenuBuilder.AddMenuEntry(
++        NSLOCTEXT("InfinityStage", "CollapseAllPassages", "Collapse All Passages (rehearsal: no wing rows)"),
++        NSLOCTEXT("InfinityStage", "CollapseAllPassagesTip", "Show each Passage as one row; wing bays stay hidden until expanded."),
++        FSlateIcon(),
++        FUIAction(FExecuteAction::CreateLambda([this]()
++        {
++            if (!ShowAsset.IsValid())
++            {
++                return;
++            }
++            SetNestedCueMode(true);
++            for (const FInfinityPassageSettings& Passage : ShowAsset->PassageSettings)
++            {
++                CollapsedPassages.Add(Passage.PassageGuid);
++            }
++            RefreshFromAsset(true);
++        })));
++    MenuBuilder.AddMenuEntry(
++        NSLOCTEXT("InfinityStage", "ExpandAllPassages", "Expand All Passages (wing rows)"),
++        FText::GetEmpty(),
++        FSlateIcon(),
++        FUIAction(FExecuteAction::CreateLambda([this]()
++        {
++            CollapsedPassages.Reset();
++            RefreshFromAsset(true);
++        })));
+     MenuBuilder.AddMenuEntry(
+         NSLOCTEXT("InfinityStage", "ShowMusicWorkspace", "Show Music Timeline Workspace"),
+         NSLOCTEXT(
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp
+index b6004ea..da7fbfe 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp
+@@ -86,4 +86,48 @@ bool FInfinityStageShowTrimsTest::RunTest(const FString& Parameters)
+     return true;
+ }
+ 
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageRehearsalScrubTest,
++    "InfinityStage.CueDirector.ScrubFractionStaysInsideTheSegment",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageRehearsalScrubTest::RunTest(const FString& Parameters)
++{
++    using InfinityStageRehearsal::FrameAtFraction;
++    TestEqual(TEXT("0 is the segment start"), FrameAtFraction(1000, 2000, 0.0f), FFrameNumber(1000));
++    TestEqual(TEXT("Half way"), FrameAtFraction(1000, 2000, 0.5f), FFrameNumber(1500));
++    TestEqual(TEXT("1 stays one frame inside (never the next segment)"), FrameAtFraction(1000, 2000, 1.0f), FFrameNumber(1999));
++    TestEqual(TEXT("Control: out-of-range fractions clamp"), FrameAtFraction(1000, 2000, 7.0f), FFrameNumber(1999));
++    TestEqual(TEXT("Control: negative clamps to the start"), FrameAtFraction(1000, 2000, -1.0f), FFrameNumber(1000));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageFastForwardSkimTest,
++    "InfinityStage.CueDirector.FastForwardSkimPassesKeptHolds",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++// Gary (8 Oct): fast-forward should skim the show without stopping. The transport sets
++// bPassAll and empties KeepNumbers while RIGHT is held; this is the hold state's side of it.
++bool FInfinityStageFastForwardSkimTest::RunTest(const FString& Parameters)
++{
++    TArray<FInfinityGoCue> Cues;
++    FInfinityGoCue& Cue = Cues.AddDefaulted_GetRef();
++    Cue.Frame = 100;
++    Cue.bHold = true;
++    Cue.Number = TEXT("10");
++
++    FInfinityGoHoldState Skim;
++    Skim.bPassAll = true;          // fast-forward
++    Skim.Tick(50, true, Cues);
++    TestEqual(TEXT("A skim passes even a kept GO"), Skim.Tick(150, true, Cues), int32(INDEX_NONE));
++
++    FInfinityGoHoldState Kept;
++    Kept.bPassAll = true;          // run-through at 1x
++    Kept.KeepNumbers.Add(TEXT("10"));
++    Kept.Tick(50, true, Cues);
++    TestEqual(TEXT("Control: at 1x run-through the kept GO holds"), Kept.Tick(150, true, Cues), 0);
++    return true;
++}
++
+ #endif
