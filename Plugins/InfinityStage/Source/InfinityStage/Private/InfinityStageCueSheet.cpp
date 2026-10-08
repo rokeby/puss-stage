@@ -2,6 +2,11 @@
 
 #include "HAL/IConsoleManager.h"
 #include "InfinityStageTransportController.h"
+#include "InfinityStageRehearsalBar.h"
+#include "Engine/GameViewportClient.h"
+#include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
+#include "Widgets/SBoxPanel.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
@@ -429,6 +434,61 @@ void UInfinityStageCueDirectorSubsystem::Initialize(FSubsystemCollectionBase& Co
 {
     Super::Initialize(Collection);
     Reload();
+}
+
+void UInfinityStageCueDirectorSubsystem::ToggleRehearsalBar()
+{
+    UWorld* World = GetWorld();
+    UGameViewportClient* Viewport = World ? World->GetGameViewport() : nullptr;
+    APlayerController* Controller = World ? World->GetFirstPlayerController() : nullptr;
+    if (!Viewport)
+    {
+        return;
+    }
+    if (RehearsalBarWidget.IsValid())
+    {
+        Viewport->RemoveViewportWidgetContent(RehearsalBarWidget.ToSharedRef());
+        RehearsalBarWidget.Reset();
+        if (Controller)
+        {
+            Controller->SetShowMouseCursor(false);
+            Controller->SetInputMode(FInputModeGameOnly());
+        }
+        UE_LOG(LogInfinityStageCueSheet, Display, TEXT("INFINITY_REHEARSAL_BAR on=0"));
+        return;
+    }
+    const TWeakObjectPtr<UWorld> WeakWorld(World);
+    RehearsalBarWidget = SNew(SVerticalBox)
+        .Visibility(EVisibility::SelfHitTestInvisible)   // the show stays clickable-through above the bar
+        + SVerticalBox::Slot().FillHeight(1.0f)[SNullWidget::NullWidget]
+        + SVerticalBox::Slot().AutoHeight()
+        [
+            SNew(SInfinityStageRehearsalBar).World([WeakWorld]() { return WeakWorld.Get(); })
+        ];
+    Viewport->AddViewportWidgetContent(RehearsalBarWidget.ToSharedRef(), 20);
+    if (Controller)
+    {
+        // A cursor for the buttons; keys keep working because the buttons never take focus.
+        Controller->SetShowMouseCursor(true);
+        FInputModeGameAndUI Mode;
+        Mode.SetHideCursorDuringCapture(false);
+        Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        Controller->SetInputMode(Mode);
+    }
+    UE_LOG(LogInfinityStageCueSheet, Display, TEXT("INFINITY_REHEARSAL_BAR on=1"));
+}
+
+void UInfinityStageCueDirectorSubsystem::Deinitialize()
+{
+    if (RehearsalBarWidget.IsValid())
+    {
+        if (UGameViewportClient* Viewport = GetWorld() ? GetWorld()->GetGameViewport() : nullptr)
+        {
+            Viewport->RemoveViewportWidgetContent(RehearsalBarWidget.ToSharedRef());
+        }
+        RehearsalBarWidget.Reset();
+    }
+    Super::Deinitialize();
 }
 
 void UInfinityStageCueDirectorSubsystem::OnWorldBeginPlay(UWorld& InWorld)

@@ -1,4 +1,5 @@
 #include "SInfinityStageCueDesk.h"
+#include "InfinityStageRehearsalBar.h"
 
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AssetRegistry/AssetData.h"
@@ -1030,6 +1031,7 @@ void SInfinityStageCueDesk::Construct(const FArguments& InArgs)
     GConfig->GetBool(TEXT("InfinityStage.CueDesk"), TEXT("CueListVisible"), bCueListVisible, GEditorPerProjectIni);
     GConfig->GetBool(TEXT("InfinityStage.CueDesk"), TEXT("CueDetailsVisible"), bCueDetailsVisible, GEditorPerProjectIni);
     GConfig->GetBool(TEXT("InfinityStage.CueDesk"), TEXT("InspectorVisible"), bInspectorVisible, GEditorPerProjectIni);
+    GConfig->GetBool(TEXT("InfinityStage.CueDesk"), TEXT("RehearsalBarVisible"), bRehearsalBarVisible, GEditorPerProjectIni);
     {
         FString Hidden;
         if (GConfig->GetString(TEXT("InfinityStage.CueDesk"), TEXT("HiddenCueColumns"), Hidden, GEditorPerProjectIni))
@@ -1279,6 +1281,16 @@ void SInfinityStageCueDesk::Construct(const FArguments& InArgs)
                 [
                     BuildMusicWorkspace()
                 ]
+            ]
+        ]
+        + SVerticalBox::Slot()
+        .AutoHeight()
+        [
+            SNew(SBox)
+            .Visibility_Lambda([this]() { return bRehearsalBarVisible ? EVisibility::Visible : EVisibility::Collapsed; })
+            [
+                SNew(SInfinityStageRehearsalBar)
+                .World([]() { return GEditor ? GEditor->PlayWorld.Get() : nullptr; })
             ]
         ]
         + SVerticalBox::Slot()
@@ -3142,6 +3154,7 @@ TSharedRef<SWidget> SInfinityStageCueDesk::BuildViewMenu()
     AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowCueListPanel", "Show Cue List"), &bCueListVisible);
     AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowCueDetailsPanel", "Show Cue Details"), &bCueDetailsVisible);
     AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowInspectorPanel", "Show Passage / Music Inspector (right column)"), &bInspectorVisible);
+    AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowRehearsalBar", "Show Rehearsal Bar (bottom; follows PIE)"), &bRehearsalBarVisible);
     MenuBuilder.AddMenuEntry(
         NSLOCTEXT("InfinityStage", "ShowMusicWorkspace", "Show Music Timeline Workspace"),
         NSLOCTEXT(
@@ -4236,6 +4249,7 @@ void SInfinityStageCueDesk::SaveLayoutConfig() const
     GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("CueListVisible"), bCueListVisible, GEditorPerProjectIni);
     GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("CueDetailsVisible"), bCueDetailsVisible, GEditorPerProjectIni);
     GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("InspectorVisible"), bInspectorVisible, GEditorPerProjectIni);
+    GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("RehearsalBarVisible"), bRehearsalBarVisible, GEditorPerProjectIni);
     {
         TArray<FString> Names;
         for (const FName& Name : HiddenCueColumns)

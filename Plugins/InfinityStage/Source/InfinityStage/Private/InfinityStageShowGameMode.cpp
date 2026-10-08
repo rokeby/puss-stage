@@ -55,6 +55,7 @@ void AInfinityStageShowPlayerController::SetupInputComponent()
     InputComponent->BindKey(EKeys::PageDown, IE_Pressed, this, &AInfinityStageShowPlayerController::NextScriptLine);
     InputComponent->BindKey(EKeys::PageUp, IE_Pressed, this, &AInfinityStageShowPlayerController::PreviousScriptLine);
     InputComponent->BindKey(EKeys::F5, IE_Pressed, this, &AInfinityStageShowPlayerController::ReloadCueSheet);
+    InputComponent->BindKey(EKeys::B, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleRehearsalBar);
 }
 
 void AInfinityStageShowPlayerController::NextScriptLine()
@@ -78,6 +79,14 @@ void AInfinityStageShowPlayerController::ReloadCueSheet()
     if (UInfinityStageCueDirectorSubsystem* Director = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageCueDirectorSubsystem>() : nullptr)
     {
         UE_LOG(LogTemp, Display, TEXT("INFINITY_CUESHEET_RELOAD ok=%d"), Director->Reload() ? 1 : 0);
+    }
+}
+
+void AInfinityStageShowPlayerController::ToggleRehearsalBar()
+{
+    if (UInfinityStageCueDirectorSubsystem* Director = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageCueDirectorSubsystem>() : nullptr)
+    {
+        Director->ToggleRehearsalBar();
     }
 }
 
