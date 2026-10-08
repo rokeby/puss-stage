@@ -6,6 +6,7 @@
 #include "EngineUtils.h"
 #include "InfinityStageDirectorHud.h"
 #include "InfinityStageShowRoot.h"
+#include "InfinityStageSurtitles.h"
 #include "InfinityStageTransportController.h"
 #include "InputCoreTypes.h"
 
@@ -56,6 +57,7 @@ void AInfinityStageShowPlayerController::SetupInputComponent()
     InputComponent->BindKey(EKeys::PageUp, IE_Pressed, this, &AInfinityStageShowPlayerController::PreviousScriptLine);
     InputComponent->BindKey(EKeys::F5, IE_Pressed, this, &AInfinityStageShowPlayerController::ReloadCueSheet);
     InputComponent->BindKey(EKeys::B, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleRehearsalBar);
+    InputComponent->BindKey(EKeys::T, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleSurtitles);
 }
 
 void AInfinityStageShowPlayerController::NextScriptLine()
@@ -80,6 +82,10 @@ void AInfinityStageShowPlayerController::ReloadCueSheet()
     {
         UE_LOG(LogTemp, Display, TEXT("INFINITY_CUESHEET_RELOAD ok=%d"), Director->Reload() ? 1 : 0);
     }
+    if (UInfinityStageSurtitleSubsystem* Surtitles = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageSurtitleSubsystem>() : nullptr)
+    {
+        Surtitles->Reload();
+    }
 }
 
 void AInfinityStageShowPlayerController::ToggleRehearsalBar()
@@ -88,6 +94,11 @@ void AInfinityStageShowPlayerController::ToggleRehearsalBar()
     {
         Director->ToggleRehearsalBar();
     }
+}
+
+void AInfinityStageShowPlayerController::ToggleSurtitles()
+{
+    InfinityStageSurtitles::ToggleBlackout();
 }
 
 void AInfinityStageShowPlayerController::ToggleDirectorHud()
