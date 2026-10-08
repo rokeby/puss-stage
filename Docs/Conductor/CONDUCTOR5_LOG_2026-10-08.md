@@ -218,3 +218,15 @@ All [measured] by success markers unless marked.
   3. P03 in Play from the start with PERF_OFF, watching for GPU timeouts.
   4. If it fails again → REVERT P03ASP01 and re-test, so P03 vs the GPU is the measured difference. Also check
      volumetric scattering on the new P03 lights (P01's volumetric settings were copied).
+
+## After the reboot (8 Oct ~19:20 UTC)
+- GPU check [meas]: RTX 5070 Ti, driver 610.88, 28 °C, 500 MiB used, no throttle reasons. The Windows System log has
+  ONE display event: 4101 "nvlddmkm stopped responding and has successfully recovered" at 05:12:32 local (the P03-stills
+  crash). The 04:59 startup GPU timeout left no Windows event.
+- Editor started clean (0 GPU timeouts); sky hidden.
+- P03 in PIE [meas]: played -2 → 28 s; 0 GPU timeouts; dt median 17.9 ms, p90 20.4, max 21.9 (48 samples); ~1380-1420
+  lit light components.
+- P03 after-stills retaken: PSTILLS-P03-20261008-192314-p03_after_asp01, 0 GPU timeouts. The crash did NOT repeat, so
+  the cause of the 05:12 TDR is unproven [inferred: a transient GPU fault, or load spike + capture].
+- Look [inferred, for Gary]: after = warmer/redder; the mid-passage frames (50/70%) read as a uniform red wash with less
+  contrast, and the P03 light shafts (BeamLook) are much weaker after the atmosphere was matched to P01.
