@@ -38,3 +38,4 @@ Blender must be closed during renders (memory: windowed Blender reached 29 GB). 
 ## Morning hand-back to Gary
 Render test results and times; pearl twin look pair; S1 snap and animals reports; clam-reflection finding; fabric and
 MetaHuman look proposals; vamp bug diagnosis.
+- Morning note for P3 (dunes x2): Gary: '2x dune height probably means adjusting my wall-following camera' (B06 runs ~10 cm off the right wall at z 171-220). Report camera clearance for B06 and every S3 shot path against set D.
