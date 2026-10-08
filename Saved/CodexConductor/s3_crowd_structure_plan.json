@@ -1,0 +1,2123 @@
+{
+  "schema": "p21_s3_crowd_structure/1",
+  "run": "P21-20261008-CODEX-R5",
+  "created_utc": "2026-10-08T20:02:44.208047+00:00",
+  "evidence_tier": "measured source JSON; inferred staging defaults pending DRY and rendered acceptance",
+  "fps": 24,
+  "scene_to_ls_clams_frames": 22,
+  "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+  "root_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03",
+  "figure_sequence": "/Game/Scenes/LS_Clams",
+  "target_count": 20,
+  "seed": 2103,
+  "target_period_s": 3.6,
+  "roll_degrees": 2.5,
+  "dock_origin_world_cm": [
+    10921.973,
+    160000.0,
+    0.0
+  ],
+  "inputs": {
+    "segments": "E:/PussStage/DerivedAssets/S3MocapIntensity/s3_mocap_intensity_segments.json",
+    "segments_sha256": "f1f52cd50c8181ab7d8df72f4cec43d4b85ec21bca52067013b3db097542afde",
+    "sway": "E:/PussStage/DerivedAssets/S3MocapIntensity/s3_sway_runs.json",
+    "sway_sha256": "ea53a16b1f5030800188501c641202d1b0649b92f15a98c873e9a45c187c5540"
+  },
+  "exclusions": {
+    "clam_local_xy_cm": [
+      4562.427,
+      169.5
+    ],
+    "millstone_local_xy_cm": [
+      2995.03,
+      0.0
+    ],
+    "radii_cm": {
+      "clam": 360.0,
+      "millstone": 260.0,
+      "camera": 185.0
+    },
+    "camera_points": [
+      {
+        "label": "S3 Shot B02",
+        "xy": [
+          2700.0,
+          -250.0
+        ]
+      },
+      {
+        "label": "S3 Shot B03",
+        "xy": [
+          3050.0,
+          40.0
+        ]
+      },
+      {
+        "label": "S3 Shot B04",
+        "xy": [
+          3500.0,
+          -750.0
+        ]
+      },
+      {
+        "label": "S3 Shot B05",
+        "xy": [
+          3200.0,
+          0.0
+        ]
+      },
+      {
+        "label": "S3 Shot B06",
+        "xy": [
+          3380.0,
+          0.0
+        ]
+      },
+      {
+        "label": "S3 Shot B07",
+        "xy": [
+          3300.0,
+          60.0
+        ]
+      },
+      {
+        "label": "S3 Shot B08",
+        "xy": [
+          3360.0,
+          -40.0
+        ]
+      },
+      {
+        "label": "S3 Shot B09/B10",
+        "xy": [
+          2600.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  "sources": {
+    "Shore01_M56": {
+      "id": "Shore01_M56",
+      "actor": "Shore01_M56 Clam",
+      "animation": "AS_Shore01_M56_shoreguy1_Full",
+      "hero_xy": [
+        3649.13,
+        -212.98
+      ],
+      "calm": [
+        5.7083,
+        12.0833
+      ],
+      "calm_span": {
+        "source_in": 5.7083,
+        "source_out": 12.0833,
+        "scene_len_s": 10.625,
+        "signal": "spine_02.rotation.Z",
+        "period_s_source": 1.83,
+        "period_s_scene": 3.06,
+        "periodicity": 0.382,
+        "amplitude_std": 0.655,
+        "play_rate": 0.5083333333333333
+      },
+      "medium_span": {
+        "class": "MEDIUM",
+        "source_in_seconds": 76.25,
+        "source_out_seconds": 79.0833,
+        "source_timecode_in": "01:16:06",
+        "source_timecode_out": "01:19:02",
+        "scene3_in_seconds": 126.1667,
+        "scene3_out_seconds": 130.8889,
+        "scene3_timecode_in": "02:06:04",
+        "scene3_timecode_out": "02:10:21",
+        "duration_scene_seconds": 4.7222
+      },
+      "frenzy_span": {
+        "class": "FRENZY",
+        "source_in_seconds": 40.6667,
+        "source_out_seconds": 51.0833,
+        "source_timecode_in": "00:40:16",
+        "source_timecode_out": "00:51:02",
+        "scene3_in_seconds": 66.8611,
+        "scene3_out_seconds": 84.2222,
+        "scene3_timecode_in": "01:06:21",
+        "scene3_timecode_out": "01:24:05",
+        "duration_scene_seconds": 17.3611
+      },
+      "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore01_M56/Shore01_M56_Anim.fbx",
+      "source_fbx_sha256": "8d91a6cadacb9391aba6416f110fc05559638704b0b963305e58ab01b8284f46"
+    },
+    "Shore02_F52": {
+      "id": "Shore02_F52",
+      "actor": "Shore02_F52 Clam",
+      "animation": "AS_Shore02_F52_shoreguy12_Full",
+      "hero_xy": [
+        3199.3,
+        109.45
+      ],
+      "calm": [
+        4.375,
+        13.2083
+      ],
+      "calm_span": {
+        "source_in": 4.375,
+        "source_out": 13.2083,
+        "scene_len_s": 14.7222,
+        "signal": "spine_02.rotation.Z",
+        "period_s_source": 1.71,
+        "period_s_scene": 2.85,
+        "periodicity": 0.422,
+        "amplitude_std": 1.414,
+        "play_rate": 0.475
+      },
+      "medium_span": {
+        "class": "MEDIUM",
+        "source_in_seconds": 71.125,
+        "source_out_seconds": 75.4583,
+        "source_timecode_in": "01:11:03",
+        "source_timecode_out": "01:15:11",
+        "scene3_in_seconds": 117.625,
+        "scene3_out_seconds": 124.8472,
+        "scene3_timecode_in": "01:57:15",
+        "scene3_timecode_out": "02:04:20",
+        "duration_scene_seconds": 7.2222
+      },
+      "frenzy_span": {
+        "class": "FRENZY",
+        "source_in_seconds": 63.2083,
+        "source_out_seconds": 71.125,
+        "source_timecode_in": "01:03:05",
+        "source_timecode_out": "01:11:03",
+        "scene3_in_seconds": 104.4306,
+        "scene3_out_seconds": 117.625,
+        "scene3_timecode_in": "01:44:10",
+        "scene3_timecode_out": "01:57:15",
+        "duration_scene_seconds": 13.1944
+      },
+      "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore02_F52/Shore02_F52_Anim.fbx",
+      "source_fbx_sha256": "e2db7fd16944785aff9accec24d7517b037db255fae8d9af952aed536d9e3fd3"
+    },
+    "Shore03_M59": {
+      "id": "Shore03_M59",
+      "actor": "Shore03_M59 Clam",
+      "animation": "AS_Shore03_M59_shoreguy3_Full",
+      "hero_xy": [
+        3390.55,
+        300.7
+      ],
+      "calm": [
+        1.1667,
+        19.125
+      ],
+      "calm_span": {
+        "source_in": 1.1667,
+        "source_out": 19.125,
+        "scene_len_s": 29.9306,
+        "signal": "spine_02.rotation.Z",
+        "period_s_source": 2.42,
+        "period_s_scene": 4.03,
+        "periodicity": 0.475,
+        "amplitude_std": 1.362,
+        "play_rate": 0.6722222222222222
+      },
+      "medium_span": {
+        "class": "MEDIUM",
+        "source_in_seconds": 61.25,
+        "source_out_seconds": 70.0417,
+        "source_timecode_in": "01:01:06",
+        "source_timecode_out": "01:10:01",
+        "scene3_in_seconds": 101.1667,
+        "scene3_out_seconds": 115.8194,
+        "scene3_timecode_in": "01:41:04",
+        "scene3_timecode_out": "01:55:20",
+        "duration_scene_seconds": 14.6528
+      },
+      "frenzy_span": {
+        "class": "FRENZY",
+        "source_in_seconds": 19.125,
+        "source_out_seconds": 23.9167,
+        "source_timecode_in": "00:19:03",
+        "source_timecode_out": "00:23:22",
+        "scene3_in_seconds": 30.9583,
+        "scene3_out_seconds": 38.9444,
+        "scene3_timecode_in": "00:30:23",
+        "scene3_timecode_out": "00:38:23",
+        "duration_scene_seconds": 7.9861
+      },
+      "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore03_M59/Shore03_M59_Anim.fbx",
+      "source_fbx_sha256": "e01f5d1a13632e012801af4f13c644bf5f86fdeed7330174bd598a620ca3f731"
+    },
+    "Shore04_F55": {
+      "id": "Shore04_F55",
+      "actor": "Shore04_F55 Clam",
+      "animation": "AS_Shore04_F55_shoreguy4_Full",
+      "hero_xy": [
+        3683.54,
+        262.13
+      ],
+      "calm": [
+        71.7083,
+        89.5417
+      ],
+      "rhythmic": true,
+      "calm_span": {
+        "source_in": 71.7083,
+        "source_out": 89.5417,
+        "scene_len_s": 29.7222,
+        "signal": "pelvis.rotation.Y",
+        "period_s_source": 2.75,
+        "period_s_scene": 4.58,
+        "periodicity": 0.474,
+        "amplitude_std": 1.722,
+        "play_rate": 0.7638888888888888
+      },
+      "medium_span": {
+        "class": "MEDIUM",
+        "source_in_seconds": 41.0417,
+        "source_out_seconds": 46.0833,
+        "source_timecode_in": "00:41:01",
+        "source_timecode_out": "00:46:02",
+        "scene3_in_seconds": 67.4861,
+        "scene3_out_seconds": 75.8889,
+        "scene3_timecode_in": "01:07:12",
+        "scene3_timecode_out": "01:15:21",
+        "duration_scene_seconds": 8.4028
+      },
+      "frenzy_span": {
+        "class": "FRENZY",
+        "source_in_seconds": 110.5417,
+        "source_out_seconds": 115.25,
+        "source_timecode_in": "01:50:13",
+        "source_timecode_out": "01:55:06",
+        "scene3_in_seconds": 183.3194,
+        "scene3_out_seconds": 191.1667,
+        "scene3_timecode_in": "03:03:08",
+        "scene3_timecode_out": "03:11:04",
+        "duration_scene_seconds": 7.8472
+      },
+      "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore04_F55/Shore04_F55_Anim.fbx",
+      "source_fbx_sha256": "aa275365070cf534633a384d37c50a1c0276e4e856a185fcf3aa45822f2e8b27"
+    },
+    "Shore05_M53": {
+      "id": "Shore05_M53",
+      "actor": "Shore05_M53 Clam",
+      "animation": "AS_Shore05_M53_shoreguy5_Full",
+      "hero_xy": [
+        3411.07,
+        -244.32
+      ],
+      "calm": [
+        18.3333,
+        32.375
+      ],
+      "calm_span": {
+        "source_in": 18.3333,
+        "source_out": 32.375,
+        "scene_len_s": 23.4028,
+        "signal": "spine_02.rotation.Y",
+        "period_s_source": 2.08,
+        "period_s_scene": 3.47,
+        "periodicity": 0.532,
+        "amplitude_std": 4.904,
+        "play_rate": 0.5777777777777778
+      },
+      "medium_span": {
+        "class": "MEDIUM",
+        "source_in_seconds": 10.875,
+        "source_out_seconds": 18.3333,
+        "source_timecode_in": "00:10:21",
+        "source_timecode_out": "00:18:08",
+        "scene3_in_seconds": 17.2083,
+        "scene3_out_seconds": 29.6389,
+        "scene3_timecode_in": "00:17:05",
+        "scene3_timecode_out": "00:29:15",
+        "duration_scene_seconds": 12.4306
+      },
+      "frenzy_span": {
+        "class": "FRENZY",
+        "source_in_seconds": 39.0833,
+        "source_out_seconds": 53.4167,
+        "source_timecode_in": "00:39:02",
+        "source_timecode_out": "00:53:10",
+        "scene3_in_seconds": 64.2222,
+        "scene3_out_seconds": 88.1111,
+        "scene3_timecode_in": "01:04:05",
+        "scene3_timecode_out": "01:28:03",
+        "duration_scene_seconds": 23.8889
+      },
+      "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore05_M53/Shore05_M53_Anim.fbx",
+      "source_fbx_sha256": "3eac3fff05ffdb896486283b6e06b2adafc424cdb2eda134f381a088fdacf6d8"
+    },
+    "Shore06_F25": {
+      "id": "Shore06_F25",
+      "actor": "Shore06_F25 Clam",
+      "animation": "AS_Shore06_F25_shoreguy6_Full",
+      "hero_xy": [
+        3760.0,
+        0.0
+      ],
+      "calm": [
+        78.1667,
+        91.4583
+      ],
+      "rhythmic": true,
+      "calm_span": {
+        "source_in": 78.1667,
+        "source_out": 91.4583,
+        "scene_len_s": 22.1528,
+        "signal": "pelvis.rotation.Y",
+        "period_s_source": 1.96,
+        "period_s_scene": 3.26,
+        "periodicity": 0.68,
+        "amplitude_std": 2.114,
+        "play_rate": 0.5444444444444444
+      },
+      "medium_span": {
+        "class": "MEDIUM",
+        "source_in_seconds": 70.2083,
+        "source_out_seconds": 74.5417,
+        "source_timecode_in": "01:10:05",
+        "source_timecode_out": "01:14:13",
+        "scene3_in_seconds": 116.0972,
+        "scene3_out_seconds": 123.3194,
+        "scene3_timecode_in": "01:56:02",
+        "scene3_timecode_out": "02:03:08",
+        "duration_scene_seconds": 7.2222
+      },
+      "frenzy_span": {
+        "class": "FRENZY",
+        "source_in_seconds": 59.875,
+        "source_out_seconds": 70.2083,
+        "source_timecode_in": "00:59:21",
+        "source_timecode_out": "01:10:05",
+        "scene3_in_seconds": 98.875,
+        "scene3_out_seconds": 116.0972,
+        "scene3_timecode_in": "01:38:21",
+        "scene3_timecode_out": "01:56:02",
+        "duration_scene_seconds": 17.2222
+      },
+      "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore06_F25/Shore06_F25_Anim.fbx",
+      "source_fbx_sha256": "3b3e2e80ca601292de3a2c7630c9a92003618a946ec0ed812e9ec1e4ccfef7a9"
+    }
+  },
+  "duplicate_placements": [
+    {
+      "crowd_index": 1,
+      "label": "S3 Crowd 01 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
+      "local_xy_cm": [
+        2462.233,
+        -719.591
+      ],
+      "yaw_deg": -15.799,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 2,
+      "label": "S3 Crowd 02 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        2771.176,
+        -715.596
+      ],
+      "yaw_deg": 10.185,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 3,
+      "label": "S3 Crowd 03 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
+      "local_xy_cm": [
+        3107.614,
+        -681.334
+      ],
+      "yaw_deg": -0.064,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 4,
+      "label": "S3 Crowd 04 (from Shore01_M56)",
+      "source_id": "Shore01_M56",
+      "local_xy_cm": [
+        3408.689,
+        -541.405
+      ],
+      "yaw_deg": -1.22,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 5,
+      "label": "S3 Crowd 05 (from Shore05_M53)",
+      "source_id": "Shore05_M53",
+      "local_xy_cm": [
+        3780.406,
+        -636.198
+      ],
+      "yaw_deg": -6.899,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 6,
+      "label": "S3 Crowd 06 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
+      "local_xy_cm": [
+        2451.739,
+        720.31
+      ],
+      "yaw_deg": -2.551,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 7,
+      "label": "S3 Crowd 07 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        2788.44,
+        730.837
+      ],
+      "yaw_deg": -2.273,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 8,
+      "label": "S3 Crowd 08 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        3101.41,
+        689.696
+      ],
+      "yaw_deg": -5.274,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 9,
+      "label": "S3 Crowd 09 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        3408.876,
+        540.047
+      ],
+      "yaw_deg": 3.487,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 10,
+      "label": "S3 Crowd 10 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        3769.566,
+        641.99
+      ],
+      "yaw_deg": 4.257,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 11,
+      "label": "S3 Crowd 11 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        2621.445,
+        -462.841
+      ],
+      "yaw_deg": 5.229,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 12,
+      "label": "S3 Crowd 12 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
+      "local_xy_cm": [
+        2920.934,
+        -509.091
+      ],
+      "yaw_deg": 6.675,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 13,
+      "label": "S3 Crowd 13 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        3230.993,
+        -544.878
+      ],
+      "yaw_deg": -6.941,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 14,
+      "label": "S3 Crowd 14 (from Shore05_M53)",
+      "source_id": "Shore05_M53",
+      "local_xy_cm": [
+        3660.318,
+        -468.512
+      ],
+      "yaw_deg": -11.474,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "crowd_index": 15,
+      "label": "S3 Crowd 15 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        4029.798,
+        -529.026
+      ],
+      "yaw_deg": -2.484,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    }
+  ],
+  "members": [
+    {
+      "index": 1,
+      "role": "existing",
+      "label": "Shore01_M56 Clam",
+      "source_id": "Shore01_M56",
+      "local_xy_cm": [
+        3649.13,
+        -212.98
+      ],
+      "phase_deg": 0.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            552
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            552,
+            672
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            672,
+            2160
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2160,
+            2448
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2448,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 0.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2448,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "role": "existing",
+      "label": "Shore02_F52 Clam",
+      "source_id": "Shore02_F52",
+      "local_xy_cm": [
+        3199.3,
+        109.45
+      ],
+      "phase_deg": 18.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            570
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            570,
+            690
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            690,
+            2172
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2172,
+            2460
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2460,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 18.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2460,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "role": "existing",
+      "label": "Shore03_M59 Clam",
+      "source_id": "Shore03_M59",
+      "local_xy_cm": [
+        3390.55,
+        300.7
+      ],
+      "phase_deg": 36.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            588
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            588,
+            708
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            708,
+            2184
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2184,
+            2472
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2472,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 36.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2472,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 4,
+      "role": "existing",
+      "label": "Shore04_F55 Clam",
+      "source_id": "Shore04_F55",
+      "local_xy_cm": [
+        3683.54,
+        262.13
+      ],
+      "phase_deg": 54.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            606
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            606,
+            726
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            726,
+            2196
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2196,
+            2484
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2484,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 54.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2484,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 5,
+      "role": "existing",
+      "label": "Shore05_M53 Clam",
+      "source_id": "Shore05_M53",
+      "local_xy_cm": [
+        3411.07,
+        -244.32
+      ],
+      "phase_deg": 72.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            624
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            624,
+            744
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            744,
+            2208
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2208,
+            2496
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2496,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 72.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2496,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 6,
+      "role": "existing",
+      "label": "Shore06_F25 Clam",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        3760.0,
+        0.0
+      ],
+      "phase_deg": 90.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            642
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            642,
+            762
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            762,
+            2220
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2220,
+            2508
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2508,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 90.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2508,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 7,
+      "role": "duplicate",
+      "label": "S3 Crowd 01 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
+      "local_xy_cm": [
+        2462.233,
+        -719.591
+      ],
+      "phase_deg": 108.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            660
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            660,
+            780
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            780,
+            2232
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2232,
+            2520
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2520,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 108.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2520,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 8,
+      "role": "duplicate",
+      "label": "S3 Crowd 02 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        2771.176,
+        -715.596
+      ],
+      "phase_deg": 126.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            678
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            678,
+            798
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            798,
+            2244
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2244,
+            2532
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2532,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 126.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2532,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 9,
+      "role": "duplicate",
+      "label": "S3 Crowd 03 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
+      "local_xy_cm": [
+        3107.614,
+        -681.334
+      ],
+      "phase_deg": 144.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            696
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            696,
+            816
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            816,
+            2160
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2160,
+            2448
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2448,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 144.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2448,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 10,
+      "role": "duplicate",
+      "label": "S3 Crowd 04 (from Shore01_M56)",
+      "source_id": "Shore01_M56",
+      "local_xy_cm": [
+        3408.689,
+        -541.405
+      ],
+      "phase_deg": 162.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            714
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            714,
+            834
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            834,
+            2172
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2172,
+            2460
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2460,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 162.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2460,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 11,
+      "role": "duplicate",
+      "label": "S3 Crowd 05 (from Shore05_M53)",
+      "source_id": "Shore05_M53",
+      "local_xy_cm": [
+        3780.406,
+        -636.198
+      ],
+      "phase_deg": 180.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            561
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            561,
+            681
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            681,
+            2184
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2184,
+            2472
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2472,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 180.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2472,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 12,
+      "role": "duplicate",
+      "label": "S3 Crowd 06 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
+      "local_xy_cm": [
+        2451.739,
+        720.31
+      ],
+      "phase_deg": 198.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            579
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            579,
+            699
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            699,
+            2196
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2196,
+            2484
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2484,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 198.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2484,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 13,
+      "role": "duplicate",
+      "label": "S3 Crowd 07 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        2788.44,
+        730.837
+      ],
+      "phase_deg": 216.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            597
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            597,
+            717
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            717,
+            2208
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2208,
+            2496
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2496,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 216.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2496,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 14,
+      "role": "duplicate",
+      "label": "S3 Crowd 08 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        3101.41,
+        689.696
+      ],
+      "phase_deg": 234.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            615
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            615,
+            735
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            735,
+            2220
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2220,
+            2508
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2508,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 234.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2508,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 15,
+      "role": "duplicate",
+      "label": "S3 Crowd 09 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        3408.876,
+        540.047
+      ],
+      "phase_deg": 252.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            633
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            633,
+            753
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            753,
+            2232
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2232,
+            2520
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2520,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 252.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2520,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 16,
+      "role": "duplicate",
+      "label": "S3 Crowd 10 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        3769.566,
+        641.99
+      ],
+      "phase_deg": 270.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            651
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            651,
+            771
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            771,
+            2244
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2244,
+            2532
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2532,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 270.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2532,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 17,
+      "role": "duplicate",
+      "label": "S3 Crowd 11 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        2621.445,
+        -462.841
+      ],
+      "phase_deg": 288.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            669
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            669,
+            789
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            789,
+            2160
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2160,
+            2448
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2448,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 288.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2448,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 18,
+      "role": "duplicate",
+      "label": "S3 Crowd 12 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
+      "local_xy_cm": [
+        2920.934,
+        -509.091
+      ],
+      "phase_deg": 306.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            687
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            687,
+            807
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            807,
+            2172
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2172,
+            2460
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2460,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 306.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2460,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 19,
+      "role": "duplicate",
+      "label": "S3 Crowd 13 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        3230.993,
+        -544.878
+      ],
+      "phase_deg": 324.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            705
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            705,
+            825
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            825,
+            2184
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2184,
+            2472
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2472,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 324.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2472,
+            4488
+          ]
+        ]
+      }
+    },
+    {
+      "index": 20,
+      "role": "duplicate",
+      "label": "S3 Crowd 14 (from Shore05_M53)",
+      "source_id": "Shore05_M53",
+      "local_xy_cm": [
+        3660.318,
+        -468.512
+      ],
+      "phase_deg": 342.0,
+      "timeline": [
+        {
+          "class": "CALM",
+          "range": [
+            360,
+            723
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            723,
+            843
+          ]
+        },
+        {
+          "class": "FRENZY",
+          "range": [
+            843,
+            2196
+          ]
+        },
+        {
+          "class": "MEDIUM",
+          "range": [
+            2196,
+            2484
+          ]
+        },
+        {
+          "class": "CALM",
+          "range": [
+            2484,
+            4488
+          ]
+        },
+        {
+          "class": "ORIGINAL",
+          "range": [
+            4488,
+            6240
+          ]
+        }
+      ],
+      "transform_sway": {
+        "roll_degrees": 2.5,
+        "period_seconds": 3.6,
+        "phase_deg": 342.0,
+        "windows": [
+          [
+            360,
+            552
+          ],
+          [
+            2484,
+            4488
+          ]
+        ]
+      }
+    }
+  ],
+  "placement_reserve_count": 1,
+  "shots": [
+    {
+      "label": "S3 Crowd Establishing",
+      "range": [
+        360,
+        552
+      ],
+      "lens_mm": 35.0,
+      "location_local": [
+        2250.0,
+        -960.0,
+        360.0
+      ],
+      "look_local": [
+        3350.0,
+        0.0,
+        95.0
+      ],
+      "purpose": "wide establishing; replaces the active cut in this interval",
+      "rotation_rpy_deg": [
+        0.0,
+        -10.2876,
+        41.1121
+      ]
+    },
+    {
+      "label": "S3 Choir Close A",
+      "range": [
+        2880,
+        3000
+      ],
+      "lens_mm": 50.0,
+      "location_local": [
+        3900.0,
+        -950.0,
+        165.0
+      ],
+      "look_local": [
+        3600.0,
+        -420.0,
+        105.0
+      ],
+      "purpose": "3-4 figures after B07 orbit",
+      "rotation_rpy_deg": [
+        0.0,
+        -5.6266,
+        119.5115
+      ]
+    },
+    {
+      "label": "S3 Choir Close B",
+      "range": [
+        3192,
+        3480
+      ],
+      "lens_mm": 50.0,
+      "location_local": [
+        4050.0,
+        950.0,
+        160.0
+      ],
+      "look_local": [
+        3650.0,
+        430.0,
+        105.0
+      ],
+      "purpose": "uses the 12 s freed by trimming B06",
+      "rotation_rpy_deg": [
+        0.0,
+        -4.7922,
+        -127.5686
+      ]
+    },
+    {
+      "label": "S3 Choir Close C",
+      "range": [
+        4200,
+        4488
+      ],
+      "lens_mm": 42.0,
+      "location_local": [
+        2200.0,
+        980.0,
+        170.0
+      ],
+      "look_local": [
+        2850.0,
+        500.0,
+        100.0
+      ],
+      "purpose": "late chorus close group; B07 orbit remains 1440-2880",
+      "rotation_rpy_deg": [
+        0.0,
+        -4.9512,
+        -36.4444
+      ]
+    }
+  ],
+  "handprint_trim": {
+    "camera": "S3 Shot B06",
+    "expected_before": [
+      3000,
+      3480
+    ],
+    "after": [
+      3000,
+      3192
+    ]
+  },
+  "cut_policy": {
+    "nested_cuts_must_be_inactive": true,
+    "root_playback": [
+      0,
+      6240
+    ],
+    "preserve_b07_orbit": [
+      1440,
+      2880
+    ]
+  },
+  "performance_gate": {
+    "baseline_required_before_apply": true,
+    "baseline_expected_visible": 5,
+    "windows": {
+      "establishing": [
+        360,
+        552
+      ],
+      "choir": [
+        2160,
+        4488
+      ]
+    },
+    "gpu_timeout_token": "GPU timeout"
+  }
+}
