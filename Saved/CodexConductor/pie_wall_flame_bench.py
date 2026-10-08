@@ -22,8 +22,21 @@ def main():
     cam = u.GameplayStatics.get_player_camera_manager(w, 0)
     cl, cr = cam.get_camera_location(), cam.get_camera_rotation()
     f, r, up = u.MathLibrary.get_forward_vector(cr), u.MathLibrary.get_right_vector(cr), u.MathLibrary.get_up_vector(cr)
-    pos = u.Vector(cl.x + f.x * OFFSET[0] + r.x * OFFSET[1] + up.x * OFFSET[2], cl.y + f.y * OFFSET[0] + r.y * OFFSET[1] + up.y * OFFSET[2],
-                   cl.z + f.z * OFFSET[0] + r.z * OFFSET[1] + up.z * OFFSET[2])
+    # v2 (8 Oct): mirror geometry. Trace from the camera along its forward axis to the wall; the light sits on the
+    # REFLECTED view ray from the hit point, so its specular image lands at frame centre on the marks.
+    end = u.Vector(cl.x + f.x * 5000, cl.y + f.y * 5000, cl.z + f.z * 5000)
+    hit = u.SystemLibrary.line_trace_single(w, cl, end, u.TraceTypeQuery.TRACE_TYPE_QUERY1, False, [], u.DrawDebugTrace.NONE, True)
+    hr = hit[1] if isinstance(hit, tuple) else hit
+    bh = hr.to_tuple() if hr is not None and hasattr(hr, "to_tuple") else None
+    if not bh or not bh[0]:
+        u.log_error("WALLFLAME_FAILED|run=%s|no wall hit|%r" % (run, type(hit))); return
+    u.log("WALLFLAME_HIT|actor=%s" % (bh[9].get_actor_label() if len(bh) > 9 and bh[9] else "?"))
+    P, N = bh[4], bh[7]      # HitResult tuple: (blocking, initial_overlap, time, distance, location, impact_point, normal, impact_normal, ...)
+    d = f; dn = d.x * N.x + d.y * N.y + d.z * N.z
+    rr = u.Vector(d.x - 2 * dn * N.x, d.y - 2 * dn * N.y, d.z - 2 * dn * N.z)
+    DIST = 400.0
+    pos = u.Vector(P.x + rr.x * DIST, P.y + rr.y * DIST, P.z + rr.z * DIST)
+    u.log("WALLFLAME_GEOM|hit=%s|normal=%s|reflect=%s" % (P, N, rr))
     orig = {"loc": la.get_actor_location(), "hid": la.get_editor_property("hidden"), "int": lc.intensity,
             "vis": lc.is_visible(), "spec": lc.get_editor_property("specular_scale"), "diff": lc.get_editor_property("diffuse_scale"),
             "rad": lc.get_editor_property("source_radius"), "temp": lc.get_editor_property("temperature"),
