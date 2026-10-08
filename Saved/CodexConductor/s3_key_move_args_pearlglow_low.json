@@ -1,0 +1,3 @@
+{"mode":"DRY","run":"S3KM-PEARLGLOW-LOW","owner":"S3 Drama Pearl Glow","track":"S3.Drama.Light",
+ "keys":[[0,0],[1080,0],[1147,0.5],[1488,0.5],[1536,3],[4368,3],[4488,2.5],[4800,2.5],[4848,1],[4944,1],[5040,0],[6240,0]],
+ "why":"HELD A/B for Gary (not applied): green-orange pearl 'not really emitting or giving light'. Finishing-touches stills 8 Oct [measured crop luma ~250]: the 40 cd keyed glow inside the pearl clips every subsurface pearl to white. Same shape, ~13x lower (40->3 cd). Current keys: 0/0 1080/0 1147/4 1488/4 1536/40 4368/40 4488/30 4800/30 4848/8 4944/8 5040/0 6240/0"}

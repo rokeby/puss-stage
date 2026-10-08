@@ -183,3 +183,9 @@ All [measured] by success markers unless marked.
   - Music-locking all Passages shrinks the Master by 188.5 s, mostly P05 (186 → 42 s).
   - P05 Camera.HeightOffsetCm has 2 keys past its new end; P06 uses 110.56 s of its 125 s WAV.
   - Gary to confirm before any relength.
+- **P12 handprints imported** (14d109b, harness 17/0). Codex's layout: 198 marks in the B06 band (2x), but bunched
+  into ~4 tall columns. Conductor variant "many" (2790829, hp_dense_config_many.json): the same 198 marks as 20
+  shorter climbs spread along the band (previews/many/). Gary picks; nothing applied.
+- **Pearl** (finishing touches, merged 1caceb9): BUILD_MAT Pearl_v3_GreenOrange OK, no swap. Their stills [meas]: the
+  keyed 40 cd "S3 Drama Pearl Glow" clips every subsurface pearl to white. Held A/B: s3_key_move_args_pearlglow_low.json
+  (peak 3 cd), not applied.
