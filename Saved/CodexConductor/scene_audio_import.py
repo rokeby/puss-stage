@@ -79,8 +79,8 @@ ARGS_NAME = "scene_audio_import_args.json"
 DRY_NAME = "scene_audio_import_dry.json"
 RECORD_FMT = "scene_audio_import_S%s_record.json"
 CHOREO_TRACK_CLASS = "MovieSceneInfinityChoreoTrack"
-START_OPTIONS = ("land", "land_plus_strike")
-MARKER_KINDS = ("major_change", "intensity_onset")
+START_OPTIONS = ("land", "land_plus_strike", "scene_start")  # scene_start: Gary 8 Oct, S3 track from frame 0
+MARKER_KINDS = ("major_change", "intensity_onset", "given")  # given: a timecode stated by Gary (source.by required)
 FRAME_EPS = 1.0e-6
 DURATION_TOL_S = 0.02
 WAV_ARGS_TOL_S = 0.002
@@ -227,6 +227,11 @@ def verify_markers(row, analysis, wav_sha):
             if hit is None or abs(t - hit / rate) > 0.5 / rate:
                 r.append("MARKER_NOT_THE_ONSET: %r at %.4f s, curve onset %s" % (
                     m["label"], t, None if hit is None else "%.3f s" % (hit / rate)))
+        elif s.get("kind") == "given":
+            if not str(s.get("by") or "").strip():
+                r.append("MARKER_GIVEN_WITHOUT_BY: %r" % m["label"])
+            if not (0.0 <= t <= float(row["duration_s"])):
+                r.append("MARKER_GIVEN_OUTSIDE_TRACK: %r at %.4f s" % (m["label"], t))
         else:
             r.append("MARKER_SOURCE_KIND: %r" % s.get("kind"))
     return r
@@ -270,13 +275,17 @@ def plan_scene(facts, args, row):
         facts["section_end_tick"] / sres if facts.get("section_end_tick") is not None else None,
         facts["rise_lower_tick"] / rres, facts["rise_upper_tick"] / rres,
         facts["start_offset_tick"] / rres, facts.get("end_offset_tick", 0) / rres)
-    if gate:
+    if gate and args.get("start_option") != "scene_start":
         return {"refusals": [gate], "warnings": warnings}
+    if gate:  # scene_start does not use the land map: the rate gate only guards the land maths
+        warnings.append("RATE_GATE_IGNORED_FOR_SCENE_START: " + gate)
     land_outer = inner_to_outer_tick(facts["land_tick_inner"], rres, facts["rise_lower_tick"],
                                      facts["start_offset_tick"], facts["section_start_tick"], sres)
     option_ticks = {"land": land_outer}
     if facts.get("strike_after_land_s") is not None:
         option_ticks["land_plus_strike"] = land_outer + float(facts["strike_after_land_s"]) * sres
+    pb0_tick = float(facts["playback"][0]) * sres / fps
+    option_ticks["scene_start"] = pb0_tick
     option = args.get("start_option", "land")
     if option not in option_ticks:
         return {"refusals": ["STRIKE_AFTER_LAND_UNKNOWN"], "warnings": warnings, "land_s": land_outer / sres}
