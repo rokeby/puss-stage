@@ -1,0 +1,77 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+@@ -437,6 +437,28 @@ EInfinityVampPlaybackAction FInfinityVampPlaybackState::Tick(
+         bHasPreviousFrame = true;
+         return EInfinityVampPlaybackAction::None;
+     }
++
++    // PlayTo pauses when it reaches its target. Handle an already-armed vamp's
++    // end before the generic paused-player path, otherwise the seam can lose to
++    // the segment-end PlayTo that started the Scene (C3, Gary 8 Oct).
++    if (!bPlaying
++        && !bReversed
++        && !bPlayOnce
++        && Ranges.IsValidIndex(ActiveVampIndex)
++        && CurrentFrame >= Ranges[ActiveVampIndex].EndFrame)
++    {
++        const FInfinityVampRange& Range = Ranges[ActiveVampIndex];
++        const int32 Duration = (Range.EndFrame - Range.StartFrame).Value;
++        const int32 Overshoot = FMath::Max(0, (CurrentFrame - Range.EndFrame).Value);
++        OutLoopFrame = Range.StartFrame + FFrameNumber(Overshoot % Duration);
++        PreviousFrame = OutLoopFrame;
++        ++LoopCount;
++        UE_LOG(LogInfinityStageTransport, Log,
++            TEXT("INFINITY_VAMP_PAUSED_END_LOOP index=%d count=%d from=%d to=%d"),
++            ActiveVampIndex, LoopCount, CurrentFrame.Value, OutLoopFrame.Value);
++        return EInfinityVampPlaybackAction::LoopToStart;
++    }
++
+     if (!bPlaying)
+     {
+         PreviousFrame = CurrentFrame;
+@@ -2647,7 +2669,7 @@ bool UInfinityStageTransportController::HandleVampPlayback(const FFrameNumber C
+     Player->PlayTo(
+         FMovieSceneSequencePlaybackParams(EndDisplayFrame, EUpdatePositionMethod::Play),
+         PlayToParams);
+-    UE_LOG(LogInfinityStageTransport, Verbose,
++    UE_LOG(LogInfinityStageTransport, Log,
+         TEXT("INFINITY_VAMP_LOOP index=%d count=%d from=%d to=%d"),
+         VampPlaybackState.ActiveVampIndex,
+         VampPlaybackState.LoopCount,
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageVampLoopTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageVampLoopTests.cpp
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageVampLoopTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageVampLoopTests.cpp
+@@ -68,6 +68,32 @@ bool FInfinityStageVampLoopsUntilReleaseTest::RunTest(const FString& Parameters)
+         TestEqual(TEXT("Loop count advances once per seam"), State.LoopCount, Loop);
+     }
+ 
++    // Positive control for C3: UMovieSceneSequencePlayer::PlayTo pauses on its
++    // target before the component can observe that frame. An armed VampEnd must
++    // still win that arrival and replace the older Scene-end PlayTo.
++    State.Reset();
++    State.OnNavigation(90);
++    TestEqual(TEXT("Paused-arrival fixture arms while crossing VampStart"),
++        State.Tick(100, true, false, 1.0f, Ranges, LoopFrame),
++        EInfinityVampPlaybackAction::None);
++    TestTrue(TEXT("Paused-arrival fixture has an active vamp"), State.IsActive());
++    TestEqual(TEXT("A paused PlayTo arrival at VampEnd still loops"),
++        State.Tick(110, false, false, 1.0f, Ranges, LoopFrame),
++        EInfinityVampPlaybackAction::LoopToStart);
++    TestEqual(TEXT("The paused arrival returns to VampStart"), LoopFrame, FFrameNumber(100));
++
++    // Negative control: pausing inside the range is an operator pause, not a
++    // seam. It must remain paused and must not increment the loop count.
++    State.Reset();
++    State.OnNavigation(90);
++    State.Tick(100, true, false, 1.0f, Ranges, LoopFrame);
++    const int32 LoopsBeforeInteriorPause = State.LoopCount;
++    TestEqual(TEXT("A pause before VampEnd does not loop"),
++        State.Tick(109, false, false, 1.0f, Ranges, LoopFrame),
++        EInfinityVampPlaybackAction::None);
++    TestEqual(TEXT("The interior pause does not change loop count"),
++        State.LoopCount, LoopsBeforeInteriorPause);
++
+     TestTrue(TEXT("RIGHT releases an active vamp"), State.Release(100, Ranges));
+     TestEqual(TEXT("A released vamp plays through its end"),
+         State.Tick(110, true, false, 1.0f, Ranges, LoopFrame),
