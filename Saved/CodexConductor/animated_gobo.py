@@ -705,8 +705,10 @@ def _create_master(tools, texture, mpc, plan, run):
     node("AtlasUV", unreal.MaterialExpressionCustom, -900, -250, description="ShadowGobo atlas frame UV",
          code=CODE_UV, output_type=unreal.CustomMaterialOutputType.CMOT_FLOAT2,
          inputs=[_custom_input(v) for v in uv_inputs])
+    # sRGB-off grayscale needs LINEAR_GRAYSCALE: plain GRAYSCALE failed to compile in run AG-I2-TEST-002
+    # ("Sampler type is Grayscale, should be Linear Grayscale", PussStage.log 8 Oct 21:37) [measured].
     node("Atlas", unreal.MaterialExpressionTextureSampleParameter2D, -550, -200, parameter_name=TEXTURE_PARAMETER,
-         texture=texture, sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_GRAYSCALE, group="01 Atlas")
+         texture=texture, sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_LINEAR_GRAYSCALE, group="01 Atlas")
     for index, name in enumerate(LOOK_NAMES):
         node(name, unreal.MaterialExpressionScalarParameter, -500, 100 + index * 110,
              parameter_name=name, default_value=float(SCALAR_DEFAULTS[name]), group="02 Look")
@@ -722,7 +724,7 @@ def _create_master(tools, texture, mpc, plan, run):
              inputs=[_custom_input("P"), _custom_input("BlurUV")])
         node("Atlas" + suffix, unreal.MaterialExpressionTextureSampleParameter2D, -350, 50 + index * 120,
              parameter_name=TEXTURE_PARAMETER, texture=texture,
-             sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_GRAYSCALE, group="01 Atlas")
+             sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_LINEAR_GRAYSCALE, group="01 Atlas")
     node("Blur", unreal.MaterialExpressionCustom, -50, -180, description="ShadowGobo five tap blur",
          code=CODE_AVG, output_type=unreal.CustomMaterialOutputType.CMOT_FLOAT1,
          inputs=[_custom_input(v) for v in ("C", "L", "R", "U", "D")])

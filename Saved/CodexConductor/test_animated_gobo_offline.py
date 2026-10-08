@@ -293,6 +293,9 @@ check("E09 offline import did not load Unreal", ag.unreal is None)
 check("E10 revert refuses external referencers before delete", source.index("REVERT_EXTERNAL_REFERENCERS") < source.index("delete_asset(path)"))
 check("E11 existing make_gobo_flipbook manifest names are accepted", all(name in source for name in
       ("GoboCols", "GoboRows", "GoboFrames", "GoboGutterUV", "GoboCellUV")))
+check("E17 sRGB-off atlas is sampled as LINEAR_GRAYSCALE (2 sampler sites)",
+      source.count("SAMPLERTYPE_LINEAR_GRAYSCALE") == 2 and "SAMPLERTYPE_GRAYSCALE" not in source and
+      'set_editor_property("srgb", False)' in source)
 check("E12 no UE5.8-absent master-track API", not any(n in source for n in
       ("get_master_tracks", "add_master_track", "remove_master_track")))
 check("E13 track uses get_tracks/add_track/remove_track", all(n in source for n in
