@@ -827,9 +827,10 @@ def _channel_keyed_range(channels):
 
 def _channel_eval_frames(channel, sequence, first_frame, last_frame):
     """Evaluate the UE channel itself at every display frame in the inclusive range."""
-    scripting_range = unreal.SequencerScriptingRange()
-    scripting_range.set_start_frame(int(first_frame))
-    scripting_range.set_end_frame(int(last_frame) + 1)
+    # A default SequencerScriptingRange carries InternalRate 60000 fps (FFrameRate()), so display frames set on it are
+    # read as 60000ths of a second (live DRY 8 Oct: got 1 of 1998).  MakeRange builds it in the DISPLAY rate
+    # [declaration: MovieSceneSequenceExtensions.h:137-145].
+    scripting_range = sequence.make_range(int(first_frame), int(last_frame) - int(first_frame) + 1)
     values = [float(v) for v in channel.evaluate_keys(scripting_range, sequence.get_display_rate())]
     expected = int(last_frame) - int(first_frame) + 1
     if len(values) != expected:

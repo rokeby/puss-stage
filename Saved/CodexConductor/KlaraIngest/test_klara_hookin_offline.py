@@ -333,7 +333,9 @@ class Rekey(unittest.TestCase):
                     "Location.Y": FakeChannel([0, 1, 2], lambda t: 10.0 + t),
                     "Location.Z": FakeChannel([0, 2], lambda t: 5.0),
                     "Rotation.Z": FakeChannel([0, 2], lambda t: 359.0 + t)}
-        sequence = types.SimpleNamespace(get_display_rate=lambda: "30fps")
+        def make_range(start, duration):  # MakeRange: display-rate range [start, start + duration)
+            r = FakeRange(); r.set_start_frame(start); r.set_end_frame(start + duration); return r
+        sequence = types.SimpleNamespace(get_display_rate=lambda: "30fps", make_range=make_range)
         old_unreal = K.unreal
         K.unreal = fake_unreal
         try:
