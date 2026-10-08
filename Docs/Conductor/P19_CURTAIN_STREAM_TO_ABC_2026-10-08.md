@@ -75,3 +75,21 @@ Require `CURTAIN_STREAM_TO_ABC_REVERT_SUCCESS`.
 
 1. **measured:** does Gary/conductor accept a recovered cache whose stream-derived stillness gates U2 and U7 are red, or should it remain an unaccepted forensic artifact?
 2. **inferred:** the geometry and sampling can be reproduced exactly from the stream, but Alembic container bytes cannot be compared with the crashed export because that export never completed. The mandatory Blender import/read-back is the available equivalence proof.
+
+## For W&T (bake owner): finishing-touches analysis after the reboot, 8 Oct evening (relayed by Conductor 5)
+- [measured] Stream complete: 212,612,400 B = 390 × 45,430 × 12. Blender crashed AFTER the solve (no OpenGL).
+- [measured] stream_to_abc DRY OK, but unfurl gates fail:
+  - pass: U1 bunched 0.835 m, U3 heading 0, U4 hem 0.20 m at R+60, U5 hang profile (23 folds, flare 1.0),
+    U6 hem/stretch 0.995;
+  - FAIL U2 still-before-release 72 mm (the approved scout e4 also fails it, at 105 mm);
+  - FAIL U7 settled-at-end 390 mm (scout e4: 1.15 mm).
+- [measured] U7 is JITTER, not sway. From ~frame 270 the median vertex step is 5-8 mm/frame and 40-65% of vertices
+  reverse direction every frame. Over the last 1 s, median path 263 mm vs net 14 mm. ~80% of vertices move >2
+  mm/frame. The drop 240→266 is clean.
+- [inferred] Cause: production is 9× the scout resolution (45,430 vs 5,106 verts; 9.1 vs 27.4 cm quads) with the same
+  QUALITY 20 and SELF_DIST 0.03 m (0.33× edge; the log warns >0.2), and VERTEX_MASS_SCOUT 1.0 per vertex.
+- Options:
+  - (a) offline salvage: temporal low-pass of the stream from ~frame 266, then stream_to_abc APPLY; minutes; verify by
+    re-measuring U7 + a collider-penetration check;
+  - (b) re-bake with QUALITY ~40, SELF_DIST ~0.015-0.018 m, mass scaled to the mesh (~7 h+);
+  - (c) both.
