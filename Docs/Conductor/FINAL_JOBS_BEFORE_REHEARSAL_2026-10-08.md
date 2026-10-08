@@ -103,3 +103,13 @@ _Walk-through complete (chunks 1–3)._
 - **Handprint wall shot ~8 s** (was ~20 s, 2:05-2:25); the freed time goes to choir close-ups.
 - Crowd: **all 20 live** (cloth), "as long as it runs OK in testing, eventually video". Measure frame time + GPU
   timeouts in Play.
+
+### PAUSED for the GPU's sake (Gary 8 Oct evening: "let's pause this til later queue")
+Resume in this order when Gary says:
+1. Close-up Play check of the shoreguys' v3 cloth (applied; not yet seen up close).
+2. Underwear recolour: debug P1OUTFIT RESOLVED_READBACK on Shore01_M56 (not applied).
+3. Shroud texture: Gary's Fuser hessian texture, or A/B/C (not applied).
+4. S3 crowd ×20 + establishing sway + frenzy + choir sway + handprints 8 s (Codex P21 tools; run with the
+   frame-time/GPU gate against the 5-figure baseline of 19-20 ms).
+5. GPU: two editor-startup GPU timeouts (04:59, 19:56) right after the HWRT SBT build. Consider testing startup with
+   r.Lumen.HardwareRayTracing off to confirm before the Sunday renders.
