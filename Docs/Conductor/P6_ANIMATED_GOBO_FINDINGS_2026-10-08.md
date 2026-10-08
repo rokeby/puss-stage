@@ -135,6 +135,38 @@ Still open: every gobo shares one MPC `Frame`, so two Interactions playing at on
 
 Offline harness after the fixes: **99 passed / 0 failed**. **[measured]**
 
+## Soft border, light-space UVs, atlas variant (8 Oct, branch `gobo-border`; not run in Unreal)
+
+Gary's direction (via Finishing Touches): the light should be large, fill the curtain and have soft edges ("it can be a
+rectangle too"), and the gobo should block light inside the beam and "take the boundaries of whatever that light is".
+
+- **New master parameters** (group `03 Border`):
+  - `BorderDepth`: 0 = off (default). Outside the image the beam passes, so the lit edge is the beam's own edge.
+  - `BorderWidth`: image-width units.
+  - `BorderAspect`: width / height.
+  - `BorderFeather`: image-width units.
+  - With `BorderDepth` at 1, the lit area is a feathered rectangle, black outside, whatever the beam's shape.
+- **Scale limit:** for a spot, DRY refuses a `Scale` that would put the border's corners outside the circular cone.
+  The limit is `1 / (W * sqrt(1 + 1/A^2))`: 0.7071 for a square, 0.8829 for the 1.88 drape. **[measured: harness
+  G13-G16]**
+- **`UVCentre` 0.5** is for lights whose light-function UVs are light-space and centred on 0. Non-spot lights fall back
+  to `LightVector.xy` (`LightFunctionCommon.ush:41`). **[declaration-proven]** Its use on a RectLight is
+  **[inferred, untested]**, and a RectLight light function does not reach volumetric fog (`LightComponent.h:199-203`).
+  **[declaration-proven]**
+- **`atlas_compatible: false`** builds and uses `M_ShadowGobo_LightFunction_NoAtlas`, created once and shared like the
+  other master. The flag "forces all deferred lights to go the fast batched lighting code path"
+  (`Material.h:920-925`). **[declaration-proven]** That leaving it off gives full screen-resolution detail is
+  **[inferred]**. Live cvars read by Finishing Touches: `r.LightFunctionAtlas.SlotResolution 128`, and
+  `r.MegaLights.LightFunctions 1`. **[measured, their run]** If MegaLights handles the spot, the atlas may be used anyway
+  **[inferred]**, so judge sharpness on stills.
+- **Resolution:** 128 px per slot. At Scale 0.7071 and a 17 m image that is about 90 px across the image, about 19 cm/px.
+  **[inferred from the measured cvar]** At Scale 0.883 the cone could narrow from about 21.8 to 17.8 deg at 30 m and give
+  about 25% more pixels per metre. **[measured: harness G21 trigonometry]**
+- **Pipeline follow-up:** the atlas cells are square, so a 1.88 curtain leaves about 47% of each cell unused. Non-square
+  cells would need `make_gobo_flipbook.py` and the shader to carry per-axis cell UVs. **[inferred; not done]**
+
+Harness after the border work: **127 passed / 0 failed**. **[measured]**
+
 ## Video to flipbook (exists since 6 Oct)
 
 `Tools/ShadowGobo/make_gobo_flipbook.py` turns a phone take into the atlas, preview GIF, contact sheet and manifest. See
