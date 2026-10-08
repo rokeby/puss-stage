@@ -19,6 +19,14 @@ PROJECT = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 MANIFEST = os.path.join(PROJECT, "DerivedAssets", "S3Shore", "SM_S3_ShoreGround_manifest.json")
 
 
+def _raises(fn, prefix):
+    try:
+        fn()
+    except Exception as exc:  # noqa: BLE001 - negative-control harness
+        return str(exc).startswith(prefix)
+    return False
+
+
 # ----------------------------------------------------------------------------- BENCH_PIE mocks (no Unreal)
 class _Spy:
     """Records every attribute name read on a fake unreal library (the 'no save call' check reads this)."""
@@ -1146,17 +1154,56 @@ def run():
     hs_path = F.HEIGHT_SETS_JSON
     if os.path.isfile(hs_path):
         hs = json.load(open(hs_path, encoding="utf-8"))
-        ok = hs["recommended"] == F.PARAMS["height_set"] and set(hs["sets"]) == {"A", "B", "C"}
+        ok = hs["recommended"] == F.PARAMS["height_set"] and set(hs["sets"]) == {"A", "B", "C", "D"}
         rows = {}
         for k, v in hs["sets"].items():
             rows[k] = [v["measured_wall_max_cm"]["all"], v["min_print_line_cm_above_floor_top"]]
             ok = ok and not v["checks_failures"] and v["min_print_line_cm_above_floor_top"] <= F.PARAMS["height_sets"][k]["print_line_cm"]                 and abs(v["measured_wall_max_cm"]["all"] - v["target_wall_max_cm"]) <= 0.1 * v["target_wall_max_cm"]
         cur = F.height_set_summary(fp, F.PARAMS, F.build_grid(fp))
         ok = ok and cur["measured_wall_max_cm"] == hs["sets"][F.PARAMS["height_set"]]["measured_wall_max_cm"]
-        results.append({"case": "height-set JSON: A/B/C clean, within 10% of target, print lines consistent, matches field",
+        results.append({"case": "height-set JSON: A/B/C/D clean, within 10% of target, print lines consistent, matches field",
                         "ok": ok, "info": rows})
     else:
         results.append({"case": "height-set JSON present", "ok": False})
+
+    # Set D: Gary's queued x2 brief.  One cached NumPy field drives the gate, previews and grease audit.
+    import s3_shore_dunes_x2_offline as DX
+    pd = F.with_set("D")
+    gd = F.build_grid(fp, pd)
+    fd, rd = F.checks(fp, pd, gd)
+    results.append({"case": "+ set D: ~4.8 m wall peak, 6-8 m side reach, centre lane/clam/millstone/waves clear",
+                    "ok": not fd, "failures": fd, "info": {"walls": rd["walls"], "clearance": rd["clearance"]}})
+    bad_clear = copy.deepcopy(rd["clearance"]); bad_clear["centre_lane_max_h_cm"] = 31.0
+    results.append({"case": "- control: a 31 cm centre-lane heap is rejected",
+                    "ok": any(x.startswith("CENTRE_LANE_BLOCKED") for x in F.dune_clearance_failures(pd, bad_clear))})
+    bad_clear = copy.deepcopy(rd["clearance"]); bad_clear["side_heap_inward_reach_cm"]["left"] = 500.0
+    results.append({"case": "- control: a side heap stopping at 5 m is rejected",
+                    "ok": any(x.startswith("DUNE_REACH_LEFT") for x in F.dune_clearance_failures(pd, bad_clear))})
+    burial = DX.grease_burial_report(gd, fp)
+    results.append({"case": "+ grease burial audit covers exactly 1034 placements and reports overlap + 20 cm clearance",
+                    "ok": burial["placements"] == 1034 and 0 < burial["partly_or_fully_buried"] <= 1034
+                    and burial["fully_buried"] <= burial["partly_or_fully_buried"]
+                    and burial["clearance_violations_at_20cm"] >= burial["partly_or_fully_buried"],
+                    "info": {k: burial[k] for k in ("placements", "partly_or_fully_buried", "fully_buried",
+                                                     "clearance_violations_at_20cm", "buried_by_wall")}})
+    fake = {"decals": []}
+    results.append({"case": "- control: grease audit rejects an incomplete placement table",
+                    "ok": _raises(lambda: DX.grease_burial_report(gd, fp, fake), "GREASE_COUNT")})
+
+    # Editor wet-paint reader: parse/axis logic is offline-testable; runner itself remains DRY-only and is not run.
+    import s3_shore_wet_paint_read as WR
+    ascii_fbx = '''Objects: {\nGeometry: 1, "Geometry::g", "Mesh" {\nVertices: *9 { a: 0,0,0, 10,0,0, 0,20,0 }\nPolygonVertexIndex: *3 { a: 0,1,-3 }\nLayerElementColor: 0 {\nMappingInformationType: "ByPolygonVertex"\nReferenceInformationType: "Direct"\nColors: *12 { a: 0,0.2,0,1, 0,0.8,0,1, 0,0.4,0,1 }\n}\nLayerElementUV: 0 { }\n}\n}\n'''
+    parsed = WR.parse_ascii_fbx(ascii_fbx)
+    results.append({"case": "+ wet-paint ASCII FBX parser recovers vertex-instance G",
+                    "ok": parsed["control_points"] == 3 and [round(r["rgba"][1], 3) for r in parsed["rows"]] == [0.2, 0.8, 0.4]})
+    results.append({"case": "- control: wet-paint parser rejects FBX without LayerElementColor",
+                    "ok": _raises(lambda: WR.parse_ascii_fbx(ascii_fbx.replace("LayerElementColor", "NoColor")),
+                                  "FBX_LAYER_COLOR_MISSING")})
+    run_src = open(os.path.join(HERE, "s3_shore_wet_paint_run.py"), encoding="utf-8").read()
+    results.append({"case": "wet-paint editor runner is DRY-only and logs success after census-gated run_dry",
+                    "ok": 'ENABLED = {"DRY": None}' in run_src and "run_dry" in run_src
+                    and "S3SHORE_WET_READ_DRY_OK" in run_src and all(x not in run_src for x in
+                    ("save_asset", "save_map", "save_current_level", "save_packages", '"APPLY"', '"REVERT"'))})
     # Gary 7 Oct: cast area re-sculpted, no v2 preservation, no pads.
     def cast_absent(params):
         _, rep = F.checks(fp, params)

@@ -105,6 +105,18 @@ PARAMS = {
         "A": {"target_wall_max_cm": 180.0, "supply_cm": 194.0, "print_line_cm": 215.0},
         "B": {"target_wall_max_cm": 240.0, "supply_cm": 265.0, "print_line_cm": 265.0},
         "C": {"target_wall_max_cm": 300.0, "supply_cm": 350.0, "print_line_cm": 330.0},
+        # Gary 7 Oct, queued for later: about twice B, but keep a 4 m centre lane and the clam/millstone clear.
+        # D owns only its overrides; A/B/C remain byte-for-byte reproducible from the 7 Oct field.
+        "D": {"target_wall_max_cm": 480.0, "supply_cm": 4000.0, "print_line_cm": 500.0,
+              "dune_overrides": {"dune_reach_cm": [550.0, 700.0], "tongue_prob": 0.0,
+                                 "steps": 110, "windward_deg": 11.0, "scour_k": 0.55},
+              "constraints_overrides": {"centre_lane_halfwidth_cm": 200.0, "centre_lane_h_cm": 30.0,
+                                         "millstone_clear_radius_cm": 110.0, "millstone_clear_h_cm": 12.0},
+              "gates": {"centre_lane_max_cm": 30.05, "dune_inward_reach_cm": [600.0, 850.0],
+                        # The doubled, centre-clipped heaps retain a lee bias, but the hard lane cone raises the
+                        # windward median.  Keep an explicit D-only gate; A/B/C retain the 4 deg / 0.60 gate below.
+                        "wind_asymmetry_min_delta_deg": 2.5, "steep_lee_share_min": 0.60},
+              "seat_after_triangle_clamp": True},
     },
     "print_clearance_cm": 20.0,
     "dune": {
@@ -261,6 +273,20 @@ def active_set(p=PARAMS):
     return p["height_sets"][p["height_set"]]
 
 
+def dune_params(p=PARAMS):
+    """Dune parameters with only the active height-set overrides applied."""
+    out = copy.deepcopy(p["dune"])
+    out.update(active_set(p).get("dune_overrides", {}))
+    return out
+
+
+def constraint_params(p=PARAMS):
+    """Constraint parameters with only the active height-set overrides applied."""
+    out = copy.deepcopy(p["constraints"])
+    out.update(active_set(p).get("constraints_overrides", {}))
+    return out
+
+
 # ----------------------------------------------------------------------------- bed (the old ground, no drifts)
 def zones(x, y, p, nz):
     jitter = 260.0 * nz.fbm(x, y, 700.0, 3, 5.0)
@@ -312,7 +338,7 @@ def bed(x, y, fp, p):
 # ----------------------------------------------------------------------------- constraints
 def upper_bound(x, y, fp, p):
     """Surface ceiling U (cm above floor top).  Every term is a distance cone with slope <= 31 deg."""
-    c = p["constraints"]
+    c = constraint_params(p)
     big = 1.0e6
     U = np.full(np.shape(x), big)
     t = math.tan(math.radians(c["notch_repose_deg"]))
@@ -333,6 +359,17 @@ def upper_bound(x, y, fp, p):
         top = cz - 115.0 - c["camera_keep_clear_cm"]
         r = np.maximum(np.hypot(x - cx, y - cy) - c["camera_keep_radius_cm"], 0.0)
         U = np.minimum(U, top + r * tc)
+    # Set D only: a low central aisle remains between the two 6-8 m side heaps.  The cone itself is no steeper
+    # than repose, so min(surface, U) cannot introduce an impossible retaining edge.
+    if "centre_lane_halfwidth_cm" in c:
+        lane = c["centre_lane_h_cm"] + np.maximum(np.abs(y) - c["centre_lane_halfwidth_cm"], 0.0) * t
+        U = np.minimum(U, lane)
+    # The new PearlClam sits on the millstone at this footprint point.  Keep its whole seat low, then allow sand
+    # to rise away from it at repose rather than cutting a cylindrical hole.
+    if "millstone_clear_radius_cm" in c and "millstone_seat" in fp:
+        mx, my = fp["millstone_seat"]["local_xy"]
+        radial = np.maximum(np.hypot(x - mx, y - my) - c["millstone_clear_radius_cm"], 0.0)
+        U = np.minimum(U, c["millstone_clear_h_cm"] + radial * t)
     return U
 
 
@@ -463,7 +500,7 @@ def supply(X, Y, fp, p, sand_f):
     """Loose sand before the wind: a low continuous bank on every wall plus a CHAIN of dune bodies along each
     wall (random spacing, height, reach), corners heaviest, some reaching far toward the centre.  One seeded
     Generator, ONE draw per statement, in a fixed order (memory puss-random-draw-order)."""
-    d = p["dune"]
+    d = dune_params(p)
     amp = active_set(p)["supply_cm"]
     nzA = ValueNoise(p["seed"] + 11)
     rng = np.random.default_rng(p["seed"] + 101)
@@ -517,7 +554,7 @@ def supply(X, Y, fp, p, sand_f):
     corner = np.exp(-(np.minimum(dL, dR) ** 2 + dB ** 2) / R ** 2)
     s = s * (1.0 + d["corner_boost"] * corner)
     # keep the hard constraints from biting: taper the supply toward the wave notches and the door corridor
-    c = p["constraints"]
+    c = constraint_params(p)
     for row in (fp["wave_rows"]["rows"] if p.get("wave_notch", True) else []):
         cx = 0.5 * (row["x"][0] + row["x"][1])
         hn = notch_half(row, p)
@@ -601,7 +638,7 @@ def wind_transport(h, floor, d, dx, dy):
 
 def simulate(fp, p):
     """Coarse dune simulation.  Returns coarse axes and the loose-sand thickness S (cm)."""
-    d = p["dune"]
+    d = dune_params(p)
     xs, ys = _axes(p, d["sim_grid_cm"])
     X, Y = np.meshgrid(xs, ys, indexing="ij")
     dx, dy = xs[1] - xs[0], ys[1] - ys[0]
@@ -813,23 +850,35 @@ def build_grid(fp=None, p=PARAMS):
         h = talus(h, floor, tan_f, dx, dy, p["fine"]["post_ripple_talus_passes"], k=p["fine"]["talus_k"],
                   tol=0.1, max_passes=2000)
     h = np.minimum(h, U)
-    # millstone seat (Gary 7 Oct): level disc at the mean surface under it, soft blend outward, no pad edge
-    seat = None
-    if p.get("millstone_seat", True) and "millstone_seat" in fp:
+    # millstone seat (Gary 7 Oct): level disc at the mean surface under it, soft blend outward, no pad edge.
+    # A/B/C keep the shipped ordering.  D seats after the triangle clamp: at 4.8 m the clamp otherwise pulls the
+    # disc 7 cm out of level while repairing the much larger adjacent heaps.
+    def apply_millstone_seat(surface):
+        seat_ = None
+        if not p.get("millstone_seat", True) or "millstone_seat" not in fp:
+            return surface, seat_
         ms = fp["millstone_seat"]
         sx, sy = ms["local_xy"]
         dd = np.hypot(X - sx, Y - sy)
         inside_seat = dd <= ms["radius_cm"]
-        seat_h = float(h[inside_seat].mean())
+        seat_h = float(surface[inside_seat].mean())
         w = 1.0 - smoothstep(ms["radius_cm"], ms["radius_cm"] + ms["blend_cm"], dd)
-        h = (1.0 - w) * h + w * seat_h
-        seat = {"local_xy": [sx, sy], "radius_cm": ms["radius_cm"], "blend_cm": ms["blend_cm"],
-                "h_above_floor_cm": round(seat_h, 3), "local_z": round(115.0 + seat_h, 3)}
+        surface = (1.0 - w) * surface + w * seat_h
+        seat_ = {"local_xy": [sx, sy], "radius_cm": ms["radius_cm"], "blend_cm": ms["blend_cm"],
+                 "h_above_floor_cm": round(seat_h, 3), "local_z": round(115.0 + seat_h, 3)}
+        return surface, seat_
+
+    seat = None
+    seat_after = bool(active_set(p).get("seat_after_triangle_clamp", False))
+    if not seat_after:
+        h, seat = apply_millstone_seat(h)
     if p.get("triangle_clamp", True):
         h, clamp_iters, clamp_removed, steep_left = relax_triangles(
             h, floor, math.tan(math.radians(p["slip_face_max_deg"] - 0.5)), dx, dy)
     else:
         clamp_iters, clamp_removed, steep_left = 0, 0.0, -1
+    if seat_after:
+        h, seat = apply_millstone_seat(h)
     S = np.maximum(h - B, 0.0)
 
     # cast island (control only)
@@ -929,6 +978,47 @@ def wall_profiles(fp, p, grid):
     hR = interp2(grid["xs"], grid["ys"], grid["h"], xs, np.full_like(xs, yr))
     hB = interp2(grid["xs"], grid["ys"], grid["h"], np.full_like(ys, xb), ys)
     return xs, ys, hL, hR, hB
+
+
+def dune_clearance_metrics(fp, p, grid):
+    """Measure D's physical brief: 6-8 m side heaps, a clear centre lane, and a clear clam/millstone seat."""
+    X, Y, H, S = grid["X"], grid["Y"], grid["h"], grid["drift"]
+    c = constraint_params(p)
+    yl = fp["walls"]["left_inner_face_y"]["value"]
+    yr = fp["walls"]["right_inner_face_y"]["value"]
+    xb = fp["walls"]["backdrop_plane_x"]["value"]
+    lane_hw = float(c.get("centre_lane_halfwidth_cm", 0.0))
+    lane = (np.abs(Y) <= lane_hw) & (X >= 0.0) & (X <= xb)
+    # Attribute each half of the room to its nearest side wall.  Exclude the first/last 6 m along x so corner and
+    # back-wall heaps cannot masquerade as side-wall reach.  >30 cm is the established dune-area threshold.
+    along = (X >= 600.0) & (X <= xb - 600.0)
+    left = (Y <= 0.0) & along & (S > 30.0)
+    right = (Y >= 0.0) & along & (S > 30.0)
+    left_reach = float(np.max(Y[left] - yl)) if left.any() else 0.0
+    right_reach = float(np.max(yr - Y[right])) if right.any() else 0.0
+    out = {"centre_lane_halfwidth_cm": lane_hw,
+           "centre_lane_max_h_cm": round(float(H[lane].max()), 2) if lane.any() else None,
+           "side_heap_inward_reach_cm": {"left": round(left_reach, 1), "right": round(right_reach, 1)}}
+    if "millstone_seat" in fp:
+        mx, my = fp["millstone_seat"]["local_xy"]
+        rr = np.hypot(X - mx, Y - my) <= c.get("millstone_clear_radius_cm", fp["millstone_seat"]["radius_cm"])
+        out["clam_millstone_clear_max_h_cm"] = round(float(H[rr].max()), 2)
+    return out
+
+
+def dune_clearance_failures(p, clear):
+    failures = []
+    gates = active_set(p).get("gates", {})
+    if not gates:
+        return failures
+    if clear["centre_lane_max_h_cm"] > gates["centre_lane_max_cm"]:
+        failures.append("CENTRE_LANE_BLOCKED %.2f > %.2f"
+                        % (clear["centre_lane_max_h_cm"], gates["centre_lane_max_cm"]))
+    lo, hi = gates["dune_inward_reach_cm"]
+    for wall, reach in clear["side_heap_inward_reach_cm"].items():
+        if not lo <= reach <= hi:
+            failures.append("DUNE_REACH_%s %.1f not in %.1f..%.1f" % (wall.upper(), reach, lo, hi))
+    return failures
 
 
 def realism_metrics(fp, p, grid):
@@ -1092,6 +1182,7 @@ def height_set_summary(fp, p, grid):
         "min_print_line_cm_above_floor_top": float(math.ceil((wall_max + clr) / 5.0) * 5.0),
         "print_line_cm_in_params": active_set(p)["print_line_cm"],
         "max_dune_anywhere_cm": round(float(grid["h"].max()), 1),
+        "clearance": dune_clearance_metrics(fp, p, grid),
         "wall_profile_max_per_metre_cm": per_m,
     }
 
@@ -1182,6 +1273,9 @@ def checks(fp=None, p=PARAMS, grid=None):
             failures.append(f"DRIFT_HITS_PRINTS {name} {float(arr.max()):.1f} > {line - clr:.1f}")
     if float(hB[np.abs(ys) < 150].max()) > 15.0:
         failures.append("DOOR_GAP_BLOCKED")
+    clear = dune_clearance_metrics(fp, p, grid)
+    report["clearance"] = clear
+    failures.extend(dune_clearance_failures(p, clear))
     # realism
     rm = realism_metrics(fp, p, grid)
     report["realism"] = rm
@@ -1190,7 +1284,10 @@ def checks(fp=None, p=PARAMS, grid=None):
     if rm["slip_face_area_m2"] < 2.0:
         failures.append("SLIP_FACES_ABSENT %.2f" % rm["slip_face_area_m2"])
     lm, wm = rm["lee_vs_windward_median_slope_deg"]
-    if lm < wm + 4.0 or rm["steep_faces_facing_downwind_share"] < 0.6:
+    gates = active_set(p).get("gates", {})
+    min_asym = gates.get("wind_asymmetry_min_delta_deg", 4.0)
+    min_lee_share = gates.get("steep_lee_share_min", 0.6)
+    if lm < wm + min_asym or rm["steep_faces_facing_downwind_share"] < min_lee_share:
         failures.append("NO_WIND_ASYMMETRY lee %.1f vs windward %.1f deg, steep lee share %.2f"
                         % (lm, wm, rm["steep_faces_facing_downwind_share"]))
     if rm["ripple_hp_rms_cm"] < p["checks"]["ripple_rms_min_cm"]:
@@ -1223,7 +1320,7 @@ def with_set(name, p=PARAMS):
 
 
 def write_height_sets(fp=None, path=HEIGHT_SETS_JSON):
-    """A/B/C summary for the hand-print stream (measured from the same grids the FBX is built from)."""
+    """A/B/C/D summary for the hand-print stream (measured from the same grids the FBX is built from)."""
     if fp is None:
         fp = load_footprint()
     out = {"schema": "s3_shore_height_sets/1",

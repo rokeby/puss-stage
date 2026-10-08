@@ -1,6 +1,6 @@
 {
- "passed": 79,
- "total": 79,
+ "passed": 87,
+ "total": 87,
  "results": [
   {
    "case": "shipped params pass",
@@ -119,7 +119,7 @@
    ]
   },
   {
-   "case": "height-set JSON: A/B/C clean, within 10% of target, print lines consistent, matches field",
+   "case": "height-set JSON: A/B/C/D clean, within 10% of target, print lines consistent, matches field",
    "ok": true,
    "info": {
     "A": [
@@ -133,8 +133,78 @@
     "C": [
      307.0,
      330.0
+    ],
+    "D": [
+     474.1,
+     495.0
     ]
    }
+  },
+  {
+   "case": "+ set D: ~4.8 m wall peak, 6-8 m side reach, centre lane/clam/millstone/waves clear",
+   "ok": true,
+   "failures": [],
+   "info": {
+    "walls": {
+     "left_max_cm": 474.09,
+     "left_mean_cm": 187.51,
+     "right_max_cm": 408.93,
+     "right_mean_cm": 151.45,
+     "back_max_cm": 393.56,
+     "back_at_door_max_cm": 2.0,
+     "proposed_print_line_cm": 500.0,
+     "print_clearance_cm": 20.0,
+     "current_print_line_cm": 160.0,
+     "current_prints_would_be_covered": true
+    },
+    "clearance": {
+     "centre_lane_halfwidth_cm": 200.0,
+     "centre_lane_max_h_cm": 30.0,
+     "side_heap_inward_reach_cm": {
+      "left": 745.4,
+      "right": 839.6
+     },
+     "clam_millstone_clear_max_h_cm": 9.14
+    }
+   }
+  },
+  {
+   "case": "- control: a 31 cm centre-lane heap is rejected",
+   "ok": true
+  },
+  {
+   "case": "- control: a side heap stopping at 5 m is rejected",
+   "ok": true
+  },
+  {
+   "case": "+ grease burial audit covers exactly 1034 placements and reports overlap + 20 cm clearance",
+   "ok": true,
+   "info": {
+    "placements": 1034,
+    "partly_or_fully_buried": 348,
+    "fully_buried": 234,
+    "clearance_violations_at_20cm": 406,
+    "buried_by_wall": {
+     "L": 142,
+     "R": 206
+    }
+   }
+  },
+  {
+   "case": "- control: grease audit rejects an incomplete placement table",
+   "ok": true
+  },
+  {
+   "case": "+ wet-paint ASCII FBX parser recovers vertex-instance G",
+   "ok": true
+  },
+  {
+   "case": "- control: wet-paint parser rejects FBX without LayerElementColor",
+   "ok": true
+  },
+  {
+   "case": "wet-paint editor runner is DRY-only and logs success after census-gated run_dry",
+   "ok": true
   },
   {
    "case": "+ v2 cast preservation ABSENT in shipped field",
@@ -304,7 +374,7 @@
     "restored": true,
     "still": "STILL_STATE_HELD",
     "root_landed": false,
-    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_ieb9o6xg/s3_shore_pie_bench_restored_T1.json"
+    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_9fx4flf3/s3_shore_pie_bench_restored_T1.json"
    }
   },
   {
@@ -343,7 +413,7 @@
    "ok": true,
    "info": {
     "noop": "already_restored (state equals the originals file)",
-    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_ieb9o6xg/s3_shore_pie_bench_restored_T1.json"
+    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_9fx4flf3/s3_shore_pie_bench_restored_T1.json"
    }
   },
   {
@@ -386,7 +456,7 @@
    "ok": true,
    "info": {
     "noop": "pie=gone (PIE copies died with PIE; editor world was never touched)",
-    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_ieb9o6xg/s3_shore_pie_bench_restored_T6.json"
+    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_9fx4flf3/s3_shore_pie_bench_restored_T6.json"
    }
   },
   {
@@ -415,12 +485,12 @@
    "ok": true,
    "info": [
     "S3SHORE_START|run=T10|mode=BENCH_PIE_APPLY",
-    "S3SHORE_BENCH_PIE_ORIGINALS|run=T10|path=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_ieb9o6xg/s3_shore_pie_bench_originals_T10.json",
+    "S3SHORE_BENCH_PIE_ORIGINALS|run=T10|path=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_9fx4flf3/s3_shore_pie_bench_originals_T10.json",
     "S3SHORE_BENCH_PIE_APPLY_OK|run=T10|borrowed=StaticMeshActor_77|hidden=StaticMeshActor_88|census_after={\"content\": [\"x\"], \"maps\": []}",
     "S3SHORE_START|run=T10R|mode=BENCH_PIE_RESTORE",
-    "S3SHORE_BENCH_PIE_RESTORE_OK|run=T10R|bench_run=T10|still=STILL_STATE_HELD|root_landed=False|record=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_ieb9o6xg/s3_shore_pie_bench_restored_T10.json",
+    "S3SHORE_BENCH_PIE_RESTORE_OK|run=T10R|bench_run=T10|still=STILL_STATE_HELD|root_landed=False|record=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_9fx4flf3/s3_shore_pie_bench_restored_T10.json",
     "S3SHORE_START|run=T10R2|mode=BENCH_PIE_RESTORE",
-    "S3SHORE_BENCH_PIE_RESTORE_NOOP|run=T10R2|bench_run=T10|reason=already_restored (state equals the originals file)|record=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_ieb9o6xg/s3_shore_pie_bench_restored_T10.json"
+    "S3SHORE_BENCH_PIE_RESTORE_NOOP|run=T10R2|bench_run=T10|reason=already_restored (state equals the originals file)|record=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_9fx4flf3/s3_shore_pie_bench_restored_T10.json"
    ]
   },
   {
@@ -456,7 +526,7 @@
       "scene": []
      }
     },
-    "backup": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/Backups/PreS3ShoreGround-A1",
+    "backup": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_7f_ttvqo/Backups/PreS3ShoreGround-A1",
     "local_box": {
      "min": [
       0.0,
@@ -475,11 +545,11 @@
    "case": "APPLY: + apply: deck + v2 sand hidden (actor + every component off + hidden in game); census clean; record saved+applied; backup umap+rise+record",
    "ok": true,
    "info": {
-    "dir": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/Backups/PreS3ShoreGround-A1",
+    "dir": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_7f_ttvqo/Backups/PreS3ShoreGround-A1",
     "sha256": {
      "L_InfinityStage_V1VerticalSlice.umap": "9ad63846ab07fc8c252e9ef05e4e2dae92f6df22032bca882d91264c4861bd23",
      "LS_S3_HangarRise.uasset": "eaf79154aaa1fe31e7326b3bd51819e6776c6db6c341a0d7f6da955f02b58a2b",
-     "s3_shore_ground_record.json": "1be269d72336fbda583936b5d0149abbdd31e18946ecde85dc43c885a2ed0d8e"
+     "s3_shore_ground_record.json": "088ca7b2cfa04152d2083f7a99b39d988bb80d9fa356e1f1ba221b65ecbec7ae"
     }
    }
   },
@@ -503,8 +573,8 @@
      "restored|S3 Hangar Deck",
      "restored|S3 Beach V2 Sand Floor"
     ],
-    "backup": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/Backups/PreS3ShoreGround-A1R-REVERT",
-    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/s3_shore_ground_record.json.reverted-A1R"
+    "backup": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_7f_ttvqo/Backups/PreS3ShoreGround-A1R-REVERT",
+    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_7f_ttvqo/s3_shore_ground_record.json.reverted-A1R"
    }
   },
   {
@@ -520,7 +590,7 @@
   {
    "case": "APPLY: - apply refuses when s3_shore_ground_record.json exists (file untouched, no mutation)",
    "ok": true,
-   "info": "RECORD_EXISTS|C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/s3_shore_ground_record.json|REVERT first or move it"
+   "info": "RECORD_EXISTS|C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_7f_ttvqo/s3_shore_ground_record.json|REVERT first or move it"
   },
   {
    "case": "APPLY: - apply refuses when SM_S3_ShoreGround_B is missing",
@@ -551,8 +621,8 @@
      "restored|S3 Hangar Deck",
      "restored|S3 Beach V2 Sand Floor"
     ],
-    "backup": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/Backups/PreS3ShoreGround-A5R-REVERT",
-    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/s3_shore_ground_record.json.reverted-A5R"
+    "backup": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_7f_ttvqo/Backups/PreS3ShoreGround-A5R-REVERT",
+    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_7f_ttvqo/s3_shore_ground_record.json.reverted-A5R"
    }
   },
   {
