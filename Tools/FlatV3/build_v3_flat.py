@@ -28,10 +28,20 @@ from socket_contract import make_socket_payload
 
 MATERIAL_SLOTS = ["Front", "Flap", "Timber", "Edge"]
 VERTEX_COLOR_NAME = "Color"
-BOARD_FRONT_X = -0.150
-BOARD_BACK_X = -0.132
-FRAME_BACK_X = -0.040
-BLOCK_BACK_X = -0.032
+GEOMETRY_PROFILES_CM = {"legacy_1p8": 1.8, "thick5": 5.0}
+DEFAULT_GEOMETRY_PROFILE = "legacy_1p8"
+BASE_BOARD_FRONT_X = -0.150
+BASE_BOARD_BACK_X = -0.132
+BASE_FRAME_BACK_X = -0.040
+BASE_BLOCK_BACK_X = -0.032
+BOARD_FRONT_X = BASE_BOARD_FRONT_X
+BOARD_BACK_X = BASE_BOARD_BACK_X
+FRAME_BACK_X = BASE_FRAME_BACK_X
+BLOCK_BACK_X = BASE_BLOCK_BACK_X
+ACTIVE_GEOMETRY_PROFILE = DEFAULT_GEOMETRY_PROFILE
+ACTIVE_BOARD_THICKNESS_CM = GEOMETRY_PROFILES_CM[DEFAULT_GEOMETRY_PROFILE]
+FRAME_REACHOUTS_ENABLED = False
+EDGE_WALLS_OUTWARD = False  # opt-in --edge-walls-outward (Realism 7 Oct); default keeps legacy winding
 MEMBER_FACE_M = 0.050
 EDGE_INSET_M = 0.140
 MIN_FRAME_EDGE_CLEARANCE_M = 0.080
@@ -45,16 +55,42 @@ def blender_args() -> argparse.Namespace:
     raw = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
     parser = argparse.ArgumentParser()
     parser.add_argument("--mask")
+    parser.add_argument(
+        "--reference-mask",
+        help=("Optional source mask whose outer-loop bounds define scale and pivot while "
+              "--mask supplies the recut geometry"),
+    )
     parser.add_argument("--art")
     parser.add_argument("--skin-mask")
     parser.add_argument("--skin-normal")
     parser.add_argument("--flaps")
+    parser.add_argument(
+        "--socket-source",
+        help="Optional existing socket sidecar whose pole Y positions must be preserved exactly",
+    )
     parser.add_argument("--aged-texture-dir")
     parser.add_argument("--height-cm", type=float)
     parser.add_argument("--side", choices=("L", "R"))
     parser.add_argument("--name")
     parser.add_argument("--asset-name", help="Exact suffix after SM_FlatV3_; defaults to <name>_<side>")
     parser.add_argument("--mount", choices=("wing", "wave-row", "top-border"), default="wing")
+    parser.add_argument(
+        "--geometry-profile",
+        choices=tuple(GEOMETRY_PROFILES_CM),
+        default=DEFAULT_GEOMETRY_PROFILE,
+        help="Board/frame depth profile. The legacy 1.8 cm profile remains the default.",
+    )
+    parser.add_argument(
+        "--board-thickness-cm",
+        type=float,
+        help="Explicit board thickness override; thick5 runs must state 5.0.",
+    )
+    parser.add_argument(
+        "--frame-reachouts",
+        choices=("profile", "on", "off"),
+        default="profile",
+        help="Deterministic 2-4 timber contacts at the cut edge; thick5 enables them by default.",
+    )
     parser.add_argument("--deterministic-triangulation", action="store_true")
     parser.add_argument(
         "--triangulate-export",
@@ -90,7 +126,54 @@ def blender_args() -> argparse.Namespace:
         help=("Opt-in baked-pole reach below the panel base in centimetres. "
               "The Flat V3 default remains 100; requires --bake-poles."),
     )
+    parser.add_argument(
+        "--pole-y-m",
+        type=float,
+        nargs="+",
+        help="Exact existing pole/socket Y positions to preserve for a geometry recut",
+    )
+    parser.add_argument(
+        "--edge-walls-outward",
+        action="store_true",
+        help=("Opt-in: wind the deterministic board's side walls (Edge slot) so their "
+              "normals point out of the board. Default off keeps legacy (inward) winding."),
+    )
     return parser.parse_args(raw)
+
+
+def configure_geometry(args: argparse.Namespace) -> None:
+    """Apply one explicit depth profile without changing legacy defaults.
+
+    The Front plane is placement authority.  Thickening therefore moves the
+    board back and shifts the 10 cm frame/hardware envelope by the same delta.
+    """
+    global BOARD_FRONT_X, BOARD_BACK_X, FRAME_BACK_X, BLOCK_BACK_X
+    global ACTIVE_GEOMETRY_PROFILE, ACTIVE_BOARD_THICKNESS_CM
+    global FRAME_REACHOUTS_ENABLED, EDGE_WALLS_OUTWARD
+
+    EDGE_WALLS_OUTWARD = bool(getattr(args, "edge_walls_outward", False))
+    profile = str(args.geometry_profile)
+    profile_thickness_cm = float(GEOMETRY_PROFILES_CM[profile])
+    thickness_cm = (profile_thickness_cm if args.board_thickness_cm is None
+                    else float(args.board_thickness_cm))
+    if not math.isfinite(thickness_cm) or thickness_cm <= 0.0:
+        raise RuntimeError("--board-thickness-cm must be finite and positive")
+    if profile == "thick5" and abs(thickness_cm - 5.0) > 1.0e-6:
+        raise RuntimeError("The thick5 profile requires --board-thickness-cm 5.0")
+
+    legacy_thickness_m = GEOMETRY_PROFILES_CM[DEFAULT_GEOMETRY_PROFILE] / 100.0
+    thickness_m = thickness_cm / 100.0
+    delta_m = thickness_m - legacy_thickness_m
+    BOARD_FRONT_X = BASE_BOARD_FRONT_X
+    BOARD_BACK_X = BOARD_FRONT_X + thickness_m
+    FRAME_BACK_X = BASE_FRAME_BACK_X + delta_m
+    BLOCK_BACK_X = BASE_BLOCK_BACK_X + delta_m
+    ACTIVE_GEOMETRY_PROFILE = profile
+    ACTIVE_BOARD_THICKNESS_CM = thickness_cm
+    FRAME_REACHOUTS_ENABLED = (
+        args.frame_reachouts == "on" or
+        (args.frame_reachouts == "profile" and profile == "thick5")
+    )
 
 
 def require_blender_44() -> None:
@@ -244,16 +327,24 @@ def simplify_closed(points: np.ndarray, tolerance: float) -> np.ndarray:
 
 
 class Silhouette:
-    def __init__(self, mask: np.ndarray, height_m: float, side: str):
+    def __init__(self, mask: np.ndarray, height_m: float, side: str,
+                 reference_mask: np.ndarray | None = None):
         self.mask = mask
         self.image_h, self.image_w = mask.shape
         raw_loops = mask_loops(mask)
         raw_loops.sort(key=lambda loop: abs(signed_area(loop)), reverse=True)
         outer = raw_loops[0]
-        self.u_min = float(outer[:, 0].min())
-        self.u_max = float(outer[:, 0].max())
-        self.v_min = float(outer[:, 1].min())
-        self.v_max = float(outer[:, 1].max())
+        reference_outer = outer
+        if reference_mask is not None:
+            if reference_mask.shape != mask.shape:
+                raise RuntimeError("Reference mask dimensions must match the recut mask")
+            reference_loops = mask_loops(reference_mask)
+            reference_loops.sort(key=lambda loop: abs(signed_area(loop)), reverse=True)
+            reference_outer = reference_loops[0]
+        self.u_min = float(reference_outer[:, 0].min())
+        self.u_max = float(reference_outer[:, 0].max())
+        self.v_min = float(reference_outer[:, 1].min())
+        self.v_max = float(reference_outer[:, 1].max())
         self.scale_m_per_px = height_m / (self.v_max - self.v_min)
         self.height_m = height_m
         self.side = side
@@ -846,17 +937,26 @@ def create_board(
             material_indices.append(2)
         side_cursor = len(front_vertices) + len(back_vertices)
         side_vertices: list[tuple[float, float, float]] = []
-        for loop in silhouette.physical_loops:
+        for loop_index, loop in enumerate(silhouette.physical_loops):
             count = len(loop)
             loop_start = side_cursor + len(side_vertices)
             side_vertices.extend((BOARD_FRONT_X, float(y), float(z)) for y, z in loop)
             side_vertices.extend((BOARD_BACK_X, float(y), float(z)) for y, z in loop)
+            # Opt-in (--edge-walls-outward, Realism 7 Oct): pixel_to_physical
+            # negates u, so a physical loop can run opposite to its pixel
+            # loop; re-orient the walls exactly as the caps are re-oriented
+            # above, so Edge normals point out of the board.  Default off:
+            # existing outputs stay byte-reproducible.
+            reverse_wall = False
+            if EDGE_WALLS_OUTWARD:
+                wants_positive = signed_area(silhouette.pixel_loops[loop_index]) > 0.0
+                reverse_wall = wants_positive != (signed_area(loop) > 0.0)
             for local_index in range(count):
                 a = loop_start + local_index
                 b = loop_start + ((local_index + 1) % count)
                 back_a = loop_start + count + local_index
                 back_b = loop_start + count + ((local_index + 1) % count)
-                faces.append((a, b, back_b, back_a))
+                faces.append((a, back_a, back_b, b) if reverse_wall else (a, b, back_b, back_a))
                 material_indices.append(3)
         mesh = bpy.data.meshes.new(name + "_Mesh")
         mesh.from_pydata(front_vertices + back_vertices + side_vertices, [], faces)
@@ -1034,11 +1134,45 @@ def member_random(name: str) -> float:
     return 0.08 + 0.84 * ((sum((index + 1) * ord(char) for index, char in enumerate(name)) % 997) / 996.0)
 
 
+def deterministic_draw(asset_seed: str, statement: str) -> float:
+    """Return one stable [0,1) draw for one named statement.
+
+    Each caller stores this return value before using it.  That keeps evaluation
+    order out of the deterministic contract: one draw, one statement.
+    """
+    payload = (str(asset_seed) + "\0" + str(statement)).encode("utf-8")
+    integer = int.from_bytes(hashlib.sha256(payload).digest()[:8], "big")
+    return integer / float(1 << 64)
+
+
+def reachout_endpoint(
+    silhouette: Silhouette,
+    start: tuple[float, float],
+    other: tuple[float, float],
+    width_m: float,
+) -> tuple[float, float] | None:
+    """Extend a horizontal member from its inset end to the last inside point."""
+    direction = -1.0 if start[0] < other[0] else 1.0
+    best = None
+    for distance_m in np.arange(0.005, 0.405, 0.005):
+        candidate = (float(start[0] + direction * distance_m), float(start[1]))
+        samples = member_samples(start, candidate, width_m)
+        if silhouette.inside(samples).all():
+            best = candidate
+        else:
+            break
+    if best is None or abs(best[0] - start[0]) < 0.005:
+        return None
+    return best
+
+
 def build_frame(
     silhouette: Silhouette,
     materials: list[bpy.types.Material],
+    asset_seed: str,
     shallow: bool = False,
     top_border: bool = False,
+    forced_pole_y: list[float] | None = None,
 ) -> tuple[list[bpy.types.Object], list[dict], list[float], dict]:
     objects: list[bpy.types.Object] = []
     members: list[dict] = []
@@ -1048,10 +1182,26 @@ def build_frame(
     inward = np.linspace(0.10, max(0.11, silhouette.width_m * 0.34), 22) * sign
     stile_search_mode = "backbone_third"
     try:
-        pole_stiles = [longest_vertical(
-            silhouette, inward, EDGE_INSET_M + MEMBER_FACE_M * 0.5
-        )]
+        if forced_pole_y is not None:
+            pole_stiles = []
+            for forced_y in forced_pole_y:
+                try:
+                    pole_stiles.append(longest_vertical(
+                        silhouette, np.asarray([float(forced_y)]),
+                        EDGE_INSET_M + MEMBER_FACE_M * 0.5,
+                    ))
+                except RuntimeError as error:
+                    raise RuntimeError(
+                        f"Exact preserved pole Y={forced_y:.9f} has no viable contained stile run"
+                    ) from error
+            stile_search_mode = "forced_existing_pole_y"
+        else:
+            pole_stiles = [longest_vertical(
+                silhouette, inward, EDGE_INSET_M + MEMBER_FACE_M * 0.5
+            )]
     except RuntimeError:
+        if forced_pole_y is not None:
+            raise
         # Narrow offstage stakes (for example a tied pyre bundle) can be too
         # thin for a 5 cm stile plus the full 8 cm reveal. Search the entire
         # silhouette for a genuinely inset run before giving up; this keeps the
@@ -1071,8 +1221,9 @@ def build_frame(
             # of inventing an out-of-silhouette stile.
             pole_stiles = []
             stile_search_mode = "shallow_no_stile"
-    pole_count = 2 if pole_stiles and silhouette.width_m > 4.0 else len(pole_stiles)
-    if pole_count == 2:
+    pole_count = (len(pole_stiles) if forced_pole_y is not None else
+                  (2 if pole_stiles and silhouette.width_m > 4.0 else len(pole_stiles)))
+    if pole_count == 2 and forced_pole_y is None:
         second_band = np.linspace(silhouette.width_m * 0.48, silhouette.width_m * 0.82, 24) * sign
         try:
             pole_stiles.append(longest_vertical(
@@ -1152,6 +1303,46 @@ def build_frame(
             record = {"kind": "rail", "name": obj.name, "p0": [y0, rail_z], "p1": [y1, rail_z], "width_m": MEMBER_FACE_M}
             members.append(record)
             rail_records.append(record)
+
+    reachout_records = []
+    reachout_target = 0
+    if FRAME_REACHOUTS_ENABLED and not shallow and not top_border:
+        reach_count_draw = deterministic_draw(asset_seed, "reachout_count")
+        reachout_target = 2 + int(reach_count_draw * 3.0)
+        candidates = []
+        for rail_index, rail in enumerate(rail_records):
+            p0 = tuple(float(value) for value in rail["p0"])
+            p1 = tuple(float(value) for value in rail["p1"])
+            for endpoint_name, start, other in (("p0", p0, p1), ("p1", p1, p0)):
+                end = reachout_endpoint(silhouette, start, other, MEMBER_FACE_M)
+                if end is None:
+                    continue
+                priority_draw = deterministic_draw(
+                    asset_seed, f"reachout_candidate_{rail_index}_{endpoint_name}")
+                candidates.append((priority_draw, rail_index, endpoint_name, start, end))
+        for _, rail_index, endpoint_name, start, end in sorted(candidates):
+            index = len(reachout_records) + 1
+            variation_draw = deterministic_draw(asset_seed, f"reachout_variation_{index}")
+            obj = create_box_member(
+                f"Frame_Reachout_{index}", start, end, MEMBER_FACE_M,
+                BOARD_BACK_X, FRAME_BACK_X, materials, 2,
+                0.0, 0.08 + 0.84 * variation_draw,
+            )
+            record = {
+                "kind": "reachout",
+                "name": obj.name,
+                "p0": list(start),
+                "p1": list(end),
+                "width_m": MEMBER_FACE_M,
+                "source_rail_index": rail_index,
+                "source_endpoint": endpoint_name,
+                "deliberate_edge_contact": True,
+            }
+            objects.append(obj)
+            members.append(record)
+            reachout_records.append(record)
+            if len(reachout_records) >= reachout_target:
+                break
 
     # Half-bay toggles give the back a readable rhythm at 6-10 m while each
     # member remains the specified 5 x 10 cm section.
@@ -1278,6 +1469,8 @@ def build_frame(
         members.append({"kind": "hardware_plate", "name": plate.name, "p0": [y, plate_z - 0.10], "p1": [y, plate_z + 0.10], "width_m": 0.12})
 
     sample_sets = []
+    standard_sample_sets = []
+    reachout_sample_sets = []
     member_sample_sets = []
     for member in members:
         if "p0" in member:
@@ -1290,29 +1483,57 @@ def build_frame(
             continue
         sample_sets.append(samples)
         member_sample_sets.append((member["name"], samples))
+        if member["kind"] == "reachout":
+            reachout_sample_sets.append(samples)
+        else:
+            standard_sample_sets.append(samples)
     if not sample_sets:
         raise RuntimeError(f"No inset-safe frame members could be placed; best rail: {rail_scan_best}")
     tested = np.vstack(sample_sets)
     inside = silhouette.inside(tested)
-    distances = silhouette.boundary_distance(tested)
+    standard_tested = np.vstack(standard_sample_sets)
+    standard_inside = silhouette.inside(standard_tested)
+    standard_distances = silhouette.boundary_distance(standard_tested)
+    reachout_tested = np.vstack(reachout_sample_sets) if reachout_sample_sets else np.empty((0, 2))
+    reachout_inside = (silhouette.inside(reachout_tested)
+                       if len(reachout_tested) else np.asarray([], dtype=bool))
+    reachout_distances = (silhouette.boundary_distance(reachout_tested)
+                          if len(reachout_tested) else np.asarray([], dtype=np.float64))
     offending_members = []
     for name, samples in member_sample_sets:
         member_inside = silhouette.inside(samples)
         member_distances = silhouette.boundary_distance(samples)
-        if not member_inside.all() or member_distances.min() < MIN_FRAME_EDGE_CLEARANCE_M - 0.0005:
+        is_reachout = name.startswith("Frame_Reachout_")
+        required_clearance = 0.0 if is_reachout else MIN_FRAME_EDGE_CLEARANCE_M
+        if not member_inside.all() or member_distances.min() < required_clearance - 0.0005:
             offending_members.append({
                 "name": name,
                 "outside_outline_samples": int((~member_inside).sum()),
                 "minimum_edge_clearance_cm": round(float(member_distances.min()) * 100.0, 4),
+                "required_edge_clearance_cm": required_clearance * 100.0,
             })
     visibility = {
         "stile_search_mode": stile_search_mode,
         "tested_projection_samples": int(len(tested)),
         "outside_outline_samples": int((~inside).sum()),
-        "minimum_edge_clearance_cm": round(float(distances.min()) * 100.0, 4),
+        "minimum_edge_clearance_cm": round(float(standard_distances.min()) * 100.0, 4),
         "required_edge_clearance_cm": MIN_FRAME_EDGE_CLEARANCE_M * 100.0,
+        "reachout_enabled": FRAME_REACHOUTS_ENABLED,
+        "reachout_target_count": reachout_target,
+        "reachout_count": len(reachout_records),
+        "reachout_minimum_edge_clearance_cm": (
+            round(float(reachout_distances.min()) * 100.0, 4)
+            if len(reachout_distances) else None
+        ),
+        "reachout_outside_outline_samples": (
+            int((~reachout_inside).sum()) if len(reachout_inside) else 0
+        ),
         "offending_members": offending_members,
-        "pass": bool(inside.all() and distances.min() >= MIN_FRAME_EDGE_CLEARANCE_M - 0.0005),
+        "pass": bool(
+            inside.all() and standard_inside.all() and
+            standard_distances.min() >= MIN_FRAME_EDGE_CLEARANCE_M - 0.0005 and
+            (not len(reachout_inside) or reachout_inside.all())
+        ),
     }
     if not visibility["pass"]:
         raise RuntimeError(f"Head-on frame containment failed: {visibility}")
@@ -1849,10 +2070,12 @@ def build(args: argparse.Namespace) -> None:
                 args.texture_root, args.aged_texture_dir)):
         raise RuntimeError("Build mode requires mask, three skin inputs, flaps, dimensions, output and texture roots")
     clear_scene()
+    configure_geometry(args)
     output_dir = Path(args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     mask = load_mask(Path(args.mask).resolve())
-    silhouette = Silhouette(mask, args.height_cm / 100.0, args.side)
+    reference_mask = load_mask(Path(args.reference_mask).resolve()) if args.reference_mask else None
+    silhouette = Silhouette(mask, args.height_cm / 100.0, args.side, reference_mask)
     is_wave_row = args.mount == "wave-row"
     is_top_border = args.mount == "top-border"
     is_pole_free_mount = is_wave_row or is_top_border
@@ -1876,8 +2099,23 @@ def build(args: argparse.Namespace) -> None:
     )
     lod1.name = flat_name + "_LOD1"
     flap_objects, flap_records = create_flaps(Path(args.flaps).resolve(), silhouette, materials)
+    preserved_pole_y = args.pole_y_m
+    if args.socket_source:
+        socket_source = json.loads(Path(args.socket_source).resolve().read_text(encoding="utf-8"))
+        pole_rows = sorted(
+            (row for row in socket_source.get("sockets", [])
+             if str(row.get("name", "")).startswith("SOCKET_Pole_")),
+            key=lambda row: row["name"],
+        )
+        if not pole_rows:
+            raise RuntimeError("--socket-source contains no SOCKET_Pole entries")
+        # Socket sidecars are in UE local space; FBX interchange reflects Y.
+        preserved_pole_y = [-float(row["relative_location_cm"][1]) / 100.0
+                            for row in pole_rows]
     parts, members, pole_y, visibility = build_frame(
-        silhouette, materials, shallow=is_pole_free_mount, top_border=is_top_border
+        silhouette, materials, asset_suffix,
+        shallow=is_pole_free_mount, top_border=is_top_border,
+        forced_pole_y=preserved_pole_y,
     )
     panel_contract = panel_geometry_contract([board, *flap_objects, *parts])
     lod1_panel_contract = panel_geometry_contract([lod1])
@@ -2031,7 +2269,16 @@ def build(args: argparse.Namespace) -> None:
         "name": args.name,
         "side": args.side,
         "mount": args.mount,
-        "inputs": {"mask": str(Path(args.mask).resolve()), "art": str(Path(args.art).resolve()), "skin_mask": str(Path(args.skin_mask).resolve()), "skin_normal": str(Path(args.skin_normal).resolve()), "flaps": str(Path(args.flaps).resolve()), "height_cm": args.height_cm},
+        "geometry_profile": {
+            "name": ACTIVE_GEOMETRY_PROFILE,
+            "board_thickness_cm": ACTIVE_BOARD_THICKNESS_CM,
+            "board_front_x_m": BOARD_FRONT_X,
+            "board_back_x_m": BOARD_BACK_X,
+            "frame_back_x_m": FRAME_BACK_X,
+            "block_back_x_m": BLOCK_BACK_X,
+            "frame_reachouts_enabled": FRAME_REACHOUTS_ENABLED,
+        },
+        "inputs": {"mask": str(Path(args.mask).resolve()), "reference_mask": str(Path(args.reference_mask).resolve()) if args.reference_mask else None, "art": str(Path(args.art).resolve()), "skin_mask": str(Path(args.skin_mask).resolve()), "skin_normal": str(Path(args.skin_normal).resolve()), "flaps": str(Path(args.flaps).resolve()), "height_cm": args.height_cm},
         "dimensions_m": {"height": silhouette.height_m, "width": silhouette.width_m, "flat_depth": BLOCK_BACK_X - BOARD_FRONT_X},
         "placement": {"origin_m": [0.0, 0.0, 0.0], "origin_contract": "bottom-centre" if is_pole_free_mount else "pole-line/backbone/floor", "front_axis": "-X", "backbone_y_m": None if is_pole_free_mount else 0.0, "floor_z_m": 0.0, "front_face_x_m": BOARD_FRONT_X},
         "mask": {"pixel_size": [silhouette.image_w, silhouette.image_h], "outer_vertices": len(silhouette.pixel_loops[0]), "hole_count": len(silhouette.pixel_loops) - 1, "metres_per_pixel": silhouette.scale_m_per_px},
@@ -2527,6 +2774,7 @@ def inspect_fbx_lod_group(path: Path, flat_name: str) -> dict:
 
 def validate(args: argparse.Namespace) -> None:
     clear_scene()
+    configure_geometry(args)
     path = Path(args.validate_fbx).resolve()
     bpy.ops.import_scene.fbx(filepath=str(path), use_custom_normals=True)
     result = {
@@ -2629,7 +2877,10 @@ def validate(args: argparse.Namespace) -> None:
         if lod1:
             lod1.data.calc_loop_triangles()
         front_bounds = material_bounds(flat, slots, "Front")
+        edge_bounds = material_bounds(flat, slots, "Edge")
         card_height = float(front_bounds[1][2] - front_bounds[0][2]) if front_bounds else 0.0
+        measured_edge_thickness = (float(edge_bounds[1][0] - edge_bounds[0][0])
+                                   if edge_bounds else 0.0)
         baked_lod0_check = (validate_baked_poles(
             flat, slots, socket_objects, expected_h, expected_pole_bottom_m)
                             if baked_poles else {"pass": True, "enabled": False})
@@ -2643,10 +2894,24 @@ def validate(args: argparse.Namespace) -> None:
                 triangles_by_slot[slots[index]] += 1
         result["checks"] = {
             "fbx_lod_group": raw_lod_group,
-            "height": {"pass": abs(card_height - expected_h) <= 0.01, "measured_card_m": card_height, "expected_m": expected_h},
-            "depth_about_12cm": ({"pass": 0.190 <= float(dims[0]) <= 0.210, "measured_m": float(dims[0]), "contract": "card plus baked pole collar"}
-                                 if baked_poles else
-                                 {"pass": 0.115 <= float(dims[0]) <= 0.130, "measured_m": float(dims[0]), "contract": "card only"}),
+             "height": {"pass": abs(card_height - expected_h) <= 0.01, "measured_card_m": card_height, "expected_m": expected_h},
+            "board_thickness_profile": {
+                "pass": abs(measured_edge_thickness - ACTIVE_BOARD_THICKNESS_CM / 100.0) <= 0.0015,
+                "measured_edge_slot_m": measured_edge_thickness,
+                "expected_m": ACTIVE_BOARD_THICKNESS_CM / 100.0,
+                "profile": ACTIVE_GEOMETRY_PROFILE,
+            },
+            "depth_about_12cm": ({
+                "pass": 0.190 <= float(dims[0]) <= 0.210,
+                "measured_m": float(dims[0]),
+                "contract": "card/frame plus baked pole collar; pole envelope remains authority",
+                "profile_card_frame_depth_m": BLOCK_BACK_X - BOARD_FRONT_X,
+            } if baked_poles else {
+                "pass": abs(float(dims[0]) - (BLOCK_BACK_X - BOARD_FRONT_X)) <= 0.015,
+                "measured_m": float(dims[0]),
+                "contract": "card/frame profile depth",
+                "profile_card_frame_depth_m": BLOCK_BACK_X - BOARD_FRONT_X,
+            }),
             "bounds_min_z": ({"pass": abs(float(lower[2]) - expected_pole_bottom_m) <= 0.002, "measured_m": float(lower[2]), "expected_m": expected_pole_bottom_m}
                              if baked_poles else
                              {"pass": abs(float(lower[2])) <= 0.01, "measured_m": float(lower[2]), "expected_m": 0.0}),
