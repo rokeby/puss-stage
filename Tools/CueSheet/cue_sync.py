@@ -16,6 +16,14 @@ Usage:
   python Tools/CueSheet/cue_sync.py selftest                      offline harness (+/- controls)
   python Tools/CueSheet/cue_sync.py note R0012 "text"             set a row's Director notes (re-renders)
   python Tools/CueSheet/cue_sync.py insert R0012 "Column=text" ...  add a LOCAL row after R0012 (re-renders)
+  python Tools/CueSheet/cue_sync.py webpull <dir>                 merge edits from the online Cue Book page
+  python Tools/CueSheet/cue_sync.py webbase                       record working.csv as the page's merge base (after seeding)
+
+The online Cue Book (https://claude.ai/artifact/SLoV4spZazBFgP97F6DnSR, for Klara and Cameron) keeps its own copy
+in the page's database. Claude exports it with ArtifactData list (collection "cues", out_dir=<dir>) and runs webpull;
+web_baseline.json is the merge base. Same rule as the Sheet: edited on both sides keeps the working copy and is a
+CONFLICT in web_report.md. New cues from the page become Origin "web" rows after the cue they were added after;
+a cue marked as cut there is flagged in Director notes, never deleted.
 
 Merge rule (Gary: "show me both, I decide"): a row changed in the Sheet AND in the working copy keeps the
 working version and is listed as a CONFLICT with the Sheet's version beside it. Nothing local is ever lost.
@@ -34,6 +42,13 @@ REPORT = os.path.join(DIR, 'sync_report.md')
 RENDER = os.path.join(DIR, 'PUSS_CUE_LIST.md')
 EXPORT = os.path.join(ROOT, 'Content', 'InfinityStage', 'CueSheet', 'Puss_Master_cue_sheet.csv')
 DIRECTOR = 'Director notes'
+WEB_BASELINE = os.path.join(DIR, 'web_baseline.json')
+WEB_REPORT = os.path.join(DIR, 'web_report.md')
+# page field -> working.csv column
+WEB_FIELDS = {'light': 'Light', 'soundTech': 'Sound tech', 'action': 'Action', 'soundCue': 'Sound cue',
+              'videoCue': 'Video Cue', 'klara': 'Speaker: Klara', 'gary': 'Speaker: Gary',
+              'cameron': 'Speaker: Cameron', 'beats': 'Beats', 'notes': 'Notes'}
+CUT_MARK = '[CUT on the Cue Book]'
 
 
 # ---------------------------------------------------------------- reading the Sheet
@@ -287,6 +302,126 @@ def insert(after_key, assignments):
     print('CUE_SYNC_INSERT_OK key=%s after=%s' % (fresh['Key'], after_key))
 
 
+# ---------------------------------------------------------------- the online Cue Book
+def web_doc(row, ord_value):
+    d = {'key': row['Key'], 'ord': ord_value, 'origin': row.get('Origin', ''), 'num': row.get('#', ''),
+         'cut': False, 'director': row.get(DIRECTOR, '')}
+    d.update({f: row.get(c, '') for f, c in WEB_FIELDS.items()})
+    return d
+
+
+def web_fields(doc):
+    out = {f: (doc.get(f) or '') for f in WEB_FIELDS}
+    out['cut'] = bool(doc.get('cut'))
+    return out
+
+
+def web_merge(baseline, web_docs, work_rows):
+    """baseline: {'rows': {page key: fields}, 'web_keys': {page key: working Key}}. web_docs: page documents.
+    Returns (work_rows, new_baseline, log, conflicts). Pure: no files."""
+    log, conflicts = [], []
+    rows = [dict(r) for r in work_rows]
+    by_key = {r['Key']: r for r in rows}
+    web_keys = dict(baseline.get('web_keys', {}))
+    base_rows = baseline.get('rows', {})
+    new_base = {}
+    for doc in sorted(web_docs, key=lambda d: d.get('ord', 0)):
+        page_key = doc.get('key') or doc.get('id')
+        now = web_fields(doc)
+        work_key = web_keys.get(page_key, page_key)
+        row = by_key.get(work_key)
+        if row is None:
+            if page_key in base_rows:
+                new_base[page_key] = now
+                conflicts.append((page_key, 'the row is gone from the working copy but the page still has it'))
+                continue
+            if not any(now[f] for f in WEB_FIELDS):
+                continue                                   # an empty cue added and never filled in: pick it up later
+            new_base[page_key] = now
+            after = web_keys.get(doc.get('after', ''), doc.get('after', ''))
+            at = next((i for i, r in enumerate(rows) if r['Key'] == after), len(rows) - 1)
+            while at + 1 < len(rows) and rows[at + 1].get('Origin') == 'web':
+                at += 1                                    # cues added after the same cue keep page order
+            fresh = {k: '' for k in rows[0]} if rows else {}
+            fresh.update({'Key': next_key(set(by_key)), 'Origin': 'web'})
+            fresh.update({c: now[f] for f, c in WEB_FIELDS.items()})
+            if now['cut']:
+                fresh[DIRECTOR] = CUT_MARK
+            rows.insert(at + 1, fresh)
+            by_key[fresh['Key']] = fresh
+            web_keys[page_key] = fresh['Key']
+            log.append('%s: new cue from the page (after %s)' % (fresh['Key'], after))
+            continue
+        new_base[page_key] = now
+        base = base_rows.get(page_key)
+        if base is None:
+            continue
+        for f, c in WEB_FIELDS.items():
+            if now[f] == base.get(f, ''):
+                continue
+            mine = row.get(c, '')
+            if mine == base.get(f, '') or mine == now[f]:
+                if mine != now[f]:
+                    row[c] = now[f]
+                    log.append('%s %s: %r -> %r' % (row['Key'], c, mine[:60], now[f][:60]))
+            else:
+                conflicts.append((row['Key'], '%s: working copy %r, page %r (kept the working copy)' % (c, mine, now[f])))
+        if now['cut'] != bool(base.get('cut')):
+            note_text = row.get(DIRECTOR, '')
+            if now['cut'] and CUT_MARK not in note_text:
+                row[DIRECTOR] = (CUT_MARK + ' ' + note_text).strip()
+            elif not now['cut']:
+                row[DIRECTOR] = note_text.replace(CUT_MARK, '').strip()
+            log.append('%s: %s on the page' % (row['Key'], 'marked as cut' if now['cut'] else 'restored'))
+    return rows, {'rows': new_base, 'web_keys': web_keys}, log, conflicts
+
+
+def read_web_dir(path):
+    import glob
+    import json
+    docs = []
+    for p in glob.glob(os.path.join(path, '**', '*.json'), recursive=True):
+        with open(p, encoding='utf-8') as f:
+            d = json.load(f)
+        if not isinstance(d, dict):
+            continue
+        data = dict(d.get('data', d))
+        data.setdefault('key', d.get('id') or os.path.splitext(os.path.basename(p))[0])
+        docs.append(data)
+    return docs
+
+
+def webpull(path):
+    import json
+    fields, rows = load_csv(WORKING)
+    with open(WEB_BASELINE, encoding='utf-8') as f:
+        baseline = json.load(f)
+    docs = read_web_dir(path)
+    if not docs:
+        raise SystemExit('no page documents under %s' % path)
+    out, new_base, log, conflicts = web_merge(baseline, docs, rows)
+    save_csv(WORKING, fields, out)
+    with open(WEB_BASELINE, 'w', encoding='utf-8') as f:
+        json.dump(new_base, f, ensure_ascii=False, indent=1)
+    with open(WEB_REPORT, 'w', encoding='utf-8') as f:
+        f.write('# Cue Book pull (%d page cues)\n\n## Conflicts (%d): Gary decides\n\n' % (len(docs), len(conflicts)))
+        f.writelines('- **%s** %s\n' % c for c in conflicts)
+        f.write('\n## Applied (%d)\n\n' % len(log))
+        f.writelines('- %s\n' % line for line in log)
+    render()
+    print('CUE_SYNC_WEBPULL_OK docs=%d applied=%d conflicts=%d' % (len(docs), len(log), len(conflicts)))
+
+
+def web_seed_baseline():
+    """Record working.csv as the page's merge base (run once, right after seeding the page from it)."""
+    import json
+    _, rows = load_csv(WORKING)
+    base = {'rows': {r['Key']: web_fields(web_doc(r, 0)) for r in rows}, 'web_keys': {}}
+    with open(WEB_BASELINE, 'w', encoding='utf-8') as f:
+        json.dump(base, f, ensure_ascii=False, indent=1)
+    print('CUE_SYNC_WEBBASE_OK rows=%d' % len(rows))
+
+
 def selftest():
     cols = ['#', 'Light', 'Speaker: Klara']
     def rows(*specs):
@@ -317,6 +452,28 @@ def selftest():
     # control: Sheet deletes a row Gary annotated -> kept + conflict
     out3, _, _, conf3 = merge(base, [dict((k, v) for k, v in r.items() if k != 'Key') for r in base if r['Key'] != 'R0002'], work, cols)
     checks.append(('control: deleting an annotated row is a conflict, not a loss', any(c[0] == 'R0002' for c in conf3) and any(r['Key'] == 'R0002' for r in out3)))
+    # the online Cue Book
+    wbase = {'rows': {'R0001': {'light': 'A', 'klara': 'x', 'cut': False}, 'R0002': {'light': 'B', 'klara': 'y', 'cut': False}},
+             'web_keys': {}}
+    wwork = [{'Key': 'R0001', 'Origin': 'shared', 'Light': 'A', 'Speaker: Klara': 'x', DIRECTOR: ''},
+             {'Key': 'R0002', 'Origin': 'shared', 'Light': 'B GZ', 'Speaker: Klara': 'y', DIRECTOR: ''}]
+    wdocs = [{'key': 'R0001', 'ord': 10, 'light': 'A', 'klara': 'x (Klara edit)', 'cut': False},
+             {'key': 'R0002', 'ord': 20, 'light': 'B page', 'klara': 'y', 'cut': True},
+             {'key': 'WABC', 'ord': 15, 'after': 'R0001', 'cameron': 'foley: door', 'cut': False},
+             {'key': 'WDEF', 'ord': 16, 'after': 'R0001', 'cut': False}]
+    wout, wnb, wlog, wconf = web_merge(wbase, wdocs, wwork)
+    checks += [
+        ('web: a page edit on an untouched field is applied', wout[0]['Speaker: Klara'] == 'x (Klara edit)'),
+        ('web: edited on both sides keeps the working copy', any(r['Light'] == 'B GZ' for r in wout)),
+        ('web: ...and is a conflict', len(wconf) == 1 and wconf[0][0] == 'R0002'),
+        ('web: a cut is flagged, not deleted', any(CUT_MARK in r[DIRECTOR] for r in wout) and len(wout) == 3),
+        ('web: a new page cue lands after its cue', wout[1].get('Speaker: Cameron') == 'foley: door' and wout[1]['Origin'] == 'web'),
+        ('web: an empty new cue waits', 'WDEF' not in wnb['web_keys'] and 'WDEF' not in wnb['rows']),
+        ('web: the new cue is remembered for the next pull', wnb['web_keys'].get('WABC') == wout[1]['Key']),
+    ]
+    again, _, alog, aconf = web_merge(wnb, wdocs, wout)
+    checks.append(('web control: pulling the same page twice changes nothing',
+                   not alog and not aconf and again == wout))
     ok = all(c for _, c in checks)
     for name, c in checks:
         print(('PASS ' if c else 'FAIL ') + name)
@@ -334,6 +491,10 @@ if __name__ == '__main__':
         note(sys.argv[2], sys.argv[3])
     elif command == 'insert' and len(sys.argv) >= 4:
         insert(sys.argv[2], sys.argv[3:])
+    elif command == 'webpull' and len(sys.argv) == 3:
+        webpull(sys.argv[2])
+    elif command == 'webbase':
+        web_seed_baseline()
     elif command == 'selftest':
         sys.exit(selftest())
     else:
