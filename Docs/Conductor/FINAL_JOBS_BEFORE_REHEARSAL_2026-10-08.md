@@ -62,3 +62,13 @@ to have.
 - W&T curtain production bake: running overnight (unfurl_sleight_b1hop10_p02).
 
 _Walk-through complete (chunks 1–3)._
+
+## Gary's notes, 8 Oct ~08:30 UTC (before bed)
+| # | Segment | Job | Pri | State / notes |
+|---|---|---|---|---|
+| 4.1 | All Passages | **Timing = the music.** Each Passage's length comes from its own music (set-piece pauses maybe later). Run the **musical analysis** (flurries/beats) so lights can be cued to it. Replaces 2.2. | P1 | Tonight: Codex P11 (analysis + relength tool, DRY only). |
+| 4.2 | Opening | Lighting is "too large and washy". It should be **tighter soft-edge spots that move into the centre**, plus lights in the **upper-left and upper-right corners that dramatise the flurries**. **The curtain must come down in the final flurry** (now we see a dark stage, lit only by the opening light, while the music runs). Gary's cue list: (1) "second flurry/wave: curtain falls"; (2) "second flurry/wave: lights come on"; (3) "third flurry, end of opening: perspective adjustment". | P1 | Items (1) and (2) both say "second", so which flurry drops the curtain is still to confirm. Tonight: Codex P13 proposal + stills; nothing applied. |
+| 4.3 | Stage front | For now, **take the wings of P01's first bay and fix them to the front of the stage**. | P1 | Tonight: conductor. |
+| 4.4 | P03 | **Lighting identical to P01** in structure, direction and position relative to the wings; colour stays. Keep P03's special effects (e.g. the "car lighting move", if it is in P03). Replaces 2.7. | P1 | Tonight: conductor (census first). |
+| 4.5 | S3 | **Handprints not readable** (Cameron, on the latest S3 video). They need to read as handprints: darker marks; scrabbling, scratching, desperate, very many people. Only where the camera shot is (the B06 wall); about **2× density** there, none needed elsewhere. | P1 | Tonight: Codex P12 (placement + darker variant), stills for Gary. |
+| 4.6 | P01 | **Hide the smoke machines** ("little graphical patches of smoke"). | P1 | Tonight: conductor. |
