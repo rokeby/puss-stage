@@ -44,6 +44,8 @@ STRIKES = [(130, ["SpotLight3"]), (145, ["SpotLight2"]), (160, ["K_shrine_spot_3
                   "RectLight_Merged8", "RectLight_Merged11"]),
            (290, ["RectLight_Merged12", "RectLight_Merged13"]), (305, ["SpotLight", "SpotLight5", "SpotLight7"]),
            (330, ["Spot_shrine", "P_Fire", "P_Fire2", "P_Fire3", "P_Fire4", "P_Fire5", "P_Fire6"])]
+# F11 (Gary 8 Oct: the cloudy fog "should just be there when we arrive in her scene"): her smoke appears at the cut.
+LATE = [(376, ["Humo_Par4"])]
 
 
 def _level(a):
@@ -66,13 +68,14 @@ def _add_vis(seq, unreal, actor, prefix, rng, hidden):
     b = seq.add_possessable(actor)
     b.set_display_name(prefix + str(actor.get_actor_label()))
     t = b.add_track(unreal.MovieSceneVisibilityTrack)
-    if str(t.get_property_name()) in ("None", ""):
-        t.set_property_name_and_path("bHiddenInGame", "bHiddenInGame")        # klara_hookin.py _add_vis_binding [prec]
-    if str(t.get_property_name()) != "bHiddenInGame":
+    # [decl] the visibility track binds AActor::bHidden and its channel stores VISIBLE (MovieScenePropertyTrack.h:53-56);
+    # 'bHiddenInGame' tracks were measured inert in PIE (PIES2VIS-185717, fixed by s2_vis_fix.py).
+    t.set_property_name_and_path("bHidden", "bHidden")
+    if str(t.get_property_name()) != "bHidden":
         raise RuntimeError("VIS_PROPERTY|%r" % str(t.get_property_name()))
     s = t.add_section(); s.set_range(int(rng[0]), int(rng[1]))
     s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
-    ch = list(s.get_all_channels())[0]; ch.set_default(bool(hidden))
+    ch = list(s.get_all_channels())[0]; ch.set_default(not bool(hidden))   # channel = visible
     return b
 
 
@@ -93,7 +96,7 @@ def main():
                    and "Stand" not in str(x.get_actor_label())], key=lambda x: str(x.get_actor_label()))
     hers_by = {str(x.get_actor_label()): x for x in acts if "Japanese_Alley" in _level(x)}
     plan_hers, missing = [], []
-    for f, labels in STRIKES:
+    for f, labels in STRIKES + LATE:
         for l in labels:
             (plan_hers.append((l, f)) if l in hers_by else missing.append(l))
     hook = [b for b in seq.get_bindings() if str(b.get_display_name()).startswith(HOOK_OURS)]
