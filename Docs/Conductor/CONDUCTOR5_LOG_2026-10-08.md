@@ -178,3 +178,8 @@ All [measured] by success markers unless marked.
   P3, P6 and P7 imported and committed.
 - Stage front wings re-placed with inner edges at ±700 (FRONTWINGS-20261008-043305, after REVERT -043302); in the
   Opening stills (PSTILLS-OPEN-...-frontwings_open700) they frame the curtain. scene_stills.py now maps "Opening".
+- **P11 imported** (0199f29, harness 21/0) [meas by Codex, harness rerun here]:
+  - Opening major flurries peak at 37.44, 57.36 and 70.44 s (DerivedAssets/MusicAnalysis/Opening.png).
+  - Music-locking all Passages shrinks the Master by 188.5 s, mostly P05 (186 → 42 s).
+  - P05 Camera.HeightOffsetCm has 2 keys past its new end; P06 uses 110.56 s of its 125 s WAV.
+  - Gary to confirm before any relength.
