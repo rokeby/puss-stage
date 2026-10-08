@@ -269,3 +269,19 @@ All [measured] by success markers unless marked.
   - M56/F25: the shroud hangs from the head in long dark folds;
   - F52 (bent, crown pin only): the sheet hangs in FRONT of her and her back/shirt is exposed;
   - framing is rough because the aim uses actor bounds.
+
+## S3 crowd (evening)
+- Gary: "remove the teleport" → S3NOTP-20261008-172039 removed the 3144/3145 keys (LS_Clams) on the 5 figures; tests green.
+- **Crowd APPLIED** P21C-APPLY-20261008-3: 20 total (5 originals with their keys unchanged + 15 copies), 3 clusters, 4 new
+  LEVEL cameras (Establishing, Choir Cluster Wide, Choir Close A/B), B06 trimmed to its last 15 s. Backup
+  PreS3Crowd-P21C-APPLY-20261008-3. REVERT: s3_crowd_structure.py REVERT S3CROWD. Tests green.
+  - Live fixes: "visible" → presence (the figures are editor-hidden by design); spawnable camera → level CineCameraActor.
+- Perf [meas, PIE, 0 GPU timeouts]:
+  - establishing: 18.9 → 28.1 ms median (p90 29.2, max 38.6);
+  - choir: 18.0 → 28.3 ms (p90 31.4, max 110.7).
+- Stills PSTILLS-S3-20261008-212634-s3_crowd_v1 [meas]: the new camera placements from the offline plan are POOR.
+  - establishing shows only ~3 figures and no crowd;
+  - choir wide is BLACK;
+  - choir close A faces a dune with one far figure;
+  - close B shows a few figures behind a foreground wave prop.
+  - Placements were computed without the live dunes/occlusion; they need re-framing.
