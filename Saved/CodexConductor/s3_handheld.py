@@ -30,7 +30,7 @@ def main():
     if len(tracks) != 1:
         raise RuntimeError("TRACK|%d" % len(tracks))
     t = tracks[0]
-    if any(str(s.get_blend_type().blend_type) .endswith("ADDITIVE") for s in t.get_sections() if s.get_blend_type().is_valid):
+    if any(str(s.get_blend_type().get_editor_property("blend_type")).upper().find("ADDITIVE") >= 0 for s in t.get_sections() if s.get_blend_type().get_editor_property("is_valid")):
         raise RuntimeError("ALREADY_HAS_ADDITIVE")
     if mode == "DRY":
         unreal.log("S3HAND_DRY_OK|run=%s|camera=%s|sections=%d|range=%s" % (run, cam, len(t.get_sections()), [lo, hi]))

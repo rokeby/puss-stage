@@ -11,7 +11,7 @@ def main():
     seq = unreal.load_asset(SC)
     secs = [s for b in seq.get_bindings() if str(b.get_display_name()) == "S3 Shot B06" for t in b.get_tracks()
             if t.get_class().get_name() == "MovieScene3DTransformTrack" for s in t.get_sections()
-            if s.get_blend_type().is_valid and str(s.get_blend_type().blend_type).endswith("ADDITIVE")]
+            if s.get_blend_type().get_editor_property("is_valid") and str(s.get_blend_type().get_editor_property("blend_type")).upper().find("ADDITIVE") >= 0]
     if len(secs) != 1:
         raise RuntimeError("SECTIONS|%d" % len(secs))
     bd = "E:/PussStage/Backups/PreS3HandScale-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime())
