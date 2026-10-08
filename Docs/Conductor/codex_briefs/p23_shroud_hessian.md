@@ -1,4 +1,4 @@
-# P22: S3 shroud hessian material (weave tile + per-shroud stain overlay)
+# P23: S3 shroud hessian material (weave tile + per-shroud stain overlay)
 
 Requested by Gary, 8 Oct, via the finishing-touches session ("sure" + "actually send it to codex?"). Mode: `--worktree`, OFFLINE ONLY. Report to the finishing-touches session (Conductor 5 coordinates).
 
