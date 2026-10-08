@@ -37,11 +37,28 @@ to have.
 | 2.9 | S3 → Interaction 3 | Where the curtain goes is undecided; **S3's backdrop needs changing**, and the two may solve each other. | P2 | Backdrop: Gary directs it in Blender/Fuser. |
 | 2.10 | Interaction 3 | Same as all Interactions (cards out, spot in, gobo play). | P1 | Same as 1.9. |
 
-_Paused at Interaction 3 → P04 (Gary)._
+
+## Chunk 3: Interaction 3 → end (Gary 8 Oct)
+
+| # | Segment | Job | Pri | State / notes |
+|---|---|---|---|---|
+| 3.1 | Interaction 3 → P04 | The curtain-drop pattern. | P1 | Same as 1.10 / 2.6. |
+| 3.2 | P04 | One of the successful passages; could be "even more dazzling". | P3 | — |
+| 3.3 | P04 → S4 | **CHECK TONIGHT**: do we move smoothly into Klara's S4, with a short loop of the children + pigeon animation in the transitional moment? Does the **pendulum swing as in Klara's sequence**, not freely in the wrong place? Then an easy, smooth handover into her sequence. "One of the most dazzling scenes": the transitions must be good. | P1 | Background: S4_ENTRY_INVESTIGATION / S4_ENTRY_V5_BUILD_2026-10-07.md ("arrive in the dark", no strikes); pendulum tick was turned off 7 Oct. |
+| 3.4 | S4 | Switch Klara's S4 wings to **V3**. | P2 | Same feasibility doc as 2.3. |
+| 3.5 | S4 → Interaction 4 | Same curtain + spotlight sleight of hand, so the next Passage emerges when the curtain falls (may already be partly there; I4 is the furthest along). | P1 | Same as 1.9. |
+| 3.6 | Interaction 4 → P05 | Curtain drop. | P1 | — |
+| 3.7 | P05 | "Pretty excellent"; improve later. | P3 | — |
+| 3.8 | P05 → S5 | **Rob (animator)** sends the village S5 arrives at, tomorrow. S5 is a video; we transition into it in-level. | P1 | Waits on Rob. |
+| 3.9 | S5 → Interaction 5 | A regular Interaction (the end of the boy's role): **Puss gets his boots put on.** | P1 | Same as 1.9 + its own shadow play. |
+| 3.10 | Interaction 5 → P06 | Curtain drop. | P1 | — |
+| 3.11 | P06 | In a pretty good place. **The domino-falling animation has not been looked at yet**, and it matters (W&T: 6-slab chain slam at ~37 s, TOPPLE runs 7 Oct). **Fire and the planned FX: start building tonight.** | P1 | FX plan: Docs/Conductor/EFFECTS_PLAN_2026-10-07.md (smoke plumes, candle + wing-burn, beam motes, rain, bees earlier; Cascade assets usable without new C++). P06 is the most musical passage. |
+| 3.12 | P06 → S6 the Void | Total blackness; bees and an old lady. The Void sequence needs many considerations and **doesn't properly exist yet** (Klara started some work). Needed by Sunday. | P1 | Klara's void hookup: klara_void_s6.py (4c110e4). |
+| 3.13 | S6 → ENDING (new) | Exit from the Void through blackness, then arrive at **a lovely stage being closed up**: the lights go off, happy animals there, some animals from earlier recur, "all the creatures a puss can go to bed happy with". The fairy tale ends. | P1 | New scene: not started. Needs a design pass with Gary. |
 
 ## Carried over (already on other lists, for reference)
 - S3: done or in progress tonight (see GARY_NOTES_LIST_2026-10-08.md). Open items: pearl twin look-match stills; dunes 2× (with the wall-camera clash); fabric and MetaHuman look (texture A/B/C, full-body rebuild?); the vamp fix in the build window.
 - Fixtures: proposals in; the C++ patch is held for a build.
 - W&T curtain production bake: running overnight (unfurl_sleight_b1hop10_p02).
 
-_More chunks to come (Gary: "this is just the first chunk")._
+_Walk-through complete (chunks 1–3)._
