@@ -11,7 +11,13 @@ below.
 - The simulation completed: all 390 frames are in `DropBake/unfurl_sleight_b1hop10_p02_stream.f32`.
 - Blender then crashed at the final Alembic export (no OpenGL: the lost GPU), so the `.abc` and report `.json` are
   missing.
-- No re-bake is needed. Codex P19 is writing a stream → ABC converter; run it headless after the reboot.
+- A re-bake is not needed to get the file: `Tools/CurtainBake/stream_to_abc.py` (P19) rebuilds the ABC headless after
+  the reboot (P19 doc has the commands).
+- **BUT the take itself fails two stillness gates** [measured from the stream]:
+  - U2, motion before release: 72 mm/frame, limit 1.5;
+  - U7, motion in the last 30 frames: 391 mm/frame, limit 2.0. The cloth is still moving hard at the end of the bake.
+- The importer will refuse it until acceptance is re-run.
+- Your call: look at a preview of the recovered take, or re-bake with more settle frames.
 
 After the reboot:
 1. Run `editor_sky_toggle.py` (or the P18 auto-hide, once installed).
