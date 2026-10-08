@@ -1,0 +1,7 @@
+FUSER PROMPT: S3 shoreguys' shroud texture (stained hessian), Conductor 5, 8 Oct 2026
+(For Gary: the A/B/C generated sets looked "a bit even, almost like rock grain".)
+
+Seamless tileable texture, flat top-down orthographic scan of old coarse hessian / burlap sackcloth used as a burial shroud. Loose open plain weave with thick irregular jute threads, slubs, frayed broken fibres, a few pulled and missing threads, small holes and darned patches. Heavy uneven staining: dark greasy tide-mark rings, sweat-yellowed and tea-brown blotches pooling in patches, grey soot smears, rusty orange iron spots, faint brown dried-blood bloom in one area, damp darker zones fading to dry pale salt-crusted edges. Stains are large, blotchy and asymmetric (20-40 cm across) with sharp tide-line borders, soaked into the weave, mixed with fine thread-level dirt. Muted palette: oatmeal, dirty straw, umber, soot black, faded rust. Even flat lighting, no shadows, no perspective, no folds, no text. Avoid uniform noise, speckle or stone texture. 4K, photographic, highly detailed fibre.
+
+Optional second pass (to layer): plain clean hessian weave only, same scale, even light, tileable.
+If Fuser can't tile, the conductor will make it seamless.
