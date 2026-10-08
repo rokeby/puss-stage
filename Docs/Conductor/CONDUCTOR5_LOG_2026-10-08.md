@@ -240,3 +240,8 @@ All [measured] by success markers unless marked.
   6. P18 sky auto-hide startup ini patch (config only).
 - Curtain p02 salvage: finishing touches built Tools/CurtainBake/stream_lowpass.py (harness 10/10, not run). Waiting for
   Gary's pick (explained smoothing, 8 Oct evening).
+- **S3 crowd baseline** (5-figure, before P21) [meas, PIE, pie_dt, 30 samples each, 0 GPU timeouts]: S3 0:14+ dt median
+  19.3 / p90 20.9 / max 21.5 ms; S3 1:28+ median 20.5 / p90 22.8 / max 24.0 ms. Codex P21 (S3 crowd: 20 live
+  figures, establishing sway, frenzy build, choir sway from 1:30, handprints 8 s) launched.
+- Cueing RB1 (f0736f3, rehearsal bar + Show Trims) added to the build queue after UX1. Music/Ambience trims need music
+  waves on a Music SoundClass (content step).
