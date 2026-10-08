@@ -46,3 +46,6 @@ All [measured] by success markers unless marked.
 - Lid opening (finishing-touches tool d7dec87): first APPLY CLAMOPEN-20261008-021929 refused READBACK on ~2e-6°
   float rounding → Don't-Save restart; READBACK_TOL 1e-4° added for new key values (harness 64/64);
   CLAMOPEN-20261008-023043 APPLY_OK (lid 0°→80° over 1446→1746, tangent_changes=0). Tests green after.
+- 02:36 Gary questionnaire: vamp follows the orbit to the cello (VampStart 1440 / VampEnd 2880); B08 extended to 3:23
+  (4200–4872), B09 4872–5040 (S3CV-20261008-023611APPLY); wall grazes stay full after the chorus (four S3KM 023611–023615).
+  Tests green after.
