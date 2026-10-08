@@ -171,6 +171,21 @@ request = json.loads((HERE / "p03_lighting_as_p01_request.json").read_text(encod
 check("request routes guarded runner", request["arguments"]["arguments"]["relativeSavedPath"] ==
       "CodexConductor/p03_lighting_as_p01_run.py")
 
+# 8 Oct conductor: hue-only colours; near-black P03 lights never decide a colour (-/+ controls).
+_dark = {"kind": "LIGHT", "label": "P03 Wing 001 Low +Y", "lighting": {"color": [0.0006, 0.0006, 0.0012, 1.0], "use_temperature": True, "temperature_kelvin": 10000.0}}
+_warm = {"kind": "LIGHT", "label": "P03 Wing 001 Cross +Y", "lighting": {"color": [0.5, 0.25, 0.1, 1.0], "use_temperature": False}}
+check("near-black colour is flagged", P.colour_signature(_dark)["near_black"] is True)
+check("lit colour normalised to peak 1", P.colour_signature(_warm)["color"][:3] == [1.0, 0.5, 0.2])
+try:
+    _is = P.is_light(_dark) and P.is_light(_warm)
+except Exception:
+    _is = False
+if _is:
+    check("dominant ignores near-black even when outnumbered", P.dominant_colour([_dark, _dark, _dark, _warm])["value"]["color"][:3] == [1.0, 0.5, 0.2])
+    check("-control: all near-black refuses", raises(lambda: P.dominant_colour([_dark]), "P03_HAS_NO_LIGHT_COLOUR"))
+else:
+    check("is_light accepts the fixture rows (fixture shape)", False)
+
 failed = [name for name, ok in RESULTS if not ok]
 print("\nP03ASP01_HARNESS|pass=%d|fail=%d" % (len(RESULTS) - len(failed), len(failed)))
 sys.exit(1 if failed else 0)

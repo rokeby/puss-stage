@@ -1,0 +1,22 @@
+{
+  "mode": "DRY",
+  "confirm": "",
+  "run_id": "",
+  "output_dir": "DerivedAssets/P15VideoTransitions",
+  "placeholder_seconds": 8.0,
+  "audio_owner": "ue_muxed",
+  "camera_sensor_width_mm": 23.76,
+  "render": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 25
+  },
+  "led": {
+    "pixel_width": null,
+    "pixel_height": null,
+    "physical_width_m": null,
+    "physical_height_m": null,
+    "fit_mode": "fit"
+  },
+  "record": ""
+}

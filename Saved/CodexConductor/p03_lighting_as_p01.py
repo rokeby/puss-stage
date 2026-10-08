@@ -214,15 +214,21 @@ def colour_signature(row):
     rgba = list(lighting.get("color") or [1.0, 1.0, 1.0, 1.0])
     while len(rgba) < 4:
         rgba.append(1.0)
+    # 8 Oct conductor: keep P03's HUE only. P03 dims some lights through near-black RGB (e.g. all 42 "Low" lights
+    # 0.0006/0.0006/0.0012); copying raw RGB would leave P01's structure dark in P03. Brightness comes from P01's
+    # intensity; the colour is normalised so its brightest channel is 1.
+    peak = max(float(x) for x in rgba[:3])
+    rgb = [float(x) / peak for x in rgba[:3]] if peak > 1e-6 else [1.0, 1.0, 1.0]
     return {
-        "color": [float(x) for x in rgba[:4]],
+        "color": [round(x, 6) for x in rgb] + [float(rgba[3])],
+        "near_black": peak < 0.02,
         "use_temperature": bool(lighting.get("use_temperature", False)),
         "temperature_kelvin": float(lighting.get("temperature_kelvin", 6500.0)),
     }
 
 
 def dominant_colour(rows):
-    lights = [r for r in rows if is_light(r)]
+    lights = [r for r in rows if is_light(r) and not colour_signature(r)["near_black"]]
     require(lights, "P03_HAS_NO_LIGHT_COLOUR")
     groups = {}
     for row in lights:
@@ -237,7 +243,7 @@ def dominant_colour(rows):
 def role_colours(rows):
     grouped = {}
     for row in rows:
-        if not is_light(row):
+        if not is_light(row) or colour_signature(row)["near_black"]:
             continue
         role = role_from_label(row.get("label", ""))
         sig = colour_signature(row)
@@ -252,6 +258,7 @@ def apply_colour(row, colour):
     out = copy.deepcopy(row)
     lighting = out.setdefault("lighting", {})
     lighting["color"] = list(colour["color"])
+    out.pop("near_black", None)
     lighting["use_temperature"] = bool(colour["use_temperature"])
     lighting["temperature_kelvin"] = float(colour["temperature_kelvin"])
     return out
@@ -544,10 +551,30 @@ def _set_plain_value(obj, name, value, kind=None):
     obj.set_editor_property(name, value)
 
 
+def _set_prop(obj, name, value):
+    """set_editor_property, falling back to import_text for read-only GUID fields (5.8: AttachmentGuid,
+    ReplicatedFromAttachmentGuid ... are read-only to Python; import_text sets them [measured 8 Oct])."""
+    try:
+        obj.set_editor_property(name, value)
+        return
+    except Exception as exc:
+        m = re.search(r"Property '([A-Za-z0-9_]+)' for attribute", str(exc))
+        if not m or "read-only" not in str(exc) or not isinstance(value, unreal.Guid):
+            raise
+        g = unreal.GuidLibrary.conv_guid_to_string(value)
+        obj.import_text("(%s=%s)" % (m.group(1), g))
+        require(unreal.GuidLibrary.conv_guid_to_string(obj.get_editor_property(name)) == g, "GUID_IMPORT_READBACK|" + name)
+
+
 def _attachment_from_state(row, preserve_guid=True):
     a = unreal.InfinityCueAttachment()
     if preserve_guid:
-        a.set_editor_property("attachment_guid", _parse_guid(row["guid"]))
+        # AttachmentGuid is read-only to set_editor_property in 5.8; import_text sets it [measured 8 Oct,
+        # probe_guid_import.py: '(AttachmentGuid=<32 hex>)' read back identical].
+        g = str(row["guid"]).replace("-", "").upper()
+        require(len(g) == 32, "GUID_TEXT|" + g)
+        a.import_text("(AttachmentGuid=%s)" % g)
+        require(_guid_text(a.get_editor_property("attachment_guid")) == g, "GUID_IMPORT_READBACK|" + g)
     a.set_editor_property("label", unreal.Text(str(row["label"])))
     a.set_editor_property("kind", _enum(unreal.InfinityAttachmentKind, row["kind"]))
     a.set_editor_property("enabled", bool(row["enabled"]))
@@ -594,7 +621,7 @@ def _attachment_from_state(row, preserve_guid=True):
             value = unreal.Vector(*[float(x) for x in value])
         elif name in ("ignition_uv", "burn_u_axis", "burn_v_axis"):
             value = unreal.Vector2D(*[float(x) for x in value])
-        effect.set_editor_property(name, value)
+        _set_prop(effect, name, value)
     a.set_editor_property("effect", effect)
     a.set_editor_property("trigger_distance_cm", float(row["trigger_distance_cm"]))
     if "mover" in row:
@@ -603,7 +630,7 @@ def _attachment_from_state(row, preserve_guid=True):
             value = row["mover"][name]
             if name == "trigger":
                 value = _enum(unreal.InfinityLightMoverTrigger, value)
-            mover.set_editor_property(name, value)
+            _set_prop(mover, name, value)
         a.set_editor_property("mover", mover)
     if "body" in row:
         body = a.get_editor_property("body")
@@ -615,7 +642,7 @@ def _attachment_from_state(row, preserve_guid=True):
                 value = _parse_guid(value)
             elif name == "intensity_parameter":
                 value = unreal.Name(value)
-            body.set_editor_property(name, value)
+            _set_prop(body, name, value)
         a.set_editor_property("body", body)
     return a
 
@@ -1050,7 +1077,10 @@ def _run(args):
                         _apply_actor_state(change["target"], p03_actor, suppress=True)
             record["atmos_after"] = _actor_readback(p03_atmos, p03_actor, args["atmosphere"], TARGET_PREFIX)
             _verify_atmos_result(atmosphere, record["atmos_after"], "ATMOS_WRITE_READBACK")
-        except Exception:
+        except Exception as original:
+            import traceback
+            unreal.log_error("%s_ORIGINAL_ERROR|run=%s|%r|%s" % (MARK, run, original,
+                             traceback.format_exc().replace(chr(10), " / ")[-1500:]))
             _restore_lights(show, plan)
             for row in p03_atmos:
                 _restore_actor_state(row, p03_actor)

@@ -1,0 +1,26 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs b/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
+--- a/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
++++ b/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
+@@ -21,9 +21,13 @@ public class InfinityStage : ModuleRules
+ 
+         PrivateDependencyModuleNames.AddRange(new[]
+         {
++            "Json",
++            "MediaAssets",
++            "Slate",
++            "SlateCore",
+             "UMG",
+             "Niagara",
+             // Scene arrivals play a backcloth's GeometryCache before the Scene (AInfinityStageArrival).
+             "GeometryCache",
+             "GeometryCacheTracks"
+         });
+@@ -33,8 +37,6 @@ public class InfinityStage : ModuleRules
+             PrivateDependencyModuleNames.AddRange(new[]
+             {
+                 "UnrealEd",
+-                "Slate",
+-                "SlateCore"
+             });
+         }
+     }

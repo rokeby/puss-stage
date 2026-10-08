@@ -1,0 +1,9 @@
+{
+  "mode": "DRY",
+  "confirm": "DRY P18 SKY POLICY",
+  "scene": 4,
+  "skylight_off": true,
+  "sun_off": true,
+  "decided_by": "Gary, 8 Oct 2026: no external sky; S4 skylight and sun off. For S1 set scene=1, skylight_off=true, sun_off=false until Gary decides its daylight sun."
+}
+
