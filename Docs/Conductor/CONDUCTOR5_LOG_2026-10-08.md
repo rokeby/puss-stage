@@ -88,3 +88,10 @@ All [measured] by success markers unless marked.
   s3_flame_remove_strike.py (S3FLAMEFIX_OK, 8 removed; first run refused, left the scene dirty by modify() only).
   Vamp markers removed (S3MSET-20261008-062837vamp; Gary's recording: at 2:00 the playhead lands on 4:19.9) — C3 on
   the notes list for the build window. Tests green.
+- ~06:35–07:00 rect lights off until B02 (S3RECTON-20261008-063217); choir lift on the grazes +25% 2:43–3:07
+  (S3ENV-20261008-064956, saved after Gary's PIE refused the first save); jaw glint spot (S3JAW-20261008-065500,
+  0:30–0:45); ocean ground rows ×1.5 size/attenuation (S3OCEAN-20261008-065942) and ×1.2 keys (S3ENV …ocean); B06
+  handheld shake as an ADDITIVE section (S3HAND-20261008-070009; delete the section to undo).
+- Lumen hardware RT [measured]: on the 2:10 frame, r.Lumen.HardwareRayTracing 1 shows extra wall reflections (a pink
+  smear Gary doubts is the clam: he saw the rock visible before the clam). Frame time 16.3 -> ~17.5 ms (paused frame,
+  6 samples × 2). NOT made permanent; Gary's call pending.
