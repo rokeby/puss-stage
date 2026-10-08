@@ -246,11 +246,12 @@ def main(argv=None):
     ap.add_argument("--band", nargs=2, type=float, metavar=("ALONG_MIN", "ALONG_MAX"))
     ap.add_argument("--dark-preset")
     ap.add_argument("--overwrite", action="store_true")
+    ap.add_argument("--config", type=Path, default=CONFIG)   # 8 Oct conductor: variant configs (e.g. "many people")
     args = ap.parse_args(argv)
     if args.out.exists() and not args.overwrite:
         print("P12_DENSE_FAIL|OUTPUT_EXISTS|%s" % args.out, file=sys.stderr)
         return 2
-    cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
+    cfg = json.loads(args.config.read_text(encoding="utf-8"))
     try:
         doc = build(cfg, args.seed, args.density, args.band, args.dark_preset)
     except Exception as exc:

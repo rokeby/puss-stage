@@ -1,0 +1,130 @@
+{
+ "schema": "hp_dense_config/1",
+ "seed": 20261008,
+ "wall": "R",
+ "band": {
+  "along_cm": [
+   2500.0,
+   4500.0
+  ],
+  "height_cm": [
+   20.0,
+   850.0
+  ],
+  "source": "B06 offline keys: camera world X 14072.5889-14866.1523; right-wall origin X 11421.973; the wider band includes the forward 100-80 mm view"
+ },
+ "density": 2.0,
+ "pool": {
+  "print_entries": 20,
+  "smear_entries": 12
+ },
+ "trail": {
+  "steps": [
+   2,
+   4
+  ],
+  "rise_cm": [
+   30.0,
+   58.0
+  ],
+  "drift_cm": [
+   -20.0,
+   28.0
+  ],
+  "pair_half_span_cm": [
+   11.0,
+   24.0
+  ],
+  "print_scale": [
+   0.78,
+   1.55
+  ],
+  "print_roll_deg": [
+   -34.0,
+   34.0
+  ],
+  "scratch_per_hand": [
+   0,
+   1
+  ],
+  "scratch_drop_cm": [
+   18.0,
+   72.0
+  ],
+  "scratch_width_scale": [
+   0.22,
+   0.48
+  ],
+  "scratch_length_scale": [
+   1.8,
+   4.8
+  ],
+  "scratch_roll_deg": [
+   168.0,
+   192.0
+  ]
+ },
+ "cluster": {
+  "marks": [
+   2,
+   4
+  ],
+  "radius_cm": [
+   14.0,
+   35.0
+  ],
+  "smear_probability": 0.22
+ },
+ "drag": {
+  "probability_per_step": 0.25,
+  "drop_cm": [
+   28.0,
+   95.0
+  ],
+  "width_scale": [
+   0.35,
+   0.75
+  ],
+  "length_scale": [
+   1.4,
+   3.4
+  ]
+ },
+ "dark_presets": {
+  "dried_blood_core": {
+   "color_linear": [
+    0.155,
+    0.007,
+    0.005,
+    1.0
+   ],
+   "strength": 0.55,
+   "lo": 0.45,
+   "hi": 0.75,
+   "source": "Gary swatch E, 8 Oct"
+  },
+  "dried_blood_dark": {
+   "color_linear": [
+    0.155,
+    0.007,
+    0.005,
+    1.0
+   ],
+   "strength": 0.75,
+   "lo": 0.32,
+   "hi": 0.68,
+   "source": "visibility proposal; Gary must approve"
+  }
+ },
+ "dark_preset": "dried_blood_core",
+ "material": {
+  "sheen_dir": "/Game/Scenes/Scene3/HandPrints/Materials/Grease",
+  "sheen_prefix": "MI_HP_S03_g1_",
+  "source_tint_dir": "/Game/Scenes/Scene3/HandPrints/Materials/GreaseTint",
+  "source_tint_prefix": "MI_HP_S03_t1_",
+  "dark_dir": "/Game/Scenes/Scene3/HandPrints/Materials/GreaseDense",
+  "dark_prefix": "MI_HP_S03_d1_",
+  "dark_master": "/Game/Scenes/Scene3/HandPrints/Materials/GreaseTint/M_HP_S03_GreaseTint"
+ },
+ "variant": "many: ~15 shorter trails across the band (conductor 8 Oct; Gary asked for very, very many people)"
+}
