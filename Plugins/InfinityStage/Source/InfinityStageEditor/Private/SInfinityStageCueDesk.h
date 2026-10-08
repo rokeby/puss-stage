@@ -248,6 +248,13 @@ private:
     TSharedPtr<IDetailsView> PassageDetails;
     bool bNestedCueMode = true;
     bool bMusicWorkspaceVisible = true;
+    /** View menu panel toggles (Gary, 8 Oct): each panel can be hidden; persisted. */
+    bool bCueListVisible = true;
+    bool bCueDetailsVisible = true;
+    bool bInspectorVisible = true;
+    /** Cue list columns hidden from the header's right-click menu; persisted. */
+    TArray<FName> HiddenCueColumns;
+    TSharedPtr<class SHeaderRow> CueHeaderRow;
     float MainWorkspaceFraction = 0.80f;
     float MusicWorkspaceFraction = 0.20f;
     float CueListFraction = 0.28f;
