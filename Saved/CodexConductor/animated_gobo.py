@@ -37,6 +37,16 @@ asset, an existing owned track, or a stale DRY digest.  It writes a sequence
 backup and exclusive record before mutation, saves only named packages, and never
 calls Save All or deletes material expressions.
 
+Added 8 Oct (Gary via Finishing Touches: "make the light quite large against the curtain and fill that ... a
+rectangle too with soft edges"; "can't the gobo image block out light that's coming out of a beam, and take the
+boundaries of whatever that light is?"):
+  * a soft rectangular border (BorderDepth 0 = off: outside the image the beam passes, so the lit edge is the
+    beam's own edge; 1 = a black-outside, feathered BorderWidth x BorderWidth/BorderAspect rectangle);
+  * UVCentre: 0 for a SpotLight (cone UVs are 0..1 [decl] LightFunctionCommon.ush:45-50), 0.5 for lights whose
+    light-function UVs are light-space and centred on 0 (Rect/Point fall back to LightVector.xy, same file:41) [inf];
+  * an atlas-free master variant (args ``atlas_compatible``: false) because the atlas slot defaults to 32 px
+    [decl] LightFunctionAtlas.h:130, ~53 cm/px across a 17 m image.
+
 Tiers used below: [decl] engine header/shader; [prec] repository precedent;
 [inf] offline-authored call that the conductor must first exercise with DRY.
 """
@@ -61,8 +71,16 @@ MARK = "ANIMATED_GOBO"
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 ASSET_ROOT = "/Game/InfinityStage/Lighting/Gobo"
 MASTER = ASSET_ROOT + "/M_ShadowGobo_LightFunction"
+MASTER_NOATLAS = ASSET_ROOT + "/M_ShadowGobo_LightFunction_NoAtlas"
 MPC = ASSET_ROOT + "/MPC_ShadowGobo"
-SHARED_ASSETS = (MASTER, MPC)
+
+
+def master_for(atlas_compatible: bool) -> str:
+    return MASTER if atlas_compatible else MASTER_NOATLAS
+
+
+def shared_assets(plan: dict) -> tuple:
+    return (plan["master"], MPC)
 TRACK_NAME = "ShadowGobo Frame (Conductor)"
 FRAME_PARAMETER = "Frame"
 TEXTURE_PARAMETER = "FlipbookAtlas"
@@ -89,25 +107,42 @@ SCALAR_DEFAULTS = {
     "Scale": 1.0,
     "FlipU": 0.0,
     "FlipV": 0.0,
+    "UVCentre": 0.0,
+    "BorderDepth": 0.0,
+    "BorderWidth": 1.0,
+    "BorderAspect": 1.0,
+    "BorderFeather": 0.03,
 }
+LOOK_NAMES = ("BlurUV", "Softness", "Contrast", "Depth")
+BORDER_NAMES = ("BorderDepth", "BorderWidth", "BorderAspect", "BorderFeather")
 
 CODE_UV = """// Row-major atlas UV. Frame comes from Sequencer's MPC track.
 float count = max(1.0, Frames);
 float f = floor(clamp(Frame, 0.0, count - 1.0) + 1e-4);
 float col = fmod(f, max(1.0, Cols));
 float row = floor(f / max(1.0, Cols));
-float2 p = (UV - 0.5) / max(Scale, 1e-4) + 0.5;
+float2 p = (UV + UVCentre - 0.5) / max(Scale, 1e-4) + 0.5;
 p = lerp(p, 1.0 - p, saturate(float2(FlipU, FlipV)));
 float2 safe = saturate(p) * (1.0 - 2.0 * GutterUV) + GutterUV;
 return (float2(col, row) + safe) * CellUV;
 """
 
-CODE_EDGE = """// Softness is an edge transition, not an optical convolution.
+CODE_EDGE = """// Softness is an edge transition, not an optical convolution.  Border multiplies last.
 float w = max(1e-4, Softness);
 float shaped = smoothstep(0.5 - w, 0.5 + w, Mask);
 shaped = saturate((shaped - 0.5) * max(0.0, Contrast) + 0.5);
-return lerp(1.0, shaped, saturate(Depth));
+return lerp(1.0, shaped, saturate(Depth)) * Border;
 """
+
+CODE_BORDER = """// Soft rectangle in IMAGE space (1 = image width), centred; black outside when BorderDepth = 1.
+float2 q = abs((UV + UVCentre - 0.5) / max(Scale, 1e-4));
+float hx = 0.5 * max(BorderWidth, 1e-4);
+float hy = hx / max(BorderAspect, 1e-4);
+float f = max(BorderFeather, 1e-4);
+float rect = smoothstep(0.0, f, hx - q.x) * smoothstep(0.0, f, hy - q.y);
+return lerp(1.0, rect, saturate(BorderDepth));
+"""
+BORDER_INPUTS = ("UV", "UVCentre", "Scale") + BORDER_NAMES
 
 CODE_AVG = """// Five-tap cross blur; BlurUV offsets are clamped inside the 8 px source gutter.
 return (C + L + R + U + D) * 0.2;
@@ -183,7 +218,35 @@ def channel_is_frame(name) -> bool:
 def created_assets_for(plan: dict, existing_shared) -> list:
     """Shared assets are created only when absent; per-run assets are always created."""
     existing = set(existing_shared)
-    return [p for p in SHARED_ASSETS if p not in existing] + [plan["texture"], plan["mi"]]
+    return [p for p in shared_assets(plan) if p not in existing] + [plan["texture"], plan["mi"]]
+
+
+def border_mask(u, v, params) -> float:
+    """Python twin of CODE_BORDER (harness only)."""
+    def smooth(e0, e1, x):
+        t = min(max((x - e0) / (e1 - e0), 0.0), 1.0)
+        return t * t * (3.0 - 2.0 * t)
+    scale = max(params["Scale"], 1e-4)
+    qx, qy = abs((u + params["UVCentre"] - 0.5) / scale), abs((v + params["UVCentre"] - 0.5) / scale)
+    hx = 0.5 * max(params["BorderWidth"], 1e-4)
+    hy = hx / max(params["BorderAspect"], 1e-4)
+    f = max(params["BorderFeather"], 1e-4)
+    rect = smooth(0.0, f, hx - qx) * smooth(0.0, f, hy - qy)
+    depth = min(max(params["BorderDepth"], 0.0), 1.0)
+    return 1.0 + (rect - 1.0) * depth
+
+
+def max_scale_for_border(width, aspect) -> float:
+    """Largest Scale whose border rectangle still fits inside the spot's circular cone (UV radius 0.5).
+    Rect half-extents in UV are 0.5*W*S and 0.5*W*S/A, so S = 1 / (W * sqrt(1 + 1/A^2))."""
+    return 1.0 / (width * (1.0 + 1.0 / (aspect * aspect)) ** 0.5)
+
+
+def spot_half_angle_deg(image_width_m, distance_m, scale) -> float:
+    """Outer cone half-angle so the IMAGE (Scale x cone square) is image_width_m wide at distance_m.
+    Cone UV spans 2*D*tan(outer) [decl] LightFunctionCommon.ush:48-49 (x = tan of the cone angle [inf])."""
+    import math
+    return math.degrees(math.atan(image_width_m / (2.0 * distance_m * scale)))
 
 
 def timing_report(plan: dict, display_fps: float) -> dict:
@@ -200,15 +263,15 @@ def timing_report(plan: dict, display_fps: float) -> dict:
     return out
 
 
-def shared_asset_problems(desc: dict) -> list:
+def shared_asset_problems(desc: dict, master_path: str = MASTER, atlas_compatible: bool = True) -> list:
     """Validate an existing master/MPC before reuse.  ``desc`` is read live; pure so the harness can drive it."""
     out = []
     master, mpc = desc.get("master"), desc.get("mpc")
     if master is not None:
         if not master.get("domain_ok"):
             out.append("MASTER_DOMAIN")
-        if not master.get("atlas_compat"):
-            out.append("MASTER_ATLAS_COMPAT")
+        if bool(master.get("atlas_compat")) != bool(atlas_compatible):
+            out.append("MASTER_ATLAS_COMPAT|want %s" % bool(atlas_compatible))
         if sorted(master.get("scalars") or []) != sorted(SCALAR_DEFAULTS):
             out.append("MASTER_SCALARS|%s" % sorted(master.get("scalars") or []))
         if sorted(master.get("textures") or []) != [TEXTURE_PARAMETER]:
@@ -217,7 +280,7 @@ def shared_asset_problems(desc: dict) -> list:
         out.append("MPC_FRAME")
     if master is not None and mpc is None:
         out.append("MASTER_WITHOUT_MPC|master must read %s" % MPC)
-    if master is not None and mpc is not None and MASTER not in (desc.get("mpc_referencers") or []):
+    if master is not None and mpc is not None and master_path not in (desc.get("mpc_referencers") or []):
         out.append("MASTER_NOT_ON_MPC|%s" % desc.get("mpc_referencers"))
     return out
 
@@ -226,6 +289,7 @@ def normalized_args(raw: dict) -> dict:
     allowed = {
         "mode", "confirm", "run_id", "apply_run", "world", "sequence", "light_label", "light_labels",
         "atlas_png", "manifest", "mi_path", "texture_path", "frame_start", "frame_end", "params",
+        "atlas_compatible",
     }
     unknown = sorted(set(raw) - allowed)
     if unknown:
@@ -265,6 +329,9 @@ def normalized_args(raw: dict) -> dict:
         raise PlanError("ATLAS_MISSING|%s" % atlas_png)
     if not os.path.isfile(manifest):
         raise PlanError("MANIFEST_MISSING|%s" % manifest)
+    atlas_compatible = raw.get("atlas_compatible", True)
+    if not isinstance(atlas_compatible, bool):
+        raise PlanError("ATLAS_COMPATIBLE|need true or false|%r" % atlas_compatible)
     params = dict(raw.get("params") or {})
     unknown_params = sorted(set(params) - set(SCALAR_DEFAULTS))
     if unknown_params:
@@ -275,7 +342,7 @@ def normalized_args(raw: dict) -> dict:
         "world": _asset_path(str(raw.get("world", EXPECTED_WORLD))), "sequence": sequence,
         "light_labels": labels, "atlas_png": atlas_png, "manifest": manifest,
         "mi_path": mi_path, "texture_path": texture_path, "frame_start": start, "frame_end": end,
-        "params": params,
+        "params": params, "atlas_compatible": atlas_compatible,
     }
 
 
@@ -312,6 +379,10 @@ def plan_from_args(args: dict) -> dict:
     if not (0.0 <= params["BlurUV"] <= 0.003 and 0.0 <= params["Softness"] <= 0.49 and params["Contrast"] >= 0.0 and
             0.0 <= params["Depth"] <= 1.0 and params["Scale"] > 0.0):
         raise PlanError("LOOK_PARAMS|blur 0..0.003, softness 0..0.49, contrast >=0, depth 0..1, scale >0")
+    if not (0.0 <= params["BorderDepth"] <= 1.0 and 0.0 < params["BorderWidth"] <= 1.0 and
+            params["BorderAspect"] > 0.0 and 0.0 < params["BorderFeather"] <= 0.25 and
+            params["UVCentre"] in (0.0, 0.5)):
+        raise PlanError("BORDER_PARAMS|depth 0..1, width 0..1, aspect >0, feather 0..0.25, UVCentre 0 or 0.5")
     gutter_px = int(atlas.get("gutter_px", 0))
     # The blur taps step BlurUV in ATLAS uv; past the gutter they read the neighbouring frame.
     if gutter_px > 0 and params["BlurUV"] > gutter_px / float(px[0]):
@@ -322,8 +393,10 @@ def plan_from_args(args: dict) -> dict:
         "schema_version": 2, "run": args["run_id"], "world": args["world"], "sequence": args["sequence"],
         "light_labels": list(args["light_labels"]), "atlas_png": args["atlas_png"],
         "atlas_sha256": atlas_sha, "manifest": args["manifest"],
-        "shared_assets": list(SHARED_ASSETS), "own_assets": [args["texture_path"], args["mi_path"]],
-        "master": MASTER, "mpc": MPC, "mi": args["mi_path"], "texture": args["texture_path"],
+        "atlas_compatible": bool(args.get("atlas_compatible", True)),
+        "shared_assets": [master_for(args.get("atlas_compatible", True)), MPC],
+        "own_assets": [args["texture_path"], args["mi_path"]],
+        "master": master_for(args.get("atlas_compatible", True)), "mpc": MPC, "mi": args["mi_path"], "texture": args["texture_path"],
         "frame_parameter": FRAME_PARAMETER,
         # Display frames.  End value = Frames so each cell holds (end-start)/Frames frames; the shader clamps.
         "frame_keys": [[args["frame_start"], 0.0], [args["frame_end"], float(frames)]],
@@ -332,6 +405,12 @@ def plan_from_args(args: dict) -> dict:
         "atlas": {"px": px, "cols": cols, "rows": rows, "frames": frames,
                   "cell_px": int(atlas.get("cell_px", 0)), "gutter_px": int(atlas.get("gutter_px", 0))},
     }
+    if params["BorderDepth"] > 0.0 and params["UVCentre"] == 0.0:
+        # Corners of the border must stay inside the circular cone.
+        limit = max_scale_for_border(params["BorderWidth"], params["BorderAspect"])
+        if params["Scale"] > limit + 1e-6:
+            raise PlanError("BORDER_OUTSIDE_CONE|Scale %.4f > %.4f for width %.3f aspect %.3f" %
+                            (params["Scale"], limit, params["BorderWidth"], params["BorderAspect"]))
     plan["digest"] = _digest(plan)
     return plan
 
@@ -528,11 +607,11 @@ def _referencers(path):
         path, load_assets_to_confirm=True))
 
 
-def _describe_shared(existing_shared):
+def _describe_shared(existing_shared, master_path):
     mel = unreal.MaterialEditingLibrary
     desc = {"master": None, "mpc": None, "mpc_referencers": []}
-    if MASTER in existing_shared:
-        mat = unreal.load_asset(MASTER)
+    if master_path in existing_shared:
+        mat = unreal.load_asset(master_path)
         desc["master"] = {
             "domain_ok": mat is not None and
             mat.get_editor_property("material_domain") == unreal.MaterialDomain.MD_LIGHT_FUNCTION,
@@ -547,11 +626,11 @@ def _describe_shared(existing_shared):
     return desc
 
 
-def _live_state(args, seq, run_for_record):
+def _live_state(args, seq, run_for_record, plan):
     editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     world = editor.get_editor_world()
     bindings = _bindings(seq, args["light_labels"])
-    existing_shared = [p for p in SHARED_ASSETS if unreal.EditorAssetLibrary.does_asset_exist(p)]
+    existing_shared = [p for p in shared_assets(plan) if unreal.EditorAssetLibrary.does_asset_exist(p)]
     state = {
         "pie": editor.get_game_world() is not None,
         "sequencer_open": unreal.LevelSequenceEditorBlueprintLibrary.get_current_level_sequence() is not None,
@@ -560,7 +639,8 @@ def _live_state(args, seq, run_for_record):
         "existing_own": [p for p in (args["texture_path"], args["mi_path"])
                          if unreal.EditorAssetLibrary.does_asset_exist(p)],
         "existing_shared": existing_shared,
-        "shared_problems": shared_asset_problems(_describe_shared(existing_shared)),
+        "shared_problems": shared_asset_problems(_describe_shared(existing_shared, plan["master"]),
+                                                 plan["master"], plan["atlas_compatible"]),
         "owned_track_count": len(_owned_tracks(seq)),
         "record_exists": os.path.isfile(record_file(_here(), run_for_record)),
         "playback": [int(seq.get_playback_start()), int(seq.get_playback_end())],
@@ -592,15 +672,16 @@ def _create_mpc(tools, run):
     return obj
 
 
-def _create_master(tools, texture, mpc, run):
-    folder, name = MASTER.rsplit("/", 1)
+def _create_master(tools, texture, mpc, plan, run):
+    folder, name = plan["master"].rsplit("/", 1)
     mat = tools.create_asset(name, folder, unreal.Material, unreal.MaterialFactoryNew())
     mel = unreal.MaterialEditingLibrary
     if mat is None or int(mel.get_num_material_expressions(mat)) != 0:
         _stop(run, "CREATE_MASTER")
     mat.set_editor_property("material_domain", unreal.MaterialDomain.MD_LIGHT_FUNCTION)
     mat.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_UNLIT)
-    mat.set_editor_property("force_compatible_with_light_function_atlas", True)  # [decl] Material.h:920-927
+    # [decl] Material.h:920-925: the flag forces deferred lights onto the batched (atlas) path.
+    mat.set_editor_property("force_compatible_with_light_function_atlas", bool(plan["atlas_compatible"]))
     nodes = {}
 
     def node(key, cls, x, y, **props):
@@ -616,19 +697,22 @@ def _create_master(tools, texture, mpc, run):
     node("Frame", unreal.MaterialExpressionCollectionParameter, -1500, -550,
          collection=mpc, parameter_name=FRAME_PARAMETER)
     for index, (name, value) in enumerate(SCALAR_DEFAULTS.items()):
-        if name in ("BlurUV", "Softness", "Contrast", "Depth"):
+        if name in LOOK_NAMES or name in BORDER_NAMES:
             continue
         node(name, unreal.MaterialExpressionScalarParameter, -1500, -350 + 100 * index,
              parameter_name=name, default_value=float(value), group="01 Atlas")
-    uv_inputs = ["UV", "Frame", "Cols", "Rows", "Frames", "GutterUV", "CellUV", "Scale", "FlipU", "FlipV"]
+    uv_inputs = ["UV", "Frame", "Cols", "Rows", "Frames", "GutterUV", "CellUV", "Scale", "FlipU", "FlipV", "UVCentre"]
     node("AtlasUV", unreal.MaterialExpressionCustom, -900, -250, description="ShadowGobo atlas frame UV",
          code=CODE_UV, output_type=unreal.CustomMaterialOutputType.CMOT_FLOAT2,
          inputs=[_custom_input(v) for v in uv_inputs])
     node("Atlas", unreal.MaterialExpressionTextureSampleParameter2D, -550, -200, parameter_name=TEXTURE_PARAMETER,
          texture=texture, sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_GRAYSCALE, group="01 Atlas")
-    for index, name in enumerate(("BlurUV", "Softness", "Contrast", "Depth")):
+    for index, name in enumerate(LOOK_NAMES):
         node(name, unreal.MaterialExpressionScalarParameter, -500, 100 + index * 110,
              parameter_name=name, default_value=float(SCALAR_DEFAULTS[name]), group="02 Look")
+    for index, name in enumerate(BORDER_NAMES):
+        node(name, unreal.MaterialExpressionScalarParameter, -500, 600 + index * 110,
+             parameter_name=name, default_value=float(SCALAR_DEFAULTS[name]), group="03 Border")
     offsets = {"L": (-1.0, 0.0), "R": (1.0, 0.0), "U": (0.0, -1.0), "D": (0.0, 1.0)}
     for index, (suffix, direction) in enumerate(offsets.items()):
         code = "return P + float2(%.1f, %.1f) * clamp(BlurUV, 0.0, 0.003);" % direction
@@ -644,7 +728,10 @@ def _create_master(tools, texture, mpc, run):
          inputs=[_custom_input(v) for v in ("C", "L", "R", "U", "D")])
     node("Edge", unreal.MaterialExpressionCustom, -100, 0, description="ShadowGobo softness contrast depth",
          code=CODE_EDGE, output_type=unreal.CustomMaterialOutputType.CMOT_FLOAT1,
-         inputs=[_custom_input(v) for v in ("Mask", "Softness", "Contrast", "Depth")])
+         inputs=[_custom_input(v) for v in ("Mask", "Softness", "Contrast", "Depth", "Border")])
+    node("Border", unreal.MaterialExpressionCustom, -300, 650, description="ShadowGobo soft rectangle border",
+         code=CODE_BORDER, output_type=unreal.CustomMaterialOutputType.CMOT_FLOAT1,
+         inputs=[_custom_input(v) for v in BORDER_INPUTS])
     for src in uv_inputs:
         if not mel.connect_material_expressions(nodes[src], "", nodes["AtlasUV"], src):
             _stop(run, "CONNECT|%s->AtlasUV.%s" % (src, src))
@@ -666,6 +753,11 @@ def _create_master(tools, texture, mpc, run):
     for name in ("Softness", "Contrast", "Depth"):
         if not mel.connect_material_expressions(nodes[name], "", nodes["Edge"], name):
             _stop(run, "CONNECT|%s->Edge.%s" % (name, name))
+    for src in BORDER_INPUTS:
+        if not mel.connect_material_expressions(nodes[src], "", nodes["Border"], src):
+            _stop(run, "CONNECT|%s->Border.%s" % (src, src))
+    if not mel.connect_material_expressions(nodes["Border"], "", nodes["Edge"], "Border"):
+        _stop(run, "CONNECT|Border->Edge.Border")
     if not mel.connect_material_property(nodes["Edge"], "", unreal.MaterialProperty.MP_EMISSIVE_COLOR):
         _stop(run, "CONNECT_PROPERTY|Emissive")
     mel.recompile_material(mat)
@@ -728,9 +820,10 @@ def _add_frame_track(seq, mpc, plan, ticks_per_frame, run):
 def _verify_assets(plan, seq, record, run):
     failures = []
     mel = unreal.MaterialEditingLibrary
-    failures.extend(shared_asset_problems(_describe_shared(
-        [p for p in SHARED_ASSETS if unreal.EditorAssetLibrary.does_asset_exist(p)])))
-    for path in SHARED_ASSETS:
+    present = [p for p in shared_assets(plan) if unreal.EditorAssetLibrary.does_asset_exist(p)]
+    failures.extend(shared_asset_problems(_describe_shared(present, plan["master"]),
+                                          plan["master"], plan["atlas_compatible"]))
+    for path in shared_assets(plan):
         if not unreal.EditorAssetLibrary.does_asset_exist(path):
             failures.append("SHARED_MISSING|%s" % path)
     tex, mi = unreal.load_asset(plan["texture"]), unreal.load_asset(plan["mi"])
@@ -762,19 +855,24 @@ def run_dry(args, plan, run):
     missing = sorted(k for k, value in probe.items() if not value)
     if missing:
         _stop(run, "PYTHON_API_MISSING|%s" % missing)
-    state = _live_state(args, seq, run)
+    state = _live_state(args, seq, run, plan)
     refusals = preflight_refusals("DRY", args, state, plan)
     timing = timing_report(plan, state["display_fps"]) if state["display_fps"] else None
+    border = None
+    if plan["params"]["BorderDepth"] > 0.0:
+        border = {"max_scale_in_cone": max_scale_for_border(plan["params"]["BorderWidth"], plan["params"]["BorderAspect"])}
     report = {"run": run, "mode": "DRY", "plan": plan, "state": state, "api_probe": probe, "timing": timing,
+              "border": border,
               "created_assets": created_assets_for(plan, state["existing_shared"]),
               "refusals": refusals, "apply_ready": not refusals}
     _write_json(plan_file(_here(), run), report)
     if _census() != {"content": [], "maps": []}:
         _stop(run, "DRY_DIRTIED|%s" % _census())
-    marker = "%s_DRY_OK|run=%s|apply_ready=%d|refusals=%d|digest=%s|labels=%d|frames=%d|range=%s|reuse=%s|tpf=%s" % (
+    marker = "%s_DRY_OK|run=%s|apply_ready=%d|refusals=%d|digest=%s|labels=%d|frames=%d|range=%s|reuse=%s|tpf=%s|master=%s|border=%.2f" % (
         MARK, run, int(not refusals), len(refusals), plan["digest"], len(plan["light_labels"]),
         plan["atlas"]["frames"], plan["sequence_range_requested"],
-        ",".join(p.rsplit("/", 1)[1] for p in state["existing_shared"]) or "none", state["ticks_per_frame"])
+        ",".join(p.rsplit("/", 1)[1] for p in state["existing_shared"]) or "none", state["ticks_per_frame"],
+        plan["master"].rsplit("/", 1)[1], plan["params"]["BorderDepth"])
     unreal.log(marker)
     if timing and "speed_vs_take" in timing and abs(timing["speed_vs_take"] - 1.0) > SPEED_WARN:
         unreal.log_warning("%s_TIMING|run=%s|speed_vs_take=%.3f|native_frame_end=%d|display_fps=%.3f" % (
@@ -787,7 +885,7 @@ def run_apply(args, plan, run):
     seq = unreal.load_asset(args["sequence"])
     if seq is None or not isinstance(seq, unreal.LevelSequence):
         _stop(run, "SEQUENCE_MISSING|%s" % args["sequence"])
-    state = _live_state(args, seq, run)
+    state = _live_state(args, seq, run, plan)
     refusals = preflight_refusals("APPLY", args, state, plan)
     dry = _load_json(plan_file(_here(), run)) or {}
     if (dry.get("plan") or {}).get("digest") != plan["digest"] or not dry.get("apply_ready"):
@@ -825,7 +923,7 @@ def run_apply(args, plan, run):
     tools = unreal.AssetToolsHelpers.get_asset_tools()
     texture = _import_texture(args, run)
     mpc = _create_mpc(tools, run) if MPC in created else unreal.load_asset(MPC)
-    mat = _create_master(tools, texture, mpc, run) if MASTER in created else unreal.load_asset(MASTER)
+    mat = _create_master(tools, texture, mpc, plan, run) if plan["master"] in created else unreal.load_asset(plan["master"])
     if mpc is None or mat is None:
         _stop(run, "SHARED_LOAD|mpc=%s|master=%s|NOTHING SAVED; Don't-Save restart" % (mpc, mat))
     mi = _create_mi(tools, mat, texture, plan, run)
@@ -866,7 +964,7 @@ def run_verify(args, run):
     plan = record["plan"]
     seq = unreal.load_asset(plan["sequence"])
     state = _live_state(dict(args, light_labels=plan["light_labels"], texture_path=plan["texture"], mi_path=plan["mi"]),
-                        seq, args["apply_run"])
+                        seq, args["apply_run"], plan)
     refusals = preflight_refusals("VERIFY", args, state, plan)
     if refusals:
         _stop(run, "REFUSED|" + " || ".join(refusals))
@@ -887,7 +985,7 @@ def run_revert(args, run):
     created = list(record["created_assets"])
     seq = unreal.load_asset(plan["sequence"])
     state = _live_state(dict(args, light_labels=plan["light_labels"], texture_path=plan["texture"], mi_path=plan["mi"]),
-                        seq, args["apply_run"])
+                        seq, args["apply_run"], plan)
     refusals = preflight_refusals("REVERT", args, state, plan)
     if refusals:
         _stop(run, "REFUSED|" + " || ".join(refusals))

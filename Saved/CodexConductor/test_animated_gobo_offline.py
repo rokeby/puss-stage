@@ -140,7 +140,7 @@ for label, delta, code in cases:
     check("C -control %s" % label, any(code in row for row in got), got)
 bad_confirm = dict(ARGS, confirm="APPLY ANIMATED_GOBO")
 check("C12 -control confirm mismatch", any("CONFIRM_MISMATCH" in row for row in ag.preflight_refusals("DRY", bad_confirm, CLEAN, PLAN)))
-verify_state = dict(CLEAN, record_exists=True, existing_own=PLAN["own_assets"], existing_shared=list(ag.SHARED_ASSETS))
+verify_state = dict(CLEAN, record_exists=True, existing_own=PLAN["own_assets"], existing_shared=list(ag.shared_assets(PLAN)))
 check("C13 VERIFY allows its recorded assets to exist", ag.preflight_refusals("VERIFY", dict(ARGS, confirm="VERIFY ANIMATED_GOBO"), verify_state, PLAN) == [])
 check("C14 -control VERIFY without record", any("NOTHING_TO_VERIFY" in r for r in ag.preflight_refusals(
     "VERIFY", dict(ARGS, confirm="VERIFY ANIMATED_GOBO"), CLEAN, PLAN)))
@@ -205,6 +205,14 @@ GOOD = {"master": {"domain_ok": True, "atlas_compat": True, "scalars": list(ag.S
                    "textures": [ag.TEXTURE_PARAMETER]},
         "mpc": {"scalars": ["Frame"]}, "mpc_referencers": [ag.MASTER]}
 check("F11 valid shared assets pass", ag.shared_asset_problems(GOOD) == [])
+check("F11b -control atlas master offered for a no-atlas plan", any("MASTER_ATLAS_COMPAT" in r for r in
+      ag.shared_asset_problems(GOOD, ag.MASTER, atlas_compatible=False)))
+NOATLAS_GOOD = copy.deepcopy(GOOD)
+NOATLAS_GOOD["master"]["atlas_compat"] = False
+NOATLAS_GOOD["mpc_referencers"] = [ag.MASTER_NOATLAS]
+check("F11c valid no-atlas master passes", ag.shared_asset_problems(NOATLAS_GOOD, ag.MASTER_NOATLAS, False) == [])
+check("F11d -control no-atlas master not reading MPC", any("MASTER_NOT_ON_MPC" in r for r in
+      ag.shared_asset_problems(dict(NOATLAS_GOOD, mpc_referencers=[ag.MASTER]), ag.MASTER_NOATLAS, False)))
 check("F12 nothing existing passes", ag.shared_asset_problems({"master": None, "mpc": None}) == [])
 bad_cases = [
     ("wrong domain", lambda d: d["master"].update(domain_ok=False), "MASTER_DOMAIN"),
@@ -220,6 +228,54 @@ for label, mutate, code in bad_cases:
     mutate(desc)
     got = ag.shared_asset_problems(desc)
     check("F -control shared %s" % label, any(code in row for row in got), got)
+
+# G. Border, UV centring, atlas variant, cone geometry (Gary 8 Oct: large soft-edged rectangle filling the curtain).
+NOATLAS = ag.plan_from_args(ag.normalized_args(dict(RAW, atlas_compatible=False)))
+check("G01 atlas_compatible=false selects the no-atlas master", NOATLAS["master"] == ag.MASTER_NOATLAS and
+      ag.created_assets_for(NOATLAS, [ag.MASTER, ag.MPC])[0] == ag.MASTER_NOATLAS)
+check("G02 default stays on the atlas master", PLAN["master"] == ag.MASTER and PLAN["atlas_compatible"] is True)
+check("G02b atlas choice changes the digest", NOATLAS["digest"] != PLAN["digest"])
+raises("G03 -control atlas_compatible must be a bool", "ATLAS_COMPATIBLE",
+       lambda: ag.normalized_args(dict(RAW, atlas_compatible="no")))
+check("G04 border defaults off (beam keeps its own edge)", PLAN["params"]["BorderDepth"] == 0.0)
+BORDER = dict(PLAN["params"], BorderDepth=1.0, BorderWidth=1.0, BorderAspect=1.88, BorderFeather=0.03, Scale=0.85)
+check("G05 border centre is lit", abs(ag.border_mask(0.5, 0.5, BORDER) - 1.0) < 1e-9)
+# Image half-width in cone UV = 0.5*Scale; height = width/1.88.
+hx, hy = 0.5 * 0.85, 0.5 * 0.85 / 1.88
+check("G06 outside the rectangle is black (x)", ag.border_mask(0.5 + hx + 0.01, 0.5, BORDER) == 0.0)
+check("G07 outside the rectangle is black (y)", ag.border_mask(0.5, 0.5 + hy + 0.01, BORDER) == 0.0)
+check("G08 inside height is lit: aspect works", ag.border_mask(0.5, 0.5 + hy - 0.04, BORDER) > 0.99)
+inner = ag.border_mask(0.5 + hx - 0.005, 0.5, BORDER)
+check("G09 feather is a soft ramp, not a hard edge", 0.0 < inner < 1.0, inner)
+ramp = [ag.border_mask(0.5 + hx - d, 0.5, BORDER) for d in (0.0, 0.005, 0.01, 0.02, 0.03)]
+check("G10 feather ramp is monotonic", all(a <= b for a, b in zip(ramp, ramp[1:])) and ramp[0] == 0.0, ramp)
+check("G11 BorderDepth 0 passes light everywhere (control for G06)",
+      ag.border_mask(0.5 + hx + 0.01, 0.5, dict(BORDER, BorderDepth=0.0)) == 1.0)
+RECTL = dict(BORDER, UVCentre=0.5)
+check("G12 UVCentre 0.5 centres the border on UV 0 (light-space UVs)",
+      abs(ag.border_mask(0.0, 0.0, RECTL) - 1.0) < 1e-9 and ag.border_mask(0.5, 0.5, RECTL) == 0.0)
+check("G13 max Scale: square in circle = 0.7071", abs(ag.max_scale_for_border(1.0, 1.0) - 0.5 ** 0.5) < 1e-9)
+check("G14 max Scale: 1.88 rectangle in circle = 0.8829", abs(ag.max_scale_for_border(1.0, 1.88) - 0.88287) < 1e-4)
+corner = (0.5 * ag.max_scale_for_border(1.0, 1.88)) ** 2 * (1 + 1 / 1.88 ** 2)
+check("G15 at max Scale the border corner sits on the cone circle (r=0.5)", abs(corner - 0.25) < 1e-9, corner)
+raises("G16 -control border corners outside the cone", "BORDER_OUTSIDE_CONE", lambda: ag.plan_from_args(
+    ag.normalized_args(dict(RAW, params={"BorderDepth": 1.0, "BorderAspect": 1.88, "Scale": 0.95}))))
+check("G17 border at Scale 0.85 plans", ag.plan_from_args(ag.normalized_args(dict(
+    RAW, params={"BorderDepth": 1.0, "BorderAspect": 1.88, "Scale": 0.85})))["params"]["Scale"] == 0.85)
+check("G18 cone-limit check skipped for light-space UVs (no cone)", ag.plan_from_args(ag.normalized_args(dict(
+    RAW, params={"BorderDepth": 1.0, "BorderAspect": 1.88, "Scale": 0.95, "UVCentre": 0.5})))["params"]["UVCentre"] == 0.5)
+raises("G19 -control UVCentre other than 0 / 0.5", "BORDER_PARAMS", lambda: ag.plan_from_args(
+    ag.normalized_args(dict(RAW, params={"UVCentre": 0.25}))))
+raises("G20 -control zero feather", "BORDER_PARAMS", lambda: ag.plan_from_args(
+    ag.normalized_args(dict(RAW, params={"BorderFeather": 0.0}))))
+a17 = ag.spot_half_angle_deg(17.0, 30.0, 0.8829)
+a07 = ag.spot_half_angle_deg(17.0, 30.0, 0.7071)
+check("G21 17 m image at 30 m: ~17.8 deg at Scale 0.883 vs ~21.8 deg at 0.707",
+      abs(a17 - 17.79) < 0.05 and abs(a07 - 21.84) < 0.05, (a17, a07))
+check("G22 border shader and Python twin share the formula", "smoothstep(0.0, f, hx - q.x) * smoothstep(0.0, f, hy - q.y)"
+      in ag.CODE_BORDER and "rect = smooth(0.0, f, hx - qx) * smooth(0.0, f, hy - qy)" in (HERE / "animated_gobo.py").read_text(encoding="utf-8"))
+check("G23 border multiplies the final output", "* Border;" in ag.CODE_EDGE)
+check("G24 UV maths centring matches the border", "(UV + UVCentre - 0.5)" in ag.CODE_UV and "(UV + UVCentre - 0.5)" in ag.CODE_BORDER)
 
 # E. Static safety contract: cheap but catches accidental erosion of house rules.
 source = (HERE / "animated_gobo.py").read_text(encoding="utf-8")
