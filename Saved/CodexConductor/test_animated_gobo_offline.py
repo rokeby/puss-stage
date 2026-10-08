@@ -288,6 +288,9 @@ check("E04 record is exclusive before mutation", "_write_json(record_path, recor
 check("E05 APPLY requires independent VERIFY", "APPLY_OK_PENDING_VERIFY" in source and "def run_verify" in source)
 check("E06 success marker is generated from MARK", '"%s_SUCCESS|run=%s' in source)
 check("E07 revert backs up before delete", source.index("PreAnimatedGoboRevert") < source.index("delete_asset(path)"))
+check("E07b revert deletes before it saves the sequence (delete re-dirties referencers)",
+      source.index("delete_asset(path)") < source.rindex('save_asset(plan["sequence"], only_if_is_dirty=False)') <
+      source.index("REVERT_FINAL_CENSUS"))
 check("E08 runner purges Saved module cache", "sys.modules.pop" in runner and "runpy.run_path" in runner)
 check("E09 offline import did not load Unreal", ag.unreal is None)
 check("E10 revert refuses external referencers before delete", source.index("REVERT_EXTERNAL_REFERENCERS") < source.index("delete_asset(path)"))
