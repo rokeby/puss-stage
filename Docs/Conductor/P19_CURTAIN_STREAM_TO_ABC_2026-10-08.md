@@ -93,3 +93,19 @@ Require `CURTAIN_STREAM_TO_ABC_REVERT_SUCCESS`.
     re-measuring U7 + a collider-penetration check;
   - (b) re-bake with QUALITY ~40, SELF_DIST ~0.015-0.018 m, mass scaled to the mesh (~7 h+);
   - (c) both.
+
+## Smoothing trial, 8 Oct evening (Conductor 5; Gary: "try the smooth then")
+- stream_lowpass.py --from 266 (window 9, ramp 12) → unfurl_sleight_b1hop10_p02s_stream.f32. Source hash unchanged
+  [meas].
+- Reversing share 60% → 0.4-6.7%; median step 8 → 0.8-1.2 mm/f [meas, tool].
+- Last 30 frames, per-vertex max motion [meas]:
+  - raw: max 391, p99 122, median 19 mm/f;
+  - smoothed: max 74, p99 27, median 2.2 mm/f; 24,100 of 45,430 verts still > 2 mm/f.
+  - min z 0.1999 (no floor penetration).
+- stream_to_abc DRY on p02s: DRY_OK, unfurl_gates_pass=false (U7 still > 2 mm; U2 unchanged since frames < 266 are
+  bit-identical).
+- Preview (Blender workbench, front ortho, frames 250-390): DropBake/p02_raw_vs_smoothed.mp4; frames in preview_p02s/.
+- [inferred from the preview still] BOTH raw and smoothed show pinched, knotted crease artefacts in a band about 1/3
+  up the curtain. That is a simulation defect: plausibly self-collision thickness 0.03 m against 9.1 cm quads (the
+  log's own >0.2 warning) snagging folds. Smoothing cannot remove it, so a re-bake (QUALITY ~40, SELF_DIST
+  ~0.015-0.018 m, mass scaled) is the real fix.
