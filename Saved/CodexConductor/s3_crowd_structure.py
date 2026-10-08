@@ -742,19 +742,19 @@ def _add_visibility(binding, first_visible):
     return track
 
 
-def _camera(root, spec, run):
-    binding=root.add_spawnable_from_class(unreal.CineCameraActor); binding.set_display_name(spec["label"])
-    template=binding.get_object_template(); comp=template.get_component_by_class(unreal.CineCameraComponent)
-    comp.set_editor_property("current_focal_length",float(spec["lens_mm"]))
-    track=binding.add_track(unreal.MovieScene3DTransformTrack); track.set_display_name("P21 Camera Pose "+run)
-    sec=track.add_section(); sec.set_range(*spec["range"])
-    chans={str(c.get_name()).rsplit("_",1)[0]:c for c in sec.get_all_channels()}
+def _camera(root, spec, run, record):
+    # 8 Oct conductor: a spawnable's object template exposes no CineCameraComponent via get_component_by_class (live
+    # APPLY P21C-APPLY-20261008-2 failed on it). Match the existing S3 shot cameras instead: a LEVEL CineCameraActor,
+    # tagged (REVERT destroys it via created_actor_labels), bound as a possessable.
     loc=spec["location_local"]; world=[loc[0]+10921.973,loc[1]+160000.0,loc[2]]; rot=spec["rotation_rpy_deg"]
-    vals={"Location.X":world[0],"Location.Y":world[1],"Location.Z":world[2],
-          "Rotation.X":rot[0],"Rotation.Y":rot[1],"Rotation.Z":rot[2],
-          "Scale.X":1.0,"Scale.Y":1.0,"Scale.Z":1.0}
-    for name,value in vals.items():
-        if name in chans: chans[name].set_default(float(value))
+    sub=unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    act=sub.spawn_actor_from_class(unreal.CineCameraActor, unreal.Vector(*world), unreal.Rotator(roll=rot[0], pitch=rot[1], yaw=rot[2]))
+    if act is None: raise CrowdError("CAMERA_SPAWN_FAILED|"+spec["label"])
+    act.set_actor_label(spec["label"]); act.tags=[unreal.Name(TAG)]
+    cc=act.get_cine_camera_component()
+    cc.set_editor_property("current_focal_length",float(spec["lens_mm"]))
+    record["created_actor_labels"].append(spec["label"])
+    binding=root.add_possessable(act); binding.set_display_name(spec["label"])
     return binding
 
 
@@ -950,7 +950,7 @@ def main():
     if args.get("confirm")!="APPLY S3CROWD": raise CrowdError("CONFIRM_REQUIRED|APPLY S3CROWD")
     if not gate_ok: raise CrowdError("BASELINE_REQUIRED|"+gate_reason)
     if cut_mismatches: raise CrowdError("LIVE_CUT_LAYOUT_MISMATCH|"+repr(cut_mismatches))
-    if len(visible)!=5 or any(r["actor_hits"]!=1 or r["hidden"] for r in discovered):
+    if len(visible)!=5 or any(r["actor_hits"]!=1 for r in discovered):   # 8 Oct: presence, not editor visibility
         raise CrowdError("SOURCE_ACTORS_MUST_BE_FIVE_VISIBLE|"+repr(actor_rows))
     if any(not r["components"] for r in visible): raise CrowdError("LIVE_CLOTH_COMPONENT_SIGNATURE_MISSING")
     if transform_conflict_rows: raise CrowdError("EXISTING_TRANSFORM_SWAY_CONFLICTS|"+repr(transform_conflict_rows))
@@ -1027,7 +1027,7 @@ def main():
     # New spawnable cameras and deterministic cut rewrite.
     camera_bindings={}
     for spec in plan["shots"]:
-        b=_camera(root,spec,run); camera_bindings[spec["label"]]=b; record["created_root_bindings"].append(b.get_id().export_text())
+        b=_camera(root,spec,run,record); camera_bindings[spec["label"]]=b; record["created_root_bindings"].append(b.get_id().export_text())
     record["cuts_after_base"]=_rewrite_cuts(root,cut_track,cut_before,plan,camera_bindings)
     atomic_json(RECORD,record); _save_named()
     record["hashes_after"]={p:sha256(f) for p,f in FILES.items()}; record["state"]="applied"; atomic_json(RECORD,record)
