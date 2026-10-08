@@ -227,6 +227,44 @@ n_after = len(F.follow_placements(cs1_after, {c["guid"]: IDENT for c in cs1}, {c
 removed = sum(1 for t in rp1["targets"] for c in t["changes"] if c["what"] in ("LIGHT_DISABLED", "CORD_FROM_RETIRED_LIGHT", "GLIMMER_LIGHT_TO_CORD"))
 check("D9 housings removed == retired lights (%d -> %d, %d retired)" % (n_before, n_after, removed), n_before - n_after == removed)
 
+moved_bulbs = [c for v in plans.values() for t in v[2]["targets"] for c in t["changes"]
+               if c["what"].startswith(("BULB_", "GLIMMER_TO_BULB_"))]
+check("D10 glow mode: every relocated bulb gets emissive control plus its own dim point light",
+      moved_bulbs and all(c["after"]["ext"]["body"]["follow_light"]
+                          and c["after"]["ext"]["body"]["emit_point_light"]
+                          and c["after"]["ext"]["body"]["point_light_lumens"] == F.RELOCATE_DEFAULTS["point_light_lumens"]
+                          for c in moved_bulbs))
+no_glow = copy.deepcopy(F.RELOCATE_DEFAULTS)
+no_glow["glow_mode"] = "OFF"
+no_glow_plan = F.relocate_plan("P01", cs1, TABLE, meta1["derived_index"], no_glow)
+check("D10- control: glow OFF does not author a bulb-owned point light",
+      all("emit_point_light" not in ((c["after"].get("ext") or {}).get("body") or {})
+          for t in no_glow_plan["targets"] for c in t["changes"] if c["what"].startswith(("BULB_", "GLIMMER_TO_BULB_"))))
+check("D11 cord sway: every hanging bulb links to its own cord; ground bulbs stay static",
+      all(bool(c["after"]["ext"]["body"]["swing_on_cord"]) == ("HANG" in c["what"])
+          and ("HANG" not in c["what"] or c["after"]["ext"]["body"]["cord_attachment_guid"] == c["cord_guid"])
+          for c in moved_bulbs))
+static_opts = copy.deepcopy(F.RELOCATE_DEFAULTS)
+static_opts["cord_sway_mode"] = "STATIC"
+static_plan = F.relocate_plan("P01", cs1, TABLE, meta1["derived_index"], static_opts)
+check("D11- control: STATIC leaves every hanging bulb unswayed",
+      not any(c["after"]["ext"]["body"].get("swing_on_cord") for t in static_plan["targets"] for c in t["changes"]
+              if c["what"].startswith(("BULB_", "GLIMMER_TO_BULB_"))))
+bad_link = copy.deepcopy(rp1)
+bad_hang = next(c for t in bad_link["targets"] for c in t["changes"] if "HANG" in c["what"])
+bad_hang["after"]["ext"]["body"]["cord_attachment_guid"] = "F" * 32
+check("D12- control: a bulb linked to the wrong cord is caught",
+      any(b[0] == "CORD_LINK" for b in F.relocate_checks(bad_link, TABLE)))
+TOOL["_require_body_readback"].__globals__["F"] = F
+TOOL["_require_body_readback"](want1, copy.deepcopy(want1), "harness")
+check("D13 Body extension read-back accepts the exact planned glow/sway values", True)
+bad_body_read = copy.deepcopy(want1)
+victim_cue = next(t["cue_guid"] for t in rp1["targets"] for c in t["changes"] if c["what"].startswith("BULB_"))
+victim_guid = next(c["guid"] for t in rp1["targets"] for c in t["changes"] if c["what"].startswith("BULB_"))
+next(r for r in bad_body_read[victim_cue] if r["guid"] == victim_guid)["ext"]["body"]["point_light_lumens"] += 1.0
+check("D13- control: a point-light setter/read-back lie is caught",
+      raises(lambda: TOOL["_require_body_readback"](want1, bad_body_read, "harness"), "BODY_READBACK"))
+
 # ---------------------------------------------------------------- E: scores config
 scores = json.load(open(os.path.join(F.CONDUCTOR, "lighting_scores.json"), encoding="utf-8"))
 new, removed_slots = F.scores_without_glimmer(scores)

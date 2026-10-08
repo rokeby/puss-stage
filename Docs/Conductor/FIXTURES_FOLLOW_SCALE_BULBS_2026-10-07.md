@@ -1,5 +1,10 @@
 # Fixtures: follow the aim, scale x3, bulbs out of the cans (7 Oct 2026)
 
+> **8 Oct P4 continuation:** [`P4_FIXTURES_DELIVERY_2026-10-08.md`](P4_FIXTURES_DELIVERY_2026-10-08.md) adds the
+> proposal JSONs/overheads, bulb-owned dim point lights, deterministic cord sway and the 53/53 harness. The 7 Oct
+> counts and mechanism analysis below remain the baseline; where it says relocated bulbs are emissive-only or the
+> harness is 46/46, the 8 Oct delivery supersedes it. Nothing has been applied in Unreal.
+
 Tooling is in `Saved/CodexConductor/FixturesFollow/`. Nothing has been run in the editor. No Show, level or config write
 has been made, and nothing is committed. The offline harness passes (46 checks, every one with a negative control).
 

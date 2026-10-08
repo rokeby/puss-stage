@@ -474,6 +474,21 @@ RELOCATE_DEFAULTS = {
     "glimmer": "HANG_AT_SPOT",         # HANG_AT_SPOT | GROUND_UNDER_SPOT | OFF
     "glimmer_bulb_scale": None,        # None = the passage's current Meshy bulb scale (3.2, or 9.6 after SCALE)
     "glimmer_mesh": "PASSAGE_DERIVED",  # PASSAGE_DERIVED (a tinted SM_FX bulb already in the passage) | FIXTURE
+    "glow_mode": "FILAMENT_AND_POINT", # FILAMENT_AND_POINT | EMISSIVE_ONLY | OFF
+    "emissive_full_intensity": 3.0,      # creative default; Gary approves from the preview / first live still
+    "glow_flicker": "SLIGHT",           # STABLE | SLIGHT | FAIL
+    "glow_flicker_rate_hz": 11.0,
+    "glow_slight_depth": 0.08,
+    "point_light_lumens": 24.0,          # dim reflection/specular helper owned by the bulb actor
+    "point_light_attenuation_radius_cm": 450.0,
+    "point_light_source_radius_cm": 8.0,
+    "point_light_soft_source_radius_cm": 18.0,
+    "point_light_temperature_kelvin": 2200.0,
+    "cord_sway_mode": "DETERMINISTIC_SINE",  # DETERMINISTIC_SINE | STATIC
+    "sway_yaw_amplitude_degrees": 2.5,
+    "sway_pitch_amplitude_degrees": 1.5,
+    "sway_period_seconds": 7.0,
+    "sway_seed": 20261008,
     "grid": {"height_cm": 1150.0, "beam_depth_cm": 180.0, "beam_width_cm": 80.0, "half_width_cm": 1350.0},
 }
 GLIMMER_LIGHT_RE = re.compile(r"\bPRACTICAL_GLIMMER$")
@@ -515,10 +530,47 @@ def bulb_pose_ground(fixture, scale, x, y, floor_z, lying, yaw_deg):
     return {"location": [round(v, 4) for v in loc], "rotation_xyzw": [round(v, 9) for v in rot], "scale": [scale] * 3}
 
 
-def _row_after(row, **fields):
+def _row_after(row, keep_ext=False, **fields):
     after = copy.deepcopy(row)
-    after.pop("ext", None)
+    if not keep_ext:
+        after.pop("ext", None)
     after.update(fields)
+    return after
+
+
+def _body_modes(row, fixture, opts, cord_guid=None):
+    """One relocated bare bulb's complete Body settings. Glow and sway are opt-in arguments; defaults are creative
+    proposals, not accepted look values. The bulb-owned point light avoids a Light attachment and therefore a can."""
+    after = copy.deepcopy(row)
+    ext = after.setdefault("ext", {})
+    body = ext.setdefault("body", {})
+    glow = opts["glow_mode"]
+    if glow != "OFF":
+        body.update({
+            "follow_light": True,
+            "light_attachment_guid": "0" * 32,
+            "intensity_parameter": "Intensity",
+            "full_intensity": float(opts["emissive_full_intensity"]),
+            "flicker": opts["glow_flicker"],
+            "seed": int(opts["sway_seed"]),
+            "slight_depth": float(opts["glow_slight_depth"]),
+            "flicker_rate_hz": float(opts["glow_flicker_rate_hz"]),
+            "flicker_also_drives_light": False,
+            "emit_point_light": glow == "FILAMENT_AND_POINT",
+            "point_light_lumens": float(opts["point_light_lumens"]),
+            "point_light_attenuation_radius_cm": float(opts["point_light_attenuation_radius_cm"]),
+            "point_light_source_radius_cm": float(opts["point_light_source_radius_cm"]),
+            "point_light_soft_source_radius_cm": float(opts["point_light_soft_source_radius_cm"]),
+            "point_light_temperature_kelvin": float(opts["point_light_temperature_kelvin"]),
+        })
+    body.update({
+        "swing_on_cord": bool(cord_guid) and opts["cord_sway_mode"] == "DETERMINISTIC_SINE",
+        "cord_attachment_guid": str(cord_guid or "0" * 32),
+        "swing_yaw_amplitude_degrees": float(opts["sway_yaw_amplitude_degrees"]),
+        "swing_pitch_amplitude_degrees": float(opts["sway_pitch_amplitude_degrees"]),
+        "swing_period_seconds": float(opts["sway_period_seconds"]),
+        "sway_seed": int(opts["sway_seed"]),
+    })
     return after
 
 
@@ -596,9 +648,10 @@ def relocate_plan(passage, cues, table, derived_index, opts, floor_z_by_spot=Non
                 cord_source = caps[0] if caps else light
                 cord = _row_after(cord_source, kind="<InfinityAttachmentKind.PROP: 0>", enabled=True,
                                   mesh=cord_mesh, relative_transform=cord_row_transform(cap_top, cord_top, x, y, cord_cm, cord_bounds))
+                bulb_after = _body_modes(_row_after(body, keep_ext=True, relative_transform=pose), fixture, opts, cord_source["guid"])
                 changes.append({"guid": g, "label": body["label"], "what": "BULB_HANG", "variant": variant,
                                 "glass": [round(x, 2), round(y, 2), round(z, 2)],
-                                "after": _row_after(body, relative_transform=pose)})
+                                "after": bulb_after, "cord_guid": cord_source["guid"]})
                 changes.append({"guid": cord_source["guid"], "label": cord_source["label"],
                                 "what": "CORD_FROM_CAP" if caps else "CORD_FROM_RETIRED_LIGHT", "after": cord})
                 if caps and opts["paired_light"] == "DISABLE" and light["enabled"]:
@@ -610,9 +663,10 @@ def relocate_plan(passage, cues, table, derived_index, opts, floor_z_by_spot=Non
                 yaw = 360.0 * h01(seed, g, "yaw")
                 fz = float(floor_z_by_spot.get(g, opts["floor_z_cm"]))
                 pose = bulb_pose_ground(fixture, scale, x, y, fz, lying, yaw)
+                bulb_after = _body_modes(_row_after(body, keep_ext=True, relative_transform=pose), fixture, opts)
                 changes.append({"guid": g, "label": body["label"], "what": "BULB_GROUND_" + ("LYING" if lying else "STANDING"),
                                 "variant": variant, "glass": [round(x, 2), round(y, 2), round(fz, 2)],
-                                "after": _row_after(body, relative_transform=pose)})
+                                "after": bulb_after})
                 if opts["paired_light"] == "DISABLE" and light["enabled"]:
                     changes.append({"guid": light["guid"], "label": light["label"], "what": "LIGHT_DISABLED",
                                     "after": _row_after(light, enabled=False)})
@@ -642,9 +696,11 @@ def relocate_plan(passage, cues, table, derived_index, opts, floor_z_by_spot=Non
                          "variant": variant, "mesh": mesh, "light_enabled_before": light["enabled"]}
                 if opts["glimmer"] == "HANG_AT_SPOT":
                     pose, cap_top = bulb_pose_hanging(fixture, glimmer_scale, spot)
+                    bulb_after = _body_modes(_row_after(body, keep_ext=True, mesh=object_path(mesh), relative_transform=pose), fixture,
+                                             opts, light["guid"])
                     changes.append({"guid": g, "label": body["label"], "what": "GLIMMER_TO_BULB_HANG", "variant": variant,
                                     "glass": entry["spot"],
-                                    "after": _row_after(body, mesh=object_path(mesh), relative_transform=pose)})
+                                    "after": bulb_after, "cord_guid": light["guid"]})
                     changes.append({"guid": light["guid"], "label": light["label"], "what": "GLIMMER_LIGHT_TO_CORD",
                                     "after": _row_after(light, kind="<InfinityAttachmentKind.PROP: 0>", enabled=True,
                                                         mesh=cord_mesh,
@@ -655,9 +711,10 @@ def relocate_plan(passage, cues, table, derived_index, opts, floor_z_by_spot=Non
                     fz = float(floor_z_by_spot.get(g, opts["floor_z_cm"]))
                     lying = h01(seed, g, "lying") < float(opts["lying_fraction"])
                     pose = bulb_pose_ground(fixture, glimmer_scale, spot[0], spot[1], fz, lying, 360.0 * h01(seed, g, "yaw"))
+                    bulb_after = _body_modes(_row_after(body, keep_ext=True, mesh=object_path(mesh), relative_transform=pose), fixture, opts)
                     changes.append({"guid": g, "label": body["label"], "what": "GLIMMER_TO_BULB_GROUND", "variant": variant,
                                     "glass": [round(spot[0], 2), round(spot[1], 2), fz],
-                                    "after": _row_after(body, mesh=object_path(mesh), relative_transform=pose)})
+                                    "after": bulb_after})
                     if light["enabled"]:
                         changes.append({"guid": light["guid"], "label": light["label"], "what": "GLIMMER_LIGHT_DISABLED",
                                         "after": _row_after(light, enabled=False)})
@@ -694,6 +751,18 @@ def relocate_checks(plan, table):
                 y = c["glass"][1]
                 if not (lane - 1e-6 <= abs(y) <= lat_max + 1e-6):
                     bad.append(("LATERAL", c["label"], y))
+            if c["what"].startswith(("BULB_", "GLIMMER_TO_BULB_")):
+                body = (c["after"].get("ext") or {}).get("body") or {}
+                if plan["opts"]["glow_mode"] != "OFF":
+                    if not body.get("follow_light") or bool(body.get("emit_point_light")) != (
+                            plan["opts"]["glow_mode"] == "FILAMENT_AND_POINT"):
+                        bad.append(("GLOW", c["label"], body.get("emit_point_light")))
+                hanging = "HANG" in c["what"]
+                want_sway = hanging and plan["opts"]["cord_sway_mode"] == "DETERMINISTIC_SINE"
+                if bool(body.get("swing_on_cord")) != want_sway:
+                    bad.append(("SWAY", c["label"], body.get("swing_on_cord")))
+                if want_sway and body.get("cord_attachment_guid") != c.get("cord_guid"):
+                    bad.append(("CORD_LINK", c["label"], body.get("cord_attachment_guid")))
             if c["what"].startswith(("CORD_", "GLIMMER_LIGHT_TO_CORD")):
                 tr = c["after"]["relative_transform"]
                 lo, hi = plan["cord_bounds"]
@@ -714,7 +783,7 @@ def expected_after(before_all, plan):
             if row["guid"] in repl:
                 ext = row.get("ext")
                 rows[i] = copy.deepcopy(repl[row["guid"]])
-                if ext is not None:
+                if ext is not None and "ext" not in rows[i]:
                     rows[i]["ext"] = ext
                 hit += 1
         require(hit == len(repl), "PLAN_GUIDS_NOT_IN_CUE|%s|%d/%d" % (t["cue_guid"], hit, len(repl)))

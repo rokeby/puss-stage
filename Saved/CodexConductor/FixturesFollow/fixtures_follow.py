@@ -27,7 +27,9 @@ OPS (args "op")
             P01 at 300 lm) stay in their lanterns. Glimmer: *PRACTICAL_GLIMMER_BODY -> a bare bulb at the glimmer
             light's spot, the glimmer LIGHT row becomes its cord (HANG_AT_SPOT) or is disabled (GROUND_UNDER_SPOT);
             *GLIMMER*_CAP -> disabled. Cord mesh = a create-only derived copy of the Structure's own hanging-line mesh
-            with its line material on slot 0 (meshy_swap._ensure_derived), so cords match the housing lines.
+             with its line material on slot 0 (meshy_swap._ensure_derived), so cords match the housing lines. Its
+             glow_mode makes each relocated body an emissive filament with an optional transient dim point light;
+             cord_sway_mode links hanging bodies to their cord and enables continuous GUID-phased sine sway in game.
 
 MODES  COUNT offline (snapshot rows, see fixtures_common.snapshot_passage); DRY read-only, prints plan_sha256;
        APPLY needs confirm "APPLY FIXFOLLOW <OP> P0N" + plan_sha256 + ack_records; REVERT confirm "REVERT FIXFOLLOW <OP>
@@ -78,6 +80,16 @@ MODES = ("COUNT", "DRY", "APPLY", "REVERT")
 PLACE_TOL_CM = 0.5
 EXTRA = {"op": None, "passage": None, "plan_sha256": None, "expected_rows": None, "ack_records": [], "allow_dirty": [],
          "floor_label_regex": r"Floor"}
+P4_BODY_DEFAULTS = (
+    ("emit_point_light", False), ("point_light_lumens", 24.0),
+    ("point_light_attenuation_radius_cm", 450.0), ("point_light_source_radius_cm", 8.0),
+    ("point_light_soft_source_radius_cm", 18.0), ("point_light_temperature_kelvin", 2200.0),
+    ("swing_on_cord", False), ("cord_attachment_guid", "0" * 32),
+    ("swing_yaw_amplitude_degrees", 2.5), ("swing_pitch_amplitude_degrees", 1.5),
+    ("swing_period_seconds", 7.0), ("sway_seed", 0),
+)
+GLOW_BODY_FIELDS = ("follow_light", "light_attachment_guid", "intensity_parameter", "full_intensity", "flicker",
+                    "seed", "slight_depth", "flicker_rate_hz", "flicker_also_drives_light")
 
 F = None    # fixtures_common namespace, loaded fresh per run; never a UE object
 MS = None   # meshy_swap definitions (runtime helpers), loaded fresh per run
@@ -174,7 +186,14 @@ def check_args(raw):
         require(out["paired_light"] in ("DISABLE", "KEEP"), "PAIRED_LIGHT_INVALID")
         require(out["glimmer"] in ("HANG_AT_SPOT", "GROUND_UNDER_SPOT", "OFF"), "GLIMMER_MODE_INVALID")
         require(out["glimmer_mesh"] in ("PASSAGE_DERIVED", "FIXTURE"), "GLIMMER_MESH_INVALID")
+        require(out["glow_mode"] in ("FILAMENT_AND_POINT", "EMISSIVE_ONLY", "OFF"), "GLOW_MODE_INVALID")
+        require(out["glow_flicker"] in ("STABLE", "SLIGHT", "FAIL"), "GLOW_FLICKER_INVALID")
+        require(out["cord_sway_mode"] in ("DETERMINISTIC_SINE", "STATIC"), "CORD_SWAY_MODE_INVALID")
         require(0.0 <= float(out["hang_fraction"]) <= 1.0, "HANG_FRACTION_RANGE")
+        require(0.0 <= float(out["point_light_lumens"]) <= 250.0, "POINT_LIGHT_LUMENS_RANGE")
+        require(0.25 <= float(out["sway_period_seconds"]), "SWAY_PERIOD_RANGE")
+        require(0.0 <= float(out["sway_yaw_amplitude_degrees"]) <= 20.0, "SWAY_YAW_RANGE")
+        require(0.0 <= float(out["sway_pitch_amplitude_degrees"]) <= 20.0, "SWAY_PITCH_RANGE")
     for k in ("ack_records", "allow_dirty"):
         require(isinstance(out[k], list) and all(isinstance(v, str) for v in out[k]), k.upper() + "_INVALID")
     return out
@@ -238,6 +257,62 @@ def _v(v):
 def _t(transform):
     r = transform.rotation
     return F.xf(_v(transform.translation), [float(r.x), float(r.y), float(r.z), float(r.w)], _v(transform.scale3d))
+
+
+def _parse_guid(tool, text):
+    res = unreal.GuidLibrary.parse_string_to_guid(str(text))
+    guid, ok = (res if isinstance(res, tuple) else (res, True))
+    require(ok and tool._guid_text(guid) == str(text), "GUID_PARSE|" + str(text))
+    return guid
+
+
+def _runtime_plain(scores, tool, show):
+    """Meshy runtime rows plus the P4-only bulb practical/sway fields. Kept local so older score tools do not start
+    authoring these defaults on unrelated rows."""
+    plain = MS._runtime_plain(scores, tool, show)
+    for cue_plain, cue in zip(plain, show.get_editor_property("cues")):
+        attachments = tool._pair_attachments(cue)
+        require(len(cue_plain["attachments"]) == len(attachments), "RUNTIME_ROWS_COUNT")
+        for row, attachment in zip(cue_plain["attachments"], attachments):
+            body_struct = attachment.get_editor_property("body")
+            body = row.setdefault("ext", {}).setdefault("body", {})
+            for name, default in P4_BODY_DEFAULTS:
+                value = body_struct.get_editor_property(name)
+                if name == "cord_attachment_guid":
+                    body[name] = tool._guid_text(value)
+                elif isinstance(default, bool):
+                    body[name] = bool(value)
+                elif isinstance(default, int):
+                    body[name] = int(value)
+                else:
+                    body[name] = float(value)
+    return plain
+
+
+def _require_body_readback(want_all, got_all, side):
+    """The shared row comparator intentionally ignores ``ext``. Prove every legacy glow and P4 practical/sway Body
+    field separately, for all rows, so both intended writes and out-of-scope extension drift are visible."""
+    bad = []
+    fields = GLOW_BODY_FIELDS + tuple(name for name, unused in P4_BODY_DEFAULTS)
+    for cue_guid, want_rows in want_all.items():
+        got_rows = {row["guid"]: row for row in got_all.get(cue_guid, [])}
+        for want in want_rows:
+            got = got_rows.get(want["guid"])
+            wb = ((want.get("ext") or {}).get("body") or {})
+            gb = (((got or {}).get("ext") or {}).get("body") or {})
+            for name in fields:
+                if name not in wb:
+                    continue
+                a, b = wb[name], gb.get(name)
+                if isinstance(a, (bool, str)):
+                    ok = a == b
+                elif isinstance(a, (int, float)):
+                    ok = b is not None and abs(float(a) - float(b)) <= 1.0e-5 * max(1.0, abs(float(a)))
+                else:
+                    ok = a == b
+                if not ok:
+                    bad.append({"cue": cue_guid, "guid": want["guid"], "field": name, "want": a, "got": b})
+    require(not bad, "BODY_READBACK|side=%s|count=%d|%s" % (side, len(bad), F.canonical(bad)[:3000]))
 
 
 def _stations(structure, tool):
@@ -336,6 +411,24 @@ def _write_rows_full(tool, show, target, values):
         x.set_editor_property("scale3d", unreal.Vector(*[float(v) for v in t["scale"]]))
         attachment.set_editor_property("relative_transform", x)
         attachment.set_editor_property("enabled", bool(row["enabled"]))
+        body_values = ((row.get("ext") or {}).get("body") or {})
+        if "emit_point_light" in body_values:
+            body = attachment.get_editor_property("body")
+            for name in GLOW_BODY_FIELDS:
+                value = body_values[name]
+                if name == "light_attachment_guid":
+                    value = _parse_guid(tool, value)
+                elif name == "flicker":
+                    value = tool._enum_member(unreal.InfinityBulbBodyFlicker, F.enum_name(value))
+                elif name == "intensity_parameter":
+                    value = unreal.Name(value)
+                body.set_editor_property(name, value)
+            for name, unused in P4_BODY_DEFAULTS:
+                value = body_values[name]
+                if name == "cord_attachment_guid":
+                    value = _parse_guid(tool, value)
+                body.set_editor_property(name, value)
+            attachment.set_editor_property("body", body)
     require(seen == len(values), "ROW_GUIDS_MISSING|%s|%d/%d" % (target["cue_label"], seen, len(values)))
     tool._set_pair_attachments(show, index, attachments)
     return index, original
@@ -479,7 +572,7 @@ def _run(args):
         structure = MS._find_structure(show, names)
         table = F.M.load_fixture_table(check_files=False)
         roots = [os.path.join(SAVED, n) for n in sorted(os.listdir(SAVED)) if n.startswith("Codex")]
-        all_cues = MS._runtime_plain(scores, tool, show)
+        all_cues = _runtime_plain(scores, tool, show)
         before_all = MS._all_rows(all_cues)
         passage_actor = structure.get_editor_property("passage")
         bays = {tool._guid_text(g) for g in show.get_wing_pair_cue_guids_in_passage(passage_actor.get_editor_property("passage_guid"))}
@@ -515,14 +608,14 @@ def _run(args):
                       "stale_before": fplan["stale"], "current_before": current}
             tool._write_json(rpath, record, exclusive=True)
             require(bool(structure.materialize_structure()), "STRUCTURE_REFIT_FAILED")
-            _, _, _, _, _, after = _follow_state(show, tool, structure, MS._runtime_plain(scores, tool, show))
+            _, _, _, _, _, after = _follow_state(show, tool, structure, _runtime_plain(scores, tool, show))
             require(after["count_matches"], "HOUSING_COUNT|placements=%d|ism=%s" % (after["count"], after["ism_count"]))
             require(after["stale"] == 0, "HOUSINGS_STILL_STALE|%d" % after["stale"])
             require(bool(structure.is_structure_current()), "STRUCTURE_NOT_CURRENT_AFTER_REFIT")
-            require(F.sha(MS._all_rows(MS._runtime_plain(scores, tool, show))) == rows_hash, "FOLLOW_CHANGED_SHOW_ROWS")
+            require(F.sha(MS._all_rows(_runtime_plain(scores, tool, show))) == rows_hash, "FOLLOW_CHANGED_SHOW_ROWS")
             tool._save_narrow()
             report["saved"] = True
-            _, _, _, _, _, rb = _follow_state(show, tool, structure, MS._runtime_plain(scores, tool, show))
+            _, _, _, _, _, rb = _follow_state(show, tool, structure, _runtime_plain(scores, tool, show))
             require(rb["stale"] == 0 and rb["count_matches"], "READBACK_STALE|%s" % rb["stale"])
             record.update({"status": "saved_readback_verified", "structure_after": MS._structure_state(tool, structure),
                            "housings_verified": rb["count"]})
@@ -586,7 +679,7 @@ def _run(args):
             report.update({"plan": plan, "plan_sha256": sha, "foreign_records": foreign, "unacknowledged_foreign_records": unacked})
             if mode == "DRY":
                 require(tool._dirty_census() == census_before, "DRY_CENSUS_CHANGED")
-                require(F.canonical(MS._all_rows(MS._runtime_plain(scores, tool, show))) == F.canonical(before_all),
+                require(F.canonical(MS._all_rows(_runtime_plain(scores, tool, show))) == F.canonical(before_all),
                         "DRY_SHOW_ROWS_CHANGED")
                 extra = ("plan_sha256=%s|rows=%d|unacked=%d|" % (sha, nrows, len(unacked)))
                 if op == "SCALE":
@@ -628,8 +721,9 @@ def _run(args):
             try:
                 for t in plan["targets"]:
                     originals.append(_write_rows_full(tool, show, t, {c["guid"]: c["after"] for c in t["changes"]}))
-                after_all = MS._all_rows(MS._runtime_plain(scores, tool, show))
+                after_all = MS._all_rows(_runtime_plain(scores, tool, show))
                 F.check_scope(want_all, after_all, "after")
+                _require_body_readback(want_all, after_all, "after")
                 require(MS._export_hash(tool, show, targets) == texts_hash, "EXPORT_OUTSIDE_SCOPE_CHANGED")
                 if op == "SCALE":
                     h = plan["housing"]
@@ -643,7 +737,8 @@ def _run(args):
                 if structure_written:
                     sb = plan["structure_before"]
                     MS._write_structure(structure, sb["body_mesh"], sb["body_size_cm"], sb["body_material"])
-                F.check_scope(before_all, MS._all_rows(MS._runtime_plain(scores, tool, show)), "before")
+                F.check_scope(before_all, MS._all_rows(_runtime_plain(scores, tool, show)), "before")
+                _require_body_readback(before_all, MS._all_rows(_runtime_plain(scores, tool, show)), "before")
                 record["status"] = "failed_rolled_back_in_memory"
                 tool._write_json(rpath, record)
                 os.rename(rpath, rpath + ".failed-" + run)
@@ -668,8 +763,9 @@ def _run(args):
             tool._save_narrow()
             report["saved"] = True
             readback = unreal.EditorAssetLibrary.load_asset(tool.SHOW_PATH)
-            read_all = MS._all_rows(MS._runtime_plain(scores, tool, readback))
+            read_all = MS._all_rows(_runtime_plain(scores, tool, readback))
             F.check_scope(want_all, read_all, "readback")
+            _require_body_readback(want_all, read_all, "readback")
             require(MS._export_hash(tool, readback, targets) == texts_hash, "READBACK_EXPORT_OUTSIDE_SCOPE_CHANGED")
             record.update({"status": "saved_readback_verified", "materialized": materialized, "structure_after": state,
                            "after_rows": {g: read_all[g] for g in sorted(targets)}, "spawned_verified": spawned,
@@ -704,7 +800,9 @@ def _run(args):
             for t in plan["targets"]:
                 before_by_guid = {r["guid"]: r for r in record["before_rows"][t["cue_guid"]]}
                 originals.append(_write_rows_full(tool, show, t, {c["guid"]: before_by_guid[c["guid"]] for c in t["changes"]}))
-            F.check_scope(model, MS._all_rows(MS._runtime_plain(scores, tool, show)), "revert")
+            revert_live = MS._all_rows(_runtime_plain(scores, tool, show))
+            F.check_scope(model, revert_live, "revert")
+            _require_body_readback(model, revert_live, "revert")
             require(MS._export_hash(tool, show, targets) == texts_hash, "REVERT_EXPORT_OUTSIDE_SCOPE_CHANGED")
             if op == "SCALE":
                 structure_written = True
@@ -722,7 +820,9 @@ def _run(args):
         tool._save_narrow()
         report["saved"] = True
         readback = unreal.EditorAssetLibrary.load_asset(tool.SHOW_PATH)
-        F.check_scope(model, MS._all_rows(MS._runtime_plain(scores, tool, readback)), "revert_readback")
+        revert_read = MS._all_rows(_runtime_plain(scores, tool, readback))
+        F.check_scope(model, revert_read, "revert_readback")
+        _require_body_readback(model, revert_read, "revert_readback")
         state = MS._structure_state(tool, structure)
         require(state["fixture_body_count"] == sb["fixture_body_count"], "REVERT_HOUSING_COUNT|%d|%d"
                 % (state["fixture_body_count"], sb["fixture_body_count"]))

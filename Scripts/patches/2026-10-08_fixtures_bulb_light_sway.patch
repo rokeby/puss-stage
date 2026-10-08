@@ -1,0 +1,282 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBulbBody.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBulbBody.cpp
+index cbb1209..4d2b412 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBulbBody.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBulbBody.cpp
+@@ -62,4 +62,22 @@ float BodyIntensity(const float FullIntensity, const float DramaScale, const flo
+ {
+     return FMath::Max(0.0f, FullIntensity) * FMath::Max(0.0f, DramaScale) * FMath::Clamp(Flicker, 0.0f, 1.0f);
+ }
++
++FRotator CordSwingRotation(
++    const FInfinityBulbBodySettings& Settings,
++    const FGuid& Identity,
++    const double ShowSeconds)
++{
++    if (!Settings.bSwingOnCord)
++    {
++        return FRotator::ZeroRotator;
++    }
++    const double Period = FMath::Max(0.25, static_cast<double>(Settings.SwingPeriodSeconds));
++    const double Phase = static_cast<double>(HashUnit(Identity, Settings.SwaySeed, 0, 4u)) * UE_TWO_PI;
++    const double Angle = ShowSeconds * UE_TWO_PI / Period + Phase;
++    return FRotator(
++        Settings.SwingPitchAmplitudeDegrees * FMath::Sin(Angle + UE_HALF_PI),
++        Settings.SwingYawAmplitudeDegrees * FMath::Sin(Angle),
++        0.0);
++}
+ }
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
+index 39a9714..6f80e00 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
+@@ -2004,10 +2004,16 @@ void AInfinityStagePassageActor::UpdateBulbBodies(
+         if (!Runtime.bPrepared)
+         {
+             Runtime.bPrepared = true;
++            Runtime.AuthoredBodyRelative = Body->GetActorRelativeTransform();
+             float Authored = 1.0f;
+             UStaticMeshComponent* Mesh = Body->FindComponentByClass<UStaticMeshComponent>();
++            FVector FilamentOffset = FVector::ZeroVector;
+             if (Mesh && Mesh->GetNumMaterials() > 0)
+             {
++                if (const UStaticMesh* StaticMesh = Mesh->GetStaticMesh())
++                {
++                    FilamentOffset = StaticMesh->GetBoundingBox().GetCenter();
++                }
+                 if (const UMaterialInterface* Base = Mesh->GetMaterial(0))
+                 {
+                     float Read = 0.0f;
+@@ -2020,6 +2026,52 @@ void AInfinityStagePassageActor::UpdateBulbBodies(
+                 Runtime.Material = Mesh->CreateDynamicMaterialInstance(0);
+             }
+             Runtime.FullIntensity = Settings.FullIntensity > 0.0f ? Settings.FullIntensity : Authored;
++            if (Settings.bEmitPointLight && Body->GetRootComponent())
++            {
++                UPointLightComponent* Point = NewObject<UPointLightComponent>(Body, NAME_None, RF_Transient);
++                Point->SetupAttachment(Body->GetRootComponent());
++                Point->SetRelativeLocation(FilamentOffset);
++                Point->SetMobility(EComponentMobility::Movable);
++                Point->SetIntensityUnits(ELightUnits::Lumens);
++                Point->SetAttenuationRadius(FMath::Max(0.0f, Settings.PointLightAttenuationRadiusCm));
++                Point->SetSourceRadius(FMath::Max(0.0f, Settings.PointLightSourceRadiusCm));
++                Point->SetSoftSourceRadius(FMath::Max(0.0f, Settings.PointLightSoftSourceRadiusCm));
++                Point->SetUseTemperature(true);
++                Point->SetTemperature(FMath::Clamp(Settings.PointLightTemperatureKelvin, 1000.0f, 20000.0f));
++                Point->SetCastShadows(false);
++                Point->SetCastVolumetricShadow(false);
++                Point->SetAffectGlobalIllumination(true);
++                Point->SetAffectReflection(true);
++                Body->AddInstanceComponent(Point);
++                Point->RegisterComponent();
++                Runtime.PointLight = Point;
++            }
++            if (Settings.bSwingOnCord && Settings.CordAttachmentGuid.IsValid())
++            {
++                for (AActor* Candidate : ManagedAttachmentActors)
++                {
++                    FGuid CandidateCue;
++                    FGuid CandidateAttachment;
++                    if (IsValid(Candidate) && FindAttachmentByActor(Candidate, CandidateCue, CandidateAttachment)
++                        && CandidateCue == CueGuid && CandidateAttachment == Settings.CordAttachmentGuid)
++                    {
++                        Runtime.Cord = Candidate;
++                        Runtime.AuthoredCordRelative = Candidate->GetActorRelativeTransform();
++                        if (const UStaticMeshComponent* CordMesh = Candidate->FindComponentByClass<UStaticMeshComponent>())
++                        {
++                            if (const UStaticMesh* StaticMesh = CordMesh->GetStaticMesh())
++                            {
++                                const FBox Box = StaticMesh->GetBoundingBox();
++                                Runtime.CordTopRelative = Runtime.AuthoredCordRelative.TransformPosition(FVector(
++                                    (Box.Min.X + Box.Max.X) * 0.5,
++                                    (Box.Min.Y + Box.Max.Y) * 0.5,
++                                    Box.Max.Z));
++                            }
++                        }
++                        break;
++                    }
++                }
++            }
+         }
+         const float Level = InfinityStageBulbBody::BodyIntensity(Runtime.FullIntensity, DramaScale, Flicker);
+         if (Level != Runtime.Level)
+@@ -2031,6 +2083,31 @@ void AInfinityStagePassageActor::UpdateBulbBodies(
+             }
+         }
+ 
++        if (UPointLightComponent* Point = Runtime.PointLight.Get())
++        {
++            const float LightLevel = FMath::Max(0.0f, Settings.PointLightLumens) * DramaScale * Flicker;
++            Point->SetVisibility(LightLevel > UE_KINDA_SMALL_NUMBER);
++            Point->SetIntensity(LightLevel);
++        }
++
++        if (Settings.bSwingOnCord && Runtime.Cord.IsValid())
++        {
++            const FQuat Swing = InfinityStageBulbBody::CordSwingRotation(Settings, AttachmentGuid, ShowSeconds).Quaternion();
++            const FVector Pivot = Runtime.CordTopRelative;
++            const auto SwingAroundPivot = [&Swing, &Pivot](const FTransform& Authored)
++            {
++                FTransform Result = Authored;
++                Result.SetLocation(Pivot + Swing.RotateVector(Authored.GetLocation() - Pivot));
++                Result.SetRotation(Swing * Authored.GetRotation());
++                return Result;
++            };
++            Body->SetActorRelativeTransform(SwingAroundPivot(Runtime.AuthoredBodyRelative));
++            if (AActor* Cord = Runtime.Cord.Get())
++            {
++                Cord->SetActorRelativeTransform(SwingAroundPivot(Runtime.AuthoredCordRelative));
++            }
++        }
++
+         if (Settings.bFlickerAlsoDrivesLight && LightAttachment)
+         {
+             if (!bLightActorsBuilt)
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBulbBody.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBulbBody.h
+index e88e253..47bb683 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBulbBody.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBulbBody.h
+@@ -85,6 +85,55 @@ struct INFINITYSTAGE_API FInfinityBulbBodySettings
+      * switched off at 0). Off: only the glass flickers. */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body", meta = (EditCondition = "bFollowLight"))
+     bool bFlickerAlsoDrivesLight = false;
++
++    /** Add a transient point light to the bulb actor in game worlds. This gives a
++     * bare bulb a small specular/reflection contribution without authoring a Light
++     * attachment (and therefore without asking the Structure for a lantern). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Practical", meta = (EditCondition = "bFollowLight"))
++    bool bEmitPointLight = false;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Practical",
++        meta = (ClampMin = "0.0", EditCondition = "bEmitPointLight"))
++    float PointLightLumens = 24.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Practical",
++        meta = (ClampMin = "0.0", Units = "cm", EditCondition = "bEmitPointLight"))
++    float PointLightAttenuationRadiusCm = 450.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Practical",
++        meta = (ClampMin = "0.0", Units = "cm", EditCondition = "bEmitPointLight"))
++    float PointLightSourceRadiusCm = 8.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Practical",
++        meta = (ClampMin = "0.0", Units = "cm", EditCondition = "bEmitPointLight"))
++    float PointLightSoftSourceRadiusCm = 18.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Practical",
++        meta = (ClampMin = "1000.0", ClampMax = "20000.0", Units = "K", EditCondition = "bEmitPointLight"))
++    float PointLightTemperatureKelvin = 2200.0f;
++
++    /** Rotate this bulb and its linked cord around the cord mesh's top in game
++     * worlds. The phase is a stable hash of attachment GUID + SwaySeed. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway")
++    bool bSwingOnCord = false;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway", meta = (EditCondition = "bSwingOnCord"))
++    FGuid CordAttachmentGuid;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway",
++        meta = (ClampMin = "0.0", ClampMax = "20.0", Units = "deg", EditCondition = "bSwingOnCord"))
++    float SwingYawAmplitudeDegrees = 2.5f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway",
++        meta = (ClampMin = "0.0", ClampMax = "20.0", Units = "deg", EditCondition = "bSwingOnCord"))
++    float SwingPitchAmplitudeDegrees = 1.5f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway",
++        meta = (ClampMin = "0.25", Units = "s", EditCondition = "bSwingOnCord"))
++    float SwingPeriodSeconds = 7.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway", meta = (EditCondition = "bSwingOnCord"))
++    int32 SwaySeed = 0;
+ };
+ 
+ namespace InfinityStageBulbBody
+@@ -104,4 +153,11 @@ INFINITYSTAGE_API float FlickerScale(
+ 
+ /** The emissive parameter value: Full x drama level x flicker, never negative. */
+ INFINITYSTAGE_API float BodyIntensity(float FullIntensity, float DramaScale, float FlickerScale);
++
++/** Continuous deterministic sine sway. Yaw and pitch share a GUID-derived phase,
++ * with pitch one quarter-cycle ahead so rows of bulbs never move in lock-step. */
++INFINITYSTAGE_API FRotator CordSwingRotation(
++    const FInfinityBulbBodySettings& Settings,
++    const FGuid& Identity,
++    double ShowSeconds);
+ }
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
+index 98a2611..4b654a9 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
+@@ -235,6 +235,11 @@ private:
+     struct FBulbBodyRuntime
+     {
+         TWeakObjectPtr<class UMaterialInstanceDynamic> Material;
++        TWeakObjectPtr<class UPointLightComponent> PointLight;
++        TWeakObjectPtr<AActor> Cord;
++        FTransform AuthoredBodyRelative = FTransform::Identity;
++        FTransform AuthoredCordRelative = FTransform::Identity;
++        FVector CordTopRelative = FVector::ZeroVector;
+         float FullIntensity = 1.0f;
+         float Level = -1.0f;
+         bool bPrepared = false;
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBulbBodyTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBulbBodyTests.cpp
+index 81fad89..d955479 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBulbBodyTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBulbBodyTests.cpp
+@@ -1,6 +1,7 @@
+ #include "InfinityStageBulbBody.h"
+ 
+ #include "Components/LightComponent.h"
++#include "Components/PointLightComponent.h"
+ #include "Engine/StaticMesh.h"
+ #include "Engine/StaticMeshActor.h"
+ #include "Engine/World.h"
+@@ -84,6 +85,22 @@ bool FInfinityStageBulbBodyFlickerTest::RunTest(const FString& Parameters)
+     TestEqual(TEXT("Body = full x drama x flicker"), BodyIntensity(6.0f, 0.5f, 0.5f), 1.5f);
+     TestEqual(TEXT("An unstruck lamp's glass is dark"), BodyIntensity(6.0f, 0.0f, 1.0f), 0.0f);
+     TestEqual(TEXT("Never negative"), BodyIntensity(-1.0f, 1.0f, 1.0f), 0.0f);
++
++    Settings.bSwingOnCord = true;
++    Settings.SwingYawAmplitudeDegrees = 3.0f;
++    Settings.SwingPitchAmplitudeDegrees = 2.0f;
++    Settings.SwingPeriodSeconds = 8.0f;
++    const FRotator Swing0 = CordSwingRotation(Settings, Bulb, 1.25);
++    const FRotator SwingRepeat = CordSwingRotation(Settings, Bulb, 1.25);
++    const FRotator SwingCycle = CordSwingRotation(Settings, Bulb, 9.25);
++    TestTrue(TEXT("Cord sway is deterministic"), Swing0.Equals(SwingRepeat, 1.0e-6f));
++    TestTrue(TEXT("Cord sway repeats exactly once per period"), Swing0.Equals(SwingCycle, 1.0e-4f));
++    TestTrue(TEXT("Cord sway stays within authored amplitudes"),
++        FMath::Abs(Swing0.Yaw) <= Settings.SwingYawAmplitudeDegrees + 1.0e-4f
++        && FMath::Abs(Swing0.Pitch) <= Settings.SwingPitchAmplitudeDegrees + 1.0e-4f);
++    FInfinityBulbBodySettings Still = Settings;
++    Still.bSwingOnCord = false;
++    TestTrue(TEXT("Cord sway is opt-in"), CordSwingRotation(Still, Bulb, 1.25).IsNearlyZero());
+     return true;
+ }
+ 
+@@ -128,6 +145,8 @@ bool FInfinityStageBulbBodyFollowsLightTest::RunTest(const FString& Parameters)
+     Glass.Body.bFollowLight = true;
+     Glass.Body.LightAttachmentGuid = Lamp.AttachmentGuid;
+     Glass.Body.FullIntensity = 6.0f;
++    Glass.Body.bEmitPointLight = true;
++    Glass.Body.PointLightLumens = 24.0f;
+     FInfinityCueAttachment& Plain = Host.WingPair.Attachments.AddDefaulted_GetRef();
+     Plain.AttachmentGuid = FGuid::NewGuid();
+     Plain.Kind = EInfinityAttachmentKind::Prop;
+@@ -184,11 +203,16 @@ bool FInfinityStageBulbBodyFollowsLightTest::RunTest(const FString& Parameters)
+ 
+     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
+     TestEqual(TEXT("Unstruck lamp: the glass is dark"), Passage->GetBulbBodyLevelForTests(Body), 0.0f);
++    UPointLightComponent* BulbPoint = Body->FindComponentByClass<UPointLightComponent>();
++    TestTrue(TEXT("A bulb-owned point light is created only in the game-world evaluation"), BulbPoint != nullptr);
++    TestTrue(TEXT("Unstruck bulb-owned point light is hidden"), BulbPoint && !BulbPoint->IsVisible());
+     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 2375.0);
+     TestTrue(TEXT("Half way up the strike: the glass is half lit"),
+         FMath::IsNearlyEqual(Passage->GetBulbBodyLevelForTests(Body), 3.0f, 0.01f));
+     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 1000.0);
+     TestEqual(TEXT("Struck: the glass is at full"), Passage->GetBulbBodyLevelForTests(Body), 6.0f);
++    TestTrue(TEXT("Struck bulb-owned point light reaches its authored dim lumens"),
++        BulbPoint && BulbPoint->IsVisible() && FMath::IsNearlyEqual(BulbPoint->Intensity, 24.0f, 0.01f));
+     TestEqual(TEXT("A prop without bFollowLight is never touched"), Passage->GetBulbBodyLevelForTests(PlainBody), -1.0f);
+ 
+     // Fail mode with the light following: dies at the lamp, light switched off.
