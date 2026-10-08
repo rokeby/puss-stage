@@ -1661,6 +1661,355 @@ for nm, kw, args_, needle in (
 fe, rec_, err = fake_build(SH2, {"allow_prop_readback_unavailable": True}, readback="none")
 check("K9.readback_unavailable_allowed_by_arg(+)", rec_ is not None and sorted(fe.saved) == sorted([T["SHELL_V2_MASTER"], MI(SH2)]), err)
 
+# ================================================================== L. pearl fade twin (8 Oct): Pearl_Fade / Pearl_Dither + twin
+PF, PD = T["PEARL_FADE"], T["PEARL_DITHER"]
+SPF, SPD = specs[T["PEARL_FADE_MASTER"]], specs[T["PEARL_DITHER_MASTER"]]
+# L1. tables + lint
+check("L1.twin_specs_clean(+)", not any(k in mp for k in (T["PEARL_FADE_MASTER"], T["PEARL_DITHER_MASTER"], PF, PD)), mp)
+check("L1.twin_table_clean(+)", T["twin_table_problems"]() == [], T["twin_table_problems"]())
+check("L1.looks_untouched", T["CLAM_LOOK_MATERIALS"] == (P3, SH2, MA2) and sorted(T["CLAM_LOOKS"]) == sorted(LOOKS) and
+      T["CLAM_MAT_CHECK_MATERIALS"] == (P3, SH2, MA2, PF, PD))
+check("L1.blend_shading_tlm", SPF["blend_mode"] == "BLEND_TRANSLUCENT" and SPF["shading_model"] == "MSM_DEFAULT_LIT" and
+      SPF["translucency_lighting_mode"] == "TLM_SURFACE_PER_PIXEL_LIGHTING" and SPD["blend_mode"] == "BLEND_MASKED" and
+      SPD["shading_model"] == "MSM_SUBSURFACE" and "translucency_lighting_mode" not in SPD and "blend_mode" not in SP3)
+check("L1.twin_masters_not_nanite_usage", SPF["used_with_nanite"] is False and SPD["used_with_nanite"] is False)
+check("L1.new_assets_only", {T["PEARL_FADE_MASTER"], T["PEARL_DITHER_MASTER"]}.isdisjoint(old_masters | {
+    T["PEARL_V3_MASTER"], T["SHELL_V2_MASTER"], T["MANTLE_V2_MASTER"]}) and
+      len({T["CLAM_EXTRA_MATERIALS"][k]["mi"] for k in (PF, PD)} | {r["mi"] for r in rows_.values()}) == 5)
+# L2. v3 identity of the shared pieces (both twins are built FROM the v3 spec)
+for nm, s_, extra_nodes in (("dither", SPD, {"Fade", "FadeDither", "GlowFade"}),
+                            ("fade", SPF, {"Fade", "BaseOpacity", "FadeBase", "FadeOpacity", "GlowFade"})):
+    check("L2.%s_every_v3_node_unchanged(+)" % nm, all(s_["nodes"].get(k) == v for k, v in SP3["nodes"].items()) and
+          set(s_["nodes"]) - set(SP3["nodes"]) == extra_nodes, sorted(set(s_["nodes"]) - set(SP3["nodes"])))
+    check("L2.%s_every_v3_edge_present(+)" % nm, set(SP3["edges"]) <= set(s_["edges"]) and
+          all(e[2] in extra_nodes for e in set(s_["edges"]) - set(SP3["edges"])), sorted(set(s_["edges"]) - set(SP3["edges"])))
+    check("L2.%s_breath_wpo_identical_to_v3_and_v2(+)" % nm, sub(s_, "PearlWPO") == sub(SP3, "PearlWPO") == sub(SV2, "PearlWPO")
+          and ("PearlWPO", "", "MP_WORLD_POSITION_OFFSET") in s_["props"] and s_["max_wpo"] == SP3["max_wpo"])
+    check("L2.%s_v3_params_and_defaults(+)" % nm, all(s_["scalars"][k] == v for k, v in SP3["scalars"].items()) and
+          s_["vectors"] == SP3["vectors"] and s_["tex_params"] == SP3["tex_params"] and s_["scalars"]["Fade"] == 1.0)
+    check("L2.%s_glow_subgraph_is_v3(+)" % nm, sub(s_, "InnerGlow") == sub(SP3, "InnerGlow") and
+          ("GlowFade", "", "MP_EMISSIVE_COLOR") in s_["props"] and ("InnerGlow", "", "GlowFade", "E") in s_["edges"] and
+          ("Fade", "", "GlowFade", "F") in s_["edges"])
+pd3 = {p[2]: p for p in SP3["props"]}
+pdd = {p[2]: p for p in SPD["props"]}
+check("L2.dither_props_v3_except_emissive_plus_mask(+)", {k for k in pd3 if pd3[k] != pdd.get(k)} == {"MP_EMISSIVE_COLOR"} and
+      set(pdd) - set(pd3) == {"MP_OPACITY_MASK"} and pdd["MP_OPACITY_MASK"] == ("FadeDither", "", "MP_OPACITY_MASK") and
+      pdd["MP_OPACITY"] == ("SubsurfaceAmount", "", "MP_OPACITY") and ("Fade", "", "FadeDither", "F") in SPD["edges"], pdd)
+pdf = {p[2]: p for p in SPF["props"]}
+check("L2.fade_props(+)", {k for k in pd3 if pd3[k] == pdf.get(k)} == {"MP_ROUGHNESS", "MP_SPECULAR", "MP_WORLD_POSITION_OFFSET"}
+      and "MP_SUBSURFACE_COLOR" not in pdf and pdf["MP_BASE_COLOR"][0] == "FadeBase" and pdf["MP_OPACITY"][0] == "FadeOpacity" and
+      {("IridSurface", "", "FadeBase", "S"), ("IridSubsurface", "", "FadeBase", "U"), ("SubsurfaceAmount", "", "FadeBase", "K"),
+       ("Fade", "", "FadeOpacity", "F"), ("BaseOpacity", "", "FadeOpacity", "O")} <= set(SPF["edges"]), pdf)
+check("L2.fade_base_uses_v3_subgraphs(+)", sub(SPF, "IridSurface") == sub(SP3, "IridSurface") and
+      sub(SPF, "IridSubsurface") == sub(SP3, "IridSubsurface"))
+check("L2.v3_spec_not_mutated_by_twin_build", T["material_specs"]()[T["PEARL_V3_MASTER"]] == SP3 and
+      "Fade" not in SP3["nodes"] and ("InnerGlow", "", "MP_EMISSIVE_COLOR") in SP3["props"])
+check("L2.fade_wiring_reaches_opacity_and_emissive(+)", T["fade_wiring_problems"](SPF) == [] and T["fade_wiring_problems"](SPD) == [])
+# L3. lint negatives
+for nm, path, fn, needle in (
+        ("opacity_on_opaque_defaultlit", T["SHELL_V2_MASTER"], lambda s: (s["props"].append(("Specular", "", "MP_OPACITY")),
+                                                                          s["want_props"].add("MP_OPACITY")), "OPACITY_NOT_TRANSPARENCY"),
+        ("mask_on_translucent", T["PEARL_FADE_MASTER"], lambda s: (s["props"].append(("Fade", "", "MP_OPACITY_MASK")),
+                                                                   s["want_props"].add("MP_OPACITY_MASK")), "OPACITY_MASK_BLEND"),
+        ("mask_on_opaque_v3", T["PEARL_V3_MASTER"], lambda s: (s["props"].append(("Glow", "", "MP_OPACITY_MASK")),
+                                                               s["want_props"].add("MP_OPACITY_MASK")), "OPACITY_MASK_BLEND"),
+        ("masked_without_mask", T["PEARL_DITHER_MASTER"], lambda s: (s.update(props=[p for p in s["props"] if p[2] != "MP_OPACITY_MASK"]),
+                                                                    s["want_props"].discard("MP_OPACITY_MASK")), "OPACITY_MASK_BLEND"),
+        ("subsurface_on_translucent", T["PEARL_FADE_MASTER"], lambda s: s.update(shading_model="MSM_SUBSURFACE"),
+         "TRANSLUCENT_SUBSURFACE"),
+        ("subsurface_pin_on_translucent", T["PEARL_FADE_MASTER"], lambda s: (s["props"].append(("IridSubsurface", "", "MP_SUBSURFACE_COLOR")),
+                                                                            s["want_props"].add("MP_SUBSURFACE_COLOR")), "TRANSLUCENT_SUBSURFACE"),
+        ("translucent_without_opacity", T["PEARL_FADE_MASTER"], lambda s: (s.update(props=[p for p in s["props"] if p[2] != "MP_OPACITY"]),
+                                                                          s["want_props"].discard("MP_OPACITY")), "TRANSLUCENT_NO_OPACITY"),
+        ("bad_tlm", T["PEARL_FADE_MASTER"], lambda s: s.update(translucency_lighting_mode="TLM_FORWARD"), "TLM|"),
+        ("tlm_on_masked", T["PEARL_DITHER_MASTER"], lambda s: s.update(translucency_lighting_mode="TLM_SURFACE"), "TLM_ON_NON_TRANSLUCENT"),
+        ("bad_blend", T["PEARL_DITHER_MASTER"], lambda s: s.update(blend_mode="BLEND_ADDITIVE"), "BLEND_MODE|"),
+        ("fade_default_zero", T["PEARL_FADE_MASTER"], lambda s: (s["nodes"].update(Fade=("scalar", 0.0)), s["scalars"].update(Fade=0.0)),
+         "FADE_DEFAULT"),
+        ("dither_fade_pin_unfed", T["PEARL_DITHER_MASTER"], lambda s: s.update(edges=[e for e in s["edges"] if e != ("Fade", "", "FadeDither", "F")]),
+         "CUSTOM_PIN_UNFED|FadeDither.F"),
+        ("dither_fade_not_wired", T["PEARL_DITHER_MASTER"], lambda s: s.update(edges=[e for e in s["edges"] if e != ("Fade", "", "FadeDither", "F")]),
+         "FADE_NOT_WIRED|MP_OPACITY_MASK"),
+        ("fade_opacity_pin_unfed", T["PEARL_FADE_MASTER"], lambda s: s.update(edges=[e for e in s["edges"] if e != ("Fade", "", "FadeOpacity", "F")]),
+         "CUSTOM_PIN_UNFED|FadeOpacity.F"),
+        ("glow_fade_pin_unfed", T["PEARL_FADE_MASTER"], lambda s: s.update(edges=[e for e in s["edges"] if e != ("Fade", "", "GlowFade", "F")]),
+         "FADE_NOT_WIRED|MP_EMISSIVE_COLOR"),
+        ("emissive_bypasses_fade", T["PEARL_DITHER_MASTER"], lambda s: s.update(props=[("InnerGlow", "", p) if p == "MP_EMISSIVE_COLOR" else (a_, o, p)
+                                                                                     for a_, o, p in s["props"]]), "FADE_NOT_WIRED|MP_EMISSIVE_COLOR")):
+    b = copy.deepcopy(specs)
+    fn(b[path])
+    got = T["material_problems"](b).get(path, [])
+    check("L3.%s_detected(-)" % nm, any(needle in x for x in got), got)
+check("L3.v3_subsurface_on_defaultlit_still_caught(-)", any("SUBSURFACE_PINS" in x for x in
+                                                            T["material_problems"]({**specs, T["PEARL_V3_MASTER"]: dict(SP3, shading_model="MSM_DEFAULT_LIT")})
+                                                            .get(T["PEARL_V3_MASTER"], [])))
+# L4. Python mirrors: dither coverage == Fade (any clip in (0,1]), temporal averaging, translucent opacity, glow x Fade
+DE = T["dither_eval"]
+W_ = 96
+cov = lambda f, fr=0: sum(DE(f, x, y, fr) for x in range(W_) for y in range(W_)) / float(W_ * W_)  # noqa: E731
+covs = {f: cov(f) for f in (0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0)}
+check("L4.dither_endpoints_exact(+)", covs[0.0] == 0.0 and covs[1.0] == 1.0, covs)
+check("L4.dither_coverage_tracks_fade(+)", all(abs(covs[f] - f) < 0.03 for f in covs), covs)
+check("L4.dither_monotone(+)", all(DE(0.3, x, y, 5) <= DE(0.6, x, y, 5) for x in range(40) for y in range(40)))
+tmean = [sum(DE(0.5, x, y, fr) for fr in range(64)) / 64.0 for x in range(24) for y in range(24)]
+check("L4.dither_temporal_mean_per_pixel_near_fade", max(abs(t - 0.5) for t in tmean) < 0.2 and
+      abs(sum(tmean) / len(tmean) - 0.5) < 0.03, (min(tmean), max(tmean)))
+check("L4.dither_pattern_moves_per_frame", any(DE(0.5, x, 3, 0) != DE(0.5, x, 3, 1) for x in range(64)))
+check("L4.dither_custom_reads_documented_inputs", "Parameters.SvPosition" in T["DITHER_CODE"] and
+      "View.StateFrameIndex" in T["DITHER_CODE"] and "? 1.0 : 0.0" in T["DITHER_CODE"])
+check("L4.fade_opacity", T["fade_opacity_eval"](1.0, 1.0) == 1.0 and T["fade_opacity_eval"](0.0, 1.0) == 0.0 and
+      T["fade_opacity_eval"](0.5, 0.8) == 0.4 and T["fade_opacity_eval"](1.7, 1.0) == 1.0)
+check("L4.glow_fades_with_pearl", T["glow_fade_eval"]([2.0, 1.0, 0.5], 0.0) == [0.0, 0.0, 0.0] and
+      T["glow_fade_eval"]([2.0, 1.0, 0.5], 1.0) == [2.0, 1.0, 0.5])
+fb = T["fade_base_eval"]
+check("L4.fade_base_blend", fb([0.9, 0.87, 0.82], [0.6, 0.9, 0.7], 0.0) == [0.9, 0.87, 0.82] and
+      fb([0.9, 0.87, 0.82], [0.6, 0.9, 0.7], 1.0) == [0.6, 0.9, 0.7])
+# L5. copy-from-live plan: the values the owning session measured on MI_PearlClam_Pearl_v3 (build record + breath 1.5/6)
+v3b = json.load(open(T["HERE"] + "s3_props_build_mat_PearlClam_Pearl_v3.json", encoding="utf-8"))
+v3sw = json.load(open(T["look_record_path"](P3), encoding="utf-8"))
+check("L5.live_v3_records(measured by the owning session)", v3sw["run"] == "S3PROPS-20261007-220156" and v3sw["applied"] and
+      v3b["scalars"]["BreathAmp"] == 1.5 and v3b["scalars"]["BreathPeriod"] == 6.0, (v3sw["run"], v3b["scalars"].get("BreathAmp")))
+NACRE = T["tex_target"]("PearlClam", "Pearl", "Nacre")["asset"]
+v3_live = {"mi": MI(P3), "parent": T["PEARL_V3_MASTER"], "scalars": dict(v3b["scalars"], Glow=0.42),     # Glow tuned live
+           "vectors": dict(v3b["vectors"], GlowColor=[1.0, 0.8, 0.7, 1.0]), "textures": {"Nacre": NACRE}}
+LCV = T["look_copy_values"]
+for k in (PF, PD):
+    cp = LCV(k, copy.deepcopy(v3_live))
+    new = T["CLAM_EXTRA_MATERIALS"][k]["scalars"]
+    check("L5.copy_every_v3_value(+)|" + k, all(cp["scalars"][q] == float(v) for q, v in v3_live["scalars"].items()) and
+          cp["vectors"] == v3_live["vectors"] and {q: cp["scalars"][q] for q in new} == new and cp["scalars"]["Fade"] == 1.0 and
+          set(cp["scalars"]) == set(specs[T["CLAM_EXTRA_MATERIALS"][k]["master"]]["scalars"]), cp["scalars"])
+check("L5.fade_has_base_opacity_1", LCV(PF, copy.deepcopy(v3_live))["scalars"]["BaseOpacity"] == 1.0)
+for nm, fn, needle in (
+        ("wrong_parent", lambda s: s.update(parent=T["PEARL_V2_MASTER"]), "COPY_SOURCE_PARENT"),
+        ("scalar_unread", lambda s: s["scalars"].pop("GlowIrid"), "COPY_SCALARS_UNREAD"),
+        ("vector_unread", lambda s: s["vectors"].pop("PaletteD"), "COPY_VECTORS_UNREAD"),
+        ("nan", lambda s: s["scalars"].update(Glow=float("nan")), "COPY_SCALAR_VALUE"),
+        ("texture_differs", lambda s: s["textures"].update(Nacre="/Game/X/T_Other"), "COPY_TEXTURE_DIFFERS"),
+        ("breath_range", lambda s: s["scalars"].update(BreathAmp=9.0), "BREATH_SOURCE_RANGE"),
+        ("wrong_source", lambda s: s.update(mi=MI(T["PEARL_V2"])), "COPY_SOURCE|")):
+    src_ = copy.deepcopy(v3_live)
+    fn(src_)
+    ok, msg = refuses(lambda src_=src_: LCV(PD, src_), needle)
+    check("L5.copy_%s_refused(-)" % nm, ok, msg)
+saved_row = copy.deepcopy(T["CLAM_EXTRA_MATERIALS"][PF])
+T["CLAM_EXTRA_MATERIALS"][PF]["scalars"]["Glow"] = 0.0
+try:
+    ok, msg = refuses(lambda: LCV(PF, copy.deepcopy(v3_live)), "COPY_ROW_OVERRIDES")
+    check("L5.row_overriding_a_copied_value_refused(-)", ok and any("TWIN_NEW_SCALARS" in x for x in T["twin_table_problems"]()), msg)
+finally:
+    T["CLAM_EXTRA_MATERIALS"][PF].clear()
+    T["CLAM_EXTRA_MATERIALS"][PF].update(saved_row)
+check("L5.table_restored", T["twin_table_problems"]() == [])
+# L6. mode gates
+TW = lambda mode, **k: dict({"mode": mode, "confirm": "%s S3PROPS" % mode}, **k)  # noqa: E731
+for k in (PF, PD):
+    check("L6.build_mat_ok(+)|" + k, CM({"mode": "BUILD_MAT", "confirm": "BUILD_MAT S3PROPS", "prop": "PearlClam", "material": k},
+                                        True, False, False, True) == "BUILD_MAT")
+    check("L6.mat_check_ok(+)|" + k, CM({"mode": "CLAM_LOOK_MAT_CHECK", "material": k}, True, False) == "CLAM_LOOK_MAT_CHECK")
+check("L6.twin_ok(+)", CM(TW("CLAM_PEARL_TWIN"), True, False, False, True, True, [P3]) == "CLAM_PEARL_TWIN")
+check("L6.twin_dither_ok(+)", CM(TW("CLAM_PEARL_TWIN", twin={"twin_material": PD}), True, False, False, True, True, [P3]) ==
+      "CLAM_PEARL_TWIN")
+check("L6.set_material_ok(+)", CM(TW("CLAM_PEARL_TWIN_SET_MATERIAL", twin={"twin_material": PD}), True, False, False, True, True,
+                                  [P3], True) == "CLAM_PEARL_TWIN_SET_MATERIAL")
+check("L6.twin_revert_ok(+)", CM(TW("CLAM_PEARL_TWIN_REVERT"), True, False, False, True, True, [P3], True) == "CLAM_PEARL_TWIN_REVERT")
+check("L6.look_unswap_v3_with_twin_ok(+)", CM(LU(look=P3), True, False, False, True, True, [P3], True) == "CLAM_LOOK_UNSWAP")
+for nm, call, needle in (
+        ("twin_twice", lambda: CM(TW("CLAM_PEARL_TWIN"), True, False, False, True, True, [P3], True), "TWIN_ALREADY"),
+        ("twin_without_clam", lambda: CM(TW("CLAM_PEARL_TWIN"), True, False, False, False), "NO_CLAM_RECORD"),
+        ("twin_bad_material", lambda: CM(TW("CLAM_PEARL_TWIN", twin={"twin_material": "Pearl_v3"}), True, False, False, True), "TWIN_MATERIAL"),
+        ("twin_confirm", lambda: CM({"mode": "CLAM_PEARL_TWIN", "confirm": "CLAM_PEARL_TWIN"}, True, False, False, True), "CONFIRM_MISSING"),
+        ("clam_revert_with_twin", lambda: CM(TW("CLAM_REVERT"), True, False, False, True, False, [], True), "TWIN_EXISTS"),
+        ("pearl_swap_with_twin", lambda: CM(TW("PEARL_SWAP"), True, False, False, True, False, [], True), "TWIN_EXISTS"),
+        ("pearl_unswap_with_twin", lambda: CM(TW("PEARL_UNSWAP"), True, False, False, True, True, [], True), "TWIN_EXISTS"),
+        ("set_material_no_twin", lambda: CM(TW("CLAM_PEARL_TWIN_SET_MATERIAL"), True, False, False, True, True, [P3]), "NO_TWIN_RECORD"),
+        ("revert_no_twin", lambda: CM(TW("CLAM_PEARL_TWIN_REVERT"), True, False, False, True, True, [P3]), "NO_TWIN_RECORD"),
+        ("twin_while_tex_pending", lambda: CM(TW("CLAM_PEARL_TWIN"), True, False, True, True), "TEX_PENDING"),
+        ("mat_check_unknown", lambda: CM({"mode": "CLAM_LOOK_MAT_CHECK", "material": "Pearl_v4"}, True, False), "LOOK_MATERIAL")):
+    ok, msg = refuses(call, needle)
+    check("L6.%s_refused(-)" % nm, ok, msg)
+check("L6.twin_record_path_distinct", T["TWIN_RECORD"] not in {T["CLAM_RECORD"], T["PEARL_SWAP_RECORD"]} |
+      {T["look_record_path"](k) for k in LOOKS})
+# L7. twin plan against the REAL clam apply record + the live pearl as the v3 swap read it back
+pearl_live = dict(copy.deepcopy(v3sw["after_readback"]["Pearl"]) if "after_readback" in v3sw and "Pearl" in v3sw["after_readback"]
+                  else copy.deepcopy(v3sw["plan"]["targets"][0]["after"]),
+                  count=1, folder="RigAtmos/S3Props/PearlClam", tags=["RigAtmos.S3Props"], mobility="MOVABLE",
+                  cast_shadow=True, disallow_nanite=False)
+check("L7.live_pearl_is_v2_mesh_v3_mi(measured)", pearl_live["mesh"] == T["clam_mesh_path"](T["PEARL_V2"]) and
+      pearl_live["materials"] == [MI(P3)] and pearl_live["object_path"] == crec["actor_paths"]["Pearl"], pearl_live["materials"])
+GLOW0 = {"count": 1, "parent_path": crec["actor_paths"]["Pearl"]}
+
+
+def twin_live(**over):
+    L = {"pearl": copy.deepcopy(pearl_live), "root": {"count": 1, "object_path": crec["actor_paths"]["Bottom"]}, "twins": [],
+         "glow": dict(GLOW0), "assets": {p: True for k in (PF, PD) for p in (MI(k), T["CLAM_EXTRA_MATERIALS"][k]["master"])},
+         "breath": {MI(P3): {"BreathAmp": 1.5, "BreathPeriod": 6.0}, MI(PF): {"BreathAmp": 1.5, "BreathPeriod": 6.0},
+                    MI(PD): {"BreathAmp": 1.5, "BreathPeriod": 6.0}}}
+    L.update(over)
+    return L
+
+
+TP = T["twin_plan"]
+tp = TP(crec, twin_live())
+ex = tp["expect"]
+check("L7.twin_plan_ok(+)", ex["label"] == "S3 PearlClam Pearl Fade" and ex["tags"] == ["S3PearlFadeTwin"] and
+      ex["materials"] == [MI(PF)] and ex["mesh"] == pearl_live["mesh"] and ex["parent_path"] == crec["actor_paths"]["Bottom"] and
+      ex["hidden"] is True and ex["mobility"] == "MOVABLE" and ex["disallow_nanite"] is True and ex["cast_shadow"] is False and
+      ex["folder"] == pearl_live["folder"], ex)
+check("L7.twin_rel_equals_pearl_rel(+)", ex["rel"] == pearl_live["rel"] and tp["op"]["world"] == pearl_live["world"],
+      (ex["rel"], pearl_live["rel"]))
+check("L7.dither_twin_casts_shadow(+)", TP(crec, twin_live(), {"twin_material": PD})["expect"]["cast_shadow"] is True and
+      TP(crec, twin_live(), {"twin_material": PD, "cast_shadow": False})["expect"]["cast_shadow"] is False)
+st = T["twin_simulate"](tp["op"])
+check("L7.spawn_readback_clean(+)", T["twin_state_problems"](st, ex) == [], T["twin_state_problems"](st, ex))
+for nm, fn, needle in (("wrong_parent", lambda s: s.update(parent_path=crec["actor_paths"]["Lid"]), "PARENT_PATH"),
+                       ("rel_off", lambda s: s["rel"]["location"].__setitem__(2, s["rel"]["location"][2] + 0.2), "REL|"),
+                       ("not_hidden", lambda s: s.update(hidden=False), "HIDDEN"),
+                       ("nanite_unread", lambda s: s.update(disallow_nanite="UNREAD"), "DISALLOW_NANITE"),
+                       ("wrong_mi", lambda s: s.update(materials=[MI(P3)]), "MATERIALS"),
+                       ("untagged", lambda s: s.update(tags=[]), "TAGS")):
+    s2 = copy.deepcopy(st)
+    fn(s2)
+    got = T["twin_state_problems"](s2, ex)
+    check("L7.readback_%s_caught(-)" % nm, any(needle in x for x in got), got)
+check("L7.untouched_clean(+)", T["twin_untouched_problems"](tp, copy.deepcopy(pearl_live), dict(GLOW0)) == [])
+p2 = dict(copy.deepcopy(pearl_live), materials=[MI(PF)])
+check("L7.pearl_touched_caught(-)", any("PEARL_TOUCHED|materials" in x for x in T["twin_untouched_problems"](tp, p2, dict(GLOW0))))
+check("L7.glow_detached_caught(-)", any("GLOW_TOUCHED" in x for x in
+                                        T["twin_untouched_problems"](tp, copy.deepcopy(pearl_live), {"count": 1, "parent_path": None})))
+for nm, L, args_, needle in (
+        ("twin_exists_live", twin_live(twins=[dict(st)]), None, "TWIN_EXISTS_LIVE"),
+        ("material_not_built", twin_live(assets={MI(PD): True}), None, "TWIN_MATERIAL_MISSING"),
+        ("dither_not_built", twin_live(assets={MI(PF): True, T["PEARL_FADE_MASTER"]: True}), {"twin_material": PD}, "TWIN_MATERIAL_MISSING"),
+        ("pearl_wrong_parent", twin_live(pearl=dict(copy.deepcopy(pearl_live), parent_path=crec["actor_paths"]["Lid"])), None,
+         "TWIN_PEARL_PARENT"),
+        ("pearl_v1_mesh", twin_live(pearl=dict(copy.deepcopy(pearl_live), mesh=T["clam_mesh_path"]("Pearl"))), None, "TWIN_MESH"),
+        ("pearl_missing", twin_live(pearl={"count": 0}), None, "TWIN_PEARL_COUNT"),
+        ("root_wrong", twin_live(root={"count": 1, "object_path": "X"}), None, "TWIN_ROOT"),
+        ("breath_mismatch", twin_live(breath={MI(P3): {"BreathAmp": 1.5, "BreathPeriod": 6.0},
+                                              MI(PF): {"BreathAmp": 0.35, "BreathPeriod": 6.0}}), None, "TWIN_BREATH_MISMATCH"),
+        ("breath_unread", twin_live(breath={}), None, "TWIN_BREATH_UNREAD"),
+        ("bad_material_arg", twin_live(), {"twin_material": "Pearl_v3"}, "TWIN_MATERIAL|")):
+    ok, msg = refuses(lambda L=L, a_=args_: TP(crec, L, a_), needle)
+    check("L7.twin_%s_refused(-)" % nm, ok, msg)
+ok, msg = refuses(lambda: TP(dict(crec, applied=False), twin_live()), "CLAM_RECORD_NOT_APPLIED")
+check("L7.twin_unapplied_clam_refused(-)", ok, msg)
+check("L7.breath_change_allowed_by_arg(+)", TP(crec, twin_live(breath={MI(P3): {"BreathAmp": 1.5, "BreathPeriod": 6.0},
+                                                                     MI(PF): {"BreathAmp": 0.35, "BreathPeriod": 6.0}}),
+                                               {"allow_breath_change": True})["mi"] == MI(PF))
+# L8. SET_MATERIAL + REVERT plans
+trec = {"applied": True, "saved": True, "object_path": st["object_path"], "expect": copy.deepcopy(ex), "pending_set": None}
+SMP = T["twin_set_material_plan"]
+sp = SMP(trec, twin_live(twins=[dict(st, hidden=False)]), {"twin_material": PD})       # hidden drift (sequence keys it): allowed
+check("L8.set_material_ok(+)", sp["old_mi"] == MI(PF) and sp["new_mi"] == MI(PD) and sp["after"]["materials"] == [MI(PD)] and
+      sp["after"]["cast_shadow"] is True and {k for k in T["TWIN_STATE_KEYS"] if sp["after"][k] != ex[k]} ==
+      {"materials", "override_materials", "cast_shadow"}, sp["after"])
+st_d = T["twin_simulate"](dict(sp["after"], op="spawn_twin"))
+sb = SMP(dict(trec, expect=sp["after"]), twin_live(twins=[dict(st_d, object_path=st["object_path"])]), {"twin_material": PF})
+check("L8.set_material_back_to_fade(+)", sb["after"] == ex, sb["after"])
+for nm, rec_, L, args_, needle in (
+        ("no_twin", trec, twin_live(), {"twin_material": PD}, "TWIN_MISSING"),
+        ("mi_not_built", trec, twin_live(twins=[dict(st)], assets={MI(PF): True}), {"twin_material": PD}, "TWIN_MATERIAL_MISSING"),
+        ("not_tagged", trec, twin_live(twins=[dict(st, tags=[])]), {"twin_material": PD}, "TWIN_NOT_TAGGED"),
+        ("relabelled", trec, twin_live(twins=[dict(st, label="S3 PearlClam Pearl")]), {"twin_material": PD}, "TWIN_NOT_TAGGED"),
+        ("other_actor", trec, twin_live(twins=[dict(st, object_path="PersistentLevel.Other")]), {"twin_material": PD}, "TWIN_PATH"),
+        ("two_twins", trec, twin_live(twins=[dict(st), dict(st, object_path="B")]), {"twin_material": PD}, "TWIN_COUNT"),
+        ("already_on", trec, twin_live(twins=[dict(st)]), {"twin_material": PF}, "TWIN_MATERIAL_ALREADY"),
+        ("drift_parent", trec, twin_live(twins=[dict(st, parent_path=None)]), {"twin_material": PD}, "TWIN_DRIFT"),
+        ("pending", dict(trec, pending_set={"run": "x"}), twin_live(twins=[dict(st)]), {"twin_material": PD}, "TWIN_PENDING"),
+        ("breath_mismatch", trec, twin_live(twins=[dict(st)], breath={MI(PF): {"BreathAmp": 1.5, "BreathPeriod": 6.0},
+                                                                      MI(PD): {"BreathAmp": 0.0, "BreathPeriod": 6.0}}),
+         {"twin_material": PD}, "TWIN_BREATH_MISMATCH")):
+    ok, msg = refuses(lambda r=rec_, L=L, a_=args_: SMP(r, L, a_), needle)
+    check("L8.set_material_%s_refused(-)" % nm, ok, msg)
+TRP = T["twin_revert_plan"]
+unbound = {p: None for p in T["CLAM_SEQUENCES"]}
+rp = TRP(trec, twin_live(twins=[dict(st, hidden=False)], twin_tracks=unbound))
+check("L8.revert_ok(+)", rp == {"op": "destroy_twin", "object_path": st["object_path"], "label": T["TWIN_LABEL"], "bound": []}, rp)
+bound = dict(unbound, **{T["SCENE3"]: ["MovieSceneVisibilityTrack", "MovieSceneComponentMaterialTrack"]})
+for nm, L, args_, needle in (("bound", twin_live(twins=[dict(st)], twin_tracks=bound), None, "TWIN_BOUND"),
+                             ("tracks_unread", twin_live(twins=[dict(st)], twin_tracks=dict(unbound, **{T["SCENE3"]: "UNREAD"})), None,
+                              "TWIN_TRACKS_UNREAD"),
+                             ("not_tagged", twin_live(twins=[dict(st, tags=[])], twin_tracks=unbound), None, "TWIN_NOT_TAGGED"),
+                             ("no_twin", twin_live(twin_tracks=unbound), None, "TWIN_MISSING"),
+                             ("wrong_parent", twin_live(twins=[dict(st, parent_path="X")], twin_tracks=unbound), None, "TWIN_PARENT")):
+    ok, msg = refuses(lambda L=L, a_=args_: TRP(trec, L, a_), needle)
+    check("L8.revert_%s_refused(-)" % nm, ok, msg)
+check("L8.revert_bound_allowed_by_arg(+)", TRP(trec, twin_live(twins=[dict(st)], twin_tracks=bound),
+                                               {"allow_bound_revert": True})["bound"] == [T["SCENE3"]])
+
+
+# L9. BUILD_MAT end to end (FAKE editor): create-only, blend / TLM / clip read back, every v3 value copied from the live MI
+def fake_build_twin(key, args=None, v3mi=None, clip=0.3333, **kw):
+    tmpb = tempfile.mkdtemp(prefix="s3twin_")
+    fe = FakeEd(**kw)
+    fe.BlendMode = _Obj(**{n: n for n in T["BLEND_MODES"]})
+    fe.TranslucencyLightingMode = _Obj(**{n: n for n in T["TLM_MODES"]})
+    src = copy.deepcopy(v3mi if v3mi is not None else v3_live)
+    o = _FObj(MI(P3), "MaterialInstanceConstant")
+    o.sc = dict(src["scalars"])
+    o.vc = {k: _Obj(r=v[0], g=v[1], b=v[2], a=v[3]) for k, v in src["vectors"].items()}
+    o.tx = {k: _FObj(v, "Texture2D") for k, v in src["textures"].items()}
+    o.props["parent"] = _FObj(src["parent"], "Material")
+    base_load = fe.load_asset
+    fe.load_asset = lambda p: o if p == MI(P3) else base_load(p)
+    base_create = fe.AssetToolsHelpers.get_asset_tools().create_asset
+
+    def create(name, folder, cls, f):
+        a_ = base_create(name, folder, cls, f)
+        if cls is fe.Material and clip is not None:
+            a_.props["opacity_mask_clip_value"] = clip
+        return a_
+    fe.AssetToolsHelpers = _Obj(get_asset_tools=lambda: _Obj(create_asset=create))
+    keep = {k: G[k] for k in ("unreal", "HERE")}
+    G.update(unreal=fe, HERE=tmpb + "/")
+    try:
+        try:
+            return fe, T["run_build_clam_mat"]("RUNT", key, args or {}), None
+        except PlanError as exc:
+            return fe, None, str(exc)
+    finally:
+        G.update(keep)
+
+
+for k, s_ in ((PF, SPF), (PD, SPD)):
+    m_ = T["CLAM_EXTRA_MATERIALS"][k]
+    fe, rec_, err = fake_build_twin(k)
+    mat = fe.mats.get(m_["master"])
+    ok = rec_ is not None and mat is not None
+    check("L9.build_ok(+)|" + k, ok and sorted(fe.saved) == sorted([m_["master"], MI(k)]) and not fe.dirty, err or fe.saved)
+    if not ok:
+        continue
+    check("L9.material_flags_set|" + k, mat.props["blend_mode"] == s_["blend_mode"] and mat.props["shading_model"] ==
+          s_["shading_model"] and mat.props["used_with_nanite"] is False and
+          mat.props.get("translucency_lighting_mode") == s_.get("translucency_lighting_mode") and
+          mat.props.get("dither_opacity_mask", None) == (False if k == PD else None), mat.props)
+    check("L9.nodes_links_props|" + k, len(mat.nodes) == len(s_["nodes"]) and len(mat.links) == len(s_["edges"]) and
+          sorted(mat.mprops) == sorted(s_["want_props"]), sorted(mat.mprops))
+    check("L9.mi_values_copied_from_live_v3(+)|" + k, all(abs(rec_["scalars"][q] - float(v)) < 1e-9 for q, v in v3_live["scalars"].items())
+          and rec_["vectors"] == v3_live["vectors"] and rec_["scalars"]["Fade"] == 1.0 and rec_["scalars"]["Glow"] == 0.42 and
+          rec_["copied_from"]["mi"] == MI(P3) and rec_["breath_inherited"] == {"BreathAmp": 1.5, "BreathPeriod": 6.0}, rec_["scalars"])
+    check("L9.readback_recorded|" + k, rec_["material_readback"]["blend_mode"] == s_["blend_mode"] and
+          rec_["material_readback"]["opacity_mask_clip_value"] == 0.3333 and rec_["blend_mode"] == s_["blend_mode"], rec_["material_readback"])
+fe, rec_, err = fake_build_twin(PF, {"translucency_lighting_mode": "TLM_SURFACE"})
+check("L9.tlm_arg_used_and_recorded(+)", rec_ is not None and rec_["translucency_lighting_mode"] == "TLM_SURFACE" and
+      fe.mats[T["PEARL_FADE_MASTER"]].props["translucency_lighting_mode"] == "TLM_SURFACE", err)
+for nm, key, args_, kw, needle in (
+        ("fade_master_exists", PF, None, {"existing": [T["PEARL_FADE_MASTER"]]}, "LOOK_MASTER_EXISTS"),
+        ("dither_master_exists", PD, None, {"existing": [T["PEARL_DITHER_MASTER"]]}, "LOOK_MASTER_EXISTS"),
+        ("dither_mi_exists", PD, None, {"existing": [MI(PD)]}, "MI_EXISTS"),
+        ("tlm_arg_on_masked", PD, {"translucency_lighting_mode": "TLM_SURFACE"}, {}, "TLM_ARG"),
+        ("tlm_arg_unknown", PF, {"translucency_lighting_mode": "TLM_NOPE"}, {}, "TLM_ARG"),
+        ("source_parent_wrong", PF, None, {"v3mi": dict(copy.deepcopy(v3_live), parent=T["PEARL_V2_MASTER"])}, "COPY_SOURCE_PARENT"),
+        ("clip_out_of_range", PD, None, {"clip": 0.0}, "MASTER_CLIP_VALUE"),
+        ("clip_unreadable", PF, None, {"clip": None}, "MASTER_PROP_UNREADABLE"),
+        ("connect_mask_false", PD, None, {"fail_prop": "MP_OPACITY_MASK"}, "PROP|MP_OPACITY_MASK"),
+        ("connect_opacity_false", PF, None, {"fail_prop": "MP_OPACITY"}, "PROP|MP_OPACITY")):
+    fe, rec_, err = fake_build_twin(key, args_, **kw)
+    check("L9.%s_refused_nothing_saved(-)" % nm, rec_ is None and err and needle in err and fe.saved == [], (err, fe.saved))
+fe, rec_, err = fake_build_twin(PF, None, readback="wrong")
+check("L9.readback_wrong_node_refused(-)", rec_ is None and err and "PROP_READBACK" in err and fe.saved == [], err)
+
 # ------------------------------------------------------------------ report
 fails = [r for r in RESULTS if not r["ok"]]
 rep = {"checks": len(RESULTS), "failed": len(fails), "fails": fails, "results": RESULTS,

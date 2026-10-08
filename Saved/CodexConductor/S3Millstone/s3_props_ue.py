@@ -80,6 +80,22 @@ Modes (every write mode: confirm string, no PIE, editor world = the show level, 
                AND Lid slot 0; Mantle_v2: Mantle slot 0), map-only save, read back.  S3CLAMLOOK_SWAP_OK.
   CLAM_LOOK_UNSWAP exact restore of that look (drift since the swap -> refuse).  S3CLAMLOOK_UNSWAP_OK.  CLAM_REVERT,
                PEARL_SWAP and PEARL_UNSWAP refuse while a look record that touches them exists.
+  --- 8 Oct: pearl fade twin (Gary: "disappear ... like a slow alpha channel disappearance"; plus the dithered dissolve
+      to compare; written OFFLINE, never run) ---
+  BUILD_MAT    prop "PearlClam" material "Pearl_Fade" | "Pearl_Dither": create-only master + MI built from the Pearl_v3
+               spec; MI copies EVERY scalar + vector of the LIVE MI_PearlClam_Pearl_v3 (recorded), Fade = 1.
+               Pearl_Fade: BLEND_TRANSLUCENT, DefaultLit, TLM_SURFACE_PER_PIXEL_LIGHTING (args
+               "translucency_lighting_mode" may pick another TLM_*), MP_OPACITY = Fade * BaseOpacity.
+               Pearl_Dither: v3 unchanged (Subsurface) + BLEND_MASKED, MP_OPACITY_MASK = dither(Fade).  Both: emissive x Fade.
+  CLAM_LOOK_MAT_CHECK  also accepts "Pearl_Fade" / "Pearl_Dither" (blend, TLM, clip value read back + log scan).
+  CLAM_PEARL_TWIN  args "twin": {"twin_material": "Pearl_Fade" (default) | "Pearl_Dither", "cast_shadow": null = per
+               material}.  Spawns ONE StaticMeshActor "S3 PearlClam Pearl Fade" (tag S3PearlFadeTwin): the live pearl's
+               mesh, slot 0 = the twin MI, attached to "S3 PearlClam" at the pearl's relative transform, Movable, hidden
+               in game, Disallow Nanite, the pearl's folder.  NOT added to LS_S3_HangarRise.  Record first, umap backup,
+               map-only save, read back (the solid pearl and "S3 Drama Pearl Glow" must read unchanged).  S3PEARLTWIN_OK.
+  CLAM_PEARL_TWIN_SET_MATERIAL  same "twin" args: swaps ONLY the twin's slot 0 (+ its cast_shadow default).
+  CLAM_PEARL_TWIN_REVERT  destroys only the recorded tagged twin (refuses if a sequence binds it unless
+               "allow_bound_revert").  CLAM_REVERT, PEARL_SWAP and PEARL_UNSWAP refuse while the twin record exists.
   The tool refuses PIE.  In PIE get_editor_world() is None and EditorAssetLibrary.load_asset returns None
   [meas 7 Oct]: every load here is unreal.load_asset, and any future PIE path must keep it so.
 
@@ -90,6 +106,7 @@ Crash rules (memory puss-mcp-python-crashes-the-editor): no UE object at module 
 no SequencerTools.get_bound_objects (locate_bound_objects only, run-proven by s3_cast_reveal_apply 1 Oct), no
 deleting material nodes, one heavy import per call, GC after imports.
 """
+import copy
 import datetime
 import hashlib
 import json
@@ -294,6 +311,54 @@ CLAM_LOOKS = {
 }
 BACKUP_ROOT_LOOK = PROJECT + "Backups/PreS3ClamLook-"
 
+# ------------------------------------------------------------------ Pearl fade twin (Gary 8 Oct: "when puss takes the pearl,
+# it should disappear with a fade over 4s" -> "a slow alpha channel disappearance"; and the dithered dissolve to compare).
+# Two NEW create-only masters built FROM the Pearl_v3 spec (look_specs), each with scalar "Fade" (1 = solid, 0 = gone):
+#   Pearl_Fade   BLEND_TRANSLUCENT, DefaultLit, Surface ForwardShading: true alpha.  Subsurface is unavailable under
+#                translucency, so v3's subsurface colour moves into BaseColor (lerp by v3's own SubsurfaceAmount).
+#   Pearl_Dither the v3 graph unchanged (Subsurface, opaque look identical at Fade 1) + BLEND_MASKED + a dither of Fade.
+# Neither replaces anything on the solid pearl: CLAM_PEARL_TWIN spawns a separate tagged, hidden twin actor that the
+# sequencing session keys (solid hidden + twin shown, then Fade 1 -> 0).  CLAM_LOOKS / CLAM_LOOK_MATERIALS are untouched.
+PEARL_FADE, PEARL_DITHER = "Pearl_Fade", "Pearl_Dither"
+PEARL_FADE_MASTER = CLAM_FOLDER + "/M_PearlClam_Pearl_Fade"
+PEARL_DITHER_MASTER = CLAM_FOLDER + "/M_PearlClam_Pearl_Dither"
+CLAM_MAT_CHECK_MATERIALS = CLAM_LOOK_MATERIALS + (PEARL_FADE, PEARL_DITHER)
+CLAM_EXTRA_MATERIALS.update({
+    # "copy_from": EVERY scalar + vector of the LIVE source MI is read at BUILD_MAT and written explicitly on the new MI
+    # (tuning carries over); "scalars" here are only the NEW parameters (lint: may not override a copied one).
+    PEARL_FADE: {"mi": "MI_PearlClam_Pearl_Fade", "master": PEARL_FADE_MASTER, "tex_set": "Pearl",
+                 "scalars": {"Fade": 1.0, "BaseOpacity": 1.0}, "vectors": {}, "breath_from": PEARL_V3,
+                 "copy_from": PEARL_V3, "master_create_only": True},
+    PEARL_DITHER: {"mi": "MI_PearlClam_Pearl_Dither", "master": PEARL_DITHER_MASTER, "tex_set": "Pearl",
+                   "scalars": {"Fade": 1.0}, "vectors": {}, "breath_from": PEARL_V3, "copy_from": PEARL_V3,
+                   "master_create_only": True},
+})
+# EngineTypes.h:247-249 EBlendMode BLEND_Opaque/Masked/Translucent [decl]; EngineTypes.h:316-354 ETranslucencyLightingMode
+# [decl] (TLM_SurfacePerPixelLighting = "Surface ForwardShading", :354).  The Python spellings below are the usual UE
+# mangling (same as MSM_SUBSURFACE, measured on Pearl_v3) [inf until BUILD_MAT; read back by _verify_material].
+BLEND_MODES = ("BLEND_OPAQUE", "BLEND_MASKED", "BLEND_TRANSLUCENT")
+TLM_MODES = ("TLM_SURFACE_PER_PIXEL_LIGHTING", "TLM_SURFACE", "TLM_VOLUMETRIC_DIRECTIONAL",
+             "TLM_VOLUMETRIC_NON_DIRECTIONAL", "TLM_VOLUMETRIC_PER_VERTEX_DIRECTIONAL",
+             "TLM_VOLUMETRIC_PER_VERTEX_NON_DIRECTIONAL")
+TWIN_LABEL = "S3 PearlClam Pearl Fade"
+TWIN_TAG = "S3PearlFadeTwin"
+GLOW_LABEL = "S3 Drama Pearl Glow"        # attached to the SOLID pearl by another session; never touched here
+TWIN_RECORD = HERE + "s3_pearl_fade_twin_record.json"
+BACKUP_ROOT_TWIN = PROJECT + "Backups/PreS3PearlTwin-"
+# cast_shadow default per material: the dither's masked shadow dissolves with it (shadow depth clips the same opacity
+# mask, MaterialTemplate.ush:4542-4546 [decl]); a translucent twin's shadow would not follow the alpha [inf], so the
+# Fade twin casts none (the solid pearl's shadow goes at the swap instead -- see the report).
+TWIN_MATERIALS = {PEARL_FADE: {"cast_shadow": False}, PEARL_DITHER: {"cast_shadow": True}}
+TWIN_DEFAULTS = {"twin_material": PEARL_FADE, "cast_shadow": None, "allow_breath_change": False,
+                 # StaticMeshComponent.h:164-166 bDisallowNanite [decl]: translucent materials are INVALID on a Nanite
+                 # static mesh ("Only opaque or masked blend modes are currently supported", UnrealEditor-Engine.dll
+                 # strings [bin]) and the same message names Disallow Nanite as the way to render it non-Nanite.
+                 "disallow_nanite": True, "allow_bound_revert": False}
+TWIN_STATE_KEYS = ("label", "tags", "parent_path", "mesh", "materials", "override_materials", "rel", "hidden",
+                   "mobility", "cast_shadow", "folder", "wpo_eval", "disallow_nanite")
+TWIN_DRIFT_KEYS = tuple(k for k in TWIN_STATE_KEYS if k != "hidden")   # the sequence keys visibility; level saves can
+#                                                                        persist the evaluated state (memory)
+
 
 def look_record_path(look):
     _req(look in CLAM_LOOKS, "LOOK|%r" % look)
@@ -408,12 +473,13 @@ def gate_census(census, mode, pending_asset=None):
 
 MODES = ("DRY", "IMPORT_MESH", "IMPORT_TEX", "VERIFY_TEX", "BUILD_MAT", "APPLY", "REVERT", "PLACE", "UNPLACE",
          "CLAM_DRY", "CLAM_APPLY", "CLAM_REVERT", "PEARL_MAT_CHECK", "PEARL_SWAP", "PEARL_UNSWAP",
-         "CLAM_LOOK_MAT_CHECK", "CLAM_LOOK_SWAP", "CLAM_LOOK_UNSWAP")
+         "CLAM_LOOK_MAT_CHECK", "CLAM_LOOK_SWAP", "CLAM_LOOK_UNSWAP",
+         "CLAM_PEARL_TWIN", "CLAM_PEARL_TWIN_SET_MATERIAL", "CLAM_PEARL_TWIN_REVERT")
 
 
 def check_mode(args, apply_record_exists, place_record_exists, tex_pending_exists=False, clam_record_exists=False,
-               pearl_swap_exists=False, look_swaps=()):
-    """look_swaps: the looks whose CLAM_LOOK_SWAP record exists on disk (main() lists them)."""
+               pearl_swap_exists=False, look_swaps=(), twin_exists=False):
+    """look_swaps: the looks whose CLAM_LOOK_SWAP record exists on disk (main() lists them); twin_exists: TWIN_RECORD."""
     mode = str(args.get("mode", "DRY")).upper()
     _req(mode in MODES, "MODE|%s" % mode)
     if mode not in READ_ONLY_MODES:
@@ -451,7 +517,18 @@ def check_mode(args, apply_record_exists, place_record_exists, tex_pending_exist
     _req(not (mode in ("PEARL_SWAP", "PEARL_UNSWAP") and PEARL_V3 in look_swaps),
          "PEARL_LOOK_SWAPPED|CLAM_LOOK_UNSWAP %s first" % PEARL_V3)
     if mode == "CLAM_LOOK_MAT_CHECK":
-        _req(args.get("material") in CLAM_LOOK_MATERIALS, "LOOK_MATERIAL|%r" % args.get("material"))
+        _req(args.get("material") in CLAM_MAT_CHECK_MATERIALS, "LOOK_MATERIAL|%r" % args.get("material"))
+    _req(not (mode == "CLAM_REVERT" and twin_exists), "TWIN_EXISTS|run CLAM_PEARL_TWIN_REVERT before CLAM_REVERT")
+    _req(not (mode in ("PEARL_SWAP", "PEARL_UNSWAP") and twin_exists),
+         "TWIN_EXISTS|the twin copies the pearl mesh: CLAM_PEARL_TWIN_REVERT before a pearl mesh swap")
+    if mode in ("CLAM_PEARL_TWIN", "CLAM_PEARL_TWIN_SET_MATERIAL"):
+        tm = (args.get("twin") or {}).get("twin_material", TWIN_DEFAULTS["twin_material"])
+        _req(tm in TWIN_MATERIALS, "TWIN_MATERIAL|%r (one of %s)" % (tm, list(TWIN_MATERIALS)))
+    if mode == "CLAM_PEARL_TWIN":
+        _req(clam_record_exists, "NO_CLAM_RECORD|the clam must be applied before the twin")
+        _req(not twin_exists, "TWIN_ALREADY|" + TWIN_RECORD)
+    if mode in ("CLAM_PEARL_TWIN_SET_MATERIAL", "CLAM_PEARL_TWIN_REVERT"):
+        _req(twin_exists, "NO_TWIN_RECORD|" + TWIN_RECORD)
     if mode in ("CLAM_LOOK_SWAP", "CLAM_LOOK_UNSWAP"):
         look = args.get("look")
         _req(look in CLAM_LOOKS, "LOOK|%r (one of %s)" % (look, list(CLAM_LOOKS)))
@@ -899,6 +976,7 @@ def material_specs():
                 "tex_params": {"Nacre": "Nacre"}, "scalars": v2s, "vectors": v2v, "max_wpo": MAX_WPO_CM}
     out = {MASTER: base, MASTER_BREATHE: breathe, PEARL_MASTER: pearl, PEARL_V2_MASTER: pearl_v2}
     out.update(look_specs(pearl_v2, breathe))
+    out.update(pearl_twin_specs(out[PEARL_V3_MASTER]))
     return out
 
 
@@ -1000,6 +1078,67 @@ def look_specs(pearl_v2, breathe):
     return {PEARL_V3_MASTER: pearl_v3, SHELL_V2_MASTER: shell_v2, MANTLE_V2_MASTER: mantle_v2}
 
 
+# ---- Pearl fade twin materials (8 Oct).  Both are built FROM the v3 spec object (deep copies; nothing retyped), so every
+# v3 node / edge / default is present unchanged and the breathing WPO subgraph is the v2 -> v3 one byte for byte.
+GLOW_FADE_CODE = "return E * saturate(F);"
+FADE_OPACITY_CODE = "return saturate(F) * saturate(O);"
+# Translucent BaseColor: v3 shows a faint iridescent surface (IridSurface) over a strongly iridescent subsurface colour
+# (IridSubsurface) weighted by SubsurfaceAmount (MP_OPACITY in Subsurface).  With no subsurface pass, the two are mixed
+# into BaseColor by that SAME SubsurfaceAmount parameter (copied from the live v3 MI), so tuning it still moves the look.
+FADE_BASE_CODE = "return lerp(S.rgb, U.rgb, saturate(K));"
+# Dither: UE 5.8 has NO MaterialExpressionDitherTemporalAA class (no header under Engine/Source/Runtime/Engine; the
+# string is absent from UnrealEditor-Engine.dll, ascii and utf-16 [bin]).  DitherTemporalAA is a MaterialFunction asset
+# (/Engine/Functions/Engine_MaterialFunctions02/Utility/DitherTemporalAA, inputs "Alpha Threshold" + "Random" [bin: its
+# name table]) whose formula and expected clip value cannot be read offline, so a Custom node reproduces the idea with a
+# known contract: interleaved-gradient noise on the pixel position, re-seeded per frame (View.StateFrameIndex) so TSR /
+# MRQ temporal samples average it, and a HARD 0/1 step, so coverage == Fade for ANY OpacityMaskClipValue in (0, 1]
+# (clip(mask - clip), MaterialTemplate.ush:4568-4584 [decl]).  Parameters.SvPosition and View.StateFrameIndex are both
+# read by MaterialTemplate.ush:4584 [decl]; that a Custom node may read them is [inf] (as IRID_PHASE_CODE's
+# Parameters.* reads, which compiled [meas]); proven only by BUILD_MAT + CLAM_LOOK_MAT_CHECK.
+DITHER_CODE = ("float2 p = floor(Parameters.SvPosition.xy) + 5.588238 * (float)(View.StateFrameIndex % 64u); "
+               "float d = clamp(frac(52.9829189 * frac(dot(p, float2(0.06711056, 0.00583715)))), "
+               "0.001953125, 0.998046875); return saturate(F) >= d ? 1.0 : 0.0;")
+
+
+def pearl_twin_specs(pearl_v3):
+    """Pearl_Fade (translucent) + Pearl_Dither (masked) masters, both = deep copies of the v3 spec + the Fade wiring."""
+    v3 = copy.deepcopy(pearl_v3)
+    dn = v3["nodes"]
+    fade_edges = [("InnerGlow", "", "GlowFade", "E"), ("Fade", "", "GlowFade", "F")]
+    # --- dither: v3 + Fade + FadeDither -> MP_OPACITY_MASK; emissive rerouted through GlowFade; everything else as v3
+    nodes_d = dict(dn)
+    nodes_d.update({"Fade": ("scalar", 1.0), "FadeDither": ("custom", (DITHER_CODE, ["F"], "F1")),
+                    "GlowFade": ("custom", (GLOW_FADE_CODE, ["E", "F"], "F3"))})
+    props_d = [("GlowFade", "", p) if p == "MP_EMISSIVE_COLOR" else (s, o, p) for s, o, p in v3["props"]]
+    props_d.append(("FadeDither", "", "MP_OPACITY_MASK"))
+    dither = {"nodes": nodes_d, "shading_model": "MSM_SUBSURFACE", "blend_mode": "BLEND_MASKED", "prop_readback": True,
+              "used_with_nanite": False,                         # twin-only (rendered with Disallow Nanite)
+              "edges": [tuple(e) for e in v3["edges"]] + [("Fade", "", "FadeDither", "F")] + fade_edges,
+              "props": [tuple(p) for p in props_d], "want_props": set(v3["want_props"]) | {"MP_OPACITY_MASK"},
+              "tex_params": dict(v3["tex_params"]), "scalars": dict(v3["scalars"], Fade=1.0),
+              "vectors": dict(v3["vectors"]), "max_wpo": v3["max_wpo"]}
+    # --- translucent: v3 nodes + Fade/BaseOpacity; BaseColor = FadeBase(IridSurface, IridSubsurface, SubsurfaceAmount),
+    #     emissive = GlowFade, MP_OPACITY = FadeOpacity (transparency here), no MP_SUBSURFACE_COLOR
+    nodes_f = copy.deepcopy(dn)
+    nodes_f.update({"Fade": ("scalar", 1.0), "BaseOpacity": ("scalar", 1.0),
+                    "FadeBase": ("custom", (FADE_BASE_CODE, ["S", "U", "K"], "F3")),
+                    "FadeOpacity": ("custom", (FADE_OPACITY_CODE, ["F", "O"], "F1")),
+                    "GlowFade": ("custom", (GLOW_FADE_CODE, ["E", "F"], "F3"))})
+    reroute = {"MP_BASE_COLOR": "FadeBase", "MP_EMISSIVE_COLOR": "GlowFade", "MP_OPACITY": "FadeOpacity"}
+    props_f = [(reroute.get(p, s), o, p) for s, o, p in v3["props"] if p != "MP_SUBSURFACE_COLOR"]
+    fade = {"nodes": nodes_f, "shading_model": "MSM_DEFAULT_LIT", "blend_mode": "BLEND_TRANSLUCENT",
+            "translucency_lighting_mode": "TLM_SURFACE_PER_PIXEL_LIGHTING", "prop_readback": True,
+            "used_with_nanite": False,
+            "edges": [tuple(e) for e in v3["edges"]] + [
+                ("IridSurface", "", "FadeBase", "S"), ("IridSubsurface", "", "FadeBase", "U"),
+                ("SubsurfaceAmount", "", "FadeBase", "K"), ("Fade", "", "FadeOpacity", "F"),
+                ("BaseOpacity", "", "FadeOpacity", "O")] + fade_edges,
+            "props": props_f, "want_props": set(v3["want_props"]) - {"MP_SUBSURFACE_COLOR"},
+            "tex_params": dict(v3["tex_params"]), "scalars": dict(v3["scalars"], Fade=1.0, BaseOpacity=1.0),
+            "vectors": dict(v3["vectors"]), "max_wpo": v3["max_wpo"]}
+    return {PEARL_FADE_MASTER: fade, PEARL_DITHER_MASTER: dither}
+
+
 def material_problems(specs=None):
     out = {}
     for path, s in (specs or material_specs()).items():
@@ -1015,9 +1154,27 @@ def material_problems(specs=None):
         sm = s.get("shading_model", "MSM_DEFAULT_LIT")
         if sm not in SHADING_MODELS:
             p.append("SHADING_MODEL|%s" % sm)
-        if (sm == "MSM_SUBSURFACE" and not SUBSURFACE_PROPS <= set(s["want_props"])) or \
-                (sm != "MSM_SUBSURFACE" and SUBSURFACE_PROPS & set(s["want_props"])):
-            p.append("SUBSURFACE_PINS|%s|%s" % (sm, sorted(SUBSURFACE_PROPS & set(s["want_props"]))))
+        bm, wp = s.get("blend_mode", "BLEND_OPAQUE"), set(s["want_props"])
+        if bm not in BLEND_MODES:
+            p.append("BLEND_MODE|%s" % bm)
+        if ("MP_OPACITY_MASK" in wp) != (bm == "BLEND_MASKED"):         # the mask is read only when MASKED
+            p.append("OPACITY_MASK_BLEND|%s|mask=%s" % (bm, "MP_OPACITY_MASK" in wp))
+        if bm == "BLEND_TRANSLUCENT":                                     # MP_OPACITY = transparency only here
+            if sm == "MSM_SUBSURFACE" or "MP_SUBSURFACE_COLOR" in wp:
+                p.append("TRANSLUCENT_SUBSURFACE|%s" % sm)
+            if "MP_OPACITY" not in wp:
+                p.append("TRANSLUCENT_NO_OPACITY")
+            if s.get("translucency_lighting_mode") not in TLM_MODES:
+                p.append("TLM|%s" % s.get("translucency_lighting_mode"))
+        else:
+            if (sm == "MSM_SUBSURFACE" and not SUBSURFACE_PROPS <= wp) or (sm != "MSM_SUBSURFACE" and SUBSURFACE_PROPS & wp):
+                p.append("SUBSURFACE_PINS|%s|%s" % (sm, sorted(SUBSURFACE_PROPS & wp)))
+            if "MP_OPACITY" in wp and sm != "MSM_SUBSURFACE":
+                p.append("OPACITY_NOT_TRANSPARENCY|%s|%s (MP_OPACITY is transparency only on TRANSLUCENT)" % (bm, sm))
+            if "translucency_lighting_mode" in s:
+                p.append("TLM_ON_NON_TRANSLUCENT|%s" % bm)
+        if "Fade" in s["scalars"]:
+            p += fade_wiring_problems(s)
         if any("CUSTOM_DATA" in x[2] or "CLEAR" in x[2] for x in s["props"]):
             p.append("CLEARCOAT_PIN")
         if p:
@@ -1152,6 +1309,232 @@ def look_table_problems():
         if row["from_material"] == look:
             probs.append("LOOK_REPLACES_ITSELF|%s" % look)
     return probs
+
+
+# ------------------------------------------------------------------------------- pearl fade twin (pure; harness-checkable)
+def fade_wiring_problems(s):
+    """A spec with a "Fade" scalar: default 1, and Fade must reach the opacity property of its blend mode AND the
+    emissive (the glow fades with the pearl)."""
+    probs = []
+    if s["scalars"].get("Fade") != 1.0 or s["nodes"].get("Fade") != ("scalar", 1.0):
+        probs.append("FADE_DEFAULT|%s" % s["scalars"].get("Fade"))
+    src = {p[2]: p[0] for p in s["props"]}
+    want = {"BLEND_MASKED": "MP_OPACITY_MASK", "BLEND_TRANSLUCENT": "MP_OPACITY"}.get(s.get("blend_mode"))
+    for prop in ([want] if want else []) + ["MP_EMISSIVE_COLOR"]:
+        if prop not in src or "Fade" not in _subgraph(s, src[prop])[0]:
+            probs.append("FADE_NOT_WIRED|%s" % prop)
+    if not want:
+        probs.append("FADE_NO_OPACITY_PATH|%s" % s.get("blend_mode"))
+    return probs
+
+
+def twin_table_problems():
+    probs = []
+    specs = material_specs()
+    src_spec = specs[clam_material_row(PEARL_V3)["master"]]
+    for key in TWIN_MATERIALS:
+        m = CLAM_EXTRA_MATERIALS.get(key)
+        if not m or not m.get("master_create_only") or m.get("copy_from") != PEARL_V3:
+            probs.append("TWIN_MATERIAL_ROW|%s" % key)
+            continue
+        s = specs.get(m["master"], {})
+        if m.get("breath_from") != m["copy_from"] or m["tex_set"] != "Pearl" or "Fade" not in s.get("scalars", {}):
+            probs.append("TWIN_ROW_FIELDS|%s" % key)
+        if not set(src_spec["scalars"]) <= set(s.get("scalars", {})) or set(src_spec["vectors"]) != set(s.get("vectors", {})):
+            probs.append("TWIN_COPY_TARGETS|%s" % key)
+        if set(m["scalars"]) & set(src_spec["scalars"]) or set(m["scalars"]) != set(s["scalars"]) - set(src_spec["scalars"]):
+            probs.append("TWIN_NEW_SCALARS|%s|%s" % (key, sorted(m["scalars"])))
+        if key in CLAM_LOOKS or key in CLAM_LOOK_MATERIALS:
+            probs.append("TWIN_IS_A_LOOK|%s" % key)
+    return probs
+
+
+def look_copy_values(key, src):
+    """src = the LIVE copy-source MI as read: {"mi", "parent", "scalars", "vectors", "textures"}.  Returns the explicit
+    values BUILD_MAT writes on the new MI: every source scalar + vector, plus the row's NEW scalars (Fade = 1 ...)."""
+    m = clam_material_row(key)
+    _req(m.get("copy_from"), "NOT_A_COPY_ROW|%s" % key)
+    srow = clam_material_row(m["copy_from"])
+    specs = material_specs()
+    sspec, dspec = specs[srow["master"]], specs[m["master"]]
+    src = src or {}
+    _req(src.get("mi") == clam_mi_path(m["copy_from"]), "COPY_SOURCE|%s" % src.get("mi"))
+    _req(src.get("parent") == srow["master"], "COPY_SOURCE_PARENT|%s want %s" % (src.get("parent"), srow["master"]))
+    sc, vc = src.get("scalars") or {}, src.get("vectors") or {}
+    _req(sorted(sc) == sorted(sspec["scalars"]), "COPY_SCALARS_UNREAD|%s" % sorted(set(sspec["scalars"]) ^ set(sc)))
+    _req(sorted(vc) == sorted(sspec["vectors"]), "COPY_VECTORS_UNREAD|%s" % sorted(set(sspec["vectors"]) ^ set(vc)))
+    _req(all(isinstance(v, (int, float)) and math.isfinite(float(v)) for v in sc.values()), "COPY_SCALAR_VALUE|%s" % sc)
+    _req(all(isinstance(v, list) and len(v) == 4 and all(math.isfinite(float(x)) for x in v) for v in vc.values()),
+         "COPY_VECTOR_VALUE|%s" % vc)
+    _req(not (set(m["scalars"]) & set(sc)), "COPY_ROW_OVERRIDES|%s" % sorted(set(m["scalars"]) & set(sc)))
+    _req(set(sc) | set(m["scalars"]) == set(dspec["scalars"]) and set(vc) == set(dspec["vectors"]),
+         "COPY_TARGET_PARAMS|%s" % key)
+    amp, per = float(sc["BreathAmp"]), float(sc["BreathPeriod"])
+    _req(0.0 <= amp <= MAX_WPO_CM and 0.5 <= per <= 60.0, "BREATH_SOURCE_RANGE|amp=%s|period=%s" % (amp, per))
+    for param, role in dspec["tex_params"].items():
+        want = tex_target(CLAM, m["tex_set"], role)["asset"]
+        _req((src.get("textures") or {}).get(param) == want,
+             "COPY_TEXTURE_DIFFERS|%s|%s want %s" % (param, (src.get("textures") or {}).get(param), want))
+    return {"scalars": dict({k: float(v) for k, v in sc.items()}, **{k: float(v) for k, v in m["scalars"].items()}),
+            "vectors": {k: [float(x) for x in v] for k, v in vc.items()}, "source": json.loads(json.dumps(src))}
+
+
+def glow_fade_eval(e, f):
+    """Python mirror of GLOW_FADE_CODE."""
+    return [x * _sat(f) for x in e]
+
+
+def fade_opacity_eval(f, o):
+    """Python mirror of FADE_OPACITY_CODE."""
+    return _sat(f) * _sat(o)
+
+
+def fade_base_eval(s, u, k):
+    """Python mirror of FADE_BASE_CODE."""
+    return [s[i] + (u[i] - s[i]) * _sat(k) for i in range(3)]
+
+
+def dither_eval(f, x, y, frame):
+    """Python mirror of DITHER_CODE: 1.0 = pixel kept (mask 1 >= any clip value in (0, 1]), 0.0 = clipped."""
+    px, py = math.floor(x) + 5.588238 * float(frame % 64), math.floor(y) + 5.588238 * float(frame % 64)
+    d = (52.9829189 * ((0.06711056 * px + 0.00583715 * py) % 1.0)) % 1.0
+    d = min(0.998046875, max(0.001953125, d))
+    return 1.0 if _sat(f) >= d else 0.0
+
+
+def _twin_rows(live):
+    return [t for t in (live.get("twins") or [])]
+
+
+def twin_plan(clam_record, live, args_twin=None):
+    """live = {"pearl": state, "root": {count, object_path}, "twins": [states of actors labelled TWIN_LABEL or tagged
+    TWIN_TAG], "glow": {count, parent_path}, "assets": {path: bool}, "breath": {mi: {BreathAmp, BreathPeriod}}}."""
+    a = dict(TWIN_DEFAULTS, **(args_twin or {}))
+    tm = a["twin_material"]
+    _req(tm in TWIN_MATERIALS, "TWIN_MATERIAL|%r (one of %s)" % (tm, list(TWIN_MATERIALS)))
+    _req(clam_record.get("applied") and clam_record.get("saved"), "CLAM_RECORD_NOT_APPLIED")
+    paths = clam_record.get("actor_paths") or {}
+    P = live.get("pearl") or {}
+    _req(P.get("count") == 1, "TWIN_PEARL_COUNT|%s" % P.get("count"))
+    _req(P["label"] == CLAM_LABELS["Pearl"] and P["object_path"] == paths.get("Pearl"),
+         "TWIN_PEARL_PATH|%s vs record %s" % (P["object_path"], paths.get("Pearl")))
+    _req(P["parent_path"] == paths.get("Bottom"), "TWIN_PEARL_PARENT|%s want %s" % (P["parent_path"], paths.get("Bottom")))
+    R = live.get("root") or {}
+    _req(R.get("count") == 1 and R.get("object_path") == paths.get("Bottom"), "TWIN_ROOT|%s" % R)
+    _req(P["mesh"] == clam_mesh_path(PEARL_V2), "TWIN_MESH|live pearl mesh %s (expected the v2 mesh)" % P["mesh"])
+    _req(not _twin_rows(live), "TWIN_EXISTS_LIVE|%s" % [t.get("object_path") for t in _twin_rows(live)])
+    row = clam_material_row(tm)
+    new_mi = clam_mi_path(tm)
+    _req((live.get("assets") or {}).get(new_mi) and (live.get("assets") or {}).get(row["master"]),
+         "TWIN_MATERIAL_MISSING|%s (BUILD_MAT %s first)" % (new_mi, tm))
+    _req(P["wpo_eval"] is True, "TWIN_PEARL_WPO_OFF")
+    pmi = P["materials"][0] if P.get("materials") else None
+    ob, nb = (live.get("breath") or {}).get(pmi), (live.get("breath") or {}).get(new_mi)
+    _req(ob and nb and sorted(ob) == sorted(BREATH_PARAMS) and sorted(nb) == sorted(BREATH_PARAMS),
+         "TWIN_BREATH_UNREAD|%s|%s" % (ob, nb))
+    _req(_breath_close(ob, nb) or a["allow_breath_change"], "TWIN_BREATH_MISMATCH|pearl %s|twin %s" % (ob, nb))
+    G = live.get("glow") or {}
+    cast = TWIN_MATERIALS[tm]["cast_shadow"] if a["cast_shadow"] is None else bool(a["cast_shadow"])
+    expect = {"label": TWIN_LABEL, "tags": [TWIN_TAG], "parent_path": paths["Bottom"], "mesh": P["mesh"],
+              "materials": [new_mi], "override_materials": [new_mi], "rel": json.loads(json.dumps(P["rel"])),
+              "hidden": True, "mobility": "MOVABLE", "cast_shadow": cast, "folder": P["folder"], "wpo_eval": True,
+              "disallow_nanite": bool(a["disallow_nanite"])}
+    op = dict(json.loads(json.dumps(expect)), op="spawn_twin", world=json.loads(json.dumps(P["world"])))
+    return {"twin_material": tm, "mi": new_mi, "op": op, "expect": expect, "pearl_before": json.loads(json.dumps(P)),
+            "glow_before": json.loads(json.dumps(G)), "breath": {"pearl": ob, "twin": nb, "pearl_mi": pmi}, "args": a}
+
+
+def twin_state_problems(got, want, keys=TWIN_STATE_KEYS):
+    probs = []
+    if not got:
+        return ["TWIN_MISSING"]
+    for k in keys:
+        if k == "rel":
+            g, w = got.get("rel") or {}, want["rel"]
+            if not (near(g.get("location", [1e9] * 3), w["location"], TOL_CM) and
+                    near([_wrap(x) for x in g.get("rotation", [1e9] * 3)], [_wrap(x) for x in w["rotation"]], 0.01) and
+                    near(g.get("scale", [1e9] * 3), w["scale"], 1e-6)):
+                probs.append("REL|%s|want %s" % (g, w))
+        elif k == "tags":
+            if TWIN_TAG not in (got.get("tags") or []):
+                probs.append("TAGS|%s" % got.get("tags"))
+        elif got.get(k) != want[k]:
+            probs.append("%s|%s|want %s" % (k.upper(), got.get(k), want[k]))
+    return probs
+
+
+def twin_simulate(op):
+    """The twin state a correct spawn produces (harness)."""
+    _req(op.get("op") == "spawn_twin", "SIM_TWIN_OP")
+    s = {k: json.loads(json.dumps(op[k])) for k in TWIN_STATE_KEYS}
+    s.update(count=1, object_path="PersistentLevel.StaticMeshActor_TWIN")
+    return s
+
+
+def twin_untouched_problems(plan, pearl_now, glow_now):
+    """The solid pearl and the attached glow light must read exactly as before the twin call."""
+    probs = []
+    b = plan["pearl_before"]
+    for k in PEARL_STATE_KEYS:
+        if json.dumps((pearl_now or {}).get(k), sort_keys=True) != json.dumps(b.get(k), sort_keys=True):
+            probs.append("PEARL_TOUCHED|%s" % k)
+    if json.dumps(glow_now or {}, sort_keys=True) != json.dumps(plan["glow_before"], sort_keys=True):
+        probs.append("GLOW_TOUCHED|%s|was %s" % (glow_now, plan["glow_before"]))
+    return probs
+
+
+def _twin_record_target(record, live):
+    _req(record.get("applied") and record.get("saved") and record.get("object_path"), "TWIN_RECORD_INVALID")
+    _req(not record.get("pending_set"), "TWIN_PENDING|%s (a SET_MATERIAL did not finish)" % record.get("pending_set"))
+    rows = _twin_rows(live)
+    _req(rows, "TWIN_MISSING|no actor labelled %r or tagged %s" % (TWIN_LABEL, TWIN_TAG))
+    _req(len(rows) == 1, "TWIN_COUNT|%d" % len(rows))
+    t = rows[0]
+    _req(t.get("object_path") == record["object_path"], "TWIN_PATH|%s vs record %s" % (t.get("object_path"),
+                                                                                    record["object_path"]))
+    _req(t.get("label") == TWIN_LABEL and TWIN_TAG in (t.get("tags") or []), "TWIN_NOT_TAGGED|%s|%s" % (
+        t.get("label"), t.get("tags")))
+    return t
+
+
+def twin_set_material_plan(record, live, args_twin=None):
+    """Swap ONLY the twin's slot 0 between the twin materials.  Refuses a missing / untagged / drifted twin, an
+    unbuilt target, the material already on, and a breath change (the twin must breathe like the pearl)."""
+    a = dict(TWIN_DEFAULTS, **(args_twin or {}))
+    tm = a["twin_material"]
+    _req(tm in TWIN_MATERIALS, "TWIN_MATERIAL|%r" % tm)
+    t = _twin_record_target(record, live)
+    drift = twin_state_problems(t, record["expect"], TWIN_DRIFT_KEYS)
+    _req(not drift, "TWIN_DRIFT|%s" % ";".join(drift))
+    new_mi = clam_mi_path(tm)
+    _req(t["materials"][0] != new_mi, "TWIN_MATERIAL_ALREADY|%s" % new_mi)
+    row = clam_material_row(tm)
+    _req((live.get("assets") or {}).get(new_mi) and (live.get("assets") or {}).get(row["master"]),
+         "TWIN_MATERIAL_MISSING|%s (BUILD_MAT %s first)" % (new_mi, tm))
+    ob, nb = (live.get("breath") or {}).get(t["materials"][0]), (live.get("breath") or {}).get(new_mi)
+    _req(ob and nb and sorted(ob) == sorted(BREATH_PARAMS) and sorted(nb) == sorted(BREATH_PARAMS),
+         "TWIN_BREATH_UNREAD|%s|%s" % (ob, nb))
+    _req(_breath_close(ob, nb) or a["allow_breath_change"], "TWIN_BREATH_MISMATCH|old %s|new %s" % (ob, nb))
+    cast = TWIN_MATERIALS[tm]["cast_shadow"] if a["cast_shadow"] is None else bool(a["cast_shadow"])
+    after = dict(json.loads(json.dumps(record["expect"])), materials=[new_mi], override_materials=[new_mi],
+                 cast_shadow=cast)
+    return {"twin_material": tm, "object_path": t["object_path"], "old_mi": t["materials"][0], "new_mi": new_mi,
+            "before": json.loads(json.dumps(record["expect"])), "after": after, "hidden_now": t.get("hidden"),
+            "args": a}
+
+
+def twin_revert_plan(record, live, args_twin=None):
+    """Destroy ONLY the recorded, tagged twin.  A sequence binding on it (the owning session keys it in LS_DevScene_03)
+    refuses unless allow_bound_revert (a destroyed actor would leave that binding dangling)."""
+    a = dict(TWIN_DEFAULTS, **(args_twin or {}))
+    t = _twin_record_target(dict(record, pending_set=None), live)
+    _req(t.get("parent_path") == record["expect"]["parent_path"], "TWIN_PARENT|%s" % t.get("parent_path"))
+    tracks = (live.get("twin_tracks") or {})
+    _req(isinstance(tracks, dict) and tracks and not any(v == "UNREAD" for v in tracks.values()),
+         "TWIN_TRACKS_UNREAD|%s" % tracks)
+    bound = sorted(p for p, v in tracks.items() if v)
+    _req(not bound or a["allow_bound_revert"], "TWIN_BOUND|%s (unbind it there first, or allow_bound_revert)" % bound)
+    return {"op": "destroy_twin", "object_path": t["object_path"], "label": TWIN_LABEL, "bound": bound}
 
 
 # ------------------------------------------------------------------------------- clam look swap (pure; harness-checkable)
@@ -2711,17 +3094,28 @@ def _build_material(path, spec, textures):
     """Create-only (refuses an existing asset; never deletes nodes).  textures: role -> Texture2D defaults."""
     mel = unreal.MaterialEditingLibrary
     _req(not unreal.EditorAssetLibrary.does_asset_exist(path), "MATERIAL_EXISTS|%s" % path)
+    # enums resolved BEFORE the asset exists: a wrong Python spelling refuses with nothing created
+    try:
+        blend = getattr(unreal.BlendMode, spec.get("blend_mode", "BLEND_OPAQUE"))
+        shading = getattr(unreal.MaterialShadingModel, spec.get("shading_model", "MSM_DEFAULT_LIT"))
+        tlm = (getattr(unreal.TranslucencyLightingMode, spec["translucency_lighting_mode"])
+               if "translucency_lighting_mode" in spec else None)
+    except AttributeError as exc:
+        raise PlanError("ENUM_SPELLING|%s" % exc)
     tools = unreal.AssetToolsHelpers.get_asset_tools()
     folder, name = path.rsplit("/", 1)
     mat = tools.create_asset(name, folder, unreal.Material, unreal.MaterialFactoryNew())
     _req(mat is not None, "MATERIAL_CREATE|%s" % path)
     mat.modify()
-    mat.set_editor_property("blend_mode", unreal.BlendMode.BLEND_OPAQUE)
+    mat.set_editor_property("blend_mode", blend)
     # EngineTypes.h:707-711 [decl] MSM_DefaultLit / MSM_Subsurface; Python name MSM_SUBSURFACE by the same mangling as
     # the MSM_DEFAULT_LIT already used here [inf until the first Subsurface BUILD_MAT; read back by _verify_material]
-    mat.set_editor_property("shading_model", getattr(unreal.MaterialShadingModel,
-                                                     spec.get("shading_model", "MSM_DEFAULT_LIT")))
-    mat.set_editor_property("used_with_nanite", True)
+    mat.set_editor_property("shading_model", shading)
+    if tlm is not None:                                  # Material.h TranslucencyLightingMode [inf name; read back]
+        mat.set_editor_property("translucency_lighting_mode", tlm)
+    if spec.get("blend_mode") == "BLEND_MASKED":         # Material.h:571-573 DitherOpacityMask [decl]: OFF, our Custom
+        mat.set_editor_property("dither_opacity_mask", False)   # node already dithers (read back)
+    mat.set_editor_property("used_with_nanite", bool(spec.get("used_with_nanite", True)))
     if spec["max_wpo"] is not None:
         mat.set_editor_property("max_world_position_offset_displacement", float(spec["max_wpo"]))
     made = {}
@@ -2820,13 +3214,34 @@ def _verify_material(mat, spec):
     _req(tp == sorted(spec["tex_params"]), "MASTER_TEX_PARAMS|%s" % tp)
     _req(sp == sorted(spec["scalars"]), "MASTER_SCALARS|%s" % sp)
     _req(vp == sorted(spec["vectors"]), "MASTER_VECTORS|%s" % vp)
-    _req(bool(mat.get_editor_property("used_with_nanite")), "MASTER_NANITE_USAGE")
+    _req(bool(mat.get_editor_property("used_with_nanite")) == bool(spec.get("used_with_nanite", True)),
+         "MASTER_NANITE_USAGE")
+    rb = {}
     if "shading_model" in spec:                         # look masters only (older specs never declared one)
         sm = _enum_name(mat.get_editor_property("shading_model"))
         _req(sm == spec["shading_model"], "MASTER_SHADING_MODEL|%s|want %s" % (sm, spec["shading_model"]))
+        rb["shading_model"] = sm
     if spec["max_wpo"] is not None:
         got = float(mat.get_editor_property("max_world_position_offset_displacement"))
         _req(abs(got - spec["max_wpo"]) < 1e-4, "MASTER_MAX_WPO|%s" % got)
+    if "blend_mode" in spec:                            # twin masters only
+        try:
+            bm = _enum_name(mat.get_editor_property("blend_mode"))
+            tlm = (_enum_name(mat.get_editor_property("translucency_lighting_mode"))
+                   if "translucency_lighting_mode" in spec else None)
+            clip = float(mat.get_editor_property("opacity_mask_clip_value"))
+            dom = bool(mat.get_editor_property("dither_opacity_mask")) if spec["blend_mode"] == "BLEND_MASKED" else None
+        except Exception as exc:  # noqa: BLE001
+            raise PlanError("MASTER_PROP_UNREADABLE|%s" % str(exc)[:200])
+        _req(bm == spec["blend_mode"], "MASTER_BLEND_MODE|%s|want %s" % (bm, spec["blend_mode"]))
+        _req(tlm == spec.get("translucency_lighting_mode"), "MASTER_TLM|%s|want %s" % (
+            tlm, spec.get("translucency_lighting_mode")))
+        # left at the engine default (Material.h:530-536 [decl]; the default value lives in the .cpp, not shipped
+        # [inf ~0.3333]).  The dither outputs a hard 0/1, so ANY clip value in (0, 1] gives coverage == Fade.
+        _req(math.isfinite(clip) and 0.0 < clip <= 1.0, "MASTER_CLIP_VALUE|%s" % clip)
+        _req(dom in (None, False), "MASTER_DITHER_OPACITY_MASK_ON")
+        rb.update(blend_mode=bm, translucency_lighting_mode=tlm, opacity_mask_clip_value=clip, dither_opacity_mask=dom)
+    return rb
 
 
 def _build_master(textures):
@@ -2882,6 +3297,23 @@ def run_build_mat(run, name):
     return rec
 
 
+def _read_mi_values(mi_path, spec):
+    """The LIVE effective values of an MI for every parameter its master spec declares (look_copy_values checks them)."""
+    mel = unreal.MaterialEditingLibrary
+    mi = unreal.load_asset(mi_path)
+    _req(mi is not None, "COPY_SOURCE_LOAD|%s" % mi_path)
+    out = {"mi": mi_path, "parent": _asset_path(mi.get_editor_property("parent")), "scalars": {}, "vectors": {},
+           "textures": {}}
+    for k in spec["scalars"]:
+        out["scalars"][k] = float(mel.get_material_instance_scalar_parameter_value(mi, k))
+    for k in spec["vectors"]:
+        c = mel.get_material_instance_vector_parameter_value(mi, k)
+        out["vectors"][k] = [float(c.r), float(c.g), float(c.b), float(c.a)]
+    for k in spec["tex_params"]:
+        out["textures"][k] = _asset_path(mel.get_material_instance_texture_parameter_value(mi, k))
+    return out
+
+
 def run_build_clam_mat(run, key, args=None):
     """One clam MI per call (Shell | InteriorBottom | InteriorLid | Mantle | Pearl); its master is created first if missing.
     Look materials (Pearl_v3 | Shell_v2 | Mantle_v2): master AND MI must both be new; breathing scalars copied from the
@@ -2893,19 +3325,33 @@ def run_build_clam_mat(run, key, args=None):
     spec = material_specs()[m["master"]]
     mi_path = clam_mi_path(key)
     _req(not eal.does_asset_exist(mi_path), "MI_EXISTS|%s" % mi_path)
-    breath_src = None
+    breath_src, copied = None, None
     if m.get("master_create_only"):
         _req(not look_table_problems(), "LOOK_TABLE|%s" % look_table_problems())
         _req(not eal.does_asset_exist(m["master"]), "LOOK_MASTER_EXISTS|%s (create-only: never edit an existing master)"
              % m["master"])
         spec = dict(spec, allow_prop_readback_unavailable=bool((args or {}).get("allow_prop_readback_unavailable")))
-        if m.get("breath_from"):
+        tlm_arg = (args or {}).get("translucency_lighting_mode")
+        if tlm_arg is not None:
+            _req(spec.get("blend_mode") == "BLEND_TRANSLUCENT" and tlm_arg in TLM_MODES,
+                 "TLM_ARG|%r (translucent masters only; one of %s)" % (tlm_arg, TLM_MODES))
+            spec = dict(spec, translucency_lighting_mode=tlm_arg)
+        if m.get("copy_from"):
+            _req(not twin_table_problems(), "TWIN_TABLE|%s" % twin_table_problems())
+            src_spec = material_specs()[clam_material_row(m["copy_from"])["master"]]
+            copied = look_copy_values(key, _read_mi_values(clam_mi_path(m["copy_from"]), src_spec))
+            breath_src = {k: copied["scalars"][k] for k in BREATH_PARAMS}
+        elif m.get("breath_from"):
             src_path = clam_mi_path(m["breath_from"])
             src = unreal.load_asset(src_path)
             _req(src is not None, "BREATH_SOURCE_LOAD|%s" % src_path)
             breath_src = {k: float(mel.get_material_instance_scalar_parameter_value(src, k)) for k in BREATH_PARAMS}
             src = None
-    mi_scal = look_mi_scalars(key, breath_src) if m.get("master_create_only") else m["scalars"]
+    if copied:
+        mi_scal, mi_vec = copied["scalars"], copied["vectors"]
+    else:
+        mi_scal = look_mi_scalars(key, breath_src) if m.get("master_create_only") else m["scalars"]
+        mi_vec = m["vectors"]
     textures = {}
     if m["tex_set"]:
         for r in CLAM_TEX[m["tex_set"]]:
@@ -2926,7 +3372,7 @@ def run_build_clam_mat(run, key, args=None):
     else:
         mat = unreal.load_asset(m["master"])
         _req(isinstance(mat, unreal.Material), "MASTER_LOAD|%s" % m["master"])
-    _verify_material(mat, spec)
+    mat_rb = _verify_material(mat, spec)
     tools = unreal.AssetToolsHelpers.get_asset_tools()
     mi = tools.create_asset(m["mi"], CLAM_FOLDER, unreal.MaterialInstanceConstant,
                             unreal.MaterialInstanceConstantFactoryNew())
@@ -2937,7 +3383,7 @@ def run_build_clam_mat(run, key, args=None):
         mel.set_material_instance_texture_parameter_value(mi, param, textures[role])      # bool lies: read back
     for k, v in mi_scal.items():
         mel.set_material_instance_scalar_parameter_value(mi, k, float(v))
-    for k, v in m["vectors"].items():
+    for k, v in mi_vec.items():
         mel.set_material_instance_vector_parameter_value(mi, k, unreal.LinearColor(*[float(c) for c in v]))
     mel.update_material_instance(mi)
     _req(_path(mi.get_editor_property("parent")) == _path(mat), "MI_PARENT")
@@ -2951,7 +3397,7 @@ def run_build_clam_mat(run, key, args=None):
     for k in spec["vectors"]:
         c = mel.get_material_instance_vector_parameter_value(mi, k)
         vec[k] = [float(c.r), float(c.g), float(c.b), float(c.a)]
-    wantv = dict(spec["vectors"], **m["vectors"])
+    wantv = dict(spec["vectors"], **mi_vec)
     _req(all(near(vec[k], wantv[k], 1e-4) for k in wantv), "MI_VECTORS|%s" % vec)
     _req(_census() == {"content": sorted(planned), "maps": []}, "DIRTY_SCOPE|%s" % _census())
     for a in planned:
@@ -2965,6 +3411,9 @@ def run_build_clam_mat(run, key, args=None):
         rec.update(mi_explicit_scalars=mi_scal, breath_source=(clam_mi_path(m["breath_from"]) if m.get("breath_from")
                                                                else None), breath_inherited=breath_src,
                    shading_model=spec.get("shading_model"))
+    if copied:
+        rec.update(copied_from=copied["source"], mi_explicit_vectors=mi_vec, material_readback=mat_rb,
+                   blend_mode=spec.get("blend_mode"), translucency_lighting_mode=spec.get("translucency_lighting_mode"))
     _write(HERE + "s3_props_build_mat_PearlClam_%s.json" % key, rec)
     return rec
 
@@ -3417,16 +3866,25 @@ def run_clam_look_mat_check(run, key):
     """Read-only, a LATER call than BUILD_MAT <key>: master spec + shading model + connected properties read back, MI
     parent / textures / scalars vs the BUILD_MAT record, then the editor log scanned for compile failures."""
     mel = unreal.MaterialEditingLibrary
-    _req(key in CLAM_LOOK_MATERIALS, "LOOK_MATERIAL|%r" % key)
+    _req(key in CLAM_MAT_CHECK_MATERIALS, "LOOK_MATERIAL|%r" % key)
     m = clam_material_row(key)
     spec = material_specs()[m["master"]]
     build_path = HERE + "s3_props_build_mat_PearlClam_%s.json" % key
     _req(os.path.exists(build_path), "NO_BUILD_RECORD|%s" % build_path)
     with open(build_path, encoding="utf-8") as h:
         built_rec = json.load(h)
+    if built_rec.get("translucency_lighting_mode"):          # a BUILD_MAT arg may have chosen another TLM: check THAT
+        spec = dict(spec, translucency_lighting_mode=built_rec["translucency_lighting_mode"])
     mat, mi = unreal.load_asset(m["master"]), unreal.load_asset(clam_mi_path(key))
     _req(isinstance(mat, unreal.Material) and mi is not None, "LOOK_MATERIAL_LOAD|%s" % key)
-    _verify_material(mat, spec)
+    mat_rb = _verify_material(mat, spec)
+    if m.get("copy_from"):
+        vec = {}
+        for k in spec["vectors"]:
+            c = mel.get_material_instance_vector_parameter_value(mi, k)
+            vec[k] = [float(c.r), float(c.g), float(c.b), float(c.a)]
+        _req(all(near(vec[k], built_rec["vectors"][k], 1e-4) for k in spec["vectors"]),
+             "MI_VECTORS_VS_BUILD|%s|%s" % (vec, built_rec["vectors"]))
     rows = _read_props(mat, spec)
     rb = prop_readback_problems(rows, spec, None, False)
     _req(not rb or rb[0].startswith("PROP_READBACK_UNAVAILABLE"), "PROP_READBACK|%s" % rb)
@@ -3453,7 +3911,8 @@ def run_clam_look_mat_check(run, key):
     built = [ln for ln in lines if "S3PROPS_BUILD_MAT_OK" in ln and m["mi"] in ln]
     rec = {"run": run, "material": key, "log": log, "build_marker_in_log": bool(built), "named_errors": named,
            "unattributed_failed_to_compile": unattributed[-10:], "stats": stats, "scalars": scal,
-           "prop_readback": rows, "prop_readback_unavailable": bool(rb), "shading_model": spec.get("shading_model")}
+           "prop_readback": rows, "prop_readback_unavailable": bool(rb), "shading_model": spec.get("shading_model"),
+           "material_readback": mat_rb}
     _write(HERE + "s3_clam_look_mat_check_%s_%s.json" % (key, run), rec)
     return rec
 
@@ -3575,6 +4034,188 @@ def run_clam_look_unswap(run, args, world):
             "backup": backup}
 
 
+# ------------------------------------------------------------------------------------------- pearl fade twin glue
+def _twin_state(a):
+    c = _smc(a)
+    try:                                   # StaticMeshComponent.h:166 bDisallowNanite [decl]; Python name [inf]
+        dn = bool(c.get_editor_property("disallow_nanite"))
+    except Exception:  # noqa: BLE001
+        dn = "UNREAD"                      # never equals True/False: the twin read-back fails closed
+    return {"count": 1, "label": str(a.get_actor_label()), "object_path": _path(a),
+            "parent_path": _path(a.get_attach_parent_actor()),
+            "tags": [str(t) for t in a.get_editor_property("tags")],
+            "mesh": _asset_path(c.get_editor_property("static_mesh")),
+            "materials": [_asset_path(c.get_material(i)) for i in range(int(c.get_num_materials()))],
+            "override_materials": [_asset_path(m) for m in c.get_editor_property("override_materials")],
+            "rel": {"location": _v(c.get_editor_property("relative_location")),
+                    "rotation": _r(c.get_editor_property("relative_rotation")),
+                    "scale": _v(c.get_editor_property("relative_scale3d"))},
+            "world": _world_tf(a), "hidden": bool(a.get_editor_property("hidden")),
+            "wpo_eval": bool(c.get_editor_property("evaluate_world_position_offset")),
+            "mobility": _enum_name(c.get_editor_property("mobility")),
+            "cast_shadow": bool(c.get_editor_property("cast_shadow")),        # PrimitiveComponent.h:548 [decl]
+            "folder": str(a.get_folder_path()), "disallow_nanite": dn}
+
+
+def _twin_live(world, with_tracks=False):
+    """Plain data only (no UE object outlives the call)."""
+    mel, eal = unreal.MaterialEditingLibrary, unreal.EditorAssetLibrary
+    idx = _index(world)
+    rows = idx.get(CLAM_LABELS["Pearl"], [])
+    live = {"pearl": _twin_state(rows[0]) if len(rows) == 1 else {"count": len(rows)}}
+    rows = idx.get(CLAM_LABELS["Bottom"], [])
+    live["root"] = {"count": len(rows), "object_path": _path(rows[0]) if len(rows) == 1 else None}
+    rows = idx.get(GLOW_LABEL, [])
+    live["glow"] = {"count": len(rows), "parent_path": _path(rows[0].get_attach_parent_actor()) if len(rows) == 1 else None}
+    twins = [a for a in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor)
+             if str(a.get_actor_label()) == TWIN_LABEL or TWIN_TAG in [str(t) for t in a.get_editor_property("tags")]]
+    live["twins"] = [_twin_state(a) for a in twins]
+    if with_tracks and len(twins) == 1:
+        live["twin_tracks"] = {p: _sequence_tracks(unreal.load_asset(p), world, twins[0]) for p in CLAM_SEQUENCES}
+    twins, idx, rows = None, None, None
+    live["assets"] = {}
+    for key in TWIN_MATERIALS:
+        for p in (clam_mi_path(key), clam_material_row(key)["master"]):
+            live["assets"][p] = bool(eal.does_asset_exist(p))
+    mis = {clam_mi_path(k) for k in TWIN_MATERIALS} | set(live["pearl"].get("materials") or [])
+    mis |= {t["materials"][0] for t in live["twins"] if t.get("materials")}
+    live["breath"] = {}
+    for p in sorted(x for x in mis if x):
+        if eal.does_asset_exist(p):
+            mi = unreal.load_asset(p)
+            _req(mi is not None, "TWIN_MI_LOAD|%s" % p)
+            live["breath"][p] = {k: float(mel.get_material_instance_scalar_parameter_value(mi, k)) for k in BREATH_PARAMS}
+            mi = None
+    return live
+
+
+def _spawn_twin(op, root_actor):
+    eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    w = op["world"]
+    a = eas.spawn_actor_from_class(unreal.StaticMeshActor, unreal.Vector(*w["location"]),
+                                   unreal.Rotator(roll=w["rotation"][0], pitch=w["rotation"][1], yaw=w["rotation"][2]),
+                                   False)
+    _req(a is not None, "SPAWN_FAILED|twin")
+    a.set_actor_label(op["label"])
+    a.set_actor_scale3d(unreal.Vector(*w["scale"]))
+    c = a.static_mesh_component
+    c.set_mobility(unreal.ComponentMobility.MOVABLE)
+    mesh, mi = unreal.load_asset(op["mesh"]), unreal.load_asset(op["materials"][0])
+    _req(isinstance(mesh, unreal.StaticMesh) and mi is not None, "ASSET_LOAD|%s|%s" % (op["mesh"], op["materials"][0]))
+    c.modify()
+    c.set_static_mesh(mesh)                                          # return values not trusted: read back
+    c.set_material(0, mi)
+    c.set_mobility(getattr(unreal.ComponentMobility, op["mobility"]))
+    if not bool(c.get_editor_property("evaluate_world_position_offset")):
+        c.set_evaluate_world_position_offset(True)
+    c.set_cast_shadow(bool(op["cast_shadow"]))                        # PrimitiveComponent SetCastShadow [inf name]
+    c.set_editor_property("disallow_nanite", bool(op["disallow_nanite"]))
+    a.set_editor_property("tags", [unreal.Name(t) for t in op["tags"]])
+    a.set_folder_path(op["folder"])
+    a.set_actor_hidden_in_game(bool(op["hidden"]))
+    rule = unreal.AttachmentRule.KEEP_WORLD                         # spawned AT the pearl's world transform
+    a.attach_to_actor(root_actor, "", rule, rule, rule, False)      # return value not trusted
+    return a
+
+
+def _twin_check(world, object_path, want, keys=TWIN_STATE_KEYS, plan=None, pearl_glow_before=None):
+    live = _twin_live(world)
+    _req(len(live["twins"]) == 1 and live["twins"][0]["object_path"] == object_path,
+         "TWIN_COUNT_AFTER|%s" % [t["object_path"] for t in live["twins"]])
+    probs = twin_state_problems(live["twins"][0], want, keys)
+    _req(not probs, "TWIN_READBACK|%s" % ";".join(probs))
+    ref = plan or {"pearl_before": pearl_glow_before[0], "glow_before": pearl_glow_before[1]}
+    up = twin_untouched_problems(ref, live["pearl"], live["glow"])
+    _req(not up, "TWIN_SIDE_EFFECT|%s" % ";".join(up))
+    return live["twins"][0]
+
+
+def run_clam_pearl_twin(run, args, world):
+    with open(CLAM_RECORD, encoding="utf-8") as h:
+        clam = json.load(h)
+    plan = twin_plan(clam, _twin_live(world), args.get("twin"))
+    record = {"run": run, "world": WORLD, "plan": plan, "expect": plan["expect"], "twin_material": plan["twin_material"],
+              "object_path": None, "clam_record_run": clam.get("run"), "census_before": _census(), "saved": False,
+              "applied": False, "material_history": [], "pending_set": None}
+    _write(TWIN_RECORD, record, exclusive=True)                            # RECORD FIRST
+    unreal.log("S3PEARLTWIN_RECORD|run=%s|path=%s|mi=%s" % (run, TWIN_RECORD, plan["mi"]))
+    record["backup"] = _backup(BACKUP_ROOT_TWIN, run, (TWIN_RECORD,))
+    _write(TWIN_RECORD, record)
+    root = _by_path(world, plan["expect"]["parent_path"])
+    _req(root is not None and str(root.get_actor_label()) == CLAM_LABELS["Bottom"], "TWIN_ROOT_LOOKUP")
+    a = _spawn_twin(plan["op"], root)
+    record["object_path"] = _path(a)
+    a, root = None, None
+    _write(TWIN_RECORD, record)
+    _twin_check(world, record["object_path"], plan["expect"], plan=plan)
+    _save(world, [])                                                       # map only (census-exact)
+    record["saved"] = True
+    _write(TWIN_RECORD, record)
+    got = _twin_check(world, record["object_path"], plan["expect"], plan=plan)   # fresh lookups after the save
+    record["applied"], record["after_readback"] = True, got
+    _write(TWIN_RECORD, record)
+    return {"twin": record["object_path"], "label": TWIN_LABEL, "mi": plan["mi"], "slot": 0, "parameter": "Fade",
+            "rel": got["rel"], "parent": got["parent_path"], "hidden": got["hidden"], "cast_shadow": got["cast_shadow"],
+            "disallow_nanite": got["disallow_nanite"], "backup": record["backup"]}
+
+
+def run_clam_pearl_twin_set_material(run, args, world):
+    with open(TWIN_RECORD, encoding="utf-8") as h:
+        record = json.load(h)
+    live = _twin_live(world)
+    plan = twin_set_material_plan(record, live, args.get("twin"))
+    before_pg = (live["pearl"], live["glow"])
+    record["pending_set"] = {"run": run, "plan": plan, "saved": False}
+    _write(TWIN_RECORD, record)                                            # RECORD FIRST (old MI)
+    unreal.log("S3PEARLTWIN_SET_RECORD|run=%s|old=%s|new=%s" % (run, plan["old_mi"], plan["new_mi"]))
+    backup = _backup(BACKUP_ROOT_TWIN, run + "-SET", (TWIN_RECORD,))
+    a = _by_path(world, plan["object_path"])
+    _req(a is not None and str(a.get_actor_label()) == TWIN_LABEL and
+         TWIN_TAG in [str(t) for t in a.get_editor_property("tags")], "TWIN_NOT_TAGGED|lookup")
+    c = _smc(a)
+    mi = unreal.load_asset(plan["new_mi"])
+    _req(mi is not None, "ASSET_LOAD|%s" % plan["new_mi"])
+    a.modify()
+    c.modify()
+    c.set_material(0, mi)
+    c.set_cast_shadow(bool(plan["after"]["cast_shadow"]))
+    a, c, mi = None, None, None
+    _twin_check(world, plan["object_path"], plan["after"], TWIN_DRIFT_KEYS, pearl_glow_before=before_pg)
+    _save(world, [])
+    record["pending_set"]["saved"] = True
+    _write(TWIN_RECORD, record)
+    _twin_check(world, plan["object_path"], plan["after"], TWIN_DRIFT_KEYS, pearl_glow_before=before_pg)
+    record["material_history"].append({"run": run, "from": plan["old_mi"], "to": plan["new_mi"], "backup": backup})
+    record["expect"], record["twin_material"], record["pending_set"] = plan["after"], plan["twin_material"], None
+    _write(TWIN_RECORD, record)
+    return {"twin": plan["object_path"], "from": plan["old_mi"], "to": plan["new_mi"],
+            "cast_shadow": plan["after"]["cast_shadow"], "backup": backup}
+
+
+def run_clam_pearl_twin_revert(run, args, world):
+    with open(TWIN_RECORD, encoding="utf-8") as h:
+        record = json.load(h)
+    live = _twin_live(world, with_tracks=True)
+    plan = twin_revert_plan(record, live, args.get("twin"))
+    before_pg = (live["pearl"], live["glow"])
+    backup = _backup(BACKUP_ROOT_TWIN, run + "-REVERT", (TWIN_RECORD,))
+    eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    a = _by_path(world, plan["object_path"])
+    _req(a is not None and str(a.get_actor_label()) == TWIN_LABEL and
+         TWIN_TAG in [str(t) for t in a.get_editor_property("tags")], "TWIN_NOT_TAGGED|lookup")
+    _req(eas.destroy_actor(a), "DESTROY|twin")
+    a = None
+    _req(_by_path(world, plan["object_path"]) is None, "DESTROY_SURVIVED|twin")
+    _save(world, [])
+    after = _twin_live(world)
+    _req(not after["twins"], "REVERT_TWIN_PRESENT|%s" % [t["object_path"] for t in after["twins"]])
+    up = twin_untouched_problems({"pearl_before": before_pg[0], "glow_before": before_pg[1]}, after["pearl"],
+                                 after["glow"])
+    _req(not up, "TWIN_SIDE_EFFECT|%s" % ";".join(up))
+    os.replace(TWIN_RECORD, TWIN_RECORD + ".reverted-" + run)
+    return {"destroyed": plan["object_path"], "bound_left_dangling": plan["bound"], "backup": backup}
+
+
 def run_clam_dry(run, args, world, census):
     a = dict(CLAM_DEFAULTS, **(args.get("apply_clam") or {}))
     man = json.load(open(CLAM_MANIFEST, encoding="utf-8"))
@@ -3625,7 +4266,8 @@ def main():
                 pending = json.load(h)
         look_swaps = [lk for lk in CLAM_LOOKS if os.path.exists(look_record_path(lk))]
         mode = check_mode(args, os.path.exists(APPLY_RECORD), os.path.exists(PLACE_RECORD), pending is not None,
-                          os.path.exists(CLAM_RECORD), os.path.exists(PEARL_SWAP_RECORD), look_swaps)
+                          os.path.exists(CLAM_RECORD), os.path.exists(PEARL_SWAP_RECORD), look_swaps,
+                          os.path.exists(TWIN_RECORD))
         unreal.log("S3PROPS_START|run=%s|mode=%s|prop=%s" % (run, mode, args.get("prop")))
         ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
         _req(ed.get_game_world() is None, "PIE_ACTIVE")
@@ -3648,9 +4290,10 @@ def main():
         if mode == "CLAM_LOOK_MAT_CHECK":
             r = run_clam_look_mat_check(run, args["material"])
             unreal.log("S3CLAMLOOK_MAT_CHECK_OK|run=%s|material=%s|mutated=0|named_errors=0|unattributed=%d|"
-                       "build_marker=%s|prop_readback_unavailable=%s|shading=%s|stats=%s" % (
+                       "build_marker=%s|prop_readback_unavailable=%s|shading=%s|readback=%s|stats=%s" % (
                            run, r["material"], len(r["unattributed_failed_to_compile"]), r["build_marker_in_log"],
-                           r["prop_readback_unavailable"], r["shading_model"], json.dumps(r["stats"])))
+                           r["prop_readback_unavailable"], r["shading_model"], json.dumps(r["material_readback"]),
+                           json.dumps(r["stats"])))
             return
         if mode == "DRY":
             out, path = run_dry(run, args, world, census)
@@ -3719,6 +4362,33 @@ def main():
             r = run_clam_look_unswap(run, args, world)
             unreal.log("S3CLAMLOOK_UNSWAP_OK|run=%s|look=%s|level_saved=1|dirty_after=0+0|%s" % (
                 run, args["look"], json.dumps(r)))
+        elif mode == "CLAM_PEARL_TWIN":
+            try:
+                r = run_clam_pearl_twin(run, args, world)
+            except Exception:
+                if os.path.exists(TWIN_RECORD):
+                    with open(TWIN_RECORD, encoding="utf-8") as h:
+                        saved = json.load(h).get("saved")
+                    if not saved:
+                        os.replace(TWIN_RECORD, TWIN_RECORD + ".failed-" + run)
+                raise
+            unreal.log("S3PEARLTWIN_OK|run=%s|level_saved=1|dirty_after=0+0|%s" % (run, json.dumps(r)))
+        elif mode == "CLAM_PEARL_TWIN_SET_MATERIAL":
+            try:
+                r = run_clam_pearl_twin_set_material(run, args, world)
+            except Exception:
+                with open(TWIN_RECORD, encoding="utf-8") as h:
+                    rec_ = json.load(h)
+                ps = rec_.get("pending_set")
+                if ps and ps.get("run") == run and not ps.get("saved"):    # nothing saved: the record's expect stands
+                    rec_["pending_set"] = None
+                    rec_.setdefault("failed_sets", []).append(run)
+                    _write(TWIN_RECORD, rec_)
+                raise
+            unreal.log("S3PEARLTWIN_SET_OK|run=%s|level_saved=1|dirty_after=0+0|%s" % (run, json.dumps(r)))
+        elif mode == "CLAM_PEARL_TWIN_REVERT":
+            r = run_clam_pearl_twin_revert(run, args, world)
+            unreal.log("S3PEARLTWIN_REVERT_OK|run=%s|level_saved=1|dirty_after=0+0|%s" % (run, json.dumps(r)))
         elif mode == "CLAM_REVERT":
             r = run_clam_revert(run, world)
             unreal.log("S3CLAM_REVERT_OK|run=%s|%s" % (run, json.dumps(r)))
