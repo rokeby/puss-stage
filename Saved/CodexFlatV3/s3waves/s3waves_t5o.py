@@ -125,7 +125,11 @@ def _plain(v):
     try:
         return str(v.get_path_name())
     except Exception:  # noqa: BLE001
-        return str(v)
+        pass
+    try:  # structs: export_text is value-only (str() embeds the wrapper's memory address, 8 Oct false positive)
+        return "T:" + str(v.export_text())
+    except Exception:  # noqa: BLE001
+        return re.sub(r"0x[0-9A-Fa-f]+", "0x?", str(v))
 
 
 def _key_frame(k):
