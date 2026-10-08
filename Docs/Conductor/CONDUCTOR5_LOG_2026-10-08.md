@@ -62,3 +62,14 @@ All [measured] by success markers unless marked.
   old_clam). Finished with s3_orbit_finish_save.py: centre verified (15484.40, 160169.50), both saved
   (S3ORBITSAVE_OK) [measured]. Closed and reopened Gary's Sequencer tab on LS_DevScene_03 around the write (census clean).
 - Queued (Gary via finishing touches): clam lid opening 80° → 55°, CLAMOPEN REVERT → DRY → APPLY in their pearl slot.
+- ~05:20–05:40 S3 Play-only vanishing FOUND + FIXED [measured]: while PLAYING, bHidden flipped True on the clam parts,
+  millstone and all six figures between S3 31.0 and 35.4 s. The Hangar Fold sub-section ends at Scene 777 (32.4 s;
+  Gary lengthened it from 744) and its Visibility sections (completion = project default) restored the pre-animated
+  hidden state; scrubbing in the editor never crosses the end, so the editor looked fine. Fix: S3KEEP-20261008-053739,
+  KEEP_STATE on the 14 rise Visibility sections; re-measured in PIE: hidden=False at 30.5/34.9/41.5/48.0/54.5/59.0 s,
+  clam rising. (A paused-PIE A/B, waves hidden vs shown, also showed the clam rendering at 0:52.)
+- Choir: 8 visible bulbs on the glint lights (S3BULBS-20261008-052801, MI_S3_ChoirBulb_Glow Intensity 40, lights ×0.16);
+  ghost light flame flicker (S3KM-…flame). Take (Gary): the pearl dims 30→8 cd at 3:20–3:22 and disappears 3:26–3:30
+  (S3KM-…take); successive dim-outs S3FADES-20261008-053916: clam key 3:22, grazes 3:24/3:26, wave rows far→near
+  3:28/3:30/3:32, warm side 3:34–3:36; only the ghost flame is left. s3_pearl_fade.py now fades 4944→5040 to match.
+  Tests green.

@@ -20,7 +20,7 @@ UASSET = "E:/PussStage/Content/InfinityStage/Dev/Sequences/LS_DevScene_03.uasset
 PEARL = "S3 PearlClam Pearl"
 TWIN = "S3 PearlClam Pearl Fade"
 PARAM = "Fade"
-F0, F1 = 4800, 4896
+F0, F1 = 4944, 5040     # 8 Oct ~05:40: Gary - the pearl dims at the take (3:20) and LATER disappears: fade 3:26-3:30
 TRACK_NAME = "S3.Pearl.Fade"
 RUN = {"run": "?"}
 
