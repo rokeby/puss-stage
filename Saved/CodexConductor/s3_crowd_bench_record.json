@@ -1,0 +1,117 @@
+{
+  "schema": "p21_s3_crowd_bench/1",
+  "baseline": {
+    "establishing": {
+      "run": "P21-BENCH-BASE-establishing",
+      "window": "establishing",
+      "range": [
+        360,
+        552
+      ],
+      "samples": 427,
+      "dt_ms": {
+        "median": 18.949,
+        "p90": 21.569,
+        "max": 31.265,
+        "mean": 18.752
+      },
+      "gpu_timeout_lines_before": 2,
+      "gpu_timeout_lines_after": 2,
+      "gpu_timeout_lines_new": 0,
+      "figure_count": 5,
+      "actors": [
+        {
+          "label": "Shore01_M56 Clam",
+          "visible": true,
+          "tagged": false
+        },
+        {
+          "label": "Shore02_F52 Clam",
+          "visible": true,
+          "tagged": false
+        },
+        {
+          "label": "Shore03_M59 Clam",
+          "visible": true,
+          "tagged": false
+        },
+        {
+          "label": "Shore04_F55 Clam",
+          "visible": true,
+          "tagged": false
+        },
+        {
+          "label": "Shore06_F25 Clam",
+          "visible": true,
+          "tagged": false
+        }
+      ],
+      "dirty_before": {
+        "content": [],
+        "maps": []
+      },
+      "dirty_after": {
+        "content": [],
+        "maps": []
+      },
+      "measured_utc": "2026-10-08T20:10:42.240683+00:00"
+    },
+    "choir": {
+      "run": "P21-BENCH-BASE-choir",
+      "window": "choir",
+      "range": [
+        2160,
+        4488
+      ],
+      "samples": 5347,
+      "dt_ms": {
+        "median": 17.953,
+        "p90": 20.434,
+        "max": 57.003,
+        "mean": 18.138
+      },
+      "gpu_timeout_lines_before": 2,
+      "gpu_timeout_lines_after": 2,
+      "gpu_timeout_lines_new": 0,
+      "figure_count": 5,
+      "actors": [
+        {
+          "label": "Shore01_M56 Clam",
+          "visible": true,
+          "tagged": false
+        },
+        {
+          "label": "Shore02_F52 Clam",
+          "visible": true,
+          "tagged": false
+        },
+        {
+          "label": "Shore03_M59 Clam",
+          "visible": true,
+          "tagged": false
+        },
+        {
+          "label": "Shore04_F55 Clam",
+          "visible": true,
+          "tagged": false
+        },
+        {
+          "label": "Shore06_F25 Clam",
+          "visible": true,
+          "tagged": false
+        }
+      ],
+      "dirty_before": {
+        "content": [],
+        "maps": []
+      },
+      "dirty_after": {
+        "content": [],
+        "maps": []
+      },
+      "measured_utc": "2026-10-08T20:12:22.390287+00:00"
+    }
+  },
+  "crowd": {},
+  "last_backup": "E:\\PussStage\\Backups\\PreS3CrowdBench-P21-BENCH-BASE-choir"
+}

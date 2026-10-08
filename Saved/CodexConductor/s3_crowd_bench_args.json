@@ -1,8 +1,8 @@
 {
-  "mode": "DRY",
-  "confirm": "",
-  "run": "P21-BENCH-SET-ME",
-  "stage": "baseline",
-  "window": "establishing",
-  "revert_run": ""
+ "mode": "DRY",
+ "confirm": "",
+ "run": "P21-BENCH-BASE-choir",
+ "stage": "baseline",
+ "window": "choir",
+ "revert_run": ""
 }

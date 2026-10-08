@@ -166,6 +166,8 @@ def _set(obj, names, value):
 
 def _fixed_rate(params):
     value = _get(params, ("play_rate", "time_scale"))
+    if hasattr(value, "to_fixed_play_rate"):   # UE 5.8 MovieSceneTimeWarpVariant [measured probe_playrate.py 8 Oct]
+        return float(value.to_fixed_play_rate())
     for name in ("play_rate", "value"):
         try: return float(value.get_editor_property(name))
         except Exception: pass
@@ -174,6 +176,12 @@ def _fixed_rate(params):
 
 
 def _set_rate(params, rate):
+    cur = _get(params, ("play_rate", "time_scale"))
+    if hasattr(cur, "set_fixed_play_rate"):    # UE 5.8 MovieSceneTimeWarpVariant
+        cur.set_fixed_play_rate(float(rate)); _set(params, ("play_rate", "time_scale"), cur)
+        if abs(float(_get(params, ("play_rate", "time_scale")).to_fixed_play_rate()) - float(rate)) > 1e-6:
+            raise CrowdError("PLAY_RATE_SET_READBACK|%s" % rate)
+        return
     value = _get(params, ("play_rate", "time_scale"))
     for name in ("play_rate", "value"):
         try:
@@ -243,10 +251,7 @@ def _anim_section_snapshot(section):
             "first_loop_offset": _frame_value(p.get_editor_property("first_loop_start_frame_offset")),
             "play_rate": round(_fixed_rate(p), 8), "row": int(section.get_row_index()),
             "active": bool(section.is_active()),
-            "ease": {"in_manual": bool(section.get_manual_ease_in()),
-                     "out_manual": bool(section.get_manual_ease_out()),
-                     "in_frames": int(section.get_manual_ease_in_duration()),
-                     "out_frames": int(section.get_manual_ease_out_duration())}}
+            "ease": {"weight_keys": _weight_keys(section)}}
 
 
 def _find_source_binding(sequence, figure):
@@ -312,15 +317,46 @@ def _backup(run, prefix):
     return directory
 
 
+# 8 Oct conductor: UE 5.8 Python exposes NO section easing (get/set_manual_ease_* absent; MovieSceneEasingSettings
+# fields not reflected) [measured probe_section_api.py]. Crossfades key the skeletal section's own Weight_0 channel
+# (MovieSceneScriptingFloatChannel, default 1.0) [measured probe_weight.py]; frames in DISPLAY rate.
+def _weight_channel(section):
+    chans = [c for c in section.get_all_channels() if str(c.get_name()).startswith("Weight")]
+    if len(chans) != 1:
+        raise CrowdError("WEIGHT_CHANNEL|%d" % len(chans))
+    return chans[0]
+
+
+def _weight_keys(section):
+    ch = _weight_channel(section)
+    return {"default": float(ch.get_default()) if ch.has_default() else None,
+            "keys": [[int(k.get_time().frame_number.value), float(k.get_value())] for k in ch.get_keys()]}
+
+
 def _ease(section, ease_in, ease_out):
-    section.set_manual_ease_in(bool(ease_in)); section.set_manual_ease_out(bool(ease_out))
-    if ease_in: section.set_manual_ease_in_duration(int(ease_in))
-    if ease_out: section.set_manual_ease_out_duration(int(ease_out))
+    ch = _weight_channel(section)
+    for k in list(ch.get_keys()):
+        ch.remove_key(k)
+    a, b = int(section.get_start_frame()), int(section.get_end_frame())
+    DR = unreal.MovieSceneTimeUnit.DISPLAY_RATE
+    pts = []
+    if ease_in: pts += [(a, 0.0), (a + int(ease_in), 1.0)]
+    if ease_out: pts += [(b - int(ease_out), 1.0), (b, 0.0)]
+    for f, v in sorted(set(pts)):
+        ch.add_key(unreal.FrameNumber(f), float(v), time_unit=DR, interpolation=unreal.MovieSceneKeyInterpolation.AUTO)
+    if not pts:
+        ch.set_default(1.0)
 
 
 def _restore_ease(section, row):
-    section.set_manual_ease_in(bool(row.get("in_manual"))); section.set_manual_ease_out(bool(row.get("out_manual")))
-    section.set_manual_ease_in_duration(int(row.get("in_frames",0))); section.set_manual_ease_out_duration(int(row.get("out_frames",0)))
+    ch = _weight_channel(section)
+    for k in list(ch.get_keys()):
+        ch.remove_key(k)
+    for f, v in row.get("weight_keys", {}).get("keys", []):
+        ch.add_key(unreal.FrameNumber(int(f)), float(v), interpolation=unreal.MovieSceneKeyInterpolation.AUTO)
+    d = row.get("weight_keys", {}).get("default")
+    if d is not None:
+        ch.set_default(float(d))
 
 
 def _make_anim(track, template, animation, sequence, row):
@@ -567,7 +603,7 @@ def main():
         if not is_new:
             original=_anim_section_snapshot(template)
             template.set_range(original["range"][0],360+22)
-            template.set_manual_ease_out(True); template.set_manual_ease_out_duration(24)
+            _ease(template, 0, 24)  # 8 Oct: weight-channel fade-out (no Python section easing in 5.8)
         created=[]
         for row in build_source_schedule(member,source): created.append(_make_anim(track,template,animation,clams,row))
         actor_binding=binding.get_parent() if binding.get_parent().is_valid() else binding

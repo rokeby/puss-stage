@@ -60,7 +60,25 @@ def stats(deltas):
             "max": round(max(ms),3), "mean": round(sum(ms)/len(ms),3)}
 
 
+class _TransportClock:
+    """8 Oct conductor: in the show, LS_DevScene_03 plays NESTED in the Master (no standalone LevelSequenceActor), so
+    S3 time = (Master frame - 'Scene 3' segment start) at 24000 ticks/s -> 24 fps [prec pie_s4_tap.py/pie_lights_tap.py]."""
+    def __init__(self, world):
+        root=list(unreal.GameplayStatics.get_all_actors_of_class(world, unreal.InfinityStageShowRoot))[0]
+        self.tr=root.transport
+        seg=[x for x in list(self.tr.segments) if str(x.label).startswith("Scene 3")]
+        if len(seg)!=1: raise RuntimeError("S3_SEGMENT_COUNT|%d"%len(seg))
+        self.start=seg[0].start_frame.value
+    def frame(self):
+        return int(math.floor((self.tr.get_current_master_frame().value-self.start)/1000.0+1e-6))
+
+
 def player_and_frame(world):
+    clock=_TransportClock(world)
+    return clock, clock.frame()
+
+
+def _old_player_and_frame(world):
     hits=[]
     for actor in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.LevelSequenceActor):
         sequence=None
@@ -158,9 +176,7 @@ def main():
         if state is None: return
         try:
             if unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_game_world() is None: raise RuntimeError("PIE_ENDED")
-            current=state["player"].get_current_time(); rate=current.rate
-            raw=float(current.time.frame_number.value)+float(current.time.sub_frame)
-            frame=int(math.floor(raw*24.0*float(rate.denominator)/float(rate.numerator)+1e-6)); state["last_frame"]=frame
+            frame=state["player"].frame(); state["last_frame"]=frame
             if lo<=frame<hi: state["entered"]=True; state["deltas"].append(float(delta))
             elif state["entered"] and frame>=hi: finish(state)
         except Exception as exc:
