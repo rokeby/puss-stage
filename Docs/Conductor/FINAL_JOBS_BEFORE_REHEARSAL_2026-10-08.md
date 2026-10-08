@@ -121,3 +121,22 @@ Resume in this order when Gary says:
   wall close-up, **15 s**, ending on its current glint (B06 now 1:57-3:09, too long).
 - Live shot layout read 8 Oct (LS_Clams frames): B03 420-860, B02 856-1733, B07 1540-2828, B06 2820-4548, B08
   4538-4858, ... P21's plan must be rebuilt against these.
+
+### 4.2b OPENING, revised direction (Gary 8 Oct evening, in the "Blender MCP Hyper3D" session, his own words relayed). SUPERSEDES P13's spots-to-centre design
+- Same theatre at the very END, after the Void, but a different sequence there; no drive-by repeat.
+- "Empty theatre ... dusty, motes in the air, a bit of a moonlit glow on its proscenium and curtain". The moon is a
+  moonlit QUALITY raking from the SIDE across the curtain and stage front.
+- A **drive-by** light through a grand window opposite (GOBO: top of an arched window with glazing bars + a chandelier
+  silhouette) sweeps across, "just a glimpse". Opening only.
+- Starts near total darkness, just glints (Mulholland Drive: cold, nightmarish → "a strange machine of wonders").
+- The camera stays framed on the proscenium; no props (no ghost light, pit, foyer, seats); only hints of
+  boxes/chandelier through light play.
+- **The dog getting up = a LIVE cue**, rehearsed to a point in the opening track. The orchestra tunes; "machinery comes
+  up" = a LIGHTING reveal over the tuning section (not a physical rise).
+- Then "whir into lights turning on and brightening up", and the OLD TORN curtain = the **ragged Chaos curtain**
+  (Docs/ChaosClothCurtain.md:1020, CURTAIN_RAGGED) falls away. The stage is gloriously lit but STATIC; then it moves
+  and so do we. P1 lighting less moody, more uplit.
+- Physical stage: baroque stage forms (Gary adding references) replace the primitive frame and wings.
+- Gobo textures (window top, chandelier, side-moon breakup) are being made in the Blender MCP Hyper3D session.
+- Reconcile with the music flurries (P11: 37.4 / 57.4 / 70.4 s) and the earlier cue order (curtain on flurry 1, lights
+  2, move-in 3): the new order puts lights BEFORE/WITH the curtain fall. P13's tool needs a redesign; nothing applied.
