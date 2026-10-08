@@ -1,0 +1,27 @@
+FUSER PROMPT v2: S3 backdrop, the stage waves carried on into a foggy deep ocean. Conductor 5, 8 Oct 2026.
+Gary on v1 (the even rows of big scrolled cut-out waves under a calm grey sea): "not awful but could be a bit more
+dynamic and the scale seems off for our waves which are also foamy at that point, painting doesn't need to follow a
+very clear wooden logic".
+Keep from v1: the sky, the fog bank, the silver light on the horizon, the palette, the painted-cloth quality.
+Change: the bottom third.
+
+Painted theatre backdrop, tall portrait (2:3). A storm-tossed sea that runs back into fog. Along the bottom third is a
+churning field of SMALL, many, irregular breaking waves seen from a low viewpoint: crests curling and collapsing in
+every direction, white foam boiling over dark water, spray and spindrift torn off the tops, foam lace and streaks
+trailing between the crests. Some crests carry a Hokusai-like claw curl, but loose and broken, never repeated in rows
+and never like a stencil or cut-out board. Waves are smallest and densest near the horizon and only modestly larger
+at the bottom edge: no single giant wave, nothing bigger than a hand-span of the canvas. The rough water gradually calms
+and dissolves into a vast deep, dark teal-grey ocean, then a thick sea fog bank, then a low, soft horizon about 35% up
+from the bottom. Above it is a heavy overcast pearl-grey sky that darkens toward the top, with no sun, moon or stars.
+
+Movement: diagonal energy, wind from the left, foam and spray flicked rightward, a sense of swell lifting and falling.
+Palette: ink-dark teal and slate in the troughs, pewter mid-sea, bone, ivory and dirty-cream foam (matching cream stage
+waves), faint cold silver on the horizon water. Muted, not saturated.
+Style: hand-painted scenic artist's backdrop in matte distemper, loose expressive brushwork with dry-brush foam and
+scumbled spray, classical atmospheric perspective, melancholic. Painterly, not photographic, not graphic or flat-vector.
+Even frontal lighting, no vignette. No people, boats, birds, land, text or frame.
+Avoid: neat repeating wave rows, outlined or scrolled cut-out shapes, a calm mirror sea in the foreground, giant
+foreground waves, photoreal surf photography, vivid blue, sunsets, a hard horizon line.
+
+If Fuser takes an image input: give it v1 (keep sky/fog) plus a still of our live wave flats for the cream foam colour.
+Notes for the conductor: a new image means re-cropping the exit-door leaf art (Tools/FlatV3/build_s3_exit_door_crop.py).
