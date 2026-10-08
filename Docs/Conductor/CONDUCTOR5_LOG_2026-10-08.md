@@ -81,3 +81,10 @@ All [measured] by success markers unless marked.
 - Gary's PIE "cut-out" at S3 ~2:13 (05:44:41): clean EndPIE, no crash/error, no conductor MCP call in the window; not
   reproduced from 2:02 with performance mode off. Vamp did NOT loop in his run (it played on into the 2:05 shot).
   Rehearsal: Cue Desk menu "Rehearsal Transport (ignore external sound locks)" enables seek/FF in S3.
+- ~06:29 S3FLAME-20261008-062908: Clam Key ×1.4, all 18 S3 rect lights diffuse 0.25, flame flicker on the 7 keyed wave
+  lights (curve × flame, fades kept) + new S3.Flame tracks on Gary's Warm Side2/3/4. FAULT: it also added S3.Flame
+  tracks to the 8 strike/daylight rects (their keys live in the rise / float-hold bindings 'S3 Hangar Float Hold: …',
+  which my owner match missed, and their editor intensity was nonzero), which would have relit them; removed by
+  s3_flame_remove_strike.py (S3FLAMEFIX_OK, 8 removed; first run refused, left the scene dirty by modify() only).
+  Vamp markers removed (S3MSET-20261008-062837vamp; Gary's recording: at 2:00 the playhead lands on 4:19.9) — C3 on
+  the notes list for the build window. Tests green.
