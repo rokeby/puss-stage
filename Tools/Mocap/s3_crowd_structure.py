@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline P21 Scene 3 crowd-structure planner and review previews.
+"""Offline P21B Scene 3 clustered-crowd planner and review previews.
 
 Inputs are read only from --source-root (normally E:/PussStage). APPLY writes
 the plan and three PNGs in --project-root after recording a backup. REVERT
@@ -40,8 +40,6 @@ FIGURES = [
      "hero_xy": (3390.55, 300.70), "calm": (1.1667, 19.1250)},
     {"id": "Shore04_F55", "actor": "Shore04_F55 Clam", "animation": "AS_Shore04_F55_shoreguy4_Full",
      "hero_xy": (3683.54, 262.13), "calm": (71.7083, 89.5417), "rhythmic": True},
-    {"id": "Shore05_M53", "actor": "Shore05_M53 Clam", "animation": "AS_Shore05_M53_shoreguy5_Full",
-     "hero_xy": (3411.07, -244.32), "calm": (18.3333, 32.3750)},
     {"id": "Shore06_F25", "actor": "Shore06_F25 Clam", "animation": "AS_Shore06_F25_shoreguy6_Full",
      "hero_xy": (3760.0, 0.0), "calm": (78.1667, 91.4583), "rhythmic": True},
 ]
@@ -57,28 +55,47 @@ CAMERAS = [
     {"label": "S3 Shot B09/B10", "xy": (2600.0, 0.0)},
 ]
 
-# Each expression consumes exactly one random draw. The cells themselves are
-# pre-cleared, so no rejection sampling can change later members' results.
-PLACEMENT_CELLS = [
-    (2450, -720), (2775, -720), (3100, -700), (3425, -520), (3775, -650),
-    (2450, 720), (2775, 720), (3100, 700), (3425, 520), (3775, 650),
-    (2600, -470), (2925, -500), (3250, -540), (3650, -470), (4025, -520),
-    (2600, 470), (2925, 500), (3250, 540), (3650, 470), (4025, 520),
+CLUSTER_SPECS = [
+    {"id": "A", "centre_local_xy_cm": [4000.0, -500.0], "size": 5,
+     "phase_base_deg": 0.0,
+     "offsets_cm": [(-110, -60), (0, -60), (110, -60), (-55, 60), (55, 60)]},
+    {"id": "B", "centre_local_xy_cm": [3600.0, 700.0], "size": 7,
+     "phase_base_deg": 90.0,
+     "offsets_cm": [(-120, -110), (0, -110), (120, -110), (-120, 0),
+                    (0, 0), (120, 0), (0, 110)]},
+    {"id": "C", "centre_local_xy_cm": [2500.0, 550.0], "size": 8,
+     "phase_base_deg": 180.0,
+     "offsets_cm": [(-120, -120), (0, -120), (120, -120), (-120, 0),
+                    (0, 0), (120, 0), (-60, 120), (60, 120)]},
 ]
+
+# Ranges below are root Scene frames. The 8 Oct live census was reported in
+# LS_Clams frames; subtract SCENE_TO_CLAMS (22) to compare with root cuts.
+LIVE_CUTS_LS_CLAMS = {
+    "S3 Shot B03": [420, 860],
+    "S3 Shot B02": [856, 1733],
+    "S3 Shot B07": [1540, 2828],
+    "S3 Shot B06": [2820, 4548],
+    "S3 Shot B08": [4538, 4858],
+}
+EXPECTED_LIVE_CUTS = {
+    label: [a - SCENE_TO_CLAMS, b - SCENE_TO_CLAMS]
+    for label, (a, b) in LIVE_CUTS_LS_CLAMS.items()
+}
 
 SHOT_PLAN = [
     {"label": "S3 Crowd Establishing", "range": [360, 552], "lens_mm": 35.0,
      "location_local": [2250.0, -960.0, 360.0], "look_local": [3350.0, 0.0, 95.0],
      "purpose": "wide establishing; replaces the active cut in this interval"},
-    {"label": "S3 Choir Close A", "range": [2880, 3000], "lens_mm": 50.0,
-     "location_local": [3900.0, -950.0, 165.0], "look_local": [3600.0, -420.0, 105.0],
-     "purpose": "3-4 figures after B07 orbit"},
-    {"label": "S3 Choir Close B", "range": [3192, 3480], "lens_mm": 50.0,
-     "location_local": [4050.0, 950.0, 160.0], "look_local": [3650.0, 430.0, 105.0],
-     "purpose": "uses the 12 s freed by trimming B06"},
-    {"label": "S3 Choir Close C", "range": [4200, 4488], "lens_mm": 42.0,
-     "location_local": [2200.0, 980.0, 170.0], "look_local": [2850.0, 500.0, 100.0],
-     "purpose": "late chorus close group; B07 orbit remains 1440-2880"},
+    {"label": "S3 Choir Cluster Wide", "range": [2806, 3360], "lens_mm": 35.0,
+     "location_local": [2500.0, 1050.0, 180.0], "look_local": [3600.0, 700.0, 105.0],
+     "purpose": "cluster wide bridges the live B07 end and carries into chorus at 3072"},
+    {"label": "S3 Choir Close A", "range": [3360, 3720], "lens_mm": 50.0,
+     "location_local": [4300.0, 1000.0, 165.0], "look_local": [3600.0, 700.0, 105.0],
+     "purpose": "50 mm group close-up of 3-4 singers in cluster B"},
+    {"label": "S3 Choir Close B", "range": [3720, 4166], "lens_mm": 50.0,
+     "location_local": [4500.0, -950.0, 165.0], "look_local": [4000.0, -500.0, 105.0],
+     "purpose": "50 mm group close-up of 3-4 singers in cluster A before B06 tail"},
 ]
 
 
@@ -159,29 +176,53 @@ def placement_violations(xy: tuple[float, float]) -> list[str]:
     return bad
 
 
-def build_placements(seed: int, count: int = TARGET_COUNT) -> list[dict[str, Any]]:
-    if count < 6 or count > 26:
-        raise PlanError("TARGET_COUNT_OUT_OF_RANGE|6..26")
+def build_cluster_layout(seed: int, count: int = TARGET_COUNT) -> list[dict[str, Any]]:
+    if count != TARGET_COUNT or sum(c["size"] for c in CLUSTER_SPECS) != TARGET_COUNT:
+        raise PlanError("TARGET_COUNT_MUST_BE_20")
     rng = random.Random(seed)
     pool = ["Shore06_F25", "Shore04_F55", "Shore06_F25", "Shore04_F55",
-            "Shore06_F25", "Shore04_F55", "Shore01_M56", "Shore05_M53"]
-    rows = []
-    # One reserve slot covers Gary's observed five-visible state; APPLY uses 14
-    # placements if six are visible and all 15 if DRY confirms five.
-    for i in range(count - 5):
-        cx, cy = PLACEMENT_CELLS[i]
-        x = cx + (rng.random() * 2.0 - 1.0) * 22.0
-        y = cy + (rng.random() * 2.0 - 1.0) * 22.0
-        yaw = -18.0 + rng.random() * 36.0
-        source = pool[min(int(rng.random() * len(pool)), len(pool) - 1)]
-        xy = (round(x, 3), round(y, 3))
-        violations = placement_violations(xy)
-        if violations:
-            raise PlanError("PLACEMENT_EXCLUSION|slot=%d|%s" % (i + 1, ",".join(violations)))
-        rows.append({"crowd_index": i + 1, "label": "S3 Crowd %02d (from %s)" % (i + 1, source),
-                     "source_id": source, "local_xy_cm": list(xy), "yaw_deg": round(yaw, 3),
-                     "tag": "P21.S3Crowd", "random_draws": 4})
+            "Shore06_F25", "Shore04_F55", "Shore01_M56", "Shore02_F52", "Shore03_M59"]
+    rows, existing_index, duplicate_index = [], 0, 0
+    for cluster in CLUSTER_SPECS:
+        if len(cluster["offsets_cm"]) != cluster["size"]:
+            raise PlanError("CLUSTER_OFFSET_COUNT|" + cluster["id"])
+        for cluster_index, (ox, oy) in enumerate(cluster["offsets_cm"]):
+            # Four fixed draws per member make the seed stable across future source-pool edits.
+            jx = (rng.random() * 2.0 - 1.0) * 5.0
+            jy = (rng.random() * 2.0 - 1.0) * 5.0
+            yaw_jitter = (rng.random() * 2.0 - 1.0) * 4.0
+            source_draw = rng.random()
+            cx, cy = cluster["centre_local_xy_cm"]
+            xy = (round(cx + ox + jx, 3), round(cy + oy + jy, 3))
+            if cluster["id"] == "A":
+                figure = FIGURES[existing_index]; existing_index += 1
+                source, role, label = figure["id"], "existing", figure["actor"]
+            else:
+                duplicate_index += 1
+                source = pool[min(int(source_draw * len(pool)), len(pool) - 1)]
+                role, label = "duplicate", "S3 Crowd %02d (from %s)" % (duplicate_index, source)
+            aim_yaw = math.degrees(math.atan2(CLAM_LOCAL[1] - xy[1], CLAM_LOCAL[0] - xy[0]))
+            phase = (float(cluster["phase_base_deg"]) +
+                     (cluster_index - (cluster["size"] - 1) / 2.0) * 8.0) % 360.0
+            violations = placement_violations(xy)
+            if violations:
+                raise PlanError("PLACEMENT_EXCLUSION|cluster=%s|slot=%d|%s" %
+                                (cluster["id"], cluster_index + 1, ",".join(violations)))
+            rows.append({"index": len(rows) + 1, "role": role, "label": label,
+                         "source_id": source, "local_xy_cm": list(xy),
+                         "yaw_deg": round(aim_yaw + yaw_jitter, 3), "phase_deg": round(phase, 3),
+                         "cluster_id": cluster["id"], "cluster_index": cluster_index + 1,
+                         "tag": "P21.S3Crowd", "random_draws": 4})
     return rows
+
+
+def build_placements(seed: int, count: int = TARGET_COUNT) -> list[dict[str, Any]]:
+    return [dict(row) for row in build_cluster_layout(seed, count) if row["role"] == "duplicate"]
+
+
+def nearest_cluster_spacing(rows: list[dict[str, Any]], member: dict[str, Any]) -> float:
+    peers = [r for r in rows if r["cluster_id"] == member["cluster_id"] and r is not member]
+    return min(point_distance(tuple(member["local_xy_cm"]), tuple(r["local_xy_cm"])) for r in peers)
 
 
 def timeline(index: int) -> list[dict[str, Any]]:
@@ -226,20 +267,14 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
             "frenzy_span": longest_segment(row["segments"], "FRENZY"),
             "source_fbx": row["source_path"], "source_fbx_sha256": row["source_sha256"],
         }
-    placements = build_placements(args.seed, args.target_count)
+    layout = build_cluster_layout(args.seed, args.target_count)
+    placements = [dict(row) for row in layout if row["role"] == "duplicate"]
     members = []
-    for i in range(args.target_count):
-        if i < 6:
-            source_id, role, xy = FIGURES[i]["id"], "existing", list(FIGURES[i]["hero_xy"])
-            label = FIGURES[i]["actor"]
-        else:
-            p = placements[i - 6]
-            source_id, role, xy, label = p["source_id"], "duplicate", p["local_xy_cm"], p["label"]
-        phase = round((i * 360.0 / args.target_count) % 360.0, 3)
+    for i, row in enumerate(layout):
+        source_id, phase = row["source_id"], row["phase_deg"]
         bands = timeline(i)
         choir_calm = next(row["range"][0] for row in bands if row["class"]=="CALM" and row["range"][0]>2160)
-        members.append({"index": i + 1, "role": role, "label": label, "source_id": source_id,
-                        "local_xy_cm": xy, "phase_deg": phase, "timeline": bands,
+        members.append({**row, "timeline": bands,
                         "transform_sway": {"roll_degrees": args.roll_degrees,
                                            "period_seconds": args.target_period,
                                            "phase_deg": phase,
@@ -250,7 +285,7 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
         camera["rotation_rpy_deg"] = look_rotation(camera["location_local"], camera["look_local"])
         shots.append(camera)
     return {
-        "schema": "p21_s3_crowd_structure/1", "run": args.run,
+        "schema": "p21b_s3_crowd_replan/1", "run": args.run,
         "created_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "evidence_tier": "measured source JSON; inferred staging defaults pending DRY and rendered acceptance",
         "fps": FPS, "scene_to_ls_clams_frames": SCENE_TO_CLAMS,
@@ -263,12 +298,17 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
                    "sway": sway_path.as_posix(), "sway_sha256": sha256_file(sway_path)},
         "exclusions": {"clam_local_xy_cm": list(CLAM_LOCAL), "millstone_local_xy_cm": list(MILLSTONE_LOCAL),
                        "radii_cm": EXCLUSION_RADIUS_CM, "camera_points": CAMERAS},
-        "sources": sources, "duplicate_placements": placements, "members": members,
-        "placement_reserve_count": len(placements) - (args.target_count - 6),
-        "shots": shots, "handprint_trim": {"camera": "S3 Shot B06", "expected_before": [3000, 3480],
-                                            "after": [3000, 3192]},
+        "sources": sources, "clusters": CLUSTER_SPECS,
+        "duplicate_placements": placements, "members": members,
+        "shots": shots, "handprint_trim": {"camera": "S3 Shot B06",
+                                            "expected_before": EXPECTED_LIVE_CUTS["S3 Shot B06"],
+                                            "after": [4166, EXPECTED_LIVE_CUTS["S3 Shot B06"][1]],
+                                            "duration_frames": 360,
+                                            "original_end_frame": EXPECTED_LIVE_CUTS["S3 Shot B06"][1]},
+        "expected_live_cuts": EXPECTED_LIVE_CUTS,
         "cut_policy": {"nested_cuts_must_be_inactive": True, "root_playback": [0, 6240],
-                       "preserve_b07_orbit": [1440, 2880]},
+                       "live_scene_offset_frames": SCENE_TO_CLAMS,
+                       "chorus_start": 3072, "b03_starts_after_establishing": 552},
         "performance_gate": {"baseline_required_before_apply": True, "baseline_expected_visible": 5,
                              "windows": {"establishing": [360, 552], "choir": [2160, 4488]},
                              "gpu_timeout_token": "GPU timeout"},
@@ -276,17 +316,31 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def validate_plan(plan: dict[str, Any]) -> None:
-    if plan.get("schema") != "p21_s3_crowd_structure/1" or len(plan.get("members", [])) != plan.get("target_count"):
+    if plan.get("schema") != "p21b_s3_crowd_replan/1" or len(plan.get("members", [])) != plan.get("target_count"):
         raise PlanError("PLAN_SCHEMA_OR_COUNT")
     labels = [m["label"] for m in plan["members"]]
     if len(labels) != len(set(labels)):
         raise PlanError("DUPLICATE_MEMBER_LABEL")
-    if any(placement_violations(tuple(p["local_xy_cm"])) for p in plan["duplicate_placements"]):
+    if sum(m["role"] == "existing" for m in plan["members"]) != 5 or len(plan["duplicate_placements"]) != 15:
+        raise PlanError("FIVE_PLUS_FIFTEEN_REQUIRED")
+    if not 2 <= len(plan["clusters"]) <= 3 or any(not 5 <= c["size"] <= 8 for c in plan["clusters"]):
+        raise PlanError("CLUSTER_COUNT_OR_SIZE")
+    if any(placement_violations(tuple(m["local_xy_cm"])) for m in plan["members"]):
         raise PlanError("PLACEMENT_EXCLUSION")
-    if plan["shots"][1]["range"][0] < 2880:
-        raise PlanError("B07_ORBIT_BROKEN")
-    if plan["handprint_trim"]["after"] != [3000, 3192]:
-        raise PlanError("HANDPRINT_NOT_EIGHT_SECONDS")
+    if any(placement_violations(tuple(c["centre_local_xy_cm"])) for c in plan["clusters"]):
+        raise PlanError("CLUSTER_CENTRE_EXCLUSION")
+    if any(not 80.0 <= nearest_cluster_spacing(plan["members"], m) <= 150.0 for m in plan["members"]):
+        raise PlanError("CLUSTER_SPACING_OUT_OF_RANGE")
+    phases = [float(c["phase_base_deg"]) for c in plan["clusters"]]
+    if any(abs(((b-a) % 360.0) - 90.0) > 1e-6 for a, b in zip(phases, phases[1:])):
+        raise PlanError("CLUSTER_PHASE_OFFSET")
+    handprint = plan["handprint_trim"]
+    if handprint["after"][1] - handprint["after"][0] != 360:
+        raise PlanError("HANDPRINT_NOT_FIFTEEN_SECONDS")
+    if handprint["after"][1] != handprint["expected_before"][1]:
+        raise PlanError("HANDPRINT_FINAL_GLINT_MOVED")
+    if plan["shots"][0]["range"] != [360, 552] or plan["shots"][1]["range"][0] != EXPECTED_LIVE_CUTS["S3 Shot B07"][1]:
+        raise PlanError("SHOT_LAYOUT_NOT_LIVE_ALIGNED")
 
 
 def canvas(width: int, height: int, title: str, subtitle: str):
@@ -302,8 +356,8 @@ def png_bytes(im: Image.Image) -> bytes:
 
 
 def render_placement(plan: dict[str, Any]) -> bytes:
-    im, d, font = canvas(1600, 980, "P21 - S3 crowd placement (offline plan)",
-                         "local cm | circles are protected clam, millstone, and camera points")
+    im, d, font = canvas(1600, 980, "P21B - S3 clustered crowd placement (offline plan)",
+                         "20 total in clusters 5/7/8 | local cm | protected set pieces and camera points")
     left, top, w, h = 120, 100, 1380, 790
     xmin, xmax, ymin, ymax = 2100, 4850, -1100, 1100
     sx=lambda x: left+(x-xmin)/(xmax-xmin)*w; sy=lambda y: top+(ymax-y)/(ymax-ymin)*h
@@ -315,32 +369,35 @@ def render_placement(plan: dict[str, Any]) -> bytes:
     for cam in CAMERAS:
         x,y=sx(cam["xy"][0]),sy(cam["xy"][1]); r=EXCLUSION_RADIUS_CM["camera"]/(xmax-xmin)*w
         d.ellipse((x-r,y-r,x+r,y+r),outline="#527aa3"); d.text((x+4,y+4),cam["label"],fill="#7da8d4",font=font)
-    for member in [m for m in plan["members"] if m["role"]=="existing"]:
+    cluster_colors={"A":"#f0c36a","B":"#72d6c4","C":"#8fa8ef"}
+    for cluster in plan["clusters"]:
+        x,y=sx(cluster["centre_local_xy_cm"][0]),sy(cluster["centre_local_xy_cm"][1])
+        d.ellipse((x-18,y-18,x+18,y+18),outline=cluster_colors[cluster["id"]],width=2)
+        d.text((x+20,y-17),"cluster %s | n=%d | phase %.0f deg"%
+               (cluster["id"],cluster["size"],cluster["phase_base_deg"]),
+               fill=cluster_colors[cluster["id"]],font=font)
+    for member in plan["members"]:
         x,y=sx(member["local_xy_cm"][0]),sy(member["local_xy_cm"][1])
-        color="#f0c36a"
-        d.ellipse((x-7,y-7,x+7,y+7),fill=color)
+        color=cluster_colors[member["cluster_id"]]
+        if member["role"]=="existing": d.rectangle((x-7,y-7,x+7,y+7),fill=color)
+        else: d.ellipse((x-7,y-7,x+7,y+7),fill=color)
         d.text((x+9,y-6),str(member["index"]),fill=color,font=font)
-    for i,row in enumerate(plan["duplicate_placements"]):
-        x,y=sx(row["local_xy_cm"][0]),sy(row["local_xy_cm"][1]); reserve=i>=plan["target_count"]-6
-        color="#788899" if reserve else "#72d6c4"
-        d.ellipse((x-7,y-7,x+7,y+7),fill=color)
-        d.text((x+9,y-6),("R" if reserve else str(i+7)),fill=color,font=font)
     for shot in plan["shots"]:
         x,y=sx(shot["location_local"][0]),sy(shot["location_local"][1]); tx,ty=sx(shot["look_local"][0]),sy(shot["look_local"][1])
         d.polygon([(x-7,y+7),(x+7,y+7),(x,y-8)],fill="#e58fc8"); d.line((x,y,tx,ty),fill="#8e5d83",width=2)
         d.text((x+9,y-7),shot["label"],fill="#e58fc8",font=font)
-    d.text((left,920),"gold = existing six references; teal = 14 duplicates; grey R = five-visible reserve; pink = new cameras",fill="#c6cfda",font=font)
+    d.text((left,920),"squares = five retained actors; circles = 15 copies; colour = cluster; pink = proposed cameras",fill="#c6cfda",font=font)
     return png_bytes(im)
 
 
 def render_timeline(plan: dict[str, Any]) -> bytes:
-    im,d,font=canvas(1800,1280,"P21 - S3 crowd timeline (offline plan)",
-                     "CALM -> staggered MEDIUM/FRENZY -> soothed choir sway -> original behavior")
+    im,d,font=canvas(1800,1280,"P21B - S3 clustered crowd timeline (offline plan)",
+                     "phase ripples within clusters; cluster bases offset by one quarter-period")
     left,right,top,row_h=230,45,95,52; x0,x1=360,4488; pw=1800-left-right
     colors={"CALM":"#4db6ac","MEDIUM":"#d8a13d","FRENZY":"#d75a64","ORIGINAL":"#637083"}
     x=lambda f:left+(f-x0)/(x1-x0)*pw
     for i,m in enumerate(plan["members"]):
-        y=top+i*row_h; d.text((22,y+12),"%02d %s"%(m["index"],m["source_id"]),fill="#dce4ed",font=font)
+        y=top+i*row_h; d.text((22,y+12),"%02d [%s] %s"%(m["index"],m["cluster_id"],m["source_id"]),fill="#dce4ed",font=font)
         for band in m["timeline"]:
             a,b=band["range"]
             if b<=x0 or a>=x1: continue
@@ -354,19 +411,21 @@ def render_timeline(plan: dict[str, Any]) -> bytes:
 
 
 def render_shots(plan: dict[str, Any]) -> bytes:
-    im,d,font=canvas(1800,720,"P21 - S3 shot plan over audio beats",
-                     "new cuts in pink; B07 orbit remains intact; B06 wall becomes 8 s")
+    im,d,font=canvas(1800,720,"P21B - S3 shot plan over audio beats",
+                     "live cut layout -22f | crowd wide/close-ups first, then final 15 s of B06")
     left,right,top,pw=100,50,125,1650; x=lambda f:left+f/6240*pw
     beats=[(0,"arrival"),(360,"sway"),(552,"frenzy"),(1080,"clam"),(1440,"cello"),(2160,"soothe"),(2880,"choir"),(4488,"crying")]
     for f,name in beats:
         xx=x(f); d.line((xx,top-35,xx,620),fill="#35475a"); d.text((xx+4,top-55),name,fill="#aebbc9",font=font)
-    d.rectangle((x(1440),top,x(2880),top+55),fill="#3c5670"); d.text((x(1440)+8,top+18),"B07 orbit preserved",fill="#edf4fb",font=font)
-    d.rectangle((x(3000),top+85,x(3192),top+140),fill="#8d6440"); d.text((x(3000)+5,top+103),"B06 handprints 8 s",fill="#fff0d8",font=font)
+    b07=plan["expected_live_cuts"]["S3 Shot B07"]
+    b06=plan["handprint_trim"]["after"]
+    d.rectangle((x(b07[0]),top,x(b07[1]),top+55),fill="#3c5670"); d.text((x(b07[0])+8,top+18),"live B07 orbit",fill="#edf4fb",font=font)
+    d.rectangle((x(b06[0]),top+85,x(b06[1]),top+140),fill="#8d6440"); d.text((x(b06[0])+5,top+103),"B06 final 15 s -> original glint",fill="#fff0d8",font=font)
     for i,s in enumerate(plan["shots"]):
         y=top+180+i*78; a,b=s["range"]
         d.rectangle((x(a),y,x(b),y+42),fill="#b65b9c")
         d.text((x(a)+5,y+13),"%s | %.0f mm"%(s["label"],s["lens_mm"]),fill="#fff4fc",font=font)
-    d.text((left,650),"Proposed close-ups: 2:00-2:05, 2:13-2:25 (freed B06 time), 2:55-3:07.",fill="#d6dce5",font=font)
+    d.text((left,650),"Wide bridges the B07 seam and chorus start at 2:08; two 50 mm group close-ups lead into B06.",fill="#d6dce5",font=font)
     return png_bytes(im)
 
 

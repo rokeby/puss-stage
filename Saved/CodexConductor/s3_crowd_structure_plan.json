@@ -1,7 +1,7 @@
 {
-  "schema": "p21_s3_crowd_structure/1",
-  "run": "P21-20261008-CODEX-R5",
-  "created_utc": "2026-10-08T20:02:44.208047+00:00",
+  "schema": "p21b_s3_crowd_replan/1",
+  "run": "P21B-PLAN-20261008-1",
+  "created_utc": "2026-10-08T20:53:17.073969+00:00",
   "evidence_tier": "measured source JSON; inferred staging defaults pending DRY and rendered acceptance",
   "fps": 24,
   "scene_to_ls_clams_frames": 22,
@@ -298,56 +298,6 @@
       "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore04_F55/Shore04_F55_Anim.fbx",
       "source_fbx_sha256": "aa275365070cf534633a384d37c50a1c0276e4e856a185fcf3aa45822f2e8b27"
     },
-    "Shore05_M53": {
-      "id": "Shore05_M53",
-      "actor": "Shore05_M53 Clam",
-      "animation": "AS_Shore05_M53_shoreguy5_Full",
-      "hero_xy": [
-        3411.07,
-        -244.32
-      ],
-      "calm": [
-        18.3333,
-        32.375
-      ],
-      "calm_span": {
-        "source_in": 18.3333,
-        "source_out": 32.375,
-        "scene_len_s": 23.4028,
-        "signal": "spine_02.rotation.Y",
-        "period_s_source": 2.08,
-        "period_s_scene": 3.47,
-        "periodicity": 0.532,
-        "amplitude_std": 4.904,
-        "play_rate": 0.5777777777777778
-      },
-      "medium_span": {
-        "class": "MEDIUM",
-        "source_in_seconds": 10.875,
-        "source_out_seconds": 18.3333,
-        "source_timecode_in": "00:10:21",
-        "source_timecode_out": "00:18:08",
-        "scene3_in_seconds": 17.2083,
-        "scene3_out_seconds": 29.6389,
-        "scene3_timecode_in": "00:17:05",
-        "scene3_timecode_out": "00:29:15",
-        "duration_scene_seconds": 12.4306
-      },
-      "frenzy_span": {
-        "class": "FRENZY",
-        "source_in_seconds": 39.0833,
-        "source_out_seconds": 53.4167,
-        "source_timecode_in": "00:39:02",
-        "source_timecode_out": "00:53:10",
-        "scene3_in_seconds": 64.2222,
-        "scene3_out_seconds": 88.1111,
-        "scene3_timecode_in": "01:04:05",
-        "scene3_timecode_out": "01:28:03",
-        "duration_scene_seconds": 23.8889
-      },
-      "source_fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/bodies/Shore05_M53/Shore05_M53_Anim.fbx",
-      "source_fbx_sha256": "3eac3fff05ffdb896486283b6e06b2adafc424cdb2eda134f381a088fdacf6d8"
-    },
     "Shore06_F25": {
       "id": "Shore06_F25",
       "actor": "Shore06_F25 Clam",
@@ -400,184 +350,359 @@
       "source_fbx_sha256": "3b3e2e80ca601292de3a2c7630c9a92003618a946ec0ed812e9ec1e4ccfef7a9"
     }
   },
+  "clusters": [
+    {
+      "id": "A",
+      "centre_local_xy_cm": [
+        4000.0,
+        -500.0
+      ],
+      "size": 5,
+      "phase_base_deg": 0.0,
+      "offsets_cm": [
+        [
+          -110,
+          -60
+        ],
+        [
+          0,
+          -60
+        ],
+        [
+          110,
+          -60
+        ],
+        [
+          -55,
+          60
+        ],
+        [
+          55,
+          60
+        ]
+      ]
+    },
+    {
+      "id": "B",
+      "centre_local_xy_cm": [
+        3600.0,
+        700.0
+      ],
+      "size": 7,
+      "phase_base_deg": 90.0,
+      "offsets_cm": [
+        [
+          -120,
+          -110
+        ],
+        [
+          0,
+          -110
+        ],
+        [
+          120,
+          -110
+        ],
+        [
+          -120,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          120,
+          0
+        ],
+        [
+          0,
+          110
+        ]
+      ]
+    },
+    {
+      "id": "C",
+      "centre_local_xy_cm": [
+        2500.0,
+        550.0
+      ],
+      "size": 8,
+      "phase_base_deg": 180.0,
+      "offsets_cm": [
+        [
+          -120,
+          -120
+        ],
+        [
+          0,
+          -120
+        ],
+        [
+          120,
+          -120
+        ],
+        [
+          -120,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          120,
+          0
+        ],
+        [
+          -60,
+          120
+        ],
+        [
+          60,
+          120
+        ]
+      ]
+    }
+  ],
   "duplicate_placements": [
     {
-      "crowd_index": 1,
+      "index": 6,
+      "role": "duplicate",
       "label": "S3 Crowd 01 (from Shore04_F55)",
       "source_id": "Shore04_F55",
       "local_xy_cm": [
-        2462.233,
-        -719.591
+        3480.395,
+        590.07
       ],
-      "yaw_deg": -15.799,
+      "yaw_deg": -21.807,
+      "phase_deg": 66.0,
+      "cluster_id": "B",
+      "cluster_index": 1,
       "tag": "P21.S3Crowd",
       "random_draws": 4
     },
     {
-      "crowd_index": 2,
+      "index": 7,
+      "role": "duplicate",
       "label": "S3 Crowd 02 (from Shore06_F25)",
       "source_id": "Shore06_F25",
       "local_xy_cm": [
-        2771.176,
-        -715.596
+        3603.054,
+        592.463
       ],
-      "yaw_deg": 10.185,
+      "yaw_deg": -24.297,
+      "phase_deg": 74.0,
+      "cluster_id": "B",
+      "cluster_index": 2,
       "tag": "P21.S3Crowd",
       "random_draws": 4
     },
     {
-      "crowd_index": 3,
+      "index": 8,
+      "role": "duplicate",
       "label": "S3 Crowd 03 (from Shore04_F55)",
       "source_id": "Shore04_F55",
       "local_xy_cm": [
-        3107.614,
-        -681.334
+        3720.321,
+        587.658
       ],
-      "yaw_deg": -0.064,
+      "yaw_deg": -27.579,
+      "phase_deg": 82.0,
+      "cluster_id": "B",
+      "cluster_index": 3,
       "tag": "P21.S3Crowd",
       "random_draws": 4
     },
     {
-      "crowd_index": 4,
-      "label": "S3 Crowd 04 (from Shore01_M56)",
-      "source_id": "Shore01_M56",
-      "local_xy_cm": [
-        3408.689,
-        -541.405
-      ],
-      "yaw_deg": -1.22,
-      "tag": "P21.S3Crowd",
-      "random_draws": 4
-    },
-    {
-      "crowd_index": 5,
-      "label": "S3 Crowd 05 (from Shore05_M53)",
-      "source_id": "Shore05_M53",
-      "local_xy_cm": [
-        3780.406,
-        -636.198
-      ],
-      "yaw_deg": -6.899,
-      "tag": "P21.S3Crowd",
-      "random_draws": 4
-    },
-    {
-      "crowd_index": 6,
-      "label": "S3 Crowd 06 (from Shore04_F55)",
-      "source_id": "Shore04_F55",
-      "local_xy_cm": [
-        2451.739,
-        720.31
-      ],
-      "yaw_deg": -2.551,
-      "tag": "P21.S3Crowd",
-      "random_draws": 4
-    },
-    {
-      "crowd_index": 7,
-      "label": "S3 Crowd 07 (from Shore06_F25)",
+      "index": 9,
+      "role": "duplicate",
+      "label": "S3 Crowd 04 (from Shore06_F25)",
       "source_id": "Shore06_F25",
       "local_xy_cm": [
-        2788.44,
-        730.837
+        3476.335,
+        704.556
       ],
-      "yaw_deg": -2.273,
+      "yaw_deg": -25.452,
+      "phase_deg": 90.0,
+      "cluster_id": "B",
+      "cluster_index": 4,
       "tag": "P21.S3Crowd",
       "random_draws": 4
     },
     {
-      "crowd_index": 8,
+      "index": 10,
+      "role": "duplicate",
+      "label": "S3 Crowd 05 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        3598.765,
+        698.18
+      ],
+      "yaw_deg": -27.804,
+      "phase_deg": 98.0,
+      "cluster_id": "B",
+      "cluster_index": 5,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "index": 11,
+      "role": "duplicate",
+      "label": "S3 Crowd 06 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
+      "local_xy_cm": [
+        3724.874,
+        701.627
+      ],
+      "yaw_deg": -31.267,
+      "phase_deg": 106.0,
+      "cluster_id": "B",
+      "cluster_index": 6,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "index": 12,
+      "role": "duplicate",
+      "label": "S3 Crowd 07 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
+      "local_xy_cm": [
+        3599.076,
+        807.934
+      ],
+      "yaw_deg": -32.05,
+      "phase_deg": 114.0,
+      "cluster_id": "B",
+      "cluster_index": 7,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "index": 13,
+      "role": "duplicate",
       "label": "S3 Crowd 08 (from Shore06_F25)",
       "source_id": "Shore06_F25",
       "local_xy_cm": [
-        3101.41,
-        689.696
+        2375.68,
+        428.891
       ],
-      "yaw_deg": -5.274,
+      "yaw_deg": -8.307,
+      "phase_deg": 152.0,
+      "cluster_id": "C",
+      "cluster_index": 1,
       "tag": "P21.S3Crowd",
       "random_draws": 4
     },
     {
-      "crowd_index": 9,
-      "label": "S3 Crowd 09 (from Shore06_F25)",
-      "source_id": "Shore06_F25",
+      "index": 14,
+      "role": "duplicate",
+      "label": "S3 Crowd 09 (from Shore03_M59)",
+      "source_id": "Shore03_M59",
       "local_xy_cm": [
-        3408.876,
-        540.047
+        2502.345,
+        430.338
       ],
-      "yaw_deg": 3.487,
+      "yaw_deg": -9.766,
+      "phase_deg": 160.0,
+      "cluster_id": "C",
+      "cluster_index": 2,
       "tag": "P21.S3Crowd",
       "random_draws": 4
     },
     {
-      "crowd_index": 10,
+      "index": 15,
+      "role": "duplicate",
       "label": "S3 Crowd 10 (from Shore06_F25)",
       "source_id": "Shore06_F25",
       "local_xy_cm": [
-        3769.566,
-        641.99
+        2621.09,
+        427.949
       ],
-      "yaw_deg": 4.257,
+      "yaw_deg": -8.135,
+      "phase_deg": 168.0,
+      "cluster_id": "C",
+      "cluster_index": 3,
       "tag": "P21.S3Crowd",
       "random_draws": 4
     },
     {
-      "crowd_index": 11,
+      "index": 16,
+      "role": "duplicate",
       "label": "S3 Crowd 11 (from Shore06_F25)",
       "source_id": "Shore06_F25",
       "local_xy_cm": [
-        2621.445,
-        -462.841
+        2375.521,
+        552.874
       ],
-      "yaw_deg": 5.229,
+      "yaw_deg": -13.136,
+      "phase_deg": 176.0,
+      "cluster_id": "C",
+      "cluster_index": 4,
       "tag": "P21.S3Crowd",
       "random_draws": 4
     },
     {
-      "crowd_index": 12,
+      "index": 17,
+      "role": "duplicate",
       "label": "S3 Crowd 12 (from Shore04_F55)",
       "source_id": "Shore04_F55",
       "local_xy_cm": [
-        2920.934,
-        -509.091
+        2496.439,
+        546.637
       ],
-      "yaw_deg": 6.675,
+      "yaw_deg": -14.118,
+      "phase_deg": 184.0,
+      "cluster_id": "C",
+      "cluster_index": 5,
       "tag": "P21.S3Crowd",
       "random_draws": 4
     },
     {
-      "crowd_index": 13,
+      "index": 18,
+      "role": "duplicate",
       "label": "S3 Crowd 13 (from Shore06_F25)",
       "source_id": "Shore06_F25",
       "local_xy_cm": [
-        3230.993,
-        -544.878
+        2623.221,
+        548.901
       ],
-      "yaw_deg": -6.941,
+      "yaw_deg": -11.039,
+      "phase_deg": 192.0,
+      "cluster_id": "C",
+      "cluster_index": 6,
       "tag": "P21.S3Crowd",
       "random_draws": 4
     },
     {
-      "crowd_index": 14,
-      "label": "S3 Crowd 14 (from Shore05_M53)",
-      "source_id": "Shore05_M53",
-      "local_xy_cm": [
-        3660.318,
-        -468.512
-      ],
-      "yaw_deg": -11.474,
-      "tag": "P21.S3Crowd",
-      "random_draws": 4
-    },
-    {
-      "crowd_index": 15,
-      "label": "S3 Crowd 15 (from Shore06_F25)",
+      "index": 19,
+      "role": "duplicate",
+      "label": "S3 Crowd 14 (from Shore06_F25)",
       "source_id": "Shore06_F25",
       "local_xy_cm": [
-        4029.798,
-        -529.026
+        2438.033,
+        669.289
       ],
-      "yaw_deg": -2.484,
+      "yaw_deg": -11.693,
+      "phase_deg": 200.0,
+      "cluster_id": "C",
+      "cluster_index": 7,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4
+    },
+    {
+      "index": 20,
+      "role": "duplicate",
+      "label": "S3 Crowd 15 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
+      "local_xy_cm": [
+        2556.79,
+        665.27
+      ],
+      "yaw_deg": -17.672,
+      "phase_deg": 208.0,
+      "cluster_id": "C",
+      "cluster_index": 8,
       "tag": "P21.S3Crowd",
       "random_draws": 4
     }
@@ -589,10 +714,15 @@
       "label": "Shore01_M56 Clam",
       "source_id": "Shore01_M56",
       "local_xy_cm": [
-        3649.13,
-        -212.98
+        3892.78,
+        -559.907
       ],
-      "phase_deg": 0.0,
+      "yaw_deg": 43.935,
+      "phase_deg": 344.0,
+      "cluster_id": "A",
+      "cluster_index": 1,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -640,7 +770,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 0.0,
+        "phase_deg": 344.0,
         "windows": [
           [
             360,
@@ -659,10 +789,15 @@
       "label": "Shore02_F52 Clam",
       "source_id": "Shore02_F52",
       "local_xy_cm": [
-        3199.3,
-        109.45
+        3999.131,
+        -558.999
       ],
-      "phase_deg": 18.0,
+      "yaw_deg": 54.551,
+      "phase_deg": 352.0,
+      "cluster_id": "A",
+      "cluster_index": 2,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -710,7 +845,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 18.0,
+        "phase_deg": 352.0,
         "windows": [
           [
             360,
@@ -729,10 +864,15 @@
       "label": "Shore03_M59 Clam",
       "source_id": "Shore03_M59",
       "local_xy_cm": [
-        3390.55,
-        300.7
+        4111.731,
+        -555.758
       ],
-      "phase_deg": 36.0,
+      "yaw_deg": 58.128,
+      "phase_deg": 0.0,
+      "cluster_id": "A",
+      "cluster_index": 3,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -780,7 +920,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 36.0,
+        "phase_deg": 0.0,
         "windows": [
           [
             360,
@@ -799,10 +939,15 @@
       "label": "Shore04_F55 Clam",
       "source_id": "Shore04_F55",
       "local_xy_cm": [
-        3683.54,
-        262.13
+        3941.293,
+        -444.865
       ],
-      "phase_deg": 54.0,
+      "yaw_deg": 44.415,
+      "phase_deg": 8.0,
+      "cluster_id": "A",
+      "cluster_index": 4,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -850,7 +995,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 54.0,
+        "phase_deg": 8.0,
         "windows": [
           [
             360,
@@ -866,13 +1011,18 @@
     {
       "index": 5,
       "role": "existing",
-      "label": "Shore05_M53 Clam",
-      "source_id": "Shore05_M53",
+      "label": "Shore06_F25 Clam",
+      "source_id": "Shore06_F25",
       "local_xy_cm": [
-        3411.07,
-        -244.32
+        4056.229,
+        -436.863
       ],
-      "phase_deg": 72.0,
+      "yaw_deg": 48.611,
+      "phase_deg": 16.0,
+      "cluster_id": "A",
+      "cluster_index": 5,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -920,7 +1070,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 72.0,
+        "phase_deg": 16.0,
         "windows": [
           [
             360,
@@ -935,14 +1085,19 @@
     },
     {
       "index": 6,
-      "role": "existing",
-      "label": "Shore06_F25 Clam",
-      "source_id": "Shore06_F25",
+      "role": "duplicate",
+      "label": "S3 Crowd 01 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
       "local_xy_cm": [
-        3760.0,
-        0.0
+        3480.395,
+        590.07
       ],
-      "phase_deg": 90.0,
+      "yaw_deg": -21.807,
+      "phase_deg": 66.0,
+      "cluster_id": "B",
+      "cluster_index": 1,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -990,7 +1145,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 90.0,
+        "phase_deg": 66.0,
         "windows": [
           [
             360,
@@ -1006,13 +1161,18 @@
     {
       "index": 7,
       "role": "duplicate",
-      "label": "S3 Crowd 01 (from Shore04_F55)",
-      "source_id": "Shore04_F55",
+      "label": "S3 Crowd 02 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
       "local_xy_cm": [
-        2462.233,
-        -719.591
+        3603.054,
+        592.463
       ],
-      "phase_deg": 108.0,
+      "yaw_deg": -24.297,
+      "phase_deg": 74.0,
+      "cluster_id": "B",
+      "cluster_index": 2,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1060,7 +1220,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 108.0,
+        "phase_deg": 74.0,
         "windows": [
           [
             360,
@@ -1076,13 +1236,18 @@
     {
       "index": 8,
       "role": "duplicate",
-      "label": "S3 Crowd 02 (from Shore06_F25)",
-      "source_id": "Shore06_F25",
+      "label": "S3 Crowd 03 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
       "local_xy_cm": [
-        2771.176,
-        -715.596
+        3720.321,
+        587.658
       ],
-      "phase_deg": 126.0,
+      "yaw_deg": -27.579,
+      "phase_deg": 82.0,
+      "cluster_id": "B",
+      "cluster_index": 3,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1130,7 +1295,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 126.0,
+        "phase_deg": 82.0,
         "windows": [
           [
             360,
@@ -1146,13 +1311,18 @@
     {
       "index": 9,
       "role": "duplicate",
-      "label": "S3 Crowd 03 (from Shore04_F55)",
-      "source_id": "Shore04_F55",
+      "label": "S3 Crowd 04 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
       "local_xy_cm": [
-        3107.614,
-        -681.334
+        3476.335,
+        704.556
       ],
-      "phase_deg": 144.0,
+      "yaw_deg": -25.452,
+      "phase_deg": 90.0,
+      "cluster_id": "B",
+      "cluster_index": 4,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1200,7 +1370,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 144.0,
+        "phase_deg": 90.0,
         "windows": [
           [
             360,
@@ -1216,13 +1386,18 @@
     {
       "index": 10,
       "role": "duplicate",
-      "label": "S3 Crowd 04 (from Shore01_M56)",
-      "source_id": "Shore01_M56",
+      "label": "S3 Crowd 05 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
       "local_xy_cm": [
-        3408.689,
-        -541.405
+        3598.765,
+        698.18
       ],
-      "phase_deg": 162.0,
+      "yaw_deg": -27.804,
+      "phase_deg": 98.0,
+      "cluster_id": "B",
+      "cluster_index": 5,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1270,7 +1445,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 162.0,
+        "phase_deg": 98.0,
         "windows": [
           [
             360,
@@ -1286,13 +1461,18 @@
     {
       "index": 11,
       "role": "duplicate",
-      "label": "S3 Crowd 05 (from Shore05_M53)",
-      "source_id": "Shore05_M53",
+      "label": "S3 Crowd 06 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
       "local_xy_cm": [
-        3780.406,
-        -636.198
+        3724.874,
+        701.627
       ],
-      "phase_deg": 180.0,
+      "yaw_deg": -31.267,
+      "phase_deg": 106.0,
+      "cluster_id": "B",
+      "cluster_index": 6,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1340,7 +1520,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 180.0,
+        "phase_deg": 106.0,
         "windows": [
           [
             360,
@@ -1356,13 +1536,18 @@
     {
       "index": 12,
       "role": "duplicate",
-      "label": "S3 Crowd 06 (from Shore04_F55)",
+      "label": "S3 Crowd 07 (from Shore04_F55)",
       "source_id": "Shore04_F55",
       "local_xy_cm": [
-        2451.739,
-        720.31
+        3599.076,
+        807.934
       ],
-      "phase_deg": 198.0,
+      "yaw_deg": -32.05,
+      "phase_deg": 114.0,
+      "cluster_id": "B",
+      "cluster_index": 7,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1410,7 +1595,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 198.0,
+        "phase_deg": 114.0,
         "windows": [
           [
             360,
@@ -1426,13 +1611,18 @@
     {
       "index": 13,
       "role": "duplicate",
-      "label": "S3 Crowd 07 (from Shore06_F25)",
+      "label": "S3 Crowd 08 (from Shore06_F25)",
       "source_id": "Shore06_F25",
       "local_xy_cm": [
-        2788.44,
-        730.837
+        2375.68,
+        428.891
       ],
-      "phase_deg": 216.0,
+      "yaw_deg": -8.307,
+      "phase_deg": 152.0,
+      "cluster_id": "C",
+      "cluster_index": 1,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1480,7 +1670,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 216.0,
+        "phase_deg": 152.0,
         "windows": [
           [
             360,
@@ -1496,13 +1686,18 @@
     {
       "index": 14,
       "role": "duplicate",
-      "label": "S3 Crowd 08 (from Shore06_F25)",
-      "source_id": "Shore06_F25",
+      "label": "S3 Crowd 09 (from Shore03_M59)",
+      "source_id": "Shore03_M59",
       "local_xy_cm": [
-        3101.41,
-        689.696
+        2502.345,
+        430.338
       ],
-      "phase_deg": 234.0,
+      "yaw_deg": -9.766,
+      "phase_deg": 160.0,
+      "cluster_id": "C",
+      "cluster_index": 2,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1550,7 +1745,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 234.0,
+        "phase_deg": 160.0,
         "windows": [
           [
             360,
@@ -1566,13 +1761,18 @@
     {
       "index": 15,
       "role": "duplicate",
-      "label": "S3 Crowd 09 (from Shore06_F25)",
+      "label": "S3 Crowd 10 (from Shore06_F25)",
       "source_id": "Shore06_F25",
       "local_xy_cm": [
-        3408.876,
-        540.047
+        2621.09,
+        427.949
       ],
-      "phase_deg": 252.0,
+      "yaw_deg": -8.135,
+      "phase_deg": 168.0,
+      "cluster_id": "C",
+      "cluster_index": 3,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1620,7 +1820,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 252.0,
+        "phase_deg": 168.0,
         "windows": [
           [
             360,
@@ -1636,13 +1836,18 @@
     {
       "index": 16,
       "role": "duplicate",
-      "label": "S3 Crowd 10 (from Shore06_F25)",
+      "label": "S3 Crowd 11 (from Shore06_F25)",
       "source_id": "Shore06_F25",
       "local_xy_cm": [
-        3769.566,
-        641.99
+        2375.521,
+        552.874
       ],
-      "phase_deg": 270.0,
+      "yaw_deg": -13.136,
+      "phase_deg": 176.0,
+      "cluster_id": "C",
+      "cluster_index": 4,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1690,7 +1895,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 270.0,
+        "phase_deg": 176.0,
         "windows": [
           [
             360,
@@ -1706,13 +1911,18 @@
     {
       "index": 17,
       "role": "duplicate",
-      "label": "S3 Crowd 11 (from Shore06_F25)",
-      "source_id": "Shore06_F25",
+      "label": "S3 Crowd 12 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
       "local_xy_cm": [
-        2621.445,
-        -462.841
+        2496.439,
+        546.637
       ],
-      "phase_deg": 288.0,
+      "yaw_deg": -14.118,
+      "phase_deg": 184.0,
+      "cluster_id": "C",
+      "cluster_index": 5,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1760,7 +1970,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 288.0,
+        "phase_deg": 184.0,
         "windows": [
           [
             360,
@@ -1776,13 +1986,18 @@
     {
       "index": 18,
       "role": "duplicate",
-      "label": "S3 Crowd 12 (from Shore04_F55)",
-      "source_id": "Shore04_F55",
+      "label": "S3 Crowd 13 (from Shore06_F25)",
+      "source_id": "Shore06_F25",
       "local_xy_cm": [
-        2920.934,
-        -509.091
+        2623.221,
+        548.901
       ],
-      "phase_deg": 306.0,
+      "yaw_deg": -11.039,
+      "phase_deg": 192.0,
+      "cluster_id": "C",
+      "cluster_index": 6,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1830,7 +2045,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 306.0,
+        "phase_deg": 192.0,
         "windows": [
           [
             360,
@@ -1846,13 +2061,18 @@
     {
       "index": 19,
       "role": "duplicate",
-      "label": "S3 Crowd 13 (from Shore06_F25)",
+      "label": "S3 Crowd 14 (from Shore06_F25)",
       "source_id": "Shore06_F25",
       "local_xy_cm": [
-        3230.993,
-        -544.878
+        2438.033,
+        669.289
       ],
-      "phase_deg": 324.0,
+      "yaw_deg": -11.693,
+      "phase_deg": 200.0,
+      "cluster_id": "C",
+      "cluster_index": 7,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1900,7 +2120,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 324.0,
+        "phase_deg": 200.0,
         "windows": [
           [
             360,
@@ -1916,13 +2136,18 @@
     {
       "index": 20,
       "role": "duplicate",
-      "label": "S3 Crowd 14 (from Shore05_M53)",
-      "source_id": "Shore05_M53",
+      "label": "S3 Crowd 15 (from Shore04_F55)",
+      "source_id": "Shore04_F55",
       "local_xy_cm": [
-        3660.318,
-        -468.512
+        2556.79,
+        665.27
       ],
-      "phase_deg": 342.0,
+      "yaw_deg": -17.672,
+      "phase_deg": 208.0,
+      "cluster_id": "C",
+      "cluster_index": 8,
+      "tag": "P21.S3Crowd",
+      "random_draws": 4,
       "timeline": [
         {
           "class": "CALM",
@@ -1970,7 +2195,7 @@
       "transform_sway": {
         "roll_degrees": 2.5,
         "period_seconds": 3.6,
-        "phase_deg": 342.0,
+        "phase_deg": 208.0,
         "windows": [
           [
             360,
@@ -1984,7 +2209,6 @@
       }
     }
   ],
-  "placement_reserve_count": 1,
   "shots": [
     {
       "label": "S3 Crowd Establishing",
@@ -2011,87 +2235,111 @@
       ]
     },
     {
+      "label": "S3 Choir Cluster Wide",
+      "range": [
+        2806,
+        3360
+      ],
+      "lens_mm": 35.0,
+      "location_local": [
+        2500.0,
+        1050.0,
+        180.0
+      ],
+      "look_local": [
+        3600.0,
+        700.0,
+        105.0
+      ],
+      "purpose": "cluster wide bridges the live B07 end and carries into chorus at 3072",
+      "rotation_rpy_deg": [
+        0.0,
+        -3.7174,
+        -17.6501
+      ]
+    },
+    {
       "label": "S3 Choir Close A",
       "range": [
-        2880,
-        3000
+        3360,
+        3720
       ],
       "lens_mm": 50.0,
       "location_local": [
-        3900.0,
-        -950.0,
+        4300.0,
+        1000.0,
         165.0
       ],
       "look_local": [
         3600.0,
-        -420.0,
+        700.0,
         105.0
       ],
-      "purpose": "3-4 figures after B07 orbit",
+      "purpose": "50 mm group close-up of 3-4 singers in cluster B",
       "rotation_rpy_deg": [
         0.0,
-        -5.6266,
-        119.5115
+        -4.5047,
+        -156.8014
       ]
     },
     {
       "label": "S3 Choir Close B",
       "range": [
-        3192,
-        3480
+        3720,
+        4166
       ],
       "lens_mm": 50.0,
       "location_local": [
-        4050.0,
-        950.0,
-        160.0
+        4500.0,
+        -950.0,
+        165.0
       ],
       "look_local": [
-        3650.0,
-        430.0,
+        4000.0,
+        -500.0,
         105.0
       ],
-      "purpose": "uses the 12 s freed by trimming B06",
+      "purpose": "50 mm group close-up of 3-4 singers in cluster A before B06 tail",
       "rotation_rpy_deg": [
         0.0,
-        -4.7922,
-        -127.5686
-      ]
-    },
-    {
-      "label": "S3 Choir Close C",
-      "range": [
-        4200,
-        4488
-      ],
-      "lens_mm": 42.0,
-      "location_local": [
-        2200.0,
-        980.0,
-        170.0
-      ],
-      "look_local": [
-        2850.0,
-        500.0,
-        100.0
-      ],
-      "purpose": "late chorus close group; B07 orbit remains 1440-2880",
-      "rotation_rpy_deg": [
-        0.0,
-        -4.9512,
-        -36.4444
+        -5.097,
+        138.0128
       ]
     }
   ],
   "handprint_trim": {
     "camera": "S3 Shot B06",
     "expected_before": [
-      3000,
-      3480
+      2798,
+      4526
     ],
     "after": [
-      3000,
-      3192
+      4166,
+      4526
+    ],
+    "duration_frames": 360,
+    "original_end_frame": 4526
+  },
+  "expected_live_cuts": {
+    "S3 Shot B03": [
+      398,
+      838
+    ],
+    "S3 Shot B02": [
+      834,
+      1711
+    ],
+    "S3 Shot B07": [
+      1518,
+      2806
+    ],
+    "S3 Shot B06": [
+      2798,
+      4526
+    ],
+    "S3 Shot B08": [
+      4516,
+      4836
     ]
   },
   "cut_policy": {
@@ -2100,10 +2348,9 @@
       0,
       6240
     ],
-    "preserve_b07_orbit": [
-      1440,
-      2880
-    ]
+    "live_scene_offset_frames": 22,
+    "chorus_start": 3072,
+    "b03_starts_after_establishing": 552
   },
   "performance_gate": {
     "baseline_required_before_apply": true,

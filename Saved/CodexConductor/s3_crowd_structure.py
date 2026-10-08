@@ -1,4 +1,4 @@
-"""P21 Scene 3 crowd structure: guarded DRY/APPLY/REVERT editor tool.
+"""P21B Scene 3 clustered-crowd re-plan: guarded DRY/APPLY/REVERT editor tool.
 
 Offline only in this Codex run. The conductor later invokes it through
 ExecuteProjectPythonFile. APPLY duplicates level actors as possessables so their
@@ -100,6 +100,31 @@ def coverage_gaps(rows, playback):
     return gaps
 
 
+def live_cut_mismatches(rows, expected):
+    """Compare the active root cuts with the P21B ranges derived from the live LS_Clams census."""
+    mismatches = []
+    for camera, wanted in expected.items():
+        actual = [r["range"] for r in rows if r.get("active") and r.get("camera") == camera]
+        if actual != [wanted]:
+            mismatches.append({"camera": camera, "expected": wanted, "actual": actual})
+    return mismatches
+
+
+def planned_cut_rows(before, plan):
+    overrides = [s["range"] for s in plan["shots"]]
+    rows = []
+    for old in before:
+        base = list(old["range"])
+        if old["camera"] == plan["handprint_trim"]["camera"]:
+            if base != plan["handprint_trim"]["expected_before"]:
+                raise CrowdError("B06_RANGE_MISMATCH|got=%s|expected=%s" %
+                                 (base, plan["handprint_trim"]["expected_before"]))
+            base = list(plan["handprint_trim"]["after"])
+        for piece in subtract_ranges(base, overrides):
+            rows.append({**old, "range": piece})
+    return rows
+
+
 def build_source_schedule(member, source, scene_to_clams=22, blend=24):
     """Turn class bands into overlapping animation rows in LS_Clams frames."""
     spans = {
@@ -137,7 +162,7 @@ def build_source_schedule(member, source, scene_to_clams=22, blend=24):
 
 
 def planned_apply_order():
-    return ["preflight", "record", "backup", "duplicate", "bind", "animate", "sway",
+    return ["preflight", "record", "backup", "reposition", "duplicate", "bind", "animate", "sway",
             "cameras", "cuts", "census", "save_named", "readback", "commit"]
 
 
@@ -226,6 +251,29 @@ def _hidden(actor):
     return game or editor
 
 
+def _transform_snapshot(actor):
+    location, rotation, scale = actor.get_actor_location(), actor.get_actor_rotation(), actor.get_actor_scale3d()
+    return {"location": [float(location.x), float(location.y), float(location.z)],
+            "rotation": [float(rotation.roll), float(rotation.pitch), float(rotation.yaw)],
+            "scale": [float(scale.x), float(scale.y), float(scale.z)]}
+
+
+def _restore_transform(actor, snapshot):
+    actor.set_actor_location(unreal.Vector(*snapshot["location"]), False, False)
+    actor.set_actor_rotation(unreal.Rotator(roll=snapshot["rotation"][0],
+                                            pitch=snapshot["rotation"][1],
+                                            yaw=snapshot["rotation"][2]), False)
+    actor.set_actor_scale3d(unreal.Vector(*snapshot["scale"]))
+
+
+def _pose_matches(actor, member, tolerance=0.01):
+    location, rotation = actor.get_actor_location(), actor.get_actor_rotation()
+    target_x = float(member["local_xy_cm"][0]) + 10921.973
+    target_y = float(member["local_xy_cm"][1]) + 160000.0
+    yaw_delta = ((float(rotation.yaw) - float(member["yaw_deg"]) + 180.0) % 360.0) - 180.0
+    return abs(float(location.x) - target_x) <= tolerance and abs(float(location.y) - target_y) <= tolerance and abs(yaw_delta) <= tolerance
+
+
 def _component_signature(actor):
     rows = []
     for comp in actor.get_components_by_class(unreal.ActorComponent):
@@ -240,6 +288,12 @@ def _binding_path(binding):
     while parent is not None and parent.is_valid():
         names.append(str(parent.get_display_name())); parent = parent.get_parent()
     return "/".join(reversed(names))
+
+
+def _actor_track_report(body_binding):
+    actor_binding = body_binding.get_parent() if body_binding.get_parent().is_valid() else body_binding
+    return [{"class": t.get_class().get_name(), "name": str(t.get_name()),
+             "display_name": str(t.get_display_name())} for t in actor_binding.get_tracks()]
 
 
 def _anim_section_snapshot(section):
@@ -280,8 +334,9 @@ def _discover(plan, clams):
                      "actor": hits[0] if len(hits)==1 else None,
                      "hidden": _hidden(hits[0]) if len(hits)==1 else None,
                      "components": _component_signature(hits[0]) if len(hits)==1 else [],
-                     "binding": binding[0], "track": binding[1], "section": binding[2],
-                     "section_snapshot": binding[3], "binding_path": binding[4]})
+                      "binding": binding[0], "track": binding[1], "section": binding[2],
+                      "section_snapshot": binding[3], "binding_path": binding[4],
+                      "actor_tracks": _actor_track_report(binding[0])})
     return rows
 
 
@@ -420,15 +475,7 @@ def _camera(root, spec, run):
 
 
 def _rewrite_cuts(root, track, before, plan, cameras):
-    overrides=[s["range"] for s in plan["shots"]]
-    rows=[]
-    for old in before:
-        base=list(old["range"])
-        if old["camera"]==plan["handprint_trim"]["camera"]:
-            if base!=plan["handprint_trim"]["expected_before"]:
-                raise CrowdError("B06_RANGE_MISMATCH|got=%s|expected=%s"%(base,plan["handprint_trim"]["expected_before"]))
-            base=list(plan["handprint_trim"]["after"])
-        for piece in subtract_ranges(base,overrides): rows.append({**old,"range":piece})
+    rows=planned_cut_rows(before,plan)
     bindings={b.get_id().export_text():b for b in root.get_bindings()}
     for s in list(track.get_sections()): track.remove_section(s)
     for row in rows:
@@ -470,7 +517,7 @@ def _remove_binding(sequence,guid):
 def _read_plan(args):
     path=args.get("plan_path",PLAN_DEFAULT)
     with open(path,encoding="utf-8") as f: plan=json.load(f)
-    if plan.get("schema")!="p21_s3_crowd_structure/1": raise CrowdError("PLAN_SCHEMA")
+    if plan.get("schema")!="p21b_s3_crowd_replan/1": raise CrowdError("PLAN_SCHEMA")
     return path,plan
 
 
@@ -491,19 +538,22 @@ def main():
     if mode=="DRY" and os.path.isfile(RECORD):
         prior=json.load(open(RECORD,encoding="utf-8"))
         if prior.get("state")=="applied":
-            actor_labels={_label(a) for a in _actors()}
+            actor_by_label={_label(a):a for a in _actors()}; actor_labels=set(actor_by_label)
             missing_a=[x for x in prior["created_actor_labels"] if x not in actor_labels]
             root_names={str(b.get_display_name()) for b in root.get_bindings()}
-            camera_names=("S3 Crowd Establishing","S3 Choir Close A","S3 Choir Close B","S3 Choir Close C")
+            camera_names=tuple(s["label"] for s in plan["shots"])
             missing_c=[x for x in camera_names if x not in root_names]
             clams_guids={b.get_id().export_text() for b in clams.get_bindings()}
             missing_b=[g for g in prior["created_clams_bindings"] if g not in clams_guids]
             gaps=coverage_gaps([r["range"] for r in cut_before if r["active"]],plan["cut_policy"]["root_playback"])
-            if missing_a or missing_c or missing_b or gaps:
-                raise CrowdError("APPLIED_READBACK|actors=%s|cameras=%s|bindings=%s|gaps=%s"%(missing_a,missing_c,missing_b,gaps))
+            missing_cut=[s["range"] for s in plan["shots"] if not any(r["active"] and r["camera"]==s["label"] and r["range"]==s["range"] for r in cut_before)]
+            bad_pose=[m["label"] for m in plan["members"] if m["label"] not in actor_by_label or not _pose_matches(actor_by_label[m["label"]],m)]
+            if missing_a or missing_c or missing_b or gaps or missing_cut or bad_pose:
+                raise CrowdError("APPLIED_READBACK|actors=%s|cameras=%s|bindings=%s|gaps=%s|cuts=%s|poses=%s"%
+                                 (missing_a,missing_c,missing_b,gaps,missing_cut,bad_pose))
             _clean("DRY_APPLIED")
-            unreal.log("S3_CROWD_DRY_OK|run=%s|state=applied|actors=%d|cameras=4|bindings=%d|cut_gaps=0|writes=0|dirty=0"%
-                       (run,len(prior["created_actor_labels"]),len(prior["created_clams_bindings"]))); return
+            unreal.log("S3_CROWD_DRY_OK|run=%s|state=applied|actors=%d|cameras=%d|bindings=%d|poses=20|cut_gaps=0|writes=0|dirty=0"%
+                       (run,len(prior["created_actor_labels"]),len(camera_names),len(prior["created_clams_bindings"]))); return
 
     if mode=="REVERT":
         if args.get("confirm")!="REVERT S3CROWD": raise CrowdError("CONFIRM_REQUIRED|REVERT S3CROWD")
@@ -513,7 +563,7 @@ def main():
         present_labels={_label(a) for a in _actors()}
         missing=[x for x in record["created_actor_labels"] if x not in present_labels]
         root_names={str(b.get_display_name()) for b in root.get_bindings()}
-        missing_c=[x for x in ("S3 Crowd Establishing","S3 Choir Close A","S3 Choir Close B","S3 Choir Close C") if x not in root_names]
+        missing_c=[x for x in (s["label"] for s in plan["shots"]) if x not in root_names]
         if missing or missing_c: raise CrowdError("REVERT_STATE_MISMATCH|actors=%s|cameras=%s"%(missing,missing_c))
         backup=_backup(run,"PreS3CrowdRevert"); root.modify(); clams.modify()
         _restore_cuts(root,record["cuts_before"])
@@ -529,6 +579,11 @@ def main():
             _restore_ease(original,hero["original"]["ease"])
             for t in list(binding.get_parent().get_tracks() if binding.get_parent().is_valid() else []):
                 if str(t.get_display_name()).startswith("P21 Actor Sway "): binding.get_parent().remove_track(t)
+        by_label={_label(a):a for a in _actors()}
+        for moved in record.get("moved_existing",[]):
+            actor=by_label.get(moved["label"])
+            if actor is None: raise CrowdError("REVERT_EXISTING_ACTOR_MISSING|"+moved["label"])
+            _restore_transform(actor,moved["before"])
         for guid in reversed(record["created_clams_bindings"]): _remove_binding(clams,guid)
         subsystem=unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
         by_label={_label(a):a for a in _actors()}
@@ -541,19 +596,26 @@ def main():
 
     discovered=_discover(plan,clams)
     actor_rows=[{"id":r["id"],"label":r["actor_label"],"exists":r["actor_hits"]==1,"hidden":r["hidden"],
-                 "components":r["components"],"binding":r["binding_path"]} for r in discovered]
+                 "components":r["components"],"binding":r["binding_path"],"actor_tracks":r["actor_tracks"]} for r in discovered]
     visible=[r for r in discovered if r["actor_hits"]==1 and not r["hidden"]]
+    transform_owned=[r["id"] for r in visible if any(t["class"]=="MovieScene3DTransformTrack" for t in r["actor_tracks"])]
+    cut_mismatches=live_cut_mismatches(cut_before,plan["expected_live_cuts"])
     gate_ok,gate_reason=False,"BENCH_MISSING"
     if os.path.isfile(BENCH): gate_ok,gate_reason=baseline_gate(json.load(open(BENCH,encoding="utf-8")),len(visible))
     unreal.log("S3_CROWD_ACTORS|run=%s|%s"%(run,json.dumps(actor_rows)))
-    unreal.log("S3_CROWD_CUTS|run=%s|root=%s|nested=%s"%(run,json.dumps(cut_before),json.dumps(nested)))
+    unreal.log("S3_CROWD_CUTS|run=%s|root=%s|nested=%s|live_layout=%s|mismatches=%s"%
+               (run,json.dumps(cut_before),json.dumps(nested),"OK" if not cut_mismatches else "MISMATCH",json.dumps(cut_mismatches)))
     if mode=="DRY":
-        unreal.log("S3_CROWD_DRY_OK|run=%s|actors_found=%d|visible=%d|target=%d|duplicates=%d|baseline_gate=%s|reason=%s|writes=0|dirty=0"%
-                   (run,sum(r["actor_hits"]==1 for r in discovered),len(visible),plan["target_count"],plan["target_count"]-len(visible),gate_ok,gate_reason)); return
+        unreal.log("S3_CROWD_DRY_OK|run=%s|actors_found=%d|visible=%d|target=%d|duplicates=%d|clusters=%d|live_cut_layout=%s|existing_transform_tracks=%s|baseline_gate=%s|reason=%s|writes=0|dirty=0"%
+                   (run,sum(r["actor_hits"]==1 for r in discovered),len(visible),plan["target_count"],plan["target_count"]-len(visible),
+                    len(plan["clusters"]),"OK" if not cut_mismatches else "MISMATCH",json.dumps(transform_owned),gate_ok,gate_reason)); return
     if args.get("confirm")!="APPLY S3CROWD": raise CrowdError("CONFIRM_REQUIRED|APPLY S3CROWD")
     if not gate_ok: raise CrowdError("BASELINE_REQUIRED|"+gate_reason)
-    if any(r["actor_hits"]!=1 for r in visible) or not visible: raise CrowdError("NO_VISIBLE_SOURCE_ACTORS")
+    if cut_mismatches: raise CrowdError("LIVE_CUT_LAYOUT_MISMATCH|"+repr(cut_mismatches))
+    if len(visible)!=5 or any(r["actor_hits"]!=1 or r["hidden"] for r in discovered):
+        raise CrowdError("SOURCE_ACTORS_MUST_BE_FIVE_VISIBLE|"+repr(actor_rows))
     if any(not r["components"] for r in visible): raise CrowdError("LIVE_CLOTH_COMPONENT_SIGNATURE_MISSING")
+    if transform_owned: raise CrowdError("EXISTING_ACTOR_TRANSFORM_TRACKS_REQUIRE_REPLAN|"+repr(transform_owned))
     if os.path.exists(RECORD):
         old=json.load(open(RECORD,encoding="utf-8"))
         if old.get("state")!="reverted": raise CrowdError("RECORD_EXISTS|"+str(old.get("state")))
@@ -562,18 +624,24 @@ def main():
     record={"schema":"p21_s3_crowd_record/1","run":run,"state":"applying","plan_path":plan_path,
             "plan_run":plan["run"],"visible_sources":[r["id"] for r in visible],"actor_report":actor_rows,
             "cuts_before":cut_before,"created_actor_labels":[],"created_root_bindings":[],
-            "created_clams_bindings":[],"heroes":[],"dirty_before":_census()}
+            "created_clams_bindings":[],"heroes":[],
+            "moved_existing":[{"label":r["actor_label"],"before":_transform_snapshot(r["actor"])} for r in visible],
+            "dirty_before":_census()}
     atomic_json(RECORD,record); backup=_backup(run,"PreS3Crowd"); record["backup"]=backup; atomic_json(RECORD,record)
     root.modify(); clams.modify(); subsystem=unreal.get_editor_subsystem(unreal.EditorActorSubsystem); world=_world()
     source_by_id={r["id"]:r for r in discovered}; visible_by_id={r["id"]:r for r in visible}; members=[]
     # Existing visible figures participate; hidden/missing figures are reported but not silently counted.
     for i,row in enumerate(visible):
         member=dict(plan["members"][next(j for j,m in enumerate(plan["members"]) if m["source_id"]==row["id"] and m["role"]=="existing")])
-        member["phase_deg"]=round(i*360.0/plan["target_count"],3)
-        member["transform_sway"]=dict(member["transform_sway"],phase_deg=member["phase_deg"])
+        row["actor"].modify()
+        current=row["actor"].get_actor_location()
+        row["actor"].set_actor_location(unreal.Vector(member["local_xy_cm"][0]+10921.973,member["local_xy_cm"][1]+160000.0,current.z),False,False)
+        row["actor"].set_actor_rotation(unreal.Rotator(roll=0.0,pitch=0.0,yaw=float(member["yaw_deg"])),False)
+        if not _pose_matches(row["actor"],member): raise CrowdError("EXISTING_POSE_SET_FAILED|"+member["label"])
         members.append((member,row["actor"],row["binding"],row["track"],row["section"],False))
     for i,p in enumerate(plan["duplicate_placements"][:duplicates_needed]):
-        actual_source=p["source_id"] if p["source_id"] in visible_by_id else visible[i%len(visible)]["id"]
+        if p["source_id"] not in visible_by_id: raise CrowdError("PLANNED_SOURCE_NOT_VISIBLE|"+p["source_id"])
+        actual_source=p["source_id"]
         src=source_by_id[actual_source]
         actual_label="S3 Crowd %02d (from %s)"%(i+1,actual_source)
         base=src["actor"].get_actor_location(); target=unreal.Vector(p["local_xy_cm"][0]+10921.973,p["local_xy_cm"][1]+160000.0,base.z)
@@ -589,8 +657,7 @@ def main():
         track=bb.add_track(unreal.MovieSceneSkeletalAnimationTrack); track.set_display_name("P21 Crowd Animation "+run)
         _add_visibility(ab,360+22)
         member=dict(plan["members"][len(visible)+i]); member["source_id"]=actual_source; member["label"]=actual_label
-        member["phase_deg"]=round((len(visible)+i)*360.0/plan["target_count"],3)
-        member["transform_sway"]=dict(member["transform_sway"],phase_deg=member["phase_deg"])
+        if not _pose_matches(actor,member): raise CrowdError("DUPLICATE_POSE_SET_FAILED|"+actual_label)
         members.append((member,actor,bb,track,src["section"],True))
         record["created_actor_labels"].append(actual_label); record["created_clams_bindings"].extend([ab.get_id().export_text(),bb.get_id().export_text()])
     # Animation and additive actor roll.
@@ -621,17 +688,18 @@ def main():
     atomic_json(RECORD,record); _save_named()
     record["hashes_after"]={p:sha256(f) for p,f in FILES.items()}; record["state"]="applied"; atomic_json(RECORD,record)
     # Read back the named actors and all four cameras after save/reload.
-    actor_labels={_label(a) for a in _actors()}; missing=[x for x in record["created_actor_labels"] if x not in actor_labels]
+    actor_by_label={_label(a):a for a in _actors()}; actor_labels=set(actor_by_label); missing=[x for x in record["created_actor_labels"] if x not in actor_labels]
     root2=unreal.load_asset(ROOT); names={str(b.get_display_name()) for b in root2.get_bindings()}
     missing_c=[s["label"] for s in plan["shots"] if s["label"] not in names]
     _,cuts_read=_cut_snapshot(root2); cut_ranges={tuple(r["range"]) for r in cuts_read if r["active"]}
     missing_cut=[s["range"] for s in plan["shots"] if tuple(s["range"]) not in cut_ranges]
     clams2=unreal.load_asset(CLAMS); clams_guids={b.get_id().export_text() for b in clams2.get_bindings()}
     missing_bind=[g for g in record["created_clams_bindings"] if g not in clams_guids]
-    if missing or missing_c or missing_cut or missing_bind:
-        raise CrowdError("READBACK_MISSING|actors=%s|cameras=%s|cuts=%s|bindings=%s"%(missing,missing_c,missing_cut,missing_bind))
-    unreal.log("S3_CROWD_APPLY_OK|run=%s|visible_before=%d|duplicates=%d|total=%d|cameras=4|packages=%s|backup=%s|dirty=0"%
-               (run,len(visible),duplicates_needed,plan["target_count"],PACKAGES,backup))
+    bad_pose=[m["label"] for m in plan["members"] if m["label"] not in actor_by_label or not _pose_matches(actor_by_label[m["label"]],m)]
+    if missing or missing_c or missing_cut or missing_bind or bad_pose:
+        raise CrowdError("READBACK_MISSING|actors=%s|cameras=%s|cuts=%s|bindings=%s|poses=%s"%(missing,missing_c,missing_cut,missing_bind,bad_pose))
+    unreal.log("S3_CROWD_APPLY_OK|run=%s|visible_before=%d|duplicates=%d|total=%d|clusters=%d|cameras=%d|poses=20|packages=%s|backup=%s|dirty=0"%
+               (run,len(visible),duplicates_needed,plan["target_count"],len(plan["clusters"]),len(plan["shots"]),PACKAGES,backup))
 
 
 if __name__=="__main__" or unreal is not None:
