@@ -56,3 +56,9 @@ All [measured] by success markers unless marked.
 - ~03:25 Bones imported (Gary: "Import only", then "just do the bone import for now"): SM/T×3/MI for HominidJaw,
   HominidLegBone (MI RoughnessMultiplier 1.95), HominidRibcage under /Game/InfinityStage/Dev/Generated/S3Props/
   (runs S3PROPS-20261007-2318xx…232443, each VERIFY_TEX 4096², BUILD_MAT OK) [measured markers]. Not placed.
+- ~03:45 Gary: "I need S3 Shot B07 to revolve around the new clam position". s3_shots_fix.py gained `only` (orbit-only run):
+  S3SHOTS-20261008-034435APPLY wrote the 721-key orbit +(1062.43, 169.5, 22) and read it back, then refused at CENSUS
+  because an unconditional rise.modify() dirtied LS_S3_HangarRise with no data change (bug fixed: rise.modify only for
+  old_clam). Finished with s3_orbit_finish_save.py: centre verified (15484.40, 160169.50), both saved
+  (S3ORBITSAVE_OK) [measured]. Closed and reopened Gary's Sequencer tab on LS_DevScene_03 around the write (census clean).
+- Queued (Gary via finishing touches): clam lid opening 80° → 55°, CLAMOPEN REVERT → DRY → APPLY in their pearl slot.

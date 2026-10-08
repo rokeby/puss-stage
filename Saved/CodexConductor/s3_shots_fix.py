@@ -47,6 +47,9 @@ def main():
     import unreal
     a = json.load(open(HERE + "s3_shots_fix_args.json"))
     run, mode = a["run"], a["mode"]
+    only = set(a.get("only") or ["old_clam", "orbit", "b06"])
+    global REC
+    REC = HERE + "s3_shots_fix_record_%s.json" % "_".join(sorted(only))     # one record per step set
     RUN["run"] = run
     ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     if ed.get_game_world() is not None:
@@ -135,7 +138,7 @@ def main():
         return
     if a.get("confirm") != "APPLY S3SHOTS" or os.path.exists(REC):
         raise RuntimeError("CONFIRM_OR_RECORD")
-    json.dump({"run": run, "state": "applying", "rise_old_clam": rkeys, "hold_default": hch.get_default(),
+    json.dump({"run": run, "state": "applying", "only": sorted(only), "rise_old_clam": rkeys, "hold_default": hch.get_default(),
                "b06_before": b6_before, "b06_cut_before": B06_CUT[0], "orbit_delta": ORBIT_D, "plan": plan},
               open(REC, "w"), indent=1)
     bdir = "E:/PussStage/Backups/PreS3ShotsFix-%s" % run
@@ -143,36 +146,41 @@ def main():
     for x in FILES:
         shutil.copy2(x, bdir)
     scene.modify()
-    rise.modify()
-    for k in rch.get_keys():
-        if fr(k) == 125:
-            k.set_value(False)
-    hch.set_default(False)
-    for c, d in zip("XYZ", ORBIT_D):
-        for k in loc[c].get_keys():
-            k.set_value(k.get_value() + d)
-    for n in need:
+    if "old_clam" in only:
+        rise.modify()      # 8 Oct: unconditional modify() dirtied the rise on an orbit-only run
+    if "old_clam" in only:
+        for k in rch.get_keys():
+            if fr(k) == 125:
+                k.set_value(False)
+        hch.set_default(False)
+    if "orbit" in only:
+        for c, d in zip("XYZ", ORBIT_D):
+            for k in loc[c].get_keys():
+                k.set_value(k.get_value() + d)
+    for n in (need if "b06" in only else []):
         for k in list(b6[n].get_keys()):
             b6[n].remove_key(k)
     idx = {"Location.X": (1, 0), "Location.Y": (1, 1), "Location.Z": (1, 2),
            "Rotation.X": (2, 0), "Rotation.Y": (2, 1), "Rotation.Z": (2, 2)}
-    for n in need:
+    for n in (need if "b06" in only else []):
         part, i = idx[n]
         for row in plan:
             b6[n].add_key(unreal.FrameNumber(row[0]), float(row[part][i]), time_unit=DR,
                           interpolation=unreal.MovieSceneKeyInterpolation.AUTO)
-    cut6.set_range(*B06_CUT[1])
+    if "b06" in only:
+        cut6.set_range(*B06_CUT[1])
     # read back
-    if [bool(k.get_value()) for k in rch.get_keys()] != [False, False] or hch.get_default() is not False:
+    if "old_clam" in only and ([bool(k.get_value()) for k in rch.get_keys()] != [False, False] or hch.get_default() is not False):
         raise RuntimeError("OLD_CLAM_READBACK|NOTHING SAVED; Don't-Save restart")
     xs2 = [k.get_value() for k in loc["X"].get_keys()]
-    if abs((max(xs2) + min(xs2)) / 2 - (c_now[0] + ORBIT_D[0])) > 0.5:
+    if "orbit" in only and abs((max(xs2) + min(xs2)) / 2 - (c_now[0] + ORBIT_D[0])) > 0.5:
         raise RuntimeError("ORBIT_READBACK|NOTHING SAVED; Don't-Save restart")
-    if b6["Rotation.Z"].get_num_keys() != len(plan) or (cut6.get_start_frame(), cut6.get_end_frame()) != B06_CUT[1]:
+    if "b06" in only and (b6["Rotation.Z"].get_num_keys() != len(plan) or (cut6.get_start_frame(), cut6.get_end_frame()) != B06_CUT[1]):
         raise RuntimeError("B06_READBACK|NOTHING SAVED; Don't-Save restart")
-    if sorted(dirty()[0]) != sorted([SCENE, RISE]) or dirty()[1]:
+    want = sorted(set([SCENE] + ([RISE] if "old_clam" in only else [])))
+    if sorted(dirty()[0]) != want or dirty()[1]:
         raise RuntimeError("CENSUS|%s|NOTHING SAVED; Don't-Save restart" % (dirty(),))
-    for p in (SCENE, RISE):
+    for p in want:
         if not unreal.EditorAssetLibrary.save_asset(p, only_if_is_dirty=False):
             raise RuntimeError("SAVE|%s" % p)
     if dirty() != ([], []):
