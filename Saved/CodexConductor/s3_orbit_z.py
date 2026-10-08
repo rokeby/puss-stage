@@ -22,7 +22,7 @@ def main():
                     for c in t.get_sections()[0].get_all_channels():
                         if str(c.get_name()).startswith("Location.Z"):
                             ch = c
-    if ch is None or ch.get_num_keys() != 721:
+    if ch is None or ch.get_num_keys() < 721:      # Gary added 2 keys by hand (723 on 8 Oct)
         raise RuntimeError("CHANNEL")
     before = sorted(set(round(k.get_value(), 3) for k in ch.get_keys()))
     json.dump({"run": a["run"], "z_before": before}, open(HERE + "s3_orbit_z_record_%s.json" % a["run"], "w"))
