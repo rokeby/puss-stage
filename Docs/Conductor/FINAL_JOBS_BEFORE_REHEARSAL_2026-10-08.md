@@ -113,3 +113,11 @@ Resume in this order when Gary says:
    frame-time/GPU gate against the 5-figure baseline of 19-20 ms).
 5. GPU: two editor-startup GPU timeouts (04:59, 19:56) right after the HWRT SBT build. Consider testing startup with
    r.Lumen.HardwareRayTracing off to confirm before the Sunday renders.
+
+### 4.8 refinements (Gary 8 Oct evening questionnaire)
+- Crowd = **20 total** (5 existing + 15 copies), arranged in **two or three clusters**, each swaying together.
+- Establishing crowd shot ~0:15-0:23, cutting into the start of B03 (B03 now 0:17-0:36).
+- Chorus: first choir close-ups and/or wides ("a good link between singing and swaying"), THEN the bleak handprint
+  wall close-up, **15 s**, ending on its current glint (B06 now 1:57-3:09, too long).
+- Live shot layout read 8 Oct (LS_Clams frames): B03 420-860, B02 856-1733, B07 1540-2828, B06 2820-4548, B08
+  4538-4858, ... P21's plan must be rebuilt against these.
