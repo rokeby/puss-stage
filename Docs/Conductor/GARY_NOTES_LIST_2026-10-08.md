@@ -1,0 +1,15 @@
+# Gary's open notes — 8 Oct 2026 (Conductor 5's list)
+
+Status: OPEN unless marked. Tiers per claim: measured / declaration / inferred.
+
+| # | Note (Gary's words, paraphrased where marked) | Owner | Status / what we know |
+|---|---|---|---|
+| C1 | **P01 → S1 cut snaps** (screenshots 8 Oct: P01 end at Master 3:12.2 shows the rig lattice flat-on; S1 +0.3 s shows it converging in a V) | Conductor | Offline 7 Oct: P01 end cam = S1 Entry cam to 0.00 cm/° [measured]. New reading [inferred from the screenshots]: the S1 hangar snaps pose, not the camera. Rise keys: S1 Hangar Root Rotation.Y −90 @ −176 → 0 @ 124 (30 fps), i.e. the swing straddles the cut; before S1 the Arrival evaluates it, inside S1 Sequencer does [declaration InfinityStageArrival.cpp:1126-1157]. Fold section [0,775) offset 0 [measured]. **Probe v2 (S1Snap) ready; Gary: "later"** (needs his Play session for ~10 s). |
+| C2 | **S1 animals: idle, then snap into a more animated animation as the lights blink on**; blend it | Finishing touches (noted to them) | Known latent fault [declaration S4_ENTRY_INVESTIGATION_2026-10-07.md §A]: Klara's LS_Animals_1_S1Hangar only evaluates inside its slot [594, 5769) (start offset 86400 ticks) [measured 8 Oct], so before 594 the animals hold their placed/idle pose and at 594 they jump into her animation. Options: start the slot earlier with a pre-roll, a blend-in (anim section ease-in / weight), or her LS's first frames as the idle. |
+| S3-1 | Pearl disappears at the take with a slow **alpha** fade over 4 s, then a 1 s halo | Finishing touches (twin material) + Conductor (keys) | Halo light keyed. Translucent twin being built; s3_pearl_fade.py ready (94559ec). |
+| S3-2 | Clam = new PearlClam; hide the old Clam_with_Pearl; orbit re-centred on the new clam; B06's last third becomes the 0:45–1:00 clam emergence, re-aimed; 2:05–2:25 goes to the wide for now | Conductor | s3_shots_fix.py written + DRY-ready (74d687a); waits for PIE off + a clean level. |
+| S3-3 | Grazes: angle them onto the prints | Conductor | After S3-2 (B06 leaves the chorus; aim them for the wide). |
+| S3-4 | Grease prints red (dried blood, swatch E): built, **held** | — | Gary: keep built, not placed. |
+| S3-5 | Dunes ×2; waves thicker and more spaced; figure cloth too stiff / shows through; figure anim intensity per shot | Codex team packages 1, 2, 6, 7 | CODEX_TEAM_BRIEF_2026-10-08.md. |
+| F-1 | Fixtures: parcans 3×, bulbs 2×, glowing filament + dim light, placement proposed per passage; glimmer → bulb on a cord off a wing with sway | Codex package 3/4 | Gary's answers 7 Oct, logged. |
+| R-1 | Video fallbacks, six scenes, Sun 11 Oct lunch: S5 10 s test both tiers tonight | Conductor | Needs the editor closed. |
