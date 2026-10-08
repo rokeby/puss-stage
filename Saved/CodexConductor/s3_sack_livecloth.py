@@ -1861,7 +1861,10 @@ def run_revert(run, ed):
         _set_template(names(f, version, variant)["bp"], rec["before"][f]["template"])
     if inst_over:                                        # fresh lookups: the compile re-instanced the actors
         for f, a in _figure_actors(figs).items():
-            _set_instance_asset(a, inst_over[f])
+            # 8 Oct conductor: v2 records store instance_asset_override as a LIST of figure ids (the v1 6 Oct fix
+            # wrote a dict fig -> asset); for a list, restore the recorded BEFORE instance asset.
+            target = inst_over[f] if isinstance(inst_over, dict) else rec["before"][f]["instance"]["asset"]
+            _set_instance_asset(a, target)
     for f, a in _figure_actors(figs).items():           # read back BEFORE the save: refuse = nothing saved
         inst = _instance_state(a)
         bad = template_diff(rec["before"][f]["instance"], inst, ("asset", "override_materials", "relative_scale"))

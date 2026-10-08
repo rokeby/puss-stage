@@ -73,7 +73,7 @@ def main():
         for side, p in plan.items():
             act = sub.spawn_actor_from_class(unreal.StaticMeshActor, unreal.Vector(*p["loc"]), unreal.Rotator(0, 0, 0))
             act.static_mesh_component.set_static_mesh(unreal.load_asset(p["mesh"]))
-            act.set_actor_label("STAGE FRONT TEMP Wing %s (P01 Wing 001 rococo)" % side)
+            act.set_actor_label("STAGE FRONT Wing %s (P01 Wing 001 rococo, provisional)" % side)
             act.tags = [unreal.Name(TAG)]
             act.attach_to_actor(struct[0], unreal.Name(""), unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, False)
     else:

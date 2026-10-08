@@ -1,0 +1,22 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "asset_version": 1,
+ "figures": [
+  "Shore01_M56",
+  "Shore02_F52",
+  "Shore03_M59",
+  "Shore04_F55",
+  "Shore06_F25"
+ ],
+ "loincloth_color": [
+  0.16,
+  0.095,
+  0.055,
+  1.0
+ ],
+ "roughness": 0.86,
+ "hide_shirt": false,
+ "accept_missing_torso": false,
+ "decided_by": "Gary 8 Oct evening (own answer, conductor questionnaire): 'Yes, with the cloth' - loincloth-coloured underwear; shirts kept (no torso geometry)"
+}

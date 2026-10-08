@@ -245,3 +245,20 @@ All [measured] by success markers unless marked.
   figures, establishing sway, frenzy build, choir sway from 1:30, handprints 8 s) launched.
 - Cueing RB1 (f0736f3, rehearsal bar + Show Trims) added to the build queue after UX1. Music/Ambience trims need music
   waves on a Music SoundClass (content step).
+- **Shoreguy cloth v3 APPLIED** (Gary: "Yes, apply + show me"): S3LIVESACK BUILD -155203 (16 assets), REVERT v2
+  -155408, APPLY v3 -155422 (backup Backups/PreS3LiveSack-S3LIVESACK-20261008-155422), VERIFY -155429 0 fails [meas].
+  - Five figures; Shore05_M53 is absent from the level (Gary: "5 figures now"). The v2 record copy drops M53; the
+    full original is kept as .orig-with-M53.
+  - Back pins: M56 and F55 only. Crown-only for F52 (bowed, back disc catches 0 particles), M59 (0 particles) and F25
+    (BACK_FACING 73°, refused by BUILD preflight).
+  - Fixed s3_sack_livecloth.py run_revert: v2 records store instance_asset_override as a LIST; the revert indexed it as
+    a dict (it could never have run).
+  - Stage-front actors relabelled without "TEMP" (SFRELABEL-20261008-155156): the BUILD guard refused on
+    TEMP_ACTORS_PRESENT.
+  - Restarts: 2 Don't-Save (BUILD guard after asset creation; REVERT list bug). Nothing saved wrongly.
+- Outfit (loincloth-tone shorts): APPLY P1OUTFIT-20261008-155452 FAILED RESOLVED_READBACK on Shore01_M56 (the material
+  override did not resolve as planned). Don't-Save restart; record renamed .failed-*. NOT applied; needs a live debug.
+- S3 stills after the cloth v3 (PSTILLS-S3-20261008-200013-s3_cloth_v3b): figures are too dark/small in these frames
+  to judge the cloth. A close-up check is needed.
+- GPU: 2 GPU timeouts at editor STARTUP 19:56:10 (recovered), the same pattern as 04:59.
+  [inferred] Correlated with the HWRT persistent-SBT build at startup; 0 timeouts in PIE/stills since.

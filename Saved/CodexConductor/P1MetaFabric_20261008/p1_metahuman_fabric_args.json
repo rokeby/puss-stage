@@ -1,0 +1,58 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "version": 3,
+ "figures": [
+  "Shore01_M56",
+  "Shore02_F52",
+  "Shore03_M59",
+  "Shore04_F55",
+  "Shore06_F25"
+ ],
+ "back_pin_figures": [
+  "Shore01_M56",
+  "Shore04_F55"
+ ],
+ "accept_editor_pose": [],
+ "params": {
+  "size_m": 1.8,
+  "quad_cm": 4.0,
+  "head_pin_back_cm": 6.0,
+  "pin_inner_cm": 8.0,
+  "pin_outer_cm": 18.0,
+  "max_distance_cm": 225.0,
+  "density_kg_m2": 0.5,
+  "stretch_stiffness": 0.85,
+  "bending_stiffness": 0.28,
+  "buckling_ratio": 0.45,
+  "buckling_stiffness": 0.03,
+  "damping": 0.08,
+  "drag": 0.025,
+  "lift": 0.02,
+  "collision_thickness_cm": 3.0,
+  "friction": 0.9,
+  "iterations": 3,
+  "max_iterations": 8,
+  "substeps": 5,
+  "self_collision": false,
+  "material_variant": "masked"
+ },
+ "mi_look": {
+  "scalars": {
+   "HemGrimeAmount": 0.0,
+   "Desaturate": 0.6,
+   "InnerDarken": 1.0
+  },
+  "vectors": {
+   "Tint": [
+    1.24,
+    1.2,
+    1.12,
+    1.0
+   ]
+  }
+ },
+ "decided_by": "Gary 8 Oct evening (own answer, conductor questionnaire): 'Yes, apply + show me' - softer cloth v3",
+ "figures_note": "8 Oct evening: Shore05_M53 absent from the level (DRY ACTOR_COUNT 0); Gary: 'there are 5 figures now'",
+ "back_pin_note": "8 Oct evening conductor: per-figure DRY - back-pin disc catches 0 particles on F52 (bowed) and M59 -> crown pin only for them; F25 BACK_FACING 73 deg refused BUILD preflight -> crown only too"
+}
