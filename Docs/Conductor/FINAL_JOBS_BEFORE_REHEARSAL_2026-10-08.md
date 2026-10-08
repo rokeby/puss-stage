@@ -90,3 +90,16 @@ _Walk-through complete (chunks 1–3)._
 - Default window: shot B04, 2:25-2:55.
 - Codex P20 is building the tool (not run: the editor needs a reboot).
 - The frenzy timing problem stays open (most takes end ~2:20-2:25; frenzy is in the cello, not the crying).
+
+### 4.8 S3 crowd structure (Gary 8 Oct evening, own words + questionnaire). SUPERSEDES 4.7's window
+- **Shot 1** close-up water → bones (as now).
+- **Establishing crowd shot ~0:15-0:23** (<=10 s, probably cut shorter): a crowd SWAYING on the shore. Replicate the
+  figures ("there are 5 figures now and we can make 20"). Cut up the same figure's sway, put the pieces side by side
+  to sway together, and add a "literal transport" (actor transform sway) so they sway coherently.
+- **Frenzy builds 0:23-0:45** (whimper) into the clam rise.
+- Clam (0:45-1:00), cello/orbit.
+- **From ~1:30 (during the cello), soothed back into sway**: "ordered together into a swaying choir". Shot(s) of the
+  new sway: same arrangement as the establishing one, but CLOSE-UPS with multiple figures together "singing".
+- **Handprint wall shot ~8 s** (was ~20 s, 2:05-2:25); the freed time goes to choir close-ups.
+- Crowd: **all 20 live** (cloth), "as long as it runs OK in testing, eventually video". Measure frame time + GPU
+  timeouts in Play.
