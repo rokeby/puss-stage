@@ -49,3 +49,7 @@ All [measured] by success markers unless marked.
 - 02:36 Gary questionnaire: vamp follows the orbit to the cello (VampStart 1440 / VampEnd 2880); B08 extended to 3:23
   (4200–4872), B09 4872–5040 (S3CV-20261008-023611APPLY); wall grazes stay full after the chorus (four S3KM 023611–023615).
   Tests green after.
+- 02:37 Gary: "When puss takes the pearl, it should disappear with a fade over 4s, leaving 1s of a glow halo." Glow light
+  done (S3KM-20261008-023655halo: 12 cd to 4800, 18 cd 4872–4896, 0 at 4920). The pearl MESH fade needs a keyable Fade
+  param on the pearl material; that was requested from finishing touches (they own the pearl look). Pending.
+  Tests green after (SceneCutBindingsResolve re-run singly).
