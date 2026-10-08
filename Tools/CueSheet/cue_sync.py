@@ -16,14 +16,16 @@ Usage:
   python Tools/CueSheet/cue_sync.py selftest                      offline harness (+/- controls)
   python Tools/CueSheet/cue_sync.py note R0012 "text"             set a row's Director notes (re-renders)
   python Tools/CueSheet/cue_sync.py insert R0012 "Column=text" ...  add a LOCAL row after R0012 (re-renders)
-  python Tools/CueSheet/cue_sync.py webpull <dir>                 merge edits from the online Cue Book page
+  python Tools/CueSheet/cue_sync.py cuebook                       fetch the online Cue Book and merge it (needs CUEBOOK_PASS)
+  python Tools/CueSheet/cue_sync.py webpull <dir or .json>        merge a saved Cue Book export / backup file
   python Tools/CueSheet/cue_sync.py webbase                       record working.csv as the page's merge base (after seeding)
 
-The online Cue Book (https://claude.ai/artifact/SLoV4spZazBFgP97F6DnSR, for Klara and Cameron) keeps its own copy
-in the page's database. Claude exports it with ArtifactData list (collection "cues", out_dir=<dir>) and runs webpull;
-web_baseline.json is the merge base. Same rule as the Sheet: edited on both sides keeps the working copy and is a
-CONFLICT in web_report.md. New cues from the page become Origin "web" rows after the cue they were added after;
-a cue marked as cut there is flagged in Director notes, never deleted.
+The online Cue Book (Tools/CueBook: a GitHub Pages site whose data lives in a private Google Sheet behind an Apps
+Script, for Klara and Cameron) keeps its own copy of the list. `cuebook` downloads it (the raw download is kept in
+Docs/CueSheet/pulls/ as another backup) and merges it; web_baseline.json is the merge base. Same rule as the Sheet:
+edited on both sides keeps the working copy and is a CONFLICT in web_report.md. New cues from the page become
+Origin "web" rows after the cue they were added after; a cue marked as cut there is flagged in Director notes,
+never deleted.
 
 Merge rule (Gary: "show me both, I decide"): a row changed in the Sheet AND in the working copy keeps the
 working version and is listed as a CONFLICT with the Sheet's version beside it. Nothing local is ever lost.
@@ -379,6 +381,9 @@ def web_merge(baseline, web_docs, work_rows):
 def read_web_dir(path):
     import glob
     import json
+    if os.path.isfile(path):                               # a Cue Book download or a backup file: {"cues": [...]}
+        with open(path, encoding='utf-8') as f:
+            return [dict(c) for c in json.load(f).get('cues', [])]
     docs = []
     for p in glob.glob(os.path.join(path, '**', '*.json'), recursive=True):
         with open(p, encoding='utf-8') as f:
@@ -410,6 +415,34 @@ def webpull(path):
         f.writelines('- %s\n' % line for line in log)
     render()
     print('CUE_SYNC_WEBPULL_OK docs=%d applied=%d conflicts=%d' % (len(docs), len(log), len(conflicts)))
+
+
+def cuebook_pull():
+    """Download the live Cue Book (URL from Tools/CueBook/site/config.js, passcode from CUEBOOK_PASS) and merge it."""
+    import datetime
+    import json
+    import re
+    import urllib.request
+    with open(os.path.join(ROOT, 'Tools', 'CueBook', 'site', 'config.js'), encoding='utf-8') as f:
+        m = re.search(r'CUEBOOK_API\s*=\s*"([^"]+)"', f.read())
+    if not m:
+        raise SystemExit('no CUEBOOK_API URL in Tools/CueBook/site/config.js')
+    password = os.environ.get('CUEBOOK_PASS')
+    if not password:
+        raise SystemExit('set CUEBOOK_PASS to the Cue Book passcode')
+    body = json.dumps({'pass': password, 'action': 'list'}).encode('utf-8')
+    req = urllib.request.Request(m.group(1), data=body, headers={'Content-Type': 'text/plain;charset=utf-8'})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        res = json.loads(r.read().decode('utf-8'))
+    if not res.get('ok'):
+        raise SystemExit('the Cue Book refused: %s' % (res.get('message') or res.get('code')))
+    os.makedirs(os.path.join(DIR, 'pulls'), exist_ok=True)
+    out = os.path.join(DIR, 'pulls', 'cuebook_%s.json' % datetime.datetime.now().strftime('%Y-%m-%dT%H%M'))
+    with open(out, 'w', encoding='utf-8') as f:
+        json.dump({'app': 'puss-cue-book', 'saved': datetime.datetime.now().isoformat(), 'cues': res['cues']}, f,
+                  ensure_ascii=False, indent=1)
+    print('CUE_SYNC_CUEBOOK_DOWNLOADED cues=%d file=%s' % (len(res['cues']), out))
+    webpull(out)
 
 
 def web_seed_baseline():
@@ -493,6 +526,8 @@ if __name__ == '__main__':
         insert(sys.argv[2], sys.argv[3:])
     elif command == 'webpull' and len(sys.argv) == 3:
         webpull(sys.argv[2])
+    elif command == 'cuebook':
+        cuebook_pull()
     elif command == 'webbase':
         web_seed_baseline()
     elif command == 'selftest':
