@@ -108,6 +108,7 @@ SCALAR_DEFAULTS = {
     "FlipU": 0.0,
     "FlipV": 0.0,
     "UVCentre": 0.0,
+    "SpotAxes": 1.0,
     "BorderDepth": 0.0,
     "BorderWidth": 1.0,
     "BorderAspect": 1.0,
@@ -117,6 +118,10 @@ LOOK_NAMES = ("BlurUV", "Softness", "Contrast", "Depth")
 BORDER_NAMES = ("BorderDepth", "BorderWidth", "BorderAspect", "BorderFeather")
 
 CODE_UV = """// Row-major atlas UV. Frame comes from Sequencer's MPC track.
+// UE light-function UVs: U runs along the light's UP axis, V along its RIGHT axis (LightVector.zyx,
+// LightFunctionAtlasCommon.usf:105).  SpotAxes = 1 maps the image upright: image right = V, image down = -U.
+float c = 0.5 - UVCentre;
+UV = lerp(UV, float2(UV.y, 2.0 * c - UV.x), saturate(SpotAxes));
 float count = max(1.0, Frames);
 float f = floor(clamp(Frame, 0.0, count - 1.0) + 1e-4);
 float col = fmod(f, max(1.0, Cols));
@@ -135,6 +140,10 @@ return lerp(1.0, shaped, saturate(Depth)) * Border;
 """
 
 CODE_BORDER = """// Soft rectangle in IMAGE space (1 = image width), centred; black outside when BorderDepth = 1.
+// UE light-function UVs: U runs along the light's UP axis, V along its RIGHT axis (LightVector.zyx,
+// LightFunctionAtlasCommon.usf:105).  SpotAxes = 1 maps the image upright: image right = V, image down = -U.
+float c = 0.5 - UVCentre;
+UV = lerp(UV, float2(UV.y, 2.0 * c - UV.x), saturate(SpotAxes));
 float2 q = abs((UV + UVCentre - 0.5) / max(Scale, 1e-4));
 float hx = 0.5 * max(BorderWidth, 1e-4);
 float hy = hx / max(BorderAspect, 1e-4);
@@ -142,7 +151,7 @@ float f = max(BorderFeather, 1e-4);
 float rect = smoothstep(0.0, f, hx - q.x) * smoothstep(0.0, f, hy - q.y);
 return lerp(1.0, rect, saturate(BorderDepth));
 """
-BORDER_INPUTS = ("UV", "UVCentre", "Scale") + BORDER_NAMES
+BORDER_INPUTS = ("UV", "UVCentre", "SpotAxes", "Scale") + BORDER_NAMES
 
 CODE_AVG = """// Five-tap cross blur; BlurUV offsets are clamped inside the 8 px source gutter.
 return (C + L + R + U + D) * 0.2;
@@ -221,12 +230,20 @@ def created_assets_for(plan: dict, existing_shared) -> list:
     return [p for p in shared_assets(plan) if p not in existing] + [plan["texture"], plan["mi"]]
 
 
+def spot_axes(u, v, params):
+    """Python twin of the SpotAxes remap in CODE_UV / CODE_BORDER."""
+    a = min(max(params.get("SpotAxes", 0.0), 0.0), 1.0)
+    c = 0.5 - params["UVCentre"]
+    return u + (v - u) * a, v + ((2.0 * c - u) - v) * a
+
+
 def border_mask(u, v, params) -> float:
     """Python twin of CODE_BORDER (harness only)."""
     def smooth(e0, e1, x):
         t = min(max((x - e0) / (e1 - e0), 0.0), 1.0)
         return t * t * (3.0 - 2.0 * t)
     scale = max(params["Scale"], 1e-4)
+    u, v = spot_axes(u, v, params)
     qx, qy = abs((u + params["UVCentre"] - 0.5) / scale), abs((v + params["UVCentre"] - 0.5) / scale)
     hx = 0.5 * max(params["BorderWidth"], 1e-4)
     hy = hx / max(params["BorderAspect"], 1e-4)
@@ -381,8 +398,8 @@ def plan_from_args(args: dict) -> dict:
         raise PlanError("LOOK_PARAMS|blur 0..0.003, softness 0..0.49, contrast >=0, depth 0..1, scale >0")
     if not (0.0 <= params["BorderDepth"] <= 1.0 and 0.0 < params["BorderWidth"] <= 1.0 and
             params["BorderAspect"] > 0.0 and 0.0 < params["BorderFeather"] <= 0.25 and
-            params["UVCentre"] in (0.0, 0.5)):
-        raise PlanError("BORDER_PARAMS|depth 0..1, width 0..1, aspect >0, feather 0..0.25, UVCentre 0 or 0.5")
+            params["UVCentre"] in (0.0, 0.5) and params["SpotAxes"] in (0.0, 1.0)):
+        raise PlanError("BORDER_PARAMS|depth 0..1, width 0..1, aspect >0, feather 0..0.25, UVCentre 0 or 0.5, SpotAxes 0 or 1")
     gutter_px = int(atlas.get("gutter_px", 0))
     # The blur taps step BlurUV in ATLAS uv; past the gutter they read the neighbouring frame.
     if gutter_px > 0 and params["BlurUV"] > gutter_px / float(px[0]):
@@ -701,7 +718,7 @@ def _create_master(tools, texture, mpc, plan, run):
             continue
         node(name, unreal.MaterialExpressionScalarParameter, -1500, -350 + 100 * index,
              parameter_name=name, default_value=float(value), group="01 Atlas")
-    uv_inputs = ["UV", "Frame", "Cols", "Rows", "Frames", "GutterUV", "CellUV", "Scale", "FlipU", "FlipV", "UVCentre"]
+    uv_inputs = ["UV", "Frame", "Cols", "Rows", "Frames", "GutterUV", "CellUV", "Scale", "FlipU", "FlipV", "UVCentre", "SpotAxes"]
     node("AtlasUV", unreal.MaterialExpressionCustom, -900, -250, description="ShadowGobo atlas frame UV",
          code=CODE_UV, output_type=unreal.CustomMaterialOutputType.CMOT_FLOAT2,
          inputs=[_custom_input(v) for v in uv_inputs])

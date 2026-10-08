@@ -1,6 +1,6 @@
 {
   "marker": "ANIMATED_GOBO_HARNESS",
-  "passed": 129,
+  "passed": 137,
   "failed": 0,
   "results": [
     {
@@ -575,7 +575,7 @@
       "name": "F -control shared missing scalar",
       "pass": true,
       "detail": [
-        "MASTER_SCALARS|['BlurUV', 'BorderAspect', 'BorderDepth', 'BorderFeather', 'BorderWidth', 'CellUV', 'Contrast', 'Depth', 'FlipU', 'FlipV', 'Frames', 'GutterUV', 'Rows', 'Scale', 'Softness', 'UVCentre']"
+        "MASTER_SCALARS|['BlurUV', 'BorderAspect', 'BorderDepth', 'BorderFeather', 'BorderWidth', 'CellUV', 'Contrast', 'Depth', 'FlipU', 'FlipV', 'Frames', 'GutterUV', 'Rows', 'Scale', 'Softness', 'SpotAxes', 'UVCentre']"
       ]
     },
     {
@@ -710,12 +710,12 @@
     {
       "name": "G19 -control UVCentre other than 0 / 0.5",
       "pass": true,
-      "detail": "BORDER_PARAMS|depth 0..1, width 0..1, aspect >0, feather 0..0.25, UVCentre 0 or 0.5"
+      "detail": "BORDER_PARAMS|depth 0..1, width 0..1, aspect >0, feather 0..0.25, UVCentre 0 or 0.5, SpotAxes 0 or 1"
     },
     {
       "name": "G20 -control zero feather",
       "pass": true,
-      "detail": "BORDER_PARAMS|depth 0..1, width 0..1, aspect >0, feather 0..0.25, UVCentre 0 or 0.5"
+      "detail": "BORDER_PARAMS|depth 0..1, width 0..1, aspect >0, feather 0..0.25, UVCentre 0 or 0.5, SpotAxes 0 or 1"
     },
     {
       "name": "G21 17 m image at 30 m: ~17.8 deg at Scale 0.883 vs ~21.8 deg at 0.707",
@@ -737,6 +737,55 @@
     },
     {
       "name": "G24 UV maths centring matches the border",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "H01 SpotAxes defaults on",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "H02 screen right maps to image right",
+      "pass": true,
+      "detail": [
+        0.9,
+        0.5
+      ]
+    },
+    {
+      "name": "H03 screen down maps to image down",
+      "pass": true,
+      "detail": [
+        0.5,
+        0.9
+      ]
+    },
+    {
+      "name": "H04 -control SpotAxes 0 reproduces the measured transpose (screen right -> image down)",
+      "pass": true,
+      "detail": [
+        0.5,
+        0.9
+      ]
+    },
+    {
+      "name": "H05 border is LANDSCAPE on screen with SpotAxes 1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "H06 -control SpotAxes 0 gives the measured PORTRAIT border",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "H07 -control SpotAxes other than 0/1",
+      "pass": true,
+      "detail": "BORDER_PARAMS|depth 0..1, width 0..1, aspect >0, feather 0..0.25, UVCentre 0 or 0.5, SpotAxes 0 or 1"
+    },
+    {
+      "name": "H08 both shader nodes carry the remap",
       "pass": true,
       "detail": ""
     },
