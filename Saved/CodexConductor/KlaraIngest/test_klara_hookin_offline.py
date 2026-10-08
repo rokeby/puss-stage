@@ -21,6 +21,8 @@ S1_LO, S1_HI = -310, 6008
 FPS = 25.0
 with open(os.path.join(HERE, "klara_hookin_args.json"), encoding="utf-8") as _h:
     ARGS = json.load(_h)
+with open(os.path.join(HERE, "klara_hookin_s2_args.json"), encoding="utf-8") as _h:
+    S2_ARGS = json.load(_h)
 HANGARS = ARGS["hangars"]
 
 
@@ -213,6 +215,19 @@ class Placement(unittest.TestCase):
         self.assertFalse(K.inside_box_local(out, h["dock"], h))
         self.assertIsNotNone(lv)
 
+    def test_s2_explicit_overhang_acceptance_and_four_corners(self):
+        lv = "/Game/Japanese_Alley/Maps/Japanese_Alley"
+        row = dict(S2_ARGS["levels"][lv], rekey_rotation=True)
+        p = K.plan_placement(lv, row, S2_ARGS["hangars"], S2_ARGS["margin_cm"],
+                             S2_ARGS["accept_overhang_cm"])
+        self.assertEqual(p["refusals"], [])
+        self.assertTrue(any(w.startswith("NO_FIT_ACCEPTED: 378.0 cm <= accept_overhang_cm 400.0")
+                            for w in p["warnings"]))
+        self.assertEqual(len(p["geometry"]["corners_world_cm"]), 4)
+        self.assertEqual(p["geometry"]["wall_overhang_cm"], {"left": 278.0, "right": 278.0})
+        refused = K.plan_placement(lv, row, S2_ARGS["hangars"], S2_ARGS["margin_cm"], 377.9)
+        self.assertTrue(any(x.startswith("NO_FIT:") for x in refused["refusals"]))  # negative control
+
     def test_anchor_far_and_near(self):
         h = HANGARS["1"]
         far = K.fit_footprint([0, 1000, 0, 1000], 0, h, h["dock"], anchor="far")
@@ -233,10 +248,62 @@ class Rekey(unittest.TestCase):
         self.assertEqual([k[0] for k in out["x"]["keys"]], [k[0] for k in self.CH["x"]["keys"]])   # times untouched
         self.assertEqual(out["y"]["keys"], [[0, 199.0]])
 
-    def test_rotation_refused(self):
-        with self.assertRaises(K.PlanError):
-            K.rekey_plan(self.CH, {"loc": [0, 0, 0], "yaw": -43.57})
-        K.rekey_plan(self.CH, {"loc": [0, 0, 0], "yaw": 360.0})   # control: a full turn is yaw 0
+    @staticmethod
+    def rich(values_x=(0.0, 10.0), values_y=(0.0, 20.0), yaw_values=(10.0, 20.0)):
+        def ch(vals, arrive, leave):
+            return {"keys": [{"t": 0, "v": vals[0], "interp": "RCIM_CUBIC", "tmode": "RCTM_AUTO",
+                               "arrive": arrive[0], "leave": leave[0], "wmode": "RCTWM_WEIGHTED_NONE"},
+                              {"t": 10, "v": vals[1], "interp": "RCIM_CUBIC", "tmode": "RCTM_AUTO",
+                               "arrive": arrive[1], "leave": leave[1], "wmode": "RCTWM_WEIGHTED_NONE"}],
+                    "default": None, "pre": "RCCE_CONSTANT", "post": "RCCE_CONSTANT"}
+        return {"x": ch(values_x, (0.0, 1.0), (1.0, 0.0)), "y": ch(values_y, (0.0, 2.0), (2.0, 0.0)),
+                "z": ch((5.0, 5.0), (0.0, 0.0), (0.0, 0.0)),
+                "yaw": ch(yaw_values, (0.0, 0.0), (0.0, 0.0))}
+
+    def test_rotation_values_tangents_and_between_keys(self):
+        src = self.rich()
+        t = {"loc": [100.0, 200.0, 300.0], "yaw": 90.0}
+        out = K.rekey_rigid(src, t)
+        self.assertEqual(out["problems"], [])
+        self.assertAlmostEqual(out["x"]["keys"][1]["v"], 80.0)
+        self.assertAlmostEqual(out["y"]["keys"][1]["v"], 210.0)
+        self.assertEqual([k["v"] for k in out["yaw"]["keys"]], [100.0, 110.0])
+        sx = K.eval_hermite(src["x"]["keys"][0], src["x"]["keys"][1], 5)
+        sy = K.eval_hermite(src["y"]["keys"][0], src["y"]["keys"][1], 5)
+        ox = K.eval_hermite(out["x"]["keys"][0], out["x"]["keys"][1], 5)
+        oy = K.eval_hermite(out["y"]["keys"][0], out["y"]["keys"][1], 5)
+        want = K.world_point(t, [sx, sy, 5.0])
+        self.assertAlmostEqual(ox, want[0], places=9)
+        self.assertAlmostEqual(oy, want[1], places=9)
+        naive = copy.deepcopy(src)
+        for k in naive["x"]["keys"]: k["v"] += 100.0
+        for k in naive["y"]["keys"]: k["v"] += 200.0
+        self.assertNotAlmostEqual(K.eval_hermite(naive["x"]["keys"][0], naive["x"]["keys"][1], 5), want[0])
+
+    def test_rotation_negative_controls_refuse_inexact_xy(self):
+        bad_time = self.rich()
+        bad_time["y"]["keys"][1]["t"] = 11
+        self.assertTrue(any(x.startswith("XY_KEY_TIMES_DIFFER") for x in
+                            K.rekey_rigid(bad_time, {"loc": [0, 0, 0], "yaw": 30})["problems"]))
+        bad_weight = self.rich()
+        bad_weight["x"]["keys"][0]["wmode"] = "RCTWM_WEIGHTED_BOTH"
+        self.assertTrue(any(x.startswith("WEIGHTED_TANGENT") for x in
+                            K.rekey_rigid(bad_weight, {"loc": [0, 0, 0], "yaw": 30})["problems"]))
+
+    def test_euler_wrap_continuity(self):
+        src = self.rich(yaw_values=(359.0, 0.0))
+        src["yaw"]["keys"].append(dict(src["yaw"]["keys"][-1], t=20, v=1.0))
+        out = K.rekey_rigid(src, {"loc": [0, 0, 0], "yaw": 316.42748059917176})
+        values = [k["v"] for k in out["yaw"]["keys"]]
+        self.assertEqual([round(v, 6) for v in values], [675.427481, 676.427481, 677.427481])
+        self.assertLess(max(abs(b - a) for a, b in zip(values, values[1:])), 2.0)
+        naive = [359.0 + 316.42748059917176, 0.0 + 316.42748059917176]
+        self.assertGreater(abs(naive[1] - naive[0]), 300.0)  # negative control
+
+    def test_additive_and_relative_classification(self):
+        self.assertTrue(K.is_relative_blend("ADDITIVE"))
+        self.assertTrue(K.is_relative_blend("EMovieSceneBlendType::RELATIVE"))
+        self.assertFalse(K.is_relative_blend("ABSOLUTE"))
 
     def test_rekey_matches_level_transform(self):
         """A keyed camera at her point p ends where the LevelTransform puts a static actor at p (translation-only)."""
@@ -268,6 +335,36 @@ class ArgsAndGates(unittest.TestCase):
         for want in ("MODE_INVALID", "START_OPTION_INVALID", "BOTH_HOOKED_AND_IMPORT_ONLY", "LEVEL_NOT_IN_LEVELS",
                      "FOOTPRINT_INVALID"):
             self.assertTrue(any(want in x for x in v), want)
+
+    def test_s2_shipped_args_are_isolated_and_rotation_enabled(self):
+        self.assertEqual(K.validate_args(S2_ARGS), [])
+        self.assertEqual(list(S2_ARGS["scenes"]), ["2"])
+        self.assertTrue(S2_ARGS["scenes"]["2"]["rekey_rotation"])
+        self.assertTrue(S2_ARGS["scenes"]["2"]["keep_current_nested_deactivated"])
+        self.assertEqual(S2_ARGS["seq_record"], "klara_hookin_seq_record_S2.json")
+        self.assertEqual(S2_ARGS["accept_overhang_cm"], 400.0)
+        self.assertNotEqual(S2_ARGS["seq_record"], K.SEQ_RECORD)
+        with open(os.path.join(HERE, "klara_hookin.py"), encoding="utf-8") as handle:
+            source = handle.read()
+        self.assertIn("old[0].set_is_active(False)", source)
+        self.assertIn("seq.remove_track(replacement[0])", source)
+
+    def test_preview_model_and_png(self):
+        import tempfile
+        lv = "/Game/Japanese_Alley/Maps/Japanese_Alley"
+        row = dict(S2_ARGS["levels"][lv], rekey_rotation=True)
+        p = K.plan_placement(lv, row, S2_ARGS["hangars"], 100.0, 400.0)
+        cameras = [{"binding": "CineCameraActor", "world_cm": K.world_point(p["fit"]["level_transform"], [0, 0, 100]),
+                    "world_yaw_deg": 316.42748059917176, "hfov_deg": 50.0}]
+        model = K._preview_model(p, S2_ARGS["hangars"]["2"], cameras, 1200.0)
+        self.assertEqual(len(model["footprint_cm"]), 4)
+        with tempfile.TemporaryDirectory() as td:
+            path = os.path.join(td, "preview.png")
+            info = K.render_topdown_png(path, model, 480)
+            with open(path, "rb") as handle:
+                self.assertEqual(handle.read(8), b"\x89PNG\r\n\x1a\n")
+            self.assertGreater(info["bytes"], 1000)
+            self.assertEqual(info["camera_count"], 1)
 
     def test_live_gates(self):
         clean = {"content": [], "maps": []}

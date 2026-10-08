@@ -1,4 +1,4 @@
-"""KLARA HOOK-IN v2 (7 Oct): Klara's dioramas placed INSIDE our landed hangars, her cinematics as re-keyed copies.
+"""KLARA HOOK-IN v3 (8 Oct): Klara's dioramas placed INSIDE our landed hangars, her cinematics as re-keyed copies.
 Offline-written, NEVER RUN IN UNREAL. Plan and evidence: HOOKIN_PLAN.md (same folder).
 
 Gary 7 Oct (his words, via the coordinator):
@@ -22,10 +22,10 @@ MECHANISM (HOOKIN_PLAN.md section 2)
          [decl MovieSceneSubSection.h:278-285; nested composition MovieSceneTransformOriginSystem.h:13-35] but the mask is
          a bare UPROPERTY() and SetMask is not a UFUNCTION [decl MovieSceneSubSection.h:168-175, 278-279], so Python
          cannot enable it [inf; probed]. So the tool makes a RE-KEYED COPY of her LS (her original is never edited) and
-         shifts every top-level, unattached 3D-transform Location channel by the same rigid transform. Only
-         TRANSLATION is supported (exact for cubic keys: tangents are unchanged by a constant offset); S1 and S4 docks
-         have yaw 0 [meas hangar_s1_record.json, hangar_s4_plan.json], so local yaw 0 gives a translation-only
-         transform. A non-zero world yaw refuses (S2 is import-only and needs no re-key).
+         rigidly re-keys every ABSOLUTE top-level, unattached, non-additive 3D-transform section. Location XY values
+         and tangents rotate about the level pivot, location XYZ translate, and Rotation.Z receives the level yaw.
+         Attached/child bindings and additive/relative sections are recorded but left unchanged. Rotation is opt-in
+         with row.rekey_rotation; yaw-zero S1/S4 retain the v2 translation-only path.
   TIME   [0, land) dark hangar, her level hidden | [land, cut) her level visible, our hangar strike reveals it (wide shot,
          our root cuts) | [cut, end) her cinematic (re-keyed copy), her sun/sky/fog/PPV on, OURS off.
          cut = land + StrikeAfterLandSeconds + wide_hold_s. Scene end = cut + her length (narration muted).
@@ -34,7 +34,7 @@ STAGES (args "mode"): DRY | APPLY_STREAM | REVERT_STREAM | APPLY_SEQ | REVERT_SE
   APPLY_STREAM adds the levels with their fitted LevelTransforms (initially loaded, hidden) and saves ONLY the map.
   APPLY_SEQ, per hooked Scene (S1, S4):
     - duplicate her LS to args.copy_folder and re-key it;
-    - retarget the shot section to the COPY;
+    - normally retarget the shot section to the COPY; S2 can instead keep its old subsection inactive and add the COPY;
     - mute the narration;
     - add a Level Visibility track [land, end);
     - add Visibility tracks: OUR celestial actors hidden over [cut, end), HER env actors hidden over [land, cut);
@@ -50,6 +50,8 @@ import json
 import math
 import os
 import shutil
+import struct
+import zlib
 
 try:
     import unreal
@@ -70,6 +72,7 @@ MODES = ("DRY", "APPLY_STREAM", "REVERT_STREAM", "APPLY_SEQ", "REVERT_SEQ")
 START_OPTIONS = ("keep", "land", "land_plus_strike", "at_s")
 NARRATION_RULES = ("mute", "after_voices", "inside_shot", "none")
 VIS_TRACK_NAME = "Klara Levels (hookin)"
+KEPT_NESTED_TRACK_NAME = "Klara Hookin - Replacement Shot"
 OURS_OFF_PREFIX = "Klara Hookin - Ours Off: "
 HERS_DARK_PREFIX = "Klara Hookin - Hers Dark: "
 CHOREO_TRACK_CLASS = "MovieSceneInfinityChoreoTrack"
@@ -83,6 +86,8 @@ ENV_CLASSES = ("DirectionalLight", "SkyLight", "SkyAtmosphere", "ExponentialHeig
                "PostProcessVolume")   # the rig's list (CelestialRig.cpp:272-276) + PPV (not in the rig's list)
 FRAME_EPS = 1.0e-6
 YAW_EPS = 1.0e-6
+USER, BREAK = "RCTM_USER", "RCTM_BREAK"
+UNWEIGHTED = ("RCTWM_WEIGHTED_NONE", "NONE", "", None)
 
 
 class PlanError(Exception):
@@ -283,18 +288,139 @@ def world_point(transform, p):
     return [x + transform["loc"][0], y + transform["loc"][1], p[2] + transform["loc"][2]]
 
 
-def rekey_plan(channels, transform):
-    """channels = {"x": {"keys": [[t, v]...], "default": v|None}, "y": ..., "z": ...} for ONE Location group.
-    Translation-only: every key and default + loc. Non-zero world yaw is refused (exactness needs tangent rotation)."""
-    if norm_yaw(transform["yaw"]) != 0.0:
-        raise PlanError("REKEY_ROTATION_UNSUPPORTED: world yaw %r (translation-only re-key)" % transform["yaw"])
-    out = {}
-    for i, axis in enumerate(("x", "y", "z")):
-        ch = channels.get(axis) or {"keys": [], "default": None}
-        d = float(transform["loc"][i])
-        out[axis] = {"keys": [[int(t), float(v) + d] for t, v in ch["keys"]],
-                     "default": None if ch.get("default") is None else float(ch["default"]) + d}
+def wrap_yaw(y):
+    """Signed yaw for residuals only. Re-key output stays unwrapped so Sequencer never gains a 359 -> 0 flip."""
+    d = math.fmod(float(y), 360.0)
+    if d <= -180.0:
+        d += 360.0
+    elif d > 180.0:
+        d -= 360.0
+    return d
+
+
+def unwrap_yaw_values(values):
+    """Unwrap canonical [-180,180] or [0,360] Euler samples; preserve authored multi-turn values outside them."""
+    vals = [float(v) for v in values]
+    if len(vals) < 2:
+        return vals
+    canonical = all(-180.0 - YAW_EPS <= v <= 180.0 + YAW_EPS for v in vals) or \
+        all(-YAW_EPS <= v <= 360.0 + YAW_EPS for v in vals)
+    if not canonical:
+        return vals
+    out = [vals[0]]
+    for v in vals[1:]:
+        out.append(v + 360.0 * round((out[-1] - v) / 360.0))
     return out
+
+
+def _key_row(row):
+    return {"t": int(row["t"]), "v": float(row["v"]), "interp": row.get("interp", "RCIM_CUBIC"),
+            "tmode": row.get("tmode", "RCTM_AUTO"), "arrive": float(row.get("arrive", 0.0)),
+            "leave": float(row.get("leave", 0.0)), "wmode": row.get("wmode")}
+
+
+def rekey_rigid(channels, transform):
+    """Rigidly transform one absolute transform section, including unweighted XY cubic tangents and continuous yaw.
+
+    channels maps x/y/z/yaw to {keys:[{t,v,interp,tmode,arrive,leave,wmode}], default}. A rotation is refused when
+    X/Y cannot be transformed exactly. Z and yaw tangents do not change under constant offsets.
+    """
+    yaw = float(transform["yaw"])
+    problems, out = [], {}
+    for axis in ("x", "y", "z", "yaw"):
+        ch = channels.get(axis) or {}
+        out[axis] = {"keys": [_key_row(k) for k in ch.get("keys") or []], "default": ch.get("default")}
+    if abs(yaw) > YAW_EPS:
+        xs, ys = out["x"]["keys"], out["y"]["keys"]
+        if [k["t"] for k in xs] != [k["t"] for k in ys]:
+            problems.append("XY_KEY_TIMES_DIFFER: x %d keys, y %d keys" % (len(xs), len(ys)))
+        else:
+            for a, b in zip(xs, ys):
+                if a["interp"] != b["interp"]:
+                    problems.append("XY_INTERP_DIFFERS at %d: %s / %s" % (a["t"], a["interp"], b["interp"]))
+                if a["wmode"] not in UNWEIGHTED or b["wmode"] not in UNWEIGHTED:
+                    problems.append("WEIGHTED_TANGENT at %d" % a["t"])
+        for side in ("pre", "post"):
+            if (channels.get("x") or {}).get(side) != (channels.get("y") or {}).get(side):
+                problems.append("XY_EXTRAPOLATION_DIFFERS: %s" % side)
+        if not problems:
+            c, s = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
+            nx, ny = [], []
+            for a, b in zip(xs, ys):
+                mode = BREAK if (a["tmode"] == BREAK or b["tmode"] == BREAK) else USER
+                nx.append(dict(a, v=c * a["v"] - s * b["v"], arrive=c * a["arrive"] - s * b["arrive"],
+                               leave=c * a["leave"] - s * b["leave"], tmode=mode))
+                ny.append(dict(b, v=s * a["v"] + c * b["v"], arrive=s * a["arrive"] + c * b["arrive"],
+                               leave=s * a["leave"] + c * b["leave"], tmode=mode))
+            out["x"]["keys"], out["y"]["keys"] = nx, ny
+            dx, dy = out["x"]["default"], out["y"]["default"]
+            if dx is not None and dy is not None:
+                out["x"]["default"], out["y"]["default"] = c * float(dx) - s * float(dy), \
+                    s * float(dx) + c * float(dy)
+            elif (dx is None) != (dy is None) and not xs:
+                problems.append("XY_DEFAULT_HALF_SET: one axis has a default, the other is unset and unkeyed")
+        yaw_values = unwrap_yaw_values([k["v"] for k in out["yaw"]["keys"]])
+        for k, value in zip(out["yaw"]["keys"], yaw_values):
+            k["v"] = value + yaw
+        if out["yaw"]["default"] is not None:
+            out["yaw"]["default"] = float(out["yaw"]["default"]) + yaw
+    for i, axis in enumerate("xyz"):
+        d = float(transform["loc"][i])
+        for k in out[axis]["keys"]:
+            k["v"] += d
+        if out[axis]["default"] is not None:
+            out[axis]["default"] = float(out[axis]["default"]) + d
+    out["problems"] = problems
+    return out
+
+
+def eval_hermite(k0, k1, frame):
+    """Evaluate one unweighted cubic segment; the harness uses this to prove between-key rigid rotation."""
+    dt = float(k1["t"] - k0["t"])
+    u = (float(frame) - float(k0["t"])) / dt
+    h00, h10 = 2 * u ** 3 - 3 * u ** 2 + 1, u ** 3 - 2 * u ** 2 + u
+    h01, h11 = -2 * u ** 3 + 3 * u ** 2, u ** 3 - u ** 2
+    return h00 * k0["v"] + h10 * dt * k0["leave"] + h01 * k1["v"] + h11 * dt * k1["arrive"]
+
+
+def rekey_plan(channels, transform):
+    """Compatibility wrapper for the v2 pair-shaped harness; the live tool uses rekey_rigid with tangent metadata."""
+    full = {}
+    for axis in ("x", "y", "z", "yaw"):
+        ch = channels.get(axis) or {"keys": [], "default": None}
+        full[axis] = dict(ch, keys=[{"t": int(t), "v": float(v)} for t, v in ch.get("keys") or []])
+    out = rekey_rigid(full, transform)
+    if out["problems"]:
+        raise PlanError("REKEY_NOT_EXACT: %s" % out["problems"])
+    return {axis: {"keys": [[k["t"], k["v"]] for k in out[axis]["keys"]], "default": out[axis]["default"]}
+            for axis in ("x", "y", "z", "yaw")}
+
+
+def is_relative_blend(name):
+    """Additive/relative transform sections are already offsets and must not receive a world rigid transform."""
+    n = str(name or "").upper()
+    return "ADDITIVE" in n or "RELATIVE" in n
+
+
+def placement_geometry(lrow, hangar, fit):
+    """Four footprint corners in her/local/world space and exact penetration of the physical hangar walls."""
+    xmin, xmax, ymin, ymax = [float(v) for v in (lrow.get("footprint_live") or lrow["footprint_her"])]
+    her = [[xmin, ymin, float(lrow.get("floor_z_her", 0.0))], [xmax, ymin, float(lrow.get("floor_z_her", 0.0))],
+           [xmax, ymax, float(lrow.get("floor_z_her", 0.0))], [xmin, ymax, float(lrow.get("floor_z_her", 0.0))]]
+    world = [world_point(fit["level_transform"], p) for p in her]
+    dock = hangar["dock"]
+    local = []
+    for p in world:
+        x, y = _rot(p[0] - dock["loc"][0], p[1] - dock["loc"][1], -dock["yaw"])
+        local.append([x, y, p[2] - dock["loc"][2]])
+    ys = [p[1] for p in local]
+    half = float(hangar["half_w"])
+    return {"corners_her_cm": her, "corners_hangar_local_cm": local, "corners_world_cm": world,
+            "walls_hangar_local_cm": {"near_x": float(hangar["apron"]),
+                                       "far_x": float(hangar["apron"]) + float(hangar["depth"]),
+                                       "right_y": -half, "left_y": half},
+            "wall_overhang_cm": {"left": round(max(0.0, max(ys) - half), 6),
+                                 "right": round(max(0.0, -half - min(ys)), 6)}}
 
 
 def inside_box_local(p_world, dock, hangar, margin_cm=0.0):
@@ -397,7 +523,7 @@ def plan_scene(facts, row):
     return plan
 
 
-def plan_placement(level, lrow, hangars, margin_cm):
+def plan_placement(level, lrow, hangars, margin_cm, accept_overhang_cm=0.0):
     """One level's fitted LevelTransform + height report (pure; offline footprint or live bounds)."""
     h = hangars.get(str(lrow["scene"]))
     if not h:
@@ -407,6 +533,8 @@ def plan_placement(level, lrow, hangars, margin_cm):
                         tuple(lrow.get("local_yaw_options") or (0, 180, 90, 270)))
     out = {"level": level, "scene": str(lrow["scene"]), "fit": fit, "footprint_source": "live" if lrow.get("footprint_live")
            else "offline pivots (HOOKIN_PLAN.md section 3)", "refusals": [], "warnings": []}
+    out["geometry"] = placement_geometry(lrow, h, fit)
+    out["accept_overhang_cm"] = float(accept_overhang_cm)
     if lrow.get("z_top_her") is not None:
         out["height"] = height_report(lrow["z_top_her"], lrow.get("floor_z_her", 0.0), h)
         if not out["height"]["under_lattice"]:
@@ -416,9 +544,17 @@ def plan_placement(level, lrow, hangars, margin_cm):
         msg = ("NO_FIT: %s %.0f x %.0f cm vs interior %.0f x %.0f cm, overhang %s - choose which part of her set goes in "
                "(scaling breaks MetaHumans/physics)" % (level, fit["footprint_cm"][0], fit["footprint_cm"][1],
                                                          fit["interior_cm"][0], fit["interior_cm"][1], fit["overhang_cm"]))
-        (out["warnings"] if lrow.get("import_only") else out["refusals"]).append(msg)
-    if not lrow.get("import_only") and norm_yaw(fit["level_transform"]["yaw"]) != 0.0:
-        out["refusals"].append("WORLD_YAW_NONZERO: %r - the re-keyed copy is translation-only" % fit["level_transform"]["yaw"])
+        worst = max(float(v) for v in fit["overhang_cm"].values())
+        accepted = worst <= float(accept_overhang_cm) + 1e-6
+        if lrow.get("import_only") or accepted:
+            tag = "NO_FIT_ACCEPTED: %.1f cm <= accept_overhang_cm %.1f; " % (worst, float(accept_overhang_cm)) \
+                if accepted else ""
+            out["warnings"].append(tag + msg)
+        else:
+            out["refusals"].append(msg)
+    if not lrow.get("import_only") and norm_yaw(fit["level_transform"]["yaw"]) != 0.0 and not lrow.get("rekey_rotation"):
+        out["refusals"].append("WORLD_YAW_NONZERO: %r - set rekey_rotation true for rigid XY/yaw re-key" %
+                               fit["level_transform"]["yaw"])
     return out
 
 
@@ -439,6 +575,9 @@ def validate_args(args):
         r.append("LEVELS_MUST_BE_A_NONEMPTY_MAP")
         levels = {}
     hangars = args.get("hangars") or {}
+    overhang = args.get("accept_overhang_cm", 400.0)
+    if isinstance(overhang, bool) or not isinstance(overhang, (int, float)) or not math.isfinite(float(overhang)) or overhang < 0:
+        r.append("ACCEPT_OVERHANG_CM_INVALID: %r" % overhang)
     for key, row in sorted(scenes.items()):
         if not str(key).isdigit():
             r.append("SCENE_KEY_NOT_A_NUMBER: %r" % key)
@@ -449,6 +588,10 @@ def validate_args(args):
             r.append("S%s_START_OPTION_INVALID: %r" % (key, row.get("start_option")))
         if row.get("narration_rule") not in NARRATION_RULES:
             r.append("S%s_NARRATION_RULE_INVALID: %r" % (key, row.get("narration_rule")))
+        if "rekey_rotation" in row and not isinstance(row.get("rekey_rotation"), bool):
+            r.append("S%s_REKEY_ROTATION_NOT_BOOL" % key)
+        if "keep_current_nested_deactivated" in row and not isinstance(row.get("keep_current_nested_deactivated"), bool):
+            r.append("S%s_KEEP_CURRENT_NESTED_DEACTIVATED_NOT_BOOL" % key)
         for f in ("scene_sequence", "current_nested", "her_sequence"):
             if f in row and not str(row[f]).startswith("/Game/"):
                 r.append("S%s_%s_NOT_GAME_PATH" % (key, f.upper()))
@@ -472,6 +615,10 @@ def validate_args(args):
             r.append("LEVEL_%s_FOOTPRINT_INVALID" % lv)
     if not str(args.get("copy_folder") or "").startswith("/Game/"):
         r.append("COPY_FOLDER_INVALID")
+    for field, suffix in (("dry_report", ".json"), ("preview_png", ".png")):
+        value = args.get(field)
+        if value is not None and (os.path.basename(str(value)) != str(value) or not str(value).lower().endswith(suffix)):
+            r.append("%s_INVALID: %r" % (field.upper(), value))
     return r
 
 
@@ -513,7 +660,7 @@ def seq_drift(live, rec):
     for k in ("sequence", "start", "end", "start_offset_tick"):
         if live["target"].get(k) != rec["after"]["target"].get(k):
             out.append("TARGET_%s: live %r recorded %r" % (k.upper(), live["target"].get(k), rec["after"]["target"].get(k)))
-    for k in ("narration", "vis_track", "hookin_bindings"):
+    for k in ("narration", "vis_track", "hookin_bindings", "retained_current"):
         if live.get(k) != rec["after"].get(k):
             out.append("%s: live %r recorded %r" % (k.upper(), live.get(k), rec["after"].get(k)))
     return out
@@ -577,6 +724,69 @@ def _path(obj):
     return obj.get_path_name().split(".")[0] if obj is not None else None
 
 
+def _enum_name(value):
+    return str(getattr(value, "name", value)).split(".")[-1]
+
+
+def _guid_string(guid):
+    return unreal.GuidLibrary.conv_guid_to_string(guid)
+
+
+def _channel_base(name):
+    text = str(name)
+    for base in ("Location.X", "Location.Y", "Location.Z", "Rotation.X", "Rotation.Y", "Rotation.Z"):
+        if text == base or text.startswith(base + "_"):
+            return base
+    return text
+
+
+def _channel_map(section):
+    return {_channel_base(c.channel_name if hasattr(c, "channel_name") else c.get_name()): c
+            for c in section.get_all_channels()}
+
+
+def _key_rows(channel):
+    return [{"t": int(k.get_time().frame_number.value), "v": float(k.get_value()),
+             "interp": _enum_name(k.get_interpolation_mode()), "tmode": _enum_name(k.get_tangent_mode()),
+             "arrive": float(k.get_arrive_tangent()), "leave": float(k.get_leave_tangent()),
+             "wmode": _enum_name(k.get_tangent_weight_mode())} for k in channel.get_keys()]
+
+
+def _channel_rows(channel):
+    return {"keys": _key_rows(channel), "default": float(channel.get_default()) if channel.has_default() else None,
+            "pre": _enum_name(channel.get_pre_infinity_extrapolation()),
+            "post": _enum_name(channel.get_post_infinity_extrapolation())}
+
+
+def _channel_eval(channel, frame):
+    try:
+        if hasattr(channel, "evaluate"):
+            return float(channel.evaluate(unreal.FrameTime(unreal.FrameNumber(int(frame)))))
+    except Exception:  # noqa: BLE001 - DRY reports an unresolved camera below
+        pass
+    keys = sorted((r["t"], r["v"]) for r in _key_rows(channel))
+    if not keys:
+        return float(channel.get_default()) if channel.has_default() else None
+    for t, value in keys:
+        if t == int(frame):
+            return value
+    if frame < keys[0][0]:
+        return keys[0][1]
+    if frame > keys[-1][0]:
+        return keys[-1][1]
+    return None
+
+
+def _section_blend(section):
+    try:
+        value = section.get_blend_type()
+        if hasattr(value, "get_editor_property"):
+            value = value.get_editor_property("blend_type")
+        return _enum_name(value)
+    except Exception as exc:  # noqa: BLE001 - inability to classify must refuse rotation, never guess
+        return "ERROR:%s:%s" % (type(exc).__name__, exc)
+
+
 def _rate(fr):
     return float(fr.numerator) / float(fr.denominator)
 
@@ -630,6 +840,16 @@ def _api_table():
           lambda: repr(u.MovieSceneCompletionMode.RESTORE_STATE))
     probe("EditorAssetLibrary.duplicate_asset / delete_asset", "inf / prec scene_audio_import.py:1066",
           lambda: [hasattr(u.EditorAssetLibrary, "duplicate_asset"), hasattr(u.EditorAssetLibrary, "delete_asset")])
+    probe("MovieSceneScriptingDoubleKey tangent/mode getters+setters",
+          "decl MovieSceneScriptingDouble.h:72-218; prec klara_hookin_s6.py:624-630",
+          lambda: all(hasattr(u.MovieSceneScriptingDoubleKey, n) for n in (
+              "get_tangent_mode", "set_tangent_mode", "get_arrive_tangent", "set_arrive_tangent",
+              "get_leave_tangent", "set_leave_tangent", "get_interpolation_mode", "get_tangent_weight_mode")))
+    probe("MovieSceneSection.get_blend_type (additive/relative leave unchanged)",
+          "prec klara_reveal.py:3183-3186", lambda: hasattr(u.MovieSceneSection, "get_blend_type"))
+    probe("MovieSceneDoubleChannel evaluate + infinity extrapolation", "decl MovieSceneScriptingDouble.h:316-366",
+          lambda: [hasattr(u.MovieSceneScriptingDoubleChannel, "evaluate"),
+                   hasattr(u.MovieSceneScriptingDoubleChannel, "get_pre_infinity_extrapolation")])
     probe("MovieSceneSection.set_is_active", "inf (is_active is prec scene_audio_import.py:668)",
           lambda: hasattr(u.MovieSceneSection, "set_is_active"))
     probe("InfinityStageCelestialRig foreign_lighting_exempt_levels (proposed C++ flag)",
@@ -794,10 +1014,18 @@ ARGS_CACHE = None   # plain dict (never an unreal object), set by main()
 
 
 def _find_target_section(seq, row, key):
-    paths = [row["current_nested"], row["her_sequence"], copy_path(ARGS_CACHE, key, row["her_sequence"])]
+    copy = copy_path(ARGS_CACHE, key, row["her_sequence"])
+    paths = [row["current_nested"], row["her_sequence"], copy]
     hits = [s for t in seq.get_tracks() if isinstance(t, unreal.MovieSceneSubTrack)
             and t.get_class().get_name() != CHOREO_TRACK_CLASS for s in t.get_sections()
             if _path(s.get_sequence()) in paths]
+    if row.get("keep_current_nested_deactivated"):
+        copied = [s for s in hits if _path(s.get_sequence()) == copy]
+        if len(copied) == 1:
+            return copied[0]
+        original = [s for s in hits if _path(s.get_sequence()) in (row["current_nested"], row["her_sequence"])]
+        if len(original) == 1:
+            return original[0]
     if len(hits) != 1:
         raise PlanError("TARGET_SECTION_COUNT: %d" % len(hits))
     return hits[0]
@@ -849,6 +1077,7 @@ def _placements(args, world=None):
         lrow = dict(lrow)
         key = str(lrow["scene"])
         lrow["import_only"] = key in (args.get("import_only") or {})
+        lrow["rekey_rotation"] = bool((args.get("scenes") or {}).get(key, {}).get("rekey_rotation", False))
         if world is not None and lv in _streaming(world):
             env = [a for a in _level_actors(world, lv) if a.get_class().get_name() not in ENV_CLASSES]
             if env:
@@ -859,7 +1088,8 @@ def _placements(args, world=None):
                         xs += [o.x - e.x, o.x + e.x]
                         ys += [o.y - e.y, o.y + e.y]
                 lrow["live_world_bounds"] = [min(xs), max(xs), min(ys), max(ys)] if xs else None
-        p = plan_placement(lv, lrow, args["hangars"], float(args.get("margin_cm", 100.0)))
+        p = plan_placement(lv, lrow, args["hangars"], float(args.get("margin_cm", 100.0)),
+                           float(args.get("accept_overhang_cm", 400.0)))
         if world is not None:
             p["dock_check"] = _dock_check(key, args["hangars"][key])
             if not p["dock_check"]["ok"]:
@@ -911,8 +1141,242 @@ def _rig_exempt_support(rig):
         return None
 
 
+def _rekey_preview(sequence, transform, world, level_pkgs):
+    """Read-only exactness/classification pass over every transform section that APPLY_SEQ would visit."""
+    names = {}
+    for pkg in level_pkgs:
+        for actor in _level_actors(world, pkg):
+            names.setdefault(str(actor.get_actor_label()), []).append(actor)
+            if str(actor.get_name()) != str(actor.get_actor_label()):
+                names.setdefault(str(actor.get_name()), []).append(actor)
+    rows = []
+    for binding in sequence.get_bindings():
+        parent = binding.get_parent()
+        name = str(binding.get_display_name())
+        if parent is not None and hasattr(parent, "is_valid") and parent.is_valid():
+            rows.append({"binding": name, "skipped": "child binding (relative)"})
+            continue
+        actors = names.get(name, [])
+        if len(actors) > 1:
+            rows.append({"binding": name, "problems": ["REKEY_ACTOR_AMBIGUOUS:%d" % len(actors)]})
+            continue
+        if actors and actors[0].get_attach_parent_actor() is not None:
+            rows.append({"binding": name, "skipped": "attached (keys are relative)"})
+            continue
+        for track in [t for t in binding.get_tracks() if isinstance(t, unreal.MovieScene3DTransformTrack)]:
+            for section in track.get_sections():
+                blend = _section_blend(section)
+                if blend.startswith("ERROR:"):
+                    rows.append({"binding": name, "problems": [blend]})
+                    continue
+                if is_relative_blend(blend):
+                    rows.append({"binding": name, "skipped": "additive/relative section", "blend": blend})
+                    continue
+                channels = _channel_map(section)
+                has_location = any(n.startswith("Location.") for n in channels)
+                has_yaw = "Rotation.Z" in channels
+                if not has_location and not has_yaw:
+                    rows.append({"binding": name, "skipped": "no Location or Rotation.Z channels", "blend": blend})
+                    continue
+                if has_location and not all("Location." + a in channels for a in "XYZ"):
+                    rows.append({"binding": name, "problems": ["INCOMPLETE_LOCATION_CHANNELS"],
+                                 "channels": sorted(channels), "blend": blend})
+                    continue
+                source = {axis: _channel_rows(channels["Location." + axis.upper()]) for axis in "xyz"} \
+                    if has_location else {}
+                if has_yaw:
+                    source["yaw"] = _channel_rows(channels["Rotation.Z"])
+                result = rekey_rigid(source, transform)
+                rows.append({"binding": name, "blend": blend, "problems": result["problems"],
+                             "keys": {axis: len(source[axis]["keys"]) for axis in source},
+                             "actor": "level" if actors else "spawnable/free"})
+    return rows
+
+
+def _camera_preview_rows(sequence, transform, world, level_pkgs, plan, her_facts, default_hfov):
+    """Every camera cut's start pose after the planned rigid transform; read-only and used only by DRY."""
+    bindings = {_guid_string(b.get_id()): b for b in sequence.get_bindings()}
+    actors = {}
+    for pkg in level_pkgs:
+        for actor in _level_actors(world, pkg):
+            actors.setdefault(str(actor.get_actor_label()), []).append(actor)
+            if str(actor.get_name()) != str(actor.get_actor_label()):
+                actors.setdefault(str(actor.get_name()), []).append(actor)
+    cuts = []
+    for track in sequence.get_tracks():
+        if isinstance(track, unreal.MovieSceneCameraCutTrack):
+            for section in track.get_sections():
+                cuts.append({"frames": [int(section.get_start_frame()), int(section.get_end_frame())],
+                             "guid": _guid_string(section.get_camera_binding_id().get_editor_property("guid"))})
+    rows = []
+    for cut in sorted(cuts, key=lambda r: r["frames"][0]):
+        row = dict(cut, cut_binding_preserved_by_duplicate=True)
+        binding = bindings.get(cut["guid"])
+        if binding is None:
+            row["error"] = "CUT_BINDING_MISSING"
+            rows.append(row)
+            continue
+        name, frame = str(binding.get_display_name()), cut["frames"][0]
+        row["binding"] = name
+        sections = [s for t in binding.get_tracks() if isinstance(t, unreal.MovieScene3DTransformTrack)
+                    for s in t.get_sections() if (not s.has_start_frame() or int(s.get_start_frame()) <= frame) and
+                    (not s.has_end_frame() or frame < int(s.get_end_frame())) and not is_relative_blend(_section_blend(s))]
+        if len(sections) != 1:
+            row["error"] = "CAMERA_ABSOLUTE_TRANSFORM_SECTION_COUNT:%d" % len(sections)
+            rows.append(row)
+            continue
+        channel_map = _channel_map(sections[0])
+        values = {n: _channel_eval(channel_map[n], frame) if n in channel_map else None
+                  for n in ("Location.X", "Location.Y", "Location.Z", "Rotation.X", "Rotation.Y", "Rotation.Z")}
+        if not all(values[n] is not None for n in ("Location.X", "Location.Y", "Location.Z")):
+            row["error"] = "CAMERA_LOCATION_UNRESOLVED"
+            rows.append(row)
+            continue
+        local = [values["Location." + a] for a in "XYZ"]
+        local_yaw = values["Rotation.Z"]
+        world_pos = world_point(transform, local)
+        world_yaw = None if local_yaw is None else float(local_yaw) + wrap_yaw(transform["yaw"])
+        matches = actors.get(name, [])
+        component = matches[0].get_cine_camera_component() if len(matches) == 1 and hasattr(
+            matches[0], "get_cine_camera_component") else None
+        focal = float(component.get_editor_property("current_focal_length")) if component is not None else None
+        sensor = float(component.get_editor_property("filmback").get_editor_property("sensor_width")) \
+            if component is not None else None
+        hfov = math.degrees(2.0 * math.atan(sensor / (2.0 * focal))) if focal and sensor else float(default_hfov)
+        relative_s = (frame - int(her_facts["lower_frame"])) / float(her_facts["fps"])
+        scene_frame = int(plan["section"][0]) + ceil_frames(relative_s, float(plan["fps"]))
+        row.update(local_cm=local, world_cm=world_pos, local_yaw_deg=local_yaw, world_yaw_deg=world_yaw,
+                   focal_mm=focal, sensor_width_mm=sensor, hfov_deg=hfov,
+                   hfov_source="camera component" if focal and sensor else "args preview_default_hfov_deg",
+                   scene_frame=scene_frame,
+                   scene_fraction=round(scene_frame / float(plan["planned_end"]), 8) if plan["planned_end"] else None,
+                   focus_target_note="binding IDs and component focus settings are preserved by sequence duplication")
+        rows.append(row)
+    return rows
+
+
+def _preview_model(placement, hangar, cameras, frustum_cm):
+    """World data -> hangar-local 2D primitives, so the renderer itself is testable without Unreal."""
+    dock = hangar["dock"]
+    footprint = [[p[0], p[1]] for p in placement["geometry"]["corners_hangar_local_cm"]]
+    cam_rows = []
+    for row in cameras:
+        if row.get("world_cm") is None or row.get("world_yaw_deg") is None:
+            continue
+        p = row["world_cm"]
+        x, y = _rot(p[0] - dock["loc"][0], p[1] - dock["loc"][1], -dock["yaw"])
+        yaw = float(row["world_yaw_deg"]) - float(dock["yaw"])
+        half = math.tan(math.radians(float(row["hfov_deg"])) / 2.0) * float(frustum_cm)
+        tip = _rot(float(frustum_cm), 0.0, yaw)
+        left = _rot(float(frustum_cm), half, yaw)
+        right = _rot(float(frustum_cm), -half, yaw)
+        cam_rows.append(dict(row, hangar_local_cm=[x, y], frustum_hangar_local_cm=[
+            [x, y], [x + left[0], y + left[1]], [x + tip[0], y + tip[1]], [x + right[0], y + right[1]]]))
+    return {"hangar_rect_cm": [float(hangar["apron"]), -float(hangar["half_w"]),
+                                float(hangar["apron"]) + float(hangar["depth"]), float(hangar["half_w"])],
+            "footprint_cm": footprint, "cameras": cam_rows, "frustum_cm": float(frustum_cm)}
+
+
+def _png_chunk(kind, data):
+    return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data) & 0xffffffff)
+
+
+def render_topdown_png(path, model, size=1200):
+    """Dependency-free DRY preview. Blue=walls, gold=footprint, green/cyan=cameras/frusta, red=outside walls."""
+    size = max(320, min(2400, int(size)))
+    points = []
+    x0, y0, x1, y1 = model["hangar_rect_cm"]
+    points += [[x0, y0], [x1, y1]] + model["footprint_cm"]
+    for row in model["cameras"]:
+        points += row["frustum_hangar_local_cm"]
+    lo_x, hi_x = min(p[0] for p in points), max(p[0] for p in points)
+    lo_y, hi_y = min(p[1] for p in points), max(p[1] for p in points)
+    pad = max(200.0, 0.08 * max(hi_x - lo_x, hi_y - lo_y))
+    lo_x, hi_x, lo_y, hi_y = lo_x - pad, hi_x + pad, lo_y - pad, hi_y + pad
+    width, height = size, max(320, int(size * (hi_y - lo_y) / max(1.0, hi_x - lo_x)))
+    height = min(1800, height)
+    pixels = bytearray([18, 21, 27] * width * height)
+
+    def pt(p):
+        return (int(round((p[0] - lo_x) / max(1e-9, hi_x - lo_x) * (width - 1))),
+                int(round((hi_y - p[1]) / max(1e-9, hi_y - lo_y) * (height - 1))))
+
+    def dot(x, y, color, radius=1):
+        for yy in range(max(0, y - radius), min(height, y + radius + 1)):
+            for xx in range(max(0, x - radius), min(width, x + radius + 1)):
+                i = (yy * width + xx) * 3
+                pixels[i:i + 3] = bytes(color)
+
+    def line(a, b, color, thick=2):
+        x0p, y0p = pt(a); x1p, y1p = pt(b)
+        dx, dy = abs(x1p - x0p), -abs(y1p - y0p)
+        sx, sy, err = (1 if x0p < x1p else -1), (1 if y0p < y1p else -1), abs(x1p - x0p) - abs(y1p - y0p)
+        while True:
+            dot(x0p, y0p, color, thick // 2)
+            if x0p == x1p and y0p == y1p:
+                break
+            e2 = 2 * err
+            if e2 > dy:
+                err += dy; x0p += sx
+            if e2 < dx:
+                err += dx; y0p += sy
+
+    walls = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
+    for a, b in zip(walls, walls[1:] + walls[:1]):
+        line(a, b, (70, 145, 235), 4)
+    fp = model["footprint_cm"]
+    for a, b in zip(fp, fp[1:] + fp[:1]):
+        color = (240, 75, 75) if abs(a[1]) > max(abs(y0), abs(y1)) or abs(b[1]) > max(abs(y0), abs(y1)) \
+            else (245, 190, 70)
+        line(a, b, color, 4)
+    for row in model["cameras"]:
+        frustum = row["frustum_hangar_local_cm"]
+        line(frustum[0], frustum[1], (70, 225, 220), 2)
+        line(frustum[0], frustum[3], (70, 225, 220), 2)
+        line(frustum[1], frustum[3], (50, 125, 130), 1)
+        dot(*pt(frustum[0]), (90, 240, 120), 4)
+    raw = b"".join(b"\x00" + bytes(pixels[y * width * 3:(y + 1) * width * 3]) for y in range(height))
+    data = b"\x89PNG\r\n\x1a\n" + _png_chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)) + \
+        _png_chunk(b"IDAT", zlib.compress(raw, 9)) + _png_chunk(b"IEND", b"")
+    with open(path, "wb") as handle:
+        handle.write(data)
+    return {"path": path, "width": width, "height": height, "bytes": len(data), "camera_count": len(model["cameras"])}
+
+
 def run_dry(args, run, world):
     facts, plans, placements, refusals, warnings, _h = _plan_all(args, world)
+    rekey_preview, camera_preview, visibility_scope, preview_files = {}, {}, {}, {}
+    for key, row in sorted(args["scenes"].items()):
+        levels = row.get("level_packages") or []
+        if not levels or key not in plans or levels[0] not in placements:
+            continue
+        transform = placements[levels[0]]["fit"]["level_transform"]
+        sequence = unreal.load_asset(row["her_sequence"])
+        if sequence is None:
+            continue
+        rekey_preview[key] = _rekey_preview(sequence, transform, world, levels)
+        bad = [r for r in rekey_preview[key] if r.get("problems")]
+        if bad:
+            refusals.append("S%s REKEY_NOT_EXACT: %s" % (key, [(r.get("binding"), r["problems"][:2]) for r in bad[:8]]))
+        camera_preview[key] = _camera_preview_rows(sequence, transform, world, levels, plans[key], facts[key]["her"],
+                                                   args.get("preview_default_hfov_deg", 50.0))
+        unresolved = [r for r in camera_preview[key] if r.get("error")]
+        if unresolved:
+            refusals.append("S%s CAMERA_PREVIEW_UNRESOLVED: %s" %
+                            (key, [(r.get("binding"), r["error"]) for r in unresolved[:8]]))
+        visibility_scope[key] = {
+            "level_packages": levels, "level_names": row.get("visible_levels") or [],
+            "visible_only_while": "LS_DevScene_0%s evaluates frames [%d,%d)" %
+                                  (key, plans[key]["timeline"]["level_visible"][0],
+                                   plans[key]["timeline"]["level_visible"][1]),
+            "p02": "hidden: streaming level initially_visible=False; P02 does not evaluate the S02 visibility track",
+            "all_other_segments": "hidden: only LS_DevScene_02 owns a VISIBLE section; RESTORE_STATE returns hidden",
+            "apply_readback": "APPLY_SEQ requires the exact visible level names/range; post-save state is reloaded"}
+        if args.get("preview_png") and key == "2":
+            model = _preview_model(placements[levels[0]], args["hangars"][key], camera_preview[key],
+                                   args.get("preview_frustum_cm", 1200.0))
+            preview_files[key] = render_topdown_png(os.path.join(_here(), args["preview_png"]), model,
+                                                    args.get("preview_size_px", 1200))
     rig_info = {}
     try:
         rig = _rig()
@@ -927,9 +1391,11 @@ def run_dry(args, run, world):
         refusals.append(str(exc))
     report = {"tool": TOOL, "run": run, "args": args, "api_table": _api_table(), "facts": facts, "plans": plans,
               "placements": placements, "rig": rig_info, "streaming_now": sorted(_streaming(world)),
+              "rekey_preview": rekey_preview, "camera_preview": camera_preview,
+              "visibility_scope": visibility_scope, "preview_files": preview_files,
               "refusals": refusals, "warnings": warnings, "apply_ready": not refusals,
               "extend_modes": {k: p.get("extend_mode") for k, p in plans.items()}}
-    out = os.path.join(_here(), DRY_NAME)
+    out = os.path.join(_here(), args.get("dry_report", DRY_NAME))
     with open(out, "w", encoding="utf-8") as handle:
         json.dump(report, handle, indent=1, sort_keys=True, default=str)
     for row in report["api_table"]:
@@ -939,16 +1405,17 @@ def run_dry(args, run, world):
     for t in warnings:
         unreal.log("KLARAHOOK_WARNING|run=%s|%s" % (run, t))
     for lv, p in sorted(placements.items()):
-        unreal.log("KLARAHOOK_PLACE|run=%s|%s|fits=%s|transform=%s|overhang=%s"
-                   % (run, lv, p["fit"]["fits"], p["fit"]["level_transform"], p["fit"]["overhang_cm"]))
+        unreal.log("KLARAHOOK_PLACE|run=%s|%s|fits=%s|transform=%s|overhang=%s|wall_lr_cm=%s|corners_world=%s"
+                   % (run, lv, p["fit"]["fits"], p["fit"]["level_transform"], p["fit"]["overhang_cm"],
+                      p["geometry"]["wall_overhang_cm"], p["geometry"]["corners_world_cm"]))
     for k, p in sorted(plans.items()):
         unreal.log("KLARAHOOK_ROW|run=%s|S%s|cut=%s|timeline=%s|end_s=%s|narration=%s"
                    % (run, k, p.get("section"), p.get("timeline"), p.get("planned_end_s"),
                       (p.get("narration") or {}).get("action")))
     if _census() != {"content": [], "maps": []}:
         _stop(run, "DRY_DIRTIED|" + json.dumps(_census()))
-    unreal.log("KLARAHOOK_DRY_OK|run=%s|mutated=0|apply_ready=%d|refusals=%d|warnings=%d|report=%s"
-               % (run, int(not refusals), len(refusals), len(warnings), out))
+    unreal.log("KLARAHOOK_DRY_OK|run=%s|mutated=0|apply_ready=%d|refusals=%d|warnings=%d|report=%s|previews=%s"
+               % (run, int(not refusals), len(refusals), len(warnings), out, preview_files))
 
 
 def _ftransform(t):
@@ -1044,7 +1511,7 @@ def _live_seq_state(seq, row, key):
     narr = [s for t in seq.get_tracks() if str(t.get_display_name()) == row.get("narration_track")
             and isinstance(t, unreal.MovieSceneAudioTrack) for s in t.get_sections()]
     vis = [t for t in seq.get_tracks() if str(t.get_display_name()) == VIS_TRACK_NAME]
-    return {"target": {"sequence": _path(sec.get_sequence()), "start": int(sec.get_start_frame()),
+    out = {"target": {"sequence": _path(sec.get_sequence()), "start": int(sec.get_start_frame()),
                        "end": int(sec.get_end_frame()),
                        "start_offset_tick": int(sec.get_editor_property("parameters")
                                                 .get_editor_property("start_frame_offset").value)},
@@ -1053,6 +1520,12 @@ def _live_seq_state(seq, row, key):
                            "range": [int(s.get_start_frame()), int(s.get_end_frame())]}
                           for t in vis for s in t.get_sections()] or None,
             "hookin_bindings": _hookin_bindings(seq)}
+    if row.get("keep_current_nested_deactivated"):
+        out["retained_current"] = [{"sequence": _path(s.get_sequence()), "start": int(s.get_start_frame()),
+                                    "end": int(s.get_end_frame()), "active": bool(s.is_active())}
+                                   for t in seq.get_tracks() if isinstance(t, unreal.MovieSceneSubTrack)
+                                   for s in t.get_sections() if _path(s.get_sequence()) == row["current_nested"]]
+    return out
 
 
 def _set_target(seq, row, key, sequence_path, start, end, offset_tick):
@@ -1068,8 +1541,55 @@ def _set_target(seq, row, key, sequence_path, start, end, offset_tick):
     return sec
 
 
+def _add_replacement_target(seq, row, sequence_path, start, end, offset_tick):
+    """Keep the old S2 subsection in-file but inactive; add the replacement on its own removable track."""
+    old = [s for t in seq.get_tracks() if isinstance(t, unreal.MovieSceneSubTrack) for s in t.get_sections()
+           if _path(s.get_sequence()) == row["current_nested"]]
+    tracks = [t for t in seq.get_tracks() if isinstance(t, unreal.MovieSceneSubTrack)
+              and str(t.get_display_name()) == KEPT_NESTED_TRACK_NAME]
+    if len(old) != 1 or tracks:
+        raise PlanError("KEPT_NESTED_SHAPE: original=%d replacement_tracks=%d" % (len(old), len(tracks)))
+    old[0].set_is_active(False)
+    child = unreal.load_asset(sequence_path)
+    if child is None:
+        raise PlanError("SEQUENCE_NOT_LOADED: %s" % sequence_path)
+    track = seq.add_track(unreal.MovieSceneSubTrack)
+    track.set_display_name(KEPT_NESTED_TRACK_NAME)
+    section = track.add_section()
+    section.set_sequence(child)
+    section.set_range(int(start), int(end))
+    params = section.get_editor_property("parameters")
+    params.set_editor_property("start_frame_offset", unreal.FrameNumber(int(offset_tick)))
+    section.set_editor_property("parameters", params)
+    section.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
+    return section
+
+
+def _apply_channel(channel, want, run, label):
+    keys = list(channel.get_keys())
+    if len(keys) != len(want["keys"]):
+        _stop(run, "REKEY_KEYCOUNT|%s|NOTHING SAVED; Don't-Save restart" % label)
+    for key, row in zip(keys, want["keys"]):
+        if _enum_name(key.get_tangent_mode()) != row["tmode"]:
+            key.set_tangent_mode(getattr(unreal.RichCurveTangentMode, row["tmode"]))
+    for key, row in zip(keys, want["keys"]):
+        key.set_value(row["v"])
+        if row["tmode"] in (USER, BREAK):
+            key.set_arrive_tangent(row["arrive"])
+            key.set_leave_tangent(row["leave"])
+    if want["default"] is not None:
+        channel.set_default(want["default"])
+    got = _key_rows(channel)
+    for actual, expected in zip(got, want["keys"]):
+        tangent_bad = expected["tmode"] in (USER, BREAK) and (
+            abs(actual["arrive"] - expected["arrive"]) > 1e-3 * max(1.0, abs(expected["arrive"])) or
+            abs(actual["leave"] - expected["leave"]) > 1e-3 * max(1.0, abs(expected["leave"])))
+        if actual["t"] != expected["t"] or abs(actual["v"] - expected["v"]) > 1e-4 or tangent_bad:
+            _stop(run, "REKEY_READBACK|%s|t=%s|NOTHING SAVED; Don't-Save restart" % (label, actual["t"]))
+
+
 def _make_rekeyed_copy(args, key, row, transform, world, level_pkgs, run):
-    """Duplicate her LS and shift every top-level, UNATTACHED binding's Location keys by `transform` (translation)."""
+    """Duplicate her LS and rigidly re-key absolute top-level, unattached, non-additive transform sections."""
     dst = copy_path(args, key, row["her_sequence"])
     if unreal.EditorAssetLibrary.does_asset_exist(dst):
         _stop(run, "COPY_EXISTS|%s" % dst)
@@ -1109,34 +1629,38 @@ def _make_rekeyed_copy(args, key, row, transform, world, level_pkgs, run):
             continue
         for t in tracks:
             for s in t.get_sections():
-                all_chans = list(s.get_all_channels())
-                names = [str(c.channel_name) if hasattr(c, "channel_name") else str(c.get_name()) for c in all_chans]
-                # 7 Oct live: sections can lead with a 'Weight' channel (Pig_anim_RM) - pick Location.X/Y/Z by NAME
-                by_axis = {}
-                for c, n in zip(all_chans, names):
-                    for ax in "XYZ":
-                        if n.startswith("Location.%s" % ax) and ax not in by_axis:
-                            by_axis[ax] = c
-                if not by_axis:
-                    log.append({"binding": name, "skipped": "no Location channels in section", "channels": names})
+                blend = _section_blend(s)
+                if blend.startswith("ERROR:"):
+                    _stop(run, "S%s REKEY_BLEND_UNKNOWN|%s|%s|NOTHING SAVED; Don't-Save restart" % (key, name, blend))
+                if is_relative_blend(blend):
+                    log.append({"binding": name, "skipped": "additive/relative section", "blend": blend})
                     continue
-                if len(by_axis) != 3:
-                    _stop(run, "S%s REKEY_CHANNEL_ORDER|%s|%s" % (key, name, names))   # memory: suffixed names
-                chans = [by_axis[ax] for ax in "XYZ"]
-                before = {ax: {"keys": [[int(k.get_time().frame_number.value), float(k.get_value())] for k in c.get_keys()],
-                               "default": float(c.get_default()) if c.has_default() else None}
-                          for ax, c in zip("xyz", chans[:3])}
-                want = rekey_plan(before, transform)
-                for ax, c in zip("xyz", chans[:3]):
-                    for k, (_t, v) in zip(c.get_keys(), want[ax]["keys"]):
-                        k.set_value(v)
-                    if want[ax]["default"] is not None:
-                        c.set_default(want[ax]["default"])
-                got = {ax: [[int(k.get_time().frame_number.value), round(float(k.get_value()), 4)] for k in c.get_keys()]
-                       for ax, c in zip("xyz", chans[:3])}
-                if any(got[ax] != [[t2, round(v2, 4)] for t2, v2 in want[ax]["keys"]] for ax in "xyz"):
-                    _stop(run, "S%s REKEY_READBACK|%s|NOTHING SAVED; Don't-Save restart" % (key, name))
-                log.append({"binding": name, "keys": {ax: len(before[ax]["keys"]) for ax in "xyz"}})
+                channels = _channel_map(s)
+                has_location = any(n.startswith("Location.") for n in channels)
+                has_yaw = "Rotation.Z" in channels
+                if not has_location and not has_yaw:
+                    log.append({"binding": name, "skipped": "no Location or Rotation.Z channels in section",
+                                "channels": sorted(channels), "blend": blend})
+                    continue
+                if has_location and not all("Location." + axis in channels for axis in "XYZ"):
+                    _stop(run, "S%s REKEY_CHANNEL_ORDER|%s|%s" % (key, name, sorted(channels)))
+                before = {axis: _channel_rows(channels["Location." + axis.upper()]) for axis in "xyz"} \
+                    if has_location else {}
+                if has_yaw:
+                    before["yaw"] = _channel_rows(channels["Rotation.Z"])
+                want = rekey_rigid(before, transform)
+                if want["problems"]:
+                    _stop(run, "S%s REKEY_NOT_EXACT|%s|%s|NOTHING SAVED; Don't-Save restart" %
+                          (key, name, want["problems"]))
+                if has_location:
+                    for axis in "xyz":
+                        _apply_channel(channels["Location." + axis.upper()], want[axis], run,
+                                       "S%s %s Location.%s" % (key, name, axis.upper()))
+                if abs(wrap_yaw(transform["yaw"])) > YAW_EPS and has_yaw:
+                    _apply_channel(channels["Rotation.Z"], want["yaw"], run, "S%s %s Rotation.Z" % (key, name))
+                log.append({"binding": name, "blend": blend,
+                            "keys": {axis: len(before[axis]["keys"]) for axis in before},
+                            "actor": "level" if actors else "none (spawnable/free: keys absolute)"})
     return dst, log
 
 
@@ -1196,7 +1720,9 @@ def run_apply_seq(args, run, world):
         rec["scenes"][k]["copy"] = dst
         rec["scenes"][k]["rekey"] = rekey_log
         update_record(rpath, rec)
-        sec = _set_target(seq, row, k, dst, plan["section"][0], plan["section"][1], 0)
+        sec = (_add_replacement_target(seq, row, dst, plan["section"][0], plan["section"][1], 0)
+               if row.get("keep_current_nested_deactivated") else
+               _set_target(seq, row, k, dst, plan["section"][0], plan["section"][1], 0))
         child = sec.get_sequence()
         mapped = [int(unreal.MovieSceneSectionExtensions.get_parent_sequence_frame(sec, int(child.get_playback_start()), seq)),
                   int(unreal.MovieSceneSectionExtensions.get_parent_sequence_frame(sec, int(child.get_playback_end()), seq))]
@@ -1216,6 +1742,7 @@ def run_apply_seq(args, run, world):
             vs.set_range(int(tl["level_visible"][0]), int(tl["level_visible"][1]))
             vs.set_visibility(unreal.LevelVisibility.VISIBLE)                          # decl :43
             vs.set_level_names([unreal.Name(n) for n in vis_levels])                    # decl :49
+            vs.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)       # outside S02 -> streamed hidden state
         if tl.get("ours_off") and lighting.get("ours_off", True):
             for a in ours:
                 _add_vis_binding(seq, a, OURS_OFF_PREFIX, tl["ours_off"], True)
@@ -1231,7 +1758,11 @@ def run_apply_seq(args, run, world):
             bad.append("target %s" % after["target"])
         if plan["narration"].get("action") == "mute" and any(n[2] for n in after["narration"] or []):
             bad.append("narration still active %s" % after["narration"])
-        if vis_levels and not (after["vis_track"] and after["vis_track"][0]["levels"] == vis_levels):
+        if row.get("keep_current_nested_deactivated") and after.get("retained_current") != [{
+                "sequence": row["current_nested"], "start": facts[k]["target"]["start"],
+                "end": facts[k]["target"]["end"], "active": False}]:
+            bad.append("retained current S2 not uniquely inactive %s" % after.get("retained_current"))
+        if vis_levels and after["vis_track"] != [{"levels": vis_levels, "range": tl["level_visible"]}]:
             bad.append("vis %s" % after["vis_track"])
         if bad:
             _stop(run, "S%s APPLY_READBACK|%s|NOTHING SAVED; Don't-Save restart (backup %s)" % (k, bad, backup))
@@ -1268,7 +1799,19 @@ def run_revert_seq(args, run, world):
         if drift:
             _stop(run, "S%s STATE_DRIFTED|%s|nothing changed" % (k, drift))
         b = r["before"]["target"]
-        _set_target(seq, r["row"], k, b["sequence"], b["start"], b["end"], b["start_offset_tick"])
+        if r["row"].get("keep_current_nested_deactivated"):
+            replacement = [t for t in seq.get_tracks() if isinstance(t, unreal.MovieSceneSubTrack)
+                           and str(t.get_display_name()) == KEPT_NESTED_TRACK_NAME]
+            if len(replacement) != 1:
+                _stop(run, "S%s REVERT_REPLACEMENT_TRACK_COUNT|%d|NOTHING SAVED" % (k, len(replacement)))
+            seq.remove_track(replacement[0])
+            original = [s for t in seq.get_tracks() if isinstance(t, unreal.MovieSceneSubTrack) for s in t.get_sections()
+                        if _path(s.get_sequence()) == r["row"]["current_nested"]]
+            if len(original) != 1:
+                _stop(run, "S%s REVERT_ORIGINAL_COUNT|%d|NOTHING SAVED" % (k, len(original)))
+            original[0].set_is_active(bool(r["before"]["retained_current"][0]["active"]))
+        else:
+            _set_target(seq, r["row"], k, b["sequence"], b["start"], b["end"], b["start_offset_tick"])
         for t in seq.get_tracks():
             if str(t.get_display_name()) == r["row"]["narration_track"] and isinstance(t, unreal.MovieSceneAudioTrack):
                 for s, was in zip(t.get_sections(), r["before"]["narration"] or []):

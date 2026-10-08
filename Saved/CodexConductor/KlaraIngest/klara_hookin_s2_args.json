@@ -5,6 +5,12 @@
  "decided_by": "Gary 8 Oct evening (own answers, conductor questionnaire): Klara's new shrine 'replaces everything we have in that scene'; opening 'Same as S1/S4' (land in the dark, then her shot); our S2 kept in the file but deactivated. Stand-in narration muted (her LS carries Shrine_Stereo audio) - conductor, reversible.",
  "copy_folder": "/Game/InfinityStage/KlaraHookin",
  "margin_cm": 100.0,
+ "accept_overhang_cm": 400.0,
+ "dry_report": "klara_hookin_s2_dry.json",
+ "preview_png": "klara_hookin_s2_topdown.png",
+ "preview_size_px": 1400,
+ "preview_frustum_cm": 1200.0,
+ "preview_default_hfov_deg": 50.0,
  "hangars": {
   "1": {
    "source": "Saved/CodexStructure/hangar_s1_record.json (30 Sep) [meas, stale: DRY checks the live S1 Hangar Apron]",
@@ -146,7 +152,9 @@
     "Camera Cuts"
    ],
    "ours_off": true,
-   "hers_dark_until_cut": true
+   "hers_dark_until_cut": true,
+   "rekey_rotation": true,
+   "keep_current_nested_deactivated": true
   }
  },
  "seq_record": "klara_hookin_seq_record_S2.json"
