@@ -1,0 +1,251 @@
+{
+ "schema": "s3_sway_runs/1",
+ "tier": "measured curves; sway reading inferred",
+ "figures": [
+  {
+   "id": "Shore01_M56",
+   "calm_runs": [
+    {
+     "source_in": 5.7083,
+     "source_out": 12.0833,
+     "scene_len_s": 10.625,
+     "signal": "spine_02.rotation.Z",
+     "period_s_source": 1.83,
+     "period_s_scene": 3.06,
+     "periodicity": 0.382,
+     "amplitude_std": 0.655
+    },
+    {
+     "source_in": 14.2917,
+     "source_out": 18.8333,
+     "scene_len_s": 7.5694
+    },
+    {
+     "source_in": 21.2083,
+     "source_out": 24.2083,
+     "scene_len_s": 5.0,
+     "signal": "spine_03.rotation.X",
+     "period_s_source": 1.54,
+     "period_s_scene": 2.57,
+     "periodicity": 0.273,
+     "amplitude_std": 0.093
+    },
+    {
+     "source_in": 25.6667,
+     "source_out": 32.875,
+     "scene_len_s": 12.0139,
+     "signal": "spine_02.rotation.X",
+     "period_s_source": 1.92,
+     "period_s_scene": 3.19,
+     "periodicity": 0.336,
+     "amplitude_std": 0.558
+    },
+    {
+     "source_in": 58.625,
+     "source_out": 64.5,
+     "scene_len_s": 9.7917
+    },
+    {
+     "source_in": 79.0833,
+     "source_out": 85.3333,
+     "scene_len_s": 10.4167,
+     "signal": "spine_03.rotation.X",
+     "period_s_source": 2.83,
+     "period_s_scene": 4.72,
+     "periodicity": 0.22,
+     "amplitude_std": 0.202
+    }
+   ]
+  },
+  {
+   "id": "Shore02_F52",
+   "calm_runs": [
+    {
+     "source_in": 4.375,
+     "source_out": 13.2083,
+     "scene_len_s": 14.7222,
+     "signal": "spine_02.rotation.Z",
+     "period_s_source": 1.71,
+     "period_s_scene": 2.85,
+     "periodicity": 0.422,
+     "amplitude_std": 1.414
+    },
+    {
+     "source_in": 16.4583,
+     "source_out": 63.2083,
+     "scene_len_s": 77.9167,
+     "signal": "pelvis.rotation.Z",
+     "period_s_source": 7.0,
+     "period_s_scene": 11.67,
+     "periodicity": 0.61,
+     "amplitude_std": 20.902
+    }
+   ]
+  },
+  {
+   "id": "Shore03_M59",
+   "calm_runs": [
+    {
+     "source_in": 1.1667,
+     "source_out": 19.125,
+     "scene_len_s": 29.9306,
+     "signal": "spine_02.rotation.Z",
+     "period_s_source": 2.42,
+     "period_s_scene": 4.03,
+     "periodicity": 0.475,
+     "amplitude_std": 1.362
+    },
+    {
+     "source_in": 23.9167,
+     "source_out": 31.4583,
+     "scene_len_s": 12.5694,
+     "signal": "pelvis.rotation.Y",
+     "period_s_source": 3.83,
+     "period_s_scene": 6.39,
+     "periodicity": 0.206,
+     "amplitude_std": 1.121
+    },
+    {
+     "source_in": 37.9583,
+     "source_out": 52.5,
+     "scene_len_s": 24.2361,
+     "signal": "pelvis.rotation.Z",
+     "period_s_source": 7.08,
+     "period_s_scene": 11.81,
+     "periodicity": 0.436,
+     "amplitude_std": 26.654
+    },
+    {
+     "source_in": 57.5,
+     "source_out": 61.25,
+     "scene_len_s": 6.25,
+     "signal": "spine_02.rotation.Z",
+     "period_s_source": 2.42,
+     "period_s_scene": 4.03,
+     "periodicity": 0.321,
+     "amplitude_std": 1.222
+    },
+    {
+     "source_in": 70.0417,
+     "source_out": 73.9583,
+     "scene_len_s": 6.5278,
+     "signal": "spine_02.rotation.X",
+     "period_s_source": 2.04,
+     "period_s_scene": 3.4,
+     "periodicity": 0.279,
+     "amplitude_std": 0.718
+    }
+   ]
+  },
+  {
+   "id": "Shore04_F55",
+   "calm_runs": [
+    {
+     "source_in": 3.5833,
+     "source_out": 20.5,
+     "scene_len_s": 28.1944,
+     "signal": "pelvis.translation.X",
+     "period_s_source": 6.67,
+     "period_s_scene": 11.11,
+     "periodicity": 0.413,
+     "amplitude_std": 6.161
+    },
+    {
+     "source_in": 24.375,
+     "source_out": 35.0,
+     "scene_len_s": 17.7083,
+     "signal": "spine_02.rotation.Z",
+     "period_s_source": 2.79,
+     "period_s_scene": 4.65,
+     "periodicity": 0.491,
+     "amplitude_std": 1.212
+    },
+    {
+     "source_in": 71.7083,
+     "source_out": 89.5417,
+     "scene_len_s": 29.7222,
+     "signal": "pelvis.rotation.Y",
+     "period_s_source": 2.75,
+     "period_s_scene": 4.58,
+     "periodicity": 0.474,
+     "amplitude_std": 1.722
+    },
+    {
+     "source_in": 100.4167,
+     "source_out": 104.6667,
+     "scene_len_s": 7.0833
+    }
+   ]
+  },
+  {
+   "id": "Shore05_M53",
+   "calm_runs": [
+    {
+     "source_in": 0.0,
+     "source_out": 10.875,
+     "scene_len_s": 18.125,
+     "signal": "spine_02.rotation.X",
+     "period_s_source": 4.25,
+     "period_s_scene": 7.08,
+     "periodicity": 0.408,
+     "amplitude_std": 1.614
+    },
+    {
+     "source_in": 18.3333,
+     "source_out": 32.375,
+     "scene_len_s": 23.4028,
+     "signal": "spine_02.rotation.Y",
+     "period_s_source": 2.08,
+     "period_s_scene": 3.47,
+     "periodicity": 0.532,
+     "amplitude_std": 4.904
+    },
+    {
+     "source_in": 74.375,
+     "source_out": 86.4583,
+     "scene_len_s": 20.1389,
+     "signal": "pelvis.rotation.Y",
+     "period_s_source": 3.75,
+     "period_s_scene": 6.25,
+     "periodicity": 0.485,
+     "amplitude_std": 2.549
+    }
+   ]
+  },
+  {
+   "id": "Shore06_F25",
+   "calm_runs": [
+    {
+     "source_in": 1.3333,
+     "source_out": 10.8333,
+     "scene_len_s": 15.8333,
+     "signal": "pelvis.translation.Y",
+     "period_s_source": 2.88,
+     "period_s_scene": 4.79,
+     "periodicity": 0.441,
+     "amplitude_std": 2.847
+    },
+    {
+     "source_in": 14.0417,
+     "source_out": 50.125,
+     "scene_len_s": 60.1389,
+     "signal": "pelvis.translation.X",
+     "period_s_source": 3.75,
+     "period_s_scene": 6.25,
+     "periodicity": 0.713,
+     "amplitude_std": 13.117
+    },
+    {
+     "source_in": 78.1667,
+     "source_out": 91.4583,
+     "scene_len_s": 22.1528,
+     "signal": "pelvis.rotation.Y",
+     "period_s_source": 1.96,
+     "period_s_scene": 3.26,
+     "periodicity": 0.68,
+     "amplitude_std": 2.114
+    }
+   ]
+  }
+ ]
+}
