@@ -92,16 +92,61 @@ Functions are too soft, but it needs authored puppet transforms and a rendered c
 - `Tools/ShadowGobo/P6_TestBird/`: 24 frames, 8 fps, 3 seconds, 2048 atlas, 6 x 4 cells, visible operating rod, plus
   `preview.gif`, `contact.png`, and manifest. **[measured: generator read-back; source
   `Tools/ShadowGobo/make_p6_test_bird_flipbook.py:21-108`]**
-- Offline harness: **57 passed / 0 failed**, including positive plan/state controls and negative range, path, label,
+- Offline harness (original): **57 passed / 0 failed**, including positive plan/state controls and negative range, path, label,
   dirty-package, drift, and safety controls. Existing flipbook pipeline self-test: **8 / 8 passed**, including its
   negative no-flat-field control. **[measured: `Tools/ShadowGobo/P6_TestBird/offline_harness_report.json:1-8`,
   `Tools/ShadowGobo/P6_TestBird/upstream_pipeline_selftest_report.json:1-16`; harness controls at
   `Saved/CodexConductor/test_animated_gobo_offline.py:59-167`]**
 
+## Fixes after review, 8 Oct (branch `gobo-fixes`; still not run in Unreal)
+
+The 48d30b1 tool would not have worked as delivered:
+
+1. **UE 5.8 has no master-track Python API.** The tool called `get_master_tracks`, `add_master_track` and
+   `remove_master_track`. The SequencerScripting plugin has no "master" symbol at all; only `GetTracks`, `AddTrack` and
+   `RemoveTrack` exist (`MovieSceneSequenceExtensions.h:49,79,89`), and `MovieScene.h:1424` keeps only
+   `MasterTracks_DEPRECATED`. **[declaration-proven]** DRY never called them, so it would have reported
+   `apply_ready=1`, and APPLY would then have failed before mutating. **[inferred from the code path]** Fixed: the tool now
+   uses `get_tracks`/`add_track`/`remove_track`, and DRY probes all three on the live sequence before anything else.
+2. **Key times were in the wrong unit.** `add_scalar_parameter_key` is the raw section UFUNCTION taking an `FFrameNumber`
+   (`MovieSceneParameterSection.h:346`) **[declaration-proven]**, so display frames 175/250 would most likely have landed
+   as ticks, about 0.01 s into the sequence. **[inferred: the header does not name the unit]** Fixed: keys are display
+   frame x (tick resolution / display rate), required to be an exact integer (29.97 fps refuses). They are read back
+   through the scripting channel, whose `GetTime` defaults to display rate (`MovieSceneScriptingChannel.h:30`)
+   **[declaration-proven]**, so a unit error fails the pre-save read-back. The section range `[start, end+1)` is also
+   read back.
+3. **The tool could run only once.** The master and MPC were create-only, and there was one global record. Now they are
+   shared: they are created on first use, and later runs reuse them after a structural check (light-function domain,
+   atlas flag, the exact scalar set, a single `FlipbookAtlas` texture parameter, MPC `Frame`, master referencing the
+   MPC). Per-run texture and MI stay create-only. Plans and records live in `animated_gobo_plans/<run_id>.json` and
+   `animated_gobo_records/<run_id>.json`. One gobo track per sequence is enforced in DRY. REVERT deletes only what that
+   run created, and refuses while later runs still reference it (revert in reverse order).
+4. **The last frame flashed.** The end key was `Frames-1`, which gave the last cell 1 of 76 frames. It is now `Frames`,
+   so cells get 3-4 frames each and the shader clamps. **[measured: harness F09/F10]**
+5. **Speed is reported.** DRY logs `ANIMATED_GOBO_TIMING` when the keyed range plays the flipbook more than 2% off its
+   manifest fps, and gives `native_frame_end`. For example, 175-250 at 30 fps plays the 8 fps bird at 1.2x; native ends
+   at 265. **[measured: harness F07]**
+6. **Blur is bounded by the real gutter.** `BlurUV` above `gutter_px / atlas_px` is refused. The video pipeline's
+   default 4 px gutter on a 4096 atlas allows 0.00098. **[measured: harness B13c/B13d]**
+
+Still open: every gobo shares one MPC `Frame`, so two Interactions playing at once would show the same frame
+**[inferred; not expected in this show]**. LF-atlas sharpness is unmeasured. Playback end is treated as exclusive
+**[inferred]**.
+
+Offline harness after the fixes: **99 passed / 0 failed**. **[measured]**
+
+## Video to flipbook (exists since 6 Oct)
+
+`Tools/ShadowGobo/make_gobo_flipbook.py` turns a phone take into the atlas, preview GIF, contact sheet and manifest. See
+`Docs/ShadowGoboPipeline_2026-10-06.md`. **Dark paper cutouts on a light background are its default polarity** (white
+passes, black blocks; no `--invert`). Its self-test passed 8/8 again on 8 Oct, and its manifest plans cleanly in the fixed
+tool (6x6 grid, 32 frames, 8 fps, 4 px gutter). **[measured]**
+
 ## Conductor run order (not run here)
 
 1. Review `Tools/ShadowGobo/P6_TestBird/preview.gif`.
-2. Copy this example to `Saved/CodexConductor/animated_gobo_args.json`; use one or both exact labels:
+2. Copy this example to `Saved/CodexConductor/animated_gobo_args.json`, using one or both exact labels. `run_id` is
+   required, and DRY and APPLY share it:
 
 ```json
 {
@@ -117,16 +162,19 @@ Functions are too soft, but it needs authored puppet transforms and a rendered c
 }
 ```
 
-3. Execute `animated_gobo_request.json`; require `ANIMATED_GOBO_DRY_OK ... apply_ready=1`. **[inferred until run]**
-4. Change mode/confirm to `APPLY` / `APPLY ANIMATED_GOBO`, keep the DRY run id/args, execute; require
-   `ANIMATED_GOBO_APPLY_OK_PENDING_VERIFY`. **[inferred until run]**
-5. In a **later MCP call**, change mode/confirm to `VERIFY` / `VERIFY ANIMATED_GOBO`; require
-   `ANIMATED_GOBO_SUCCESS ... dirty=0`. **[inferred until run]**
-6. Render frames 175, ~212, 250 on the curtain and query `r.LightFunctionAtlas`,
-   `r.Deferred.UsesLightFunctionAtlas`, `r.VolumetricFog.LightFunction`, and runtime slot size. Check U/V handedness,
-   haze, silhouette legibility, and whether both spots match across the sleight. **[inferred acceptance procedure]**
-7. Revert only with `REVERT ANIMATED_GOBO DELETE CREATED ASSETS`; the tool backs up sequence and created packages before
-   deletion. **[declaration-proven: `animated_gobo.py:693-756`]**
+3. Execute `animated_gobo_request.json`. Require `ANIMATED_GOBO_DRY_OK|run=AG-I2-TEST-001|apply_ready=1`, and read the
+   `tpf=` and `reuse=` fields and any `ANIMATED_GOBO_TIMING` warning. **[inferred until run]**
+4. Change mode/confirm to `APPLY` / `APPLY ANIMATED_GOBO`, keeping the same run_id and args, and execute. Require
+   `ANIMATED_GOBO_APPLY_OK_PENDING_VERIFY|run=AG-I2-TEST-001`. **[inferred until run]**
+5. In a **later MCP call**, set mode/confirm to `VERIFY` / `VERIFY ANIMATED_GOBO`, a NEW `run_id` (e.g. `AG-I2-TEST-001-V`)
+   and `"apply_run": "AG-I2-TEST-001"`. Require `ANIMATED_GOBO_SUCCESS|run=AG-I2-TEST-001-V|... dirty=0`.
+   **[inferred until run]**
+6. Render frames 175, ~212 and 250 on the curtain, and query `r.LightFunctionAtlas`,
+   `r.Deferred.UsesLightFunctionAtlas`, `r.VolumetricFog.LightFunction` and the runtime slot size. Check U/V
+   handedness, haze, silhouette legibility, and whether both spots match across the sleight. **[inferred acceptance
+   procedure]**
+7. Revert only with `REVERT ANIMATED_GOBO DELETE CREATED ASSETS`, a new run_id and `apply_run`. The tool backs up the
+   sequence and the created packages before deleting. **[declaration-proven: `run_revert` in `animated_gobo.py`]**
 
 ## Open questions for Gary / conductor
 

@@ -69,8 +69,11 @@ check("A07 contact and animated preview ship", (OUT / "contact.png").is_file() a
 check("A08 gutter is non-zero and fits cell", 0 < gutter * 2 < cell, (gutter, cell))
 
 # B. Pure plan and negative controls.
-check("B01 frame keys map range to frame 0..23", PLAN["frame_keys"] == [[175, 0.0], [250, 23.0]], PLAN["frame_keys"])
-check("B02 plan creates exactly master/MPC/texture/MI", PLAN["created_assets"] == [ag.MASTER, ag.MPC, RAW["texture_path"], RAW["mi_path"]])
+check("B01 frame keys map range to 0..Frames (end value = cell count)", PLAN["frame_keys"] == [[175, 0.0], [250, 24.0]], PLAN["frame_keys"])
+check("B02 fresh project creates master/MPC/texture/MI", ag.created_assets_for(PLAN, []) == [ag.MASTER, ag.MPC, RAW["texture_path"], RAW["mi_path"]])
+check("B02b existing master+MPC are reused, only texture/MI created",
+      ag.created_assets_for(PLAN, [ag.MASTER, ag.MPC]) == [RAW["texture_path"], RAW["mi_path"]])
+check("B02c only missing shared asset is created", ag.created_assets_for(PLAN, [ag.MPC]) == [ag.MASTER, RAW["texture_path"], RAW["mi_path"]])
 check("B03 look defaults are Gary-tunable args", all(k in PLAN["params"] for k in ("BlurUV", "Softness", "Contrast", "Depth", "Scale", "FlipU", "FlipV")))
 check("B04 planning is deterministic", ag.plan_from_args(ARGS)["digest"] == PLAN["digest"])
 check("B05 DRY confirm exact", ag.confirm_ok("DRY", "DRY ANIMATED_GOBO") and not ag.confirm_ok("DRY", "APPLY ANIMATED_GOBO"))
@@ -83,14 +86,36 @@ raises("B11 -control texture outside create-only root", "TEXTURE_PATH", lambda: 
 raises("B12 -control unknown look parameter", "UNKNOWN_PARAMS", lambda: ag.normalized_args(dict(RAW, params={"BlurMagic": 1})))
 raises("B13 -control invalid softness", "LOOK_PARAMS", lambda: ag.plan_from_args(ag.normalized_args(dict(RAW, params={"Softness": 0.8}))))
 raises("B13b -control blur exceeds cell gutter", "LOOK_PARAMS", lambda: ag.plan_from_args(ag.normalized_args(dict(RAW, params={"BlurUV": 0.02}))))
+import tempfile  # noqa: E402
+_tmp = Path(tempfile.mkdtemp(prefix="gobo_harness_"))
+_thin = json.loads(MANIFEST.read_text(encoding="utf-8"))
+_thin["atlas"]["gutter_px"] = 1  # 1/2048 = 0.00049 atlas uv < default BlurUV 0.00075
+(_tmp / "manifest.json").write_text(json.dumps(_thin), encoding="utf-8")
+raises("B13c -control blur wider than a thin gutter", "exceeds the 1 px gutter",
+       lambda: ag.plan_from_args(ag.normalized_args(dict(RAW, manifest=str(_tmp / "manifest.json")))))
+check("B13d thin gutter plans when blur fits inside it", ag.plan_from_args(ag.normalized_args(dict(
+    RAW, manifest=str(_tmp / "manifest.json"), params={"BlurUV": 0.0004})))["params"]["BlurUV"] == 0.0004)
 raises("B14 -control missing atlas", "ATLAS_MISSING", lambda: ag.normalized_args(dict(RAW, atlas_png=str(OUT / "missing.png"))))
+raises("B15 -control missing run_id", "RUN_ID", lambda: ag.normalized_args({k: v for k, v in RAW.items() if k != "run_id"}))
+raises("B16 -control path-unsafe run_id", "RUN_ID", lambda: ag.normalized_args(dict(RAW, run_id="../x")))
+VERIFY_RAW = dict(RAW, mode="VERIFY", confirm="VERIFY ANIMATED_GOBO", run_id="HARNESS-V", apply_run="HARNESS")
+check("B17 VERIFY with apply_run normalizes", ag.normalized_args(VERIFY_RAW)["apply_run"] == "HARNESS")
+raises("B18 -control VERIFY without apply_run", "APPLY_RUN", lambda: ag.normalized_args(
+    {k: v for k, v in VERIFY_RAW.items() if k != "apply_run"}))
+raises("B19 -control REVERT reusing the APPLY run_id", "APPLY_RUN", lambda: ag.normalized_args(
+    dict(VERIFY_RAW, mode="REVERT", run_id="HARNESS")))
+check("B20 plan and record files are per run", ag.plan_file("X", "R1") != ag.plan_file("X", "R2") and
+      ag.record_file("X", "R1") != ag.record_file("X", "R2"))
 
 # C. Preflight positive and every important refusal.
 CLEAN = {"pie": False, "sequencer_open": False, "world_ok": True,
          "census": {"content": [], "maps": []},
          "label_counts": {label: 1 for label in ARGS["light_labels"]},
-         "record_exists": False, "existing_targets": [], "playback": [0, 2183]}
+         "record_exists": False, "existing_own": [], "existing_shared": [], "shared_problems": [],
+         "owned_track_count": 0, "ticks_per_frame": 800, "playback": [0, 2183]}
 check("C01 positive DRY preflight", ag.preflight_refusals("DRY", ARGS, CLEAN, PLAN) == [])
+check("C01b positive DRY preflight reusing valid shared assets", ag.preflight_refusals(
+    "DRY", ARGS, dict(CLEAN, existing_shared=[ag.MASTER, ag.MPC]), PLAN) == [])
 cases = [
     ("PIE", {"pie": True}, "PIE_OR_SIE_ACTIVE"),
     ("Sequencer open", {"sequencer_open": True}, "SEQUENCER_IS_OPEN"),
@@ -99,7 +124,12 @@ cases = [
     ("dirty map", {"census": {"content": [], "maps": ["/Game/M"]}}, "DIRTY_CENSUS"),
     ("missing label", {"label_counts": dict(CLEAN["label_counts"], **{"Shadow Play Spot (Mouth)": 0})}, "LIGHT_LABEL_COUNT"),
     ("duplicate label", {"label_counts": dict(CLEAN["label_counts"], **{"Shadow Play Spot (Mouth)": 2})}, "LIGHT_LABEL_COUNT"),
-    ("existing create target", {"existing_targets": [ag.MASTER]}, "CREATE_ONLY_TARGET_EXISTS"),
+    ("existing per-run texture", {"existing_own": [RAW["texture_path"]]}, "CREATE_ONLY_TARGET_EXISTS"),
+    ("existing per-run MI", {"existing_own": [RAW["mi_path"]]}, "CREATE_ONLY_TARGET_EXISTS"),
+    ("invalid shared asset", {"existing_shared": [ag.MASTER], "shared_problems": ["MASTER_WITHOUT_MPC"]}, "SHARED_ASSET_INVALID"),
+    ("owned track already on sequence", {"owned_track_count": 1}, "OWNED_TRACK_EXISTS"),
+    ("non-integer tick rate", {"ticks_per_frame": None, "rate_error": "TICKS_PER_FRAME_NOT_INTEGER"}, "TICK_RATE"),
+    ("end key on exclusive playback end", {"playback": [0, 250]}, "KEYS_OUTSIDE_PLAYBACK"),
     ("existing record", {"record_exists": True}, "RECORD_EXISTS"),
     ("keys outside playback", {"playback": [200, 220]}, "KEYS_OUTSIDE_PLAYBACK"),
 ]
@@ -110,7 +140,7 @@ for label, delta, code in cases:
     check("C -control %s" % label, any(code in row for row in got), got)
 bad_confirm = dict(ARGS, confirm="APPLY ANIMATED_GOBO")
 check("C12 -control confirm mismatch", any("CONFIRM_MISMATCH" in row for row in ag.preflight_refusals("DRY", bad_confirm, CLEAN, PLAN)))
-verify_state = dict(CLEAN, record_exists=True, existing_targets=PLAN["created_assets"])
+verify_state = dict(CLEAN, record_exists=True, existing_own=PLAN["own_assets"], existing_shared=list(ag.SHARED_ASSETS))
 check("C13 VERIFY allows its recorded assets to exist", ag.preflight_refusals("VERIFY", dict(ARGS, confirm="VERIFY ANIMATED_GOBO"), verify_state, PLAN) == [])
 check("C14 -control VERIFY without record", any("NOTHING_TO_VERIFY" in r for r in ag.preflight_refusals(
     "VERIFY", dict(ARGS, confirm="VERIFY ANIMATED_GOBO"), CLEAN, PLAN)))
@@ -121,22 +151,75 @@ AFTER = ag.apply_model(BEFORE, PLAN)
 RECORD = {"snapshot_before": BEFORE, "snapshot_after": AFTER}
 check("D01 apply model assigns MI to both spots", all(AFTER["lights"][v] == PLAN["mi"] for v in ARGS["light_labels"]))
 check("D02 apply model adds one named Frame track", AFTER["track"]["name"] == ag.TRACK_NAME and AFTER["track"]["keys"] == PLAN["frame_keys"])
+check("D02b apply model expects section range [start, end+1)", AFTER["track"]["range"] == [175, 251], AFTER["track"]["range"])
 check("D03 exact APPLY snapshot passes", ag.snapshot_diff(AFTER, RECORD["snapshot_after"]) == [])
 check("D04 exact REVERT restores before", ag.revert_model(AFTER, RECORD) == BEFORE)
 drift = copy.deepcopy(AFTER)
-drift["track"]["keys"][1][1] = 22.5
+drift["track"]["keys"][1][1] = 23.0
 check("D05 -control keyed frame drift is detected", bool(ag.snapshot_diff(drift, RECORD["snapshot_after"])))
 drift = copy.deepcopy(AFTER)
 drift["lights"][ARGS["light_labels"][0]] = "/Game/X/MI_HandEdit"
 check("D06 -control light-function drift is detected", bool(ag.snapshot_diff(drift, RECORD["snapshot_after"])))
-check("D07 exact dirty census passes", ag.exact_dirty({"content": PLAN["created_assets"] + [PLAN["sequence"]], "maps": []},
-                                                       PLAN["created_assets"] + [PLAN["sequence"]]) == [])
+check("D07 exact dirty census passes", ag.exact_dirty({"content": ag.created_assets_for(PLAN, []) + [PLAN["sequence"]], "maps": []},
+                                                       ag.created_assets_for(PLAN, []) + [PLAN["sequence"]]) == [])
 check("D08 -control unexpected dirty package fails", bool(ag.exact_dirty(
-    {"content": PLAN["created_assets"] + [PLAN["sequence"], "/Game/Other"], "maps": []},
-    PLAN["created_assets"] + [PLAN["sequence"]])))
+    {"content": ag.created_assets_for(PLAN, []) + [PLAN["sequence"], "/Game/Other"], "maps": []},
+    ag.created_assets_for(PLAN, []) + [PLAN["sequence"]])))
+tick_drift = copy.deepcopy(AFTER)
+tick_drift["track"]["keys"] = [[0.21875, 0.0], [0.3125, 24.0]]  # tick numbers read back as display frames at 800 tpf
+check("D05b -control keys landing in tick units are detected", bool(ag.snapshot_diff(tick_drift, RECORD["snapshot_after"])))
 check("D09 -control dirty map fails", bool(ag.exact_dirty(
-    {"content": PLAN["created_assets"] + [PLAN["sequence"]], "maps": ["/Game/Map"]},
-    PLAN["created_assets"] + [PLAN["sequence"]])))
+    {"content": ag.created_assets_for(PLAN, []) + [PLAN["sequence"]], "maps": ["/Game/Map"]},
+    ag.created_assets_for(PLAN, []) + [PLAN["sequence"]])))
+
+# F. Frame-time conversion, channel naming, timing and shared-asset validation.
+check("F01 30 fps at 24000 ticks = 800 ticks/frame", ag.ticks_per_display_frame(24000, 1, 30, 1) == 800)
+check("F02 24 fps at 24000 ticks = 1000 ticks/frame", ag.ticks_per_display_frame(24000, 1, 24, 1) == 1000)
+raises("F03 -control 29.97 fps at 24000 ticks refuses rounding", "TICKS_PER_FRAME_NOT_INTEGER",
+       lambda: ag.ticks_per_display_frame(24000, 1, 30000, 1001))
+raises("F04 -control zero rate", "FRAME_RATE", lambda: ag.ticks_per_display_frame(24000, 1, 0, 1))
+check("F05 Frame channel names accepted (plain and suffixed)", ag.channel_is_frame("Frame") and ag.channel_is_frame("Frame_183"))
+check("F06 -control other channel names rejected", not any(ag.channel_is_frame(n) for n in
+      ("Frames", "FrameRate", "Location.Y_183", "frame", "Frame_")))
+timing30 = ag.timing_report(PLAN, 30.0)
+check("F07 timing at 30 fps flags 1.2x speed and native end 265",
+      abs(timing30["speed_vs_take"] - 1.2) < 1e-9 and timing30["native_frame_end"] == 265, timing30)
+timing25 = ag.timing_report(PLAN, 25.0)
+check("F08 timing at 25 fps is native speed", abs(timing25["speed_vs_take"] - 1.0) < 1e-9, timing25)
+
+
+def cell_counts(keys, frames):
+    (s0, v0), (s1, v1) = keys
+    counts = [0] * frames
+    for t in range(s0, s1 + 1):  # section range [s0, s1+1)
+        value = v0 + (v1 - v0) * (t - s0) / float(s1 - s0)
+        counts[int(min(max(value, 0.0), frames - 1.0) + 1e-4)] += 1
+    return counts
+
+
+counts = cell_counts(PLAN["frame_keys"], 24)
+check("F09 every cell holds ~equal frames (3-5 of 76)", min(counts) >= 3 and max(counts) <= 5 and sum(counts) == 76, counts)
+old_counts = cell_counts([[175, 0.0], [250, 23.0]], 24)
+check("F10 -control old Frames-1 end key starves the last cell", old_counts[-1] == 1, old_counts)
+GOOD = {"master": {"domain_ok": True, "atlas_compat": True, "scalars": list(ag.SCALAR_DEFAULTS),
+                   "textures": [ag.TEXTURE_PARAMETER]},
+        "mpc": {"scalars": ["Frame"]}, "mpc_referencers": [ag.MASTER]}
+check("F11 valid shared assets pass", ag.shared_asset_problems(GOOD) == [])
+check("F12 nothing existing passes", ag.shared_asset_problems({"master": None, "mpc": None}) == [])
+bad_cases = [
+    ("wrong domain", lambda d: d["master"].update(domain_ok=False), "MASTER_DOMAIN"),
+    ("atlas compat off", lambda d: d["master"].update(atlas_compat=False), "MASTER_ATLAS_COMPAT"),
+    ("missing scalar", lambda d: d["master"].update(scalars=list(ag.SCALAR_DEFAULTS)[1:]), "MASTER_SCALARS"),
+    ("extra texture param", lambda d: d["master"].update(textures=["FlipbookAtlas", "Other"]), "MASTER_TEXTURES"),
+    ("MPC without Frame", lambda d: d["mpc"].update(scalars=["Other"]), "MPC_FRAME"),
+    ("master without MPC", lambda d: d.update(mpc=None), "MASTER_WITHOUT_MPC"),
+    ("master not reading MPC", lambda d: d.update(mpc_referencers=[]), "MASTER_NOT_ON_MPC"),
+]
+for label, mutate, code in bad_cases:
+    desc = copy.deepcopy(GOOD)
+    mutate(desc)
+    got = ag.shared_asset_problems(desc)
+    check("F -control shared %s" % label, any(code in row for row in got), got)
 
 # E. Static safety contract: cheap but catches accidental erosion of house rules.
 source = (HERE / "animated_gobo.py").read_text(encoding="utf-8")
@@ -154,6 +237,13 @@ check("E09 offline import did not load Unreal", ag.unreal is None)
 check("E10 revert refuses external referencers before delete", source.index("REVERT_EXTERNAL_REFERENCERS") < source.index("delete_asset(path)"))
 check("E11 existing make_gobo_flipbook manifest names are accepted", all(name in source for name in
       ("GoboCols", "GoboRows", "GoboFrames", "GoboGutterUV", "GoboCellUV")))
+check("E12 no UE5.8-absent master-track API", not any(n in source for n in
+      ("get_master_tracks", "add_master_track", "remove_master_track")))
+check("E13 track uses get_tracks/add_track/remove_track", all(n in source for n in
+      ("seq.get_tracks()", "seq.add_track(", "seq.remove_track(")))
+check("E14 keys are converted to ticks", "unreal.FrameNumber(int(frame) * ticks_per_frame)" in source)
+check("E15 revert deletes only what its run created", "if path in created and" in source)
+check("E16 no single global record file", "RECORD_NAME" not in source and "PLAN_NAME" not in source)
 
 passed = sum(1 for _, ok, _ in RESULTS if ok)
 failed = [(name, detail) for name, ok, detail in RESULTS if not ok]

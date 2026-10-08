@@ -1,6 +1,6 @@
 {
   "marker": "ANIMATED_GOBO_HARNESS",
-  "passed": 57,
+  "passed": 99,
   "failed": 0,
   "results": [
     {
@@ -95,7 +95,7 @@
       ]
     },
     {
-      "name": "B01 frame keys map range to frame 0..23",
+      "name": "B01 frame keys map range to 0..Frames (end value = cell count)",
       "pass": true,
       "detail": [
         [
@@ -104,12 +104,22 @@
         ],
         [
           250,
-          23.0
+          24.0
         ]
       ]
     },
     {
-      "name": "B02 plan creates exactly master/MPC/texture/MI",
+      "name": "B02 fresh project creates master/MPC/texture/MI",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "B02b existing master+MPC are reused, only texture/MI created",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "B02c only missing shared asset is created",
       "pass": true,
       "detail": ""
     },
@@ -174,12 +184,57 @@
       "detail": "LOOK_PARAMS|blur 0..0.003, softness 0..0.49, contrast >=0, depth 0..1, scale >0"
     },
     {
+      "name": "B13c -control blur wider than a thin gutter",
+      "pass": true,
+      "detail": "LOOK_PARAMS|BlurUV 0.00075 exceeds the 1 px gutter (0.00049 atlas uv)"
+    },
+    {
+      "name": "B13d thin gutter plans when blur fits inside it",
+      "pass": true,
+      "detail": ""
+    },
+    {
       "name": "B14 -control missing atlas",
       "pass": true,
-      "detail": "ATLAS_MISSING|E:\\PussStage\\Tools\\ShadowGobo\\P6_TestBird\\missing.png"
+      "detail": "ATLAS_MISSING|E:\\PussStage_gobo\\Tools\\ShadowGobo\\P6_TestBird\\missing.png"
+    },
+    {
+      "name": "B15 -control missing run_id",
+      "pass": true,
+      "detail": "RUN_ID|need explicit [A-Za-z0-9_-]{1,64}; DRY and APPLY share it|''"
+    },
+    {
+      "name": "B16 -control path-unsafe run_id",
+      "pass": true,
+      "detail": "RUN_ID|need explicit [A-Za-z0-9_-]{1,64}; DRY and APPLY share it|'../x'"
+    },
+    {
+      "name": "B17 VERIFY with apply_run normalizes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "B18 -control VERIFY without apply_run",
+      "pass": true,
+      "detail": "APPLY_RUN|VERIFY needs apply_run = the APPLY run_id|None"
+    },
+    {
+      "name": "B19 -control REVERT reusing the APPLY run_id",
+      "pass": true,
+      "detail": "APPLY_RUN|REVERT needs its own run_id, not the APPLY one"
+    },
+    {
+      "name": "B20 plan and record files are per run",
+      "pass": true,
+      "detail": ""
     },
     {
       "name": "C01 positive DRY preflight",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "C01b positive DRY preflight reusing valid shared assets",
       "pass": true,
       "detail": ""
     },
@@ -233,17 +288,52 @@
       ]
     },
     {
-      "name": "C -control existing create target",
+      "name": "C -control existing per-run texture",
       "pass": true,
       "detail": [
-        "CREATE_ONLY_TARGET_EXISTS|['/Game/InfinityStage/Lighting/Gobo/M_ShadowGobo_LightFunction']"
+        "CREATE_ONLY_TARGET_EXISTS|['/Game/InfinityStage/Lighting/Gobo/T_Gobo_P6_TestBird_6x4']"
+      ]
+    },
+    {
+      "name": "C -control existing per-run MI",
+      "pass": true,
+      "detail": [
+        "CREATE_ONLY_TARGET_EXISTS|['/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_P6_TestBird']"
+      ]
+    },
+    {
+      "name": "C -control invalid shared asset",
+      "pass": true,
+      "detail": [
+        "SHARED_ASSET_INVALID|['MASTER_WITHOUT_MPC']"
+      ]
+    },
+    {
+      "name": "C -control owned track already on sequence",
+      "pass": true,
+      "detail": [
+        "OWNED_TRACK_EXISTS|1|one gobo track per sequence"
+      ]
+    },
+    {
+      "name": "C -control non-integer tick rate",
+      "pass": true,
+      "detail": [
+        "TICK_RATE|TICKS_PER_FRAME_NOT_INTEGER"
+      ]
+    },
+    {
+      "name": "C -control end key on exclusive playback end",
+      "pass": true,
+      "detail": [
+        "KEYS_OUTSIDE_PLAYBACK|keys=[175, 250] playback=[0, 250]"
       ]
     },
     {
       "name": "C -control existing record",
       "pass": true,
       "detail": [
-        "RECORD_EXISTS"
+        "RECORD_EXISTS|run=HARNESS"
       ]
     },
     {
@@ -279,6 +369,14 @@
       "detail": ""
     },
     {
+      "name": "D02b apply model expects section range [start, end+1)",
+      "pass": true,
+      "detail": [
+        175,
+        251
+      ]
+    },
+    {
       "name": "D03 exact APPLY snapshot passes",
       "pass": true,
       "detail": ""
@@ -309,9 +407,189 @@
       "detail": ""
     },
     {
+      "name": "D05b -control keys landing in tick units are detected",
+      "pass": true,
+      "detail": ""
+    },
+    {
       "name": "D09 -control dirty map fails",
       "pass": true,
       "detail": ""
+    },
+    {
+      "name": "F01 30 fps at 24000 ticks = 800 ticks/frame",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "F02 24 fps at 24000 ticks = 1000 ticks/frame",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "F03 -control 29.97 fps at 24000 ticks refuses rounding",
+      "pass": true,
+      "detail": "TICKS_PER_FRAME_NOT_INTEGER|4004/5"
+    },
+    {
+      "name": "F04 -control zero rate",
+      "pass": true,
+      "detail": "FRAME_RATE|non-positive|24000/1 0/1"
+    },
+    {
+      "name": "F05 Frame channel names accepted (plain and suffixed)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "F06 -control other channel names rejected",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "F07 timing at 30 fps flags 1.2x speed and native end 265",
+      "pass": true,
+      "detail": {
+        "display_fps": 30.0,
+        "requested_frames": 75,
+        "display_frames_per_cell": 3.125,
+        "take_fps": 8.0,
+        "native_frames": 90.0,
+        "native_frame_end": 265,
+        "speed_vs_take": 1.2
+      }
+    },
+    {
+      "name": "F08 timing at 25 fps is native speed",
+      "pass": true,
+      "detail": {
+        "display_fps": 25.0,
+        "requested_frames": 75,
+        "display_frames_per_cell": 3.125,
+        "take_fps": 8.0,
+        "native_frames": 75.0,
+        "native_frame_end": 250,
+        "speed_vs_take": 1.0
+      }
+    },
+    {
+      "name": "F09 every cell holds ~equal frames (3-5 of 76)",
+      "pass": true,
+      "detail": [
+        4,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        4,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        4,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        4
+      ]
+    },
+    {
+      "name": "F10 -control old Frames-1 end key starves the last cell",
+      "pass": true,
+      "detail": [
+        4,
+        3,
+        3,
+        4,
+        3,
+        3,
+        3,
+        4,
+        3,
+        3,
+        3,
+        4,
+        3,
+        3,
+        3,
+        4,
+        3,
+        3,
+        3,
+        4,
+        3,
+        3,
+        3,
+        1
+      ]
+    },
+    {
+      "name": "F11 valid shared assets pass",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "F12 nothing existing passes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "F -control shared wrong domain",
+      "pass": true,
+      "detail": [
+        "MASTER_DOMAIN"
+      ]
+    },
+    {
+      "name": "F -control shared atlas compat off",
+      "pass": true,
+      "detail": [
+        "MASTER_ATLAS_COMPAT"
+      ]
+    },
+    {
+      "name": "F -control shared missing scalar",
+      "pass": true,
+      "detail": [
+        "MASTER_SCALARS|['BlurUV', 'CellUV', 'Contrast', 'Depth', 'FlipU', 'FlipV', 'Frames', 'GutterUV', 'Rows', 'Scale', 'Softness']"
+      ]
+    },
+    {
+      "name": "F -control shared extra texture param",
+      "pass": true,
+      "detail": [
+        "MASTER_TEXTURES|['FlipbookAtlas', 'Other']"
+      ]
+    },
+    {
+      "name": "F -control shared MPC without Frame",
+      "pass": true,
+      "detail": [
+        "MPC_FRAME"
+      ]
+    },
+    {
+      "name": "F -control shared master without MPC",
+      "pass": true,
+      "detail": [
+        "MASTER_WITHOUT_MPC|master must read /Game/InfinityStage/Lighting/Gobo/MPC_ShadowGobo"
+      ]
+    },
+    {
+      "name": "F -control shared master not reading MPC",
+      "pass": true,
+      "detail": [
+        "MASTER_NOT_ON_MPC|[]"
+      ]
     },
     {
       "name": "E01 never deletes existing material expressions",
@@ -365,6 +643,31 @@
     },
     {
       "name": "E11 existing make_gobo_flipbook manifest names are accepted",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E12 no UE5.8-absent master-track API",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E13 track uses get_tracks/add_track/remove_track",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E14 keys are converted to ticks",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E15 revert deletes only what its run created",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "E16 no single global record file",
       "pass": true,
       "detail": ""
     }
