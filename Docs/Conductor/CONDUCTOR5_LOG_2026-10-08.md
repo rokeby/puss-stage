@@ -73,3 +73,11 @@ All [measured] by success markers unless marked.
   (S3KM-…take); successive dim-outs S3FADES-20261008-053916: clam key 3:22, grazes 3:24/3:26, wave rows far→near
   3:28/3:30/3:32, warm side 3:34–3:36; only the ghost flame is left. s3_pearl_fade.py now fades 4944→5040 to match.
   Tests green.
+- ~06:00–06:16 Grease tint PLACED (HP_TINT 20261008-020151, 1034 twins, verify paired=1034; Gary: "we do need to up the
+  visibility"). Choir glint point lights keyed 0 (S3KM …glint*), then hidden + intensity 0, bulb glow 40→12, all 18 S3
+  rect lights diffuse 0.1 / specular 1 (S3RECT-20261008-060812; includes Gary's Warm Side2/3/4). S3 PPV reflections
+  (S3PPVR-20261008-061630): Hit Lighting for Reflections, reflection quality 4, scene detail 4, view/trace 40000,
+  max roughness 0.6. QUEUED for the MRQ renders: r.StaticMeshLODDistanceScale=0.25 (render cvar only; not project-wide).
+- Gary's PIE "cut-out" at S3 ~2:13 (05:44:41): clean EndPIE, no crash/error, no conductor MCP call in the window; not
+  reproduced from 2:02 with performance mode off. Vamp did NOT loop in his run (it played on into the 2:05 shot).
+  Rehearsal: Cue Desk menu "Rehearsal Transport (ignore external sound locks)" enables seek/FF in S3.
