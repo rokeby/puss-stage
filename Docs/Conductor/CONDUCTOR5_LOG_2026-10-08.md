@@ -230,3 +230,13 @@ All [measured] by success markers unless marked.
   the cause of the 05:12 TDR is unproven [inferred: a transient GPU fault, or load spike + capture].
 - Look [inferred, for Gary]: after = warmer/redder; the mid-passage frames (50/70%) read as a uniform red wash with less
   contrast, and the P03 light shafts (BeamLook) are much weaker after the atmosphere was matched to P01.
+- **Build-window queue** (held patches, review before applying, stacking order matters):
+  1. vamp end-jump: Scripts/patches/2026-10-08_vamp_end_jump.patch.
+  2. fixtures bulb light sway: Scripts/patches/2026-10-08_fixtures_bulb_light_sway.patch.
+  3. Rehearsal preference on PIE (P14): Scripts/patches/2026-10-08_rehearsal_preference_on_pie.patch.
+  4. Cueing, in this order: CD1 → CD2 → UX1 (cueing_UX1_cuedesk_panels_shed_load.patch, 520ce63; panel toggles,
+     resizable, AssetDetails shed, INFINITY_CUE_DESK_OPEN_MS).
+  5. P15 video-transition subsystem (Scripts/patches/P15VideoTransitions, larger).
+  6. P18 sky auto-hide startup ini patch (config only).
+- Curtain p02 salvage: finishing touches built Tools/CurtainBake/stream_lowpass.py (harness 10/10, not run). Waiting for
+  Gary's pick (explained smoothing, 8 Oct evening).
