@@ -49,6 +49,9 @@ MODES (args.mode; confirm '<MODE> S2V3OVERLAY'; decided_by for writes)
   APPLY    originals FIRST (path logged), record, Backups/PreS2V3Overlay-<run>; create the overlay (create-only); hide
            bindings; spawnables; nest; fingerprint diff; census EXACTLY {overlay, LS_DevScene_02}, NO map dirty (a
            Klara package dirty = stop); save overlay, then LS_DevScene_02; same-call read-back.  S2V3OV_APPLY_OK
+           Our keys are read back NUMERICALLY (core.keys_compare: same ticks, same interp, 0.01 cm / 0.001 deg after
+           wrap) -- they come back float32 (live APPLY S2V3OV-20261008-212744); the record stores keys_sha_readback
+           (sha of the READ keys) and VERIFY/RESYNC compare read-back to read-back (9 Oct fix).
   VARIANT  args.variant A|B: rewrite ONLY our 15 templates' override_materials (every material must load first, else
            nothing changes); census {overlay}; save overlay.  B's MIs are made by a later Unreal step (manifest
            'who_writes_it'), so DRY only WARNS when the variant not being applied is missing.
@@ -806,8 +809,9 @@ def _add_ours(C, ov, w, trow, mats, rng):
     s.set_range(int(rng[0]), int(rng[1]))
     s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
     got, gi = _write_keys(C, s, w["keys"], w["interps"])
-    if gi != w["interps"] or not C.keys_equal(got, w["keys"]):
-        raise RuntimeError("KEY_READBACK|%s" % w["label"])
+    cmp_ = C.keys_compare(w["keys"], w["interps"], got, gi)
+    if not cmp_["ok"]:
+        raise RuntimeError("KEY_READBACK|%s|%s" % (w["label"], C.keys_compare_text(cmp_)))
     return b, tstate
 
 
@@ -833,7 +837,8 @@ def _overlay_state(C, ov):
             row = {"guid": _guid(b), "template": _template_state(b), "transform_tracks": len(tr),
                    "sections": len(secs)}
             if len(secs) == 1:
-                row["keys_sha"] = C.keys_sha(*_read_our_keys(C, secs[0]))
+                rk, ri = _read_our_keys(C, secs[0])
+                row.update(keys=rk, interps=ri, keys_sha=C.keys_sha(rk, ri))   # READ keys: numeric compare needs them
                 row["range"] = [int(secs[0].get_start_frame()), int(secs[0].get_end_frame())]
             ours[name[len(C.OURS_PREFIX):]] = row
     return {"hide": hide, "ours": ours, "bindings": len(list(ov.get_bindings())),
@@ -849,9 +854,15 @@ def _expect_overlay(C, plan, variant):
         want["hide"][w["label"]] = {"vis_tracks": 1, "property": ["bHidden"], "sections": 1, "range": [rng],
                                     "completion": ["RESTORE_STATE"], "default": [False], "keys": 0}
         t = plan["types"][w["type"]]
-        want["ours"][w["label"]] = {"mesh": str(t["mesh"]).split(".")[0], "mats": t["variant_mats"][variant],
-                                    "keys_sha": w["keys_sha"], "range": rng, "scale": [1.0, 1.0, 1.0],
-                                    "mobility": "MOVABLE"}
+        row = {"mesh": str(t["mesh"]).split(".")[0], "mats": t["variant_mats"][variant], "range": rng,
+               "scale": [1.0, 1.0, 1.0], "mobility": "MOVABLE"}
+        if w.get("keys"):                                     # the WRITTEN keys: numeric read-back compare
+            row["keys"], row["interps"] = w["keys"], w["interps"]
+        if w.get("keys_sha_readback"):                        # read-back vs read-back (VERIFY, post-save, RESYNC)
+            row["keys_sha"] = w["keys_sha_readback"]
+        elif not w.get("keys"):                               # a record written before 9 Oct: planned sha only
+            row["keys_sha"] = w.get("keys_sha")
+        want["ours"][w["label"]] = row
     return want
 
 
@@ -875,9 +886,18 @@ def _overlay_problems(C, state, want, rates_want):
         tm = s.get("template") or {}
         got = {"mesh": tm.get("mesh"), "mats": tm.get("mats"), "keys_sha": s.get("keys_sha"), "range": s.get("range"),
                "scale": tm.get("scale"), "mobility": tm.get("mobility")}
-        bad = {f: got[f] for f in w if got[f] != w[f]}
+        bad = {f: got[f] for f in w if f not in ("keys", "interps") and got[f] != w[f]}
+        if "keys_sha" in bad:
+            bad["keys_sha"] = "read %s want %s" % (str(got["keys_sha"])[:12], str(w["keys_sha"])[:12])
         if bad:
             p.append("OURS|%s|%s" % (k, bad))
+        if "keys" in w:
+            if s.get("keys") is None:
+                p.append("OURS_KEYS|%s|no transform keys read (sections=%s)" % (k, s.get("sections")))
+            else:
+                cmp_ = C.keys_compare(w["keys"], w["interps"], s["keys"], s.get("interps"))
+                if not cmp_["ok"]:
+                    p.append("OURS_KEYS|%s|%s" % (k, C.keys_compare_text(cmp_)))
     if state["rates"] != rates_want:
         p.append("OVERLAY_RATES|%s want %s" % (state["rates"], rates_want))
     if state["bindings"] != len(want["hide"]) + len(want["ours"]):
@@ -984,6 +1004,12 @@ def run_apply(C, args, run, world):
     p = _overlay_problems(C, st, _expect_overlay(C, plan, variant), _rates_want(plan))
     if p:
         raise RuntimeError("OVERLAY_READBACK|%s|NOTHING SAVED; Don't-Save restart" % " || ".join(p[:6]))
+    # numeric read-back passed: from here on the overlay's keys are judged read-back vs read-back (sha of READ keys)
+    for w, rw in zip(plan["wings"], rec["wings"]):
+        if rw["label"] != w["label"]:
+            raise RuntimeError("RECORD_ORDER|%s vs %s|NOTHING SAVED; Don't-Save restart" % (rw["label"], w["label"]))
+        rw["keys_sha_readback"] = w["keys_sha_readback"] = st["ours"][w["label"]]["keys_sha"]
+    _write(RECORD, rec)
     track = scene.add_track(unreal.MovieSceneSubTrack)
     if track is None:
         raise RuntimeError("ADD_SUBTRACK")
@@ -1109,8 +1135,11 @@ def run_resync(C, args, run, world):
         if len(secs) != 1:
             raise RuntimeError("RESYNC_SHAPE|%s|NOTHING SAVED; Don't-Save restart" % w["label"])
         got, gi = _write_keys(C, secs[0], w["keys"], w["interps"])
-        if gi != w["interps"] or not C.keys_equal(got, w["keys"]):
-            raise RuntimeError("RESYNC_READBACK|%s|NOTHING SAVED; Don't-Save restart" % w["label"])
+        cmp_ = C.keys_compare(w["keys"], w["interps"], got, gi)
+        if not cmp_["ok"]:
+            raise RuntimeError("RESYNC_READBACK|%s|%s|NOTHING SAVED; Don't-Save restart"
+                               % (w["label"], C.keys_compare_text(cmp_)))
+        w["keys_sha_readback"] = C.keys_sha(got, gi)                 # read-back sha, not the planned one
         comp = b.get_object_template().get_editor_property("static_mesh_component")
         p0 = w["keys"][0][1:]
         comp.set_editor_property("relative_location", unreal.Vector(p0[0], p0[1], p0[2]))
@@ -1118,11 +1147,14 @@ def run_resync(C, args, run, world):
     _save(C, [rec["overlay_asset"]], [rec["overlay_asset"]])
     st = _overlay_state(C, _load(rec["overlay_asset"], "overlay"))
     for w in stale:
-        if st["ours"][w["label"]].get("keys_sha") != w["keys_sha"]:
-            raise RuntimeError("RESYNC_POST_SAVE|%s" % w["label"])
+        so = st["ours"][w["label"]]
+        cmp_ = C.keys_compare(w["keys"], w["interps"], so.get("keys") or [], so.get("interps"))
+        if so.get("keys_sha") != w["keys_sha_readback"] or not cmp_["ok"]:
+            raise RuntimeError("RESYNC_POST_SAVE|%s|sha read %s want %s|%s" % (
+                w["label"], str(so.get("keys_sha"))[:12], w["keys_sha_readback"][:12], C.keys_compare_text(cmp_)))
         o = old[w["label"]]
-        o.update({k: w.get(k) for k in ("source_hashes", "keys_sha", "pre_pose", "pre_pose_measured", "rest",
-                                         "copy_binding")})
+        o.update({k: w.get(k) for k in ("source_hashes", "keys_sha", "keys_sha_readback", "pre_pose",
+                                         "pre_pose_measured", "rest", "copy_binding")})
     rec.setdefault("resyncs", []).append([run, [w["label"] for w in stale]])
     _write(RECORD, rec)
     return {"resynced": [w["label"] for w in stale], "backup": backup}
@@ -1171,7 +1203,8 @@ def run_verify(C, args, run, world, census0):
             problems.append("HOOKIN_OR_COVERAGE|%s" % exc)
         ov = _load(rec["overlay_asset"], "overlay")
         st = _overlay_state(C, ov)
-        out["overlay"] = st
+        out["overlay"] = dict(st, ours={k: {f: v for f, v in r.items() if f not in ("keys", "interps")}
+                                        for k, r in st["ours"].items()})      # keys stay out of the report
         plan_like = {"copy_rates": rec["copy_rates"], "types": rec["types"], "overlay_playback": rec["overlay_playback"],
                      "wings": [dict(w) for w in rec["wings"]]}
         problems += _overlay_problems(C, st, _expect_overlay(C, plan_like, rec["variant"]), _rates_want(plan_like))

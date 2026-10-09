@@ -12,6 +12,7 @@ import hashlib
 import json
 import math
 import re
+import struct
 
 TOOL = "s2v3_overlay"
 MARK = "S2V3OV"
@@ -504,8 +505,26 @@ def plan_wing_keys(chans, row, copy_channels="all", tol_cm=0.5, tol_deg=0.05):
             "midpoint_dev_deg": round(dev_deg, 5), "problems": problems, "n": len(keys)}
 
 
+def q32(v):
+    """float -> the nearest IEEE float32, back as a Python float.  WHY (measured 8 Oct, APPLY S2V3OV-20261008-212744):
+    the read-back keys_sha of all 6 wings named in the failure equals keys_sha(plan keys with every LOCATION value
+    float32-quantised) -- i.e. our keys come back float32 although MovieScene3DTransformSection.h:307,311 declares
+    FMovieSceneDoubleChannel and MovieSceneScriptingDouble.h:245 AddKey takes a double [decl]; where the narrowing
+    happens is NOT known [inf: not in the headers we have; no private .cpp in UE_5.8]."""
+    return struct.unpack("<f", struct.pack("<f", float(v)))[0]
+
+
+def _canon_value(v, is_angle):
+    if is_angle:
+        v = wrap180(float(v))
+    return round(q32(v), 2) + 0.0                         # + 0.0: -0.0 and 0.0 hash alike
+
+
 def keys_sha(keys, interps=None):
-    canon = [[int(k[0])] + [round(float(v), 3) for v in k[1:]] for k in keys]
+    """Drift-detection hash of a key list [[tick, x, y, z, roll, pitch, yaw]].  Values: angles wrapped to (-180, 180],
+    float32-quantised, rounded to 2 decimals (0.01 cm / 0.01 deg).  NOT the read-back proof (that is keys_compare); the
+    APPLY record stores the sha of the READ-BACK keys so VERIFY/RESYNC compare read-back to read-back."""
+    canon = [[int(k[0])] + [_canon_value(v, i >= 3) for i, v in enumerate(k[1:])] for k in keys]
     blob = canon if interps is None else [canon, list(interps)]
     return hashlib.sha256(json.dumps(blob).encode("utf-8")).hexdigest()
 
@@ -521,17 +540,61 @@ def keys_from_channels(chans):
     return [[t] + [float(chans[n]["keys"][i][1]) for n in CHANNELS] for i, t in enumerate(ticks)], interps
 
 
-def keys_equal(a, b, tol_cm=0.01, tol_deg=0.001):
-    if len(a) != len(b):
-        return False
-    for ka, kb in zip(a, b):
-        if int(ka[0]) != int(kb[0]):
-            return False
-        if any(abs(ka[i] - kb[i]) > tol_cm for i in (1, 2, 3)):
-            return False
-        if any(angle_diff(ka[i], kb[i]) > tol_deg for i in (4, 5, 6)):
-            return False
-    return True
+KEY_TOL_CM = 0.01                                         # float32 spacing at |v| <= 131072 cm is <= 0.0078 cm
+KEY_TOL_DEG = 0.001                                       # after wrapping the difference to (-180, 180]
+
+
+def keys_compare(wrote, wrote_interps, read, read_interps, tol_cm=KEY_TOL_CM, tol_deg=KEY_TOL_DEG):
+    """NUMERIC read-back proof for OUR keys.  Tick list must be identical, interpolation identical per key, each value
+    within tol_cm (location) / tol_deg (rotation, difference wrapped so 316.43 vs -43.57 is 0).  ->
+    {"ok", "problems": [...], "worst": {channel: {"diff", "tick", "wrote", "read"}}, "first_bad": {...} | None}."""
+    out = {"ok": True, "problems": [], "worst": {}, "first_bad": None}
+    wt, rt = [int(k[0]) for k in wrote], [int(k[0]) for k in read]
+    if wt != rt:
+        i = next((j for j, (a, b) in enumerate(zip(wt, rt)) if a != b), min(len(wt), len(rt)))
+        out["problems"].append("TICKS|wrote %d keys read %d|first differing index %d: wrote %s read %s" % (
+            len(wt), len(rt), i, wt[i] if i < len(wt) else None, rt[i] if i < len(rt) else None))
+        out["ok"] = False
+        return out
+    wi, ri = list(wrote_interps or []), list(read_interps or [])
+    if wi != ri:
+        i = next((j for j, (a, b) in enumerate(zip(wi, ri)) if a != b), min(len(wi), len(ri)))
+        out["problems"].append("INTERP|first differing key %d tick %s: wrote %s read %s" % (
+            i, wt[i] if i < len(wt) else None, wi[i] if i < len(wi) else None, ri[i] if i < len(ri) else None))
+        out["ok"] = False
+    for ci, ch in enumerate(CHANNELS):
+        is_angle = ci >= 3
+        tol = tol_deg if is_angle else tol_cm
+        worst = {"diff": 0.0, "tick": None, "wrote": None, "read": None}
+        for kw, kr in zip(wrote, read):
+            a, b = float(kw[1 + ci]), float(kr[1 + ci])
+            d = angle_diff(a, b) if is_angle else abs(a - b)
+            if d > worst["diff"] or worst["tick"] is None:
+                worst = {"diff": d, "tick": int(kw[0]), "wrote": a, "read": b}
+            if d > tol and out["first_bad"] is None:
+                out["first_bad"] = {"tick": int(kw[0]), "channel": ch, "wrote": a, "read": b, "diff": d, "tol": tol}
+        out["worst"][ch] = worst
+        if worst["diff"] > tol:
+            out["ok"] = False
+            out["problems"].append("VALUE|%s worst %.6g > tol %g @tick %s (wrote %r read %r)" % (
+                ch, worst["diff"], tol, worst["tick"], worst["wrote"], worst["read"]))
+    if out["problems"]:
+        out["ok"] = False
+    return out
+
+
+def keys_compare_text(res):
+    """One line for a failure message: problems, first bad key, worst diff per channel."""
+    fb = res.get("first_bad")
+    first = ("first_bad tick=%s ch=%s wrote=%r read=%r diff=%.6g" % (fb["tick"], fb["channel"], fb["wrote"],
+                                                                     fb["read"], fb["diff"]) if fb else "first_bad none")
+    worst = ",".join("%s=%.3g@%s" % (c, w["diff"], w["tick"]) for c, w in (res.get("worst") or {}).items())
+    return "%s; %s; worst[%s]" % (" / ".join(res.get("problems") or []) or "ok", first, worst)
+
+
+def keys_equal(a, b, tol_cm=KEY_TOL_CM, tol_deg=KEY_TOL_DEG):
+    """Values + ticks only (no interps): keys_compare with the interps taken as equal."""
+    return keys_compare(a, None, b, None, tol_cm, tol_deg)["ok"]
 
 
 # ===================================================================================================== sampled source

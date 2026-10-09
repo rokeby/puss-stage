@@ -21,6 +21,7 @@ import math
 import os
 import random
 import shutil
+import struct
 import sys
 import tempfile
 import traceback
@@ -468,7 +469,23 @@ class Key:
         return Enum("RCTM_AUTO")
 
 
+def f32(v):
+    return struct.unpack("<f", struct.pack("<f", float(v)))[0]
+
+
+def other_turn(v):
+    """The same angle in the other 360-degree representation (316.43 <-> -43.57)."""
+    return v - 360.0 if v > 0 else v + 360.0
+
+
 class Channel(Obj):
+    """Keys added by add_key are STORED AS FLOAT32 (F32, default on) -- the measured live behaviour of our transform keys
+    (APPLY S2V3OV-20261008-212744 read-back sha == sha of float32-quantised plan keys).  YAW_WRAP (default off) makes
+    Rotation.Z keys come back in the other 360-degree representation."""
+    F32 = True
+    YAW_WRAP = False
+    PERTURB = None                                      # fn(channel_name, tick, value) -> value (negative controls)
+
     def __init__(self, sec, name, kind="double"):
         self.sec, self.channel_name, self.kind = sec, name, kind
         self.keys, self.default = [], None
@@ -487,6 +504,12 @@ class Channel(Obj):
         if time_unit is None or time_unit.name != "TICK_RESOLUTION":
             raise RuntimeError("fake: tool must key in TICK_RESOLUTION")
         self.keys = [k for k in self.keys if k.tick != time.value]
+        if Channel.PERTURB is not None:
+            new_value = Channel.PERTURB(self.channel_name, time.value, new_value)
+        if Channel.YAW_WRAP and str(self.channel_name).startswith("Rotation.Z"):
+            new_value = other_turn(new_value)
+        if Channel.F32:
+            new_value = f32(new_value)
         k = Key(time.value, new_value, {"LINEAR": "RCIM_LINEAR", "CONSTANT": "RCIM_CONSTANT"}.get(
             interpolation.name if interpolation else "", "RCIM_CUBIC"))
         self.keys.append(k)
@@ -1214,9 +1237,10 @@ def part_b():
         exp = C.compose_pose(her_actor.pose, T._core().resolve_types({}, KIT_JSON["manifest_path"], KIT_JSON[
             "pivot_path"], KIT_JSON["rzimport_plan_path"])[0]["L"])
         got = [tch[i].keys[0].value for i in range(6)]
-        check("B5+ hold pose == her actor pose (x) child transform (Her * T * RotZ180)", all(
-            abs(got[i] - exp[i]) < 1e-6 for i in range(3)) and all(C.angle_diff(got[i], exp[i]) < 1e-6
-                                                                    for i in (3, 4, 5)), (got, exp))
+        check("B5+ hold pose == her actor pose (x) child transform (Her * T * RotZ180), within the float32 read-back "
+              "tolerance (fake stores float32)", all(
+            abs(got[i] - exp[i]) <= C.KEY_TOL_CM for i in range(3)) and all(C.angle_diff(got[i], exp[i]) <= C.KEY_TOL_DEG
+                                                                         for i in (3, 4, 5)), (got, exp))
         mats = lw.template.comp.props["override_materials"]
         check("B5+ variant A: Front/Flap = kit MIs, Timber/Edge None (mesh defaults)",
               mats[0].path.endswith("MI_FlatV3_S2K_shrine_L_Front") and mats[1].path.endswith(
@@ -1342,6 +1366,72 @@ def part_b():
                                         s_["max_dev_cm"] <= 0.5 for s_ in smp),
               [(s_["keys"], s_["samples"], s_["max_dev_cm"]) for s_ in smp[:3]])
 
+        # ---- 9 Oct: float32 store (always on in this fake) + yaw returned in the other turn -------------------------
+        U, args, T = fresh("10")
+        Channel.YAW_WRAP = True
+        try:
+            r, ok, new, err = run(T, U, args, "DRY")
+            dn = "s2v3_overlay_dry_%s.json" % r
+            r2, ok, new, err = run(T, U, args, "APPLY", dry_report=dn)
+            check("B16+ APPLY ok with float32 storage AND yaw read back in the other turn (numeric read-back)",
+                  bool(ok) and err is None, (err, new[-2:]))
+            recj = json.load(open(T.RECORD, encoding="utf-8")) if os.path.exists(T.RECORD) else {"wings": []}
+            ov = U.assets[args["overlay_asset"]]
+            st = T._overlay_state(T._core(), ov)
+            check("B16+ record carries the READ-BACK sha for all 15 wings, equal to a fresh read",
+                  len(recj["wings"]) == 15 and all(w.get("keys_sha_readback") == st["ours"][w["label"]]["keys_sha"]
+                                                   for w in recj["wings"]), [w.get("keys_sha_readback") for w in
+                                                                            recj["wings"][:2]])
+            r3, ok, new, err = run(T, U, args, "VERIFY")
+            check("B16+ VERIFY ok (read-back vs read-back)", bool(ok) and err is None, (err, new[-2:]))
+            lw = next(b for b in ov.bindings if b.name == C.OURS_PREFIX + "SM_S2_L_Wing_Shrine3")
+            ych = [t for t in lw.tracks if t._cls_name == "MovieScene3DTransformTrack"][0].sections[0].channels[1]
+            ych.keys[5].value += 0.05
+            r3, ok, new, err = run(T, U, args, "VERIFY")
+            f = marker(new, "_VERIFY_FAILED|") or ""
+            vj = json.load(open(os.path.join(T.HERE, "s2v3_overlay_verify_%s.json" % r3), encoding="utf-8"))
+            check("B16- a 0.05 cm edit of one stored key after APPLY -> VERIFY fails on that wing's keys_sha",
+                  f and any(x.startswith("OURS|SM_S2_L_Wing_Shrine3|") and "keys_sha" in x for x in vj["problems"]),
+                  vj["problems"][:2])
+            ych.keys[5].value -= 0.05
+            Cm = T._core()
+            plan_like = {"copy_rates": recj["copy_rates"], "types": recj["types"],
+                         "overlay_playback": recj["overlay_playback"],
+                         "wings": [dict(w, keys=[list(k) for k in st["ours"][w["label"]]["keys"]],
+                                        interps=st["ours"][w["label"]]["interps"]) for w in recj["wings"]]}
+            st2 = T._overlay_state(Cm, ov)
+            p0 = T._overlay_problems(Cm, st2, T._expect_overlay(Cm, plan_like, recj["variant"]), T._rates_want(plan_like))
+            check("B16+ _overlay_problems with written keys: clean on the restored overlay", p0 == [], p0[:2])
+            sk = st2["ours"]["SM_S2_R_Wing_Shrine2"]
+            sk["keys"] = [list(k) for k in sk["keys"]]
+            sk["keys"][3][0] += 160
+            p1 = T._overlay_problems(Cm, st2, T._expect_overlay(Cm, plan_like, recj["variant"]), T._rates_want(plan_like))
+            check("B16- a tick shift in the read keys -> OURS_KEYS|...|TICKS (numeric path, not just the sha)",
+                  any(x.startswith("OURS_KEYS|SM_S2_R_Wing_Shrine2|TICKS") for x in p1), p1[:2])
+        finally:
+            Channel.YAW_WRAP = False
+
+        U, args, T = fresh("11")
+        r, ok, new, err = run(T, U, args, "DRY")
+        dn = "s2v3_overlay_dry_%s.json" % r
+        dj = json.load(open(os.path.join(T.HERE, dn), encoding="utf-8"))
+        bad_tick = next(w for w in dj["wings"] if w["label"] == "SM_S2_ceiling_wing2")["keys"][7][0]
+        hit = {"n": 0}
+
+        def perturb(name, tick, v):
+            if str(name).startswith("Location.Y") and tick == bad_tick and hit["n"] == 0:
+                hit["n"] += 1
+                return v + 0.05
+            return v
+        Channel.PERTURB = perturb
+        try:
+            r2, ok, new, err = run(T, U, args, "APPLY", dry_report=dn)
+        finally:
+            Channel.PERTURB = None
+        check("B17- UE storing a key 0.05 cm off -> APPLY KEY_READBACK names wing, tick, channel, wrote/read; "
+              "nothing saved", err and "KEY_READBACK|" in str(err) and ("first_bad tick=%d ch=y" % bad_tick) in str(err)
+              and "wrote=" in str(err) and "read=" in str(err) and not U.saved, err)
+
         U, args, T = fresh("8")
         a8 = dict(args, coverage="cinematic", expected_coverage=None)
         r, ok, new, err = run(T, U, a8, "DRY")
@@ -1364,6 +1454,87 @@ def part_b():
         for d in dirs:
             shutil.rmtree(d, ignore_errors=True)
 
+
+
+# ===================================================================================================== PART D (9 Oct)
+LIVE_FAILED_RECORD = os.path.join(HERE, "s2v3_overlay_record.json.failed-S2V3OV-20261008-212744")
+LIVE_DRY = os.path.join(HERE, "s2v3_overlay_dry_S2V3OV-20261008-212632.json")
+LIVE_READ_SHA = {"SM_S2_L_Wing_Shrine": "7946d1fb8ce4dcfb", "SM_S2_L_Wing_Shrine2": "9221d361e899d7ac",
+                 "SM_S2_L_Wing_Shrine3": "37670e2386c8a6e7", "SM_S2_L_Wing_Shrine4": "e8fddf76ea958013",
+                 "SM_S2_L_Wing_Shrine5": "1d91cac6e58552ee", "SM_S2_R_Wing_Shrine": "e0b8907d13d7e036"}  # live log 01:28:02
+
+
+def old_keys_sha(keys, interps):
+    """The pre-9-Oct algorithm (round 3 decimals, no float32, no wrap) -- to reproduce the live failure."""
+    import hashlib
+    canon = [[int(k[0])] + [round(float(v), 3) for v in k[1:]] for k in keys]
+    return hashlib.sha256(json.dumps([canon, list(interps)]).encode("utf-8")).hexdigest()
+
+
+def part_d():
+    """Read-back of OUR keys: numeric compare + float32/wrap-stable sha, with +/- controls."""
+    if os.path.isfile(LIVE_DRY) and os.path.isfile(LIVE_FAILED_RECORD):
+        dry = json.load(open(LIVE_DRY, encoding="utf-8"))
+        rec = json.load(open(LIVE_FAILED_RECORD, encoding="utf-8"))
+        rs = {w["label"]: w["keys_sha"] for w in rec["wings"]}
+        ws = [w for w in dry["wings"] if w["label"] in LIVE_READ_SHA]
+        planned_ok = all(old_keys_sha(w["keys"], w["interps"]) == rs[w["label"]] for w in ws)
+        f32_hits = [w["label"] for w in ws if old_keys_sha([[k[0]] + [f32(v) for v in k[1:]] for k in w["keys"]],
+                                                           w["interps"]).startswith(LIVE_READ_SHA[w["label"]])]
+        check("D0  live failure reproduced: DRY 212632 keys -> the APPLY record's planned sha (6/6), and float32-"
+              "quantising them gives the 6 READ shas in the live log (old algorithm)",
+              len(ws) == 6 and planned_ok and len(f32_hits) == 6, (planned_ok, f32_hits))
+        noise = [w["label"] for w in dry["wings"] if
+                 C.keys_compare(w["keys"], w["interps"], [[k[0]] + [f32(v) for v in k[1:]] for k in w["keys"]],
+                                w["interps"])["ok"] and
+                 C.keys_sha(w["keys"], w["interps"]) == C.keys_sha([[k[0]] + [f32(v) for v in k[1:]]
+                                                                    for k in w["keys"]], w["interps"])]
+        check("D1+ the real 15 planned key lists vs their float32 read-back: numeric compare OK and NEW sha equal (15/15)",
+              len(noise) == 15, len(noise))
+        bad_old = sum(old_keys_sha(w["keys"], w["interps"]) != old_keys_sha(
+            [[k[0]] + [f32(v) for v in k[1:]] for k in w["keys"]], w["interps"]) for w in dry["wings"])
+        check("D1- control: the OLD sha differs under float32 for the real keys (15/15) -- the failure mode",
+              bad_old == 15, bad_old)
+    else:
+        check("D0  live DRY/failed record present (needed for the live-data controls)", False, LIVE_DRY)
+    keys = [[0, 15709.302036615416, 79128.16264242552, 789.0, -0.0, 0.0, 136.42748059917173],
+            [261120, 15709.4, 79128.2, 4491.25, 0.12, -0.21, 136.42748059917173],
+            [262080, 15709.5, 79128.3, 4480.5, 0.10, -0.20, 136.42748059917173]]
+    interps = ["RCIM_CONSTANT", "RCIM_LINEAR", "RCIM_LINEAR"]
+    rd = [[k[0]] + [f32(v) for v in k[1:]] for k in keys]
+    r = C.keys_compare(keys, interps, rd, interps)
+    check("D2+ float32 noise at ~79000 cm passes the numeric compare", r["ok"], C.keys_compare_text(r))
+    bad = _copy.deepcopy(rd)
+    bad[1][2] += 0.05
+    r = C.keys_compare(keys, interps, bad, interps)
+    txt = C.keys_compare_text(r)
+    check("D3- a real 0.05 cm change fails, diagnosable (tick, channel, wrote, read, worst per channel)",
+          not r["ok"] and r["first_bad"]["tick"] == 261120 and r["first_bad"]["channel"] == "y" and
+          "first_bad tick=261120 ch=y" in txt and "wrote=" in txt and "read=" in txt and "worst[" in txt, txt)
+    check("D3- ... and the new sha changes too", C.keys_sha(keys, interps) != C.keys_sha(bad, interps))
+    wr = [[k[0]] + list(k[1:6]) + [f32(other_turn(k[6]))] for k in rd]
+    r = C.keys_compare(keys, interps, wr, interps)
+    check("D4+ yaw read back in the other turn (136.43 -> -223.57) passes compare and keeps the sha",
+          r["ok"] and C.keys_sha(keys, interps) == C.keys_sha(wr, interps), C.keys_compare_text(r))
+    wr2 = _copy.deepcopy(wr)
+    wr2[2][6] += 0.01
+    r = C.keys_compare(keys, interps, wr2, interps)
+    check("D4- ... but a 0.01 deg real yaw change on a wrapped read still fails", not r["ok"] and
+          r["first_bad"]["channel"] == "yaw", C.keys_compare_text(r))
+    sh = _copy.deepcopy(rd)
+    sh[2][0] += 160
+    r = C.keys_compare(keys, interps, sh, interps)
+    check("D5- a tick shift fails (TICKS, names the first differing key)", not r["ok"] and
+          r["problems"][0].startswith("TICKS") and "262240" in r["problems"][0], r["problems"])
+    r = C.keys_compare(keys, interps, rd[:2], interps[:2])
+    check("D5- a dropped key fails (TICKS)", not r["ok"] and r["problems"][0].startswith("TICKS"), r["problems"])
+    r = C.keys_compare(keys, interps, rd, ["RCIM_LINEAR"] * 3)
+    check("D6- an interpolation change fails (INTERP)", not r["ok"] and r["problems"][0].startswith("INTERP"),
+          r["problems"])
+    nz = _copy.deepcopy(rd)
+    nz[0][4] = 0.0
+    check("D7+ -0.0 vs 0.0 hash alike", C.keys_sha(rd, interps) == C.keys_sha(nz, interps))
+    check("D7- keys_sha still sees an interpolation change", C.keys_sha(rd, interps) != C.keys_sha(rd, ["RCIM_LINEAR"] * 3))
 
 # ===================================================================================================== PART C
 FORBIDDEN = ("save_map", "save_dirty_packages", "save_packages", "reload_packages", "get_bound_objects",
@@ -1408,7 +1579,7 @@ def part_c():
 
 
 def main():
-    for part in (part_a, part_a15, part_b, part_c):
+    for part in (part_a, part_a15, part_b, part_d, part_c):
         try:
             part()
         except Exception:  # noqa: BLE001
