@@ -88,7 +88,7 @@ TEXTURE_CMP = ("compression_settings", "srgb", "lod_group", "mip_gen_settings", 
                "never_stream", "virtual_texture_streaming")
 COPY_FROM_REFERENCE = TEXTURE_CMP
 
-PASSAGES = ("P01", "P02", "P03", "P04", "P05", "P06", "VAL")
+PASSAGES = ("P01", "P02", "P03", "P04", "P05", "P06", "VAL", "S2K")
 MOUNTS = ("wing", "top-border")
 MAX_PER_BATCH = 3
 MIN_FREE_RAM_GB = 12.0
@@ -161,6 +161,20 @@ def height_gate(mount, bounds_cm, height_cm, pole):
         if not pole:
             return "HEIGHT_NO_POLE_GEOMETRY"
         want_min = float(pole["bottom_z_cm"])
+        tops = pole.get("pole_top_z_cm")
+        if tops:
+            # opt-in art-clip sidecar (socket_contract pole_top_z_cm, KlaraS2 8 Oct): every recorded pole top must sit
+            # at or below the card; the mesh top = max(card height, highest recorded pole top) as an UPPER bound
+            # (the t5i inset leaves the board 1-3 cm under the card height, so equality would refuse every build)
+            # and at least the highest pole top (the poles must be there).  Legacy sidecars take the branch below.
+            top_max = max(float(t) for t in tops)
+            if top_max > h + BOUNDS_TOL_CM:
+                return "ARTCLIP_POLE_TOP_ABOVE_CARD %.2f > %.2f" % (top_max, h)
+            want_max = max(h, top_max)
+            if abs(zmin - want_min) > BOUNDS_TOL_CM or zmax > want_max + BOUNDS_TOL_CM or zmax < top_max - BOUNDS_TOL_CM:
+                return "HEIGHT_VS_MANIFEST_ARTCLIP z %.2f..%.2f want %.2f..[%.2f, %.2f]" % (
+                    zmin, zmax, want_min, top_max, want_max)
+            return ""
         want_max = h + float(pole["top_above_panel_cm"])
         if abs(zmin - want_min) > BOUNDS_TOL_CM or abs(zmax - want_max) > BOUNDS_TOL_CM:
             return "HEIGHT_VS_MANIFEST z %.2f..%.2f want %.2f..%.2f" % (zmin, zmax, want_min, want_max)

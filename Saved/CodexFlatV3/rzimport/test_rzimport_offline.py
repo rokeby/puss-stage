@@ -615,6 +615,37 @@ def _main(tmp):
     check("Y3 POS VERIFY wrote rzimport_verify_<hash8>_LATEST.json", os.path.isfile(
         os.path.join(d, "rzimport_verify_%s_LATEST.json" % fx["hash8"])))
     check("Y3 POS 28 packages on disk, 2 GCs", len(ops.disk) == 28 and ops.gc == 2)
+    # ---------------------------------------------------------------- PT: opt-in art-clip pole tops (KlaraS2, 8 Oct)
+    legacy = {"extension_below_panel_cm": 1.5, "bottom_z_cm": -1.5, "top_above_panel_cm": 20.0}
+    clip = dict(legacy, top_mode="art-clip", pole_top_z_cm=[2226.6, 2215.4], top_above_panel_cm=2226.6 - 2250.0)
+    zb = lambda lo, hi: {"min": [0, 0, lo], "max": [0, 0, hi]}  # noqa: E731
+    check("PT1 POS art-clip: board top 2247.3 (inset) under card 2250, poles 2226.6/2215.4 -> passes",
+          core.height_gate("wing", zb(-1.5, 2247.3), 2250.0, clip) == "", core.height_gate("wing", zb(-1.5, 2247.3), 2250.0, clip))
+    r = core.height_gate("wing", zb(-1.5, 2270.0), 2250.0, clip)
+    check("PT2 NEG art-clip sidecar but the mesh still reaches card+20 (unclipped poles) -> HEIGHT_VS_MANIFEST_ARTCLIP",
+          r.startswith("HEIGHT_VS_MANIFEST_ARTCLIP"), r)
+    r = core.height_gate("wing", zb(-1.5, 2247.3), 2250.0, dict(clip, pole_top_z_cm=[2265.0, 2215.4]))
+    check("PT3 NEG a recorded pole top above the card -> ARTCLIP_POLE_TOP_ABOVE_CARD", r.startswith("ARTCLIP_POLE_TOP_ABOVE_CARD"), r)
+    r = core.height_gate("wing", zb(-1.5, 2200.0), 2250.0, clip)
+    check("PT4 NEG mesh top below the highest recorded pole top -> HEIGHT_VS_MANIFEST_ARTCLIP",
+          r.startswith("HEIGHT_VS_MANIFEST_ARTCLIP"), r)
+    check("PT5 POS legacy sidecar unchanged: card+20 passes", core.height_gate("wing", zb(-1.5, 2270.0), 2250.0, legacy) == "")
+    r = core.height_gate("wing", zb(-1.5, 2247.3), 2250.0, legacy)
+    check("PT6 NEG legacy sidecar (no per-pole tops) with clipped geometry still refused -> HEIGHT_VS_MANIFEST",
+          r.startswith("HEIGHT_VS_MANIFEST z"), r)
+
+    def artclip(top_cm):
+        def mut(d):
+            d["sidecar"]["baked_pole_geometry"].update(
+                {"top_mode": "art-clip", "pole_top_z_cm": [top_cm], "top_above_panel_cm": top_cm - 1200.0,
+                 "bottom_z_cm": -100.0})
+            d["validation"]["bounds_m"]["max"][2] = 11.985
+        return mut
+    r = single(tmp, "a7", mut=artclip(1150.0))
+    check("PT7 POS plan: art-clip wing (pole 1150 under a 1200 card, board top 1198.5) -> no refusal", r == [], r)
+    r = single(tmp, "a8", mut=artclip(1215.0))
+    check("PT8 NEG plan: art-clip pole recorded above the card -> ARTCLIP_POLE_TOP_ABOVE_CARD",
+          any("ARTCLIP_POLE_TOP_ABOVE_CARD" in x for x in r), r)
     # ---------------------------------------------------------------- S: static source rules
     src = open(os.path.join(HERE, "rzimport.py"), encoding="utf-8").read()
     check("S1 no delete / reload / Save All anywhere in the kit", not any(t in src for t in (

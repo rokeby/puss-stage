@@ -41,13 +41,18 @@ UE_CHANNEL = {"x": "Location.X", "y": "Location.Y", "z": "Location.Z",
               "roll": "Rotation.X", "pitch": "Rotation.Y", "yaw": "Rotation.Z"}  # memory: Rotator is roll-pitch-yaw
 INTERP_OK = ("RCIM_LINEAR", "RCIM_CONSTANT")
 EXTRAP_OK = ("RCCE_CONSTANT", "CONSTANT")
-PATH_KEYS = ("ue_path", "ue_asset", "asset_path", "unreal_path", "ue_mesh", "mesh_path", "mesh")
-PIVOT_KEYS = ("pivot_offset_cm", "pivot_offset", "pivot_cm")
-ROT_KEYS = ("rot_offset_deg", "rotation_offset_deg")
-OWNER_KEYS = ("owner", "owners", "owner_tag", "owner_id")
+DEFAULT_OWNERS = {"L": "S2K_shrine_L", "R": "S2K_shrine_R", "C": "S2K_ceiling_C"}            # coordinator 8 Oct
+LEVELS_TRACK = "Klara Levels (hookin)"                                            # klara_hookin.py:75 [decl]
+HER_LEVEL_SHORT = "Japanese_Alley"
+COVERAGES = ("scene", "cinematic")
+PRE_POSES = ("auto", "rest", "first")
+KIT = {"manifest_path": "DerivedAssets/FlatV3/KlaraS2/IMPORT_MANIFEST_KlaraS2.json",
+       "pivot_path": "DerivedAssets/FlatV3/KlaraS2/pivot/pivot_offsets.json",
+       "rzimport_plan_path": "DerivedAssets/FlatV3/KlaraS2/rzimport_plan_offline_KlaraS2.json"}
 PIVOT_FRAMES = ("her_local_world_cm", "our_local_cm")
 DEFAULTS = {"align_tol_cm": 25.0, "align_refuse": True, "midpoint_tol_cm": 0.5, "midpoint_tol_deg": 0.05,
-            "copy_channels": "all", "variant": "A", "rest_vs_actor_tol_cm": 2.0}
+            "copy_channels": "all", "variant": "A", "rest_vs_actor_tol_cm": 2.0, "coverage": "scene",
+            "pre_section_pose": "auto"}
 
 
 class PlanError(Exception):
@@ -84,14 +89,15 @@ def validate_args(a):
             ov in (SCENE_SEQ, HOOKIN_COPY):
         p.append("OVERLAY_ASSET: %r must be a new /Game/<ours>/<name> path" % ov)
     types = a.get("types") or {}
+    if str(a.get("coverage") or DEFAULTS["coverage"]) not in COVERAGES:
+        p.append("COVERAGE: %r not in %s" % (a.get("coverage"), COVERAGES))
+    if str(a.get("pre_section_pose") or DEFAULTS["pre_section_pose"]) not in PRE_POSES:
+        p.append("PRE_SECTION_POSE: %r not in %s" % (a.get("pre_section_pose"), PRE_POSES))
     for t in TYPES:
-        if t not in types:
-            p.append("TYPES: missing %s" % t)
-            continue
-        row = types[t]
+        row = types.get(t) or {}
         if row.get("pivot_frame", "her_local_world_cm") not in PIVOT_FRAMES:
             p.append("TYPES.%s.pivot_frame: %r not in %s" % (t, row.get("pivot_frame"), PIVOT_FRAMES))
-        if not str(row.get("owner") or "").startswith("S2K_"):
+        if not str(row.get("owner") or DEFAULT_OWNERS[t]).startswith("S2K_"):
             p.append("TYPES.%s.owner: %r must start with S2K_" % (t, row.get("owner")))
     sec = a.get("expected_section")
     if sec is not None and (not isinstance(sec, list) or len(sec) != 2):
@@ -122,95 +128,205 @@ def her_wings_from_census(census):
     return sorted(rows, key=lambda r: r["label"])
 
 
-# ===================================================================================================== manifest
-def _walk(o):
-    if isinstance(o, dict):
-        yield o
-        for v in o.values():
-            yield from _walk(v)
-    elif isinstance(o, list):
-        for v in o:
-            yield from _walk(v)
-
-
-def _first(d, keys):
-    for k in keys:
-        if k in d and d[k] not in (None, ""):
-            return k, d[k]
-    return None, None
-
-
-def _owner_match(d, owner):
-    for k in OWNER_KEYS:
-        v = d.get(k)
-        if isinstance(v, str) and v == owner:
-            return True
-        if isinstance(v, list) and owner in v:
-            return True
-    return False
-
-
+# ===================================================================================================== kit (manifest)
 def _vec3(v, what):
     req(isinstance(v, (list, tuple)) and len(v) == 3 and all(isinstance(x, (int, float)) for x in v),
         "BAD_VEC3|%s|%r" % (what, v))
     return [float(x) for x in v]
 
 
-def resolve_types(args, manifest, record):
-    """-> ({type: resolved}, [unresolved problems]).  Precedence per field: args.types.T > pivot record > manifest.
-    The manifest schema is UNKNOWN today (DerivedAssets/FlatV3/KlaraS2/ did not exist on 8 Oct 19:30) [meas], so
-    entries are found by owner (owner/owners/owner_tag/owner_id == args.types.T.owner) and fields by alias lists."""
+def _close3(a, b, tol=1e-6):
+    return all(abs(float(x) - float(y)) <= tol for x, y in zip(a, b))
+
+
+def _parse_mat(text, fallback_folder):
+    """A front_variants slot string -> (UE path | None, how).  Forms in IMPORT_MANIFEST_KlaraS2.json [meas]:
+    '/Game/.../MI_X = ...' -> that path; 'MI_X (...)' / 'MI_X = ...' -> fallback_folder/MI_X; 'unchanged ...' -> None
+    (the mesh's own slot material).  Anything else -> refusal."""
+    s = str(text).strip()
+    if s.lower().startswith("unchanged"):
+        return None, "unchanged"
+    m = re.match(r"^(/Game/[A-Za-z0-9_/]+)", s)
+    if m:
+        return m.group(1).rstrip("/"), "path"
+    m = re.match(r"^(MI_[A-Za-z0-9_]+)\b", s)
+    if m:
+        req(fallback_folder, "MATERIAL_FOLDER_UNKNOWN|%s" % m.group(1))
+        return "%s/%s" % (fallback_folder.rstrip("/"), m.group(1)), "name+folder"
+    raise PlanError("MATERIAL_UNPARSEABLE|%r" % s[:80])
+
+
+def kit_entry(owner, manifest, pivots, rzplan):
+    """Our S2K kit for one owner (e.g. 'S2K_shrine_L') -> (row, problems).  Sources [meas, read 8 Oct ~20:30]:
+      * pivot/pivot_offsets.json wings[<owner minus 'S2K_'>].child_relative_transform_ue (UE cm, roll-pitch-yaw) under
+        child_transform_rule 'world(ours) = HerActorTransform(location, rotation only) * Translate(T) * RotZ(180)',
+        which is compose_pose(..., pivot_frame='her_local_world_cm');
+      * IMPORT_MANIFEST_KlaraS2.json meshes[asset 'SM_FlatV3_<owner>_*'].klara_s2 (pivot copy, her_actors,
+        front_variants A/B);
+      * rzimport_plan_offline_KlaraS2.json what_if_S2K_token.destinations[owner] (planned UE mesh + A MIs).  That is a
+        PLAN (the import has not run: unreal_imported=false), so DRY re-checks that every path loads."""
+    p, key = [], owner[4:] if owner.startswith("S2K_") else owner
+    row = {"owner": owner, "sources": {}}
+    pw = ((pivots or {}).get("wings") or {}).get(key)
+    if pw is None:
+        return row, ["PIVOT_ENTRY_MISSING|%s (pivot_offsets.json)" % key]
+    rule = str((pivots or {}).get("child_transform_rule") or "")
+    if "HerActorTransform(location, rotation only) * Translate(T) * RotZ" not in rule:
+        p.append("PIVOT_RULE_UNKNOWN|%r (the tool composes Her * Translate(T) * Rot)" % rule[:90])
+    ct = pw.get("child_relative_transform_ue") or {}
+    try:
+        row["pivot_offset_cm"] = _vec3(ct.get("location_cm"), "%s.location_cm" % key)
+        row["rot_offset_deg"] = _vec3(ct.get("rotation_deg_roll_pitch_yaw"), "%s.rotation" % key)
+        if not _close3(ct.get("scale") or [0, 0, 0], [1, 1, 1]):
+            p.append("CHILD_SCALE_NOT_1|%s|%s" % (key, ct.get("scale")))
+    except PlanError as e:
+        p.append(str(e))
+    row["pivot_frame"] = "her_local_world_cm"
+    row["sources"]["pivot"] = "pivot_offsets.json wings.%s.child_relative_transform_ue" % key
+    row["her_actors"] = list(pw.get("her_actors") or [])
+    entries = [m for m in (manifest or {}).get("meshes") or []
+               if str(m.get("asset", "")).startswith("SM_FlatV3_%s_" % owner)]
+    if len(entries) != 1:
+        p.append("MANIFEST_ENTRY_COUNT|%s|%d" % (owner, len(entries)))
+        return row, p
+    me = entries[0]
+    ks = me.get("klara_s2") or {}
+    row["asset"], row["slots_manifest"] = me.get("asset"), me.get("slots")
+    if me.get("asset") != pw.get("our_asset"):
+        p.append("ASSET_DISAGREE|manifest %s pivot %s" % (me.get("asset"), pw.get("our_asset")))
+    mp = ks.get("pivot") or {}
+    if not (_close3(mp.get("location_cm") or [1e9] * 3, row.get("pivot_offset_cm") or [0] * 3) and
+            _close3(mp.get("rotation_deg_roll_pitch_yaw") or [1e9] * 3, row.get("rot_offset_deg") or [0] * 3)):
+        p.append("PIVOT_SOURCES_DISAGREE|%s|manifest %s vs pivot file %s" % (owner, mp, ct))
+    if sorted(ks.get("her_actors") or []) != sorted(row["her_actors"]):
+        p.append("HER_ACTORS_DISAGREE|%s|manifest vs pivot file" % owner)
+    dest = (((rzplan or {}).get("what_if_S2K_token") or {}).get("destinations") or {}).get(owner) or {}
+    mesh = dest.get("mesh")
+    if not mesh:
+        folders = ((rzplan or {}).get("plan") or {}).get("mesh_folders") or {}
+        suf = str(me.get("asset", "")).rsplit("_", 1)[-1]
+        if folders.get(suf):
+            mesh = "%s/%s" % (folders[suf], me["asset"])
+    row["mesh"] = mesh
+    row["sources"]["mesh"] = ("rzimport plan destinations" if dest.get("mesh") else
+                              "rzimport plan mesh_folders" if mesh else None)
+    if not mesh or mesh.rsplit("/", 1)[-1] != me.get("asset"):
+        p.append("MESH_PATH_UNRESOLVED|%s|%s" % (owner, mesh))
+    root = ((rzplan or {}).get("plan") or {}).get("root")
+    row["variants"] = {}
+    for v in VARIANTS:
+        fv = (ks.get("front_variants") or {}).get(v) or {}
+        vmap, folder = {}, None
+        for slot in ("Front", "Flap", "Timber", "Edge"):     # other keys (notes, evidence) are not slots
+            if slot not in fv:
+                continue
+            if v == "A":
+                fb = dest[slot].rsplit("/", 1)[0] if dest.get(slot) else (root + "/Materials/Instances" if root else None)
+            else:
+                fb = folder                                  # B: a bare MI name lives beside B's Front path
+            try:
+                path, how = _parse_mat(fv[slot], fb)
+            except PlanError as e:
+                p.append("%s.%s.%s|%s" % (owner, v, slot, e))
+                continue
+            if path is None:
+                continue
+            if v == "A" and dest.get(slot) and dest[slot] != path:
+                p.append("A_PATH_DISAGREE|%s|%s vs %s" % (slot, path, dest[slot]))
+            if is_klara_package(path) or path.startswith("/Game/WetGround/"):
+                p.append("VARIANT_USES_KLARA_ASSET|%s.%s|%s (copies only; never hers)" % (owner, v, path))
+                continue
+            vmap[slot] = path
+            if how == "path" and folder is None:
+                folder = path.rsplit("/", 1)[0]
+        if not vmap.get("Front"):
+            p.append("VARIANT_NO_FRONT|%s.%s" % (owner, v))
+        row["variants"][v] = vmap
+    row["sources"]["variants"] = "manifest klara_s2.front_variants"
+    return row, p
+
+
+def resolve_types(args, manifest, pivots, rzplan):
+    """-> ({type: row}, problems).  args.types.T fields (mesh / pivot_offset_cm / rot_offset_deg / pivot_frame /
+    variants) override the kit; everything else comes from kit_entry."""
     out, problems = {}, []
     for t in TYPES:
         a = dict((args.get("types") or {}).get(t) or {})
-        owner = a.get("owner")
-        hits = {}
-        for src_name, src in (("record", record), ("manifest", manifest)):
-            if not src:
-                continue
-            cand = [d for d in _walk(src) if _owner_match(d, owner)]
-            if len(cand) > 1:
-                problems.append("%s: %d %s entries for owner %s (ambiguous)" % (t, len(cand), src_name, owner))
-            elif cand:
-                hits[src_name] = cand[0]
-        row = {"type": t, "owner": owner, "sources": {}}
-        for field, keys in (("mesh", PATH_KEYS), ("pivot_offset_cm", PIVOT_KEYS), ("rot_offset_deg", ROT_KEYS),
-                            ("pivot_frame", ("pivot_frame",)), ("variants", ("variants",))):
-            val, src = None, None
+        owner = a.get("owner") or DEFAULT_OWNERS[t]
+        row, p = kit_entry(owner, manifest, pivots, rzplan)
+        row["type"] = t
+        for field in ("mesh", "pivot_offset_cm", "rot_offset_deg", "pivot_frame", "variants"):
             if a.get(field) not in (None, "", {}):
-                val, src = a[field], "args"
-            else:
-                for s in ("record", "manifest"):
-                    if s in hits:
-                        k, v = _first(hits[s], keys)
-                        if k is not None:
-                            val, src = v, "%s.%s" % (s, k)
-                            break
-            row[field] = val
-            row["sources"][field] = src
-        if row["rot_offset_deg"] is None:
-            row["rot_offset_deg"], row["sources"]["rot_offset_deg"] = [0.0, 0.0, 0.0], "default(0,0,0)"
-        if row["pivot_frame"] is None:
-            row["pivot_frame"], row["sources"]["pivot_frame"] = "her_local_world_cm", "default"
-        if not row["mesh"] or not str(row["mesh"]).startswith("/Game/"):
-            problems.append("%s: mesh path unresolved (%r)" % (t, row["mesh"]))
-        if row["pivot_offset_cm"] is None:
-            problems.append("%s: pivot_offset_cm unresolved (manifest/record not present or no field)" % t)
-        else:
-            try:
-                row["pivot_offset_cm"] = _vec3(row["pivot_offset_cm"], "%s.pivot" % t)
-            except PlanError as e:
-                problems.append(str(e))
-        try:
-            row["rot_offset_deg"] = _vec3(row["rot_offset_deg"], "%s.rot" % t)
-        except PlanError as e:
-            problems.append(str(e))
-        v = row["variants"] or {}
-        for name in VARIANTS:
-            if not isinstance(v.get(name), dict) or not v[name]:
-                problems.append("%s: variant %s material map missing ({slot_name: material path})" % (t, name))
+                row[field] = a[field]
+                row["sources"][field] = "args"
+                if field == "mesh":
+                    p = [x for x in p if not x.startswith("MESH_PATH_UNRESOLVED")]
+        problems += ["%s|%s" % (t, x) for x in p]
+        if not str(row.get("mesh") or "").startswith("/Game/"):
+            problems.append("%s: mesh path unresolved (%r)" % (t, row.get("mesh")))
+        if row.get("pivot_offset_cm") is None:
+            problems.append("%s: pivot_offset_cm unresolved" % t)
+        row.setdefault("rot_offset_deg", [0.0, 0.0, 0.0])
+        row.setdefault("pivot_frame", "her_local_world_cm")
+        row.setdefault("variants", {})
         out[t] = row
     return out, problems
+
+
+def check_her_actor_lists(types, wings):
+    """The kit's her_actors per type must be exactly the census labels of that type."""
+    p = []
+    for t, row in types.items():
+        want = sorted(w["label"] for w in wings if w["type"] == t)
+        if sorted(row.get("her_actors") or []) != want:
+            p.append("KIT_HER_ACTORS|%s|kit %s census %s" % (t, sorted(row.get("her_actors") or []), want))
+    return p
+
+
+# ===================================================================================================== coverage / hold
+def coverage_plan(mode, hookin_range, level_vis_range, parent_fps, child_tick):
+    """'scene' (Gary 8 Oct, 'ours throughout'): our subsection covers [her level becomes visible, hookin end).  Her
+    level is hidden before that by the hookin's Level Visibility track [meas seq record S2: [104, 3891]], so our wings
+    must not appear earlier either.  'cinematic': exactly the hookin section.
+    -> {"range", "pre_frames", "pre_ticks"}; pre_ticks shifts her keys inside OUR sequence (our local 0 == range start)."""
+    hs, he = int(hookin_range[0]), int(hookin_range[1])
+    if mode == "cinematic":
+        return {"range": [hs, he], "pre_frames": 0, "pre_ticks": 0, "pre_seconds": 0.0}
+    req(mode == "scene", "COVERAGE_MODE|%r" % mode)
+    req(level_vis_range is not None, "LEVEL_VIS_SECTION_MISSING (cannot read when her level becomes visible)")
+    ls, le = int(level_vis_range[0]), int(level_vis_range[1])
+    req(ls <= hs, "LEVEL_VISIBLE_AFTER_HOOKIN|%s vs %s" % (ls, hs))
+    req(le >= he, "LEVEL_HIDDEN_BEFORE_HOOKIN_END|%s vs %s" % (le, he))
+    secs = (hs - ls) * float(parent_fps[1]) / float(parent_fps[0])
+    ticks = secs * float(child_tick[0]) / float(child_tick[1])
+    req(abs(ticks - round(ticks)) < 1e-6, "PRE_ROLL_NOT_ON_TICK_GRID|%.6f" % ticks)
+    return {"range": [ls, he], "pre_frames": hs - ls, "pre_ticks": int(round(ticks)), "pre_seconds": secs}
+
+
+def classify_pre_pose(live, first, rest, tol_cm=2.0, tol_deg=0.05):
+    """What her wing shows BEFORE her section starts.  live = her actor's editor-world pose (Sequencer closed = the
+    level state); first/rest = her keys' first/last pose.  -> 'rest' | 'first' | 'unclear'."""
+    def near(a, b):
+        return (sum((a[i] - b[i]) ** 2 for i in range(3)) ** 0.5 <= tol_cm and
+                all(angle_diff(a[i], b[i]) <= tol_deg for i in (3, 4, 5)))
+    if near(live, rest):
+        return "rest"
+    if near(live, first):
+        return "first"
+    return "unclear"
+
+
+def with_hold(keys, pre_ticks, hold_pose):
+    """Shift her-timed keys by pre_ticks and prepend a CONSTANT hold key at 0, so our wing sits in her pre-section
+    pose over [range start, her section start), then follows her keys.  -> (keys, interps)."""
+    if not pre_ticks:
+        return [list(k) for k in keys], ["RCIM_LINEAR"] * len(keys)
+    req(keys and keys[0][0] >= 0, "NEGATIVE_KEY_TICK")
+    shifted = [[k[0] + pre_ticks] + list(k[1:]) for k in keys]
+    hold = [0] + list(hold_pose)
+    for i in (4, 5, 6):                                   # Euler continuity with the first fall key
+        hold[i] = unwrap_near(hold[i], shifted[0][i])
+    return [hold] + shifted, ["RCIM_CONSTANT"] + ["RCIM_LINEAR"] * len(shifted)
 
 
 # ===================================================================================================== rotator maths
@@ -383,18 +499,21 @@ def plan_wing_keys(chans, row, copy_channels="all", tol_cm=0.5, tol_deg=0.05):
             "midpoint_dev_deg": round(dev_deg, 5), "problems": problems, "n": len(keys)}
 
 
-def keys_sha(keys):
+def keys_sha(keys, interps=None):
     canon = [[int(k[0])] + [round(float(v), 3) for v in k[1:]] for k in keys]
-    return hashlib.sha256(json.dumps(canon).encode("utf-8")).hexdigest()
+    blob = canon if interps is None else [canon, list(interps)]
+    return hashlib.sha256(json.dumps(blob).encode("utf-8")).hexdigest()
 
 
 def keys_from_channels(chans):
-    """Read-back form: {name: {"keys": [[tick, v, interp]]}} of OUR track -> [[tick, x..yaw]] (all channels must share
-    ticks, else refuse)."""
+    """Read-back form: {name: {"keys": [[tick, v, interp]]}} of OUR track -> ([[tick, x..yaw]], interps).  All
+    channels must share ticks AND per-key interpolation, else refuse."""
     ticks = [k[0] for k in chans["x"]["keys"]]
+    interps = [k[2] for k in chans["x"]["keys"]]
     for n in CHANNELS:
         req([k[0] for k in chans[n]["keys"]] == ticks, "OUR_KEY_TICKS_DIFFER:%s" % n)
-    return [[t] + [float(chans[n]["keys"][i][1]) for n in CHANNELS] for i, t in enumerate(ticks)]
+        req([k[2] for k in chans[n]["keys"]] == interps, "OUR_KEY_INTERP_DIFFER:%s" % n)
+    return [[t] + [float(chans[n]["keys"][i][1]) for n in CHANNELS] for i, t in enumerate(ticks)], interps
 
 
 def keys_equal(a, b, tol_cm=0.01, tol_deg=0.001):
@@ -515,9 +634,11 @@ def check_mode(args, in_pie, sequencer_open, record):
 def plan_digest(plan):
     """Digest of what APPLY would write (DRY -> APPLY must match, else 'PLAN_CHANGED_SINCE_DRY')."""
     core = {"overlay": plan.get("overlay_asset"), "section": plan.get("section"), "params": plan.get("section_params"),
+            "coverage": plan.get("coverage"), "overlay_playback": plan.get("overlay_playback"),
             "copy": plan.get("copy"), "variant": plan.get("variant"), "copy_rates": plan.get("copy_rates"),
             "types": {t: {k: r.get(k) for k in ("mesh", "pivot_offset_cm", "rot_offset_deg", "pivot_frame",
                                                  "variants")} for t, r in sorted((plan.get("types") or {}).items())},
-            "wings": [{k: w.get(k) for k in ("label", "type", "her_actor_path", "source_hashes", "keys_sha")}
+            "wings": [{k: w.get(k) for k in ("label", "type", "her_actor_path", "source_hashes", "keys_sha",
+                                              "pre_pose")}
                       for w in plan.get("wings") or []]}
     return hashlib.sha256(json.dumps(core, sort_keys=True, default=str).encode("utf-8")).hexdigest()

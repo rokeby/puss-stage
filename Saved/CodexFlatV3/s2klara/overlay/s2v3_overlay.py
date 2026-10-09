@@ -8,7 +8,14 @@ Shot') are replaced by OUR Flat V3 rebuilds (owners S2K_*), WITHOUT saving her l
 
 MECHANISM (conductor rules, 8 Oct)
   * A NEW level sequence of ours (args.overlay_asset) nested in LS_DevScene_02 on OUR OWN MovieSceneSubTrack named
-    'S2 V3 Wings Overlay', section range and parameters = the hookin section's (read live; expected [376, 3891)).
+    'S2 V3 Wings Overlay'.  COVERAGE (Gary 8 Oct, 'ours throughout'): default 'scene' = from the moment her level becomes
+    visible (the hookin's 'Klara Levels (hookin)' Level Visibility section start, read live; recorded 104) to the hookin
+    section end (3891).  Over the wide shot [104, 376) our wings HOLD her pre-section pose -- the pose her actor shows
+    while her section is not evaluating (DRY measures it: her live actor pose vs her keys' rest/first pose; the offline
+    census reads her saved actors at the REST height, z 789 / 2430 [meas her_wings_census.json]) -- via one CONSTANT key
+    at our local 0; her keys follow, shifted by the pre-roll in ticks (272 parent frames @25 = 10.88 s = 261120 ticks),
+    so at parent 376 our keys line up with hers.  'cinematic' = the old behaviour (exactly the hookin section).
+    Section parameters are copied from the hookin section (start offset must be 0: checked by the mapping).
     Nothing else in LS_DevScene_02 changes: a semantic fingerprint (every binding/track/section/channel: keys, values,
     defaults, ranges, sub-section parameters via export_text) before vs after may differ ONLY by our track's rows.
   * In the overlay, 15 possessables on HER actors (resolve into her non-instanced streamed level by package path, as
@@ -18,7 +25,10 @@ MECHANISM (conductor rules, 8 Oct)
   * 15 SPAWNABLE StaticMeshActors of ours (design choice: see PROPOSAL section in the final report) with the S2K_* mesh
     of their type, Front material variant A|B, scale 1, mobility MOVABLE, and a 3D transform track whose keys copy her
     binding's keys in the hookin COPY (world-space after its rigid re-key [meas seq record S2 rekey: ABSOLUTE,
-    world-space]) composed with the per-type pivot offset: our = her (+) offset at the union of her key ticks.
+    world-space]) composed with the per-type child transform from DerivedAssets/FlatV3/KlaraS2/pivot/pivot_offsets.json
+    (rule 'world(ours) = HerActorTransform(location, rotation only) * Translate(T) * RotZ(180)'), cross-checked with
+    IMPORT_MANIFEST_KlaraS2.json klara_s2.pivot; mesh paths from rzimport_plan_offline_KlaraS2.json (planned);
+    A/B material maps from the manifest's klara_s2.front_variants (Timber/Edge 'unchanged' = mesh default).
     Her X/Y/roll/pitch are NOT constant (x +-5..34 cm, y down 131 cm, roll to 3.3 deg [meas her_seq_decode.json]), so
     the default copies all six channels ('copy_channels': 'all'); 'z_only' holds the rest values instead.
 
@@ -29,7 +39,9 @@ MODES (args.mode; confirm '<MODE> S2V3OVERLAY'; decided_by for writes)
   APPLY    originals FIRST (path logged), record, Backups/PreS2V3Overlay-<run>; create the overlay (create-only); hide
            bindings; spawnables; nest; fingerprint diff; census EXACTLY {overlay, LS_DevScene_02}, NO map dirty (a
            Klara package dirty = stop); save overlay, then LS_DevScene_02; same-call read-back.  S2V3OV_APPLY_OK
-  VARIANT  args.variant A|B: rewrite ONLY our 15 templates' override_materials; census {overlay}; save overlay.
+  VARIANT  args.variant A|B: rewrite ONLY our 15 templates' override_materials (every material must load first, else
+           nothing changes); census {overlay}; save overlay.  B's MIs are made by a later Unreal step (manifest
+           'who_writes_it'), so DRY only WARNS when the variant not being applied is missing.
   RESYNC   re-ingest detected (copy key hashes != record): re-copy keys into our 15 transform tracks; census {overlay}.
            Equal hashes -> S2V3OV_RESYNC_NOOP (nothing saved).  A moved hookin section needs REVERT + APPLY.
   VERIFY   read-only, a LATER call: LS_DevScene_02 vs record, our track/section, bindings resolve to her actors
@@ -367,6 +379,20 @@ def _hookin_section(C, scene, copy_path):
     return t, s
 
 
+def _level_vis_range(C, scene):
+    """The hookin's Level Visibility section that shows her level (track 'Klara Levels (hookin)', level names incl.
+    Japanese_Alley) -> [start, end] display frames, or None [prec klara_hookin.py _live_seq_state]."""
+    rows = []
+    for t in scene.get_tracks():
+        if _cls(t) == "MovieSceneLevelVisibilityTrack" and str(t.get_display_name()) == C.LEVELS_TRACK:
+            for s in t.get_sections():
+                if C.HER_LEVEL_SHORT in [str(n) for n in s.get_level_names()]:
+                    rows.append([int(s.get_start_frame()), int(s.get_end_frame())])
+    if len(rows) != 1:
+        raise C.PlanError("LEVEL_VIS_SECTION_COUNT|%d" % len(rows))
+    return rows[0]
+
+
 def _mapped(sec, scene):
     child = sec.get_sequence()
     f = unreal.MovieSceneSectionExtensions.get_parent_sequence_frame
@@ -464,6 +490,10 @@ def _api_table():
     probe("MovieSceneSectionExtensions.get_parent_sequence_frame", "prec klara_hookin.py:1903",
           lambda: hasattr(u.MovieSceneSectionExtensions, "get_parent_sequence_frame"))
     probe("ComponentMobility.MOVABLE", "prec curtain_sleight.py:2029", lambda: repr(u.ComponentMobility.MOVABLE))
+    probe("MovieSceneKeyInterpolation.CONSTANT (the wide-shot hold key)", "inf (enum name)",
+          lambda: repr(u.MovieSceneKeyInterpolation.CONSTANT))
+    probe("MovieSceneLevelVisibilitySection.get_level_names", "prec klara_hookin.py:1693",
+          lambda: hasattr(u.MovieSceneLevelVisibilitySection, "get_level_names"))
     return rows
 
 
@@ -471,49 +501,81 @@ def _api_table():
 def _plan(C, args, world, run):
     """Everything DRY reports and APPLY/RESYNC write.  -> plan dict with 'refusals', plus live handles (not in JSON)."""
     refusals, warnings = [], []
-    census_rows = _read(CENSUS_JSON)
-    wings = C.her_wings_from_census(census_rows)
-    manifest = _read(_abs(args.get("manifest_path")))
-    record = _read(_abs(args.get("pivot_record_path")))
-    if manifest is None:
-        warnings.append("MANIFEST_ABSENT|%s" % args.get("manifest_path"))
-    types, tp = C.resolve_types(args, manifest, record)
-    refusals += ["TYPES|" + x for x in tp]
+    wings = C.her_wings_from_census(_read(CENSUS_JSON))
+    kit = dict(C.KIT, **(args.get("kit") or {}))
+    kit_files = {k: _read(_abs(v)) for k, v in kit.items()}
+    for k, v in kit_files.items():
+        if v is None:
+            refusals.append("KIT_FILE_MISSING|%s|%s" % (k, kit[k]))
+    types, tp = C.resolve_types(args, kit_files["manifest_path"], kit_files["pivot_path"],
+                                kit_files["rzimport_plan_path"])
+    refusals += ["TYPES|" + x for x in tp] + C.check_her_actor_lists(types, wings)
     variant = str(args.get("variant") or C.DEFAULTS["variant"]).upper()
     scene = _load(C.SCENE_SEQ, "scene")
     copy_path = args.get("hookin_copy") or C.HOOKIN_COPY
     copy = _load(copy_path, "hookin copy")
     _t, hsec = _hookin_section(C, scene, copy_path)
-    section = [int(hsec.get_start_frame()), int(hsec.get_end_frame())]
+    hookin_range = [int(hsec.get_start_frame()), int(hsec.get_end_frame())]
     want_sec = list(args.get("expected_section") or C.EXPECTED_SECTION)
-    if section != want_sec:
-        refusals.append("HOOKIN_SECTION_RANGE|live %s expected %s" % (section, want_sec))
+    if hookin_range != want_sec:
+        refusals.append("HOOKIN_SECTION_RANGE|live %s expected %s" % (hookin_range, want_sec))
     if not hsec.is_active():
         refusals.append("HOOKIN_SECTION_INACTIVE")
+    hookin_mapped = _mapped(hsec, scene)
+    if hookin_mapped[0] != hookin_range[0]:
+        refusals.append("HOOKIN_OFFSET_NONZERO|child start maps to %s, section starts %s" % (hookin_mapped[0],
+                                                                                           hookin_range[0]))
+    copy_rates = {"fps": _rate(copy.get_display_rate()), "tick": _rate(copy.get_tick_resolution()),
+                  "playback": [int(copy.get_playback_start()), int(copy.get_playback_end())]}
+    coverage_mode = str(C.opt(args, "coverage"))
+    lv = None
+    try:
+        lv = _level_vis_range(C, scene)
+    except C.PlanError as exc:
+        if coverage_mode == "scene":
+            refusals.append(str(exc))
+    try:
+        cov = C.coverage_plan(coverage_mode, hookin_range, lv, _rate(scene.get_display_rate()), copy_rates["tick"])
+    except C.PlanError as exc:
+        refusals.append("COVERAGE|%s" % exc)
+        cov = {"range": hookin_range, "pre_frames": 0, "pre_ticks": 0, "pre_seconds": 0.0}
+    if args.get("expected_coverage") and cov["range"] != list(args["expected_coverage"]):
+        refusals.append("COVERAGE_RANGE|live %s expected %s" % (cov["range"], args["expected_coverage"]))
+    tpf = copy_rates["tick"][0] * copy_rates["fps"][1] / float(copy_rates["tick"][1] * copy_rates["fps"][0])
+    if cov["pre_ticks"] and copy_rates["playback"][0] != 0:
+        refusals.append("COPY_PLAYBACK_START_NOT_0|%s" % copy_rates["playback"])
+    end_ticks = cov["pre_ticks"] + copy_rates["playback"][1] * tpf
+    overlay_playback = [0 if cov["pre_ticks"] else copy_rates["playback"][0], int(-(-end_ticks // tpf))]
     actors, ap = _her_actors(C, world, wings)
     refusals += ap
     sources, sp = _copy_sources(C, copy, wings, actors)
     refusals += sp
     meshes = {}
     for t, row in types.items():
-        if row.get("mesh"):
-            info = _mesh_info(str(row["mesh"]).split(".")[0])
-            if info is None:
-                refusals.append("OUR_MESH_NOT_LOADED|%s|%s" % (t, row["mesh"]))
+        row["variant_mats"] = {}
+        if not row.get("mesh"):
+            continue
+        info = _mesh_info(str(row["mesh"]).split(".")[0])
+        if info is None:
+            refusals.append("OUR_MESH_NOT_LOADED|%s|%s" % (t, row["mesh"]))
+            continue
+        meshes[t] = info
+        for vn in C.VARIANTS:
+            mats, mp = _variant_materials(info, (row.get("variants") or {}).get(vn) or {})
+            row["variant_mats"][vn] = mats
+            msgs = ["%s.%s|%s" % (t, vn, x) for x in mp]
+            if vn == variant:
+                refusals += msgs
             else:
-                meshes[t] = info
-                for vn in C.VARIANTS:
-                    mats, mp = _variant_materials(info, (row.get("variants") or {}).get(vn) or {})
-                    refusals += ["%s.%s|%s" % (t, vn, x) for x in mp]
-                    row.setdefault("variant_mats", {})[vn] = mats
+                warnings += ["NOT_APPLIED_VARIANT_NOT_READY|" + x for x in msgs]
     plan_wings = []
     tol_cm, tol_deg = float(C.opt(args, "midpoint_tol_cm")), float(C.opt(args, "midpoint_tol_deg"))
+    pre_arg = str(C.opt(args, "pre_section_pose"))
     for w in wings:
         row = types.get(w["type"])
         src = sources.get(w["label"])
         a = actors.get(w["label"])
-        pw = {"label": w["label"], "type": w["type"], "her_actor_path": a.get_path_name() if a else None,
-              "her_actor_label": w["label"]}
+        pw = {"label": w["label"], "type": w["type"], "her_actor_path": a.get_path_name() if a else None}
         if src is None or row is None or row.get("pivot_offset_cm") is None or a is None:
             pw["skipped"] = "inputs unresolved"
             plan_wings.append(pw)
@@ -526,15 +588,27 @@ def _plan(C, args, world, run):
         except C.PlanError as exc:
             kp = {"keys": [], "problems": [str(exc)]}
         refusals += ["%s|%s" % (w["label"], x) for x in kp["problems"]]
-        pw.update({k: kp.get(k) for k in ("keys", "first", "rest", "midpoint_dev_cm", "midpoint_dev_deg", "n")})
-        pw["keys_sha"] = C.keys_sha(kp["keys"]) if kp["keys"] else None
         live = _pose(a)
-        her_last = [C.eval_channel(src["chans"][n], 10 ** 12) for n in C.CHANNELS]
-        d = sum((live[i] - her_last[i]) ** 2 for i in range(3)) ** 0.5
-        pw["her_live_pose"], pw["her_rest_from_keys"], pw["rest_vs_actor_cm"] = live, her_last, round(d, 3)
-        if d > float(C.opt(args, "rest_vs_actor_tol_cm")):
-            warnings.append("REST_VS_ACTOR|%s|%.2f cm (editor may hold an evaluated pose; keys are the authority)"
-                            % (w["label"], d))
+        her_first = [C.eval_channel(src["chans"][n], -10 ** 12) for n in C.CHANNELS]
+        her_rest = [C.eval_channel(src["chans"][n], 10 ** 12) for n in C.CHANNELS]
+        cls = C.classify_pre_pose(live, her_first, her_rest, float(C.opt(args, "rest_vs_actor_tol_cm")))
+        pw.update(her_live_pose=live, her_first_from_keys=her_first, her_rest_from_keys=her_rest,
+                  pre_pose_measured=cls,
+                  rest_vs_actor_cm=round(sum((live[i] - her_rest[i]) ** 2 for i in range(3)) ** 0.5, 3))
+        pre = cls if pre_arg == "auto" else pre_arg
+        if cov["pre_ticks"]:
+            if pre == "unclear":
+                refusals.append("PRE_POSE_UNCLEAR|%s|her live pose is neither her rest nor her first key pose "
+                                "(Sequencer left an evaluated pose? set args.pre_section_pose rest|first)" % w["label"])
+            elif pre_arg != "auto" and pre_arg != cls:
+                warnings.append("PRE_POSE_FORCED|%s|measured %s, args %s" % (w["label"], cls, pre_arg))
+        pw["pre_pose"] = pre if cov["pre_ticks"] else None
+        if kp["keys"]:
+            hold = (kp["rest"] if pre == "rest" else kp["first"])[1:]
+            keys, interps = C.with_hold(kp["keys"], cov["pre_ticks"], hold)
+            pw.update(keys=keys, interps=interps, keys_sha=C.keys_sha(keys, interps), n=len(keys),
+                      fall_first=kp["first"], rest=kp["rest"], midpoint_dev_cm=kp["midpoint_dev_cm"],
+                      midpoint_dev_deg=kp["midpoint_dev_deg"])
         sc = a.get_actor_scale3d()
         pw["her_scale"] = [float(sc.x), float(sc.y), float(sc.z)]
         her_info = _mesh_info(str(w["mesh"]).split(".")[0])
@@ -555,11 +629,11 @@ def _plan(C, args, world, run):
     if unreal.EditorAssetLibrary.does_asset_exist(ov):
         refusals.append("OVERLAY_ASSET_EXISTS|%s (create-only: pick a new path or delete it by hand)" % ov)
     plan = {"tool": C.TOOL, "run": run, "overlay_asset": ov, "variant": variant, "copy": copy_path,
-            "copy_rates": {"fps": _rate(copy.get_display_rate()), "tick": _rate(copy.get_tick_resolution()),
-                           "playback": [int(copy.get_playback_start()), int(copy.get_playback_end())]},
+            "copy_rates": copy_rates, "overlay_playback": overlay_playback,
             "scene_rates": {"fps": _rate(scene.get_display_rate()), "tick": _rate(scene.get_tick_resolution())},
-            "section": section, "section_params": _params_text(hsec), "section_completion": _completion(hsec),
-            "hookin_mapped": _mapped(hsec, scene),
+            "coverage": dict(cov, mode=coverage_mode), "section": cov["range"], "hookin_section": hookin_range,
+            "level_vis_range": lv, "section_params": _params_text(hsec), "section_completion": _completion(hsec),
+            "hookin_mapped": hookin_mapped, "kit": kit,
             "types": {t: {k: v for k, v in r.items()} for t, r in types.items()},
             "meshes": meshes, "wings": plan_wings, "foreign": foreign, "fingerprint_rows": len(fp),
             "refusals": refusals, "warnings": warnings}
@@ -631,18 +705,19 @@ def _spawn_track(b, rng):
     return st
 
 
-def _write_keys(C, section, keys):
+def _write_keys(C, section, keys, interps):
     cm = _chan_map(section)
     for n in ("Scale.X", "Scale.Y", "Scale.Z"):
         cm[n].set_default(1.0)                                        # unkeyed scale would evaluate 0 [prec 1790-1791]
+    modes = {"RCIM_LINEAR": unreal.MovieSceneKeyInterpolation.LINEAR,
+             "RCIM_CONSTANT": unreal.MovieSceneKeyInterpolation.CONSTANT}
     for i, n in enumerate(C.CHANNELS):
         ch = cm[C.UE_CHANNEL[n]]
         for k in list(ch.get_keys()):
             ch.remove_key(k)
-        for row in keys:
+        for row, im in zip(keys, interps):
             made = ch.add_key(unreal.FrameNumber(int(row[0])), float(row[1 + i]),
-                              time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION,
-                              interpolation=unreal.MovieSceneKeyInterpolation.LINEAR)
+                              time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION, interpolation=modes[im])
             if made is None:
                 raise RuntimeError("ADD_KEY_NONE|%s|%s" % (n, row[0]))
     return _read_our_keys(C, section)
@@ -651,7 +726,7 @@ def _write_keys(C, section, keys):
 def _read_our_keys(C, section):
     cm = _chan_map(section)
     chans = {n: {"keys": _tick_rows(cm[C.UE_CHANNEL[n]])} for n in C.CHANNELS}
-    bad = sorted({k[2] for n in C.CHANNELS for k in chans[n]["keys"]} - {"RCIM_LINEAR"})
+    bad = sorted({k[2] for n in C.CHANNELS for k in chans[n]["keys"]} - {"RCIM_LINEAR", "RCIM_CONSTANT"})
     if bad:
         raise RuntimeError("OUR_INTERP|%s" % bad)
     return C.keys_from_channels(chans)
@@ -662,7 +737,7 @@ def _add_ours(C, ov, w, trow, mats, rng):
     if b is None or not b.is_valid():
         raise RuntimeError("ADD_SPAWNABLE|%s" % w["label"])
     b.set_display_name(C.OURS_PREFIX + w["label"])
-    tstate = _set_template(C, b, trow["mesh"], mats, w["first"][1:])
+    tstate = _set_template(C, b, trow["mesh"], mats, w["keys"][0][1:])
     _spawn_track(b, rng)
     t = b.add_track(unreal.MovieScene3DTransformTrack)
     if t is None:
@@ -671,8 +746,8 @@ def _add_ours(C, ov, w, trow, mats, rng):
     s = t.add_section()
     s.set_range(int(rng[0]), int(rng[1]))
     s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
-    got = _write_keys(C, s, w["keys"])
-    if not C.keys_equal(got, w["keys"]):
+    got, gi = _write_keys(C, s, w["keys"], w["interps"])
+    if gi != w["interps"] or not C.keys_equal(got, w["keys"]):
         raise RuntimeError("KEY_READBACK|%s" % w["label"])
     return b, tstate
 
@@ -699,7 +774,7 @@ def _overlay_state(C, ov):
             row = {"guid": _guid(b), "template": _template_state(b), "transform_tracks": len(tr),
                    "sections": len(secs)}
             if len(secs) == 1:
-                row["keys_sha"] = C.keys_sha(_read_our_keys(C, secs[0]))
+                row["keys_sha"] = C.keys_sha(*_read_our_keys(C, secs[0]))
                 row["range"] = [int(secs[0].get_start_frame()), int(secs[0].get_end_frame())]
             ours[name[len(C.OURS_PREFIX):]] = row
     return {"hide": hide, "ours": ours, "bindings": len(list(ov.get_bindings())),
@@ -709,7 +784,7 @@ def _overlay_state(C, ov):
 
 
 def _expect_overlay(C, plan, variant):
-    rng = plan["copy_rates"]["playback"]
+    rng = plan["overlay_playback"]
     want = {"hide": {}, "ours": {}}
     for w in plan["wings"]:
         want["hide"][w["label"]] = {"vis_tracks": 1, "property": ["bHidden"], "sections": 1, "range": [rng],
@@ -719,6 +794,10 @@ def _expect_overlay(C, plan, variant):
                                     "keys_sha": w["keys_sha"], "range": rng, "scale": [1.0, 1.0, 1.0],
                                     "mobility": "MOVABLE"}
     return want
+
+
+def _rates_want(plan):
+    return {"fps": plan["copy_rates"]["fps"], "tick": plan["copy_rates"]["tick"], "playback": plan["overlay_playback"]}
 
 
 def _overlay_problems(C, state, want, rates_want):
@@ -790,6 +869,12 @@ def run_dry(C, args, run, world, census0):
     return plan, path
 
 
+def _mapping_ok(section, mapped, hookin_mapped):
+    """Our child start maps to our section start; our child end maps to within one parent frame of where the hookin's
+    child end maps (both are the section end, floored on the parent grid [meas hookin APPLY_SEQ 8 Oct: 3890 for 3891])."""
+    return mapped[0] == section[0] and abs(mapped[1] - hookin_mapped[1]) <= 1 and mapped[1] <= section[1]
+
+
 def run_apply(C, args, run, world):
     dry = _read(os.path.join(HERE, str(args.get("dry_report") or "")))
     if not dry:
@@ -809,9 +894,12 @@ def run_apply(C, args, run, world):
     rec = {"tool": C.TOOL, "run": run, "mode": "APPLY", "decided_by": args.get("decided_by"), "applied": False,
            "saved": [], "overlay_asset": plan["overlay_asset"], "variant": variant, "plan_digest": plan["digest"],
            "dry_report": args.get("dry_report"), "section": plan["section"], "section_params": plan["section_params"],
-           "copy": plan["copy"], "copy_rates": plan["copy_rates"], "types": plan["types"],
+           "hookin_section": plan["hookin_section"], "level_vis_range": plan["level_vis_range"],
+           "coverage": plan["coverage"], "overlay_playback": plan["overlay_playback"],
+           "copy": plan["copy"], "copy_rates": plan["copy_rates"], "types": plan["types"], "kit": plan["kit"],
            "wings": [{k: w.get(k) for k in ("label", "type", "her_actor_path", "copy_binding", "source_hashes",
-                                             "keys_sha", "first", "rest")} for w in plan["wings"]],
+                                             "keys_sha", "pre_pose", "pre_pose_measured", "rest")}
+                     for w in plan["wings"]],
            "originals": ORIGINALS, "written": datetime.datetime.now().isoformat(timespec="seconds")}
     _write(RECORD, rec, exclusive=True)
     rec["backup"] = _backup(C, run, "", [_content_file(C.SCENE_SEQ), ORIGINALS, RECORD])
@@ -826,7 +914,7 @@ def run_apply(C, args, run, world):
     copy = h["copy"]
     ov.set_tick_resolution(copy.get_tick_resolution())
     ov.set_display_rate(copy.get_display_rate())
-    pb = plan["copy_rates"]["playback"]
+    pb = plan["overlay_playback"]
     ov.set_playback_start(int(pb[0]))
     ov.set_playback_end(int(pb[1]))
     for w in plan["wings"]:
@@ -834,7 +922,7 @@ def run_apply(C, args, run, world):
     for w in plan["wings"]:
         _add_ours(C, ov, w, plan["types"][w["type"]], plan["types"][w["type"]]["variant_mats"][variant], pb)
     st = _overlay_state(C, ov)
-    p = _overlay_problems(C, st, _expect_overlay(C, plan, variant), plan["copy_rates"])
+    p = _overlay_problems(C, st, _expect_overlay(C, plan, variant), _rates_want(plan))
     if p:
         raise RuntimeError("OVERLAY_READBACK|%s|NOTHING SAVED; Don't-Save restart" % " || ".join(p[:6]))
     track = scene.add_track(unreal.MovieSceneSubTrack)
@@ -848,9 +936,9 @@ def run_apply(C, args, run, world):
     sec.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
     got = {"range": [int(sec.get_start_frame()), int(sec.get_end_frame())], "params": _params_text(sec),
            "mapped": _mapped(sec, scene), "sequence": _pkg(sec.get_sequence()), "active": bool(sec.is_active())}
-    want = {"range": plan["section"], "params": plan["section_params"], "mapped": plan["hookin_mapped"],
+    want = {"range": plan["section"], "params": plan["section_params"], "mapped": got["mapped"],
             "sequence": plan["overlay_asset"], "active": True}
-    if got != want:
+    if got != want or not _mapping_ok(plan["section"], got["mapped"], plan["hookin_mapped"]):
         raise RuntimeError("SUBSECTION_READBACK|got %s want %s|NOTHING SAVED; Don't-Save restart" % (got, want))
     fp_after = _fingerprint(C, scene)
     ours = C.our_track_prefix(fp_after)
@@ -867,7 +955,7 @@ def run_apply(C, args, run, world):
     fp_post = _fingerprint(C, scene2)
     if C.fingerprint_diff(fp_after, fp_post):
         raise RuntimeError("POST_SAVE_FINGERPRINT_CHANGED")
-    p = _overlay_problems(C, _overlay_state(C, ov2), _expect_overlay(C, plan, variant), plan["copy_rates"])
+    p = _overlay_problems(C, _overlay_state(C, ov2), _expect_overlay(C, plan, variant), _rates_want(plan))
     if p:
         raise RuntimeError("POST_SAVE_OVERLAY|%s" % " || ".join(p[:6]))
     rec["fp_after_file"] = os.path.join(HERE, "s2v3_overlay_fp_after_%s.json" % run)
@@ -877,6 +965,8 @@ def run_apply(C, args, run, world):
     rec["variant_history"] = [[run, variant]]
     _write(RECORD, rec)
     return {"overlay": plan["overlay_asset"], "hide": 15, "ours": 15, "section": plan["section"],
+            "coverage": plan["coverage"]["mode"], "pre_ticks": plan["coverage"]["pre_ticks"],
+            "pre_pose": sorted({w.get("pre_pose") or "none" for w in plan["wings"]}),
             "variant": variant, "backup": rec["backup"], "record": RECORD}
 
 
@@ -885,6 +975,15 @@ def run_variant(C, args, run, world):
     variant = str(args.get("variant") or "").upper()
     if variant not in C.VARIANTS:
         raise C.PlanError("VARIANT_ARG")
+    want = {}
+    for t, row in rec["types"].items():
+        info = _mesh_info(str(row["mesh"]).split(".")[0])
+        if info is None:
+            raise C.PlanError("OUR_MESH_NOT_LOADED|%s" % row["mesh"])
+        mats, mp = _variant_materials(info, (row.get("variants") or {}).get(variant) or {})
+        if mp or not any(mats):
+            raise C.PlanError("VARIANT_NOT_READY|%s.%s|%s|nothing changed" % (t, variant, mp or "no materials"))
+        want[t] = mats
     ov = _load(rec["overlay_asset"], "overlay")
     backup = _backup(C, run, "-VARIANT", [_content_file(rec["overlay_asset"]), RECORD])
     changed = 0
@@ -895,8 +994,8 @@ def run_variant(C, args, run, world):
         label = name[len(C.OURS_PREFIX):]
         w = next((x for x in rec["wings"] if x["label"] == label), None)
         if w is None:
-            raise RuntimeError("UNKNOWN_OURS_BINDING|%s" % name)
-        mats = rec["types"][w["type"]]["variant_mats"][variant]
+            raise RuntimeError("UNKNOWN_OURS_BINDING|%s|NOTHING SAVED; Don't-Save restart" % name)
+        mats = want[w["type"]]
         comp = b.get_object_template().get_editor_property("static_mesh_component")
         comp.set_editor_property("override_materials", [None if p is None else _load(p, "material") for p in mats])
         if _template_state(b)["mats"] != mats:
@@ -906,11 +1005,12 @@ def run_variant(C, args, run, world):
         raise RuntimeError("VARIANT_COUNT|%d|NOTHING SAVED; Don't-Save restart" % changed)
     _save(C, [rec["overlay_asset"]], [rec["overlay_asset"]])
     st = _overlay_state(C, _load(rec["overlay_asset"], "overlay"))
-    bad = [k for k, r in st["ours"].items()
-           if r["template"]["mats"] != rec["types"][next(w["type"] for w in rec["wings"] if w["label"] == k)]
-           ["variant_mats"][variant]]
+    typ = {w["label"]: w["type"] for w in rec["wings"]}
+    bad = [k for k, r in st["ours"].items() if r["template"]["mats"] != want[typ[k]]]
     if bad:
         raise RuntimeError("VARIANT_POST_SAVE|%s" % bad)
+    for t, mats in want.items():
+        rec["types"][t].setdefault("variant_mats", {})[variant] = mats
     rec["variant"] = variant
     rec.setdefault("variant_history", []).append([run, variant])
     _write(RECORD, rec)
@@ -925,8 +1025,10 @@ def run_resync(C, args, run, world):
     ref = [r for r in plan["refusals"] if not r.startswith(("OVERLAY_ASSET_EXISTS", "OVERLAY_TRACK_ALREADY_IN_SCENE"))]
     if ref:
         raise C.PlanError("PLAN_REFUSED|" + " || ".join(ref[:12]))
-    if plan["section"] != rec["section"] or plan["section_params"] != rec["section_params"]:
-        raise C.PlanError("HOOKIN_SECTION_MOVED|%s vs %s (REVERT + DRY + APPLY)" % (plan["section"], rec["section"]))
+    if (plan["section"], plan["hookin_section"], plan["section_params"], plan["overlay_playback"]) != (
+            rec["section"], rec["hookin_section"], rec["section_params"], rec["overlay_playback"]):
+        raise C.PlanError("SECTION_OR_COVERAGE_MOVED|ours %s hookin %s vs recorded %s / %s (REVERT + DRY + APPLY)"
+                          % (plan["section"], plan["hookin_section"], rec["section"], rec["hookin_section"]))
     if plan["copy_rates"] != rec["copy_rates"]:
         raise C.PlanError("COPY_RATES_CHANGED|%s vs %s (REVERT + DRY + APPLY)" % (plan["copy_rates"], rec["copy_rates"]))
     for t, r in plan["types"].items():
@@ -934,7 +1036,8 @@ def run_resync(C, args, run, world):
         if any(r.get(k) != o.get(k) for k in ("mesh", "pivot_offset_cm", "rot_offset_deg", "pivot_frame")):
             raise C.PlanError("TYPES_CHANGED|%s (mesh/pivot differ from the record: REVERT + DRY + APPLY)" % t)
     old = {w["label"]: w for w in rec["wings"]}
-    stale = [w for w in plan["wings"] if w.get("source_hashes") != old[w["label"]].get("source_hashes")]
+    stale = [w for w in plan["wings"] if w.get("source_hashes") != old[w["label"]].get("source_hashes")
+             or w.get("keys_sha") != old[w["label"]].get("keys_sha")]
     if not stale:
         return None
     ov = _load(rec["overlay_asset"], "overlay")
@@ -946,10 +1049,11 @@ def run_resync(C, args, run, world):
         secs = [s for t in tr for s in t.get_sections()]
         if len(secs) != 1:
             raise RuntimeError("RESYNC_SHAPE|%s|NOTHING SAVED; Don't-Save restart" % w["label"])
-        if not C.keys_equal(_write_keys(C, secs[0], w["keys"]), w["keys"]):
+        got, gi = _write_keys(C, secs[0], w["keys"], w["interps"])
+        if gi != w["interps"] or not C.keys_equal(got, w["keys"]):
             raise RuntimeError("RESYNC_READBACK|%s|NOTHING SAVED; Don't-Save restart" % w["label"])
         comp = b.get_object_template().get_editor_property("static_mesh_component")
-        p0 = w["first"][1:]
+        p0 = w["keys"][0][1:]
         comp.set_editor_property("relative_location", unreal.Vector(p0[0], p0[1], p0[2]))
         comp.set_editor_property("relative_rotation", unreal.Rotator(roll=p0[3], pitch=p0[4], yaw=p0[5]))
     _save(C, [rec["overlay_asset"]], [rec["overlay_asset"]])
@@ -958,7 +1062,8 @@ def run_resync(C, args, run, world):
         if st["ours"][w["label"]].get("keys_sha") != w["keys_sha"]:
             raise RuntimeError("RESYNC_POST_SAVE|%s" % w["label"])
         o = old[w["label"]]
-        o.update({k: w.get(k) for k in ("source_hashes", "keys_sha", "first", "rest", "copy_binding")})
+        o.update({k: w.get(k) for k in ("source_hashes", "keys_sha", "pre_pose", "pre_pose_measured", "rest",
+                                         "copy_binding")})
     rec.setdefault("resyncs", []).append([run, [w["label"] for w in stale]])
     _write(RECORD, rec)
     return {"resynced": [w["label"] for w in stale], "backup": backup}
@@ -982,27 +1087,35 @@ def run_verify(C, args, run, world, census0):
                                                               v["path"]))
         try:
             _t, hsec = _hookin_section(C, scene, rec["copy"])
+            hr = [int(hsec.get_start_frame()), int(hsec.get_end_frame())]
+            lv = _level_vis_range(C, scene) if rec["coverage"]["mode"] == "scene" else None
+            cov = C.coverage_plan(rec["coverage"]["mode"], hr, lv, _rate(scene.get_display_rate()),
+                                  rec["copy_rates"]["tick"])
             mine = [s for t in scene.get_tracks() if _cls(t) == "MovieSceneSubTrack"
                     and str(t.get_display_name()) == C.OVERLAY_TRACK for s in t.get_sections()]
             if len(mine) != 1:
                 problems.append("OUR_SECTION_COUNT|%d" % len(mine))
             else:
                 s = mine[0]
-                got = [[int(s.get_start_frame()), int(s.get_end_frame())], _params_text(s), _pkg(s.get_sequence()),
-                       bool(s.is_active()), _mapped(s, scene)]
-                want = [[int(hsec.get_start_frame()), int(hsec.get_end_frame())], _params_text(hsec),
-                        rec["overlay_asset"], True, _mapped(hsec, scene)]
-                out["section"] = {"ours": got, "hookin": want}
-                if got != want:
-                    problems.append("SECTION_VS_HOOKIN|ours %s hookin %s" % (got, want))
+                got = {"range": [int(s.get_start_frame()), int(s.get_end_frame())], "params": _params_text(s),
+                       "sequence": _pkg(s.get_sequence()), "active": bool(s.is_active()), "mapped": _mapped(s, scene)}
+                out["section"] = {"ours": got, "hookin": hr, "level_visible": lv, "coverage_now": cov}
+                if got["range"] != cov["range"] or got["params"] != _params_text(hsec) or \
+                        got["sequence"] != rec["overlay_asset"] or not got["active"] or \
+                        not _mapping_ok(got["range"], got["mapped"], _mapped(hsec, scene)):
+                    problems.append("SECTION_VS_LIVE_COVERAGE|ours %s want %s (hookin %s, level %s)"
+                                    % (got, cov["range"], hr, lv))
+                if cov["pre_ticks"] != rec["coverage"]["pre_ticks"]:
+                    problems.append("PRE_ROLL_CHANGED|%s vs %s (REVERT + DRY + APPLY)" % (cov["pre_ticks"],
+                                                                                         rec["coverage"]["pre_ticks"]))
         except C.PlanError as exc:
-            problems.append("HOOKIN|%s" % exc)
+            problems.append("HOOKIN_OR_COVERAGE|%s" % exc)
         ov = _load(rec["overlay_asset"], "overlay")
         st = _overlay_state(C, ov)
         out["overlay"] = st
-        plan_like = {"copy_rates": rec["copy_rates"], "types": rec["types"],
+        plan_like = {"copy_rates": rec["copy_rates"], "types": rec["types"], "overlay_playback": rec["overlay_playback"],
                      "wings": [dict(w) for w in rec["wings"]]}
-        problems += _overlay_problems(C, st, _expect_overlay(C, plan_like, rec["variant"]), rec["copy_rates"])
+        problems += _overlay_problems(C, st, _expect_overlay(C, plan_like, rec["variant"]), _rates_want(plan_like))
         res = {}
         by = {str(b.get_display_name()): b for b in ov.get_bindings()}
         for w in rec["wings"]:
@@ -1092,7 +1205,8 @@ def main():
         census0 = _census()
         if mode not in C.READ_ONLY and census0 != {"content": [], "maps": []}:
             raise C.PlanError("DIRTY_BEFORE|%s" % json.dumps(census0))
-        unreal.log("%s_START|run=%s|mode=%s|variant=%s" % (C.MARK, run, mode, args.get("variant")))
+        unreal.log("%s_START|run=%s|mode=%s|variant=%s|coverage=%s" % (C.MARK, run, mode, args.get("variant"),
+                                                                      args.get("coverage")))
         if mode == "DRY":
             plan, path = run_dry(C, args, run, world, census0)
             unreal.log("%s_DRY_OK|run=%s|mutated=0|apply_ready=%s|refusals=%d|warnings=%d|digest=%s|out=%s" % (

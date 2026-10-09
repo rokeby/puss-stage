@@ -3,10 +3,12 @@
 
 Part A  core maths / gates, each with a POSITIVE and a NEGATIVE control.
 Part B  the editor tool end-to-end against a FAKE `unreal` module (sequences, bindings, tracks, sections, channels,
-        keys, actors, dirty census, saves): DRY -> APPLY -> VERIFY -> VARIANT B -> VERIFY -> RESYNC (noop) -> re-ingest
-        -> VERIFY (stale) -> RESYNC -> VERIFY -> REVERT (scene fingerprint == pre-APPLY), plus negative controls
-        (foreign edit during APPLY, Klara level dirtied, wrong binding resolution, PIE, Sequencer open, stale DRY,
-        wrong pivot offset).
+        keys, actors, dirty census, saves), fed by the REAL kit files (DerivedAssets/FlatV3/KlaraS2: manifest, pivot
+        offsets, rzimport plan -- read only): DRY -> APPLY (scene coverage [104, 3891), hold key + shifted keys) ->
+        VERIFY -> VARIANT B (refused while B's MIs are missing, then ok) -> VERIFY -> RESYNC (noop) -> re-ingest -> VERIFY
+        (stale) -> RESYNC -> VERIFY -> REVERT (scene fingerprint == pre-APPLY), plus negative controls (foreign edit
+        during APPLY, Klara level dirtied, wrong binding resolution, PIE, Sequencer open, stale DRY, wrong pivot,
+        unclear pre-section pose, missing level-visibility section, missing kit file) and a 'cinematic' coverage run.
 Part C  static checks of the tool source (no forbidden calls, no module-level unreal objects) with a +/- control.
 
 The fake is MY model of the UE API (names taken from precedent scripts); it proves the tool's logic and guards, not
@@ -51,6 +53,9 @@ def load(name, path):
 
 
 C = load("s2v3_core_test", os.path.join(HERE, "s2v3_overlay_core.py"))
+PROJECT = os.path.normpath(os.path.join(HERE, "..", "..", "..", ".."))
+REAL_KIT = {k: os.path.join(PROJECT, v) for k, v in C.KIT.items()}
+KIT_JSON = {k: json.load(open(v, encoding="utf-8")) for k, v in REAL_KIT.items()}
 CENSUS = json.load(open(os.path.join(S2K, "her_wings_census.json"), encoding="utf-8"))
 DECODE = json.load(open(os.path.join(S2K, "her_seq_decode.json"), encoding="utf-8"))
 
@@ -188,21 +193,72 @@ def part_a():
     g2 = C.census_gate({"content": ["/Game/a", "/Game/b"], "maps": []}, ["/Game/a"])
     check("A7- extra dirty content refused", any(x.startswith("CONTENT_CENSUS") for x in g2))
 
-    man = {"meshes": [dict(type_row(t), owner="S2K_%s" % t) for t in C.TYPES]}
-    args = {"types": {t: {"owner": "S2K_%s" % t} for t in C.TYPES}}
-    res, probs = C.resolve_types(args, man, None)
-    check("A8+ manifest resolves all three types", not probs and res["L"]["sources"]["pivot_offset_cm"].startswith(
-        "manifest."), probs)
-    rec = {"rows": [{"owner": "S2K_L", "pivot_offset_cm": [0, 1, 2]}]}
-    res2, _p = C.resolve_types(args, man, rec)
-    check("A8+ pivot record outranks the manifest", res2["L"]["pivot_offset_cm"] == [0.0, 1.0, 2.0])
-    a3 = {"types": dict(args["types"], L={"owner": "S2K_L", "pivot_offset_cm": [9, 9, 9]})}
-    check("A8+ args outrank both", C.resolve_types(a3, man, rec)[0]["L"]["pivot_offset_cm"] == [9.0, 9.0, 9.0])
-    _r, p4 = C.resolve_types(args, None, None)
-    check("A8- no manifest -> unresolved mesh + pivot for every type", sum("unresolved" in x for x in p4) == 6, p4)
-    man2 = {"meshes": man["meshes"] + [dict(type_row("L"), owner="S2K_L")]}
-    check("A8- two manifest entries for one owner -> ambiguous", any("ambiguous" in x for x in C.resolve_types(
-        args, man2, None)[1]))
+    M, P, R = KIT_JSON["manifest_path"], KIT_JSON["pivot_path"], KIT_JSON["rzimport_plan_path"]
+    res, probs = C.resolve_types({}, M, P, R)
+    check("A8+ REAL kit resolves all three owners with no problems", not probs, probs)
+    check("A8+ REAL kit: L child transform (-10.27, 402.38, 0) yaw 180, frame her_local_world_cm",
+          res["L"]["pivot_offset_cm"] == [-10.27, 402.38, 0.0] and res["L"]["rot_offset_deg"] == [0.0, 0.0, 180.0]
+          and res["L"]["pivot_frame"] == "her_local_world_cm", res["L"].get("pivot_offset_cm"))
+    check("A8+ REAL kit: mesh paths from the rzimport plan (T5P / T5J)",
+          res["L"]["mesh"].endswith("/T5P/SM_FlatV3_S2K_shrine_L_t5p") and
+          res["C"]["mesh"].endswith("/T5J/SM_FlatV3_S2K_ceiling_C_t5j"), [res[t]["mesh"] for t in C.TYPES])
+    va, vb = res["R"]["variants"]["A"], res["R"]["variants"]["B"]
+    check("A8+ REAL kit: A = kit Front/Flap MIs; B = KlaraS2 LacqWet copies (bare Flap name -> B Front's folder); "
+          "Timber/Edge unchanged (absent)",
+          va["Front"].endswith("/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Front") and
+          vb["Front"] == "/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_shrine_R_Front_LacqWet" and
+          vb["Flap"] == "/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_shrine_R_Flap_LacqWet" and
+          set(va) == {"Front", "Flap"} and set(vb) == {"Front", "Flap"}, (va, vb))
+    check("A8+ REAL kit: her_actors per type == census labels", C.check_her_actor_lists(
+        res, C.her_wings_from_census(CENSUS)) == [])
+    P2 = _copy.deepcopy(P)
+    P2["wings"]["shrine_L"]["child_relative_transform_ue"]["location_cm"][1] = 400.0
+    check("A8- pivot file vs manifest disagree -> PIVOT_SOURCES_DISAGREE",
+          any("PIVOT_SOURCES_DISAGREE" in x for x in C.resolve_types({}, M, P2, R)[1]))
+    M2 = _copy.deepcopy(M)
+    M2["meshes"][1]["klara_s2"]["front_variants"]["B"]["Front"] = "/Game/WetGround/MI_LacqueredPaper_Wet = hers"
+    check("A8- a variant pointing at HER material is refused (copies only)",
+          any("VARIANT_USES_KLARA_ASSET" in x for x in C.resolve_types({}, M2, P, R)[1]))
+    P3 = _copy.deepcopy(P)
+    P3["child_transform_rule"] = "world(ours) = Translate(T) * HerActorTransform"
+    check("A8- an unknown composition rule is refused", any("PIVOT_RULE_UNKNOWN" in x for x in C.resolve_types(
+        {}, M, P3, R)[1]))
+    check("A8- no kit at all -> unresolved mesh + pivot for every type",
+          sum(("unresolved" in x) for x in C.resolve_types({}, None, None, None)[1]) == 6)
+    a3 = {"types": {"L": {"owner": "S2K_shrine_L", "pivot_offset_cm": [9, 9, 9]}}}
+    check("A8+ args override the kit", C.resolve_types(a3, M, P, R)[0]["L"]["pivot_offset_cm"] == [9, 9, 9])
+    w2 = C.her_wings_from_census(CENSUS)
+    res2 = _copy.deepcopy(res)
+    res2["C"]["her_actors"] = res2["C"]["her_actors"][:4]
+    check("A8- kit her_actors missing one ceiling -> KIT_HER_ACTORS", C.check_her_actor_lists(res2, w2) != [])
+
+    cov = C.coverage_plan("scene", [376, 3891], [104, 3891], [25, 1], [24000, 1])
+    check("A12+ scene coverage: [104, 3891), pre-roll 272 frames = 10.88 s = 261120 ticks",
+          cov["range"] == [104, 3891] and cov["pre_ticks"] == 261120 and abs(cov["pre_seconds"] - 10.88) < 1e-9, cov)
+    check("A12+ cinematic coverage: exactly the hookin section, no pre-roll",
+          C.coverage_plan("cinematic", [376, 3891], None, [25, 1], [24000, 1]) ==
+          {"range": [376, 3891], "pre_frames": 0, "pre_ticks": 0, "pre_seconds": 0.0})
+    expect_raise("A12- level visible only after the hookin starts -> refused",
+                 lambda: C.coverage_plan("scene", [376, 3891], [400, 3891], [25, 1], [24000, 1]),
+                 "LEVEL_VISIBLE_AFTER_HOOKIN")
+    expect_raise("A12- pre-roll off the tick grid -> refused",
+                 lambda: C.coverage_plan("scene", [376, 3891], [104, 3891], [25, 1], [7, 1]), "PRE_ROLL_NOT_ON_TICK_GRID")
+    expect_raise("A12- scene coverage without a level-visibility section -> refused",
+                 lambda: C.coverage_plan("scene", [376, 3891], None, [25, 1], [24000, 1]), "LEVEL_VIS_SECTION_MISSING")
+    first, rest = [0, 0, 6657, 0, 0, -43.57], [0, 0, 789, 0, 0, -43.57]
+    check("A13+ pre-pose classification: rest / first",
+          C.classify_pre_pose([0, 0, 789.5, 0, 0, -43.57], first, rest) == "rest" and
+          C.classify_pre_pose(first, first, rest) == "first")
+    check("A13- a mid-fall pose is 'unclear' (refused unless forced)",
+          C.classify_pre_pose([0, 0, 3000, 0, 0, -43.57], first, rest) == "unclear")
+    ks = [[0, 1, 2, 3, 0, 0, 10], [800, 1, 2, 2, 0, 0, 10]]
+    hk, hi = C.with_hold(ks, 261120, [5, 5, 5, 0, 0, -350])
+    check("A14+ hold: CONSTANT key at 0 with the hold pose, her keys shifted by the pre-roll, yaw unwrapped",
+          hk[0][:4] == [0, 5, 5, 5] and hi[0] == "RCIM_CONSTANT" and [k[0] for k in hk[1:]] == [261120, 261920] and
+          hi[1:] == ["RCIM_LINEAR"] * 2 and abs(hk[0][6] - 10) < 1e-9, (hk[0], hi))
+    hk0, hi0 = C.with_hold(ks, 0, [5, 5, 5, 0, 0, 0])
+    check("A14- no pre-roll: no hold key, keys unshifted", hk0 == ks and hi0 == ["RCIM_LINEAR"] * 2)
+    check("A14- keys_sha sees an interpolation change", C.keys_sha(hk, hi) != C.keys_sha(hk, ["RCIM_LINEAR"] * 3))
 
     wings = C.her_wings_from_census(CENSUS)
     check("A9+ census -> 15 wings (5 L, 5 R, 5 C)", len(wings) == 15)
@@ -210,11 +266,13 @@ def part_a():
     expect_raise("A9- a missing wing refuses", lambda: C.her_wings_from_census(cut), "HER_WING_COUNT")
 
     good = {"mode": "APPLY", "confirm": "APPLY S2V3OVERLAY", "decided_by": "x",
-            "overlay_asset": "/Game/Scenes/KlaraS2V3/LS_S2_V3WingsOverlay", "types": args["types"]}
+            "overlay_asset": "/Game/Scenes/KlaraS2V3/LS_S2_V3WingsOverlay", "types": {}}
     check("A10+ valid APPLY args", C.validate_args(good) == [], C.validate_args(good))
     check("A10- wrong confirm", any(x.startswith("CONFIRM") for x in C.validate_args(dict(good, confirm="APPLY"))))
     check("A10- overlay inside her folder refused", any(x.startswith("OVERLAY_ASSET") for x in C.validate_args(
         dict(good, overlay_asset="/Game/KK_S2_Shrine/LS_X"))))
+    check("A10- bad coverage mode refused", any(x.startswith("COVERAGE") for x in C.validate_args(
+        dict(good, coverage="whole"))))
     check("A10- PIE refused", any("PIE_RUNNING" in x for x in C.check_mode(good, True, None, None)))
     check("A10- Sequencer open refused (DRY too)", any("SEQUENCER_OPEN" in x for x in C.check_mode(
         dict(good, mode="DRY"), False, "/Game/X", None)))
@@ -329,8 +387,8 @@ class Channel(Obj):
         if time_unit is None or time_unit.name != "TICK_RESOLUTION":
             raise RuntimeError("fake: tool must key in TICK_RESOLUTION")
         self.keys = [k for k in self.keys if k.tick != time.value]
-        k = Key(time.value, new_value, "RCIM_LINEAR" if interpolation and interpolation.name == "LINEAR" else
-                "RCIM_CUBIC")
+        k = Key(time.value, new_value, {"LINEAR": "RCIM_LINEAR", "CONSTANT": "RCIM_CONSTANT"}.get(
+            interpolation.name if interpolation else "", "RCIM_CUBIC"))
         self.keys.append(k)
         self.keys.sort(key=lambda k: k.tick)
         self._d()
@@ -371,6 +429,10 @@ class Section(Obj):
         self.completion = Enum("KEEP_STATE")
         self.channels = [Channel(self, n, k) for n, k in chan_spec]
         self.blend = Enum("ABSOLUTE")
+        self.level_names = []
+
+    def get_level_names(self):
+        return list(self.level_names)
 
     def _d(self):
         self.track._d()
@@ -717,7 +779,8 @@ class FakeUnreal(types.ModuleType):
         self.calls, self.logs, self.saved, self.pie, self.seq_open = [], [], [], False, None
         self.world = World(self, C.WORLD)
         self.MovieSceneTimeUnit = NS(TICK_RESOLUTION=Enum("TICK_RESOLUTION"), DISPLAY_RATE=Enum("DISPLAY_RATE"))
-        self.MovieSceneKeyInterpolation = NS(LINEAR=Enum("LINEAR"), AUTO=Enum("AUTO"))
+        self.MovieSceneKeyInterpolation = NS(LINEAR=Enum("LINEAR"), AUTO=Enum("AUTO"), CONSTANT=Enum("CONSTANT"))
+        self.MovieSceneLevelVisibilitySection = Section
         self.MovieSceneCompletionMode = NS(RESTORE_STATE=Enum("RESTORE_STATE"), KEEP_STATE=Enum("KEEP_STATE"))
         self.ComponentMobility = NS(MOVABLE=Enum("MOVABLE"), STATIC=Enum("STATIC"))
         self.FrameNumber, self.Vector, self.Rotator = FrameNumber, Vector, Rotator
@@ -835,22 +898,34 @@ def build_env(tmp):
         U.world.actors.append(a)
     decoy = StaticMeshActor(U, C.WORLD, "StaticMeshActor_10", "SM_S2_L_Wing_Shrine2", None, [0] * 6, [1, 1, 1])
     U.world.actors.append(decoy)                         # same object name in the PERSISTENT level: must be ignored
-    man = {"meshes": []}
+    res, probs = C.resolve_types({}, KIT_JSON["manifest_path"], KIT_JSON["pivot_path"], KIT_JSON["rzimport_plan_path"])
+    assert not probs, probs
+    key = {"L": "shrine_L", "R": "shrine_R", "C": "ceiling_C"}
     for t in C.TYPES:
-        row = type_row(t)
-        U.assets[row["mesh"]] = StaticMesh(row["mesh"], our_box(t), ["Front", "Flap", "Timber", "Edge"])
-        for v in ("A", "B"):
-            for mp in row["variants"][v].values():
-                U.assets[mp] = MaterialInterface(mp)
-        man["meshes"].append(dict(row, owner="S2K_%s" % t))
-    mpath = os.path.join(tmp, "IMPORT_MANIFEST_KlaraS2.json")
-    json.dump(man, open(mpath, "w"), indent=1)
+        fb = KIT_JSON["pivot_path"]["wings"][key[t]]["our_front_slot_bounds_fbx_m"]     # FBX m -> UE cm (x, -y, z)
+        ys = sorted([-fb[0][1] * 100.0, -fb[1][1] * 100.0])
+        box = [[-15.0, ys[0], fb[0][2] * 100.0], [0.0, ys[1], fb[1][2] * 100.0]]
+        U.assets[res[t]["mesh"]] = StaticMesh(res[t]["mesh"], box, ["Front", "Flap", "Timber", "Edge"])
+        for mp in res[t]["variants"]["A"].values():
+            U.assets[mp] = MaterialInterface(mp)                # B's MIs are NOT there yet (a later Unreal step)
+    lvt = scene.add_track(U.MovieSceneLevelVisibilityTrack)
+    lvt.name = C.LEVELS_TRACK
+    lvs = lvt.add_section()
+    lvs.set_range(104, 3891)
+    lvs.level_names = ["Japanese_Alley"]
     os.makedirs(os.path.join(tmp, "Content", "InfinityStage", "Dev", "Sequences"), exist_ok=True)
     open(os.path.join(tmp, "Content", "InfinityStage", "Dev", "Sequences", "LS_DevScene_02.uasset"), "w").write("x")
     U.dirty_content.clear()
     args = json.load(open(os.path.join(HERE, "s2v3_overlay_args.json"), encoding="utf-8"))
-    args.update(manifest_path=mpath, decided_by="harness")
+    args.update(kit=dict(REAL_KIT), decided_by="harness")
     return U, args
+
+
+def add_b_materials(U):
+    res, _p = C.resolve_types({}, KIT_JSON["manifest_path"], KIT_JSON["pivot_path"], KIT_JSON["rzimport_plan_path"])
+    for t in C.TYPES:
+        for mp in res[t]["variants"]["B"].values():
+            U.assets[mp] = MaterialInterface(mp)
 
 
 def tool_for(U, tmp):
@@ -885,24 +960,40 @@ def marker(new, key):
 
 def part_b():
     tmp = tempfile.mkdtemp(prefix="s2v3ov_")
+    dirs = [tmp]
+
+    def fresh(tag):
+        d = tmp + "_" + tag
+        dirs.append(d)
+        U, args = build_env(d)
+        return U, args, tool_for(U, d)
+
     try:
-        U, args = build_env(tmp)
-        T = tool_for(U, tmp)
+        U, args, T = fresh("1")
         scene = U.assets[C.SCENE_SEQ]
         fp_orig = T._fingerprint(T._core(), scene)
 
         r, ok, new, err = run(T, U, args, "DRY")
         dry = marker(new, "_DRY_OK|")
         check("B1+ DRY ok, apply_ready, mutated=0, census clean", dry and "apply_ready=True" in dry and
-              not U.dirty_content and not U.dirty_maps, new[-3:] if not dry else dry)
+              not U.dirty_content and not U.dirty_maps, (err, new[-3:]))
         dry_name = "s2v3_overlay_dry_%s.json" % r
         dj = json.load(open(os.path.join(T.HERE, dry_name), encoding="utf-8"))
-        check("B1+ DRY records 15 source key hashes (z + all)", sum(1 for w in dj["wings"] if w.get("source_hashes", {})
-                                                                    .get("z")) == 15)
+        check("B1+ DRY: coverage scene [104, 3891), pre-roll 261120 ticks, overlay playback [0, 4544)",
+              dj["section"] == [104, 3891] and dj["coverage"]["pre_ticks"] == 261120 and
+              dj["overlay_playback"] == [0, 4544], (dj["section"], dj["coverage"], dj["overlay_playback"]))
+        check("B1+ DRY: her pre-section pose measured REST for all 15 (her saved actors sit at the rest pose)",
+              all(w.get("pre_pose_measured") == "rest" and w.get("pre_pose") == "rest" for w in dj["wings"]))
+        check("B1+ DRY records 15 source key hashes (z + all)", sum(1 for w in dj["wings"]
+                                                                    if w.get("source_hashes", {}).get("z")) == 15)
         check("B1+ DRY: persistent-level decoy with the same object name ignored", all(
             w["her_actor_path"].startswith(C.HER_LEVEL) for w in dj["wings"]))
-        check("B1+ DRY: box alignment within 0.01 cm for all 15", max(w["box_alignment"]["max_yz_cm"]
-                                                                      for w in dj["wings"]) < 0.01)
+        worst = max(w["box_alignment"]["max_yz_cm"] for w in dj["wings"])
+        check("B1+ DRY: REAL pivot offsets put our (FBX-measured) boxes on hers within 25 cm (max %.1f cm)" % worst,
+              worst < 25.0, worst)
+        check("B1+ DRY: variant B MIs not yet made -> WARNING only (A is being applied)",
+              any(x.startswith("NOT_APPLIED_VARIANT_NOT_READY") for x in dj["warnings"]) and
+              not any(".B|" in x for x in dj["refusals"]), dj["warnings"][:2])
 
         U.pie = True
         r2, ok, new, err = run(T, U, args, "APPLY", dry_report=dry_name)
@@ -913,14 +1004,10 @@ def part_b():
         r2, ok, new, err = run(T, U, args, "APPLY", dry_report=dry_name)
         check("B2- Sequencer open: refused", err and "SEQUENCER_OPEN" in str(err) and not U.dirty_content, err)
         U.seq_open = None
+        r2, ok, new, err = run(T, U, args, "APPLY", dry_report=dry_name, coverage="cinematic", expected_coverage=None)
+        check("B2- plan changed since DRY (coverage) refused before any write", err and "PLAN_CHANGED_SINCE_DRY" in
+              str(err) and not U.dirty_content and not os.path.exists(T.RECORD), err)
 
-        a_bad = _copy.deepcopy(args)
-        a_bad["variant"] = "B"
-        r2, ok, new, err = run(T, U, a_bad, "APPLY", dry_report=dry_name)
-        check("B2- plan changed since DRY (variant) refused before any write", err and "PLAN_CHANGED_SINCE_DRY" in str(
-            err) and not U.dirty_content and not os.path.exists(T.RECORD), err)
-
-        # negative control: a foreign edit slipped into the APPLY path must be caught by the fingerprint, nothing saved
         orig_add_hide = T._add_hide
 
         def evil_hide(Cm, ov, actor, rng):
@@ -933,10 +1020,7 @@ def part_b():
               err and "FINGERPRINT_VIOLATIONS" in str(err) and not U.saved and not os.path.exists(T.RECORD) and
               os.path.exists(T.RECORD + ".failed-" + r2), err)
 
-        # rebuild (Don't-Save restart)
-        U, args = build_env(tmp + "_2")
-        T = tool_for(U, tmp + "_2")
-        scene = U.assets[C.SCENE_SEQ]
+        U, args, T = fresh("2")
         r, ok, new, err = run(T, U, args, "DRY")
         dry_name = "s2v3_overlay_dry_%s.json" % r
         orig_poss = Sequence.add_possessable
@@ -950,28 +1034,30 @@ def part_b():
         check("B4- Klara level dirtied during APPLY -> KLARA_PACKAGE_DIRTY, nothing saved",
               err and "KLARA_PACKAGE_DIRTY" in str(err) and not U.saved, err)
 
-        U, args = build_env(tmp + "_3")
-        T = tool_for(U, tmp + "_3")
+        U, args, T = fresh("3")
         scene = U.assets[C.SCENE_SEQ]
         fp_orig = T._fingerprint(T._core(), scene)
         r, ok, new, err = run(T, U, args, "DRY")
         dry_name = "s2v3_overlay_dry_%s.json" % r
         r2, ok, new, err = run(T, U, args, "APPLY", dry_report=dry_name)
-        check("B5+ APPLY ok", bool(ok) and err is None, (err, new[-2:]))
+        check("B5+ APPLY ok (scene coverage)", bool(ok) and err is None, (err, new[-2:]))
         check("B5+ APPLY saved exactly [overlay, LS_DevScene_02] in that order, census clean",
               U.saved == [args["overlay_asset"], C.SCENE_SEQ] and not U.dirty_content and not U.dirty_maps, U.saved)
         check("B5+ APPLY never saved a map / her packages", ("SAVE_MAP",) not in U.calls and
               not any(C.is_klara_package(p) for p in U.saved))
-        check("B5+ originals written BEFORE the backup (marker logged)", marker(new, "_ORIGINALS|") is not None)
+        check("B5+ originals logged before any change", marker(new, "_ORIGINALS|") is not None)
         ov = U.assets[args["overlay_asset"]]
         tr = [t for t in scene.tracks if t.name == C.OVERLAY_TRACK]
-        check("B5+ our track: 1 section, [376,3891), params == hookin's, seq == overlay",
-              len(tr) == 1 and [tr[0].sections[0].start, tr[0].sections[0].end] == [376, 3891] and
-              tr[0].sections[0].sequence is ov)
+        sec = tr[0].sections[0] if tr else None
+        check("B5+ our track: 1 section [104, 3891), seq == overlay, child start maps to 104, end to 3890 (= hookin's)",
+              len(tr) == 1 and [sec.start, sec.end] == [104, 3891] and sec.sequence is ov and
+              U._parent_frame(sec, 0, scene) == 104 and U._parent_frame(sec, ov.pb[1], scene) == 3890,
+              (sec and [sec.start, sec.end], ov.pb))
         hides = [b for b in ov.bindings if b.name.startswith(C.HIDE_PREFIX)]
-        check("B5+ 15 hide bindings, bHidden, default False (=hidden), RESTORE_STATE",
+        check("B5+ 15 hide bindings, bHidden, default False (=hidden), RESTORE_STATE, over the WHOLE overlay [0, 4544)",
               len(hides) == 15 and all(b.tracks[0].prop == "bHidden" and b.tracks[0].sections[0].channels[0].default
-                                       is False and b.tracks[0].sections[0].completion.name == "RESTORE_STATE"
+                                       is False and b.tracks[0].sections[0].completion.name == "RESTORE_STATE" and
+                                       [b.tracks[0].sections[0].start, b.tracks[0].sections[0].end] == [0, 4544]
                                        for b in hides))
         ours = [b for b in ov.bindings if b.name.startswith(C.OURS_PREFIX)]
         spawn_ok = all(len([t for t in b.tracks if t._cls_name == "MovieSceneSpawnTrack"]) == 1 for b in ours)
@@ -979,15 +1065,37 @@ def part_b():
               len(ours) == 15 and spawn_ok and all(b.template.comp.props["mobility"].name == "MOVABLE" and
                                                    b.template.comp.props["relative_scale3d"].x == 1.0 for b in ours))
         lw = next(b for b in ours if b.name.endswith("SM_S2_L_Wing_Shrine2"))
-        zch = [t for t in lw.tracks if t._cls_name == "MovieScene3DTransformTrack"][0].sections[0].channels[2]
+        tch = [t for t in lw.tracks if t._cls_name == "MovieScene3DTransformTrack"][0].sections[0].channels
         her_b = next(b for b in U.assets[C.HOOKIN_COPY].bindings if b.name == "SM_S2_L_Wing_Shrine2")
-        her_z = her_b.tracks[0].sections[0].channels[2]
-        check("B5+ our Z keys at her ticks; Z = hers (pivot offset is horizontal)",
-              [k.tick for k in zch.keys] == [k.tick for k in her_z.keys] and
-              max(abs(a.value - b.value) for a, b in zip(zch.keys, her_z.keys)) < 1e-6)
+        her_ch = her_b.tracks[0].sections[0].channels
+        her_z, zch = her_ch[2], tch[2]
+        check("B5+ hold key: tick 0, CONSTANT, Z = her REST height (789)",
+              zch.keys[0].tick == 0 and zch.keys[0].interp == "RCIM_CONSTANT" and abs(zch.keys[0].value - 789.0) < 1e-6,
+              (zch.keys[0].tick, zch.keys[0].interp, zch.keys[0].value))
+        rowL = T._core().resolve_types({}, KIT_JSON["manifest_path"], KIT_JSON["pivot_path"],
+                                       KIT_JSON["rzimport_plan_path"])[0]["L"]
+        hp = [{k.tick: k.value for k in her_ch[i].keys} for i in range(6)]
+        dz = []
+        for k in zch.keys[1:]:
+            t0 = k.tick - 261120
+            her_pose = [hp[i].get(t0, her_ch[i].keys[-1].value if t0 > her_ch[i].keys[-1].tick
+                                   else her_ch[i].keys[0].value) for i in range(6)]
+            dz.append(abs(k.value - C.compose_pose(her_pose, rowL)[2]))
+        check("B5+ fall keys: her ticks + 261120, LINEAR, Z == compose(her pose at that tick) (max err %.2e)" % max(dz),
+              [k.tick for k in zch.keys[1:]] == [k.tick + 261120 for k in her_z.keys] and
+              all(k.interp == "RCIM_LINEAR" for k in zch.keys[1:]) and max(dz) < 1e-6 and
+              max(abs(a.value - b.value) for a, b in zip(zch.keys[1:], her_z.keys)) < 1.0)
+        her_actor = next(a for a in U.world.actors if a.label == "SM_S2_L_Wing_Shrine2" and a.pkg == C.HER_LEVEL)
+        exp = C.compose_pose(her_actor.pose, T._core().resolve_types({}, KIT_JSON["manifest_path"], KIT_JSON[
+            "pivot_path"], KIT_JSON["rzimport_plan_path"])[0]["L"])
+        got = [tch[i].keys[0].value for i in range(6)]
+        check("B5+ hold pose == her actor pose (x) child transform (Her * T * RotZ180)", all(
+            abs(got[i] - exp[i]) < 1e-6 for i in range(3)) and all(C.angle_diff(got[i], exp[i]) < 1e-6
+                                                                    for i in (3, 4, 5)), (got, exp))
         mats = lw.template.comp.props["override_materials"]
-        check("B5+ variant A: slot 0 (Front) = MI_A, other slots None (mesh defaults)",
-              mats[0].path.endswith("MI_S2K_L_A") and mats[1:] == [None, None, None], mats)
+        check("B5+ variant A: Front/Flap = kit MIs, Timber/Edge None (mesh defaults)",
+              mats[0].path.endswith("MI_FlatV3_S2K_shrine_L_Front") and mats[1].path.endswith(
+                  "MI_FlatV3_S2K_shrine_L_Flap") and mats[2:] == [None, None], mats)
         fp_now = T._fingerprint(T._core(), scene)
         check("B5+ LS_DevScene_02: every pre-existing row unchanged", T._core().fingerprint_diff(
             fp_orig, fp_now, T._core().our_track_prefix(fp_now)[0]) == [])
@@ -1000,12 +1108,25 @@ def part_b():
               "HIDE_RESOLVES" in marker(new, "_VERIFY_FAILED|"), new[-2:])
         hides[3].actor = next(a for a in U.world.actors if a.label == hides[3].name[len(C.HIDE_PREFIX):]
                               and a.pkg == C.HER_LEVEL)
+        lvs = next(t for t in scene.tracks if t.name == C.LEVELS_TRACK).sections[0]
+        lvs.start = 120
+        r3, ok, new, err = run(T, U, args, "VERIFY")
+        f = marker(new, "_VERIFY_FAILED|")
+        lvs.start = 104
+        check("B6- VERIFY fails when her level's visibility start moves (coverage no longer matches)",
+              f is not None and ("SECTION_VS_LIVE_COVERAGE" in f or "PRE_ROLL_CHANGED" in f), new[-2:])
 
+        nsave = len(U.saved)
+        r4, ok, new, err = run(T, U, args, "VARIANT", variant="B")
+        check("B7- VARIANT B before B's MIs exist: refused, nothing changed or saved",
+              err and "VARIANT_NOT_READY" in str(err) and len(U.saved) == nsave and not U.dirty_content and
+              lw.template.comp.props["override_materials"][0].path.endswith("_Front"), err)
+        add_b_materials(U)
         r4, ok, new, err = run(T, U, args, "VARIANT", variant="B")
         mats = lw.template.comp.props["override_materials"]
-        check("B7+ VARIANT B: only the overlay saved; Front+Flap = MI_B",
-              bool(ok) and U.saved[-1] == args["overlay_asset"] and mats[0].path.endswith("MI_S2K_L_B") and
-              mats[1].path.endswith("MI_S2K_L_B") and mats[2:] == [None, None], (err, mats))
+        check("B7+ VARIANT B: only the overlay saved; Front/Flap = KlaraS2 LacqWet copies",
+              bool(ok) and U.saved[-1] == args["overlay_asset"] and mats[0].path.endswith("_Front_LacqWet") and
+              mats[1].path.endswith("_Flap_LacqWet") and mats[2:] == [None, None], (err, mats))
         r5, ok, new, err = run(T, U, args, "VERIFY", variant="B")
         check("B7+ VERIFY ok after VARIANT B", bool(ok) and err is None, (err, new[-2:]))
 
@@ -1013,16 +1134,17 @@ def part_b():
         r6, ok, new, err = run(T, U, args, "RESYNC", variant="B")
         check("B8+ RESYNC with unchanged source -> NOOP, nothing saved", marker(new, "_RESYNC_NOOP|") and
               len(U.saved) == nsave, (err, new[-2:]))
+        z_before = zch.keys[11].value
         her_z.keys[10].value += 37.0                    # simulate a re-ingest that changed her keys (saved on disk)
         r7, ok, new, err = run(T, U, args, "VERIFY", variant="B")
         f = marker(new, "_VERIFY_FAILED|")
         check("B8- VERIFY detects changed source keys (SOURCE_KEYS_CHANGED)", f and "SOURCE_KEYS_CHANGED" in json.dumps(
             json.load(open(os.path.join(T.HERE, "s2v3_overlay_verify_%s.json" % r7), encoding="utf-8"))["problems"]), f)
         r8, ok, new, err = run(T, U, args, "RESYNC", variant="B")
-        check("B8+ RESYNC re-copies the changed wing only and saves only the overlay",
+        check("B8+ RESYNC re-copies the changed wing only (hold key kept) and saves only the overlay",
               marker(new, "_RESYNC_OK|") and "SM_S2_L_Wing_Shrine2" in marker(new, "_RESYNC_OK|") and
-              U.saved[-1] == args["overlay_asset"] and abs(zch.keys[10].value - her_z.keys[10].value) < 1e-6,
-              (err, new[-2:]))
+              U.saved[-1] == args["overlay_asset"] and abs(zch.keys[11].value - z_before - 37.0) < 1e-6 and
+              zch.keys[0].interp == "RCIM_CONSTANT", (err, new[-2:]))
         r9, ok, new, err = run(T, U, args, "VERIFY", variant="B")
         check("B8+ VERIFY ok after RESYNC", bool(ok) and err is None, (err, new[-3:]))
 
@@ -1036,31 +1158,69 @@ def part_b():
         r11, ok, new, err = run(T, U, args, "REVERT")
         check("B9- second REVERT refused (no applied record)", err and "NO_APPLIED_RECORD" in str(err), err)
 
-        # wrong pivot offset in the manifest -> DRY refuses (box alignment), APPLY cannot start
-        U, args = build_env(tmp + "_4")
-        T = tool_for(U, tmp + "_4")
-        man = json.load(open(args["manifest_path"]))
-        man["meshes"][0]["pivot_offset_cm"][1] *= -1
-        json.dump(man, open(args["manifest_path"], "w"))
-        r, ok, new, err = run(T, U, args, "DRY")
+        U, args, T = fresh("4")
+        a4 = _copy.deepcopy(args)
+        res, _p = C.resolve_types({}, KIT_JSON["manifest_path"], KIT_JSON["pivot_path"], KIT_JSON["rzimport_plan_path"])
+        a4["types"]["L"]["pivot_offset_cm"] = [res["L"]["pivot_offset_cm"][0], -res["L"]["pivot_offset_cm"][1], 0.0]
+        r, ok, new, err = run(T, U, a4, "DRY")
         dj = json.load(open(os.path.join(T.HERE, "s2v3_overlay_dry_%s.json" % r), encoding="utf-8"))
-        check("B10- wrong pivot sign -> DRY apply_ready False with BOX_ALIGN refusals for that type",
+        check("B10- wrong pivot sign (args override) -> DRY apply_ready False, BOX_ALIGN for the 5 L wings",
               not dj["apply_ready"] and sum(x.startswith("BOX_ALIGN") for x in dj["refusals"]) == 5, dj["refusals"][:2])
-        r2, ok, new, err = run(T, U, args, "APPLY", dry_report="s2v3_overlay_dry_%s.json" % r)
+        r2, ok, new, err = run(T, U, a4, "APPLY", dry_report="s2v3_overlay_dry_%s.json" % r)
         check("B10- ... and APPLY refuses (PLAN_REFUSED), nothing dirty", err and "PLAN_REFUSED" in str(err) and
               not U.dirty_content, err)
-        # manifest absent -> DRY reports unresolved types, not a crash
-        os.remove(args["manifest_path"])
+
+        U, args, T = fresh("5")
+        a5 = dict(args, kit=dict(REAL_KIT, manifest_path=os.path.join(tmp, "no_such_manifest.json")))
+        r, ok, new, err = run(T, U, a5, "DRY")
+        dj = json.load(open(os.path.join(T.HERE, "s2v3_overlay_dry_%s.json" % r), encoding="utf-8"))
+        check("B11- kit manifest missing: DRY completes, apply_ready False, KIT_FILE_MISSING named",
+              marker(new, "_DRY_OK|") and not dj["apply_ready"] and any(x.startswith("KIT_FILE_MISSING")
+                                                                         for x in dj["refusals"]), (err, dj["refusals"][:3]))
+
+        U, args, T = fresh("6")
+        a6 = next(a for a in U.world.actors if a.label == "SM_S2_ceiling_wing3" and a.pkg == C.HER_LEVEL)
+        a6.pose = list(a6.pose)
+        a6.pose[2] += 2500.0                             # an evaluated mid-fall pose left in the editor
         r, ok, new, err = run(T, U, args, "DRY")
         dj = json.load(open(os.path.join(T.HERE, "s2v3_overlay_dry_%s.json" % r), encoding="utf-8"))
-        check("B11- no manifest: DRY completes, apply_ready False, unresolved mesh/pivot named",
-              marker(new, "_DRY_OK|") and not dj["apply_ready"] and any("unresolved" in x for x in dj["refusals"]),
-              (err, dj["refusals"][:3]))
+        check("B12- her actor in a mid-fall pose -> PRE_POSE_UNCLEAR refusal (no guess)",
+              not dj["apply_ready"] and any(x.startswith("PRE_POSE_UNCLEAR|SM_S2_ceiling_wing3") for x in dj["refusals"]),
+              dj["refusals"][:2])
+        r, ok, new, err = run(T, U, args, "DRY", pre_section_pose="rest")
+        dj = json.load(open(os.path.join(T.HERE, "s2v3_overlay_dry_%s.json" % r), encoding="utf-8"))
+        check("B12+ ... forcing pre_section_pose=rest clears it, with a PRE_POSE_FORCED warning",
+              dj["apply_ready"] and any(x.startswith("PRE_POSE_FORCED|SM_S2_ceiling_wing3") for x in dj["warnings"]),
+              (dj["refusals"][:2], dj["warnings"][:2]))
+
+        U, args, T = fresh("7")
+        sc = U.assets[C.SCENE_SEQ]
+        sc.tracks = [t for t in sc.tracks if t.name != C.LEVELS_TRACK]
+        r, ok, new, err = run(T, U, args, "DRY")
+        dj = json.load(open(os.path.join(T.HERE, "s2v3_overlay_dry_%s.json" % r), encoding="utf-8"))
+        check("B13- no 'Klara Levels (hookin)' section -> scene coverage refused (LEVEL_VIS_SECTION_COUNT)",
+              not dj["apply_ready"] and any("LEVEL_VIS_SECTION_COUNT" in x for x in dj["refusals"]), dj["refusals"][:3])
+
+        U, args, T = fresh("8")
+        a8 = dict(args, coverage="cinematic", expected_coverage=None)
+        r, ok, new, err = run(T, U, a8, "DRY")
+        r2, ok, new, err = run(T, U, a8, "APPLY", dry_report="s2v3_overlay_dry_%s.json" % r)
+        if err:
+            print("B14 APPLY error:", err)
+        ov = U.assets.get(a8["overlay_asset"])
+        sec = [t for t in U.assets[C.SCENE_SEQ].tracks if t.name == C.OVERLAY_TRACK]
+        lw = next(b for b in ov.bindings if b.name == C.OURS_PREFIX + "SM_S2_L_Wing_Shrine2") if ov else None
+        z0 = [t for t in lw.tracks if t._cls_name == "MovieScene3DTransformTrack"][0].sections[0].channels[2] if lw else None
+        check("B14+ coverage=cinematic: section [376, 3891), playback = the copy's, no hold key (first key = sky)",
+              bool(ok) and [sec[0].sections[0].start, sec[0].sections[0].end] == [376, 3891] and ov.pb == [0, 4217]
+              and z0.keys[0].interp == "RCIM_LINEAR" and z0.keys[0].value > 6000, (err, new[-2:]))
+        r3, ok, new, err = run(T, U, a8, "VERIFY")
+        check("B14+ VERIFY ok (cinematic)", bool(ok) and err is None, (err, new[-2:]))
     except Exception:  # noqa: BLE001
         check("B harness crashed", False, traceback.format_exc())
     finally:
         sys.modules.pop("unreal", None)
-        for d in (tmp, tmp + "_2", tmp + "_3", tmp + "_4"):
+        for d in dirs:
             shutil.rmtree(d, ignore_errors=True)
 
 
