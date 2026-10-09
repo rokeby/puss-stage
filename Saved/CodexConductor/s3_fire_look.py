@@ -88,7 +88,7 @@ def main():
         os.makedirs(bd)
         for f in FILES: shutil.copy2(f, bd)
         rec = {"run": run, "backup": bd,
-               "emitter_materials": {n: [m.get_path_name() if m else None for m in psc[n].get_editor_property("emitter_materials")] for n in FLAMES},
+               "slot_materials": {n: [(psc[n].get_material(i).get_path_name() if psc[n].get_material(i) else None) for i in range(psc[n].get_num_materials())] for n in FLAMES},
                "scales": {n: [acts[n].get_actor_scale3d().x, acts[n].get_actor_scale3d().y, acts[n].get_actor_scale3d().z] for n in FIRES},
                "fire_keys": {b: [[int(k.get_time().frame_number.value), float(k.get_value())] for k in c.get_keys()] for b, c in fire_ch},
                "ghost_keys": [[int(k.get_time().frame_number.value), float(k.get_value())] for k in ghost_ch[0][1].get_keys()]}
@@ -111,7 +111,8 @@ def main():
         for f in FILES: shutil.copy2(f, bd)
         for n in FLAMES:
             acts[n].modify(); psc[n].modify()
-            psc[n].set_editor_property("emitter_materials", [unreal.load_asset(p) if p else None for p in rec["emitter_materials"][n]])
+            orig = rec["slot_materials"][n][SMOKE_SLOT]                       # emitter_materials is not exposed to Python
+            psc[n].set_material(SMOKE_SLOT, unreal.load_asset(orig) if orig else None)
         for n in FIRES:
             acts[n].modify(); acts[n].set_actor_scale3d(unreal.Vector(*rec["scales"][n]))
         for b, c in fire_ch:
