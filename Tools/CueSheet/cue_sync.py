@@ -18,6 +18,7 @@ Usage:
   python Tools/CueSheet/cue_sync.py insert R0012 "Column=text" ...  add a LOCAL row after R0012 (re-renders)
   python Tools/CueSheet/cue_sync.py cuebook                       fetch the online Cue Book and merge it (needs CUEBOOK_PASS)
   python Tools/CueSheet/cue_sync.py webpull <dir or .json>        merge a saved Cue Book export / backup file
+  python Tools/CueSheet/cue_sync.py export <cuebook.json>         webpull, render, then cb3 surtitles when present
   python Tools/CueSheet/cue_sync.py webbase                       record working.csv as the page's merge base (after seeding)
   python Tools/CueSheet/cue_sync.py tocuebook                     write a changes file for the Cue Book (pull does this too)
 
@@ -40,8 +41,12 @@ working version and is listed as a CONFLICT with the Sheet's version beside it. 
 """
 import csv
 import difflib
+import hashlib
 import io
+import itertools
+import json
 import os
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -52,13 +57,72 @@ REPORT = os.path.join(DIR, 'sync_report.md')
 RENDER = os.path.join(DIR, 'PUSS_CUE_LIST.md')
 EXPORT = os.path.join(ROOT, 'Content', 'InfinityStage', 'CueSheet', 'Puss_Master_cue_sheet.csv')
 DIRECTOR = 'Director notes'
+AT = 'At'
+GO = 'GO'
 WEB_BASELINE = os.path.join(DIR, 'web_baseline.json')
 WEB_REPORT = os.path.join(DIR, 'web_report.md')
 # page field -> working.csv column
 WEB_FIELDS = {'light': 'Light', 'soundTech': 'Sound tech', 'action': 'Action', 'soundCue': 'Sound cue',
               'videoCue': 'Video Cue', 'klara': 'Speaker: Klara', 'gary': 'Speaker: Gary',
-              'cameron': 'Speaker: Cameron', 'beats': 'Beats', 'notes': 'Notes'}
+              'cameron': 'Speaker: Cameron', 'beats': 'Beats', 'notes': 'Notes', 'at': AT, 'go': GO}
 CUT_MARK = '[CUT on the Cue Book]'
+TIME_FIELD = re.compile(r'^[+]?(?:\d+(?:\.\d*)?|\.\d+)$')
+GO_FIELD = re.compile(r'^([0-9]+(?:\.[0-9]+)?)(?:\s+(HOLD|PASS))?$')
+
+
+def parse_cue_time(text, fps=25.0):
+    """Surtitles-compatible segment-relative time -> seconds; raises ValueError on a bad value."""
+    raw = str(text).strip()
+    fields = raw.split(':')
+    if not raw or not 1 <= len(fields) <= 4 or fps <= 0:
+        raise ValueError('bad cue time %r' % text)
+    if any(not TIME_FIELD.fullmatch(field.strip()) for field in fields):
+        raise ValueError('bad cue time %r' % text)
+    values = [float(field.strip()) for field in fields]
+    if len(values) == 1:
+        seconds = values[0]
+    elif len(values) == 2:
+        seconds = values[0] * 60.0 + values[1]
+    elif len(values) == 3:
+        seconds = values[0] * 3600.0 + values[1] * 60.0 + values[2]
+    else:
+        if values[3] >= fps:
+            raise ValueError('frame field must be below %g in %r' % (fps, text))
+        seconds = values[0] * 3600.0 + values[1] * 60.0 + values[2] + values[3] / fps
+    return seconds
+
+
+def parse_go(text):
+    """Cue Book GO field -> (number, optional HOLD/PASS, canonical field text)."""
+    raw = str(text).strip()
+    match = GO_FIELD.fullmatch(raw)
+    if match is None:
+        raise ValueError('bad GO %r (expected "<number> [HOLD|PASS]")' % text)
+    number, mode = match.groups()
+    return number, mode, number + ((' ' + mode) if mode else '')
+
+
+def validate_cuebook_docs(docs):
+    problems = []
+    for index, doc in enumerate(docs, 1):
+        key = doc.get('key') or doc.get('id') or '#%d' % index
+        at, go = str(doc.get('at') or '').strip(), str(doc.get('go') or '').strip()
+        try:
+            if at:
+                parse_cue_time(at)
+            if go:
+                parse_go(go)
+            if go and not at:
+                problems.append('%s: GO has no At time' % key)
+        except ValueError as error:
+            problems.append('%s: %s' % (key, error))
+    if problems:
+        raise ValueError('Cue Book timing fields refused: ' + ' | '.join(problems))
+
+
+def with_cuebook_fields(fields):
+    """At/GO are Cue Book-only columns and are always appended, never inserted into the Sheet layout."""
+    return list(fields) + [name for name in (AT, GO) if name not in fields]
 
 
 # ---------------------------------------------------------------- reading the Sheet
@@ -218,7 +282,7 @@ def pull(sheet_csv_path):
         work, snapshot, log, conflicts = merge(base_rows, new_rows, work_rows, columns)
     fields = ['Key', 'Origin'] + columns + [DIRECTOR]
     extra = [f for f in work_fields if f and f not in fields]    # columns Gary added himself stay
-    save_csv(WORKING, fields + extra, work)
+    save_csv(WORKING, with_cuebook_fields(fields + extra), work)
     save_csv(SNAPSHOT, ['Key'] + columns, snapshot)
     lines = ['# Cue sheet sync report', '', 'Source: %s' % os.path.basename(sheet_csv_path),
              'Speakers: %s' % ', '.join(speakers), '',
@@ -279,6 +343,7 @@ def render():
                 cells[i] = (cells[i] + ' | ' if cells[i] else '') + 'GZ: ' + r[DIRECTOR]
             w.writerow(cells)
     print('CUE_SYNC_RENDER_OK rows=%d md=%s export=%s' % (len(rows), RENDER, EXPORT))
+    return {'rows': len(rows), 'md': RENDER, 'export': EXPORT}
 
 
 def note(key, text):
@@ -409,25 +474,83 @@ def read_web_dir(path):
     return docs
 
 
-def webpull(path):
-    import json
+def webpull(path, render_after=True):
     fields, rows = load_csv(WORKING)
     with open(WEB_BASELINE, encoding='utf-8') as f:
         baseline = json.load(f)
     docs = read_web_dir(path)
     if not docs:
         raise SystemExit('no page documents under %s' % path)
+    try:
+        validate_cuebook_docs(docs)
+    except ValueError as error:
+        raise SystemExit(str(error))
     out, new_base, log, conflicts = web_merge(baseline, docs, rows)
-    save_csv(WORKING, fields, out)
+    save_csv(WORKING, with_cuebook_fields(fields), out)
     with open(WEB_BASELINE, 'w', encoding='utf-8') as f:
         json.dump(new_base, f, ensure_ascii=False, indent=1)
-    with open(WEB_REPORT, 'w', encoding='utf-8') as f:
-        f.write('# Cue Book pull (%d page cues)\n\n## Conflicts (%d): Gary decides\n\n' % (len(docs), len(conflicts)))
-        f.writelines('- **%s** %s\n' % c for c in conflicts)
-        f.write('\n## Applied (%d)\n\n' % len(log))
-        f.writelines('- %s\n' % line for line in log)
-    render()
+    # Keep the last actionable report byte-stable when a repeated pull is a no-op.
+    if log or conflicts or not os.path.exists(WEB_REPORT):
+        with open(WEB_REPORT, 'w', encoding='utf-8') as f:
+            f.write('# Cue Book pull (%d page cues)\n\n## Conflicts (%d): Gary decides\n\n' % (len(docs), len(conflicts)))
+            f.writelines('- **%s** %s\n' % c for c in conflicts)
+            f.write('\n## Applied (%d)\n\n' % len(log))
+            f.writelines('- %s\n' % line for line in log)
+    if render_after:
+        render()
     print('CUE_SYNC_WEBPULL_OK docs=%d applied=%d conflicts=%d' % (len(docs), len(log), len(conflicts)))
+    return {'docs': len(docs), 'applied': len(log), 'conflicts': len(conflicts)}
+
+
+def _bytes(path):
+    if not os.path.exists(path):
+        return b''
+    with open(path, 'rb') as handle:
+        return handle.read()
+
+
+def _changed_rows(before, after, path):
+    if before == after:
+        return 0
+    if path.lower().endswith('.csv'):
+        old = list(csv.reader(io.StringIO(before.decode('utf-8-sig')))) if before else []
+        new = list(csv.reader(io.StringIO(after.decode('utf-8-sig')))) if after else []
+    else:
+        old = before.decode('utf-8', errors='replace').splitlines()
+        new = after.decode('utf-8', errors='replace').splitlines()
+    return sum(1 for a, b in itertools.zip_longest(old, new) if a != b)
+
+
+def cuebook_export(path):
+    """Saved Cue Book -> merge -> render -> optional cb3 surtitle export, with deterministic summaries."""
+    with open(path, encoding='utf-8') as handle:
+        payload = json.load(handle)
+    candidates = [WORKING, WEB_BASELINE, WEB_REPORT, RENDER, EXPORT]
+    surtitle_path = globals().get('SURTITLES_EXPORT', os.path.join(
+        ROOT, 'Content', 'InfinityStage', 'CueSheet', 'Puss_Surtitles.csv'))
+    surtitle_writer = globals().get('surtitles_csv')
+    if callable(surtitle_writer) and 'surtitles' in payload:
+        candidates.append(surtitle_path)
+    before = {p: _bytes(p) for p in candidates}
+    summary = webpull(path, render_after=False)
+    render()
+    if callable(surtitle_writer) and 'surtitles' in payload:
+        text = surtitle_writer(payload.get('surtitles') or [])
+        os.makedirs(os.path.dirname(surtitle_path), exist_ok=True)
+        with open(surtitle_path, 'w', encoding='utf-8', newline='') as handle:
+            handle.write(text)
+    changed = []
+    for output in candidates:
+        after = _bytes(output)
+        if before[output] == after:
+            continue
+        changed.append(os.path.relpath(output, ROOT).replace('\\', '/'))
+        print('CUE_SYNC_EXPORT_FILE|path=%s|changed_rows=%d|bytes_before=%d|bytes_after=%d|sha256=%s' %
+              (changed[-1], _changed_rows(before[output], after, output), len(before[output]), len(after),
+               hashlib.sha256(after).hexdigest()))
+    print('CUE_SYNC_EXPORT_OK|cues=%d|changed_files=%s' %
+          (summary['docs'], json.dumps(changed, separators=(',', ':'))))
+    return {'cues': summary['docs'], 'changed_files': changed}
 
 
 def cuebook_pull():
@@ -621,6 +744,8 @@ if __name__ == '__main__':
         tocuebook()
     elif command == 'cuebook':
         cuebook_pull()
+    elif command == 'export' and len(sys.argv) == 3:
+        cuebook_export(sys.argv[2])
     elif command == 'webbase':
         web_seed_baseline()
     elif command == 'selftest':
