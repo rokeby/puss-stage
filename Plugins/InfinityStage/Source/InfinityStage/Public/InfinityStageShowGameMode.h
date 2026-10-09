@@ -47,6 +47,8 @@ public:
     void ReloadCueSheet();
     /** B: the rehearsal bar along the bottom of the viewport. */
     void ToggleRehearsalBar();
+    /** T: surtitle blackout (InfinityStage.Surtitles). */
+    void ToggleSurtitles();
 
 protected:
     virtual void SetupInputComponent() override;
