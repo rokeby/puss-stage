@@ -1005,6 +1005,8 @@ private:
 
 void SInfinityStageCueDesk::Construct(const FArguments& InArgs)
 {
+    // Measured, not guessed: where the Cue Desk's open time goes (Gary, 8 Oct).
+    const double OpenStartSeconds = FPlatformTime::Seconds();
     GConfig->GetBool(
         TEXT("InfinityStage.CueDesk"),
         TEXT("FollowMusicScrubInViewport"),
@@ -1025,6 +1027,21 @@ void SInfinityStageCueDesk::Construct(const FArguments& InArgs)
         TEXT("MusicWorkspaceVisible"),
         bMusicWorkspaceVisible,
         GEditorPerProjectIni);
+    GConfig->GetBool(TEXT("InfinityStage.CueDesk"), TEXT("CueListVisible"), bCueListVisible, GEditorPerProjectIni);
+    GConfig->GetBool(TEXT("InfinityStage.CueDesk"), TEXT("CueDetailsVisible"), bCueDetailsVisible, GEditorPerProjectIni);
+    GConfig->GetBool(TEXT("InfinityStage.CueDesk"), TEXT("InspectorVisible"), bInspectorVisible, GEditorPerProjectIni);
+    {
+        FString Hidden;
+        if (GConfig->GetString(TEXT("InfinityStage.CueDesk"), TEXT("HiddenCueColumns"), Hidden, GEditorPerProjectIni))
+        {
+            TArray<FString> Names;
+            Hidden.ParseIntoArray(Names, TEXT(","));
+            for (const FString& Name : Names)
+            {
+                HiddenCueColumns.Add(FName(*Name));
+            }
+        }
+    }
     GConfig->GetBool(
         TEXT("InfinityStage.CueDesk"),
         TEXT("SnapMusicScrubToMarkers"),
@@ -1161,9 +1178,12 @@ void SInfinityStageCueDesk::Construct(const FArguments& InArgs)
                 .OnSplitterFinishedResizing_Lambda([this]() { SaveLayoutConfig(); })
                 + SSplitter::Slot()
                 .Value(CueListFraction)
-                .MinSize(280.0f)
+                .MinSize(120.0f)
                 .OnSlotResized_Lambda([this](const float Value) { CueListFraction = Value; })
                 [
+                    SNew(SBox)
+                    .Visibility_Lambda([this]() { return bCueListVisible ? EVisibility::Visible : EVisibility::Collapsed; })
+                    [
                     SAssignNew(CueList, SListView<FCueItem>)
                     .ListItemsSource(&CueItems)
                     .SelectionMode(ESelectionMode::Multi)
@@ -1172,20 +1192,36 @@ void SInfinityStageCueDesk::Construct(const FArguments& InArgs)
                     .OnContextMenuOpening(this, &SInfinityStageCueDesk::BuildCueContextMenu)
                     .HeaderRow
                     (
-                        SNew(SHeaderRow)
-                        + SHeaderRow::Column(TEXT("Number")).DefaultLabel(NSLOCTEXT("InfinityStage", "NumberColumn", "#")).FixedWidth(42.0f)
-                        + SHeaderRow::Column(TEXT("Type")).DefaultLabel(NSLOCTEXT("InfinityStage", "TypeColumn", "Type")).FixedWidth(68.0f)
+                        // Columns are resizable (drag the header edges) and can be hidden or shown
+                        // from the header's right-click menu (Gary, 8 Oct); the choice is persisted.
+                        SAssignNew(CueHeaderRow, SHeaderRow)
+                        .CanSelectGeneratedColumn(true)
+                        .HiddenColumnsList(HiddenCueColumns)
+                        .OnHiddenColumnsListChanged_Lambda([this]()
+                        {
+                            if (CueHeaderRow.IsValid())
+                            {
+                                HiddenCueColumns = CueHeaderRow->GetHiddenColumnIds();
+                                SaveLayoutConfig();
+                            }
+                        })
+                        + SHeaderRow::Column(TEXT("Number")).DefaultLabel(NSLOCTEXT("InfinityStage", "NumberColumn", "#")).ManualWidth(42.0f)
+                        + SHeaderRow::Column(TEXT("Type")).DefaultLabel(NSLOCTEXT("InfinityStage", "TypeColumn", "Type")).ManualWidth(68.0f)
                         + SHeaderRow::Column(TEXT("Name")).DefaultLabel(NSLOCTEXT("InfinityStage", "NameColumn", "Cue")).FillWidth(1.0f)
-                        + SHeaderRow::Column(TEXT("Timing")).DefaultLabel(NSLOCTEXT("InfinityStage", "TimingColumn", "Timing")).FixedWidth(92.0f)
-                        + SHeaderRow::Column(TEXT("Spacing")).DefaultLabel(NSLOCTEXT("InfinityStage", "SpacingColumn", "Spacing")).FixedWidth(78.0f)
-                        + SHeaderRow::Column(TEXT("Status")).DefaultLabel(NSLOCTEXT("InfinityStage", "StatusColumn", "Status")).FixedWidth(70.0f)
+                        + SHeaderRow::Column(TEXT("Timing")).DefaultLabel(NSLOCTEXT("InfinityStage", "TimingColumn", "Timing")).ManualWidth(92.0f)
+                        + SHeaderRow::Column(TEXT("Spacing")).DefaultLabel(NSLOCTEXT("InfinityStage", "SpacingColumn", "Spacing")).ManualWidth(78.0f)
+                        + SHeaderRow::Column(TEXT("Status")).DefaultLabel(NSLOCTEXT("InfinityStage", "StatusColumn", "Status")).ManualWidth(70.0f)
                     )
+                    ]
                 ]
                 + SSplitter::Slot()
                 .Value(CueDetailsFraction)
-                .MinSize(260.0f)
+                .MinSize(120.0f)
                 .OnSlotResized_Lambda([this](const float Value) { CueDetailsFraction = Value; })
                 [
+                    SNew(SBox)
+                    .Visibility_Lambda([this]() { return bCueDetailsVisible ? EVisibility::Visible : EVisibility::Collapsed; })
+                    [
                     SNew(SVerticalBox)
                     + SVerticalBox::Slot()
                     .AutoHeight()
@@ -1200,12 +1236,16 @@ void SInfinityStageCueDesk::Construct(const FArguments& InArgs)
                     [
                         CueDetails.ToSharedRef()
                     ]
+                    ]
                 ]
                 + SSplitter::Slot()
                 .Value(InspectorFraction)
-                .MinSize(320.0f)
+                .MinSize(120.0f)
                 .OnSlotResized_Lambda([this](const float Value) { InspectorFraction = Value; })
                 [
+                    SNew(SBox)
+                    .Visibility_Lambda([this]() { return bInspectorVisible ? EVisibility::Visible : EVisibility::Collapsed; })
+                    [
                     SNew(SVerticalBox)
                     + SVerticalBox::Slot()
                     .AutoHeight()
@@ -1219,6 +1259,7 @@ void SInfinityStageCueDesk::Construct(const FArguments& InArgs)
                     .FillHeight(1.0f)
                     [
                         BuildMusicPanel()
+                    ]
                     ]
                 ]
             ]
@@ -1257,9 +1298,15 @@ void SInfinityStageCueDesk::Construct(const FArguments& InArgs)
         ShowAsset = InArgs._InitialShowAsset;
         ShowAsset->EnsureStableIds();
         ShowAsset->ReconcilePassageSettings();
-        AssetDetails->SetObject(ShowAsset.Get());
+        // AssetDetails is never placed in the layout, yet SetObject built a property tree for the
+        // whole Show (every wing pair and attachment) on each open: dead load, removed (8 Oct).
+        const double RefreshStartSeconds = FPlatformTime::Seconds();
         RefreshFromAsset(false);
+        UE_LOG(LogTemp, Display, TEXT("INFINITY_CUE_DESK_OPEN_MS refresh=%.0f"),
+            (FPlatformTime::Seconds() - RefreshStartSeconds) * 1000.0);
     }
+    UE_LOG(LogTemp, Display, TEXT("INFINITY_CUE_DESK_OPEN_MS total=%.0f"),
+        (FPlatformTime::Seconds() - OpenStartSeconds) * 1000.0);
 }
 
 SInfinityStageCueDesk::~SInfinityStageCueDesk()
@@ -1717,7 +1764,6 @@ void SInfinityStageCueDesk::UseEditorWorldShowAsset()
     ShowAsset = LevelShow;
     ShowAsset->EnsureStableIds();
     ShowAsset->ReconcilePassageSettings();
-    AssetDetails->SetObject(ShowAsset.Get());
     EditorPreviewNormalizedPosition = -1.0;
     EditorPreviewPassageGuid.Invalidate();
     RefreshFromAsset(false);
@@ -3075,6 +3121,27 @@ TSharedRef<SWidget> SInfinityStageCueDesk::BuildViewMenu()
             FIsActionChecked::CreateSP(this, &SInfinityStageCueDesk::IsRehearsalTransportEnabled)),
         NAME_None,
         EUserInterfaceActionType::ToggleButton);
+    const auto AddPanelToggle = [this, &MenuBuilder](const FText& Label, bool* Flag)
+    {
+        MenuBuilder.AddMenuEntry(
+            Label,
+            NSLOCTEXT("InfinityStage", "PanelToggleTip", "Show or hide this panel; drag the splitters to resize. Remembered between sessions."),
+            FSlateIcon(),
+            FUIAction(
+                FExecuteAction::CreateLambda([this, Flag]()
+                {
+                    *Flag = !*Flag;
+                    SaveLayoutConfig();
+                    Invalidate(EInvalidateWidgetReason::Layout);
+                }),
+                FCanExecuteAction(),
+                FIsActionChecked::CreateLambda([Flag]() { return *Flag; })),
+            NAME_None,
+            EUserInterfaceActionType::ToggleButton);
+    };
+    AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowCueListPanel", "Show Cue List"), &bCueListVisible);
+    AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowCueDetailsPanel", "Show Cue Details"), &bCueDetailsVisible);
+    AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowInspectorPanel", "Show Passage / Music Inspector (right column)"), &bInspectorVisible);
     MenuBuilder.AddMenuEntry(
         NSLOCTEXT("InfinityStage", "ShowMusicWorkspace", "Show Music Timeline Workspace"),
         NSLOCTEXT(
@@ -4166,6 +4233,17 @@ void SInfinityStageCueDesk::SaveLayoutConfig() const
 {
     GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("NestedCueMode"), bNestedCueMode, GEditorPerProjectIni);
     GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("MusicWorkspaceVisible"), bMusicWorkspaceVisible, GEditorPerProjectIni);
+    GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("CueListVisible"), bCueListVisible, GEditorPerProjectIni);
+    GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("CueDetailsVisible"), bCueDetailsVisible, GEditorPerProjectIni);
+    GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("InspectorVisible"), bInspectorVisible, GEditorPerProjectIni);
+    {
+        TArray<FString> Names;
+        for (const FName& Name : HiddenCueColumns)
+        {
+            Names.Add(Name.ToString());
+        }
+        GConfig->SetString(TEXT("InfinityStage.CueDesk"), TEXT("HiddenCueColumns"), *FString::Join(Names, TEXT(",")), GEditorPerProjectIni);
+    }
     GConfig->SetBool(TEXT("InfinityStage.CueDesk"), TEXT("SnapMusicScrubToMarkers"), bSnapMusicScrubToMarkers, GEditorPerProjectIni);
     GConfig->SetFloat(TEXT("InfinityStage.CueDesk"), TEXT("MainWorkspaceFraction"), MainWorkspaceFraction, GEditorPerProjectIni);
     GConfig->SetFloat(TEXT("InfinityStage.CueDesk"), TEXT("MusicWorkspaceFraction"), MusicWorkspaceFraction, GEditorPerProjectIni);
@@ -4191,7 +4269,7 @@ void SInfinityStageCueDesk::HandleAssetChanged(const FAssetData& AssetData)
     {
         ShowAsset->EnsureStableIds();
         ShowAsset->ReconcilePassageSettings();
-        AssetDetails->SetObject(ShowAsset.Get());
+        // (AssetDetails is not shown; see Construct.)
     }
     else
     {
