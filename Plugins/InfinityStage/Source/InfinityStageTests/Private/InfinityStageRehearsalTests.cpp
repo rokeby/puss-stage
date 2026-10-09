@@ -130,4 +130,42 @@ bool FInfinityStageFastForwardSkimTest::RunTest(const FString& Parameters)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageSurtitleButtonsTest,
+    "InfinityStage.CueDirector.SurtitleButtonsCallTheRightThing",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+// Gary 9 Oct: surtitles "part of the cue director interface to be adjustable and rehearsable".
+bool FInfinityStageSurtitleButtonsTest::RunTest(const FString& Parameters)
+{
+    using namespace InfinityStageRehearsal;
+    using EKind = FInfinitySurtitleCall::EKind;
+    const FInfinitySurtitleCall Prev = PlanSurtitleAction(ESurtitleAction::Previous);
+    const FInfinitySurtitleCall Next = PlanSurtitleAction(ESurtitleAction::Next);
+    TestTrue(TEXT("prev steps back one line"), Prev.Kind == EKind::Step && Prev.Delta == -1);
+    TestTrue(TEXT("next steps on one line"), Next.Kind == EKind::Step && Next.Delta == 1);
+    const FInfinitySurtitleCall StampIn = PlanSurtitleAction(ESurtitleAction::StampIn);
+    const FInfinitySurtitleCall StampOut = PlanSurtitleAction(ESurtitleAction::StampOut);
+    TestTrue(TEXT("Stamp In stamps the In"), StampIn.Kind == EKind::Stamp && !StampIn.bOut);
+    TestTrue(TEXT("Stamp Out stamps the Out"), StampOut.Kind == EKind::Stamp && StampOut.bOut);
+    const FInfinitySurtitleCall InEarlier = PlanSurtitleAction(ESurtitleAction::InEarlier);
+    const FInfinitySurtitleCall OutLater = PlanSurtitleAction(ESurtitleAction::OutLater);
+    TestTrue(TEXT("In - nudges the In 0.25 s earlier"),
+        InEarlier.Kind == EKind::Nudge && !InEarlier.bOut && FMath::IsNearlyEqual(InEarlier.Seconds, -0.25));
+    TestTrue(TEXT("Out + nudges the Out 0.25 s later"),
+        OutLater.Kind == EKind::Nudge && OutLater.bOut && FMath::IsNearlyEqual(OutLater.Seconds, 0.25));
+    // Control: the four nudges are four different calls (a copy-paste slip would collapse two of them).
+    TSet<FString> Distinct;
+    for (const ESurtitleAction A : {ESurtitleAction::InEarlier, ESurtitleAction::InLater, ESurtitleAction::OutEarlier, ESurtitleAction::OutLater})
+    {
+        const FInfinitySurtitleCall C = PlanSurtitleAction(A);
+        Distinct.Add(FString::Printf(TEXT("%d/%.2f"), C.bOut ? 1 : 0, C.Seconds));
+    }
+    TestEqual(TEXT("Control: four distinct nudges"), Distinct.Num(), 4);
+    // Negative control: without a game world nothing is called and the bar says why.
+    TestTrue(TEXT("Control: no world -> refused, with a reason"), SurtitleAction(nullptr, ESurtitleAction::Next).StartsWith(TEXT("Not done")));
+    TestTrue(TEXT("Control: no world -> nothing to describe"), DescribeSurtitle(nullptr).IsEmpty());
+    return true;
+}
+
 #endif

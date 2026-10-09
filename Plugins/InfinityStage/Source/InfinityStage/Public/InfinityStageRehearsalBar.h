@@ -62,6 +62,28 @@ enum class ECommand : uint8 { Back, PlayPause, Go, PreviousLine, NextLine };
 /** Same as the keys: Back = LEFT, PlayPause = Space, Go = RIGHT (GO at a hold), lines = "," and ".". */
 INFINITYSTAGE_API void Command(UWorld* World, ECommand Command);
 
+/** Surtitle rehearsal controls (Gary 9 Oct: "part of the cue director interface to be adjustable and rehearsable").
+ *  They call UInfinityStageSurtitleSubsystem; nothing here writes the Show or the level. */
+enum class ESurtitleAction : uint8 { Previous, Next, StampIn, StampOut, InEarlier, InLater, OutEarlier, OutLater };
+
+/** What one action calls: StepLine(Delta), StampAtPlayhead(bOut) or Nudge(bOut, Seconds). Pure, for tests. */
+struct FInfinitySurtitleCall
+{
+    enum class EKind : uint8 { Step, Stamp, Nudge };
+    EKind Kind = EKind::Step;
+    int32 Delta = 0;
+    bool bOut = false;
+    double Seconds = 0.0;
+};
+inline constexpr double SurtitleNudgeSeconds = 0.25;
+INFINITYSTAGE_API FInfinitySurtitleCall PlanSurtitleAction(ESurtitleAction Action);
+
+/** Runs the action on the world's surtitle subsystem; returns the line it now describes, or why it refused. */
+INFINITYSTAGE_API FString SurtitleAction(UWorld* World, ESurtitleAction Action);
+
+/** "S5 row 12 [T3k] 1:14.00-1:25.00 West: ...", or empty when the world has no surtitle subsystem. */
+INFINITYSTAGE_API FString DescribeSurtitle(UWorld* World);
+
 /** "m:ss.s". */
 INFINITYSTAGE_API FString Clock(double Seconds);
 
@@ -94,4 +116,6 @@ private:
     TFunction<UWorld*()> GetWorldFn;
     mutable FInfinityRehearsalState Cached;
     mutable uint64 CachedFrame = MAX_uint64;
+    /** The last surtitle action's result (a refusal stays on screen until the next action). */
+    FString SurtitleMessage;
 };
