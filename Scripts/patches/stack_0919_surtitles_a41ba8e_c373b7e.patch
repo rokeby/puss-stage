@@ -1,0 +1,1675 @@
+diff --git a/Docs/Surtitles.md b/Docs/Surtitles.md
+new file mode 100644
+index 00000000..879e01bc
+--- /dev/null
++++ b/Docs/Surtitles.md
+@@ -0,0 +1,105 @@
++# Surtitles
++
++Gary, 8 Oct 2026: "text at centre top of screen, visible serifed font, timecoded",
++"should integrate as part of cue system". The first use is the S5 mountains, who
++talk to each other in rumbles that get surtitled.
++
++This **replaces** the old plan in `ShowBuildTodo.md` §C: C.1 to C.3 (a `BP_Surtitle`
++actor keyed with a Text track inside each Scene sequence) and the matching line in
++`SceneDeliveryContract.md`. Scene artists no longer bind anything. They send
++**timings**, and the timings go in the sheet.
++
++## How it works
++
++- **Where the text lives:** the surtitle sheet,
++  `Content/InfinityStage/CueSheet/Puss_Surtitles.csv`. Make it a "Surtitles" tab in
++  `Puss_Master_cue_sheet` and export it as CSV to that path. Nothing is written to the
++  Show or the level.
++- **Columns** (found by name, any order): `Segment, In, Out, Speaker, Text, Notes`.
++  - **Segment:** `S<n>` (the n-th Scene), `P<n>` (the n-th Passage), `I<n>` (the n-th
++    Interaction), or a Show cue label. These are counted the same way as the Cue
++    Director's `use_video = S<n>`. A blank cell carries the segment down from the row above.
++  - **In / Out:** time from the **start of that segment**, so a line moves when its
++    segment is retimed or reordered. Write it as `74.5`, `1:14.5`, `0:01:14.5`, or
++    `00:01:14:12` (the last field is frames, at 25 fps).
++  - **Blank Out:** the line stays up until the next line in that segment starts, or
++    until the segment ends.
++  - **A clear row:** a row with a time and no Text clears the screen at that time.
++  - **Line breaks:** a quoted multi-line cell keeps them.
++- **Display:** the line sits at the top centre of the frame, in a serif font, on a
++  black bar, with a short fade at each end. It is a viewport overlay in PIE and in the
++  show. It draws over the Scene video fallbacks, which follow the same Master playhead.
++  It is **not** rendered into MRQ output.
++- **What's on screen depends only on the Master playhead,** so seek, reverse, hold and
++  fast-forward all agree.
++- **Reloading:** the sheet is re-read automatically within about 1 s of being saved.
++  F5 (which also reloads the cue sheet) and `InfinityStage.Surtitles.Reload` do the
++  same thing by hand.
++
++## Operator and rehearsal controls
++
++| Control | Effect |
++| --- | --- |
++| **T** (show viewport) | Blackout on/off (`InfinityStage.Surtitles` 1/0) |
++| `InfinityStage.Surtitles.Size` | Text size in px of a 1920×1080 frame (default 54) |
++| `InfinityStage.Surtitles.Top` | Gap above the bar, px of 1080p (default 40); safe area for the real screen |
++| `InfinityStage.Surtitles.BarOpacity` | 0 to 1 (default 0.85) |
++| `InfinityStage.Surtitles.Fade` | Seconds (default 0.3; 0 for hard cuts) |
++| `InfinityStage.Surtitles.Speakers` | 1 shows the Speaker column, small, above the line |
++| `InfinityStage.Surtitles.Font` | A TTF/OTF path |
++| `InfinityStage.Surtitles.Path` | Another sheet, e.g. `Saved/Surtitles/surtitle_test_sheet.csv` |
++| `InfinityStage.Surtitles.Dump` | Logs every line at its absolute Master time, for proofing |
++
++**Font:** the default is `Content/InfinityStage/Surtitles/Fonts/Surtitle.ttf` (or
++`.otf`). Until that file exists, Windows Georgia is used. Gary wants EB Garamond for
++now and may choose another font later. To change it, drop the file in under that name;
++no rebuild is needed. These are loose files, so a packaged build would have to stage
++them. That last point is inferred: the show runs from the editor, and staging is
++unverified.
++
++## Rehearsal controls (Cue Director)
++
++Gary, 9 Oct: surtitles are mainly for the S5 mountains, there's no operator, and they
++should stay light, but they must be "part of the cue director interface to be adjustable
++and rehearsable". The subsystem exposes the calls below. The Cueing stream wires them
++into the Cue Director interface. The same calls are available as console commands.
++
++| Call (`UInfinityStageSurtitleSubsystem`) | Console | Effect |
++| --- | --- | --- |
++| `StepLine(+1 / -1)` | `InfinityStage.Surtitles.Step 1` / `-1` | Calls `ScrubToMasterFrame` (which pauses) to just past the next or previous line's fade-in, and selects that line. A transport refusal is reported, never forced |
++| `StampAtPlayhead(bOut)` | `InfinityStage.Surtitles.Stamp In` / `Out` | Sets the selected line's In or Out to the playhead, as time from its segment's start |
++| `Nudge(bOut, s)` | `InfinityStage.Surtitles.Nudge In 0.5` | Moves the selected line's In or Out. A blank Out becomes an explicit time |
++| `DescribeSelected()`, `GetLastMessage()` | logged as `INFINITY_SURTITLES_CONTROL` | Text for the panel |
++
++**Selection:** the selected line is the last one stepped to, otherwise the one on
++screen. It is kept across a reload, matched by Key or, failing that, by row.
++
++**Writes** change one cell in the sheet file, and nothing else:
++- every other cell, column (`Key`, `Notes`, unknown ones), row and line ending is kept;
++- the file is replaced in one step (written to a temp file, then renamed over it).
++
++**Refusals:** a write is refused when that row has changed on disk since it was loaded
++(Key or In differ). The sheet is then reloaded so you can try again. A write is also
++refused when it would make Out <= In. Writes log `INFINITY_SURTITLES_WRITE`.
++
++**Key column:** the Cue Book gives every row a stable `Key`. It is read and carried
++through; it is never invented here.
++
++## Log markers
++
++- `INFINITY_SURTITLES_LOADED ok= lines= warnings= path=`
++- `INFINITY_SURTITLES_WARNING`: one per row that was skipped or corrected
++- `INFINITY_SURTITLES_STYLE font= size= top= bar= speakers=`
++- `INFINITY_SURTITLE row= seg= in= out= hold= master=`: one per line, from Dump.
++  `PAST_SEGMENT_END` marks a line that starts after its segment has ended.
++- `INFINITY_SURTITLE_UNRESOLVED`: the segment key matches nothing
++- `INFINITY_SURTITLES_ON` / `INFINITY_SURTITLES_BLACKOUT`
++
++## Code
++
++- `Plugins/InfinityStage/Source/InfinityStage/{Public,Private}/InfinityStageSurtitles.*`
++  holds the sheet parser, the pure evaluator, and a `UTickableWorldSubsystem` that
++  draws a Slate overlay at ZOrder 10 (over the video fallback at 5, under the
++  rehearsal bar at 20).
++- `InfinityStageShowGameMode.*` binds T, and F5 also reloads the sheet.
++- The tests are `InfinityStage.Surtitles.*` in `InfinityStageSurtitleTests.cpp`.
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+index a0b2ae80..4d61f7ac 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+@@ -6,6 +6,7 @@
+ #include "EngineUtils.h"
+ #include "InfinityStageDirectorHud.h"
+ #include "InfinityStageShowRoot.h"
++#include "InfinityStageSurtitles.h"
+ #include "InfinityStageTransportController.h"
+ #include "InputCoreTypes.h"
+ 
+@@ -78,6 +79,7 @@ void AInfinityStageShowPlayerController::SetupInputComponent()
+     InputComponent->BindKey(InfinityStageShowKeys::ScriptPrevious(), IE_Pressed, this, &AInfinityStageShowPlayerController::PreviousScriptLine);
+     InputComponent->BindKey(EKeys::F5, IE_Pressed, this, &AInfinityStageShowPlayerController::ReloadCueSheet);
+     InputComponent->BindKey(EKeys::B, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleRehearsalBar);
++    InputComponent->BindKey(EKeys::T, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleSurtitles);
+ }
+ 
+ void AInfinityStageShowPlayerController::NextScriptLine()
+@@ -102,6 +104,10 @@ void AInfinityStageShowPlayerController::ReloadCueSheet()
+     {
+         UE_LOG(LogTemp, Display, TEXT("INFINITY_CUESHEET_RELOAD ok=%d"), Director->Reload() ? 1 : 0);
+     }
++    if (UInfinityStageSurtitleSubsystem* Surtitles = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageSurtitleSubsystem>() : nullptr)
++    {
++        Surtitles->Reload();
++    }
+ }
+ 
+ void AInfinityStageShowPlayerController::ToggleRehearsalBar()
+@@ -112,6 +118,11 @@ void AInfinityStageShowPlayerController::ToggleRehearsalBar()
+     }
+ }
+ 
++void AInfinityStageShowPlayerController::ToggleSurtitles()
++{
++    InfinityStageSurtitles::ToggleBlackout();
++}
++
+ void AInfinityStageShowPlayerController::ToggleDirectorHud()
+ {
+     InfinityStageDirectorHud::Toggle(GetWorld());
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageSurtitles.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageSurtitles.cpp
+new file mode 100644
+index 00000000..bb6f2760
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageSurtitles.cpp
+@@ -0,0 +1,1023 @@
++#include "InfinityStageSurtitles.h"
++
++#include <initializer_list>
++
++#include "Brushes/SlateColorBrush.h"
++#include "Engine/GameViewportClient.h"
++#include "Engine/World.h"
++#include "EngineUtils.h"
++#include "Fonts/CompositeFont.h"
++#include "HAL/FileManager.h"
++#include "HAL/IConsoleManager.h"
++#include "HAL/PlatformTime.h"
++#include "InfinityStageCueSheet.h"
++#include "InfinityStageShowAsset.h"
++#include "InfinityStageShowRoot.h"
++#include "InfinityStageTransportController.h"
++#include "Misc/FileHelper.h"
++#include "Misc/Paths.h"
++#include "Styling/CoreStyle.h"
++#include "Widgets/Layout/SBorder.h"
++#include "Widgets/Layout/SBox.h"
++#include "Widgets/Layout/SScaleBox.h"
++#include "Widgets/SBoxPanel.h"
++#include "Widgets/Text/STextBlock.h"
++
++DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageSurtitles, Log, All);
++
++namespace
++{
++TAutoConsoleVariable<int32> CVarSurtitles(
++    TEXT("InfinityStage.Surtitles"),
++    1,
++    TEXT("1 show surtitles, 0 blackout (operator; key T in the show viewport)."));
++
++TAutoConsoleVariable<FString> CVarSurtitlesPath(
++    TEXT("InfinityStage.Surtitles.Path"),
++    TEXT(""),
++    TEXT("Surtitle sheet CSV. Empty: <Project>/Content/InfinityStage/CueSheet/Puss_Surtitles.csv"));
++
++TAutoConsoleVariable<FString> CVarSurtitlesFont(
++    TEXT("InfinityStage.Surtitles.Font"),
++    TEXT(""),
++    TEXT("TTF/OTF file. Empty: Content/InfinityStage/Surtitles/Fonts/Surtitle.ttf (or .otf), else Windows Georgia."));
++
++TAutoConsoleVariable<float> CVarSurtitlesSize(
++    TEXT("InfinityStage.Surtitles.Size"),
++    54.0f,
++    TEXT("Text size, in pixels of a 1920x1080 frame (scaled to the real viewport)."));
++
++TAutoConsoleVariable<float> CVarSurtitlesTop(
++    TEXT("InfinityStage.Surtitles.Top"),
++    40.0f,
++    TEXT("Gap above the bar, in pixels of a 1920x1080 frame (safe area for the real screen)."));
++
++TAutoConsoleVariable<float> CVarSurtitlesBarOpacity(
++    TEXT("InfinityStage.Surtitles.BarOpacity"),
++    0.85f,
++    TEXT("Black bar behind the text: 0 none, 1 solid."));
++
++TAutoConsoleVariable<float> CVarSurtitlesFade(
++    TEXT("InfinityStage.Surtitles.Fade"),
++    0.3f,
++    TEXT("Fade in/out, seconds. 0: hard cuts."));
++
++TAutoConsoleVariable<int32> CVarSurtitlesSpeakers(
++    TEXT("InfinityStage.Surtitles.Speakers"),
++    0,
++    TEXT("1: show the Speaker column, small, above the line."));
++
++/** Over the show and the video fallback (5), under the rehearsal bar (20). */
++constexpr int32 OverlayZOrder = 10;
++/** The show's frame rate, for hh:mm:ss:ff. */
++constexpr double SheetFps = 25.0;
++/** The layout's reference frame; SScaleBox fits it to the viewport. */
++constexpr float FrameWidth = 1920.0f;
++constexpr float FrameHeight = 1080.0f;
++
++TCHAR KindLetter(const EInfinityCueType Type)
++{
++    switch (Type)
++    {
++    case EInfinityCueType::WingPair: return TEXT('P');
++    case EInfinityCueType::Scene: return TEXT('S');
++    case EInfinityCueType::Sequence: return TEXT('I');
++    default: return TEXT('?');
++    }
++}
++
++bool KeyMatches(const FString& Key, const TArray<FInfinityTransportSegment>& Segments, const int32 SegmentIndex)
++{
++    const FString Trimmed = Key.TrimStartAndEnd();
++    if (Trimmed.IsEmpty() || !Segments.IsValidIndex(SegmentIndex))
++    {
++        return false;
++    }
++    return Trimmed.Equals(InfinityStageSurtitles::SegmentCode(Segments, SegmentIndex), ESearchCase::IgnoreCase)
++        || Trimmed.Equals(Segments[SegmentIndex].Label.ToString().TrimStartAndEnd(), ESearchCase::IgnoreCase);
++}
++
++int32 FindColumn(const TArray<FString>& Header, std::initializer_list<const TCHAR*> Names)
++{
++    for (int32 Column = 0; Column < Header.Num(); ++Column)
++    {
++        const FString Cell = Header[Column].TrimStartAndEnd();
++        for (const TCHAR* Name : Names)
++        {
++            if (Cell.Equals(Name, ESearchCase::IgnoreCase))
++            {
++                return Column;
++            }
++        }
++    }
++    return INDEX_NONE;
++}
++
++FString Cell(const TArray<FString>& Row, const int32 Column)
++{
++    return Row.IsValidIndex(Column) ? Row[Column].TrimStartAndEnd() : FString();
++}
++
++FString ResolveFontPath()
++{
++    const FString Override = CVarSurtitlesFont.GetValueOnGameThread();
++    if (!Override.IsEmpty())
++    {
++        return FPaths::FileExists(Override) ? Override : FString();
++    }
++    const FString Dir = FPaths::Combine(FPaths::ProjectContentDir(), TEXT("InfinityStage/Surtitles/Fonts"));
++    for (const TCHAR* Name : { TEXT("Surtitle.ttf"), TEXT("Surtitle.otf") })
++    {
++        const FString Path = FPaths::ConvertRelativePathToFull(FPaths::Combine(Dir, Name));
++        if (FPaths::FileExists(Path))
++        {
++            return Path;
++        }
++    }
++    const FString Georgia = TEXT("C:/Windows/Fonts/georgia.ttf");
++    return FPaths::FileExists(Georgia) ? Georgia : FString();
++}
++
++void DumpWorld(UWorld* World)
++{
++    if (UInfinityStageSurtitleSubsystem* Surtitles = World ? World->GetSubsystem<UInfinityStageSurtitleSubsystem>() : nullptr)
++    {
++        Surtitles->Dump();
++    }
++    else
++    {
++        UE_LOG(LogInfinityStageSurtitles, Warning, TEXT("INFINITY_SURTITLES_DUMP no game world (start PIE or the show first)"));
++    }
++}
++
++void ReloadWorld(UWorld* World)
++{
++    if (UInfinityStageSurtitleSubsystem* Surtitles = World ? World->GetSubsystem<UInfinityStageSurtitleSubsystem>() : nullptr)
++    {
++        Surtitles->Reload();
++    }
++}
++
++UInfinityStageSurtitleSubsystem* SurtitlesOf(UWorld* World)
++{
++    UInfinityStageSurtitleSubsystem* Surtitles = World ? World->GetSubsystem<UInfinityStageSurtitleSubsystem>() : nullptr;
++    if (!Surtitles)
++    {
++        UE_LOG(LogInfinityStageSurtitles, Warning, TEXT("INFINITY_SURTITLES_CONTROL no game world (start PIE or the show first)"));
++    }
++    return Surtitles;
++}
++
++void LogControl(UInfinityStageSurtitleSubsystem* Surtitles, const TCHAR* What, const bool bOk)
++{
++    UE_LOG(LogInfinityStageSurtitles, Display, TEXT("INFINITY_SURTITLES_CONTROL %s ok=%d %s | %s"),
++        What, bOk ? 1 : 0, *Surtitles->GetLastMessage(), *Surtitles->DescribeSelected());
++}
++
++void StepWorld(const TArray<FString>& Args, UWorld* World)
++{
++    if (UInfinityStageSurtitleSubsystem* Surtitles = SurtitlesOf(World))
++    {
++        const int32 Delta = Args.Num() > 0 && FCString::Atoi(*Args[0]) < 0 ? -1 : 1;
++        LogControl(Surtitles, Delta > 0 ? TEXT("next") : TEXT("previous"), Surtitles->StepLine(Delta));
++    }
++}
++
++void StampWorld(const TArray<FString>& Args, UWorld* World)
++{
++    if (UInfinityStageSurtitleSubsystem* Surtitles = SurtitlesOf(World))
++    {
++        const bool bOut = Args.Num() > 0 && Args[0].Equals(TEXT("Out"), ESearchCase::IgnoreCase);
++        LogControl(Surtitles, bOut ? TEXT("stamp_out") : TEXT("stamp_in"), Surtitles->StampAtPlayhead(bOut));
++    }
++}
++
++void NudgeWorld(const TArray<FString>& Args, UWorld* World)
++{
++    if (UInfinityStageSurtitleSubsystem* Surtitles = SurtitlesOf(World))
++    {
++        const bool bOut = Args.Num() > 0 && Args[0].Equals(TEXT("Out"), ESearchCase::IgnoreCase);
++        const double Delta = Args.Num() > 1 ? FCString::Atod(*Args[1]) : 0.0;
++        LogControl(Surtitles, bOut ? TEXT("nudge_out") : TEXT("nudge_in"), Surtitles->Nudge(bOut, Delta));
++    }
++}
++
++FAutoConsoleCommandWithWorldAndArgs StepCommand(
++    TEXT("InfinityStage.Surtitles.Step"),
++    TEXT("1 next / -1 previous surtitle: scrubs there (pauses) and selects it."),
++    FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&StepWorld));
++
++FAutoConsoleCommandWithWorldAndArgs StampCommand(
++    TEXT("InfinityStage.Surtitles.Stamp"),
++    TEXT("In | Out: sets the selected surtitle's In or Out to the playhead, in the sheet."),
++    FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&StampWorld));
++
++FAutoConsoleCommandWithWorldAndArgs NudgeCommand(
++    TEXT("InfinityStage.Surtitles.Nudge"),
++    TEXT("In | Out <seconds>: moves the selected surtitle's In or Out, in the sheet."),
++    FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&NudgeWorld));
++
++FAutoConsoleCommandWithWorld DumpCommand(
++    TEXT("InfinityStage.Surtitles.Dump"),
++    TEXT("Logs every surtitle line at its absolute Master time (INFINITY_SURTITLE rows)."),
++    FConsoleCommandWithWorldDelegate::CreateStatic(&DumpWorld));
++
++FAutoConsoleCommandWithWorld ReloadCommand(
++    TEXT("InfinityStage.Surtitles.Reload"),
++    TEXT("Re-reads the surtitle sheet."),
++    FConsoleCommandWithWorldDelegate::CreateStatic(&ReloadWorld));
++}
++
++// ---------------------------------------------------------------------------
++
++bool FInfinitySurtitleScript::LoadFromCsvText(const FString& Text)
++{
++    Lines.Reset();
++    Warnings.Reset();
++
++    TArray<TArray<FString>> Table;
++    FInfinityCueSheet::ParseCsv(Text, Table);
++
++    int32 HeaderRow = INDEX_NONE;
++    for (int32 Row = 0; Row < Table.Num() && HeaderRow == INDEX_NONE; ++Row)
++    {
++        if (FindColumn(Table[Row], { TEXT("Segment") }) != INDEX_NONE)
++        {
++            HeaderRow = Row;
++        }
++    }
++    if (HeaderRow == INDEX_NONE)
++    {
++        Warnings.Add(TEXT("no header row (a cell \"Segment\")"));
++        return false;
++    }
++    const TArray<FString>& Header = Table[HeaderRow];
++    const int32 SegmentColumn = FindColumn(Header, { TEXT("Segment") });
++    const int32 InColumn = FindColumn(Header, { TEXT("In"), TEXT("Start") });
++    const int32 OutColumn = FindColumn(Header, { TEXT("Out"), TEXT("End") });
++    const int32 SpeakerColumn = FindColumn(Header, { TEXT("Speaker") });
++    const int32 TextColumn = FindColumn(Header, { TEXT("Text"), TEXT("Surtitle"), TEXT("Line") });
++    const int32 KeyColumn = FindColumn(Header, { TEXT("Key") });
++    if (InColumn == INDEX_NONE || TextColumn == INDEX_NONE)
++    {
++        Warnings.Add(TEXT("the header needs In and Text columns"));
++        return false;
++    }
++
++    FString CarriedSegment;
++    for (int32 Row = HeaderRow + 1; Row < Table.Num(); ++Row)
++    {
++        const TArray<FString>& Cells = Table[Row];
++        const int32 SourceRow = Row + 1;
++        const FString SegmentCell = Cell(Cells, SegmentColumn);
++        if (!SegmentCell.IsEmpty())
++        {
++            CarriedSegment = SegmentCell;
++        }
++        const FString InCell = Cell(Cells, InColumn);
++        const FString LineText = Cell(Cells, TextColumn);
++        if (InCell.IsEmpty())
++        {
++            if (!LineText.IsEmpty())
++            {
++                Warnings.Add(FString::Printf(TEXT("row %d: text with no In time, skipped"), SourceRow));
++            }
++            continue;
++        }
++
++        FInfinitySurtitleLine Line;
++        Line.SourceRow = SourceRow;
++        Line.Segment = CarriedSegment;
++        Line.Speaker = Cell(Cells, SpeakerColumn);
++        Line.Key = Cell(Cells, KeyColumn);
++        Line.Text = LineText;
++        if (Line.Segment.IsEmpty())
++        {
++            Warnings.Add(FString::Printf(TEXT("row %d: no Segment yet, skipped"), SourceRow));
++            continue;
++        }
++        if (!InfinityStageSurtitles::ParseTime(InCell, SheetFps, Line.InSeconds))
++        {
++            Warnings.Add(FString::Printf(TEXT("row %d: In \"%s\" is not a time, skipped"), SourceRow, *InCell));
++            continue;
++        }
++        const FString OutCell = Cell(Cells, OutColumn);
++        if (!OutCell.IsEmpty())
++        {
++            double Out = 0.0;
++            if (!InfinityStageSurtitles::ParseTime(OutCell, SheetFps, Out))
++            {
++                Warnings.Add(FString::Printf(TEXT("row %d: Out \"%s\" is not a time; held to the next line"), SourceRow, *OutCell));
++            }
++            else if (Out <= Line.InSeconds)
++            {
++                Warnings.Add(FString::Printf(TEXT("row %d: Out is not after In, skipped"), SourceRow));
++                continue;
++            }
++            else
++            {
++                Line.OutSeconds = Out;
++            }
++        }
++        Lines.Add(MoveTemp(Line));
++    }
++    return true;
++}
++
++bool FInfinitySurtitleScript::LoadFromFile(const FString& Path)
++{
++    SourcePath = Path;
++    FString Text;
++    if (!FFileHelper::LoadFileToString(Text, *Path))
++    {
++        Lines.Reset();
++        Warnings.Reset();
++        Warnings.Add(FString::Printf(TEXT("cannot read %s"), *Path));
++        return false;
++    }
++    return LoadFromCsvText(Text);
++}
++
++// ---------------------------------------------------------------------------
++
++namespace InfinityStageSurtitles
++{
++bool ParseTime(const FString& Text, const double Fps, double& OutSeconds)
++{
++    TArray<FString> Fields;
++    Text.TrimStartAndEnd().ParseIntoArray(Fields, TEXT(":"), false);
++    if (Fields.Num() < 1 || Fields.Num() > 4)
++    {
++        return false;
++    }
++    TArray<double> Values;
++    for (const FString& Field : Fields)
++    {
++        const FString Trimmed = Field.TrimStartAndEnd();
++        double Value = 0.0;
++        if (Trimmed.IsEmpty() || Trimmed.StartsWith(TEXT("-")) || !LexTryParseString(Value, *Trimmed))
++        {
++            return false;
++        }
++        Values.Add(Value);
++    }
++    double Seconds = 0.0;
++    switch (Values.Num())
++    {
++    case 1: Seconds = Values[0]; break;
++    case 2: Seconds = Values[0] * 60.0 + Values[1]; break;
++    case 3: Seconds = Values[0] * 3600.0 + Values[1] * 60.0 + Values[2]; break;
++    default:
++        if (Fps <= 0.0 || Values[3] >= Fps)
++        {
++            return false;
++        }
++        Seconds = Values[0] * 3600.0 + Values[1] * 60.0 + Values[2] + Values[3] / Fps;
++        break;
++    }
++    OutSeconds = Seconds;
++    return true;
++}
++
++FString FormatTime(const double Seconds)
++{
++    const double Clamped = FMath::Max(0.0, Seconds);
++    const int32 Minutes = FMath::FloorToInt32(Clamped / 60.0);
++    return FString::Printf(TEXT("%d:%05.2f"), Minutes, Clamped - Minutes * 60.0);
++}
++
++FString SegmentCode(const TArray<FInfinityTransportSegment>& Segments, const int32 SegmentIndex)
++{
++    if (!Segments.IsValidIndex(SegmentIndex))
++    {
++        return FString();
++    }
++    const EInfinityCueType Type = Segments[SegmentIndex].Type;
++    int32 Ordinal = 0;
++    for (int32 Index = 0; Index <= SegmentIndex; ++Index)
++    {
++        Ordinal += Segments[Index].Type == Type ? 1 : 0;
++    }
++    return FString::Printf(TEXT("%c%d"), KindLetter(Type), Ordinal);
++}
++
++bool LineMatchesSegment(const FInfinitySurtitleLine& Line, const TArray<FInfinityTransportSegment>& Segments, const int32 SegmentIndex)
++{
++    return KeyMatches(Line.Segment, Segments, SegmentIndex);
++}
++
++int32 ResolveSegment(const FString& Key, const TArray<FInfinityTransportSegment>& Segments)
++{
++    for (int32 Index = 0; Index < Segments.Num(); ++Index)
++    {
++        if (KeyMatches(Key, Segments, Index))
++        {
++            return Index;
++        }
++    }
++    return INDEX_NONE;
++}
++
++double SegmentSeconds(const FInfinityTransportSegment& Segment, const double TicksPerSecond)
++{
++    return TicksPerSecond > 0.0 ? double(Segment.EndFrame.Value - Segment.StartFrame.Value) / TicksPerSecond : 0.0;
++}
++
++double EffectiveOut(
++    const FInfinitySurtitleScript& Script,
++    const int32 LineIndex,
++    const TArray<FInfinityTransportSegment>& Segments,
++    const int32 SegmentIndex,
++    const double TicksPerSecond)
++{
++    const FInfinitySurtitleLine& Line = Script.Lines[LineIndex];
++    if (Line.OutSeconds >= 0.0)
++    {
++        return Line.OutSeconds;
++    }
++    double Out = Segments.IsValidIndex(SegmentIndex) ? SegmentSeconds(Segments[SegmentIndex], TicksPerSecond) : TNumericLimits<double>::Max();
++    for (int32 Other = 0; Other < Script.Lines.Num(); ++Other)
++    {
++        const FInfinitySurtitleLine& Next = Script.Lines[Other];
++        if (Other != LineIndex && Next.InSeconds > Line.InSeconds && Next.InSeconds < Out
++            && LineMatchesSegment(Next, Segments, SegmentIndex))
++        {
++            Out = Next.InSeconds;
++        }
++    }
++    return Out;
++}
++
++FInfinitySurtitleShown Evaluate(
++    const FInfinitySurtitleScript& Script,
++    const TArray<FInfinityTransportSegment>& Segments,
++    const int64 MasterFrame,
++    const double TicksPerSecond,
++    const double FadeSeconds)
++{
++    FInfinitySurtitleShown Shown;
++    if (TicksPerSecond <= 0.0)
++    {
++        return Shown;
++    }
++    for (int32 Index = 0; Index < Segments.Num(); ++Index)
++    {
++        if (MasterFrame >= Segments[Index].StartFrame.Value && MasterFrame < Segments[Index].EndFrame.Value)
++        {
++            Shown.SegmentIndex = Index;
++            break;
++        }
++    }
++    if (Shown.SegmentIndex == INDEX_NONE)
++    {
++        return Shown;
++    }
++    const double Local = double(MasterFrame - Segments[Shown.SegmentIndex].StartFrame.Value) / TicksPerSecond;
++
++    double BestIn = -1.0;
++    double BestOut = 0.0;
++    for (int32 LineIndex = 0; LineIndex < Script.Lines.Num(); ++LineIndex)
++    {
++        const FInfinitySurtitleLine& Line = Script.Lines[LineIndex];
++        // >= : of two lines with the same In, the later sheet row wins.
++        if (Line.InSeconds > Local || Line.InSeconds < BestIn || !LineMatchesSegment(Line, Segments, Shown.SegmentIndex))
++        {
++            continue;
++        }
++        const double Out = EffectiveOut(Script, LineIndex, Segments, Shown.SegmentIndex, TicksPerSecond);
++        if (Local < Out)
++        {
++            Shown.LineIndex = LineIndex;
++            BestIn = Line.InSeconds;
++            BestOut = Out;
++        }
++    }
++    if (Shown.LineIndex != INDEX_NONE)
++    {
++        const double Edge = FMath::Min(Local - BestIn, BestOut - Local);
++        Shown.Opacity = FadeSeconds > 0.0 ? float(FMath::Clamp(Edge / FadeSeconds, 0.0, 1.0)) : 1.0f;
++    }
++    return Shown;
++}
++
++FString SerializeCsv(const TArray<TArray<FString>>& Table, const TCHAR* LineEnd)
++{
++    FString Out;
++    for (const TArray<FString>& Row : Table)
++    {
++        for (int32 Column = 0; Column < Row.Num(); ++Column)
++        {
++            const FString& Value = Row[Column];
++            if (Column > 0)
++            {
++                Out.AppendChar(TEXT(','));
++            }
++            int32 Unused = 0;
++            if (Value.FindChar(TEXT(','), Unused) || Value.FindChar(TEXT('"'), Unused)
++                || Value.FindChar(TEXT('\n'), Unused) || Value.FindChar(TEXT('\r'), Unused))
++            {
++                Out += TEXT("\"") + Value.Replace(TEXT("\""), TEXT("\"\"")) + TEXT("\"");
++            }
++            else
++            {
++                Out += Value;
++            }
++        }
++        Out += LineEnd;
++    }
++    return Out;
++}
++
++bool SetLineTime(FString& InOutCsvText, const FInfinitySurtitleLine& Line, const bool bOut, const double Seconds, FString& OutError)
++{
++    TArray<TArray<FString>> Table;
++    FInfinityCueSheet::ParseCsv(InOutCsvText, Table);
++    int32 HeaderRow = INDEX_NONE;
++    for (int32 Row = 0; Row < Table.Num() && HeaderRow == INDEX_NONE; ++Row)
++    {
++        if (FindColumn(Table[Row], { TEXT("Segment") }) != INDEX_NONE)
++        {
++            HeaderRow = Row;
++        }
++    }
++    const int32 RowIndex = Line.SourceRow - 1;
++    if (HeaderRow == INDEX_NONE || RowIndex <= HeaderRow || !Table.IsValidIndex(RowIndex))
++    {
++        OutError = FString::Printf(TEXT("row %d is not in the sheet any more"), Line.SourceRow);
++        return false;
++    }
++    const TArray<FString>& Header = Table[HeaderRow];
++    const int32 InColumn = FindColumn(Header, { TEXT("In"), TEXT("Start") });
++    const int32 OutColumn = FindColumn(Header, { TEXT("Out"), TEXT("End") });
++    const int32 KeyColumn = FindColumn(Header, { TEXT("Key") });
++    TArray<FString>& Cells = Table[RowIndex];
++
++    // Stale guard: the row on disk must still be the line we loaded.
++    double DiskIn = -1.0;
++    if (Cell(Cells, KeyColumn) != Line.Key
++        || !ParseTime(Cell(Cells, InColumn), SheetFps, DiskIn) || !FMath::IsNearlyEqual(DiskIn, Line.InSeconds, 1e-6))
++    {
++        OutError = FString::Printf(TEXT("row %d changed on disk; reloaded, try again"), Line.SourceRow);
++        return false;
++    }
++    const int32 Column = bOut ? OutColumn : InColumn;
++    if (Column == INDEX_NONE)
++    {
++        OutError = TEXT("the sheet has no Out column");
++        return false;
++    }
++    if (Seconds < 0.0)
++    {
++        OutError = TEXT("a time cannot be before the segment start");
++        return false;
++    }
++    double OtherOut = -1.0;
++    const bool bHasOut = ParseTime(Cell(Cells, OutColumn), SheetFps, OtherOut);
++    if ((bOut && Seconds <= Line.InSeconds) || (!bOut && bHasOut && OtherOut <= Seconds))
++    {
++        OutError = TEXT("Out must stay after In");
++        return false;
++    }
++    while (Cells.Num() <= Column)
++    {
++        Cells.Add(FString());
++    }
++    Cells[Column] = FormatTime(Seconds);
++    InOutCsvText = SerializeCsv(Table, InOutCsvText.Contains(TEXT("\r\n")) ? TEXT("\r\n") : TEXT("\n"));
++    return true;
++}
++
++double LandingSeconds(const FInfinitySurtitleLine& Line, const double OutSeconds, const double FadeSeconds)
++{
++    return Line.InSeconds + FMath::Min(FMath::Max(0.0, FadeSeconds), FMath::Max(0.0, (OutSeconds - Line.InSeconds) * 0.5));
++}
++
++int32 FindStepTarget(
++    const FInfinitySurtitleScript& Script,
++    const TArray<FInfinityTransportSegment>& Segments,
++    const int64 MasterFrame,
++    const double TicksPerSecond,
++    const double FadeSeconds,
++    const int32 Delta,
++    int64& OutLandingFrame)
++{
++    int32 Best = INDEX_NONE;
++    int64 BestFrame = 0;
++    for (int32 LineIndex = 0; LineIndex < Script.Lines.Num(); ++LineIndex)
++    {
++        const FInfinitySurtitleLine& Line = Script.Lines[LineIndex];
++        const int32 SegmentIndex = ResolveSegment(Line.Segment, Segments);
++        if (Line.Text.IsEmpty() || SegmentIndex == INDEX_NONE)
++        {
++            continue;
++        }
++        const double Out = EffectiveOut(Script, LineIndex, Segments, SegmentIndex, TicksPerSecond);
++        const int64 Land = Segments[SegmentIndex].StartFrame.Value
++            + int64(FMath::RoundToDouble(LandingSeconds(Line, Out, FadeSeconds) * TicksPerSecond));
++        const bool bAhead = Delta > 0 ? Land > MasterFrame : Land < MasterFrame;
++        const bool bCloser = Best == INDEX_NONE || (Delta > 0 ? Land < BestFrame : Land > BestFrame);
++        if (bAhead && bCloser)
++        {
++            Best = LineIndex;
++            BestFrame = Land;
++        }
++    }
++    OutLandingFrame = BestFrame;
++    return Best;
++}
++
++FString ResolvePath()
++{
++    const FString Override = CVarSurtitlesPath.GetValueOnGameThread();
++    return Override.IsEmpty()
++        ? FPaths::ConvertRelativePathToFull(FPaths::Combine(FPaths::ProjectContentDir(), TEXT("InfinityStage/CueSheet/Puss_Surtitles.csv")))
++        : Override;
++}
++
++void ToggleBlackout()
++{
++    const int32 Next = CVarSurtitles.GetValueOnGameThread() != 0 ? 0 : 1;
++    CVarSurtitles->Set(Next, ECVF_SetByConsole);
++    UE_LOG(LogInfinityStageSurtitles, Display, TEXT("INFINITY_SURTITLES_%s"), Next ? TEXT("ON") : TEXT("BLACKOUT"));
++}
++}
++
++// ---------------------------------------------------------------------------
++
++bool UInfinityStageSurtitleSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
++{
++    return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
++}
++
++void UInfinityStageSurtitleSubsystem::Initialize(FSubsystemCollectionBase& Collection)
++{
++    Super::Initialize(Collection);
++    Reload();
++}
++
++void UInfinityStageSurtitleSubsystem::Deinitialize()
++{
++    if (bOverlayAdded && Overlay.IsValid() && GetWorld() && GetWorld()->GetGameViewport())
++    {
++        GetWorld()->GetGameViewport()->RemoveViewportWidgetContent(Overlay.ToSharedRef());
++    }
++    bOverlayAdded = false;
++    Super::Deinitialize();
++}
++
++bool UInfinityStageSurtitleSubsystem::Reload()
++{
++    const FString Path = InfinityStageSurtitles::ResolvePath();
++    LoadedStamp = IFileManager::Get().GetTimeStamp(*Path);
++    // Keep the selection across a reload (a Cue Book export lands while rehearsing): by Key, else by row.
++    const FInfinitySurtitleLine Selected = Script.Lines.IsValidIndex(SelectedLine) ? Script.Lines[SelectedLine] : FInfinitySurtitleLine();
++    const bool bOk = Script.LoadFromFile(Path);
++    ShownLine = INDEX_NONE;
++    SelectedLine = Selected.SourceRow == 0 ? INDEX_NONE : Script.Lines.IndexOfByPredicate([&Selected](const FInfinitySurtitleLine& Each)
++    {
++        return Selected.Key.IsEmpty() ? Each.SourceRow == Selected.SourceRow : Each.Key == Selected.Key;
++    });
++    for (const FString& Warning : Script.Warnings)
++    {
++        UE_LOG(LogInfinityStageSurtitles, Warning, TEXT("INFINITY_SURTITLES_WARNING %s"), *Warning);
++    }
++    UE_LOG(LogInfinityStageSurtitles, Display, TEXT("INFINITY_SURTITLES_LOADED ok=%d lines=%d warnings=%d path=%s"),
++        bOk ? 1 : 0, Script.Lines.Num(), Script.Warnings.Num(), *Path);
++    return bOk;
++}
++
++AInfinityStageShowRoot* UInfinityStageSurtitleSubsystem::FindRoot()
++{
++    if (!Root.IsValid() && GetWorld())
++    {
++        for (TActorIterator<AInfinityStageShowRoot> It(GetWorld()); It; ++It)
++        {
++            if (It->Transport && It->ShowAsset)
++            {
++                Root = *It;
++                break;
++            }
++        }
++    }
++    return Root.Get();
++}
++
++void UInfinityStageSurtitleSubsystem::Dump()
++{
++    AInfinityStageShowRoot* ShowRoot = FindRoot();
++    if (!ShowRoot)
++    {
++        UE_LOG(LogInfinityStageSurtitles, Warning, TEXT("INFINITY_SURTITLES_DUMP no Show Root in this world"));
++        return;
++    }
++    const TArray<FInfinityTransportSegment>& Segments = ShowRoot->Transport->Segments;
++    const double Ticks = ShowRoot->ShowAsset->TickResolution.AsDecimal();
++    int32 Unresolved = 0;
++    for (int32 LineIndex = 0; LineIndex < Script.Lines.Num(); ++LineIndex)
++    {
++        const FInfinitySurtitleLine& Line = Script.Lines[LineIndex];
++        const int32 SegmentIndex = InfinityStageSurtitles::ResolveSegment(Line.Segment, Segments);
++        const FString OneLine = Line.Text.Replace(TEXT("\r"), TEXT("")).Replace(TEXT("\n"), TEXT(" / "));
++        if (SegmentIndex == INDEX_NONE)
++        {
++            ++Unresolved;
++            UE_LOG(LogInfinityStageSurtitles, Warning, TEXT("INFINITY_SURTITLE_UNRESOLVED row=%d segment=\"%s\" text=\"%s\""),
++                Line.SourceRow, *Line.Segment, *OneLine);
++            continue;
++        }
++        const double Out = InfinityStageSurtitles::EffectiveOut(Script, LineIndex, Segments, SegmentIndex, Ticks);
++        const double Length = InfinityStageSurtitles::SegmentSeconds(Segments[SegmentIndex], Ticks);
++        const double MasterIn = Segments[SegmentIndex].StartFrame.Value / Ticks + Line.InSeconds;
++        UE_LOG(LogInfinityStageSurtitles, Display,
++            TEXT("INFINITY_SURTITLE row=%d seg=%s (%s) in=%s out=%s hold=%.1fs master=%s%s speaker=\"%s\" text=\"%s\""),
++            Line.SourceRow, *InfinityStageSurtitles::SegmentCode(Segments, SegmentIndex),
++            *Segments[SegmentIndex].Label.ToString(),
++            *InfinityStageSurtitles::FormatTime(Line.InSeconds), *InfinityStageSurtitles::FormatTime(Out),
++            Out - Line.InSeconds, *InfinityStageSurtitles::FormatTime(MasterIn),
++            Line.InSeconds >= Length ? TEXT(" PAST_SEGMENT_END") : TEXT(""),
++            *Line.Speaker, *OneLine);
++    }
++    UE_LOG(LogInfinityStageSurtitles, Display, TEXT("INFINITY_SURTITLES_DUMP lines=%d unresolved=%d path=%s"),
++        Script.Lines.Num(), Unresolved, *Script.SourcePath);
++}
++
++void UInfinityStageSurtitleSubsystem::ApplyStyle()
++{
++    UGameViewportClient* Viewport = GetWorld() ? GetWorld()->GetGameViewport() : nullptr;
++    if (!Viewport)
++    {
++        return;
++    }
++    const FString FontPath = ResolveFontPath();
++    const float Size = FMath::Max(8.0f, CVarSurtitlesSize.GetValueOnGameThread());
++    const float Top = FMath::Max(0.0f, CVarSurtitlesTop.GetValueOnGameThread());
++    const float BarOpacity = FMath::Clamp(CVarSurtitlesBarOpacity.GetValueOnGameThread(), 0.0f, 1.0f);
++    const bool bSpeakers = CVarSurtitlesSpeakers.GetValueOnGameThread() != 0;
++    const FString Key = FString::Printf(TEXT("%s|%.1f|%.1f|%.3f|%d"), *FontPath, Size, Top, BarOpacity, bSpeakers ? 1 : 0);
++    if (bOverlayAdded && Key == StyleKey)
++    {
++        return;
++    }
++    StyleKey = Key;
++
++    if (bOverlayAdded && Overlay.IsValid())
++    {
++        Viewport->RemoveViewportWidgetContent(Overlay.ToSharedRef());
++        bOverlayAdded = false;
++    }
++
++    FSlateFontInfo TextFont = FCoreStyle::GetDefaultFontStyle("Regular", Size);
++    FSlateFontInfo SpeakerFont = FCoreStyle::GetDefaultFontStyle("Regular", Size * 0.55f);
++    if (!FontPath.IsEmpty())
++    {
++        Font = MakeShared<FStandaloneCompositeFont>(NAME_None, FontPath, EFontHinting::Default, EFontLoadingPolicy::LazyLoad);
++        TextFont = FSlateFontInfo(Font, Size);
++        SpeakerFont = FSlateFontInfo(Font, Size * 0.55f);
++    }
++    UE_LOG(LogInfinityStageSurtitles, Display, TEXT("INFINITY_SURTITLES_STYLE font=%s size=%.1f top=%.1f bar=%.2f speakers=%d"),
++        FontPath.IsEmpty() ? TEXT("<engine default>") : *FontPath, Size, Top, BarOpacity, bSpeakers ? 1 : 0);
++
++    BarBrush = MakeShared<FSlateColorBrush>(FLinearColor::White);
++    Overlay = SNew(SScaleBox)
++        .Stretch(EStretch::ScaleToFit)
++        .Visibility(EVisibility::Collapsed)
++        [
++            SNew(SBox)
++            .WidthOverride(FrameWidth)
++            .HeightOverride(FrameHeight)
++            [
++                SNew(SVerticalBox)
++                + SVerticalBox::Slot()
++                .AutoHeight()
++                .HAlign(HAlign_Center)
++                .Padding(0.0f, Top, 0.0f, 0.0f)
++                [
++                    SAssignNew(Bar, SBorder)
++                    .BorderImage(BarBrush.Get())
++                    .BorderBackgroundColor(FLinearColor(0.0f, 0.0f, 0.0f, BarOpacity))
++                    .Padding(FMargin(Size * 0.7f, Size * 0.22f))
++                    [
++                        SNew(SBox)
++                        .MaxDesiredWidth(FrameWidth * 0.8f)
++                        [
++                            SNew(SVerticalBox)
++                            + SVerticalBox::Slot()
++                            .AutoHeight()
++                            .HAlign(HAlign_Center)
++                            [
++                                SAssignNew(SpeakerBlock, STextBlock)
++                                .Font(SpeakerFont)
++                                .ColorAndOpacity(FLinearColor(0.75f, 0.75f, 0.75f))
++                                .Justification(ETextJustify::Center)
++                                .Visibility(EVisibility::Collapsed)
++                            ]
++                            + SVerticalBox::Slot()
++                            .AutoHeight()
++                            .HAlign(HAlign_Center)
++                            [
++                                SAssignNew(TextBlock, STextBlock)
++                                .Font(TextFont)
++                                .ColorAndOpacity(FLinearColor::White)
++                                .Justification(ETextJustify::Center)
++                                .AutoWrapText(true)
++                            ]
++                        ]
++                    ]
++                ]
++            ]
++        ];
++    Viewport->AddViewportWidgetContent(Overlay.ToSharedRef(), OverlayZOrder);
++    bOverlayAdded = true;
++    ShownLine = INDEX_NONE;
++}
++
++void UInfinityStageSurtitleSubsystem::Tick(const float DeltaTime)
++{
++    Super::Tick(DeltaTime);
++
++    // Pick up edits to the sheet without a key press.
++    const double Now = FPlatformTime::Seconds();
++    if (Now >= NextStampCheck)
++    {
++        NextStampCheck = Now + 1.0;
++        if (IFileManager::Get().GetTimeStamp(*InfinityStageSurtitles::ResolvePath()) != LoadedStamp)
++        {
++            Reload();
++        }
++    }
++
++    AInfinityStageShowRoot* ShowRoot = FindRoot();
++    if (!ShowRoot || Script.Lines.IsEmpty())
++    {
++        if (bOverlayAdded)
++        {
++            Overlay->SetVisibility(EVisibility::Collapsed);
++        }
++        return;
++    }
++    ApplyStyle();
++    if (!bOverlayAdded)
++    {
++        return;
++    }
++
++    FInfinitySurtitleShown Shown;
++    if (CVarSurtitles.GetValueOnGameThread() != 0)
++    {
++        Shown = InfinityStageSurtitles::Evaluate(
++            Script,
++            ShowRoot->Transport->Segments,
++            ShowRoot->Transport->GetCurrentMasterFrame().Value,
++            ShowRoot->ShowAsset->TickResolution.AsDecimal(),
++            FMath::Max(0.0f, CVarSurtitlesFade.GetValueOnGameThread()));
++    }
++    const FInfinitySurtitleLine* Line = Script.Lines.IsValidIndex(Shown.LineIndex) ? &Script.Lines[Shown.LineIndex] : nullptr;
++    if (!Line || Line->Text.IsEmpty())
++    {
++        // A row with a time and no text clears the line before it.
++        Overlay->SetVisibility(EVisibility::Collapsed);
++        ShownLine = INDEX_NONE;
++        return;
++    }
++    if (Shown.LineIndex != ShownLine)
++    {
++        ShownLine = Shown.LineIndex;
++        TextBlock->SetText(FText::FromString(Line->Text.Replace(TEXT("\r"), TEXT(""))));
++        const bool bSpeaker = CVarSurtitlesSpeakers.GetValueOnGameThread() != 0 && !Line->Speaker.IsEmpty();
++        SpeakerBlock->SetText(FText::FromString(Line->Speaker.ToUpper()));
++        SpeakerBlock->SetVisibility(bSpeaker ? EVisibility::HitTestInvisible : EVisibility::Collapsed);
++    }
++    Bar->SetRenderOpacity(Shown.Opacity);
++    Overlay->SetVisibility(EVisibility::HitTestInvisible);
++}
++
++// --- Rehearsal controls ----------------------------------------------------
++
++bool UInfinityStageSurtitleSubsystem::Fail(const FString& Message)
++{
++    LastMessage = Message;
++    return false;
++}
++
++int32 UInfinityStageSurtitleSubsystem::GetSelectedLine() const
++{
++    return Script.Lines.IsValidIndex(SelectedLine) ? SelectedLine
++        : (Script.Lines.IsValidIndex(ShownLine) ? ShownLine : INDEX_NONE);
++}
++
++FString UInfinityStageSurtitleSubsystem::DescribeSelected() const
++{
++    const int32 LineIndex = GetSelectedLine();
++    if (LineIndex == INDEX_NONE)
++    {
++        return TEXT("no surtitle selected");
++    }
++    const FInfinitySurtitleLine& Line = Script.Lines[LineIndex];
++    const FString Out = Line.OutSeconds >= 0.0 ? InfinityStageSurtitles::FormatTime(Line.OutSeconds) : FString(TEXT("next"));
++    FString Text = Line.Text.Replace(TEXT("\r"), TEXT("")).Replace(TEXT("\n"), TEXT(" / "));
++    if (Text.Len() > 60)
++    {
++        Text = Text.Left(57) + TEXT("...");
++    }
++    const FString KeyPart = Line.Key.IsEmpty() ? FString() : FString::Printf(TEXT(" [%s]"), *Line.Key);
++    return FString::Printf(TEXT("%s row %d%s %s-%s %s%s%s"),
++        *Line.Segment, Line.SourceRow, *KeyPart,
++        *InfinityStageSurtitles::FormatTime(Line.InSeconds), *Out,
++        *Line.Speaker, Line.Speaker.IsEmpty() ? TEXT("") : TEXT(": "), *Text);
++}
++
++bool UInfinityStageSurtitleSubsystem::StepLine(const int32 Delta)
++{
++    AInfinityStageShowRoot* ShowRoot = FindRoot();
++    if (!ShowRoot)
++    {
++        return Fail(TEXT("no Show Root"));
++    }
++    UInfinityStageTransportController& Transport = *ShowRoot->Transport;
++    int64 Landing = 0;
++    const int32 Target = InfinityStageSurtitles::FindStepTarget(
++        Script, Transport.Segments, Transport.GetCurrentMasterFrame().Value,
++        ShowRoot->ShowAsset->TickResolution.AsDecimal(),
++        FMath::Max(0.0f, CVarSurtitlesFade.GetValueOnGameThread()), Delta, Landing);
++    if (Target == INDEX_NONE)
++    {
++        return Fail(Delta > 0 ? TEXT("no later surtitle") : TEXT("no earlier surtitle"));
++    }
++    const EInfinityTransportResult Result = Transport.ScrubToMasterFrame(FFrameNumber(int32(Landing)));
++    if (Result != EInfinityTransportResult::Succeeded)
++    {
++        // Never forced: a refusal is the transport's rule (e.g. a Scene in Performance mode).
++        return Fail(FString::Printf(TEXT("transport refused the jump (result=%d)"), int32(Result)));
++    }
++    SelectedLine = Target;
++    LastMessage = TEXT("jumped");
++    return true;
++}
++
++bool UInfinityStageSurtitleSubsystem::StampAtPlayhead(const bool bOut)
++{
++    AInfinityStageShowRoot* ShowRoot = FindRoot();
++    const int32 LineIndex = GetSelectedLine();
++    if (!ShowRoot || LineIndex == INDEX_NONE)
++    {
++        return Fail(ShowRoot ? TEXT("no surtitle selected (step to one first)") : TEXT("no Show Root"));
++    }
++    const TArray<FInfinityTransportSegment>& Segments = ShowRoot->Transport->Segments;
++    const int64 Frame = ShowRoot->Transport->GetCurrentMasterFrame().Value;
++    const int32 SegmentIndex = InfinityStageSurtitles::ResolveSegment(Script.Lines[LineIndex].Segment, Segments);
++    if (SegmentIndex == INDEX_NONE || Frame < Segments[SegmentIndex].StartFrame.Value || Frame >= Segments[SegmentIndex].EndFrame.Value)
++    {
++        return Fail(FString::Printf(TEXT("the playhead is not in %s"), *Script.Lines[LineIndex].Segment));
++    }
++    const double Local = double(Frame - Segments[SegmentIndex].StartFrame.Value) / ShowRoot->ShowAsset->TickResolution.AsDecimal();
++    return WriteLineTime(LineIndex, bOut, Local);
++}
++
++bool UInfinityStageSurtitleSubsystem::Nudge(const bool bOut, const double DeltaSeconds)
++{
++    AInfinityStageShowRoot* ShowRoot = FindRoot();
++    const int32 LineIndex = GetSelectedLine();
++    if (!ShowRoot || LineIndex == INDEX_NONE)
++    {
++        return Fail(ShowRoot ? TEXT("no surtitle selected (step to one first)") : TEXT("no Show Root"));
++    }
++    const FInfinitySurtitleLine& Line = Script.Lines[LineIndex];
++    double Base = Line.InSeconds;
++    if (bOut)
++    {
++        const TArray<FInfinityTransportSegment>& Segments = ShowRoot->Transport->Segments;
++        const int32 SegmentIndex = InfinityStageSurtitles::ResolveSegment(Line.Segment, Segments);
++        Base = InfinityStageSurtitles::EffectiveOut(Script, LineIndex, Segments, SegmentIndex, ShowRoot->ShowAsset->TickResolution.AsDecimal());
++    }
++    return WriteLineTime(LineIndex, bOut, FMath::Max(0.0, Base + DeltaSeconds));
++}
++
++bool UInfinityStageSurtitleSubsystem::WriteLineTime(const int32 LineIndex, const bool bOut, const double Seconds)
++{
++    const FString Path = InfinityStageSurtitles::ResolvePath();
++    const FInfinitySurtitleLine Line = Script.Lines[LineIndex];
++    FString Text;
++    if (!FFileHelper::LoadFileToString(Text, *Path))
++    {
++        return Fail(FString::Printf(TEXT("cannot read %s"), *Path));
++    }
++    FString Error;
++    if (!InfinityStageSurtitles::SetLineTime(Text, Line, bOut, Seconds, Error))
++    {
++        Reload();
++        return Fail(Error);
++    }
++    // Rename-over, so neither the Cue Book nor this runtime's own reload reads half a file.
++    const FString Temp = Path + TEXT(".tmp");
++    if (!FFileHelper::SaveStringToFile(Text, *Temp, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM)
++        || !IFileManager::Get().Move(*Path, *Temp, true, true))
++    {
++        IFileManager::Get().Delete(*Temp);
++        return Fail(FString::Printf(TEXT("cannot write %s"), *Path));
++    }
++    Reload();
++    SelectedLine = Script.Lines.IndexOfByPredicate([&Line](const FInfinitySurtitleLine& Each) { return Each.SourceRow == Line.SourceRow; });
++    LastMessage = FString::Printf(TEXT("row %d %s = %s"), Line.SourceRow, bOut ? TEXT("Out") : TEXT("In"), *InfinityStageSurtitles::FormatTime(Seconds));
++    UE_LOG(LogInfinityStageSurtitles, Display, TEXT("INFINITY_SURTITLES_WRITE %s path=%s"), *LastMessage, *Path);
++    return true;
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
+index 23dc7d6e..dafd50cf 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
+@@ -47,6 +47,8 @@ public:
+     void ReloadCueSheet();
+     /** B: the rehearsal bar along the bottom of the viewport. */
+     void ToggleRehearsalBar();
++    /** T: surtitle blackout (InfinityStage.Surtitles). */
++    void ToggleSurtitles();
+ 
+ protected:
+     virtual void SetupInputComponent() override;
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageSurtitles.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageSurtitles.h
+new file mode 100644
+index 00000000..8a419a37
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageSurtitles.h
+@@ -0,0 +1,218 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "Subsystems/WorldSubsystem.h"
++#include "InfinityStageSurtitles.generated.h"
++
++struct FCompositeFont;
++struct FInfinityTransportSegment;
++struct FSlateBrush;
++class AInfinityStageShowRoot;
++class STextBlock;
++class SWidget;
++class UWorld;
++
++/**
++ * Surtitles (Gary, 8 Oct: "text at centre top of screen, visible serifed font,
++ * timecoded"; "should integrate as part of cue system"). First use: what the S5
++ * mountains say to each other in rumbles.
++ *
++ * The text is a sheet, read like the Cue Director's cue sheet: a CSV exported
++ * from Gary's Google Sheet (a "Surtitles" tab), one row per line:
++ *
++ *   Segment, In, Out, Speaker, Text, Notes
++ *   S5,      1:14.0, 1:25.0, West, "We have been here a while.",
++ *
++ * - Segment names the digital segment the line belongs to: S<n> (n-th Scene),
++ *   P<n> (n-th Passage), I<n> (n-th Interaction), counted in show order the same
++ *   way as the Cue Director's use_video = S<n>; or a Show cue label ("Opening").
++ *   Blank carries down from the row above.
++ * - In / Out are times from the START of that segment, so lines move with any
++ *   retime or reorder. Seconds ("74.5"), m:ss.s, h:mm:ss.s, or hh:mm:ss:ff
++ *   (frames at 25 fps). Blank Out holds the line until the next line in the same
++ *   segment, or the segment's end.
++ * - Text may hold line breaks (a quoted multi-line cell).
++ *
++ * Nothing is written to the Show or the level. The file is re-read when it
++ * changes on disk (and on F5 with the cue sheet), so text can be fixed mid-rehearsal.
++ *
++ * What is shown is a pure function of the Master playhead: seeks, reverse, holds
++ * and the Scene video fallbacks (which follow the same playhead) all agree. It is
++ * a viewport overlay in game worlds (PIE and the show), not rendered into MRQ
++ * output, so editing a word never means re-rendering a video.
++ *
++ * Console: InfinityStage.Surtitles 1 show / 0 blackout (key T in the show viewport);
++ * .Path, .Font, .Size, .Top, .BarOpacity, .Fade, .Speakers for rehearsal tuning;
++ * InfinityStage.Surtitles.Dump logs every line at its absolute Master time for proofing.
++ */
++struct INFINITYSTAGE_API FInfinitySurtitleLine
++{
++    /** 1-based row in the CSV, for "see the sheet, row 12". */
++    int32 SourceRow = 0;
++    /** The Cue Book's stable row id (Key column), or empty. Carried through, never invented here. */
++    FString Key;
++    /** As written (after carry-down): "S5", "P2", "I1" or a cue label. */
++    FString Segment;
++    double InSeconds = 0.0;
++    /** Negative: hold until the next line in the segment, or the segment end. */
++    double OutSeconds = -1.0;
++    FString Speaker;
++    FString Text;
++};
++
++struct INFINITYSTAGE_API FInfinitySurtitleScript
++{
++    /** In sheet order. */
++    TArray<FInfinitySurtitleLine> Lines;
++    TArray<FString> Warnings;
++    FString SourcePath;
++
++    /** Finds the header row (a cell "Segment"); columns are found by name. */
++    bool LoadFromCsvText(const FString& Text);
++    bool LoadFromFile(const FString& Path);
++};
++
++/** The line to show this frame (LineIndex INDEX_NONE: nothing). */
++struct INFINITYSTAGE_API FInfinitySurtitleShown
++{
++    int32 LineIndex = INDEX_NONE;
++    int32 SegmentIndex = INDEX_NONE;
++    float Opacity = 0.0f;
++};
++
++namespace InfinityStageSurtitles
++{
++/** Seconds, m:ss.s, h:mm:ss.s, or hh:mm:ss:ff (four fields: last is frames at Fps). */
++INFINITYSTAGE_API bool ParseTime(const FString& Text, double Fps, double& OutSeconds);
++
++/** "m:ss.ss". */
++INFINITYSTAGE_API FString FormatTime(double Seconds);
++
++/** "S3" / "P2" / "I1" for a segment: its kind letter and 1-based ordinal among that kind. */
++INFINITYSTAGE_API FString SegmentCode(const TArray<FInfinityTransportSegment>& Segments, int32 SegmentIndex);
++
++/** True when a line's Segment names this segment (code or cue label, case-insensitive). */
++INFINITYSTAGE_API bool LineMatchesSegment(const FInfinitySurtitleLine& Line, const TArray<FInfinityTransportSegment>& Segments, int32 SegmentIndex);
++
++/** First segment a key names, or INDEX_NONE. */
++INFINITYSTAGE_API int32 ResolveSegment(const FString& Key, const TArray<FInfinityTransportSegment>& Segments);
++
++/** The segment's length in seconds. */
++INFINITYSTAGE_API double SegmentSeconds(const FInfinityTransportSegment& Segment, double TicksPerSecond);
++
++/** A line's effective out time in its segment (blank Out resolved), in segment seconds. */
++INFINITYSTAGE_API double EffectiveOut(const FInfinitySurtitleScript& Script, int32 LineIndex, const TArray<FInfinityTransportSegment>& Segments, int32 SegmentIndex, double TicksPerSecond);
++
++/**
++ * What to show at a Master frame. Of the lines in the segment under the playhead
++ * that have started, the latest-starting one wins while it is before its out.
++ * Opacity ramps over FadeSeconds at both ends (0: hard cuts).
++ */
++INFINITYSTAGE_API FInfinitySurtitleShown Evaluate(
++    const FInfinitySurtitleScript& Script,
++    const TArray<FInfinityTransportSegment>& Segments,
++    int64 MasterFrame,
++    double TicksPerSecond,
++    double FadeSeconds);
++
++/**
++ * Rewrites one line's In or Out in the raw sheet text, touching that one cell only: every
++ * other cell, column (Key, Notes, unknown ones), row and the line endings are kept.
++ * Refuses (false, OutError) when the row no longer matches Line (Key or In changed on disk),
++ * when the sheet has no Out column, or when the result would be skipped by the parser
++ * (Out <= In).
++ */
++INFINITYSTAGE_API bool SetLineTime(FString& InOutCsvText, const FInfinitySurtitleLine& Line, bool bOut, double Seconds, FString& OutError);
++
++/** RFC-4180: quotes a cell only when it holds a comma, quote, CR or LF. */
++INFINITYSTAGE_API FString SerializeCsv(const TArray<TArray<FString>>& Table, const TCHAR* LineEnd);
++
++/** Where a step lands on a line: just past its fade-in, so a paused frame shows it. */
++INFINITYSTAGE_API double LandingSeconds(const FInfinitySurtitleLine& Line, double OutSeconds, double FadeSeconds);
++
++/**
++ * The line a Previous (-1) / Next (+1) step goes to from a Master frame, by landing time
++ * across the whole show; clear rows (no text) and unresolved segments are skipped.
++ * INDEX_NONE at either end. OutLandingFrame is the absolute Master frame to scrub to.
++ */
++INFINITYSTAGE_API int32 FindStepTarget(
++    const FInfinitySurtitleScript& Script,
++    const TArray<FInfinityTransportSegment>& Segments,
++    int64 MasterFrame,
++    double TicksPerSecond,
++    double FadeSeconds,
++    int32 Delta,
++    int64& OutLandingFrame);
++
++/** Content/InfinityStage/CueSheet/Puss_Surtitles.csv (console InfinityStage.Surtitles.Path overrides). */
++INFINITYSTAGE_API FString ResolvePath();
++
++/** Operator blackout: flips InfinityStage.Surtitles. */
++INFINITYSTAGE_API void ToggleBlackout();
++}
++
++/** Loads the surtitle sheet and draws the current line over the show, per game world. */
++UCLASS()
++class INFINITYSTAGE_API UInfinityStageSurtitleSubsystem final : public UTickableWorldSubsystem
++{
++    GENERATED_BODY()
++
++public:
++    virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
++    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
++    virtual void Deinitialize() override;
++    virtual void Tick(float DeltaTime) override;
++    virtual TStatId GetStatId() const override { RETURN_QUICK_DECLARE_CYCLE_STAT(UInfinityStageSurtitleSubsystem, STATGROUP_Tickables); }
++
++    /** Re-reads the sheet. */
++    bool Reload();
++
++    /** Logs every line with its absolute Master time (INFINITY_SURTITLE rows) for proofing. */
++    void Dump();
++
++    const FInfinitySurtitleScript& GetScript() const { return Script; }
++
++    // Rehearsal controls, for the Cue Director interface (Gary, 9 Oct: "part of the cue
++    // director interface to be adjustable and rehearsable"). Each returns false with a
++    // reason in GetLastMessage(); none of them writes the Show or the level.
++
++    /** Scrubs (ScrubToMasterFrame: pauses) to the next (+1) / previous (-1) line and selects it. */
++    bool StepLine(int32 Delta);
++
++    /** Sets the selected line's In (or Out) to the playhead, in the sheet file. */
++    bool StampAtPlayhead(bool bOut);
++
++    /** Moves the selected line's In (or Out) by DeltaSeconds, in the sheet file. A blank Out becomes explicit. */
++    bool Nudge(bool bOut, double DeltaSeconds);
++
++    /** The selected line: the last one stepped to, else the one on screen. INDEX_NONE: none. */
++    int32 GetSelectedLine() const;
++
++    /** "S5 row 12 [T3k] 1:14.00-1:25.00 West: We have been here..." or "no surtitle selected". */
++    FString DescribeSelected() const;
++
++    const FString& GetLastMessage() const { return LastMessage; }
++
++private:
++    bool Fail(const FString& Message);
++    bool WriteLineTime(int32 LineIndex, bool bOut, double Seconds);
++    void ApplyStyle();
++    AInfinityStageShowRoot* FindRoot();
++
++    FInfinitySurtitleScript Script;
++    FDateTime LoadedStamp;
++    double NextStampCheck = 0.0;
++
++    TWeakObjectPtr<AInfinityStageShowRoot> Root;
++    TSharedPtr<SWidget> Overlay;
++    TSharedPtr<SWidget> Bar;
++    TSharedPtr<STextBlock> TextBlock;
++    TSharedPtr<STextBlock> SpeakerBlock;
++    TSharedPtr<const FCompositeFont> Font;
++    TSharedPtr<FSlateBrush> BarBrush;
++    FString StyleKey;
++    int32 ShownLine = INDEX_NONE;
++    int32 SelectedLine = INDEX_NONE;
++    FString LastMessage;
++    bool bOverlayAdded = false;
++};
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageSurtitleTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageSurtitleTests.cpp
+new file mode 100644
+index 00000000..753fe6df
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageSurtitleTests.cpp
+@@ -0,0 +1,249 @@
++#include "InfinityStageSurtitles.h"
++#include "InfinityStageTransportController.h"
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++namespace
++{
++constexpr double Ticks = 24000.0;
++
++FInfinityTransportSegment MakeSegment(const EInfinityCueType Type, const TCHAR* Label, const double StartSeconds, const double EndSeconds)
++{
++    FInfinityTransportSegment Segment;
++    Segment.Type = Type;
++    Segment.Label = FText::FromString(Label);
++    Segment.StartFrame = FFrameNumber(int32(StartSeconds * Ticks));
++    Segment.EndFrame = FFrameNumber(int32(EndSeconds * Ticks));
++    return Segment;
++}
++
++/** Passage 1 [0,100), Scene 1 [100,200), Passage 2 [200,300), Scene 2 "Mountains" [300,452.341). */
++TArray<FInfinityTransportSegment> MakeShow()
++{
++    return {
++        MakeSegment(EInfinityCueType::WingPair, TEXT("Passage 1"), 0.0, 100.0),
++        MakeSegment(EInfinityCueType::Scene, TEXT("S1 Animals"), 100.0, 200.0),
++        MakeSegment(EInfinityCueType::WingPair, TEXT("Passage 2"), 200.0, 300.0),
++        MakeSegment(EInfinityCueType::Scene, TEXT("Mountains"), 300.0, 452.341),
++    };
++}
++
++int64 At(const double MasterSeconds)
++{
++    return int64(FMath::RoundToDouble(MasterSeconds * Ticks));
++}
++
++// The Google Sheet export shape: a title row, the header, carry-down segments, a quoted
++// multi-line cell, a clear row (time, no text), a bad time, and a Passage line by label.
++const TCHAR* SheetCsv =
++    TEXT("Surtitles,,,,,\n")
++    TEXT("Segment,In,Out,Speaker,Text,Notes\n")
++    TEXT("S2,1:14,1:25,West,\"We have been here\na while.\",slow\n")
++    TEXT(",1:40,,East,Yes.,\n")
++    TEXT(",2:01,,,,clear\n")
++    TEXT(",2:10,2:05,West,Out before In,\n")
++    TEXT(",soon,,West,Bad time,\n")
++    TEXT("Passage 2,00:00:10:12,,,On the road,\n")
++    TEXT(",,,,No time at all,\n");
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageSurtitleTimeTest,
++    "InfinityStage.Surtitles.ParseTime",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageSurtitleTimeTest::RunTest(const FString& Parameters)
++{
++    double Seconds = -1.0;
++    TestTrue(TEXT("Plain seconds"), InfinityStageSurtitles::ParseTime(TEXT("74.5"), 25.0, Seconds));
++    TestEqual(TEXT("...74.5"), Seconds, 74.5);
++    TestTrue(TEXT("m:ss.s"), InfinityStageSurtitles::ParseTime(TEXT(" 1:14.5 "), 25.0, Seconds));
++    TestEqual(TEXT("...74.5"), Seconds, 74.5);
++    TestTrue(TEXT("h:mm:ss"), InfinityStageSurtitles::ParseTime(TEXT("1:00:01"), 25.0, Seconds));
++    TestEqual(TEXT("...3601"), Seconds, 3601.0);
++    TestTrue(TEXT("hh:mm:ss:ff at 25 fps"), InfinityStageSurtitles::ParseTime(TEXT("00:02:01:05"), 25.0, Seconds));
++    TestEqual(TEXT("...121.2"), Seconds, 121.2, 1e-9);
++    TestFalse(TEXT("Control: frame 25 is out of range at 25 fps"), InfinityStageSurtitles::ParseTime(TEXT("00:00:01:25"), 25.0, Seconds));
++    TestFalse(TEXT("Control: words are not a time"), InfinityStageSurtitles::ParseTime(TEXT("soon"), 25.0, Seconds));
++    TestFalse(TEXT("Control: negative is not a time"), InfinityStageSurtitles::ParseTime(TEXT("-3"), 25.0, Seconds));
++    TestFalse(TEXT("Control: empty is not a time"), InfinityStageSurtitles::ParseTime(TEXT(""), 25.0, Seconds));
++    TestEqual(TEXT("FormatTime"), InfinityStageSurtitles::FormatTime(74.5), FString(TEXT("1:14.50")));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageSurtitleSheetTest,
++    "InfinityStage.Surtitles.SheetLoads",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageSurtitleSheetTest::RunTest(const FString& Parameters)
++{
++    FInfinitySurtitleScript Script;
++    TestTrue(TEXT("The sheet loads"), Script.LoadFromCsvText(SheetCsv));
++    // Kept: 1:14, 1:40, 2:01 (clear), Passage 2. Dropped with a warning: Out<In, bad time, no time.
++    TestEqual(TEXT("Four lines kept"), Script.Lines.Num(), 4);
++    TestEqual(TEXT("Three warnings"), Script.Warnings.Num(), 3);
++    if (Script.Lines.Num() == 4)
++    {
++        TestEqual(TEXT("Row numbers are the sheet's, 1-based"), Script.Lines[0].SourceRow, 3);
++        TestEqual(TEXT("Multi-line cell kept"), Script.Lines[0].Text, FString(TEXT("We have been here\na while.")));
++        TestEqual(TEXT("Explicit Out"), Script.Lines[0].OutSeconds, 85.0);
++        TestEqual(TEXT("Segment carries down"), Script.Lines[1].Segment, FString(TEXT("S2")));
++        TestTrue(TEXT("Blank Out holds"), Script.Lines[1].OutSeconds < 0.0);
++        TestTrue(TEXT("A clear row has no text"), Script.Lines[2].Text.IsEmpty());
++        TestEqual(TEXT("Label segment"), Script.Lines[3].Segment, FString(TEXT("Passage 2")));
++        TestEqual(TEXT("SMPTE In"), Script.Lines[3].InSeconds, 10.48, 1e-9);
++    }
++
++    FInfinitySurtitleScript NoHeader;
++    TestFalse(TEXT("Control: a sheet with no Segment header fails"), NoHeader.LoadFromCsvText(TEXT("a,b\n1,2\n")));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageSurtitleSegmentTest,
++    "InfinityStage.Surtitles.SegmentCodesMatchCueDirector",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageSurtitleSegmentTest::RunTest(const FString& Parameters)
++{
++    const TArray<FInfinityTransportSegment> Show = MakeShow();
++    TestEqual(TEXT("P1"), InfinityStageSurtitles::SegmentCode(Show, 0), FString(TEXT("P1")));
++    TestEqual(TEXT("S1 counts Scenes only"), InfinityStageSurtitles::SegmentCode(Show, 1), FString(TEXT("S1")));
++    TestEqual(TEXT("P2"), InfinityStageSurtitles::SegmentCode(Show, 2), FString(TEXT("P2")));
++    TestEqual(TEXT("S2"), InfinityStageSurtitles::SegmentCode(Show, 3), FString(TEXT("S2")));
++    TestEqual(TEXT("Code, any case"), InfinityStageSurtitles::ResolveSegment(TEXT("s2"), Show), 3);
++    TestEqual(TEXT("Cue label, any case"), InfinityStageSurtitles::ResolveSegment(TEXT(" mountains "), Show), 3);
++    TestEqual(TEXT("Control: S3 does not exist"), InfinityStageSurtitles::ResolveSegment(TEXT("S3"), Show), INDEX_NONE);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageSurtitleEvaluateTest,
++    "InfinityStage.Surtitles.EvaluateFollowsPlayhead",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageSurtitleEvaluateTest::RunTest(const FString& Parameters)
++{
++    const TArray<FInfinityTransportSegment> Show = MakeShow();
++    FInfinitySurtitleScript Script;
++    Script.LoadFromCsvText(SheetCsv);
++
++    auto LineAt = [&](const double MasterSeconds, const double Fade = 0.0)
++    {
++        return InfinityStageSurtitles::Evaluate(Script, Show, At(MasterSeconds), Ticks, Fade);
++    };
++
++    // Mountains (S2) starts at Master 300 s.
++    TestEqual(TEXT("Control: nothing before the first line"), LineAt(300.0 + 73.9).LineIndex, INDEX_NONE);
++    TestEqual(TEXT("First line at its In"), LineAt(300.0 + 74.0).LineIndex, 0);
++    TestEqual(TEXT("First line ends at its explicit Out"), LineAt(300.0 + 85.0).LineIndex, INDEX_NONE);
++    TestEqual(TEXT("Second line held (blank Out)"), LineAt(300.0 + 120.0).LineIndex, 1);
++    TestEqual(TEXT("A clear row ends the held line"), LineAt(300.0 + 121.0).LineIndex, 2);
++    TestTrue(TEXT("...and shows no text"), Script.Lines[LineAt(300.0 + 121.0).LineIndex].Text.IsEmpty());
++    TestEqual(TEXT("Passage line by label, held to the segment end"), LineAt(200.0 + 99.9).LineIndex, 3);
++    TestEqual(TEXT("Control: the same offset in another segment shows nothing"), LineAt(100.0 + 74.0).LineIndex, INDEX_NONE);
++    TestEqual(TEXT("Control: past the show end shows nothing"), LineAt(500.0).LineIndex, INDEX_NONE);
++
++    // Pure function of the playhead: a seek back lands on the same answer.
++    const FInfinitySurtitleShown Forward = LineAt(300.0 + 80.0, 0.3);
++    LineAt(300.0 + 140.0, 0.3);
++    const FInfinitySurtitleShown Back = LineAt(300.0 + 80.0, 0.3);
++    TestEqual(TEXT("Seek back: same line"), Back.LineIndex, Forward.LineIndex);
++    TestEqual(TEXT("Seek back: same opacity"), Back.Opacity, Forward.Opacity);
++
++    TestEqual(TEXT("Fade: half in at 0.15 s"), LineAt(300.0 + 74.15, 0.3).Opacity, 0.5f, 1e-3f);
++    TestEqual(TEXT("Fade: full mid-line"), LineAt(300.0 + 80.0, 0.3).Opacity, 1.0f);
++    TestEqual(TEXT("Fade: half out 0.15 s before Out"), LineAt(300.0 + 84.85, 0.3).Opacity, 0.5f, 1e-3f);
++
++    // A retime moves the Scene; the line moves with it.
++    TArray<FInfinityTransportSegment> Retimed = Show;
++    Retimed[3].StartFrame = FFrameNumber(int32(310.0 * Ticks));
++    Retimed[3].EndFrame = FFrameNumber(int32(462.341 * Ticks));
++    TestEqual(TEXT("Retime: line follows its segment"),
++        InfinityStageSurtitles::Evaluate(Script, Retimed, At(310.0 + 74.0), Ticks, 0.0).LineIndex, 0);
++    TestEqual(TEXT("Control: the old Master time no longer shows it"),
++        InfinityStageSurtitles::Evaluate(Script, Retimed, At(300.0 + 74.0), Ticks, 0.0).LineIndex, INDEX_NONE);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageSurtitleWriteTest,
++    "InfinityStage.Surtitles.StampWritesOneCell",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageSurtitleWriteTest::RunTest(const FString& Parameters)
++{
++    // Cue Book shape: a Key column, Notes, CRLF, a quoted comma.
++    const FString Original =
++        TEXT("Segment,In,Out,Speaker,Text,Key,Notes\r\n")
++        TEXT("S5,1:14,1:25,West,\"We have, been\",T1,keep me\r\n")
++        TEXT("S5,1:40,,East,Yes.,T2,\r\n");
++    FInfinitySurtitleScript Script;
++    TestTrue(TEXT("Loads"), Script.LoadFromCsvText(Original));
++    if (!TestEqual(TEXT("Two lines"), Script.Lines.Num(), 2))
++    {
++        return false;
++    }
++    TestEqual(TEXT("Key is read"), Script.Lines[0].Key, FString(TEXT("T1")));
++
++    FString Text = Original;
++    FString Error;
++    TestTrue(TEXT("Stamp In"), InfinityStageSurtitles::SetLineTime(Text, Script.Lines[0], false, 70.0, Error));
++    TestEqual(TEXT("Only the In cell changed; Key, Notes, quoting, CRLF kept"), Text, FString(
++        TEXT("Segment,In,Out,Speaker,Text,Key,Notes\r\n")
++        TEXT("S5,1:10.00,1:25,West,\"We have, been\",T1,keep me\r\n")
++        TEXT("S5,1:40,,East,Yes.,T2,\r\n")));
++
++    FInfinitySurtitleScript Reread;
++    Reread.LoadFromCsvText(Text);
++    TestEqual(TEXT("Read back: new In"), Reread.Lines[0].InSeconds, 70.0, 1e-9);
++    TestEqual(TEXT("Read back: Out untouched"), Reread.Lines[0].OutSeconds, 85.0, 1e-9);
++
++    FString Stale = Text;
++    TestFalse(TEXT("Control: a line whose In changed on disk is refused"),
++        InfinityStageSurtitles::SetLineTime(Stale, Script.Lines[0], false, 60.0, Error));
++    TestEqual(TEXT("...and the text is untouched"), Stale, Text);
++
++    FInfinitySurtitleLine WrongKey = Reread.Lines[0];
++    WrongKey.Key = TEXT("T9");
++    TestFalse(TEXT("Control: a Key mismatch is refused"), InfinityStageSurtitles::SetLineTime(Stale, WrongKey, false, 60.0, Error));
++
++    TestFalse(TEXT("Control: Out before In is refused"),
++        InfinityStageSurtitles::SetLineTime(Text, Reread.Lines[1], true, 99.0, Error));
++    TestFalse(TEXT("Control: In after the explicit Out is refused"),
++        InfinityStageSurtitles::SetLineTime(Text, Reread.Lines[0], false, 90.0, Error));
++    TestTrue(TEXT("A blank Out becomes explicit"), InfinityStageSurtitles::SetLineTime(Text, Reread.Lines[1], true, 110.0, Error));
++    TestTrue(TEXT("...in the Out cell"), Text.Contains(TEXT("S5,1:40,1:50.00,East,Yes.,T2,\r\n")));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageSurtitleStepTest,
++    "InfinityStage.Surtitles.StepFindsNeighbours",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageSurtitleStepTest::RunTest(const FString& Parameters)
++{
++    const TArray<FInfinityTransportSegment> Show = MakeShow();
++    FInfinitySurtitleScript Script;
++    Script.LoadFromCsvText(SheetCsv);
++    // Text lines by Master landing time (In + 0.3 s fade): row "On the road" 210.78, 1:14 374.3, 1:40 400.3.
++    int64 Land = 0;
++    auto Step = [&](const double FromSeconds, const int32 Delta)
++    {
++        return InfinityStageSurtitles::FindStepTarget(Script, Show, At(FromSeconds), Ticks, 0.3, Delta, Land);
++    };
++    TestEqual(TEXT("Next from the top: the Passage 2 line"), Step(0.0, 1), 3);
++    TestEqual(TEXT("...landing just past its fade-in"), Land, At(210.78));
++    TestEqual(TEXT("Next from a landing goes on"), Step(210.78, 1), 0);
++    TestEqual(TEXT("Next skips the clear row"), Step(374.3, 1), 1);
++    TestEqual(TEXT("Previous from mid-line goes to its start"), Step(380.0, -1), 0);
++    TestEqual(TEXT("Previous from a landing goes back"), Step(374.3, -1), 3);
++    TestEqual(TEXT("Control: nothing after the last"), Step(400.3, 1), INDEX_NONE);
++    TestEqual(TEXT("Control: nothing before the first"), Step(0.0, -1), INDEX_NONE);
++    return true;
++}
++
++#endif
