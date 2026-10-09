@@ -182,6 +182,14 @@ class Channel:
 class Section:
     def __init__(self, track, a, b, chans, params=None, cam_guid=None):
         self.track, self.a, self.b, self.chans, self.params, self.cam_guid = track, a, b, chans, params, cam_guid
+        self.completion = "MovieSceneCompletionMode.PROJECT_DEFAULT"
+
+    def get_completion_mode(self):
+        return self.completion
+
+    def set_completion_mode(self, m):
+        mark_dirty()
+        self.completion = m
 
     def has_start_frame(self):
         return self.a is not None
@@ -396,6 +404,18 @@ class Actor(Obj):
         super().__init__(**props)
         self.label, self.cls, self.loc, self.rot, self.parent = label, cls, Vector(*loc), Rotator(roll=rot[2], pitch=rot[0], yaw=rot[1]), parent
         self.tags, self.comps, self.bounds = list(tags), comps or {}, bounds
+        self.level = props.pop("_level", "L_InfinityStage_V1VerticalSlice") if "_level" in props else "L_InfinityStage_V1VerticalSlice"
+        Actor._n += 1
+        self.path = "/Game/%s.%s:PersistentLevel.%s_%d" % (self.level, self.level, cls, Actor._n)
+
+    _n = 0
+
+    def get_path_name(self):
+        return self.path
+
+    def get_outer(self):
+        lvl = self.level
+        return types_ns(get_outer=lambda: types_ns(get_name=lambda: lvl))
 
     def get_actor_label(self):
         return self.label
@@ -468,6 +488,8 @@ def make_fake_unreal():
     ue.FrameNumber, ue.Vector, ue.Rotator = FrameNumber, Vector, Rotator
     ue.MovieSceneTimeUnit = types.SimpleNamespace(DISPLAY_RATE="DISPLAY_RATE", TICK_RESOLUTION="TICK")
     ue.MovieSceneKeyInterpolation = types.SimpleNamespace(LINEAR="LINEAR")
+    ue.MovieSceneCompletionMode = types.SimpleNamespace(RESTORE_STATE="MovieSceneCompletionMode.RESTORE_STATE",
+                                                        KEEP_STATE="MovieSceneCompletionMode.KEEP_STATE")
 
     class Paths:
         @staticmethod
@@ -576,7 +598,7 @@ def add_track(b, cls, name, prop, sections, template=None, path=None):
     return t
 
 
-def build_world(ue, ghost_keys=None, seg_shift=74.64):
+def build_world(ue, ghost_keys=None, seg_shift=74.64, extra_s2=None, extra_ev3=False):
     plan = SLEIGHT["plan"]
     seq = Seq()
     seq.markers = [list(m) for m in IST["snapshot_after"]["markers"]]
@@ -705,11 +727,56 @@ def build_world(ue, ghost_keys=None, seg_shift=74.64):
             row["end"] += seg_shift
             shift = seg_shift
         segs.append(row)
+    actors = [root, hcam, mcam, twin, mouth_l, ghost, beam, ppv_u, ppv_h, fog]
+    # the 57 S2 hangar lights/emissives (labels from s2_arrival_strike_dry.json 'ours'), along the hangar walls
+    s2_labels = list(S2_DRY["ours"]) + list(extra_s2 or [])
+    for i, label in enumerate(s2_labels):
+        if label == "S2 Ghost Light":
+            continue
+        is_light = not (label.endswith("Body") or label.endswith("Bulb"))
+        y = -900.0 if i % 2 else 900.0
+        loc = W([600.0 + 90.0 * i, y, 400.0 + 10 * (i % 7)])
+        if is_light:
+            cls = ue.PointLight if "Lattice" in label else ue.SpotLight
+            actors.append(light(cls, label, loc, (-30, rootf["yaw"], 0), 0.0, radius=1500.0, tags=("RigAtmos.Scene2Hangar",)))
+        else:
+            actors.append(Actor(label, "StaticMeshActor", loc, tags=("RigAtmos.Scene2Hangar",), hidden=False))
+    # a persistent work light inside the held frame (seen extra) and a streamed (Klara) light in the frame
+    actors.append(light(ue.PointLight, "S2 Hangar Work Light", W([4600, 200, 500]), (0, 0, 0), 300.0, radius=2000.0))
+    k = light(ue.SpotLight, "SpotLight5", W([4500, -300, 600]), (0, rootf["yaw"], 0), 126.7, radius=3000.0)
+    k.level = "Japanese_Alley"
+    actors.append(k)
+    ppv_u2 = ue.PostProcessVolume("PostProcessVolume", "PostProcessVolume", [0, 0, 0], unbound=True, priority=0.0, enabled=True, blend_weight=1.0,
+                                  blend_radius=100.0,
+                                  settings=Obj(override_auto_exposure_method=True, auto_exposure_method="AutoExposureMethod.AEM_HISTOGRAM",
+                                               override_auto_exposure_bias=True, auto_exposure_bias=1.0,
+                                               override_auto_exposure_min_brightness=True, auto_exposure_min_brightness=1.0,
+                                               override_auto_exposure_max_brightness=True, auto_exposure_max_brightness=1.0))
+    actors.append(ppv_u2)
+    if extra_ev3:
+        actors.append(ue.PostProcessVolume("PostProcessVolume", "PostProcessVolume", [0, 0, 0], unbound=True, priority=0.0, enabled=True,
+                                           blend_weight=1.0, blend_radius=100.0, settings=ppv_u.get_editor_property("settings")))
+    dev = Seq()
+    dev.pb = [0, 3891]
+    for label in s2_labels:
+        b = Binding(dev, "S2 Arrival Ours Dark: " + label)
+        add_track(b, "MovieSceneVisibilityTrack", "", "bHidden", [Section(None, 0, 3891, [Channel("", "bool", False, [])])])
+        b.tracks[0].sections[0].completion = "MovieSceneCompletionMode.RESTORE_STATE"
+        dev.bindings.append(b)
     WORLD.clear()
-    WORLD.update({"seq": seq, "actors": [root, hcam, mcam, twin, mouth_l, ghost, beam, ppv_u, ppv_h, fog], "segments": segs,
+    WORLD.update({"seq": seq, "dev": dev, "actors": actors, "segments": segs,
                   "assets": {"/Game/InfinityStage/Dev/DA_InfinityStage_V1Show": show,
-                             "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips": seq}})
+                             "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips": seq,
+                             "/Game/InfinityStage/Dev/Sequences/LS_DevScene_02": dev}})
     return seq
+
+
+def types_ns(**kw):
+    import types
+    return types.SimpleNamespace(**kw)
+
+
+S2_DRY = jload(os.path.join(CC, "KlaraIngest", "s2_arrival_strike_dry.json"))
 
 
 def types_color():
@@ -891,8 +958,8 @@ def main():
         check("P-light-cut-1250-in-window", len(lc) == 1 and lc[0]["cut_frame"] == 1250 and lc[0]["in_gary_window"], [c.get("cut_frame") for c in lc])
         kinds = [i["kind"] for i in lc[0]["ranked"]]
         check("P-light-exposure-ranked", "EXPOSURE" in kinds and "EXPOSURE_TIE" in kinds, kinds)
-        check("P-light-ppv-proposal", any(x["id"] == "PPV-S2 Hangar Pinned Exposure" and x["executable"] for x in lc[0]["proposals"]),
-              [x["id"] for x in lc[0]["proposals"]])
+        ties = [i for i in lc[0]["ranked"] if i["kind"] == "EXPOSURE_TIE"]
+        check("P-light-exposure-tie-at-both-cameras", len(ties) == 2 and ties[0]["impact_stops"] == 5.0, [(i["what"], i["impact_stops"]) for i in ties])
         spots = [i for i in lc[0]["ranked"] if i["kind"] == "TWIN_SPOT_KEYS_AT_CUT"]
         check("P-light-twin-spots-equal-at-cut", spots and all(abs((i["before"] or 0) - 7482.80419921875) < 1e-3 for i in spots[:1]), spots)
         tw = pl["writes"]["twin"]
@@ -918,15 +985,10 @@ def main():
         for ch in tr.sections[0].chans:
             n = T.norm_channel(ch.channel_name)
             if n in ev:
-                for f in (218, 400, 1249, 1950, 2225):
+                for f in (0, 75, 150, 218, 400, 1249, 1950, 2225):      # hold_start = 0: sits on the 12:18 frame
                     if abs(ch._eval(f) - ev[n]) > 1e-9:
                         got_ok = False
-                pre_t = [b for b in pre["bindings"] if b["name"] == "S2 Sleight Hangar Camera"][0]["tracks"][0]
-                pre_c = [c for c in pre_t["sections"][0]["channels"] if c["name"] == n][0]
-                for f in range(0, 218):
-                    if abs(ch._eval(f) - T.interp(pre_c["keys"], f, pre_c["default"])) > 1e-9:
-                        got_ok = False
-        check("P-hold-keys-equal-evaluated-pose", got_ok)
+        check("P-hold-keys-equal-evaluated-pose-from-0", got_ok)
         d = [b for b in seq.bindings if b.name == "Sleight Hangar Drape"][0]
         sp = [t for t in d.tracks if t.cls == "MovieSceneSpawnTrack"][0].sections[0].chans[0]
         z = [c for c in [t for t in d.tracks if t.cls == "MovieScene3DTransformTrack"][0].sections[0].chans if c.channel_name.startswith("Location.Z")][0]
@@ -957,6 +1019,148 @@ def main():
         post = snap_plain(T)
         check("P-revert-exact", json.dumps(post, sort_keys=True, default=str) == json.dumps(pre, sort_keys=True, default=str),
               T.untouched_diff(pre, post, set()))
+
+    # =========================================================== 9 Oct: DARKNESS + EXPOSURE + hold_start
+    fresh(tmp, ue)
+    dev_before = T.digest([[b.name, [(k.f, k.v) for t in b.tracks for sct in t.sections for c in sct.chans for k in c.keys],
+                            [sct.completion for t in b.tracks for sct in t.sections], [t.prop for t in b.tracks]] for b in WORLD["dev"].bindings])
+    ok, rep9 = run(T, "DRY", "T9-DRY")
+    check("P9-dry-ok", ok and rep9["apply_ready"], rep9 if not ok else rep9["refusals"][:3])
+    if ok:
+        dk = rep9["plan"]["darkness"]
+        groups = {}
+        for t in dk["targets"]:
+            groups.setdefault(t["group"], []).append(t)
+        check("P9-darkness-s2-set-57", len(groups.get("S2_HANGAR", [])) == 57 and dk["foreign_source"]["count"] == 57,
+              {k: len(v) for k, v in groups.items()})
+        s2 = groups["S2_HANGAR"][0]
+        check("P9-darkness-s2-until-hangar-strike", s2["until"] == 1300 and s2["range"] == [0, 1301]
+              and s2["keys"] == [[0, False], [1300, True]] and s2["binding_name"].startswith("I2 Order Dark: "), s2)
+        own = groups.get("I2_OWN", [])
+        check("P9-darkness-twin-lantern-until-fade", [t["label"] for t in own] == ["S2 Sleight Twin Lantern"] and own[0]["until"] == 175, own)
+        check("P9-darkness-seen-extra", [t["label"] for t in groups.get("SEEN_EXTRA", [])] == ["S2 Hangar Work Light"],
+              [t["label"] for t in groups.get("SEEN_EXTRA", [])])
+        check("P9-darkness-streamed-listed-not-written", [m["label"] for m in dk["streamed_listed"]] == ["SpotLight5"]
+              and not any(t["label"] == "SpotLight5" for t in dk["targets"]), dk["streamed_listed"])
+        check("P9-darkness-no-gobo-spot", not any(t["label"] in ("Shadow Play Spot (Hangar)", "Shadow Play Spot (Mouth)") for t in dk["targets"]))
+        check("P9-fog-reported-and-proposed", dk["fog"] and dk["fog"][0]["proposal"]["kind"] == "ACTOR_HIDE"
+              and dk["fog"][0]["proposal"]["fix_step"]["keys"] == [[0, False], [1250, True]], dk["fog"])
+        ex = rep9["plan"]["exposure"]
+        zero_names = sorted((z["label"], (z["overrides"] or {}).get("min_ev")) for z in ex["zero"])
+        check("P9-exposure-keep-ev-3", ex["keep"]["overrides"].get("min_ev") == -3.0 and ex["keep"]["label"] == "PostProcessVolume", ex["keep"])
+        check("P9-exposure-zero-tie-mate-and-one-sided", zero_names == [("PostProcessVolume", 1.0), ("S2 Hangar Pinned Exposure", 0.5)], zero_names)
+        check("P9-exposure-model-deterministic", all(not m["tie_changes_result"] for m in ex["model_after"].values())
+              and len({json.dumps(m["effective"], sort_keys=True) for m in ex["model_after"].values()}) == 1
+              and any(m["tie_changes_result"] for m in ex["model_before"].values()), ex["model_after"])
+        check("P9-dry-lines", marker("I2_ORDER_DARKNESS|run=T9-DRY") and marker("I2_ORDER_EXPOSURE|run=T9-DRY")
+              and marker("I2_ORDER_FOG|run=T9-DRY") and any("hold_start=0|dark=59|exposure_zero=2" in m for m in marker("I2_ORDER_DRY_OK|run=T9-DRY")),
+              marker("I2_ORDER_DRY_OK|run=T9-DRY"))
+    pre9 = snap_plain(T)
+    ok, rec9 = run(T, "APPLY", "T9-DRY")
+    check("P9-apply-ok", ok and any("dark_bindings=59|exposure_bindings=2|foreign=unchanged" in m for m in marker("I2_ORDER_APPLY_OK|run=T9-DRY")),
+          rec9 if not ok else marker("I2_ORDER_APPLY_OK|run=T9-DRY"))
+    check("P9-apply-saved-LS-only", ST.saves == ["/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips"] and not ST.dirty, ST.saves)
+    if ok:
+        seq = WORLD["seq"]
+        dark = [b for b in seq.bindings if b.name.startswith("I2 Order Dark: ")]
+        vis_ok = all(len(b.tracks) == 1 and b.tracks[0].cls == "MovieSceneVisibilityTrack" and b.tracks[0].prop == "bHidden"
+                     and b.tracks[0].path == "bHidden" and b.tracks[0].sections[0].completion.endswith("RESTORE_STATE")
+                     and b.tracks[0].sections[0].chans[0].default is False and b.tracks[0].sections[0].chans[0]._eval(174) is False
+                     for b in dark)
+        check("P9-dark-bindings-bHidden-true-visible-restore", len(dark) == 59 and vis_ok)
+        expo = [b for b in seq.bindings if b.name.startswith("I2 Order Exposure: ")]
+        check("P9-exposure-bindings-blendweight-0", len(expo) == 2 and all(b.tracks[0].prop == "BlendWeight" and b.tracks[0].sections[0].chans[0]._eval(1249) == 0.0
+                                                                          and b.tracks[0].sections[0].completion.endswith("RESTORE_STATE") for b in expo))
+        dev_after = T.digest([[b.name, [(k.f, k.v) for t in b.tracks for sct in t.sections for c in sct.chans for k in c.keys],
+                               [sct.completion for t in b.tracks for sct in t.sections], [t.prop for t in b.tracks]] for b in WORLD["dev"].bindings])
+        check("P9-foreign-devscene-unchanged-after-apply", dev_after == dev_before)
+        okv, why = run(T, "VERIFY", "T9-VER")
+        check("P9-verify-ok", okv and marker("I2_ORDER_VERIFY_OK|run=T9-VER"), why)
+        okr, why = run(T, "REVERT", "T9-REV")
+        check("P9-revert-ok", okr and marker("I2_ORDER_REVERT_OK|run=T9-REV"), why)
+        names_after = [b.name for b in WORLD["seq"].bindings]
+        check("P9-revert-removes-only-ours", not any(n.startswith(("I2 Order Dark: ", "I2 Order Exposure: ")) for n in names_after)
+              and "S2 Ghost Light" in names_after and "S2 Sleight Twin Lantern/LightComponent" in names_after)
+        post9 = snap_plain(T)
+        check("P9-revert-exact", json.dumps(post9, sort_keys=True, default=str) == json.dumps(pre9, sort_keys=True, default=str),
+              T.untouched_diff(pre9, post9, set()))
+        dev_after = T.digest([[b.name, [(k.f, k.v) for t in b.tracks for sct in t.sections for c in sct.chans for k in c.keys],
+                               [sct.completion for t in b.tracks for sct in t.sections], [t.prop for t in b.tracks]] for b in WORLD["dev"].bindings])
+        check("P9-foreign-devscene-unchanged-after-revert", dev_after == dev_before)
+
+    # legacy hold (hold_start None): frames before H unchanged
+    fresh(tmp, ue)
+    pre_l = snap_plain(T)
+    run(T, "DRY", "T9-LEG", {"hold_start": None, "darkness": False, "exposure_fix": False})
+    ok, recl = run(T, "APPLY", "T9-LEG", {"hold_start": None, "darkness": False, "exposure_fix": False})
+    if ok:
+        hb = [b for b in WORLD["seq"].bindings if b.name == "S2 Sleight Hangar Camera"][0]
+        pre_t = [b for b in pre_l["bindings"] if b["name"] == "S2 Sleight Hangar Camera"][0]["tracks"][0]
+        same = all(abs(ch._eval(f) - T.interp([c for c in pre_t["sections"][0]["channels"] if c["name"] == T.norm_channel(ch.channel_name)][0]["keys"], f)) < 1e-9
+                   for ch in hb.tracks[0].sections[0].chans if T.norm_channel(ch.channel_name) in T.POSE_CH
+                   for f in range(0, 218))
+        check("P9-legacy-hold-start-none-keeps-push", same and not [b for b in WORLD["seq"].bindings if b.name.startswith("I2 Order")])
+    else:
+        check("P9-legacy-hold-start-none-keeps-push", False, recl)
+    # pure hold_start
+    spec = {"sections": [{"range": [0, 10], "channels": [{"name": "Location.X", "default": 0.0, "keys": [[0, 0.0], [10, 10.0]]}]}]}
+    ev = T.evaluated_record("g", 5, spec, {"Location.X": 5.0})
+    hs = T.hold_spec(spec, ev, 5, 10, 0)
+    check("P9-hold-start-pure", hs["sections"][0]["channels"][0]["keys"] == [[0, 5.0], [5, 5.0], [10, 5.0]]
+          and T.check_hold(spec, hs, ev, 5, 10, 1e-3, 0) == [], hs)
+    try:
+        T.hold_spec(spec, ev, 5, 10, 7)
+        check("N9-hold-start-after-frame", False)
+    except T.PlanError as e:
+        check("N9-hold-start-after-frame", "HOLD_START_AFTER_FRAME" in str(e))
+
+    # N: the darkness step would hide a gobo spot -> refuse
+    fresh(tmp, ue, extra_s2=["Shadow Play Spot (Hangar)"])
+    ok, repn = run(T, "DRY", "T9-SPOT")
+    check("N9-darkness-hides-gobo-spot", ok and any(x.startswith("DARKNESS_HIDES_GOBO_SPOT") for x in repn["refusals"]) and not repn["apply_ready"],
+          repn if not ok else repn["refusals"][:2])
+    ok, why = run(T, "APPLY", "T9-SPOT")
+    check("N9-darkness-hides-gobo-spot-apply-refused", not ok and "PLAN_REFUSED" in why and not ST.saves, why)
+    # N: a darkness key outside I2
+    fresh(tmp, ue)
+    ok, repn = run(T, "DRY", "T9-OUT", {"darkness_s2_until": 5000})
+    check("N9-darkness-key-outside-I2", ok and any(x.startswith("DARKNESS_KEY_OUTSIDE_I2") for x in repn["refusals"]), repn if not ok else repn["refusals"][:2])
+    # N: a writer that touches LS_DevScene_02 (the foreign bindings) -> stop before save
+    fresh(tmp, ue)
+    run(T, "DRY", "T9-FOR")
+    orig_c = T._create_all
+
+    def bad_create(seq, plan, run_id):
+        out = orig_c(seq, plan, run_id)
+        WORLD["dev"].bindings[0].tracks[0].sections[0].chans[0].default = True
+        return out
+
+    T._create_all = bad_create
+    ok, why = run(T, "APPLY", "T9-FOR")
+    T._create_all = orig_c
+    check("N9-foreign-devscene-changed-stops", not ok and "FOREIGN_S2_ARRIVAL_BINDINGS_CHANGED" in why and not ST.saves, why)
+    # N: the visibility setter writes bHiddenInGame -> stop before save
+    fresh(tmp, ue)
+    run(T, "DRY", "T9-HIG")
+    ST.lie_vis_property = "bHiddenInGame"
+    ok, why = run(T, "APPLY", "T9-HIG")
+    ST.lie_vis_property = None
+    check("N9-darkness-bHiddenInGame-binding-stops", not ok and "VIS_TRACK_PROPERTY_NOT_bHidden" in why and not ST.saves, why)
+    # N: two unbound EV -3 volumes -> the kept volume is ambiguous
+    fresh(tmp, ue, extra_ev3=True)
+    ok, why = run(T, "DRY", "T9-AMB")
+    check("N9-exposure-keep-ambiguous", not ok and "EXPOSURE_KEEP_AMBIGUOUS" in why, why)
+    # N (pure): a fix that leaves a tie is refused
+    exn = {"model_after": {"a": {"tie_changes_result": True, "tie_groups": [["x", "y"]], "effective": {}},
+                           "b": {"tie_changes_result": False, "tie_groups": [], "effective": {}}}}
+    check("N9-exposure-still-tied", any(x.startswith("EXPOSURE_STILL_TIED") for x in T.check_exposure(exn)))
+    # N: REVERT never removes a binding that is not ours
+    try:
+        ST.reset(); ST.project = make_project(tmp); build_world(ue)
+        T._remove_created(WORLD["seq"], [{"guid": WORLD["seq"].bindings[0].guid.s, "binding_name": "S2 Sleight Hangar Camera"}], "T9-RM")
+        check("N9-revert-refuses-foreign-binding", False)
+    except T.Stop as e:
+        check("N9-revert-refuses-foreign-binding", "REFUSE_REMOVE_FOREIGN" in str(e), e)
 
     # REVERT drift
     fresh(tmp, ue)

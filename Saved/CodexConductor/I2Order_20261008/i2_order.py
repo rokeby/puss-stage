@@ -111,6 +111,16 @@ DEFAULTS = {
     "f18_fall_frame": "FALL_END",     # FALL_END (curtain has fallen) | RELEASE (drop starts)
     "lighting_window_s": [49.0, 50.0],
     "fix_steps": [],
+    # ---- 9 Oct (Gary: "Dark, framed, then strike"; YES to the exposure-tie fix; YES to APPLY)
+    "hold_start": 0,                  # the held camera sits on the H pose from this frame (None = from H only)
+    "darkness": True,                 # default ON
+    "darkness_s2_until": "HANGAR_STRIKE",   # the 'S2 Arrival Ours Dark:' set: FADE | HANGAR_STRIKE | END | int
+    "darkness_i2_until": "FADE",      # I2's own hangar lights (the twin lantern): until the spot fade starts
+    "darkness_extra_until": "HANGAR_STRIKE",  # other lights the hangar camera sees in [0, fade)
+    "darkness_extra_labels": [],      # opt-in labels (e.g. a streamed-level light the DRY lists)
+    "darkness_lux_threshold": 0.01,   # a light 'is seen' if it lights the framed drape above this [inf]
+    "exposure_fix": True,             # default ON (Gary approved)
+    "exposure_keep": "SHOW_EV-3",     # SHOW_EV-3 = the unbound volume pinned to EV100 -3, or an actor path name
 }
 
 CLAIMS = [
@@ -140,6 +150,14 @@ CLAIMS = [
      "cite": "curtain_sleight.py:289-296 (fmod inferred there too)"},
     {"tier": "inferred", "claim": "Illuminance estimates (inverse square, UE spot cone and radius window, lumens/4pi) ignore occlusion (hangar walls) and lights keyed by OTHER sequences; ranking is a guide, the cut must be judged in PIE",
      "cite": "no LightRendering .usf/.cpp read for this; tool design"},
+    {"tier": "measured", "claim": "Live DRY I2ORDER-DRY-2 (9 Oct): BOTH sleight cameras stand in two unbound priority-0 volumes both labelled 'PostProcessVolume' (EV100 -3/bias 0 and EV100 1/bias 1); 'S2 Hangar Pinned Exposure' covers the hangar camera only, static weight 0 or disabled",
+     "cite": "Saved/CodexConductor/I2Order_20261008/i2_order_dry_I2ORDER-DRY-2.json lighting.cuts[0].before/after.exposure"},
+    {"tier": "declaration-proven", "claim": "The show calibrates to the unbound PPV pinned at EV100 -3 (so SHOW_EV-3 is the kept volume by default)",
+     "cite": "Docs/Conductor/LIGHTING_EVENTS_2026-10-04.md:137; Docs/RigAndAtmosphere_Handover_2026-09-28.md:496"},
+    {"tier": "declaration-proven", "claim": "Hangar pinned exposure is saved at weight 0 and faded in by the Scene's rise sub-sequence",
+     "cite": "Saved/CodexStructure/hangar_build.py:513-524"},
+    {"tier": "measured", "claim": "LS_DevScene_02 hides the 57 S2-hangar lights/emissives with 'S2 Arrival Ours Dark:' bindings [0,3891] RESTORE_STATE, so they come back on when I2 starts (Conductor 5 PIE stills PSTILLS-I2-20261009-012405-i2early f67-111 lit)",
+     "cite": "Saved/CodexConductor/KlaraIngest/s2_arrival_strike.py:16-21,67-79; s2_arrival_strike_dry.json ours (57)"},
     {"tier": "inferred", "claim": "Camera PP settings apply after the volumes, weighted by PostProcessBlendWeight",
      "cite": "CameraComponent.h:317,353 declare the fields; the blend order is not declared there"},
 ]
@@ -175,6 +193,14 @@ API_TABLE = [
      "ClamSlime_20261008/slime_apply_ue.py:1068-1071; KlaraIngest/vis_fix.py (APPLIED S2 VISFIX-20261008-1)"),
     ("float track on PostProcessVolume BlendWeight (FIX only)", "inf", "BlendWeight is UPROPERTY(interp) PostProcessVolume.h:41-43; no project precedent"),
     ("binding.remove_track / binding.remove (FIX_REVERT only)", "prec", "curtain_sleight.py:1825; interaction_shadow_transition.py:741"),
+    ("APPLY: add_possessable(level actor) + MovieSceneVisibilityTrack bHidden/bHidden + section RESTORE_STATE (DARKNESS)", "prec",
+     "KlaraIngest/s2_arrival_strike.py:67-79 (applied to LS_DevScene_02; census stayed LS-only, :157-158)"),
+    ("APPLY: float track BlendWeight on a PostProcessVolume possessable (EXPOSURE)", "prec",
+     "Saved/CodexStructure/hangar_build.py:513-524 (Scene rise sequences); s4_hangar_hold.py holds it (S3FLOATHOLD measured 7 Oct)"),
+    ("section.get_completion_mode / set_completion_mode", "prec", "p18_sky_policy.py:221; klara_hookin.py:1741"),
+    ("LS_DevScene_02 read (load_asset + get_bindings), READ-ONLY foreign guard", "prec", "KlaraIngest/s2_arrival_strike.py:89-99"),
+    ("actor.get_path_name (PPV identity) / actor.get_outer().get_outer().get_name() (persistent level)", "prec",
+     "KlaraIngest/s2_arrival_strike.py:51-53"),
     ("EditorAssetLibrary.save_asset(LS only)", "prec", "interaction_shadow_transition.py:822 (measured)"),
 ]
 
@@ -296,6 +322,14 @@ def merged_params(params):
         raise PlanError("F18_HOLD_S: %r" % p["f18_hold_s"])
     for step in p["fix_steps"]:
         fix_step_check(step)
+    if p["hold_start"] is not None and (isinstance(p["hold_start"], bool) or not isinstance(p["hold_start"], int) or p["hold_start"] < 0):
+        raise PlanError("HOLD_START: None or int >= 0, got %r" % (p["hold_start"],))
+    for k in ("darkness_s2_until", "darkness_i2_until", "darkness_extra_until"):
+        v = p[k]
+        if not (v in ("FADE", "HANGAR_STRIKE", "END") or (isinstance(v, int) and not isinstance(v, bool) and v > 0)):
+            raise PlanError("%s: FADE | HANGAR_STRIKE | END | int > 0, got %r" % (k.upper(), v))
+    if not isinstance(p["darkness_extra_labels"], list):
+        raise PlanError("DARKNESS_EXTRA_LABELS: list")
     return p
 
 
@@ -379,9 +413,14 @@ def _require_evaluated(ev, spec, frame):
         raise PlanError("POSE_NOT_EVALUATED: evaluation does not belong to this track/frame")
 
 
-def hold_spec(spec, ev, frame, hold_end):
-    """Keep keys before `frame`, key the evaluated value at `frame` and `hold_end`, drop the later keys."""
+def hold_spec(spec, ev, frame, hold_end, hold_start=None):
+    """Keep keys before `hold_start` (default: `frame`), key the evaluated value at `hold_start`, `frame` and
+    `hold_end`, drop every key in between.  hold_start=0 (Gary 9 Oct, "Dark, framed, then strike"): the camera SITS on
+    the 12:18 frame from the first I2 frame."""
     _require_evaluated(ev, spec, frame)
+    hs = int(frame if hold_start is None else hold_start)
+    if hs > frame:
+        raise PlanError("HOLD_START_AFTER_FRAME: %d > %d" % (hs, frame))
     out = copy.deepcopy(spec)
     sec = out["sections"][0]
     for ch in sec["channels"]:
@@ -390,7 +429,9 @@ def hold_spec(spec, ev, frame, hold_end):
         if ch["name"] not in ev["values"]:
             raise PlanError("EVALUATION_MISSING_CHANNEL: %s" % ch["name"])
         v = float(ev["values"][ch["name"]])
-        keys = [k for k in ch["keys"] if float(k[0]) < frame]
+        keys = [k for k in ch["keys"] if float(k[0]) < hs]
+        if hs < frame:
+            keys.append([hs, v])
         keys.append([int(frame), v])
         if hold_end > frame:
             keys.append([int(hold_end), v])
@@ -414,10 +455,11 @@ def constant_spec(spec, values, start, hold_end, keep_from=None):
     return out
 
 
-def check_hold(before, after, ev, frame, hold_end, tol):
+def check_hold(before, after, ev, frame, hold_end, tol, hold_start=None):
     """Falsifiable: (1) engine value == linear key interpolation at frame (else easing/non-linear keys: refuse);
-    (2) the held curve equals the evaluated value on [frame, hold_end+50]; (3) nothing before `frame` changed."""
+    (2) the held curve equals the evaluated value on [hold_start, hold_end+50]; (3) nothing before hold_start changed."""
     fail = []
+    hs = int(frame if hold_start is None else hold_start)
     for cb, ca in zip(before["sections"][0]["channels"], after["sections"][0]["channels"]):
         if not cb["keys"]:
             continue
@@ -425,12 +467,12 @@ def check_hold(before, after, ev, frame, hold_end, tol):
         pure = interp(cb["keys"], frame, cb["default"])
         if abs(pure - v) > tol * max(1.0, abs(v)):
             fail.append("EVAL_DISAGREES_WITH_KEYS|%s|engine=%.6f|keys=%.6f" % (name, v, pure))
-        for f in (frame, (frame + hold_end) // 2, hold_end, hold_end + 50):
+        for f in sorted({hs, (hs + frame) // 2, frame, (frame + hold_end) // 2, hold_end, hold_end + 50}):
             got = interp(ca["keys"], f, ca["default"])
             if abs(got - v) > 1.0e-6 * max(1.0, abs(v)):
                 fail.append("HOLD_NOT_EVALUATED_POSE|%s|f=%d|%.6f!=%.6f" % (name, f, got, v))
-        probes = sorted({int(k[0]) for k in cb["keys"] if float(k[0]) < frame} |
-                        {int(k[0]) + 1 for k in cb["keys"] if float(k[0]) + 1 < frame})
+        probes = sorted({int(k[0]) for k in cb["keys"] if float(k[0]) < hs} |
+                        {int(k[0]) + 1 for k in cb["keys"] if float(k[0]) + 1 < hs})
         for f in probes:
             a, b = interp(cb["keys"], f, cb["default"]), interp(ca["keys"], f, ca["default"])
             if abs(a - b) > 1.0e-6 * max(1.0, abs(a)):
@@ -882,7 +924,7 @@ def light_lux(light, point, normal):
 EXPOSURE_FIELDS = ("method", "min_ev", "max_ev", "bias")
 
 
-def effective_exposure(volumes, camera_pp):
+def effective_exposure(volumes, camera_pp):  # rows: name, id, priority, weight, enabled, overrides
     """Blend override fields in ascending priority (higher wins), camera PP last [inf]; equal priorities are
     undefined [decl PostProcessVolume.h:30-33]: both orders are computed and a difference is flagged."""
     vols = [v for v in volumes if v.get("enabled", True) and float(v.get("weight", 1.0)) > 0.0]
@@ -908,9 +950,9 @@ def effective_exposure(volumes, camera_pp):
     for pr in sorted(groups):
         rev.extend(reversed(groups[pr]))
     a, b = run(asc), run(rev)
-    ties = [[x["name"] for x in g] for g in groups.values() if len(g) > 1]
+    ties = [[x.get("id", x["name"]) for x in g] for g in groups.values() if len(g) > 1]
     return {"effective": a, "effective_other_order": b, "tie_groups": ties,
-            "tie_changes_result": a != b, "volumes": [v["name"] for v in asc],
+            "tie_changes_result": a != b, "volumes": [v.get("id", v["name"]) for v in asc],
             "camera_pp_weight": None if not camera_pp else camera_pp.get("weight")}
 
 
@@ -1018,7 +1060,8 @@ def proposals_for_cut(items, before, after, cut_frame, release, end):
     props = []
     for it in items:
         if it["kind"] == "EXPOSURE" and it["impact_stops"] >= 0.25:
-            vb = set(before["exposure"]["volumes"]); va = set(after["exposure"]["volumes"])
+            vb = {r["id"] for r in before["exposure"].get("rows", [])}
+            va = {r["id"] for r in after["exposure"].get("rows", [])}
             only_b = sorted(v for v in vb - va if not (before["exposure"].get("unbound") or {}).get(v))
             for v in only_b:
                 props.append({"id": "PPV-%s" % v, "executable": True, "kind": "PPV_WEIGHT", "rank_from": it["kind"],
@@ -1052,7 +1095,7 @@ def proposals_for_cut(items, before, after, cut_frame, release, end):
 # FIX steps (pure)
 # =====================================================================================================================
 
-FIX_KINDS = ("PPV_WEIGHT", "LIGHT_HIDE", "LIGHT_DIM")
+FIX_KINDS = ("PPV_WEIGHT", "LIGHT_HIDE", "LIGHT_DIM", "ACTOR_HIDE")
 
 
 def fix_step_check(step):
@@ -1064,17 +1107,17 @@ def fix_step_check(step):
     for k in keys:
         if not (isinstance(k, list) and len(k) == 2 and isinstance(k[0], int)):
             raise PlanError("FIX_STEP_KEY: %r" % (k,))
-        if step["kind"] == "LIGHT_HIDE" and not isinstance(k[1], bool):
+        if step["kind"] in ("LIGHT_HIDE", "ACTOR_HIDE") and not isinstance(k[1], bool):
             raise PlanError("FIX_HIDE_KEYS_ARE_VISIBLE_BOOLS (true = VISIBLE): %r" % (k,))
-        if step["kind"] != "LIGHT_HIDE" and (isinstance(k[1], bool) or not isinstance(k[1], (int, float))):
+        if step["kind"] not in ("LIGHT_HIDE", "ACTOR_HIDE") and (isinstance(k[1], bool) or not isinstance(k[1], (int, float))):
             raise PlanError("FIX_FLOAT_KEY: %r" % (k,))
-    if step.get("property") not in (None, "bHidden") and step["kind"] == "LIGHT_HIDE":
+    if step.get("property") not in (None, "bHidden") and step["kind"] in ("LIGHT_HIDE", "ACTOR_HIDE"):
         raise PlanError("FIX_VIS_PROPERTY: only bHidden (bHiddenInGame is inert), got %r" % step.get("property"))
     return True
 
 
 def fix_track_spec(step, end):
-    if step["kind"] == "LIGHT_HIDE":
+    if step["kind"] in ("LIGHT_HIDE", "ACTOR_HIDE"):
         return {"class": "MovieSceneVisibilityTrack", "prop": "bHidden", "path": "bHidden", "name": FIX_TRACK,
                 "range": [0, end + 1], "default": True, "keys": [[int(f), bool(v)] for f, v in step["keys"]]}
     if step["kind"] == "PPV_WEIGHT":
@@ -1101,8 +1144,217 @@ def check_fix_readback(spec, row):
 
 
 # =====================================================================================================================
+# 9 Oct: DARKNESS + EXPOSURE (pure)
+# =====================================================================================================================
+
+DARK_PREFIX = "I2 Order Dark: "                 # Conductor 5, 9 Oct: OUR bindings, distinct prefix
+EXPO_PREFIX = "I2 Order Exposure: "
+FOREIGN_DARK_PREFIX = "S2 Arrival Ours Dark: "  # LS_DevScene_02 (KlaraIngest/s2_arrival_strike.py:34): read-only, FOREIGN
+DEVSCENE_02 = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_02"
+EXPO_TRACK = "I2Order Exposure (Conductor)"
+DARK_TRACK = "I2Order Dark (Conductor)"
+
+
+def until_frame(v, fade, hangar_strike, end):
+    if v == "FADE":
+        return int(fade)
+    if v == "HANGAR_STRIKE":
+        return int(hangar_strike)
+    if v == "END":
+        return int(end)
+    return int(v)
+
+
+def darkness_plan(s2_labels, actors, i2_own, extra_labels, spot_labels, p, fade, hangar_strike, end):
+    """Targets for the DARKNESS step (visibility bHidden/bHidden, TRUE = VISIBLE, written into I2 only).
+    s2_labels: labels from LS_DevScene_02 'S2 Arrival Ours Dark:' bindings (read-only source).
+    actors: {label: [rows]} rows = {"label","path","persistent","is_light","kind","seen","lux","tags"}.
+    i2_own: labels of I2-bound hangar lights (curtain_sleight's twin lantern ...) that are not the gobo spot pair."""
+    targets, missing, ambiguous, streamed, seen_report, refusals = [], [], [], [], [], []
+    taken = set()
+    actors = {k: list(v) for k, v in actors.items()}
+
+    def add(label, group, source, until_key, force=False):
+        rows = actors.get(label, [])
+        if not rows:
+            missing.append({"label": label, "group": group})
+            return
+        if len(rows) > 1:
+            ambiguous.append({"label": label, "paths": [r["path"] for r in rows]})
+            return
+        r = rows[0]
+        if not r.get("persistent", True) and not force:
+            streamed.append({"label": label, "group": group, "path": r["path"],
+                             "why": "streamed-level actor: listed, not written (memory klara-streamed-levels-traps); "
+                                    "opt in with params.darkness_extra_labels"})
+            return
+        u = until_frame(p[until_key], fade, hangar_strike, end)
+        targets.append({"label": label, "path": r["path"], "group": group, "source": source, "until": u,
+                        "range": [0, u + 1], "keys": [[0, False], [u, True]], "default": False,
+                        "binding_name": DARK_PREFIX + label, "is_light": r.get("is_light"), "kind": r.get("kind")})
+        taken.add(label)
+
+    for label in sorted(set(s2_labels)):
+        add(label, "S2_HANGAR", "LS_DevScene_02 binding '%s%s'" % (FOREIGN_DARK_PREFIX, label), "darkness_s2_until")
+    for label in sorted(set(i2_own) - taken):
+        add(label, "I2_OWN", "I2 possessable binding '%s' (I2-keyed light)" % label, "darkness_i2_until")
+    for label in sorted(set(extra_labels) - taken):
+        add(label, "EXTRA_OPT_IN", "params.darkness_extra_labels", "darkness_extra_until", force=True)
+    for label, rows in sorted(actors.items()):
+        r = rows[0]
+        if len(rows) != 1 or not r.get("is_light") or label in taken or label in spot_labels:
+            continue
+        if not r.get("seen"):
+            continue
+        if r.get("kind") == "directional":
+            seen_report.append({"label": label, "kind": "directional",
+                                "action": "REPORT_ONLY (global: lights the mouth side too; occlusion by the hangar unknown)"})
+            continue
+        add(label, "SEEN_EXTRA", "seen by the held hangar camera in [0, fade) (lux %.3f)" % (r.get("lux") or 0.0),
+            "darkness_extra_until")
+    if ambiguous:
+        refusals.append("DARKNESS_AMBIGUOUS_LABELS|%s" % json.dumps(ambiguous))
+    return {"targets": targets, "missing": missing, "ambiguous": ambiguous, "streamed_listed": streamed,
+            "directional_report": seen_report, "s2_source_count": len(set(s2_labels))}, refusals
+
+
+def check_darkness(dk, spot_labels, fade, end, existing_binding_names):
+    fail = []
+    for t in dk["targets"]:
+        if t["label"] in spot_labels:
+            fail.append("DARKNESS_HIDES_GOBO_SPOT|%s" % t["label"])
+        if not (0 < t["until"] <= end) or t["range"][0] < 0 or t["range"][1] > end + 1:
+            fail.append("DARKNESS_KEY_OUTSIDE_I2|%s|until=%d|end=%d" % (t["label"], t["until"], end))
+        for f, v in t["keys"]:
+            if not (0 <= int(f) <= end) or not isinstance(v, bool):
+                fail.append("DARKNESS_KEY_OUTSIDE_I2|%s|%r" % (t["label"], [f, v]))
+        if bool_at(t["keys"], fade - 1, t["default"]):
+            fail.append("DARKNESS_NOT_DARK_BEFORE_FADE|%s" % t["label"])
+        if t["binding_name"] in existing_binding_names:
+            fail.append("DARKNESS_BINDING_EXISTS|%s" % t["binding_name"])
+    names = [t["label"] for t in dk["targets"]]
+    if len(names) != len(set(names)):
+        fail.append("DARKNESS_DUPLICATE_TARGETS")
+    return fail
+
+
+def exposure_plan(vols_by_cam, camera_pp_by_cam, keep, end):
+    """Make exposure deterministic at both sleight cameras inside I2: every equal-priority mate of the kept volume, and
+    every volume that covers only ONE of the cameras, gets a BlendWeight 0 track in I2 [0, end] (RESTORE_STATE).
+    Volumes are identified by actor PATH (live 9 Oct: two unbound volumes are both labelled 'PostProcessVolume')."""
+    allv = {}
+    for cam, rows in vols_by_cam.items():
+        for r in rows:
+            allv.setdefault(r["id"], dict(r, cams=[]))["cams"].append(cam)
+    if keep == "SHOW_EV-3":
+        cands = [v for v in allv.values() if v["unbound"] and v.get("enabled", True)
+                 and (v.get("overrides") or {}).get("min_ev") == -3.0 and (v.get("overrides") or {}).get("max_ev") == -3.0]
+        if len(cands) != 1:
+            raise PlanError("EXPOSURE_KEEP_AMBIGUOUS: %d unbound EV100 -3 volumes %r; pass params.exposure_keep=<actor path>"
+                            % (len(cands), sorted(v["id"] for v in cands)))
+        kept = cands[0]
+    else:
+        if keep not in allv:
+            raise PlanError("EXPOSURE_KEEP_NOT_AT_CAMERAS: %r (candidates %r)" % (keep, sorted(allv)))
+        kept = allv[keep]
+    cams = sorted(vols_by_cam)
+    losers = []
+    for v in sorted(allv.values(), key=lambda x: x["id"]):
+        if v["id"] == kept["id"] or not v.get("enabled", True):
+            continue
+        why = []
+        if float(v.get("priority", 0.0)) == float(kept.get("priority", 0.0)):
+            why.append("equal priority %.1f with the kept volume: undefined order (PostProcessVolume.h:30-33)"
+                       % float(v.get("priority", 0.0)))
+        if len(v["cams"]) < len(cams):
+            why.append("covers only %r: the cut changes the volume set (static weight %.2f; a Scene sub-sequence may "
+                       "leave a runtime weight [inf])" % (v["cams"], float(v.get("weight", 0.0))))
+        if why:
+            losers.append({"id": v["id"], "label": v["name"], "why": why, "unbound": v["unbound"],
+                           "priority": v.get("priority"), "overrides": v.get("overrides"), "static_weight": v.get("weight"),
+                           "binding_name": EXPO_PREFIX + v["name"], "range": [0, end + 1],
+                           "keys": [[0, 0.0], [end, 0.0]]})
+    lose = {x["id"] for x in losers}
+    before, after = {}, {}
+    for cam, rows in vols_by_cam.items():
+        before[cam] = effective_exposure(rows, camera_pp_by_cam.get(cam))
+        after[cam] = effective_exposure([dict(r, weight=0.0) if r["id"] in lose else r for r in rows],
+                                        camera_pp_by_cam.get(cam))
+    return {"keep": {"id": kept["id"], "label": kept["name"], "overrides": kept.get("overrides")}, "zero": losers,
+            "model_before": before, "model_after": after,
+            "writes": ["float track BlendWeight/BlendWeight on a NEW possessable '%s' (actor %s): section [0, %d) "
+                       "RESTORE_STATE, keys (0, 0.0) (%d, 0.0) LINEAR" % (x["binding_name"], x["id"], end + 1, end)
+                       for x in losers],
+            "level_write": None}
+
+
+def check_exposure(ex):
+    fail = []
+    cams = sorted(ex["model_after"])
+    for cam in cams:
+        if ex["model_after"][cam]["tie_changes_result"]:
+            fail.append("EXPOSURE_STILL_TIED|%s|%r" % (cam, ex["model_after"][cam]["tie_groups"]))
+    effs = [json.dumps(ex["model_after"][c]["effective"], sort_keys=True, default=str) for c in cams]
+    if len(set(effs)) > 1:
+        fail.append("EXPOSURE_SIDES_DIFFER_AFTER_FIX|%s" % effs)
+    return fail
+
+
+# =====================================================================================================================
 # plan (pure, from plain facts)
 # =====================================================================================================================
+
+def seen_by_camera(r, cam_pose, tan_h, tan_v, far, point, normal, thr, fade):
+    """A light 'is seen' by the held camera if it stands inside the frame in front of the drape face, or lights the
+    framed drape above `thr` lux (estimate [inf]).  Intensity: the I2-keyed max over [0, fade) when keyed, else static."""
+    fwd, right, up = basis(cam_pose["pitch"], cam_pose["yaw"], cam_pose["roll"])
+    d = [float(r["loc"][i]) - float(cam_pose["loc"][i]) for i in range(3)]
+    z = _dot(d, fwd)
+    in_frame = 0.0 < z < far and abs(_dot(d, right)) <= z * tan_h and abs(_dot(d, up)) <= z * tan_v
+    inten = r.get("i2_max_before_fade")
+    lrow = dict(r, intensity=float(inten if inten is not None else (r.get("intensity") or 0.0)))
+    lux = light_lux(lrow, point, normal).get("lux") if lrow.get("effective_visible", True) else 0.0
+    return {"in_frame": in_frame, "lux": lux, "seen": bool(in_frame or (lux is not None and lux >= thr))}
+
+
+def ppv_at(volumes, point):
+    """The volumes covering `point` (unbound, or inside bounds + blend radius), as effective_exposure rows."""
+    out = []
+    for v in volumes:
+        w = float(v.get("weight", 1.0))
+        if not v["unbound"]:
+            o, e = v["origin"], v["extent"]
+            dx = max(abs(point[i] - o[i]) - e[i] for i in range(3))
+            radius = float(v.get("blend_radius") or 0.0)
+            if dx > radius:
+                continue
+            if dx > 0.0 and radius > 0.0:
+                w *= max(0.0, 1.0 - dx / radius)      # [inf] linear blend over BlendRadius
+        out.append({"id": v["id"], "name": v["name"], "unbound": v["unbound"], "priority": v.get("priority", 0.0),
+                    "enabled": v.get("enabled", True), "weight": w, "overrides": v.get("overrides") or {}})
+    return out
+
+
+def cut_boundary(snap, names, held_name):
+    rows = [c for c in snap["cuts"] if c[3] and names.get(c[0]) == held_name]
+    return int(max(c[2] for c in rows)) if rows else int(snap["playback"][1])
+
+
+def fog_proposals(fogs, end, sleight_frame):
+    """Report every height fog; propose (opt-in FIX ACTOR_HIDE) hiding a fog over the hangar half only.  Hiding a
+    global fog changes the mouth side after the cut too, so the proposal restores it at the sleight cut."""
+    out = []
+    for f in fogs:
+        row = dict(f)
+        row["proposal"] = {"id": "FOG-%s" % f["label"], "executable": True, "kind": "ACTOR_HIDE", "opt_in": True,
+                           "fix_step": {"id": "FOG-%s" % f["label"], "kind": "ACTOR_HIDE", "actor_label": f["label"],
+                                        "keys": [[0, False], [int(sleight_frame), True]]},
+                           "why": "after DARKNESS the warm fog can only glow from its own inscattering colour and the "
+                                  "spot; hide it over the hangar half if PIE still shows it lit (Gary wants darkness)",
+                           "needs": "Gary's own yes after a PIE still with DARKNESS applied"}
+        out.append(row)
+    return out
+
 
 def build_plan(facts, p):
     """facts: everything read live, as plain data (see _facts).  Returns (plan, refusals, warnings)."""
@@ -1133,11 +1385,12 @@ def build_plan(facts, p):
     # ---- F16 (b) holds
     cams = facts["cameras"]
     hc = cams[held_name]
-    held_tr = hold_spec(hc["transform"], hc["eval_transform"], h, hold_end)
-    held_lens = {prop: hold_spec(hc["lens"][prop], hc["eval_lens"][prop], h, hold_end) for prop in LENS_PROPS}
-    fails = check_hold(hc["transform"], held_tr, hc["eval_transform"], h, hold_end, p["eval_tol"])
+    hs = p["hold_start"]
+    held_tr = hold_spec(hc["transform"], hc["eval_transform"], h, hold_end, hs)
+    held_lens = {prop: hold_spec(hc["lens"][prop], hc["eval_lens"][prop], h, hold_end, hs) for prop in LENS_PROPS}
+    fails = check_hold(hc["transform"], held_tr, hc["eval_transform"], h, hold_end, p["eval_tol"], hs)
     for prop in LENS_PROPS:
-        fails += check_hold(hc["lens"][prop], held_lens[prop], hc["eval_lens"][prop], h, hold_end, p["eval_tol"])
+        fails += check_hold(hc["lens"][prop], held_lens[prop], hc["eval_lens"][prop], h, hold_end, p["eval_tol"], hs)
     refusals += fails
     rel_pose = pose_from_values(hc["eval_transform"]["values"])
     held_world = compose_attached(hc["parent_frame"], rel_pose) if hc.get("parent_frame") else rel_pose
@@ -1231,6 +1484,49 @@ def build_plan(facts, p):
     rflags, rrows = resize_spot_check(hits, facts["gs_twins"], box, p["spot_tol_cm"])
     flags += rflags
 
+    # ---- 9 Oct: DARKNESS (default ON) and the EXPOSURE TIE fix (default ON)
+    end = int(pb[1])
+    spot_labels = {NAMES["spot_hangar"], NAMES["spot_mouth"]}
+    dk, ex = None, None
+    if p["darkness"]:
+        di = facts["darkness_inputs"]
+        df_ = frames[DRAPE_OF_CAMERA[held_name]]
+        point = to_world(df_, [float(box["x"][0]), 0.0, (float(box["z"][0]) + float(box["z"][1])) / 2.0])
+        normal = rot_z([-1.0, 0.0, 0.0], df_["yaw"])
+        tan_h = float(cam["filmback"][0]) / (2.0 * focal)
+        tan_v = tan_h / (float(cam["aspect"]) if cam["constrain"] else float(p["output_aspect"]))
+        far = cov["held"]["distance_to_face_cm"]
+        actors = {}
+        for label, rows in di["actors"].items():
+            out = []
+            for r in rows:
+                r = dict(r)
+                if r.get("is_light"):
+                    r.update(seen_by_camera(r, held_world, tan_h, tan_v, far, point, normal,
+                                            float(p["darkness_lux_threshold"]), fade))
+                out.append(r)
+            actors[label] = out
+        dk, drf = darkness_plan(di["s2_labels"], actors, di["i2_own"], p["darkness_extra_labels"], spot_labels, p, fade,
+                                dmeta["strike"], end)
+        refusals += drf
+        refusals += check_darkness(dk, spot_labels, fade, end, {b["name"] for b in snap["bindings"]})
+        if dk["missing"]:
+            warnings.append("DARKNESS_MISSING_ACTORS|%s" % json.dumps([m["label"] for m in dk["missing"]]))
+        if dk["streamed_listed"]:
+            warnings.append("DARKNESS_STREAMED_LISTED_NOT_WRITTEN|%s" % json.dumps([m["label"] for m in dk["streamed_listed"]]))
+        dk["fog"] = fog_proposals(facts.get("fogs", []), end, cut_boundary(snap, names, held_name))
+        dk["foreign_source"] = di.get("foreign_source")
+    if p["exposure_fix"]:
+        ei = facts["exposure_inputs"]
+        cam_points = {held_name: held_world["loc"]}
+        if twin:
+            cam_points[twin_name] = twin["pose"]["loc"]
+        vols_by_cam = {c: ppv_at(ei["volumes"], pt) for c, pt in cam_points.items()}
+        ex = exposure_plan(vols_by_cam, {c: ei["camera_pp"].get(c) for c in cam_points}, p["exposure_keep"], end)
+        refusals += check_exposure(ex)
+        if any(z["unbound"] for z in ex["zero"]):
+            warnings.append("EXPOSURE_ZEROES_UNBOUND_VOLUME_IN_I2|%s: anything else driving it (e.g. a runtime exposure "
+                            "trim) is overridden for I2's length" % json.dumps([z["id"] for z in ex["zero"] if z["unbound"]]))
     guids = {"drape": drape["guid"], "held_cam": hc["guid"], "held_cam_comp": hc["comp_guid"]}
     if twin:
         guids.update({"twin_cam": cams[twin_name]["guid"], "twin_cam_comp": cams[twin_name]["comp_guid"]})
@@ -1242,7 +1538,8 @@ def build_plan(facts, p):
             "drape": {"visible_from": v_from, "visible_from_source": v_src, "fade_start": fade, "hung_ref_frame": hung_ref,
                       "hung_pose": hung_pose, "states_now": now_states, "darkness": darkness_info, **dmeta},
             "coverage": cov, "resize_spot": rrows, "flags": flags, "f18": f18, "guids": guids,
-            "owned": sorted(owned_keys_apply(guids, bool(twin))), "writes": writes, "params": p}
+            "owned": sorted(owned_keys_apply(guids, bool(twin))), "writes": writes, "params": p,
+            "hold_start": hs, "darkness": dk, "exposure": ex}
     plan["digest"] = digest({k: v for k, v in plan.items() if k not in ("digest", "params")} | {"params": {k: v for k, v in p.items() if k != "fix_steps"}})
     return plan, refusals, warnings
 
@@ -1419,6 +1716,10 @@ def _channel_row(c):
 def _section_row(cls, s):
     r = [int(s.get_start_frame()) if s.has_start_frame() else None, int(s.get_end_frame()) if s.has_end_frame() else None]
     row = {"range": r, "channels": [_channel_row(c) for c in s.get_all_channels()]}
+    try:
+        row["completion"] = str(s.get_completion_mode()).split(".")[-1].split(":")[0].strip("<> ")  # prec p18_sky_policy.py:221
+    except Exception:  # noqa: BLE001
+        row["completion"] = None
     if cls == "MovieSceneGeometryCacheTrack":
         prm = s.get_editor_property("params")
         row["so"] = int(prm.get_editor_property("start_frame_offset").value)
@@ -1601,6 +1902,74 @@ def _optics(actor):
             "focal_static": _plain(_prop(comp, "current_focal_length"))}
 
 
+def _persistent(actor):
+    """True when the actor lives in the show level (prec KlaraIngest/s2_arrival_strike.py:51-53 _level)."""
+    try:
+        o = actor.get_outer()
+        name = str(o.get_outer().get_name()) if o is not None and o.get_outer() is not None else "?"
+    except Exception:  # noqa: BLE001
+        return False
+    return name == EXPECTED_WORLD.split("/")[-1]
+
+
+def _foreign_dark(run):
+    """LS_DevScene_02 'S2 Arrival Ours Dark:' bindings, READ-ONLY: their labels are the DARKNESS starting set and their
+    rows are a FOREIGN guard (must read back unchanged)."""
+    ue = _ue()
+    seq = ue.load_asset(DEVSCENE_02)
+    if seq is None:
+        _stop(run, "DEVSCENE_02_LOAD")
+    rows = []
+    for b in seq.get_bindings():
+        n = str(b.get_display_name())
+        if n.startswith(FOREIGN_DARK_PREFIX):
+            rows.append({"name": n, "guid": _guid(b.get_id()),
+                         "tracks": sorted((_track_row(t) for t in b.get_tracks()), key=lambda r: (r["class"], r["name"], r["prop"]))})
+    rows.sort(key=lambda r: (r["name"], r["guid"]))
+    return {"sequence": DEVSCENE_02, "count": len(rows), "labels": [r["name"][len(FOREIGN_DARK_PREFIX):] for r in rows],
+            "digest": digest(rows), "rows": rows}
+
+
+def _darkness_inputs(seq, snap, actors, h, fade, run):
+    ue = _ue()
+    foreign = _foreign_dark(run)
+    wanted = set(foreign["labels"])
+    by_binding = {b["name"]: b for b in snap["bindings"]}
+    rows = {}
+    for a in actors:
+        label = str(a.get_actor_label())
+        is_light = isinstance(a, ue.Light)
+        if label not in wanted and not is_light:
+            continue
+        r = {"label": label, "path": str(a.get_path_name()), "persistent": _persistent(a), "is_light": is_light,
+             "tags": [str(t) for t in (a.tags or [])]}
+        if is_light:
+            comp = a.get_component_by_class(ue.LightComponent)
+            loc, rot = a.get_actor_location(), a.get_actor_rotation()
+            r.update({"kind": "spot" if isinstance(a, ue.SpotLight) else ("directional" if isinstance(a, ue.DirectionalLight) else "point"),
+                      "loc": [float(loc.x), float(loc.y), float(loc.z)],
+                      "rot": {"pitch": float(rot.pitch), "yaw": float(rot.yaw), "roll": float(rot.roll)},
+                      "intensity": _plain(_prop(comp, "intensity")) if comp is not None else 0.0,
+                      "units": str(_prop(comp, "intensity_units")) if comp is not None else None,
+                      "radius": _plain(_prop(comp, "attenuation_radius")) if comp is not None else None,
+                      "outer": _plain(_prop(comp, "outer_cone_angle")) if comp is not None else None,
+                      "inner": _plain(_prop(comp, "inner_cone_angle")) if comp is not None else None,
+                      "effective_visible": not bool(_prop(a, "hidden"))})
+            cb = by_binding.get(label + "/LightComponent")
+            if cb:
+                ft = [t for t in cb["tracks"] if t["class"] == "MovieSceneFloatTrack" and t["prop"] == "Intensity"]
+                if len(ft) == 1:
+                    c = ft[0]["sections"][0]["channels"][0]
+                    r["i2_max_before_fade"] = max(interp(c["keys"], f, c["default"] or 0.0) for f in range(0, max(1, fade)))
+        rows.setdefault(label, []).append(r)
+    spots = {NAMES["spot_hangar"], NAMES["spot_mouth"]}
+    i2_own = sorted(b["name"].split("/")[0] for b in snap["bindings"]
+                    if b["name"].endswith("/LightComponent") and b["name"].split("/")[0] not in spots
+                    and b["name"].split("/")[0] in rows and any(x.get("is_light") for x in rows[b["name"].split("/")[0]]))
+    return {"s2_labels": foreign["labels"], "actors": rows, "i2_own": i2_own,
+            "foreign_source": {k: foreign[k] for k in ("sequence", "count", "digest")}, "foreign_digest": foreign["digest"]}
+
+
 def _facts(seq, show, p, run, snap=None):
     ue = _ue()
     snap = snap or _snapshot(seq)
@@ -1677,7 +2046,21 @@ def _facts(seq, show, p, run, snap=None):
     box = sd["inputs"]["cache"]["hang_aabb_cm"]
     gs = _load_json(os.path.join(cc, REF["gs_dry"]), required=True)
     gs_twins = gs["plan"]["twins"]
-    return {"snapshot": snap, "segments": segs, "cameras": cams, "camera_optics": optics,
+    dark_in = _darkness_inputs(seq, snap, actors, h, fade, run)
+    expo_in = {"volumes": _ppv_all(actors), "camera_pp": {n: _camera_pp(by_label[n][0]) for n in CAMERAS}}
+    fogs = []
+    for a in actors:
+        if a.get_class().get_name() == "ExponentialHeightFog":
+            comp = a.get_component_by_class(ue.ExponentialHeightFogComponent) if hasattr(ue, "ExponentialHeightFogComponent") else None
+            row = {"label": str(a.get_actor_label()), "path": str(a.get_path_name())}
+            for prop in ("fog_density", "fog_height_falloff", "fog_max_opacity", "start_distance", "volumetric_fog",
+                         "volumetric_fog_extinction_scale"):
+                row[prop] = _plain(_prop(comp, prop)) if comp is not None else None
+            col = _prop(comp, "fog_inscattering_luminance") if comp is not None else None
+            row["inscattering_luminance"] = None if col is None else [float(col.r), float(col.g), float(col.b)]
+            fogs.append(row)
+    return {"darkness_inputs": dark_in, "exposure_inputs": expo_in, "fogs": fogs,
+            "snapshot": snap, "segments": segs, "cameras": cams, "camera_optics": optics,
             "drape": {"guid": _guid(db.get_id()), "specs": specs, "hung_ref_frame": hung_ref, "eval_hung": eval_hung,
                       "gc_window_ticks": gc_window},
             "mouth_drape_frame": mouth_frame, "mouth_drape_gc": _spec_of(mgc[0]), "spot_poses": spot_poses,
@@ -1763,25 +2146,25 @@ def _spawned_spot_rows(snap, frame):
     return out
 
 
-def _ppv_rows(actors, point):
+def _ppv_all(actors):
+    """Every PostProcessVolume, identified by actor PATH (live 9 Oct: two unbound volumes share the label)."""
     ue = _ue()
     rows = []
     for v in actors:
         if not isinstance(v, ue.PostProcessVolume):
             continue
-        unbound = bool(_prop(v, "unbound"))
         o, e = v.get_actor_bounds(False)
-        radius = float(_prop(v, "blend_radius") or 0.0)
-        dx = max(abs(point[0] - o.x) - e.x, abs(point[1] - o.y) - e.y, abs(point[2] - o.z) - e.z)
-        if not unbound and dx > radius:
-            continue
-        weight = float(_prop(v, "blend_weight") if _prop(v, "blend_weight") is not None else 1.0)
-        if not unbound and dx > 0.0 and radius > 0.0:
-            weight *= max(0.0, 1.0 - dx / radius)       # [inf] linear blend over BlendRadius
-        st = _prop(v, "settings")
-        rows.append({"name": str(v.get_actor_label()), "unbound": unbound, "priority": float(_prop(v, "priority") or 0.0),
-                     "enabled": bool(_prop(v, "enabled")), "weight": weight, "overrides": _pp_overrides(st)})
+        bw = _prop(v, "blend_weight")
+        rows.append({"id": str(v.get_path_name()), "name": str(v.get_actor_label()), "unbound": bool(_prop(v, "unbound")),
+                     "priority": float(_prop(v, "priority") or 0.0), "enabled": bool(_prop(v, "enabled")),
+                     "weight": float(bw if bw is not None else 1.0), "blend_radius": float(_prop(v, "blend_radius") or 0.0),
+                     "origin": [float(o.x), float(o.y), float(o.z)], "extent": [float(e.x), float(e.y), float(e.z)],
+                     "overrides": _pp_overrides(_prop(v, "settings"))})
     return rows
+
+
+def _ppv_rows(actors, point):
+    return ppv_at(_ppv_all(actors), point)
 
 
 def _pp_overrides(st):
@@ -1857,7 +2240,8 @@ def _lighting(seq, snap, facts, plan, run):
         lights = [L for L in lights if L["kind"] == "directional" or not L.get("radius") or math.dist(L["loc"], point) < float(L["radius"])]
         vols = _ppv_rows(actors, pose["loc"])
         ex = effective_exposure(vols, _camera_pp(by_label[cam][0]))
-        ex["unbound"] = {v["name"]: v["unbound"] for v in vols}
+        ex["unbound"] = {v["id"]: v["unbound"] for v in vols}
+        ex["rows"] = vols
         return {"camera": cam, "frame": frame, "pose": pose, "drape": DRAPE_OF_CAMERA[cam], "point": point,
                 "light": side_summary(lights, point, normal), "exposure": ex,
                 "fog": _fog_rows(actors, pose["loc"], point)}
@@ -2140,6 +2524,34 @@ def _print_dry(run, rep, out):
              % (MARK, run, f["release_frame"], f["fall_end_frame"], f["new_end_frame"], f["cut_s"],
                 json.dumps({k: len(v) for k, v in rep["f18_past_end"].items() if isinstance(v, list)}, sort_keys=True),
                 (rep.get("f18_extend_prediction") or {}).get("will_refuse")))
+    dk = pl.get("darkness")
+    if dk:
+        groups = {}
+        for t in dk["targets"]:
+            groups.setdefault("%s<%d" % (t["group"], t["until"]), []).append(t["label"])
+        fs = dk.get("foreign_source") or {}
+        _log("%s_DARKNESS|run=%s|source=%s '%s' count=%s digest=%s|targets=%d|groups=%s|missing=%s|streamed_listed=%s|"
+             "directional_report=%s|prefix='%s'|vis=bHidden/bHidden TRUE=VISIBLE|completion=RESTORE_STATE"
+             % (MARK, run, fs.get("sequence"), FOREIGN_DARK_PREFIX, fs.get("count"), fs.get("digest"), len(dk["targets"]),
+                json.dumps({k: len(v) for k, v in sorted(groups.items())}), json.dumps([m["label"] for m in dk["missing"]]),
+                json.dumps([m["label"] for m in dk["streamed_listed"]]), json.dumps([m["label"] for m in dk["directional_report"]]),
+                DARK_PREFIX))
+        for g, labels in sorted(groups.items()):
+            if not g.startswith("S2_HANGAR"):
+                _log("%s_DARKNESS_GROUP|run=%s|%s|%s" % (MARK, run, g, json.dumps(labels)))
+        for f in dk.get("fog", []):
+            _log("%s_FOG|run=%s|%s|density=%s|inscattering=%s|proposal=%s (opt-in FIX)" % (
+                MARK, run, f["label"], f.get("fog_density"), f.get("inscattering_luminance"), f["proposal"]["id"]))
+    ex = pl.get("exposure")
+    if ex:
+        _log("%s_EXPOSURE|run=%s|keep=%s (%s %s)|zero=%s|ties_after=%s|sides_equal_after=%d|writes=%d LS-only|level_write=none"
+             % (MARK, run, ex["keep"]["id"], ex["keep"]["label"], json.dumps(ex["keep"]["overrides"], sort_keys=True),
+                json.dumps([[z["id"], z["label"]] for z in ex["zero"]]),
+                json.dumps({c: m["tie_changes_result"] for c, m in ex["model_after"].items()}),
+                int(len({json.dumps(m["effective"], sort_keys=True, default=str) for m in ex["model_after"].values()}) == 1),
+                len(ex["writes"])))
+        for w in ex["writes"]:
+            _log("%s_EXPOSURE_WRITE|run=%s|%s" % (MARK, run, w))
     for g, h in rep["guards"].items():
         _log("%s_GUARD|run=%s|%s=%s" % (MARK, run, g, h))
     for t in rep["refusals"]:
@@ -2165,12 +2577,118 @@ def run_dry(run, p, confirm):
     if _census() != {"content": [], "maps": []}:
         _stop(run, "DRY_DIRTIED|%s" % json.dumps(_census()))
     _print_dry(run, rep, out)
-    _log("%s_DRY_OK|run=%s|mutated=0|apply_ready=%d|refusals=%d|warnings=%d|flags=%d|H=%d|visible_from=%d|fade=%d|fills=%d|N=%s|digest=%s|report=%s"
+    _log("%s_DRY_OK|run=%s|mutated=0|apply_ready=%d|refusals=%d|warnings=%d|flags=%d|H=%d|hold_start=%s|dark=%d|exposure_zero=%d|visible_from=%d|fade=%d|fills=%d|N=%s|digest=%s|report=%s"
          % (MARK, run, int(rep["apply_ready"]), len(rep["refusals"]), len(rep["warnings"]), len(rep["flags"]),
-            rep["plan"]["hold_frame"], rep["plan"]["drape"]["visible_from"], rep["plan"]["drape"]["fade_start"],
+            rep["plan"]["hold_frame"], rep["plan"]["hold_start"], len((rep["plan"].get("darkness") or {}).get("targets") or []),
+            len((rep["plan"].get("exposure") or {}).get("zero") or []), rep["plan"]["drape"]["visible_from"], rep["plan"]["drape"]["fade_start"],
             int(rep["plan"]["coverage"]["held"]["fills_frame"]), (rep["plan"].get("f18") or {}).get("new_end_frame"),
             rep["plan_digest"], out))
     return rep
+
+
+def created_specs(plan):
+    """Every binding APPLY creates (DARKNESS + EXPOSURE), as the exact track it must read back as."""
+    out = []
+    for t in ((plan.get("darkness") or {}).get("targets") or []):
+        out.append({"kind": "DARK", "binding_name": t["binding_name"], "actor_path": t["path"],
+                    "track": {"class": "MovieSceneVisibilityTrack", "prop": "bHidden", "path": "bHidden", "name": DARK_TRACK,
+                              "range": t["range"], "default": False, "keys": t["keys"], "completion": "RESTORE_STATE"}})
+    for z in ((plan.get("exposure") or {}).get("zero") or []):
+        out.append({"kind": "EXPOSURE", "binding_name": z["binding_name"], "actor_path": z["id"],
+                    "track": {"class": "MovieSceneFloatTrack", "prop": "BlendWeight", "path": "BlendWeight", "name": EXPO_TRACK,
+                              "range": z["range"], "default": None, "keys": z["keys"], "completion": "RESTORE_STATE"}})
+    return out
+
+
+def check_created(snapshot, created, specs):
+    """created: [{"guid","binding_name"}] in spec order.  Read-back of every created binding/track."""
+    fail = []
+    by = {b["guid"]: b for b in snapshot["bindings"]}
+    if len(created) != len(specs):
+        return ["CREATED_COUNT|%d!=%d" % (len(created), len(specs))]
+    for c, sp in zip(created, specs):
+        b = by.get(c["guid"])
+        if b is None:
+            fail.append("CREATED_MISSING|%s" % sp["binding_name"])
+            continue
+        if b["name"] != sp["binding_name"] or not b["name"].startswith((DARK_PREFIX, EXPO_PREFIX)):
+            fail.append("CREATED_NAME|%r" % b["name"])
+        tr = b["tracks"]
+        want = sp["track"]
+        if len(tr) != 1:
+            fail.append("CREATED_TRACK_COUNT|%s|%d" % (b["name"], len(tr)))
+            continue
+        t = tr[0]
+        if t["class"] == "MovieSceneVisibilityTrack" and t["prop"] != "bHidden":
+            fail.append("VIS_TRACK_PROPERTY_NOT_bHidden|%s|%r" % (b["name"], t["prop"]))
+        if (t["class"], t["prop"], t["path"], t["name"]) != (want["class"], want["prop"], want["path"], want["name"]):
+            fail.append("CREATED_TRACK|%s|%r" % (b["name"], (t["class"], t["prop"], t["path"], t["name"])))
+        if len(t["sections"]) != 1:
+            fail.append("CREATED_SECTIONS|%s" % b["name"])
+            continue
+        sec = t["sections"][0]
+        if list(sec["range"]) != list(want["range"]):
+            fail.append("CREATED_RANGE|%s|%r!=%r" % (b["name"], sec["range"], want["range"]))
+        if sec.get("completion") not in (None, want["completion"]):
+            fail.append("CREATED_COMPLETION|%s|%r" % (b["name"], sec.get("completion")))
+        ch = sec["channels"][0]
+        if want["default"] is not None and ch["default"] != want["default"]:
+            fail.append("CREATED_DEFAULT|%s|%r" % (b["name"], ch["default"]))
+        got = [[int(f), v] for f, v in ch["keys"]]
+        if len(got) != len(want["keys"]) or any(int(a[0]) != int(w[0]) or (a[1] != w[1] if isinstance(w[1], bool)
+                                                 else abs(float(a[1]) - float(w[1])) > 1e-6) for a, w in zip(got, want["keys"])):
+            fail.append("CREATED_KEYS|%s|%r!=%r" % (b["name"], got, want["keys"]))
+    return fail
+
+
+def _create_all(seq, plan, run):
+    ue = _ue()
+    by_path = {}
+    for a in _actors():
+        by_path.setdefault(str(a.get_path_name()), []).append(a)
+    created = []
+    for sp in created_specs(plan):
+        rows = by_path.get(sp["actor_path"], [])
+        if len(rows) != 1:
+            _stop(run, "CREATE_ACTOR|%s|%d|NOTHING SAVED; Don't-Save restart" % (sp["actor_path"], len(rows)))
+        b = seq.add_possessable(rows[0])
+        if b is None or not b.is_valid():
+            _stop(run, "CREATE_BINDING|%s|NOTHING SAVED; Don't-Save restart" % sp["binding_name"])
+        b.set_display_name(sp["binding_name"])
+        created.append({"guid": _guid(b.get_id()), "binding_name": sp["binding_name"]})
+        w = sp["track"]
+        t = b.add_track(getattr(ue, w["class"]))
+        if t is None:
+            _stop(run, "CREATE_TRACK|%s|NOTHING SAVED; Don't-Save restart" % sp["binding_name"])
+        t.set_property_name_and_path(w["prop"], w["path"])   # visibility: bHidden/bHidden, TRUE = VISIBLE (never bHiddenInGame)
+        t.set_display_name(w["name"])
+        sec = t.add_section()
+        sec.set_range(int(w["range"][0]), int(w["range"][1]))
+        sec.set_completion_mode(ue.MovieSceneCompletionMode.RESTORE_STATE)   # prec s2_arrival_strike.py:77
+        ch = sec.get_all_channels()[0]
+        if w["default"] is not None:
+            ch.set_default(w["default"])
+        for f, v in w["keys"]:
+            if isinstance(v, bool):
+                ch.add_key(ue.FrameNumber(int(f)), bool(v), time_unit=ue.MovieSceneTimeUnit.DISPLAY_RATE)
+            else:
+                ch.add_key(ue.FrameNumber(int(f)), float(v), time_unit=ue.MovieSceneTimeUnit.DISPLAY_RATE,
+                           interpolation=ue.MovieSceneKeyInterpolation.LINEAR)
+    return created
+
+
+def _remove_created(seq, created, run):
+    for c in reversed(created):
+        if not c["binding_name"].startswith((DARK_PREFIX, EXPO_PREFIX)):
+            _stop(run, "REFUSE_REMOVE_FOREIGN|%s" % c["binding_name"])
+        rows = [b for b in seq.get_bindings() if _guid(b.get_id()) == c["guid"]]
+        if len(rows) != 1 or str(rows[0].get_display_name()) != c["binding_name"]:
+            _stop(run, "CREATED_BINDING_DRIFT|%s|NOTHING SAVED; Don't-Save restart" % c["binding_name"])
+        rows[0].remove()
+
+
+def _foreign_digest(run):
+    return _foreign_dark(run)["digest"]
 
 
 def run_apply(run, p, confirm):
@@ -2185,8 +2703,9 @@ def run_apply(run, p, confirm):
     if rep["refusals"]:
         _stop(run, "PLAN_REFUSED|%s" % json.dumps(rep["refusals"]))
     pf = _load_json(os.path.join(here, PLAN_FILE)) or {}
-    if pf.get("plan_digest") != rep["plan_digest"]:
-        _stop(run, "PLAN_CHANGED_SINCE_DRY|dry=%s|now=%s|rerun DRY" % (pf.get("plan_digest"), rep["plan_digest"]))
+    if pf.get("plan_digest") != rep["plan_digest"] or pf.get("inputs_digest") != rep["inputs_digest"]:
+        _stop(run, "PLAN_CHANGED_SINCE_DRY|dry=%s/%s|now=%s/%s|rerun DRY" % (pf.get("plan_digest"), pf.get("inputs_digest"),
+                                                                           rep["plan_digest"], rep["inputs_digest"]))
     plan = rep["plan"]
     originals = _owned_specs_live(seq, plan, run)
     backup, copied = _backup(run, "I2Order")
@@ -2197,11 +2716,19 @@ def run_apply(run, p, confirm):
         _write_json(rp, record, exclusive=True)
     except FileExistsError:
         _stop(run, "RECORD_EXISTS|nothing mutated")
+    foreign0 = _foreign_digest(run)
     _apply_writes(seq, plan, run)
+    created = _create_all(seq, plan, run)
+    record["created"] = created
+    _write_json(rp, record)
+    cguids = [c["guid"] for c in created]
     after = _snapshot(seq)
     owned = set(plan["owned"])
-    problems = untouched_diff(before, after, owned)
+    problems = untouched_diff(before, after, owned, cguids)
     problems += _cmp_specs(_owned_specs_live(seq, plan, run), plan["writes"])
+    problems += check_created(after, created, created_specs(plan))
+    if _foreign_digest(run) != foreign0:
+        problems.append("FOREIGN_S2_ARRIVAL_BINDINGS_CHANGED")
     if guard_hashes(after) != record["guards_before"]:
         problems.append("GUARD_CHANGED|before=%r|after=%r" % (record["guards_before"], guard_hashes(after)))
     problems += _post_checks(seq, plan, run)
@@ -2210,7 +2737,10 @@ def run_apply(run, p, confirm):
     _save_ls(run)
     seq = _ue().load_asset(SEQ_PATH)
     after2 = _snapshot(seq)
-    problems = untouched_diff(before, after2, owned) + _cmp_specs(_owned_specs_live(seq, plan, run), plan["writes"])
+    problems = untouched_diff(before, after2, owned, cguids) + _cmp_specs(_owned_specs_live(seq, plan, run), plan["writes"])
+    problems += check_created(after2, created, created_specs(plan))
+    if _foreign_digest(run) != foreign0:
+        problems.append("FOREIGN_S2_ARRIVAL_BINDINGS_CHANGED_AFTER_SAVE")
     if json.dumps(after2, sort_keys=True, default=str) != json.dumps(after, sort_keys=True, default=str):
         problems.append("POSTSAVE_SNAPSHOT_DIFFERS")
     if guard_hashes(after2) != record["guards_before"]:
@@ -2219,12 +2749,14 @@ def run_apply(run, p, confirm):
     if problems:
         _stop(run, "READBACK_FAILED_AFTER_SAVE|%s|restore from %s" % (json.dumps(problems[:12]), backup))
     record.update({"applied": True, "snapshot_after": after2, "guards_after": guard_hashes(after2),
-                   "owned_after": _owned_specs_live(seq, plan, run), "census_after": _census()})
+                   "owned_after": _owned_specs_live(seq, plan, run), "census_after": _census(), "foreign_digest": foreign0})
     _write_json(rp, record)
-    _log("%s_APPLY_OK|run=%s|H=%d|hold_end=%d|held=%s|twin=%s|visible_from=%d|fade=%d|fills=%d|guards=unchanged|saved=%s|backup=%s|record=%s"
-         % (MARK, run, plan["hold_frame"], plan["hold_end"], plan["held_camera"], (plan["writes"]["twin"] or {}).get("name"),
-            plan["drape"]["visible_from"], plan["drape"]["fade_start"], int(plan["coverage"]["held"]["fills_frame"]),
-            SEQ_PATH, backup, rp))
+    nd = len([c for c in created if c["binding_name"].startswith(DARK_PREFIX)])
+    _log("%s_APPLY_OK|run=%s|H=%d|hold=[%s,%d]|held=%s|twin=%s|visible_from=%d|fade=%d|fills=%d|dark_bindings=%d|exposure_bindings=%d|"
+         "foreign=unchanged|guards=unchanged|saved=%s|backup=%s|record=%s"
+         % (MARK, run, plan["hold_frame"], plan["hold_start"], plan["hold_end"], plan["held_camera"],
+            (plan["writes"]["twin"] or {}).get("name"), plan["drape"]["visible_from"], plan["drape"]["fade_start"],
+            int(plan["coverage"]["held"]["fills_frame"]), nd, len(created) - nd, SEQ_PATH, backup, rp))
     return record
 
 
@@ -2245,6 +2777,9 @@ def run_verify(run, p, confirm):
     if guard_hashes(live) != rec["guards_before"]:
         problems.append("GUARD_CHANGED_SINCE_APPLY")
     problems += _post_checks(seq, plan, run)
+    problems += check_created(live, rec.get("created", []), created_specs(plan))
+    if rec.get("foreign_digest") and _foreign_digest(run) != rec["foreign_digest"]:
+        problems.append("FOREIGN_S2_ARRIVAL_BINDINGS_CHANGED_SINCE_APPLY")
     if _census() != {"content": [], "maps": []}:
         problems.append("VERIFY_DIRTIED")
     if problems:
@@ -2273,9 +2808,14 @@ def run_revert(run, p, confirm):
     txn = os.path.join(here, "i2_order_revert_%s.json" % run)
     _write_json(txn, {"run": run, "backup": backup, "backup_files": [copied], "source_record": rp,
                       "snapshot_before_revert": live}, exclusive=True)
+    foreign0 = _foreign_digest(run)
+    seq.modify()
+    _remove_created(seq, rec.get("created", []), run)
     _apply_writes(seq, plan, run, originals=rec["originals"])
     after = _snapshot(seq)
     problems = untouched_diff(rec["snapshot_before"], after, set())
+    if _foreign_digest(run) != foreign0:
+        problems.append("FOREIGN_S2_ARRIVAL_BINDINGS_CHANGED")
     problems += _cmp_specs(_owned_specs_live(seq, plan, run), rec["originals"])
     if guard_hashes(after) != rec["guards_before"]:
         problems.append("GUARD_CHANGED")
