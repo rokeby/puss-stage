@@ -1,0 +1,6 @@
+{
+  "name": "ExecuteProjectPythonFile",
+  "arguments": {
+    "relative_path": "CodexConductor/P52BChainPendulum_20261009/chain_pendulum_run.py"
+  }
+}

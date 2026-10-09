@@ -1,0 +1,20 @@
+{
+  "mode": "DRY",
+  "confirm": null,
+  "passage_label": "Passage 1",
+  "chain_json": "chandelier_chain_v1_fixture.json",
+  "link_actor_labels": ["Chandelier Chain Link 00", "Chandelier Chain Link 01", "Chandelier Chain Link 02"],
+  "body_actor_label": "Chandelier Body",
+  "damping_ratio": 0.1,
+  "fixed_step_hz": 240.0,
+  "idle_yaw_degrees": 0.0,
+  "idle_pitch_degrees": 0.0,
+  "idle_period_seconds": 7.0,
+  "idle_phase_cycles": 0.0,
+  "max_angle_degrees": 35.0,
+  "decimation_error_degrees": 0.08,
+  "null_link_mass_ratio": 0.05,
+  "stability_guard": "refuse",
+  "max_angular_velocity_degrees_s": 360.0,
+  "allow_dirty": []
+}

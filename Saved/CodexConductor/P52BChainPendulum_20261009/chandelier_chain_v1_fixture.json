@@ -1,0 +1,10 @@
+{
+  "count": 3,
+  "length_cm": 300.0,
+  "links": [
+    {"index": 0, "pivot_cm": [0.0, 0.0, 0.0], "length_cm": 100.0, "mass_kg": null},
+    {"index": 1, "pivot_cm": [0.0, 0.0, -100.0], "length_cm": 100.0, "mass_kg": null},
+    {"index": 2, "pivot_cm": [0.0, 0.0, -200.0], "length_cm": 100.0, "mass_kg": null}
+  ],
+  "body": {"attach_cm": [0.0, 0.0, -300.0], "mass_kg": 12.0}
+}
