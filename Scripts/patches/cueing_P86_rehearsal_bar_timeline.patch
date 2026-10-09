@@ -1,0 +1,877 @@
+warning: in the working copy of 'Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp', LF will be replaced by CRLF the next time Git touches it
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp
+index d2e80827..48a90bf3 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp
+@@ -3,9 +3,12 @@
+ #include "HAL/IConsoleManager.h"
+ #include "InfinityStageTransportController.h"
+ #include "InfinityStageRehearsalBar.h"
++#include "InfinityStageShowAsset.h"
++#include "InfinityStageShowRoot.h"
+ #include "InfinityStageVideoFallback.h"
+ #include "Engine/GameViewportClient.h"
+ #include "Engine/World.h"
++#include "EngineUtils.h"
+ #include "GameFramework/PlayerController.h"
+ #include "Widgets/SBoxPanel.h"
+ #include "Misc/FileHelper.h"
+@@ -33,7 +36,7 @@ FString Clean(const FString& Cell)
+     return Out;
+ }
+ 
+-enum class ERole : uint8 { None, Number, Light, SoundTech, Action, SoundCue, VideoCue, Speaker, Beat, Notes,
++enum class ERole : uint8 { None, Number, Light, SoundTech, Action, SoundCue, VideoCue, Speaker, Beat, Notes, At,
+     DogAction, DogMode, Treadmill };
+ 
+ ERole RoleOf(const FString& Header, const int32 Column)
+@@ -47,11 +50,68 @@ ERole RoleOf(const FString& Header, const int32 Column)
+     if (H.StartsWith(TEXT("speaker"))) { return ERole::Speaker; }
+     if (H.StartsWith(TEXT("beat"))) { return ERole::Beat; }
+     if (H.StartsWith(TEXT("note"))) { return ERole::Notes; }
++    if (H == TEXT("at")) { return ERole::At; }
+     if (H == TEXT("dog action")) { return ERole::DogAction; }
+     if (H == TEXT("dog mode")) { return ERole::DogMode; }
+     if (H == TEXT("treadmill")) { return ERole::Treadmill; }
+     return Column == 0 ? ERole::Number : ERole::None;
+ }
++
++bool ParseP86CueTime(const FString& Text, double& OutSeconds)
++{
++    TArray<FString> Fields;
++    Text.TrimStartAndEnd().ParseIntoArray(Fields, TEXT(":"), false);
++    if (Fields.Num() < 1 || Fields.Num() > 4)
++    {
++        return false;
++    }
++    TArray<double> Values;
++    for (const FString& Field : Fields)
++    {
++        FString Trimmed = Field.TrimStartAndEnd();
++        if (Trimmed.StartsWith(TEXT("+")))
++        {
++            Trimmed.RightChopInline(1);
++        }
++        bool bSawDigit = false;
++        bool bSawDot = false;
++        for (const TCHAR Char : Trimmed)
++        {
++            if (FChar::IsDigit(Char))
++            {
++                bSawDigit = true;
++            }
++            else if (Char == TEXT('.') && !bSawDot)
++            {
++                bSawDot = true;
++            }
++            else
++            {
++                return false;
++            }
++        }
++        double Value = 0.0;
++        if (!bSawDigit || !LexTryParseString(Value, *Trimmed))
++        {
++            return false;
++        }
++        Values.Add(Value);
++    }
++    switch (Values.Num())
++    {
++    case 1: OutSeconds = Values[0]; break;
++    case 2: OutSeconds = Values[0] * 60.0 + Values[1]; break;
++    case 3: OutSeconds = Values[0] * 3600.0 + Values[1] * 60.0 + Values[2]; break;
++    default:
++        if (Values[3] >= 25.0)
++        {
++            return false;
++        }
++        OutSeconds = Values[0] * 3600.0 + Values[1] * 60.0 + Values[2] + Values[3] / 25.0;
++        break;
++    }
++    return FMath::IsFinite(OutSeconds);
++}
+ }
+ 
+ bool FInfinityCueSheetRow::IsBlank() const
+@@ -63,7 +123,7 @@ bool FInfinityCueSheetRow::HasContent() const
+ {
+     return !Light.IsEmpty() || !SoundTech.IsEmpty() || !Action.IsEmpty() || !SoundCue.IsEmpty()
+         || !Beat.IsEmpty() || !Notes.IsEmpty() || !Lines.IsEmpty() || !VideoCue.IsEmpty()
+-        || !DogAction.IsEmpty() || !DogMode.IsEmpty() || !Treadmill.IsEmpty();
++        || !DogAction.IsEmpty() || !DogMode.IsEmpty() || !Treadmill.IsEmpty() || bHasAtTime;
+ }
+ 
+ void FInfinityCueSheet::ParseCsv(const FString& Text, TArray<TArray<FString>>& OutTable)
+@@ -215,6 +275,16 @@ bool FInfinityCueSheet::LoadFromCsvText(const FString& Text)
+             case ERole::VideoCue: Row.VideoCue = Value; break;
+             case ERole::Beat: Row.Beat = Value; break;
+             case ERole::Notes: Row.Notes = Value; break;
++            case ERole::At:
++                if (ParseP86CueTime(Value, Row.AtSeconds))
++                {
++                    Row.bHasAtTime = true;
++                }
++                else
++                {
++                    Warnings.Add(FString::Printf(TEXT("row %d: At \"%s\" is not a time; timing ignored"), Row.SourceRow, *Value));
++                }
++                break;
+             case ERole::Speaker: Row.Lines.Add({SpeakerOfColumn[C], Value}); break;
+             case ERole::DogAction: Row.DogAction = Value; break;
+             case ERole::DogMode: Row.DogMode = Value; break;
+@@ -631,13 +701,32 @@ bool UInfinityStageCueDirectorSubsystem::Reload()
+ 
+ void UInfinityStageCueDirectorSubsystem::StepLine(const int32 Delta)
+ {
+-    for (int32 Step = 0; Step < FMath::Abs(Delta); ++Step)
++    UInfinityStageTransportController* Transport = UInfinityStageTransportController::FindForWorld(GetWorld());
++    double TicksPerSecond = 0.0;
++    if (Transport)
+     {
+-        if (!(Delta > 0 ? Cursor.Next(Sheet) : Cursor.Prev(Sheet)))
++        for (TActorIterator<AInfinityStageShowRoot> It(GetWorld()); It; ++It)
+         {
+-            break;
++            if (It->Transport == Transport && It->ShowAsset && It->ShowAsset->TickResolution.IsValid())
++            {
++                TicksPerSecond = It->ShowAsset->TickResolution.AsDecimal();
++                break;
++            }
+         }
+     }
+-    UE_LOG(LogInfinityStageCueSheet, Log, TEXT("INFINITY_CUESHEET_CURSOR row=%d sheet_row=%d"),
+-        Cursor.Row, Sheet.Rows.IsValidIndex(Cursor.Row) ? Sheet.Rows[Cursor.Row].SourceRow : -1);
++    const TArray<FInfinityTransportSegment> EmptySegments;
++    const TArray<FInfinityTransportSegment>& Segments = Transport ? Transport->Segments : EmptySegments;
++    const InfinityStageRehearsal::FScriptStepPlan Plan = InfinityStageRehearsal::PlanScriptStep(
++        Cursor, Sheet, Delta, Segments, TicksPerSecond);
++    EInfinityTransportResult ScrubResult = EInfinityTransportResult::Succeeded;
++    if (Transport && Plan.ScrubFrame.IsSet())
++    {
++        ScrubResult = Transport->ScrubToMasterFrame(Plan.ScrubFrame.GetValue());
++    }
++    UE_LOG(LogInfinityStageCueSheet, Log, TEXT("INFINITY_CUESHEET_CURSOR row=%d sheet_row=%d timed=%d frame=%d scrub_result=%d"),
++        Cursor.Row,
++        Sheet.Rows.IsValidIndex(Cursor.Row) ? Sheet.Rows[Cursor.Row].SourceRow : -1,
++        Plan.ScrubFrame.IsSet() ? 1 : 0,
++        Plan.ScrubFrame.IsSet() ? Plan.ScrubFrame.GetValue().Value : -1,
++        static_cast<int32>(ScrubResult));
+ }
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp
+index a0a4682f..63008962 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp
+@@ -9,13 +9,16 @@
+ #include "InfinityStageShowRoot.h"
+ #include "InfinityStageSurtitles.h"
+ #include "InfinityStageTransportController.h"
++#include "InputCoreTypes.h"
++#include "Rendering/DrawElements.h"
+ #include "Styling/CoreStyle.h"
+ #include "Framework/MultiBox/MultiBoxBuilder.h"
+ #include "Widgets/Input/SButton.h"
+ #include "Widgets/Input/SComboButton.h"
+-#include "Widgets/Input/SSlider.h"
+ #include "Widgets/Layout/SBorder.h"
++#include "Widgets/Layout/SBox.h"
+ #include "Widgets/SBoxPanel.h"
++#include "Widgets/SLeafWidget.h"
+ #include "Widgets/Text/STextBlock.h"
+ 
+ #define LOCTEXT_NAMESPACE "InfinityStageRehearsalBar"
+@@ -68,6 +71,110 @@ FInfinityNextStop NextStop(
+     return Stop;
+ }
+ 
++FScriptStepPlan PlanScriptStep(
++    FInfinityScriptCursor& Cursor,
++    const FInfinityCueSheet& Sheet,
++    const int32 Delta,
++    const TArray<FInfinityTransportSegment>& Segments,
++    const double TicksPerSecond)
++{
++    FScriptStepPlan Plan;
++    for (int32 Step = 0; Step < FMath::Abs(Delta); ++Step)
++    {
++        if (!(Delta > 0 ? Cursor.Next(Sheet) : Cursor.Prev(Sheet)))
++        {
++            break;
++        }
++        Plan.bMoved = true;
++    }
++    if (!Plan.bMoved || !Sheet.Rows.IsValidIndex(Cursor.Row))
++    {
++        return Plan;
++    }
++    const FInfinityCueSheetRow& Row = Sheet.Rows[Cursor.Row];
++    int32 SegmentIndex = InfinityStageSurtitles::ResolveSegment(Row.Segment, Segments);
++    if (SegmentIndex == INDEX_NONE && Segments.IsValidIndex(Row.SegmentOrdinal))
++    {
++        SegmentIndex = Row.SegmentOrdinal;
++    }
++    if (!Row.bHasAtTime || !Segments.IsValidIndex(SegmentIndex) || TicksPerSecond <= 0.0)
++    {
++        return Plan;
++    }
++    const FInfinityTransportSegment& Segment = Segments[SegmentIndex];
++    const int32 Length = FMath::Max(1, (Segment.EndFrame - Segment.StartFrame).Value);
++    const int32 Offset = FMath::Clamp(FMath::RoundToInt32(Row.AtSeconds * TicksPerSecond), 0, Length - 1);
++    Plan.ScrubFrame = Segment.StartFrame + FFrameNumber(Offset);
++    return Plan;
++}
++
++TArray<FInfinityRehearsalMarker> LayoutMarkers(
++    const FInfinityCueSheet& Sheet,
++    const FInfinitySurtitleScript& Surtitles,
++    const TArray<FInfinityTransportSegment>& Segments,
++    const TArray<FInfinityGoCue>& GoCues,
++    const int32 SegmentIndex,
++    const double TicksPerSecond)
++{
++    TArray<FInfinityRehearsalMarker> Markers;
++    if (!Segments.IsValidIndex(SegmentIndex) || TicksPerSecond <= 0.0)
++    {
++        return Markers;
++    }
++    const FInfinityTransportSegment& Segment = Segments[SegmentIndex];
++    const int32 LengthFrames = FMath::Max(1, (Segment.EndFrame - Segment.StartFrame).Value);
++    const double LengthSeconds = LengthFrames / TicksPerSecond;
++    const auto FractionFromSeconds = [LengthSeconds](const double Seconds)
++    {
++        return static_cast<float>(FMath::Clamp(Seconds / LengthSeconds, 0.0, 1.0));
++    };
++    const auto FractionFromFrame = [&Segment, LengthFrames](const FFrameNumber Frame)
++    {
++        return FMath::Clamp(static_cast<float>((Frame - Segment.StartFrame).Value) / LengthFrames, 0.0f, 1.0f);
++    };
++
++    for (const FInfinityCueSheetRow& Row : Sheet.Rows)
++    {
++        int32 RowSegment = InfinityStageSurtitles::ResolveSegment(Row.Segment, Segments);
++        if (RowSegment == INDEX_NONE && Segments.IsValidIndex(Row.SegmentOrdinal))
++        {
++            RowSegment = Row.SegmentOrdinal;
++        }
++        if (Row.bHasAtTime && RowSegment == SegmentIndex)
++        {
++            const float At = FractionFromSeconds(Row.AtSeconds);
++            Markers.Add({EInfinityRehearsalMarkerKind::Script, At, At});
++        }
++    }
++    for (int32 LineIndex = 0; LineIndex < Surtitles.Lines.Num(); ++LineIndex)
++    {
++        const FInfinitySurtitleLine& Line = Surtitles.Lines[LineIndex];
++        if (!InfinityStageSurtitles::LineMatchesSegment(Line, Segments, SegmentIndex))
++        {
++            continue;
++        }
++        const float Start = FractionFromSeconds(Line.InSeconds);
++        const float End = FractionFromSeconds(InfinityStageSurtitles::EffectiveOut(
++            Surtitles, LineIndex, Segments, SegmentIndex, TicksPerSecond));
++        Markers.Add({EInfinityRehearsalMarkerKind::Surtitle, Start, FMath::Max(Start, End)});
++    }
++    for (const FInfinityGoCue& Cue : GoCues)
++    {
++        if (Cue.Frame >= Segment.StartFrame && Cue.Frame < Segment.EndFrame)
++        {
++            const float At = FractionFromFrame(Cue.Frame);
++            Markers.Add({EInfinityRehearsalMarkerKind::Go, At, At});
++        }
++    }
++    Markers.Sort([](const FInfinityRehearsalMarker& A, const FInfinityRehearsalMarker& B)
++    {
++        return A.StartFraction == B.StartFraction
++            ? static_cast<uint8>(A.Kind) < static_cast<uint8>(B.Kind)
++            : A.StartFraction < B.StartFraction;
++    });
++    return Markers;
++}
++
+ bool Gather(UWorld* World, FInfinityRehearsalState& Out)
+ {
+     Out = FInfinityRehearsalState();
+@@ -117,6 +224,17 @@ bool Gather(UWorld* World, FInfinityRehearsalState& Out)
+             Out.NextStop = FString::Printf(TEXT("%s in %s"), *Stop.Label,
+                 *Clock(FMath::Max(0.0, (Stop.Frame - Now).Value / TicksPerSecond)));
+         }
++        const FInfinityCueSheet EmptySheet;
++        const FInfinitySurtitleScript EmptySurtitles;
++        const UInfinityStageCueDirectorSubsystem* CueDirector = World->GetSubsystem<UInfinityStageCueDirectorSubsystem>();
++        const UInfinityStageSurtitleSubsystem* Surtitles = World->GetSubsystem<UInfinityStageSurtitleSubsystem>();
++        Out.Markers = LayoutMarkers(
++            CueDirector ? CueDirector->GetSheet() : EmptySheet,
++            Surtitles ? Surtitles->GetScript() : EmptySurtitles,
++            Transport->Segments,
++            Transport->GoCues,
++            HudState.SegmentIndex,
++            TicksPerSecond);
+     }
+ 
+     FString SheetCue;
+@@ -290,6 +408,120 @@ FString DescribeSurtitle(UWorld* World)
+ }
+ }
+ 
++namespace
++{
++DECLARE_DELEGATE_OneParam(FP86OnTimelineScrub, float);
++
++/** P86's compact sequencer-like strip. It owns no clock; every drag calls the existing Master scrub path. */
++class SP86InfinityStageTimelineStrip final : public SLeafWidget
++{
++public:
++    SLATE_BEGIN_ARGS(SP86InfinityStageTimelineStrip) {}
++        SLATE_ATTRIBUTE(float, Fraction)
++        SLATE_ATTRIBUTE(TArray<FInfinityRehearsalMarker>, Markers)
++        SLATE_EVENT(FP86OnTimelineScrub, OnScrub)
++    SLATE_END_ARGS()
++
++    void Construct(const FArguments& InArgs)
++    {
++        Fraction = InArgs._Fraction;
++        Markers = InArgs._Markers;
++        OnScrub = InArgs._OnScrub;
++    }
++
++    virtual FVector2D ComputeDesiredSize(float) const override { return FVector2D(640.0f, 54.0f); }
++
++    virtual int32 OnPaint(
++        const FPaintArgs& Args,
++        const FGeometry& AllottedGeometry,
++        const FSlateRect& CullingRect,
++        FSlateWindowElementList& OutDrawElements,
++        int32 LayerId,
++        const FWidgetStyle& WidgetStyle,
++        bool bParentEnabled) const override
++    {
++        const FVector2D Size = AllottedGeometry.GetLocalSize();
++        const FSlateBrush* White = FCoreStyle::Get().GetBrush("GenericWhiteBox");
++        const ESlateDrawEffect Effects = ESlateDrawEffect::None;
++        FSlateDrawElement::MakeBox(OutDrawElements, LayerId,
++            AllottedGeometry.ToPaintGeometry(Size, FSlateLayoutTransform()), White, Effects,
++            FLinearColor(0.055f, 0.065f, 0.085f, 1.0f));
++
++        const TArray<FInfinityRehearsalMarker> CurrentMarkers = Markers.Get();
++        for (const FInfinityRehearsalMarker& Marker : CurrentMarkers)
++        {
++            const float X = FMath::Clamp(Marker.StartFraction, 0.0f, 1.0f) * Size.X;
++            FVector2D MarkSize(2.0f, 15.0f);
++            FVector2D MarkPos(X - 1.0f, 3.0f);
++            FLinearColor Colour(1.0f, 0.72f, 0.20f, 0.95f); // script At
++            if (Marker.Kind == EInfinityRehearsalMarkerKind::Surtitle)
++            {
++                MarkPos = FVector2D(X, Size.Y - 13.0f);
++                MarkSize = FVector2D(FMath::Max(2.0f,
++                    (FMath::Clamp(Marker.EndFraction, Marker.StartFraction, 1.0f) - Marker.StartFraction) * Size.X), 8.0f);
++                Colour = FLinearColor(0.25f, 0.72f, 1.0f, 0.80f);
++            }
++            else if (Marker.Kind == EInfinityRehearsalMarkerKind::Go)
++            {
++                MarkPos = FVector2D(X - 1.5f, 20.0f);
++                MarkSize = FVector2D(3.0f, 18.0f);
++                Colour = FLinearColor(0.35f, 1.0f, 0.48f, 0.95f);
++            }
++            FSlateDrawElement::MakeBox(OutDrawElements, LayerId + 1,
++                AllottedGeometry.ToPaintGeometry(MarkSize, FSlateLayoutTransform(MarkPos)), White, Effects, Colour);
++        }
++
++        const float PlayheadX = FMath::Clamp(Fraction.Get(0.0f), 0.0f, 1.0f) * Size.X;
++        FSlateDrawElement::MakeBox(OutDrawElements, LayerId + 2,
++            AllottedGeometry.ToPaintGeometry(FVector2D(6.0f, Size.Y),
++                FSlateLayoutTransform(FVector2D(PlayheadX - 3.0f, 0.0f))),
++            White, Effects, FLinearColor(1.0f, 0.25f, 0.18f, 1.0f));
++        return LayerId + 2;
++    }
++
++    virtual FReply OnMouseButtonDown(const FGeometry& Geometry, const FPointerEvent& Event) override
++    {
++        if (Event.GetEffectingButton() != EKeys::LeftMouseButton)
++        {
++            return FReply::Unhandled();
++        }
++        Scrub(Geometry, Event);
++        return FReply::Handled().CaptureMouse(SharedThis(this));
++    }
++
++    virtual FReply OnMouseMove(const FGeometry& Geometry, const FPointerEvent& Event) override
++    {
++        if (!HasMouseCapture())
++        {
++            return FReply::Unhandled();
++        }
++        Scrub(Geometry, Event);
++        return FReply::Handled();
++    }
++
++    virtual FReply OnMouseButtonUp(const FGeometry& Geometry, const FPointerEvent& Event) override
++    {
++        if (!HasMouseCapture() || Event.GetEffectingButton() != EKeys::LeftMouseButton)
++        {
++            return FReply::Unhandled();
++        }
++        Scrub(Geometry, Event);
++        return FReply::Handled().ReleaseMouseCapture();
++    }
++
++private:
++    void Scrub(const FGeometry& Geometry, const FPointerEvent& Event) const
++    {
++        const float Width = FMath::Max(1.0f, Geometry.GetLocalSize().X);
++        OnScrub.ExecuteIfBound(FMath::Clamp(Geometry.AbsoluteToLocal(Event.GetScreenSpacePosition()).X / Width, 0.0f, 1.0f));
++    }
++
++    TAttribute<float> Fraction;
++    TAttribute<TArray<FInfinityRehearsalMarker>> Markers;
++    FP86OnTimelineScrub OnScrub;
++};
++}
++
+ const FInfinityRehearsalState& SInfinityStageRehearsalBar::State() const
+ {
+     // Gathered once per engine frame however many text bindings ask.
+@@ -345,15 +577,6 @@ void SInfinityStageRehearsalBar::Construct(const FArguments& InArgs)
+             [
+                 SNew(SHorizontalBox)
+                 + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("Back", "< Back"), LOCTEXT("BackTip", "Previous segment / shot (LEFT)"), ECommand::Back) ]
+-                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)
+-                [
+-                    SNew(SButton)
+-                    .IsFocusable(false)
+-                    .Text_Lambda([this]() { return State().bPlaying ? LOCTEXT("Pause", "|| Pause") : LOCTEXT("Play", "> Play"); })
+-                    .ToolTipText(LOCTEXT("PlayTip", "Play / pause (Space)"))
+-                    .IsEnabled_Lambda([this]() { return State().bHasShow; })
+-                    .OnClicked_Lambda([this]() { Command(GetWorldFn ? GetWorldFn() : nullptr, ECommand::PlayPause); return FReply::Handled(); })
+-                ]
+                 + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("Go", "GO >"), LOCTEXT("GoTip", "GO: release a hold, else advance (RIGHT)"), ECommand::Go) ]
+                 + SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center).Padding(12.0f, 0.0f)
+                 [
+@@ -409,13 +632,28 @@ void SInfinityStageRehearsalBar::Construct(const FArguments& InArgs)
+                 ]
+                 + SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center).Padding(8.0f, 0.0f)
+                 [
+-                    // Scrub through the current Passage or Scene. One clock: the Master evaluates the Scene.
+-                    SNew(SSlider)
+-                    .IsFocusable(false)
+-                    .ToolTipText(LOCTEXT("ScrubTip", "Scrub through the current Passage / Scene (pauses). Hold the Scene 3 lock off with Rehearsal Transport."))
++                    // One clock: this strip drags the Master, which evaluates nested Scenes. Scene 3's lock still applies.
++                    SNew(SP86InfinityStageTimelineStrip)
++                    .ToolTipText(LOCTEXT("ScrubTip", "Drag the playhead through this Passage / Scene (pauses). Hold the Scene 3 lock off with Rehearsal Transport."))
+                     .IsEnabled_Lambda([this]() { return State().bHasShow; })
+-                    .Value_Lambda([this]() { return State().CueFraction; })
+-                    .OnValueChanged_Lambda([this](const float Value) { ScrubCurrentSegment(GetWorldFn ? GetWorldFn() : nullptr, Value); })
++                    .Fraction_Lambda([this]() { return State().CueFraction; })
++                    .Markers_Lambda([this]() { return State().Markers; })
++                    .OnScrub(FP86OnTimelineScrub::CreateLambda([this](const float Value)
++                    {
++                        ScrubCurrentSegment(GetWorldFn ? GetWorldFn() : nullptr, Value);
++                    }))
++                ]
++                + SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Fill).Padding(4.0f, 0.0f)
++                [
++                    SNew(SBox).WidthOverride(130.0f).MinDesiredHeight(54.0f)
++                    [
++                        SNew(SButton)
++                        .IsFocusable(false)
++                        .Text_Lambda([this]() { return State().bPlaying ? LOCTEXT("Pause", "||  PAUSE") : LOCTEXT("Play", ">  PLAY"); })
++                        .ToolTipText(LOCTEXT("PlayTip", "Play / pause (Space)"))
++                        .IsEnabled_Lambda([this]() { return State().bHasShow; })
++                        .OnClicked_Lambda([this]() { Command(GetWorldFn ? GetWorldFn() : nullptr, ECommand::PlayPause); return FReply::Handled(); })
++                    ]
+                 ]
+             ]
+             + SVerticalBox::Slot().AutoHeight().Padding(0.0f, 3.0f, 0.0f, 0.0f)
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+index 35f018b5..972ba769 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+@@ -146,7 +146,8 @@ void AInfinityStageShowPlayerController::PlayerTick(const float DeltaTime)
+     Super::PlayerTick(DeltaTime);
+     UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
+     const float Threshold = Transport ? Transport->HoldThresholdSeconds : 0.30f;
+-    ApplyHoldRightAction(HoldRightState.Tick(DeltaTime, Threshold));
++    const float LongHold = Transport ? Transport->LongHoldSeconds : 5.0f;
++    ApplyHoldRightAction(HoldRightState.Tick(DeltaTime, Threshold, LongHold));
+     ApplyHoldLeftAction(HoldLeftState.Tick(DeltaTime, Threshold));
+ }
+ 
+@@ -236,6 +237,13 @@ void AInfinityStageShowPlayerController::ApplyHoldRightAction(const EInfinityHol
+         ReportTransportResult(this, Result);
+         return;
+     }
++    if (Action == EInfinityHoldRightAction::BeginLongHoldFastForward)
++    {
++        ReportTransportResult(this, Transport
++            ? Transport->BeginLongHoldFastForward()
++            : EInfinityTransportResult::NoPlayer);
++        return;
++    }
+ 
+     const bool bWasPlaying = Action == EInfinityHoldRightAction::EndFastForwardPlaying;
+     ReportTransportResult(this, Transport
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+index 9bbf7088..26e91e40 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+@@ -611,19 +611,30 @@ void FInfinityHoldRightState::Press(const bool bInWasPlaying)
+ 
+ EInfinityHoldRightAction FInfinityHoldRightState::Tick(
+     const float DeltaSeconds,
+-    const float HoldThresholdSeconds)
++    const float HoldThresholdSeconds,
++    const float LongHoldSeconds)
+ {
+-    if (!bPressed || bThresholdReached)
++    if (!bPressed)
+     {
+         return EInfinityHoldRightAction::None;
+     }
+     HeldSeconds += FMath::Max(0.0f, DeltaSeconds);
+-    if (HeldSeconds < FMath::Max(0.0f, HoldThresholdSeconds))
++    if (!bThresholdReached)
+     {
+-        return EInfinityHoldRightAction::None;
++        if (HeldSeconds < FMath::Max(0.0f, HoldThresholdSeconds))
++        {
++            return EInfinityHoldRightAction::None;
++        }
++        bThresholdReached = true;
++        return EInfinityHoldRightAction::BeginFastForward;
+     }
+-    bThresholdReached = true;
+-    return EInfinityHoldRightAction::BeginFastForward;
++    if (bFastForwardActive && !bLongHoldReached
++        && HeldSeconds >= FMath::Max(HoldThresholdSeconds, LongHoldSeconds))
++    {
++        bLongHoldReached = true;
++        return EInfinityHoldRightAction::BeginLongHoldFastForward;
++    }
++    return EInfinityHoldRightAction::None;
+ }
+ 
+ void FInfinityHoldRightState::ResolveFastForwardStart(const EInfinityTransportResult Result)
+@@ -661,6 +672,7 @@ void FInfinityHoldRightState::Reset()
+     bPressed = false;
+     bThresholdReached = false;
+     bFastForwardActive = false;
++    bLongHoldReached = false;
+     bWasPlaying = false;
+     HeldSeconds = 0.0f;
+ }
+@@ -1559,6 +1571,18 @@ EInfinityTransportResult UInfinityStageTransportController::BeginFastForward()
+     return PlayForwardThroughBoundaries();
+ }
+ 
++EInfinityTransportResult UInfinityStageTransportController::BeginLongHoldFastForward()
++{
++    if (!Player || !bFastForwardActive)
++    {
++        return LastResult = EInfinityTransportResult::NoPlayer;
++    }
++    const float Rate = FMath::Max(1.0f, LongHoldFastForwardRate);
++    SetManagedMasterAudioMuted(!FMath::IsNearlyEqual(Rate, 1.0f));
++    Player->SetPlayRate(Rate);
++    return LastResult = EInfinityTransportResult::Succeeded;
++}
++
+ EInfinityTransportResult UInfinityStageTransportController::EndFastForward(const bool bWasPlaying)
+ {
+     if (SeamDiagOn())
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h
+index 3f4d4325..72195acd 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h
+@@ -37,6 +37,9 @@ struct INFINITYSTAGE_API FInfinityCueSheetRow
+     FString VideoCue;
+     FString Beat;
+     FString Notes;
++    /** Cue Book `At`, in seconds from this row's segment start. False when blank/absent/invalid. */
++    bool bHasAtTime = false;
++    double AtSeconds = 0.0;
+     /** Cue-specific physical direction; mode/treadmill are operator directions, never telemetry. */
+     FString DogAction;
+     FString DogMode;
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h
+index 8e32f74b..6b594d15 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h
+@@ -6,6 +6,25 @@
+ class UWorld;
+ struct FInfinityTransportSegment;
+ struct FInfinityGoCue;
++struct FInfinityCueSheet;
++struct FInfinityScriptCursor;
++struct FInfinitySurtitleScript;
++
++enum class EInfinityRehearsalMarkerKind : uint8
++{
++    Script,
++    Surtitle,
++    Go
++};
++
++/** One normalized mark on the current-segment rehearsal strip. */
++struct INFINITYSTAGE_API FInfinityRehearsalMarker
++{
++    EInfinityRehearsalMarkerKind Kind = EInfinityRehearsalMarkerKind::Script;
++    float StartFraction = 0.0f;
++    /** Same as StartFraction for an instant; greater for a surtitle span. */
++    float EndFraction = 0.0f;
++};
+ 
+ /**
+  * Rehearsal bar (Gary, 8 Oct): "clarity around what cue we are on, cue timing and show timing,
+@@ -31,6 +50,7 @@ struct INFINITYSTAGE_API FInfinityRehearsalState
+     bool bRunThrough = false;
+     /** 0..1 position in the current segment (the scrub slider). */
+     float CueFraction = 0.0f;
++    TArray<FInfinityRehearsalMarker> Markers;
+ };
+ 
+ struct INFINITYSTAGE_API FInfinityNextStop
+@@ -43,6 +63,29 @@ struct INFINITYSTAGE_API FInfinityNextStop
+ 
+ namespace InfinityStageRehearsal
+ {
++struct INFINITYSTAGE_API FScriptStepPlan
++{
++    bool bMoved = false;
++    TOptional<FFrameNumber> ScrubFrame;
++};
++
++/** Pure: advances the script cursor and, for a timed row, returns its absolute Master frame. */
++INFINITYSTAGE_API FScriptStepPlan PlanScriptStep(
++    FInfinityScriptCursor& Cursor,
++    const FInfinityCueSheet& Sheet,
++    int32 Delta,
++    const TArray<FInfinityTransportSegment>& Segments,
++    double TicksPerSecond);
++
++/** Pure marker layout for the current segment. All output fractions are clamped to 0..1. */
++INFINITYSTAGE_API TArray<FInfinityRehearsalMarker> LayoutMarkers(
++    const FInfinityCueSheet& Sheet,
++    const FInfinitySurtitleScript& Surtitles,
++    const TArray<FInfinityTransportSegment>& Segments,
++    const TArray<FInfinityGoCue>& GoCues,
++    int32 SegmentIndex,
++    double TicksPerSecond);
++
+ /**
+  * Pure: where the show will next wait for GO from Now. Run-through: the next ticked "stop after"
+  * segment's end, or a kept GO hold, whichever comes first (the show end otherwise). Without
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
+index a1dbcd84..21beaa66 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
+@@ -103,6 +103,7 @@ enum class EInfinityHoldRightAction : uint8
+     None,
+     Advance,
+     BeginFastForward,
++    BeginLongHoldFastForward,
+     EndFastForwardPlaying,
+     EndFastForwardHeld
+ };
+@@ -117,11 +118,12 @@ struct INFINITYSTAGE_API FInfinityHoldRightState
+     bool bPressed = false;
+     bool bThresholdReached = false;
+     bool bFastForwardActive = false;
++    bool bLongHoldReached = false;
+     bool bWasPlaying = false;
+     float HeldSeconds = 0.0f;
+ 
+     void Press(bool bInWasPlaying);
+-    EInfinityHoldRightAction Tick(float DeltaSeconds, float HoldThresholdSeconds);
++    EInfinityHoldRightAction Tick(float DeltaSeconds, float HoldThresholdSeconds, float LongHoldSeconds = TNumericLimits<float>::Max());
+     void ResolveFastForwardStart(EInfinityTransportResult Result);
+     EInfinityHoldRightAction Release();
+     void Reset();
+@@ -611,6 +613,16 @@ public:
+         meta = (ClampMin = "1.0", UIMax = "8.0"))
+     float FastForwardRate = 4.0f;
+ 
++    /** Right Arrow rate after it has remained down for LongHoldSeconds. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
++        meta = (ClampMin = "1.0", UIMax = "16.0"))
++    float LongHoldFastForwardRate = 8.0f;
++
++    /** Continuous Right Arrow hold duration, measured from key-down, before the faster rate. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
++        meta = (ClampMin = "0.0", Units = "s"))
++    float LongHoldSeconds = 5.0f;
++
+     /** Continuous reverse Master playback rate while Left Arrow is held past the
+      * threshold (Gary, 6 Oct: "Left button hold should take us backwards the same
+      * way right takes us fastforward"). A shorter Left press keeps Previous. */
+@@ -776,6 +788,9 @@ public:
+     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+     EInfinityTransportResult BeginFastForward();
+ 
++    /** While a successful fast-forward hold is active, changes it to LongHoldFastForwardRate. */
++    EInfinityTransportResult BeginLongHoldFastForward();
++
+     /** Restores 1x and either resumes or holds according to the pre-hold state. */
+     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+     EInfinityTransportResult EndFastForward(bool bWasPlaying);
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp
+index 8b694d13..eda70236 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp
+@@ -1,5 +1,7 @@
+ #include "InfinityStageRehearsalBar.h"
++#include "InfinityStageCueSheet.h"
+ #include "InfinityStageShowTrims.h"
++#include "InfinityStageSurtitles.h"
+ #include "InfinityStageTransportController.h"
+ #include "Misc/AutomationTest.h"
+ 
+@@ -168,4 +170,143 @@ bool FInfinityStageSurtitleButtonsTest::RunTest(const FString& Parameters)
+     return true;
+ }
+ 
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageP86AtParsingTest,
++    "InfinityStage.Rehearsal.P86.AtParsing",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageP86AtParsingTest::RunTest(const FString& Parameters)
++{
++    const FString TimedCsv =
++        TEXT(",Light,Video Cue,Speaker,At\n")
++        TEXT(",,,Klara,\n")
++        TEXT(",up,Passage 1,,1:02.5\n")
++        TEXT(",,,,00:00:03:12\n")
++        TEXT(",,,bad row,1e3\n");
++    FInfinityCueSheet Timed;
++    TestTrue(TEXT("At sheet loads"), Timed.LoadFromCsvText(TimedCsv));
++    TestEqual(TEXT("valid m:ss time is retained"), Timed.Rows[0].AtSeconds, 62.5);
++    TestTrue(TEXT("valid time is marked present"), Timed.Rows[0].bHasAtTime);
++    TestTrue(TEXT("At-only rows are retained for stepping and ticks"), Timed.Rows[1].bHasAtTime);
++    TestTrue(TEXT("25 fps timecode matches Cue Book validation"), FMath::IsNearlyEqual(Timed.Rows[1].AtSeconds, 3.48));
++    TestFalse(TEXT("bad At is ignored"), Timed.Rows[2].bHasAtTime);
++    TestEqual(TEXT("bad At produces exactly one warning"), Timed.Warnings.Num(), 1);
++
++    FInfinityCueSheet NoAt;
++    TestTrue(TEXT("control: a sheet with no At column still loads"),
++        NoAt.LoadFromCsvText(TEXT(",Light,Speaker\n,,Klara\n,up,line\n")));
++    TestEqual(TEXT("control: absent At column produces no warning"), NoAt.Warnings.Num(), 0);
++    TestFalse(TEXT("control: absent At leaves the row untimed"), NoAt.Rows[0].bHasAtTime);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageP86ScriptStepTest,
++    "InfinityStage.Rehearsal.P86.ScriptStepScrubsTimedRows",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageP86ScriptStepTest::RunTest(const FString& Parameters)
++{
++    FInfinityCueSheet Sheet;
++    Sheet.Rows.SetNum(3);
++    for (FInfinityCueSheetRow& Row : Sheet.Rows)
++    {
++        Row.Action = TEXT("step");
++        Row.SegmentOrdinal = 0;
++    }
++    Sheet.Rows[1].bHasAtTime = true;
++    Sheet.Rows[1].AtSeconds = 2.5;
++    FInfinityScriptCursor Cursor;
++    TArray<FInfinityTransportSegment> Segments = FourSegments();
++    Segments[0].StartFrame = 1000;
++    Segments[0].EndFrame = 2000;
++
++    InfinityStageRehearsal::FScriptStepPlan Plan = InfinityStageRehearsal::PlanScriptStep(Cursor, Sheet, 1, Segments, 100.0);
++    TestTrue(TEXT("timed row moves the cursor"), Plan.bMoved && Cursor.Row == 1);
++    TestTrue(TEXT("timed row requests a scrub"), Plan.ScrubFrame.IsSet());
++    TestEqual(TEXT("At is relative to segment start"), Plan.ScrubFrame.Get(FFrameNumber(-1)), FFrameNumber(1250));
++
++    Plan = InfinityStageRehearsal::PlanScriptStep(Cursor, Sheet, 1, Segments, 100.0);
++    TestTrue(TEXT("untimed row still moves the pointer"), Plan.bMoved && Cursor.Row == 2);
++    TestFalse(TEXT("untimed row leaves the playhead alone"), Plan.ScrubFrame.IsSet());
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageP86DragMappingTest,
++    "InfinityStage.Rehearsal.P86.DragMapsFractionToFrame",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageP86DragMappingTest::RunTest(const FString& Parameters)
++{
++    using InfinityStageRehearsal::FrameAtFraction;
++    TestEqual(TEXT("drag at start"), FrameAtFraction(1000, 2000, 0.0f), FFrameNumber(1000));
++    TestEqual(TEXT("drag in middle"), FrameAtFraction(1000, 2000, 0.25f), FFrameNumber(1250));
++    TestEqual(TEXT("negative control: end cannot spill into next segment"), FrameAtFraction(1000, 2000, 1.0f), FFrameNumber(1999));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageP86MarkerLayoutTest,
++    "InfinityStage.Rehearsal.P86.MarkerLayout",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageP86MarkerLayoutTest::RunTest(const FString& Parameters)
++{
++    TArray<FInfinityTransportSegment> Segments = FourSegments();
++    Segments[0].StartFrame = 1000;
++    Segments[0].EndFrame = 2000;
++    FInfinityCueSheet Sheet;
++    FInfinityCueSheetRow& Row = Sheet.Rows.AddDefaulted_GetRef();
++    Row.bHasAtTime = true;
++    Row.AtSeconds = 2.5;
++    Row.SegmentOrdinal = 0;
++    FInfinitySurtitleScript Surtitles;
++    FInfinitySurtitleLine& Line = Surtitles.Lines.AddDefaulted_GetRef();
++    Line.Segment = TEXT("Seg0");
++    Line.InSeconds = 2.0;
++    Line.OutSeconds = 4.0;
++    TArray<FInfinityGoCue> Gos;
++    Gos.AddDefaulted_GetRef().Frame = 1500;
++
++    const TArray<FInfinityRehearsalMarker> Marks = InfinityStageRehearsal::LayoutMarkers(
++        Sheet, Surtitles, Segments, Gos, 0, 100.0);
++    TestEqual(TEXT("script, surtitle and GO are all laid out"), Marks.Num(), 3);
++    const FInfinityRehearsalMarker* Script = Marks.FindByPredicate([](const FInfinityRehearsalMarker& Mark) { return Mark.Kind == EInfinityRehearsalMarkerKind::Script; });
++    const FInfinityRehearsalMarker* Surtitle = Marks.FindByPredicate([](const FInfinityRehearsalMarker& Mark) { return Mark.Kind == EInfinityRehearsalMarkerKind::Surtitle; });
++    const FInfinityRehearsalMarker* Go = Marks.FindByPredicate([](const FInfinityRehearsalMarker& Mark) { return Mark.Kind == EInfinityRehearsalMarkerKind::Go; });
++    TestTrue(TEXT("script tick is at 25%"), Script && FMath::IsNearlyEqual(Script->StartFraction, 0.25f));
++    TestTrue(TEXT("surtitle is a 20%-40% span"), Surtitle && FMath::IsNearlyEqual(Surtitle->StartFraction, 0.2f)
++        && FMath::IsNearlyEqual(Surtitle->EndFraction, 0.4f));
++    TestTrue(TEXT("GO tick is at 50%"), Go && FMath::IsNearlyEqual(Go->StartFraction, 0.5f));
++    TestTrue(TEXT("negative control: invalid segment yields no markers"),
++        InfinityStageRehearsal::LayoutMarkers(Sheet, Surtitles, Segments, Gos, 99, 100.0).IsEmpty());
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageP86LongHoldFastForwardTest,
++    "InfinityStage.Rehearsal.P86.LongHoldFastForward",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageP86LongHoldFastForwardTest::RunTest(const FString& Parameters)
++{
++    FInfinityHoldRightState Hold;
++    Hold.Press(false);
++    TestEqual(TEXT("4x begins at the ordinary threshold"), Hold.Tick(0.30f, 0.30f, 5.0f), EInfinityHoldRightAction::BeginFastForward);
++    Hold.ResolveFastForwardStart(EInfinityTransportResult::Succeeded);
++    TestEqual(TEXT("still 4x before five seconds"), Hold.Tick(4.69f, 0.30f, 5.0f), EInfinityHoldRightAction::None);
++    TestEqual(TEXT("8x begins after five continuous seconds"), Hold.Tick(0.02f, 0.30f, 5.0f), EInfinityHoldRightAction::BeginLongHoldFastForward);
++    TestEqual(TEXT("release uses today's held-release path"), Hold.Release(), EInfinityHoldRightAction::EndFastForwardHeld);
++    TestEqual(TEXT("release resets the machine"), Hold.Tick(10.0f, 0.30f, 5.0f), EInfinityHoldRightAction::None);
++
++    FInfinityHoldRightState Refused;
++    Refused.Press(true);
++    TestEqual(TEXT("negative control reaches the ordinary hold"), Refused.Tick(0.30f, 0.30f, 5.0f), EInfinityHoldRightAction::BeginFastForward);
++    Refused.ResolveFastForwardStart(EInfinityTransportResult::UnsafeExternalClock);
++    TestEqual(TEXT("negative control: refused 4x never escalates"), Refused.Tick(10.0f, 0.30f, 5.0f), EInfinityHoldRightAction::None);
++    TestEqual(TEXT("refused hold stays consumed on release"), Refused.Release(), EInfinityHoldRightAction::None);
++    return true;
++}
++
+ #endif
