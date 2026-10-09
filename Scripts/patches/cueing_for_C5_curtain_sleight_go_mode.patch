@@ -1,0 +1,53 @@
+--- a/Saved/CodexConductor/curtain_sleight.py	2026-10-08 23:06:34.155100500 -0400
++++ b/Saved/CodexConductor/curtain_sleight.py	2026-10-08 23:12:20.683177400 -0400
+@@ -130,6 +130,7 @@
+     "lantern_fit": 0.98,
+     "go_number": None,              # None = "<N>0"; Cueing owns the numbering (cue_list_tool.py lints duplicates)
+     "go_label": "curtain",
++    "go_mode": "HOLD",              # "HOLD" waits for Klara's GO; "PASS" plays straight through (Gary's I2 note, 9 Oct)
+     "match_tol_cm": 0.5, "match_tol_deg": 0.05,
+     "card_material": CARD_MATERIAL,
+     "allow_long_scene": False,      # B: the Scene must be back at its content end first
+@@ -563,7 +564,11 @@
+                    "fall_end": fall_row[1], "pile": pile}
+ 
+     go_number = str(p["go_number"]) if p["go_number"] is not None else "%d0" % n
+-    go_label = "GO %s %s" % (go_number, p["go_label"])
++    go_mode = str(p.get("go_mode", "HOLD")).upper()
++    if go_mode not in ("HOLD", "PASS"):
++        raise ValueError("go_mode must be HOLD or PASS, got %r" % p.get("go_mode"))
++    # HOLD stays implicit (the label every record already has); PASS is written out, the transport's default being HOLD.
++    go_label = "GO %s %s" % (go_number, p["go_label"]) if go_mode == "HOLD" else "GO %s PASS %s" % (go_number, p["go_label"])
+     markers = [(MARKER_PREFIX + "wide", 0), (MARKER_PREFIX + "curtain in", f["fly0"]),
+                (MARKER_PREFIX + "curtain hung", f["fly1"]), (MARKER_PREFIX + "play start", f["play0"]),
+                (MARKER_PREFIX + "fold start", f["fold0"]), (MARKER_PREFIX + "fold end", f["fold1"]),
+@@ -594,7 +599,7 @@
+         "drape_cache": drape_cache,
+         "cuts":[{"camera": "hangar_camera", "range": [0, f["sleight"]]},
+                  {"camera": "mouth_camera", "range": [f["sleight"], new_end]}],
+-        "markers": markers, "go": [go_label, f["release"]],
++        "markers": markers, "go": [go_label, f["release"]], "go_mode": go_mode,
+         "lens": {"matched_focal_mm": focal_matched, "matched_focus_cm": focus_matched, "filmback_mm": film,
+                  "wide_focal_mm": focal_wide, "wide_focus_cm": focus_wide},
+         "cam_rel_drape": cam_rel,
+@@ -729,8 +734,9 @@
+     # 5. the GO hold
+     go_label, go_frame = plan["go"]
+     parsed = parse_go_label(go_label)
+-    if parsed is None or parsed[2] == 0:
+-        fail.append("GO_PARSE: %r is not a HOLD GO for the transport parser" % go_label)
++    want_pass = str(plan.get("go_mode", "HOLD")).upper() == "PASS"   # the mode ASKED for, not read off the label
++    if parsed is None or (parsed[2] == 0) != want_pass:
++        fail.append("GO_PARSE: %r does not parse as the %s GO it was built as" % (go_label, "PASS" if want_pass else "HOLD"))
+     if go_frame < f["play1"]:
+         fail.append("GO_BEFORE_PLAY_END: GO at %d, shadow play ends at %d (a HOLD freezes the puppets)" % (go_frame, f["play1"]))
+     if go_frame != plan["mouth_drape"]["hold"][1] or plan["mouth_drape"]["fall"][0] != go_frame:
+@@ -852,7 +858,7 @@
+         refusals.append("SCENE_STILL_LONG: Scene %d ends at %d, content end %d (option B: shorten it first with "
+                         "extend_scene_playback.py new_end_frame=%d)" % (inputs["n"], scene["live_end"],
+                                                                        scene["content_end"], scene["content_end"]))
+-    if inputs.get("external_sound", "").upper().find("UNPAUSABLE") >= 0:
++    if inputs.get("external_sound", "").upper().find("UNPAUSABLE") >= 0 and str(p.get("go_mode", "HOLD")).upper() == "HOLD":
+         refusals.append("GO_WOULD_BE_DEMOTED: the Interaction cue is DeclaredUnpausable (.cpp:958-981)")
+     if inputs.get("walkin_tracks"):
+         refusals.append("WALKIN_PRESENT: %r (revert_walkin_i1_p02.py first; the sleight keys its own walk)"
