@@ -1,0 +1,17 @@
+{
+  "mode": "DRY",
+  "confirm": "DRY S1RIGFADE",
+  "run_id": "S1RIGFADE-SET-UNIQUE-ID",
+  "params": {
+    "review_time_seconds": 224.0,
+    "scene_local_switch_frame": 282,
+    "search_radius_frames": 20,
+    "fade_seconds": 1.52,
+    "min_fade_seconds": 1.0,
+    "max_fade_seconds": 2.0,
+    "value_tolerance": 0.0001,
+    "bulb_prefix": "S1 Lattice Bulb ",
+    "glow_prefix": "S1 Lattice Glow "
+  }
+}
+

@@ -1,0 +1,87 @@
+{
+  "passed": 20,
+  "failed": 0,
+  "total": 20,
+  "results": [
+    {
+      "name": "+ defaults give a 38-frame fade",
+      "status": "PASS"
+    },
+    {
+      "name": "- fade below Gary's 1 s bound refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- fade above Gary's 2 s bound refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- negative search radius refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "+ lattice bulb maps to paired glow",
+      "status": "PASS"
+    },
+    {
+      "name": "+ planner includes 269 and 282 mechanisms",
+      "status": "PASS"
+    },
+    {
+      "name": "+ planner filters switches outside the review window",
+      "status": "PASS"
+    },
+    {
+      "name": "- empty target window refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- duplicate target refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- unsupported visibility target refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "+ fake Unreal writes linear property ramp",
+      "status": "PASS"
+    },
+    {
+      "name": "- evaluate_keys count mismatch refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "+ new component binding is parented and named",
+      "status": "PASS"
+    },
+    {
+      "name": "+ existing component binding is reused unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "+ add_possessable returned-existing is not renamed",
+      "status": "PASS"
+    },
+    {
+      "name": "+ fake Unreal retimes one-frame intensity step",
+      "status": "PASS"
+    },
+    {
+      "name": "+ scoped-change proof accepts only recorded track",
+      "status": "PASS"
+    },
+    {
+      "name": "- seeded marker mutation refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- seeded extra track mutation refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "+ module imports offline without Unreal",
+      "status": "PASS"
+    }
+  ]
+}
