@@ -1,0 +1,34 @@
+# Post-bake editor queue — 9 Oct 2026 (Conductor 5)
+
+Starts when the ragged bake prints `CURTAIN_DROP_BAKE_DONE` (expected 10:30–11:30 UTC). Then FIRST: tell every live
+Puss session + Metamall 5.8 that the GPU is free (Gary). Blender work (Hyper3D mask APPLY / Rodin fetch, W&T rebuilds)
+is cleared at the same time — but only ONE GPU-heavy job at a time alongside the editor.
+Editor rules: one writer; DRY → APPLY → read-back; sky hidden after every restart; never Save All; P26/vis = bHidden.
+
+Order (dependencies first; Gary's decisions 9 Oct in `memory/tonight-queue-9-oct.md`):
+
+| # | Slot | Tool | Notes |
+|---|---|---|---|
+| 1 | Passages = music lengths | Codex job 33 `passages_to_music.py` | APPLY without Gary's review (his word). P06 126.0 → 110.56 s. |
+| 2 | P06 sunset rescale | conductor (p06_sunset tool) | Proportional to job 33; read back dusk time (~32.47 s). |
+| 3 | I2 shrink to 1950 | Codex job 24 `shrink_scene_playback.py` | Before I2 camera work. |
+| 4 | I2 move-in at 0:50.4 | Codex job 34 (finishing touches) | |
+| 5 | I2 polish | Codex job 39 `I2Polish_20261009` | Boundary probe (PIE) → repair; F17 diff; F18; run-on. |
+| 6 | P06 chain A REVERT | W&T topple | Then 7, then 8. |
+| 7 | P06 chain B (choreographed) | Codex job 37b | Rows disjoint from A's 6 + keeper; record by cue GUID + side. |
+| 8 | P06 chain A re-time | W&T make_keys --slam-s <dusk> + exclude_rows(B) | |
+| 9 | P06 FX re-time check | P06FX set | Fire/motes seconds vs new P06 length. |
+| 10 | P02 floor shiny | `p02_floor_darkwet.py` | Material only. |
+| 11 | S1 darkness before strike (F4) | Codex job 26 vis_fix S1 + PIE probe | |
+| 12 | S1 rig fade at 3:44 (F5) | Codex job 29 S1RigFade | Verify the switch-off frames (found ~11 s, not 3:44). |
+| 13 | S3 lid (F20) + 0:04 spoiler | Codex job 38 | |
+| 14 | S3 figures: Shore05 (+variants), cloth settle, underwear colour | Codex job 40 | |
+| 15 | S3 +50 % handprints, camera wall | Codex job 38 | Still before save. |
+| 16 | Gobo 007 as stand-in | gobo session args 007 | Gary reviews content later. |
+| 17 | Infrastructure for Gary's review | job 35 uplights P02–P06; job 30 parcans (6, one model fine); P02 P01-style lighting (perf gate) | Stills after. |
+| 18 | Trough clear | Codex job 25 | |
+| 19 | W&T queue | Q1–Q3 (S2 overlay re-pose/sky start, poles, P03 cards, P02 fences, P06 scaffold, Wing 044 UVs) | W&T sequences. |
+| 20 | GPU/RAM-heavy investigations LAST | Codex job 38 dune ground probe (fire shadows); P06 wing burn (after W&T Wing 044 UV spec) | Gary: only when GPU/RAM free. |
+| 21 | Cue Book stills | cueing `cuebook_stills_driver.py` | Low priority. |
+
+Gary-owned: Code.gs redeploy; pearl clear coat; video fallbacks (Sat night + tomorrow night); opening choreography after Hyper3D.
