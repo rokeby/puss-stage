@@ -46,6 +46,7 @@ def make_socket_payload(
     width_m: float,
     pole_positions_y_m: Iterable[float],
     pole_extension_cm: float | None = None,
+    pole_top_z_cm: Iterable[float] | None = None,
 ) -> dict[str, Any]:
     """Build the Unreal-local sidecar from builder-manifest declarations.
 
@@ -103,6 +104,17 @@ def make_socket_payload(
             "bottom_z_cm": -float(pole_extension_cm),
             "top_above_panel_cm": 20.0,
         }
+    if pole_top_z_cm is not None:
+        # Opt-in --pole-top art-clip (KlaraS2, 8 Oct): one recorded top per SOCKET_Pole_n, in order, UE local cm
+        # (Z is not reflected).  top_above_panel_cm then states the HIGHEST pole top relative to the card so a
+        # legacy reader computes the true maximum; default sidecars are byte-identical (key absent).
+        tops = [float(value) for value in pole_top_z_cm]
+        pole_count = sum(1 for row in records if WING_POLE_RE.fullmatch(str(row["name"])))
+        if "baked_pole_geometry" not in payload or len(tops) != pole_count or not tops:
+            raise ValueError("pole_top_z_cm needs baked wing poles and exactly one top per SOCKET_Pole_n")
+        payload["baked_pole_geometry"]["top_mode"] = "art-clip"
+        payload["baked_pole_geometry"]["pole_top_z_cm"] = tops
+        payload["baked_pole_geometry"]["top_above_panel_cm"] = max(tops) - float(height_cm)
     return payload
 
 
