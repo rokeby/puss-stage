@@ -1,0 +1,887 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs b/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
+index 168a8a4..e5b066f 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
++++ b/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
+@@ -21,6 +21,9 @@ public class InfinityStage : ModuleRules
+ 
+         PrivateDependencyModuleNames.AddRange(new[]
+         {
++            // UAnimSequencerInstance provides explicit-position, weighted pose
++            // evaluation for the Master-time-locked shadow-cat action layer.
++            "AnimGraphRuntime",
+             "UMG",
+             // The rehearsal bar (Cue Director) is a Slate widget shown in the game viewport too.
+             "Slate",
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
+index fc5a27b..d36e247 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
+@@ -4,6 +4,8 @@
+ 
+ #include "Animation/AnimSequence.h"
+ #include "Animation/AnimSingleNodeInstance.h"
++#include "AnimCustomInstanceHelper.h"
++#include "AnimSequencerInstance.h"
+ #include "Camera/CameraComponent.h"
+ #include "Camera/PlayerCameraManager.h"
+ #include "GameFramework/PlayerController.h"
+@@ -50,34 +52,172 @@ UAnimSequence* GetShadowCatIdleAnimation()
+     return IdleAnimation;
+ }
+ 
+-void ApplyDirectShadowCatAnimation(
++void ApplyMasterTimedShadowCatAnimation(
+     USkeletalMeshComponent* CatMesh,
+-    UAnimationAsset* Animation,
+-    const float PlayRate)
++    UAnimSequence* GaitAnimation,
++    const double GaitPositionSeconds,
++    UAnimSequence* ActionAnimation,
++    const double ActionPositionSeconds,
++    const double ActionWeight)
+ {
+-    if (!CatMesh || !Animation)
++    if (!CatMesh || !GaitAnimation)
+     {
+         return;
+     }
+ 
++    // The no-action gait stays on the existing single-node instance exactly
++    // as required: stopped, explicitly positioned, and never wall-time played.
++    if (!ActionAnimation || ActionWeight <= UE_DOUBLE_SMALL_NUMBER)
++    {
++        if (CatMesh->GetAnimationMode() != EAnimationMode::AnimationSingleNode)
++        {
++            CatMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
++        }
++        UAnimSingleNodeInstance* SingleNode = CatMesh->GetSingleNodeInstance();
++        if (SingleNode)
++        {
++            SingleNode->SetAnimationAsset(GaitAnimation, true, 0.0f);
++            SingleNode->SetLooping(true);
++            SingleNode->SetPlaying(false);
++            SingleNode->SetPosition(static_cast<float>(GaitPositionSeconds), false);
++        }
++        CatMesh->TickAnimation(0.0f, false);
++        CatMesh->RefreshBoneTransforms();
++        return;
++    }
++
+-    if (CatMesh->GetAnimationMode() != EAnimationMode::AnimationSingleNode)
++    bool bWasCreated = false;
++    UAnimSequencerInstance* Sequencer =
++        FAnimCustomInstanceHelper::BindToSkeletalMeshComponent<UAnimSequencerInstance>(CatMesh, bWasCreated);
++    if (!Sequencer)
+     {
++        // Defensive fallback only. The normal path above is the weighted
++        // Sequencer evaluator; this at least remains Master-time locked.
+         CatMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
++        UAnimSingleNodeInstance* SingleNode = CatMesh->GetSingleNodeInstance();
++        UAnimSequence* FallbackAnimation = ActionAnimation && ActionWeight >= 0.5
++            ? ActionAnimation
++            : GaitAnimation;
++        const double FallbackPosition = FallbackAnimation == ActionAnimation
++            ? ActionPositionSeconds
++            : GaitPositionSeconds;
++        if (SingleNode)
++        {
++            SingleNode->SetAnimationAsset(FallbackAnimation, true, 0.0f);
++            SingleNode->SetPlaying(false);
++            SingleNode->SetPosition(static_cast<float>(FallbackPosition), false);
++        }
++        return;
++    }
++
++    constexpr int32 GaitSequenceId = 1;
++    constexpr int32 ActionSequenceId = 2;
++    const float BlendWeight = static_cast<float>(FMath::Clamp(ActionWeight, 0.0, 1.0));
++    Sequencer->ResetNodes();
++    if (BlendWeight < 1.0f)
++    {
++        Sequencer->UpdateAnimTrack(
++            GaitAnimation,
++            GaitSequenceId,
++            static_cast<float>(GaitPositionSeconds),
++            1.0f - BlendWeight,
++            false);
++    }
++    if (ActionAnimation && BlendWeight > 0.0f)
++    {
++        Sequencer->UpdateAnimTrack(
++            ActionAnimation,
++            ActionSequenceId,
++            static_cast<float>(ActionPositionSeconds),
++            BlendWeight,
++            false);
++    }
++
++    // Evaluation happens before the bob sample in EvaluateAtMasterFrame, so
++    // refresh now rather than letting wall-time component ticking choose when
++    // this Master pose reaches the bones.
++    CatMesh->TickAnimation(0.0f, false);
++    CatMesh->RefreshBoneTransforms();
++}
++
++double WrapAnimationPosition(const double PositionSeconds, const UAnimSequence* Animation)
++{
++    const double Length = Animation ? Animation->GetPlayLength() : 0.0;
++    if (Length <= UE_DOUBLE_SMALL_NUMBER)
++    {
++        return 0.0;
++    }
++    double Wrapped = FMath::Fmod(PositionSeconds, Length);
++    if (Wrapped < 0.0)
++    {
++        Wrapped += Length;
+     }
++    return Wrapped;
++}
++
++double SmoothUnit(const double Alpha)
++{
++    const double Clamped = FMath::Clamp(Alpha, 0.0, 1.0);
++    return Clamped * Clamped * (3.0 - 2.0 * Clamped);
++}
+ 
+-    UAnimSingleNodeInstance* SingleNode = CatMesh->GetSingleNodeInstance();
+-    if (!SingleNode || SingleNode->GetAnimationAsset() != Animation)
++double SeededSignedUnit(const int32 Seed, const int32 Salt)
++{
++    FRandomStream Stream(Seed ^ Salt);
++    const float Draw = Stream.FRand();
++    return static_cast<double>(Draw) * 2.0 - 1.0;
++}
++
++struct FResolvedShadowCatAction
++{
++    UAnimSequence* Animation = nullptr;
++    FInfinityShadowCatActionTiming Timing;
++    int32 StartFrame = INDEX_NONE;
++};
++
++FResolvedShadowCatAction ResolveShadowCatAction(
++    const FInfinityPassageSettings* Settings,
++    const double PassageSeconds,
++    const double PassageDurationSeconds,
++    const double TickRate)
++{
++    FResolvedShadowCatAction Result;
++    if (!Settings || TickRate <= UE_DOUBLE_SMALL_NUMBER)
+     {
+-        CatMesh->PlayAnimation(Animation, true);
+-        SingleNode = CatMesh->GetSingleNodeInstance();
++        return Result;
+     }
+ 
+-    CatMesh->SetPlayRate(PlayRate);
+-    if (SingleNode)
++    for (const FInfinityShadowCatAction& Action : Settings->ShadowCatActions)
+     {
+-        SingleNode->SetLooping(true);
+-        SingleNode->SetPlaying(true);
++        if (Action.Animation.IsNull() || Action.StartFrame.Value < 0
++            || Action.StartFrame.Value < Result.StartFrame)
++        {
++            continue;
++        }
++        UAnimSequence* Animation = Action.Animation.LoadSynchronous();
++        if (!Animation || Animation->GetPlayLength() <= UE_DOUBLE_SMALL_NUMBER)
++        {
++            continue;
++        }
++        const double ActionStartSeconds = static_cast<double>(Action.StartFrame.Value) / TickRate;
++        const FInfinityShadowCatActionTiming Timing =
++            AInfinityStageCameraRig::EvaluateShadowCatActionTiming(
++                PassageSeconds,
++                PassageDurationSeconds,
++                ActionStartSeconds,
++                Animation->GetPlayLength(),
++                Action.PlayRate,
++                Action.BlendInSeconds,
++                Action.BlendOutSeconds,
++                Action.bHoldLastFrame);
++        if (Timing.bActive)
++        {
++            Result.Animation = Animation;
++            Result.Timing = Timing;
++            Result.StartFrame = Action.StartFrame.Value;
++        }
+     }
++    return Result;
+ }
+ 
+ const FInfinityCompiledPassage* FindCompiledPassage(const FInfinityCompileResult& Compiled, const FGuid& PassageGuid)
+@@ -479,22 +619,24 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
+         CurrentShadowSpotIntensity = 0.0f;
+     }
+     ApplyFollowLightState();
+-    const double RawLiftCm = SampleShadowCatGaitLiftCm();
++    const double RawLiftCm = SampleShadowCatGaitLiftCm(CurrentShadowCatBobGainScale);
+     // The walk weight already follows speed; the crossing settle weight is the
+     // settle's own share of that speed, a pure function of Master time, so the
+     // bob and its roll are exactly 0 at the Passage end whatever the history.
+     CurrentCrossingSettleWeight = CameraEvaluation.SettleWeight;
+     const FInfinityGaitBob GaitBob = SettleGaitBob(
+-        StepGaitBob(
+-            ShadowCatGaitBobState,
+-            MasterSeconds,
+-            RawLiftCm,
+-            CurrentShadowCatCameraSpeedCmPerSecond,
+-            ShadowCatReferenceWalkSpeedCmPerSecond,
+-            ShadowCatCameraBobRollMeanSeconds,
+-            ShadowCatBobFadeSeconds,
+-            ShadowCatCameraBobRollDegreesPerCm),
+-        CurrentCrossingSettleWeight);
++        SettleGaitBob(
++            StepGaitBob(
++                ShadowCatGaitBobState,
++                MasterSeconds,
++                RawLiftCm,
++                CurrentShadowCatCameraSpeedCmPerSecond,
++                ShadowCatReferenceWalkSpeedCmPerSecond,
++                ShadowCatCameraBobRollMeanSeconds,
++                ShadowCatBobFadeSeconds,
++                ShadowCatCameraBobRollDegreesPerCm),
++            CurrentCrossingSettleWeight),
++        1.0 - CurrentShadowCatActionWeight);
+     CurrentShadowCatBobWalkWeight = ShadowCatGaitBobState.WalkWeight;
+     CurrentShadowCatCameraBobCm = GaitBob.HeightCm;
+     if (!FMath::IsNearlyZero(CurrentShadowCatCameraBobCm))
+@@ -581,15 +723,6 @@ void AInfinityStageCameraRig::ConfigureShadowCat()
+         {
+             CatMesh->SetSkeletalMeshAsset(ShadowCatSkeletalMesh);
+         }
+-        if (bShadowCatUseDirectWalkAnimation && GetWorld() && GetWorld()->IsGameWorld())
+-        {
+-            const bool bIsMoving = CurrentShadowCatCameraSpeedCmPerSecond > KINDA_SMALL_NUMBER;
+-            ApplyDirectShadowCatAnimation(
+-                CatMesh,
+-                bIsMoving ? GetShadowCatWalkAnimation() : GetShadowCatIdleAnimation(),
+-                bIsMoving ? static_cast<float>(CurrentShadowCatPlayRate) : 1.0f);
+-        }
+-
+         CatMesh->SetActive(bEnableShadowCat, true);
+         CatMesh->SetComponentTickEnabled(bEnableShadowCat);
+         CatMesh->bPauseAnims = false;
+@@ -649,6 +782,8 @@ void AInfinityStageCameraRig::UpdateShadowCatAtMasterFrame(
+     {
+         CurrentShadowCatCameraSpeedCmPerSecond = 0.0;
+         CurrentShadowCatPlayRate = 0.0;
++        CurrentShadowCatActionWeight = 0.0;
++        CurrentShadowCatBobGainScale = 1.0;
+         return;
+     }
+ 
+@@ -657,24 +792,186 @@ void AInfinityStageCameraRig::UpdateShadowCatAtMasterFrame(
+         CameraTransform,
+         Passage);
+     const double ReferenceSpeed = FMath::Max(1.0, ShadowCatReferenceWalkSpeedCmPerSecond);
+-    CurrentShadowCatPlayRate = FMath::Clamp(
++    const double BasePlayRate = FMath::Clamp(
+         (CurrentShadowCatCameraSpeedCmPerSecond / ReferenceSpeed)
+             * FMath::Max(0.0, ShadowCatAnimationSpeedMultiplier),
+         FMath::Max(0.0, ShadowCatMinPlayRate),
+         FMath::Max(ShadowCatMinPlayRate, ShadowCatMaxPlayRate));
+ 
++    const FFrameRate& TickResolution = PassageActor->ShowAsset->TickResolution;
++    const double TickRate = TickResolution.IsValid() ? TickResolution.AsDecimal() : 0.0;
++    const double PassageSeconds = PassageSecondsAtMasterFrame(
++        MasterFrame, Passage.SegmentStartFrame, TickResolution);
++    const double PassageDurationSeconds = TickRate > UE_DOUBLE_SMALL_NUMBER
++        ? static_cast<double>(Passage.SegmentEndFrame.Value - Passage.SegmentStartFrame.Value) / TickRate
++        : 0.0;
++    const FInfinityShadowCatVariation Variation = bShadowCatBobVariation
++        ? EvaluateShadowCatVariation(
++            ShadowCatVariationSeed,
++            PassageSeconds,
++            ShadowCatVariationDriftSeconds,
++            ShadowCatPlayRateDriftAmplitude,
++            ShadowCatBobGainDriftAmplitude,
++            ShadowCatPerStrideVariationAmplitude,
++            ShadowCatVariationStrideSeconds,
++            ShadowCatPerStrideVariationChance)
++        : FInfinityShadowCatVariation{};
++    CurrentShadowCatPlayRate = FMath::Clamp(
++        BasePlayRate * Variation.PlayRateScale,
++        FMath::Max(0.0, ShadowCatMinPlayRate),
++        FMath::Max(ShadowCatMinPlayRate, ShadowCatMaxPlayRate));
++    CurrentShadowCatBobGainScale = Variation.BobGainScale;
++
+     const bool bIsMoving = CurrentShadowCatCameraSpeedCmPerSecond > KINDA_SMALL_NUMBER;
+     if (bShadowCatUseDirectWalkAnimation)
+     {
++        const FInfinityPassageSettings* Settings = PassageActor->ShowAsset->PassageSettings.FindByPredicate(
++            [this](const FInfinityPassageSettings& Candidate)
++            {
++                return PassageActor && Candidate.PassageGuid == PassageActor->PassageGuid;
++            });
++        const FResolvedShadowCatAction ResolvedAction = ResolveShadowCatAction(
++            Settings,
++            PassageSeconds,
++            PassageDurationSeconds,
++            TickRate);
++        CurrentShadowCatActionWeight = ResolvedAction.Timing.Weight;
++        UAnimSequence* GaitAnimation = bIsMoving
++            ? GetShadowCatWalkAnimation()
++            : GetShadowCatIdleAnimation();
++        const double GaitPositionSeconds = bIsMoving
++            ? WrapAnimationPosition(EvaluateShadowCatGaitPhaseSeconds(MasterFrame, Passage), GaitAnimation)
++            : WrapAnimationPosition(PassageSeconds, GaitAnimation);
+         TInlineComponentArray<USkeletalMeshComponent*> CatMeshes(CatActor);
+         for (USkeletalMeshComponent* CatMesh : CatMeshes)
+         {
+-            ApplyDirectShadowCatAnimation(
++            ApplyMasterTimedShadowCatAnimation(
+                 CatMesh,
+-                bIsMoving ? GetShadowCatWalkAnimation() : GetShadowCatIdleAnimation(),
+-                bIsMoving ? static_cast<float>(CurrentShadowCatPlayRate) : 1.0f);
++                GaitAnimation,
++                GaitPositionSeconds,
++                ResolvedAction.Animation,
++                ResolvedAction.Timing.PositionSeconds,
++                ResolvedAction.Timing.Weight);
+         }
+     }
++    else
++    {
++        CurrentShadowCatActionWeight = 0.0;
++    }
++}
++
++double AInfinityStageCameraRig::IntegrateShadowCatPlayRates(
++    const TArray<double>& IntervalPlayRates,
++    const double IntervalSeconds)
++{
++    if (!(IntervalSeconds > 0.0) || !FMath::IsFinite(IntervalSeconds))
++    {
++        return 0.0;
++    }
++    double PhaseSeconds = 0.0;
++    for (const double PlayRate : IntervalPlayRates)
++    {
++        if (FMath::IsFinite(PlayRate))
++        {
++            PhaseSeconds += FMath::Max(0.0, PlayRate) * IntervalSeconds;
++        }
++    }
++    return PhaseSeconds;
++}
++
++double AInfinityStageCameraRig::PassageSecondsAtMasterFrame(
++    const FFrameNumber MasterFrame,
++    const FFrameNumber PassageStartFrame,
++    const FFrameRate TickResolution)
++{
++    const double TickRate = TickResolution.IsValid() ? TickResolution.AsDecimal() : 0.0;
++    return TickRate > UE_DOUBLE_SMALL_NUMBER
++        ? static_cast<double>(MasterFrame.Value - PassageStartFrame.Value) / TickRate
++        : 0.0;
++}
++
++FInfinityShadowCatActionTiming AInfinityStageCameraRig::EvaluateShadowCatActionTiming(
++    const double PassageSeconds,
++    const double PassageDurationSeconds,
++    const double ActionStartSeconds,
++    const double ClipLengthSeconds,
++    const double PlayRate,
++    const double BlendInSeconds,
++    const double BlendOutSeconds,
++    const bool bHoldLastFrame)
++{
++    FInfinityShadowCatActionTiming Result;
++    const double SafeRate = FMath::Max(PlayRate, UE_DOUBLE_SMALL_NUMBER);
++    const double ActionDuration = ClipLengthSeconds / SafeRate;
++    const double Elapsed = PassageSeconds - ActionStartSeconds;
++    const double EndSeconds = bHoldLastFrame
++        ? PassageDurationSeconds
++        : ActionStartSeconds + ActionDuration;
++    if (Elapsed < 0.0 || PassageSeconds > EndSeconds || ActionDuration <= UE_DOUBLE_SMALL_NUMBER)
++    {
++        return Result;
++    }
++
++    Result.bActive = true;
++    Result.PositionSeconds = FMath::Clamp(Elapsed * SafeRate, 0.0, ClipLengthSeconds);
++    const double InWeight = BlendInSeconds > UE_DOUBLE_SMALL_NUMBER
++        ? SmoothUnit(Elapsed / BlendInSeconds)
++        : 1.0;
++    const double SecondsToEnd = EndSeconds - PassageSeconds;
++    const double OutWeight = BlendOutSeconds > UE_DOUBLE_SMALL_NUMBER
++        ? SmoothUnit(SecondsToEnd / BlendOutSeconds)
++        : (SecondsToEnd > 0.0 ? 1.0 : 0.0);
++    Result.Weight = FMath::Min(InWeight, OutWeight);
++    return Result;
++}
++
++FInfinityShadowCatVariation AInfinityStageCameraRig::EvaluateShadowCatVariation(
++    const int32 Seed,
++    const double PassageSeconds,
++    const double DriftSeconds,
++    const double PlayRateDriftAmplitude,
++    const double BobGainDriftAmplitude,
++    const double PerStrideAmplitude,
++    const double StrideSeconds,
++    const double PerStrideChance)
++{
++    const double SafeTime = FMath::Max(0.0, PassageSeconds);
++    const double SafeDriftSeconds = FMath::Max(1.0, DriftSeconds);
++    const int32 DriftIndex = FMath::FloorToInt(SafeTime / SafeDriftSeconds);
++    const double DriftAlpha = SmoothUnit(FMath::Fmod(SafeTime, SafeDriftSeconds) / SafeDriftSeconds);
++
++    const double PlayA = SeededSignedUnit(Seed, DriftIndex * 7919 + 101);
++    const double PlayB = SeededSignedUnit(Seed, (DriftIndex + 1) * 7919 + 101);
++    const double BobA = SeededSignedUnit(Seed, DriftIndex * 7919 + 307);
++    const double BobB = SeededSignedUnit(Seed, (DriftIndex + 1) * 7919 + 307);
++    const double PlayDrift = FMath::Lerp(PlayA, PlayB, DriftAlpha);
++    const double BobDrift = FMath::Lerp(BobA, BobB, DriftAlpha);
++
++    const double SafeStrideSeconds = FMath::Max(0.1, StrideSeconds);
++    const int32 StrideIndex = FMath::FloorToInt(SafeTime / SafeStrideSeconds);
++    FRandomStream GateStream(Seed ^ (StrideIndex * 3571 + 503));
++    const float GateDraw = GateStream.FRand();
++    double PlayStride = 0.0;
++    double BobStride = 0.0;
++    if (GateDraw < FMath::Clamp(PerStrideChance, 0.0, 1.0))
++    {
++        PlayStride = SeededSignedUnit(Seed, StrideIndex * 3571 + 701);
++        BobStride = SeededSignedUnit(Seed, StrideIndex * 3571 + 907);
++    }
++
++    const double SafePlayAmplitude = FMath::Max(0.0, PlayRateDriftAmplitude);
++    const double SafeBobAmplitude = FMath::Max(0.0, BobGainDriftAmplitude);
++    const double SafeStrideAmplitude = FMath::Max(0.0, PerStrideAmplitude);
++    FInfinityShadowCatVariation Result;
++    Result.PlayRateScale = 1.0 + FMath::Clamp(
++        PlayDrift * SafePlayAmplitude + PlayStride * SafeStrideAmplitude,
++        -(SafePlayAmplitude + SafeStrideAmplitude),
++        SafePlayAmplitude + SafeStrideAmplitude);
++    Result.BobGainScale = 1.0 + FMath::Clamp(
++        BobDrift * SafeBobAmplitude + BobStride * SafeStrideAmplitude,
++        -(SafeBobAmplitude + SafeStrideAmplitude),
++        SafeBobAmplitude + SafeStrideAmplitude);
++    return Result;
+ }
+ 
+ FInfinityGaitBob AInfinityStageCameraRig::StepGaitBob(
+@@ -741,7 +1038,79 @@ double AInfinityStageCameraRig::GetCrossingSettleFrames() const
+     return CrossingSettleSeconds * PassageActor->ShowAsset->TickResolution.AsDecimal();
+ }
+ 
+-double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
++double AInfinityStageCameraRig::EvaluateShadowCatGaitPhaseSeconds(
++    const FFrameNumber MasterFrame,
++    const FInfinityCompiledPassage& Passage) const
++{
++    if (!PassageActor || !PassageActor->ShowAsset
++        || !PassageActor->ShowAsset->TickResolution.IsValid()
++        || !PassageActor->ShowAsset->DisplayRate.IsValid())
++    {
++        return 0.0;
++    }
++
++    const double TickRate = PassageActor->ShowAsset->TickResolution.AsDecimal();
++    const double DisplayRate = PassageActor->ShowAsset->DisplayRate.AsDecimal();
++    const int32 StepTicks = FMath::Max(1, FMath::RoundToInt(TickRate / DisplayRate));
++    const int32 TargetFrame = FMath::Clamp(
++        MasterFrame.Value,
++        Passage.SegmentStartFrame.Value,
++        Passage.SegmentEndFrame.Value);
++    double PhaseSeconds = 0.0;
++    FTransform FromTransform;
++    FInfinityPassageCameraEvaluation FromEvaluation;
++    if (!GetCameraStateForCompiledPassage(
++        Passage, Passage.SegmentStartFrame, FromTransform, FromEvaluation))
++    {
++        return 0.0;
++    }
++
++    int32 FromFrame = Passage.SegmentStartFrame.Value;
++    while (FromFrame < TargetFrame)
++    {
++        const int32 ToFrame = FMath::Min(FromFrame + StepTicks, TargetFrame);
++        FTransform ToTransform;
++        FInfinityPassageCameraEvaluation ToEvaluation;
++        if (!GetCameraStateForCompiledPassage(
++            Passage, FFrameNumber(ToFrame), ToTransform, ToEvaluation))
++        {
++            break;
++        }
++        const double IntervalSeconds = static_cast<double>(ToFrame - FromFrame) / TickRate;
++        const double Speed = IntervalSeconds > UE_DOUBLE_SMALL_NUMBER
++            ? FVector::Distance(FromTransform.GetLocation(), ToTransform.GetLocation()) / IntervalSeconds
++            : 0.0;
++        const double ReferenceSpeed = FMath::Max(1.0, ShadowCatReferenceWalkSpeedCmPerSecond);
++        double PlayRate = FMath::Clamp(
++            (Speed / ReferenceSpeed) * FMath::Max(0.0, ShadowCatAnimationSpeedMultiplier),
++            FMath::Max(0.0, ShadowCatMinPlayRate),
++            FMath::Max(ShadowCatMinPlayRate, ShadowCatMaxPlayRate));
++        if (bShadowCatBobVariation)
++        {
++            const double MidPassageSeconds =
++                (0.5 * (FromFrame + ToFrame) - Passage.SegmentStartFrame.Value) / TickRate;
++            const FInfinityShadowCatVariation Variation = EvaluateShadowCatVariation(
++                ShadowCatVariationSeed,
++                MidPassageSeconds,
++                ShadowCatVariationDriftSeconds,
++                ShadowCatPlayRateDriftAmplitude,
++                ShadowCatBobGainDriftAmplitude,
++                ShadowCatPerStrideVariationAmplitude,
++                ShadowCatVariationStrideSeconds,
++                ShadowCatPerStrideVariationChance);
++            PlayRate = FMath::Clamp(
++                PlayRate * Variation.PlayRateScale,
++                FMath::Max(0.0, ShadowCatMinPlayRate),
++                FMath::Max(ShadowCatMinPlayRate, ShadowCatMaxPlayRate));
++        }
++        PhaseSeconds += PlayRate * IntervalSeconds;
++        FromFrame = ToFrame;
++        FromTransform = ToTransform;
++    }
++    return PhaseSeconds;
++}
++
++double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm(const double VariationGainScale) const
+ {
+     if (!bShadowCatCameraBob || !bEnableShadowCat || ShadowCatCameraBobGain <= 0.0 || !ShadowCat)
+     {
+@@ -778,7 +1147,8 @@ double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
+     const double RestZ = RestComponentSpace[BoneIndex].GetTranslation().Z;
+     const double PoseZ = CatMesh->GetSocketTransform(ShadowCatBobReferenceBone, RTS_Component).GetTranslation().Z;
+     const double WorldScaleZ = CatMesh->GetComponentScale().Z;
+-    const double LiftCm = (PoseZ - RestZ) * WorldScaleZ * ShadowCatCameraBobGain;
++    const double LiftCm = (PoseZ - RestZ) * WorldScaleZ * ShadowCatCameraBobGain
++        * FMath::Max(0.0, VariationGainScale);
+ 
+     if (!bShadowCatBobReported)
+     {
+@@ -786,13 +1156,14 @@ double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
+         UE_LOG(
+             LogInfinityStageShadowCat,
+             Display,
+-            TEXT("SHADOW_CAT_BOB_READY|rig=%s|bone=%s|rest_z=%.3f|pose_z=%.3f|scale_z=%.3f|gain=%.3f|lift_cm=%.3f"),
++            TEXT("SHADOW_CAT_BOB_READY|rig=%s|bone=%s|rest_z=%.3f|pose_z=%.3f|scale_z=%.3f|gain=%.3f|variation_gain=%.3f|lift_cm=%.3f"),
+             *GetName(),
+             *ShadowCatBobReferenceBone.ToString(),
+             RestZ,
+             PoseZ,
+             WorldScaleZ,
+             ShadowCatCameraBobGain,
++            VariationGainScale,
+             LiftCm);
+     }
+     return LiftCm;
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
+index 960e5f5..861bfbf 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
+@@ -27,6 +27,19 @@ struct FInfinityGaitBob
+     double RollDeg = 0.0;
+ };
+ 
++struct FInfinityShadowCatVariation
++{
++    double PlayRateScale = 1.0;
++    double BobGainScale = 1.0;
++};
++
++struct FInfinityShadowCatActionTiming
++{
++    bool bActive = false;
++    double PositionSeconds = 0.0;
++    double Weight = 0.0;
++};
++
+ /**
+  * One occasional appearance of the Puss shadow spot (PS, Gary 7 Oct: "a Puss
+  * walking shadow spotlight which lights Puss from behind, very occasionally
+@@ -220,6 +233,61 @@ public:
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Animation", meta = (ClampMin = "0.0"))
+     double ShadowCatMaxPlayRate = 1.25;
+ 
++    /** Off by default: seeded Master-time drift and bounded per-stride variation. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation")
++    bool bShadowCatBobVariation = false;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation")
++    int32 ShadowCatVariationSeed = 1847;
++
++    /** Slow play-rate drift amplitude; 0.03 plus the 0.02 stride default stays within +/-5%. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation",
++        meta = (ClampMin = "0.0", ClampMax = "0.25", EditCondition = "bShadowCatBobVariation"))
++    double ShadowCatPlayRateDriftAmplitude = 0.03;
++
++    /** Slow bob-gain drift amplitude; 0.03 plus the 0.02 stride default stays within +/-5%. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation",
++        meta = (ClampMin = "0.0", ClampMax = "0.25", EditCondition = "bShadowCatBobVariation"))
++    double ShadowCatBobGainDriftAmplitude = 0.03;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation",
++        meta = (ClampMin = "0.0", ClampMax = "0.25", EditCondition = "bShadowCatBobVariation"))
++    double ShadowCatPerStrideVariationAmplitude = 0.02;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation",
++        meta = (ClampMin = "1.0", UIMin = "8.0", UIMax = "20.0", Units = "s", EditCondition = "bShadowCatBobVariation"))
++    double ShadowCatVariationDriftSeconds = 12.0;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation",
++        meta = (ClampMin = "0.1", UIMax = "2.0", Units = "s", EditCondition = "bShadowCatBobVariation"))
++    double ShadowCatVariationStrideSeconds = 0.8;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation",
++        meta = (ClampMin = "0.0", ClampMax = "1.0", EditCondition = "bShadowCatBobVariation"))
++    double ShadowCatPerStrideVariationChance = 0.25;
++
++    /** Pure helpers shared by runtime, automation and the offline Python port. */
++    static double IntegrateShadowCatPlayRates(const TArray<double>& IntervalPlayRates, double IntervalSeconds);
++    static double PassageSecondsAtMasterFrame(FFrameNumber MasterFrame, FFrameNumber PassageStartFrame, FFrameRate TickResolution);
++    static FInfinityShadowCatActionTiming EvaluateShadowCatActionTiming(
++        double PassageSeconds,
++        double PassageDurationSeconds,
++        double ActionStartSeconds,
++        double ClipLengthSeconds,
++        double PlayRate,
++        double BlendInSeconds,
++        double BlendOutSeconds,
++        bool bHoldLastFrame);
++    static FInfinityShadowCatVariation EvaluateShadowCatVariation(
++        int32 Seed,
++        double PassageSeconds,
++        double DriftSeconds,
++        double PlayRateDriftAmplitude,
++        double BobGainDriftAmplitude,
++        double PerStrideAmplitude,
++        double StrideSeconds,
++        double PerStrideChance);
++
+     /**
+      * Lift the camera with the cat's gait. The vertical travel of the reference
+      * bone against its rest pose, in world centimetres after the cat's scale, is
+@@ -315,6 +383,12 @@ public:
+     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat")
+     double CurrentShadowCatPlayRate = 0.0;
+ 
++    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat")
++    double CurrentShadowCatActionWeight = 0.0;
++
++    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat|Variation")
++    double CurrentShadowCatBobGainScale = 1.0;
++
+     UFUNCTION(BlueprintCallable, Category = "Infinity Stage")
+     bool EvaluateAtMasterFrame(FFrameNumber MasterFrame);
+ 
+@@ -392,7 +466,12 @@ private:
+         const FInfinityCompiledPassage& Passage) const;
+ 
+     /** Current gait lift of the reference bone over its rest pose, in world cm, scaled by the bob gain. */
+-    double SampleShadowCatGaitLiftCm() const;
++    double SampleShadowCatGaitLiftCm(double VariationGainScale) const;
++
++    /** Integral of the varied, clamped play rate from the Passage start to MasterFrame. Pure in Master time. */
++    double EvaluateShadowCatGaitPhaseSeconds(
++        FFrameNumber MasterFrame,
++        const FInfinityCompiledPassage& Passage) const;
+ 
+     bool bShadowCatBobReported = false;
+     FInfinityGaitBobState ShadowCatGaitBobState;
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+index f88c53c..b13f8ef 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+@@ -14,6 +14,7 @@
+ #include "InfinityStageTypes.generated.h"
+ 
+ class ULevelSequence;
++class UAnimSequence;
+ class UInfinityStageMusicMapAsset;
+ class UMaterialInterface;
+ class UStaticMesh;
+@@ -959,6 +960,42 @@ struct INFINITYSTAGE_API FInfinityShowCue
+     FInfinitySceneCueData Scene;
+ };
+ 
++/**
++ * One scripted shadow-cat action, timed relative to its owning Passage.
++ * StartFrame uses the Show's tick resolution; it therefore moves with the
++ * Passage when the managed Master is rebuilt or earlier material is retimed.
++ */
++USTRUCT(BlueprintType)
++struct INFINITYSTAGE_API FInfinityShadowCatAction
++{
++    GENERATED_BODY()
++
++    /** Animation on the AnimX cat skeleton. Leave empty as a slot for a not-yet-authored clip (for example Arch). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action")
++    TSoftObjectPtr<UAnimSequence> Animation;
++
++    /** Start in Show ticks after this Passage's compiled segment start. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action", meta = (ClampMin = "0"))
++    FFrameNumber StartFrame = 0;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action", meta = (ClampMin = "0.01", UIMax = "3.0"))
++    double PlayRate = 1.0;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action", meta = (ClampMin = "0.0", Units = "s"))
++    double BlendInSeconds = 0.25;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action", meta = (ClampMin = "0.0", Units = "s"))
++    double BlendOutSeconds = 0.25;
++
++    /** Hold the clip's last pose until the Passage ends; otherwise blend back to the gait at the clip end. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action")
++    bool bHoldLastFrame = false;
++
++    /** Rehearsal note only; not evaluated. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action")
++    FString Label;
++};
++
+ USTRUCT(BlueprintType)
+ struct INFINITYSTAGE_API FInfinityPassageSettings
+ {
+@@ -1006,6 +1043,14 @@ struct INFINITYSTAGE_API FInfinityPassageSettings
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Choreography")
+     TSoftObjectPtr<ULevelSequence> Choreography;
+ 
++    /**
++     * Scripted cat poses for this Passage. Relative frames are Show authority,
++     * so rehearsal may move WHEN an action happens without editing the camera
++     * rig, the managed Master, or any other Passage.
++     */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Actions")
++    TArray<FInfinityShadowCatAction> ShadowCatActions;
++
+     /** When enabled, Continuous Loop rows derive their phase from their current
+      * order in this Passage. Reordering rows therefore immediately preserves the
+      * travelling wave without reapplying a preset. A row can opt out with its
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShadowCatActionTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShadowCatActionTests.cpp
+new file mode 100644
+index 0000000..9685a3a
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShadowCatActionTests.cpp
+@@ -0,0 +1,126 @@
++#include "InfinityStageCameraRig.h"
++#include "InfinityStageTypes.h"
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++namespace InfinityStageShadowCatActionTests
++{
++constexpr double ShadowCatActionTolerance = 1.0e-9;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageShadowCatMasterTimePoseTest,
++    "InfinityStage.Editor.ShadowCatActions.MasterTimePose",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageShadowCatMasterTimePoseTest::RunTest(const FString& Parameters)
++{
++    using namespace InfinityStageShadowCatActionTests;
++    const TArray<double> Rates = {0.45, 0.60, 0.80, 0.55, 0.0, 0.25, 0.70};
++    const double Direct = AInfinityStageCameraRig::IntegrateShadowCatPlayRates(Rates, 0.04);
++
++    // Two deliberately different scrub histories. The production phase helper
++    // accepts no history: re-evaluating the target frame integrates the same
++    // Master intervals from the Passage start.
++    AInfinityStageCameraRig::IntegrateShadowCatPlayRates({0.45, 0.60}, 0.04);
++    AInfinityStageCameraRig::IntegrateShadowCatPlayRates({0.70, 0.25, 0.0}, 0.04);
++    const double ViaForwardThenJump = AInfinityStageCameraRig::IntegrateShadowCatPlayRates(Rates, 0.04);
++    AInfinityStageCameraRig::IntegrateShadowCatPlayRates({1.25, 1.25, 0.0, 0.0}, 0.04);
++    const double ViaReverseThenJump = AInfinityStageCameraRig::IntegrateShadowCatPlayRates(Rates, 0.04);
++
++    TestEqual(TEXT("Forward/jump path lands on the identical phase"), ViaForwardThenJump, Direct, ShadowCatActionTolerance);
++    TestEqual(TEXT("Reverse/jump path lands on the identical phase"), ViaReverseThenJump, Direct, ShadowCatActionTolerance);
++    TestEqual(TEXT("The known phase integral is exact"), Direct, 0.134, ShadowCatActionTolerance);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageShadowCatActionBlendContinuityTest,
++    "InfinityStage.Editor.ShadowCatActions.BlendContinuity",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageShadowCatActionBlendContinuityTest::RunTest(const FString& Parameters)
++{
++    constexpr double Epsilon = 1.0e-6;
++    const auto Evaluate = [](const double PassageSeconds)
++    {
++        return AInfinityStageCameraRig::EvaluateShadowCatActionTiming(
++            PassageSeconds, 20.0, 5.0, 4.0, 1.0, 0.5, 0.75, false);
++    };
++
++    const FInfinityShadowCatActionTiming BeforeStart = Evaluate(5.0 - Epsilon);
++    const FInfinityShadowCatActionTiming AtStart = Evaluate(5.0);
++    const FInfinityShadowCatActionTiming AfterStart = Evaluate(5.0 + Epsilon);
++    TestEqual(TEXT("Action is inactive before its start"), BeforeStart.Weight, 0.0);
++    TestEqual(TEXT("Action begins at gait weight zero"), AtStart.Weight, 0.0);
++    TestTrue(TEXT("Blend-in is continuous across the start"), FMath::Abs(AfterStart.Weight - AtStart.Weight) < 1.0e-4);
++
++    const FInfinityShadowCatActionTiming BeforeEnd = Evaluate(9.0 - Epsilon);
++    const FInfinityShadowCatActionTiming AtEnd = Evaluate(9.0);
++    const FInfinityShadowCatActionTiming AfterEnd = Evaluate(9.0 + Epsilon);
++    TestTrue(TEXT("Blend-out approaches zero continuously"), FMath::Abs(BeforeEnd.Weight - AtEnd.Weight) < 1.0e-4);
++    TestEqual(TEXT("Action returns completely to gait at clip end"), AtEnd.Weight, 0.0);
++    TestFalse(TEXT("Action is inactive after clip end"), AfterEnd.bActive);
++
++    const FInfinityShadowCatActionTiming Held = AInfinityStageCameraRig::EvaluateShadowCatActionTiming(
++        15.0, 20.0, 5.0, 4.0, 1.0, 0.5, 0.75, true);
++    TestTrue(TEXT("Hold-last remains active after the clip"), Held.bActive);
++    TestEqual(TEXT("Hold-last clamps to the clip's final pose"), Held.PositionSeconds, 4.0);
++    TestEqual(TEXT("Hold-last retains full weight before the Passage-end fade"), Held.Weight, 1.0);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageShadowCatBobVariationTest,
++    "InfinityStage.Editor.ShadowCatActions.BobVariationDeterministicBounded",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageShadowCatBobVariationTest::RunTest(const FString& Parameters)
++{
++    constexpr double Bound = 0.05 + 1.0e-9;
++    bool bSawVariation = false;
++    for (int32 Sample = 0; Sample <= 1000; ++Sample)
++    {
++        const double Seconds = Sample * 0.04;
++        const FInfinityShadowCatVariation First = AInfinityStageCameraRig::EvaluateShadowCatVariation(
++            1847, Seconds, 12.0, 0.03, 0.03, 0.02, 0.8, 0.25);
++        const FInfinityShadowCatVariation Again = AInfinityStageCameraRig::EvaluateShadowCatVariation(
++            1847, Seconds, 12.0, 0.03, 0.03, 0.02, 0.8, 0.25);
++        TestEqual(TEXT("Same seed/time repeats play-rate scale"), Again.PlayRateScale, First.PlayRateScale);
++        TestEqual(TEXT("Same seed/time repeats bob-gain scale"), Again.BobGainScale, First.BobGainScale);
++        TestTrue(TEXT("Play-rate variation stays within +/-5 percent"), FMath::Abs(First.PlayRateScale - 1.0) <= Bound);
++        TestTrue(TEXT("Bob-gain variation stays within +/-5 percent"), FMath::Abs(First.BobGainScale - 1.0) <= Bound);
++        bSawVariation |= !FMath::IsNearlyEqual(First.PlayRateScale, 1.0, 1.0e-6)
++            || !FMath::IsNearlyEqual(First.BobGainScale, 1.0, 1.0e-6);
++    }
++    TestTrue(TEXT("The enabled defaults produce non-zero variation"), bSawVariation);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageShadowCatActionMovesWithPassageTest,
++    "InfinityStage.Editor.ShadowCatActions.MovesWithPassage",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageShadowCatActionMovesWithPassageTest::RunTest(const FString& Parameters)
++{
++    const FFrameRate TickResolution(1000, 1);
++    const double BeforeMove = AInfinityStageCameraRig::PassageSecondsAtMasterFrame(
++        FFrameNumber(43000), FFrameNumber(1000), TickResolution);
++    const double AfterMove = AInfinityStageCameraRig::PassageSecondsAtMasterFrame(
++        FFrameNumber(57000), FFrameNumber(15000), TickResolution);
++    TestEqual(TEXT("Moving Passage and Master frame together preserves +42 s"), AfterMove, BeforeMove);
++    TestEqual(TEXT("The rehearsal action remains at Passage +42 s"), AfterMove, 42.0);
++
++    const FInfinityShadowCatActionTiming BeforeTiming = AInfinityStageCameraRig::EvaluateShadowCatActionTiming(
++        BeforeMove, 90.0, 42.0, 4.0, 1.0, 0.5, 0.5, false);
++    const FInfinityShadowCatActionTiming AfterTiming = AInfinityStageCameraRig::EvaluateShadowCatActionTiming(
++        AfterMove, 90.0, 42.0, 4.0, 1.0, 0.5, 0.5, false);
++    TestEqual(TEXT("Moved action has the same active state"), AfterTiming.bActive, BeforeTiming.bActive);
++    TestEqual(TEXT("Moved action has the same pose"), AfterTiming.PositionSeconds, BeforeTiming.PositionSeconds);
++    TestEqual(TEXT("Moved action has the same blend weight"), AfterTiming.Weight, BeforeTiming.Weight);
++    return true;
++}
++
++#endif
