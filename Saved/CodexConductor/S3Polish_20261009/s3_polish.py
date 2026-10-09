@@ -640,7 +640,7 @@ def _binding_transform_pose(seq, binding_name, frame, run):
 
 def _actor_transform(actor, relative=False):
     if relative:
-        root = actor.get_root_component()
+        root = actor.get_editor_property("root_component")
         loc = _prop(root, "relative_location")
         rot = _prop(root, "relative_rotation")
         scale = _prop(root, "relative_scale3d")

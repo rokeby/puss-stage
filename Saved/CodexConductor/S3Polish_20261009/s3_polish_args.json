@@ -1,7 +1,7 @@
 {
-  "mode": "DRY",
-  "confirm": "DRY S3POLISH",
-  "run_id": "S3POLISH-DRY-1",
+  "mode": "APPLY",
+  "confirm": "APPLY S3POLISH",
+  "run_id": "S3POLISH-APPLY-1",
   "parts": [
     "fires_together",
     "b11_dim",
