@@ -146,3 +146,15 @@ the shared Google Sheet is never written. *Local* = a row added here; **Director
 - `R0094` **GARY:** ‘You are the oldest, so your word is law. But I have heard the tallest mountains say that he just proclaimed the boy Cagliuso King.’ | **Beats:** B6: Mount Rigi (small fat one)
 - `R0095` **Beats:** B7: Mount Rigi "Ridiculous! He has no such right, and besides, he is as lofty as he is naive. It is I, the oldest mountain, who proclaims the boy Cagliuso king! For my word is law."
 - `R0096` **KLARA:** And to the other mountain he said:
+
+## Passage 6
+
+- `R0097` **Video Cue:** Passage 6 | *local*
+
+## Scene 6: Void
+
+- `R0098` **Video Cue:** Scene 6: Void | *local*
+
+## Ending
+
+- `R0099` **Video Cue:** Ending | *local*

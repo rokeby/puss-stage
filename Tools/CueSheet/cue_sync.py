@@ -19,6 +19,14 @@ Usage:
   python Tools/CueSheet/cue_sync.py cuebook                       fetch the online Cue Book and merge it (needs CUEBOOK_PASS)
   python Tools/CueSheet/cue_sync.py webpull <dir or .json>        merge a saved Cue Book export / backup file
   python Tools/CueSheet/cue_sync.py webbase                       record working.csv as the page's merge base (after seeding)
+  python Tools/CueSheet/cue_sync.py tocuebook                     write a changes file for the Cue Book (pull does this too)
+
+Project -> Cue Book: `tocuebook` (run automatically after every `pull`) writes Docs/CueSheet/to_cuebook/
+cuebook_changes_<time>.json: every field where working.csv differs from what the Cue Book was last known to hold
+(web_baseline.json), new rows (page key "W" + the row's Key), and rows gone from the working copy (proposed as
+"cut"). Gary loads it on the page (Backup > Choose a backup file): it lists every change, applies nothing until he
+confirms, and applies them as ordinary logged edits, so a field someone changed on the page comes back as a
+conflict to decide instead of being overwritten.
 
 The online Cue Book (Tools/CueBook: a GitHub Pages site whose data lives in a private Google Sheet behind an Apps
 Script, for Klara and Cameron) keeps its own copy of the list. `cuebook` downloads it (the raw download is kept in
@@ -331,6 +339,11 @@ def web_merge(baseline, web_docs, work_rows):
         page_key = doc.get('key') or doc.get('id')
         now = web_fields(doc)
         work_key = web_keys.get(page_key, page_key)
+        if work_key not in by_key and page_key[:1] == 'W' and page_key[1:] in by_key:
+            work_key = page_key[1:]                        # a row the project sent to the page (tocuebook)
+            web_keys[page_key] = work_key
+            base_rows = dict(base_rows)
+            base_rows.setdefault(page_key, base_rows.get(work_key, web_fields(web_doc(by_key[work_key], 0))))
         row = by_key.get(work_key)
         if row is None:
             if page_key in base_rows:
@@ -445,6 +458,60 @@ def cuebook_pull():
     webpull(out)
 
 
+def cuebook_changes(baseline, work_rows):
+    """What the Cue Book needs so it matches working.csv. Pure. -> (changes, adds, gone)."""
+    to_page = {v: k for k, v in baseline.get('web_keys', {}).items()}
+    base_rows = baseline.get('rows', {})
+    changes, adds, seen = [], [], set()
+    prev_page_key = ''
+    for row in work_rows:
+        page_key = to_page.get(row['Key'], row['Key'])
+        mine = web_fields(web_doc(row, 0))
+        mine['cut'] = CUT_MARK in row.get(DIRECTOR, '')
+        base = base_rows.get(page_key)
+        if base is None:
+            page_key = 'W' + row['Key']
+            base = base_rows.get(page_key)
+        if base is None:
+            if any(mine[f] for f in WEB_FIELDS):
+                adds.append({'key': page_key, 'after': prev_page_key, 'fields': {f: mine[f] for f in WEB_FIELDS}})
+        else:
+            seen.add(page_key)
+            for f in list(WEB_FIELDS) + ['cut']:
+                was = base.get(f, False if f == 'cut' else '')
+                if mine[f] != was:
+                    changes.append({'key': page_key, 'field': f, 'from': was, 'to': mine[f]})
+        prev_page_key = page_key
+    gone = [k for k in base_rows if k not in seen and not base_rows[k].get('cut')
+            and k not in {a['key'] for a in adds} and to_page.get(k, k) not in {r['Key'] for r in work_rows}
+            and k[1:] not in {r['Key'] for r in work_rows}]
+    for k in gone:
+        changes.append({'key': k, 'field': 'cut', 'from': False, 'to': True, 'why': 'no longer in the working copy'})
+    return changes, adds, gone
+
+
+def tocuebook():
+    import datetime
+    import json
+    _, rows = load_csv(WORKING)
+    with open(WEB_BASELINE, encoding='utf-8') as f:
+        baseline = json.load(f)
+    changes, adds, gone = cuebook_changes(baseline, rows)
+    if not changes and not adds:
+        print('CUE_SYNC_TOCUEBOOK_OK nothing to send (the Cue Book already matches the working copy as last known)')
+        return None
+    out_dir = os.path.join(DIR, 'to_cuebook')
+    os.makedirs(out_dir, exist_ok=True)
+    stamp = datetime.datetime.now().strftime('%Y-%m-%dT%H%M')
+    out = os.path.join(out_dir, 'cuebook_changes_%s.json' % stamp)
+    with open(out, 'w', encoding='utf-8') as f:
+        json.dump({'app': 'puss-cue-book', 'kind': 'changes', 'created': datetime.datetime.now().isoformat(),
+                   'source': 'Docs/CueSheet/working.csv', 'changes': changes, 'adds': adds}, f,
+                  ensure_ascii=False, indent=1)
+    print('CUE_SYNC_TOCUEBOOK_OK changes=%d adds=%d cuts=%d file=%s' % (len(changes), len(adds), len(gone), out))
+    return out
+
+
 def web_seed_baseline():
     """Record working.csv as the page's merge base (run once, right after seeding the page from it)."""
     import json
@@ -504,6 +571,28 @@ def selftest():
         ('web: an empty new cue waits', 'WDEF' not in wnb['web_keys'] and 'WDEF' not in wnb['rows']),
         ('web: the new cue is remembered for the next pull', wnb['web_keys'].get('WABC') == wout[1]['Key']),
     ]
+    # project -> Cue Book
+    tbase = {'rows': {'R0001': {**{f: '' for f in WEB_FIELDS}, 'light': 'A', 'cut': False},
+                      'R0002': {**{f: '' for f in WEB_FIELDS}, 'light': 'B', 'cut': False},
+                      'R0003': {**{f: '' for f in WEB_FIELDS}, 'light': 'C', 'cut': False}}, 'web_keys': {}}
+    twork = [{'Key': 'R0001', 'Light': 'A2', DIRECTOR: ''}, {'Key': 'R0002', 'Light': 'B', DIRECTOR: ''},
+             {'Key': 'R0009', 'Light': 'new', DIRECTOR: ''}]
+    tch, tadd, tgone = cuebook_changes(tbase, twork)
+    checks += [
+        ('to page: a changed field is sent with its old value', tch[0] == {'key': 'R0001', 'field': 'light', 'from': 'A', 'to': 'A2'}),
+        ('to page: an unchanged row sends nothing', not any(c['key'] == 'R0002' for c in tch)),
+        ('to page: a new row is added after its neighbour as W+Key', tadd == [{'key': 'WR0009', 'after': 'R0002', 'fields': {**{f: '' for f in WEB_FIELDS}, 'light': 'new'}}]),
+        ('to page: a row gone from the project is proposed as cut, not deleted', tgone == ['R0003'] and tch[-1]['to'] is True),
+    ]
+    tbase2 = {'rows': dict(tbase['rows'], R0001={**tbase['rows']['R0001'], 'light': 'A2'},
+                           WR0009={**{f: '' for f in WEB_FIELDS}, 'light': 'new', 'cut': False},
+                           R0003={**tbase['rows']['R0003'], 'cut': True}), 'web_keys': {}}
+    tch2, tadd2, _ = cuebook_changes(tbase2, twork)
+    checks.append(('to page control: once the page matches, nothing is sent', not tch2 and not tadd2))
+    tpage = [{'key': 'WR0009', 'ord': 25, 'light': 'new (page edit)', 'cut': False}]
+    tw2, tnb, tl2, tc2 = web_merge(tbase2, tpage, twork)
+    checks.append(('page -> project: the W+Key cue maps back onto its row, no duplicate',
+                   len(tw2) == 3 and tw2[2]['Light'] == 'new (page edit)' and tnb['web_keys'].get('WR0009') == 'R0009'))
     again, _, alog, aconf = web_merge(wnb, wdocs, wout)
     checks.append(('web control: pulling the same page twice changes nothing',
                    not alog and not aconf and again == wout))
@@ -518,6 +607,8 @@ if __name__ == '__main__':
     command = sys.argv[1] if len(sys.argv) > 1 else ''
     if command == 'pull' and len(sys.argv) == 3:
         pull(sys.argv[2])
+        if os.path.exists(WEB_BASELINE):
+            tocuebook()
     elif command == 'render':
         render()
     elif command == 'note' and len(sys.argv) == 4:
@@ -526,6 +617,8 @@ if __name__ == '__main__':
         insert(sys.argv[2], sys.argv[3:])
     elif command == 'webpull' and len(sys.argv) == 3:
         webpull(sys.argv[2])
+    elif command == 'tocuebook':
+        tocuebook()
     elif command == 'cuebook':
         cuebook_pull()
     elif command == 'webbase':
