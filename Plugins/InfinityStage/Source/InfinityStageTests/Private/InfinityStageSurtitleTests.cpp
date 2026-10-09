@@ -31,7 +31,7 @@ TArray<FInfinityTransportSegment> MakeShow()
 
 int64 At(const double MasterSeconds)
 {
-    return int64(MasterSeconds * Ticks);
+    return int64(FMath::RoundToDouble(MasterSeconds * Ticks));
 }
 
 // The Google Sheet export shape: a title row, the header, carry-down segments, a quoted
@@ -165,6 +165,84 @@ bool FInfinityStageSurtitleEvaluateTest::RunTest(const FString& Parameters)
         InfinityStageSurtitles::Evaluate(Script, Retimed, At(310.0 + 74.0), Ticks, 0.0).LineIndex, 0);
     TestEqual(TEXT("Control: the old Master time no longer shows it"),
         InfinityStageSurtitles::Evaluate(Script, Retimed, At(300.0 + 74.0), Ticks, 0.0).LineIndex, INDEX_NONE);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageSurtitleWriteTest,
+    "InfinityStage.Surtitles.StampWritesOneCell",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageSurtitleWriteTest::RunTest(const FString& Parameters)
+{
+    // Cue Book shape: a Key column, Notes, CRLF, a quoted comma.
+    const FString Original =
+        TEXT("Segment,In,Out,Speaker,Text,Key,Notes\r\n")
+        TEXT("S5,1:14,1:25,West,\"We have, been\",T1,keep me\r\n")
+        TEXT("S5,1:40,,East,Yes.,T2,\r\n");
+    FInfinitySurtitleScript Script;
+    TestTrue(TEXT("Loads"), Script.LoadFromCsvText(Original));
+    if (!TestEqual(TEXT("Two lines"), Script.Lines.Num(), 2))
+    {
+        return false;
+    }
+    TestEqual(TEXT("Key is read"), Script.Lines[0].Key, FString(TEXT("T1")));
+
+    FString Text = Original;
+    FString Error;
+    TestTrue(TEXT("Stamp In"), InfinityStageSurtitles::SetLineTime(Text, Script.Lines[0], false, 70.0, Error));
+    TestEqual(TEXT("Only the In cell changed; Key, Notes, quoting, CRLF kept"), Text, FString(
+        TEXT("Segment,In,Out,Speaker,Text,Key,Notes\r\n")
+        TEXT("S5,1:10.00,1:25,West,\"We have, been\",T1,keep me\r\n")
+        TEXT("S5,1:40,,East,Yes.,T2,\r\n")));
+
+    FInfinitySurtitleScript Reread;
+    Reread.LoadFromCsvText(Text);
+    TestEqual(TEXT("Read back: new In"), Reread.Lines[0].InSeconds, 70.0, 1e-9);
+    TestEqual(TEXT("Read back: Out untouched"), Reread.Lines[0].OutSeconds, 85.0, 1e-9);
+
+    FString Stale = Text;
+    TestFalse(TEXT("Control: a line whose In changed on disk is refused"),
+        InfinityStageSurtitles::SetLineTime(Stale, Script.Lines[0], false, 60.0, Error));
+    TestEqual(TEXT("...and the text is untouched"), Stale, Text);
+
+    FInfinitySurtitleLine WrongKey = Reread.Lines[0];
+    WrongKey.Key = TEXT("T9");
+    TestFalse(TEXT("Control: a Key mismatch is refused"), InfinityStageSurtitles::SetLineTime(Stale, WrongKey, false, 60.0, Error));
+
+    TestFalse(TEXT("Control: Out before In is refused"),
+        InfinityStageSurtitles::SetLineTime(Text, Reread.Lines[1], true, 99.0, Error));
+    TestFalse(TEXT("Control: In after the explicit Out is refused"),
+        InfinityStageSurtitles::SetLineTime(Text, Reread.Lines[0], false, 90.0, Error));
+    TestTrue(TEXT("A blank Out becomes explicit"), InfinityStageSurtitles::SetLineTime(Text, Reread.Lines[1], true, 110.0, Error));
+    TestTrue(TEXT("...in the Out cell"), Text.Contains(TEXT("S5,1:40,1:50.00,East,Yes.,T2,\r\n")));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageSurtitleStepTest,
+    "InfinityStage.Surtitles.StepFindsNeighbours",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageSurtitleStepTest::RunTest(const FString& Parameters)
+{
+    const TArray<FInfinityTransportSegment> Show = MakeShow();
+    FInfinitySurtitleScript Script;
+    Script.LoadFromCsvText(SheetCsv);
+    // Text lines by Master landing time (In + 0.3 s fade): row "On the road" 210.78, 1:14 374.3, 1:40 400.3.
+    int64 Land = 0;
+    auto Step = [&](const double FromSeconds, const int32 Delta)
+    {
+        return InfinityStageSurtitles::FindStepTarget(Script, Show, At(FromSeconds), Ticks, 0.3, Delta, Land);
+    };
+    TestEqual(TEXT("Next from the top: the Passage 2 line"), Step(0.0, 1), 3);
+    TestEqual(TEXT("...landing just past its fade-in"), Land, At(210.78));
+    TestEqual(TEXT("Next from a landing goes on"), Step(210.78, 1), 0);
+    TestEqual(TEXT("Next skips the clear row"), Step(374.3, 1), 1);
+    TestEqual(TEXT("Previous from mid-line goes to its start"), Step(380.0, -1), 0);
+    TestEqual(TEXT("Previous from a landing goes back"), Step(374.3, -1), 3);
+    TestEqual(TEXT("Control: nothing after the last"), Step(400.3, 1), INDEX_NONE);
+    TestEqual(TEXT("Control: nothing before the first"), Step(0.0, -1), INDEX_NONE);
     return true;
 }
 

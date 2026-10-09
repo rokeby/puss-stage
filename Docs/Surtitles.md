@@ -57,6 +57,34 @@ no rebuild is needed. These are loose files, so a packaged build would have to s
 them. That last point is inferred: the show runs from the editor, and staging is
 unverified.
 
+## Rehearsal controls (Cue Director)
+
+Gary, 9 Oct: surtitles are mainly for the S5 mountains, there's no operator, and they
+should stay light, but they must be "part of the cue director interface to be adjustable
+and rehearsable". The subsystem exposes the calls below. The Cueing stream wires them
+into the Cue Director interface. The same calls are available as console commands.
+
+| Call (`UInfinityStageSurtitleSubsystem`) | Console | Effect |
+| --- | --- | --- |
+| `StepLine(+1 / -1)` | `InfinityStage.Surtitles.Step 1` / `-1` | Calls `ScrubToMasterFrame` (which pauses) to just past the next or previous line's fade-in, and selects that line. A transport refusal is reported, never forced |
+| `StampAtPlayhead(bOut)` | `InfinityStage.Surtitles.Stamp In` / `Out` | Sets the selected line's In or Out to the playhead, as time from its segment's start |
+| `Nudge(bOut, s)` | `InfinityStage.Surtitles.Nudge In 0.5` | Moves the selected line's In or Out. A blank Out becomes an explicit time |
+| `DescribeSelected()`, `GetLastMessage()` | logged as `INFINITY_SURTITLES_CONTROL` | Text for the panel |
+
+**Selection:** the selected line is the last one stepped to, otherwise the one on
+screen. It is kept across a reload, matched by Key or, failing that, by row.
+
+**Writes** change one cell in the sheet file, and nothing else:
+- every other cell, column (`Key`, `Notes`, unknown ones), row and line ending is kept;
+- the file is replaced in one step (written to a temp file, then renamed over it).
+
+**Refusals:** a write is refused when that row has changed on disk since it was loaded
+(Key or In differ). The sheet is then reloaded so you can try again. A write is also
+refused when it would make Out <= In. Writes log `INFINITY_SURTITLES_WRITE`.
+
+**Key column:** the Cue Book gives every row a stable `Key`. It is read and carried
+through; it is never invented here.
+
 ## Log markers
 
 - `INFINITY_SURTITLES_LOADED ok= lines= warnings= path=`
