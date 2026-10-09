@@ -136,6 +136,54 @@ case("outfit_logged_duplicate_path_passes_genuine_ambiguity_refuses", "REGRESSIO
      outfit_duplicate_handle_regression)
 
 
+def exact_short_parent_rules():
+    assert set(E.SHORT_PARENT_SELECTION_RULES) == {"Shore02_F52", "Shore04_F55", "Shore06_F25"}
+    for figure, rule in E.SHORT_PARENT_SELECTION_RULES.items():
+        selected, audit = E.select_short_parent(figure, reversed(rule["candidates"]))
+        assert selected == rule["selected"]
+        assert audit["rule"] == "explicit_exact_candidate_set"
+        assert audit["selected"] == rule["selected"]
+
+
+def shore02_short_parent_drift_refused():
+    rule = E.SHORT_PARENT_SELECTION_RULES["Shore02_F52"]
+    raises("SHORT_PARENT_COUNT|Shore02_F52", lambda: E.select_short_parent(
+        "Shore02_F52", [rule["candidates"][0], rule["candidates"][1] + "_DRIFT"]))
+
+
+def unlisted_short_parent_ambiguity_refused():
+    raises("SHORT_PARENT_COUNT|Shore03_M59", lambda: E.select_short_parent(
+        "Shore03_M59", ["/Game/A", "/Game/B"]))
+
+
+case("exact_short_parent_rules_select_character_mis", "REGRESSION",
+     exact_short_parent_rules)
+case("shore02_short_parent_candidate_drift_refused", "NEGATIVE",
+     shore02_short_parent_drift_refused)
+case("unlisted_short_parent_ambiguity_refused", "NEGATIVE",
+     unlisted_short_parent_ambiguity_refused)
+
+
+def shore05_exact_neutral_weave_fallback():
+    rule = E.NEUTRAL_WEAVE_TINT_RULES["Shore05_M53"]
+    tint, audit = E.neutral_weave_tint_fallback(
+        "Shore05_M53", rule["asset"], rule["material"], ["OtherParameter"])
+    assert tint == [1.0, 1.0, 1.0, 1.0]
+    assert audit["rule"] == "explicit_exact_asset_material"
+
+
+def shore05_neutral_weave_drift_not_selected():
+    rule = E.NEUTRAL_WEAVE_TINT_RULES["Shore05_M53"]
+    assert E.neutral_weave_tint_fallback(
+        "Shore05_M53", rule["asset"] + "_DRIFT", rule["material"], []) == (None, None)
+    assert E.neutral_weave_tint_fallback(
+        "Shore05_M53", rule["asset"], rule["material"], ["WeaveTint"]) == (None, None)
+
+
+case("shore05_exact_neutral_weave_fallback", "REGRESSION", shore05_exact_neutral_weave_fallback)
+case("shore05_neutral_weave_drift_not_selected", "NEGATIVE", shore05_neutral_weave_drift_not_selected)
+
+
 def placement_zero_extra():
     cfg = C.validate_args(args())
     plan = C.build_placement_plan(cfg, [], cameras())
@@ -224,6 +272,9 @@ def colour_product():
 case("underwear_colour_is_weave_mean_times_tint", "POSITIVE", colour_product)
 case("underwear_tint_short_refused", "NEGATIVE", lambda: raises("WEAVE_TINT", lambda: C.cloth_colour([1.0, 1.0])))
 case("colour_parameter_unique", "POSITIVE", lambda: C.choose_colour_parameter(["Roughness", "Base Color Tint"], ["BaseColor Tint"]) == "Base Color Tint" or (_ for _ in ()).throw(AssertionError()))
+case("live_c_color_parameter_unique", "REGRESSION", lambda: C.choose_colour_parameter(
+    ["B_diffuse_color_1", "C_color", "Print1ColorA"], ["Tint", "C_color"]) == "C_color" or
+    (_ for _ in ()).throw(AssertionError()))
 case("colour_parameter_missing_refused", "NEGATIVE", lambda: raises("COLOUR_PARAMETER", lambda: C.choose_colour_parameter(["Roughness"], ["Tint"])))
 case("colour_parameter_ambiguous_refused", "NEGATIVE", lambda: raises("COLOUR_PARAMETER", lambda: C.choose_colour_parameter(["Tint", "Color"], ["Tint", "Color"])))
 case("stills_include_first_visible_boundary", "POSITIVE", lambda: any(abs(row["scene_seconds"] - 15.0) < 1e-6 for row in C.stills_plan()) or (_ for _ in ()).throw(AssertionError()))

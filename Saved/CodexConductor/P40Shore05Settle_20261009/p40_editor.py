@@ -42,6 +42,51 @@ OUTFIT_DIR = "/Game/Metahuman/ShoreCast_20260910/OutfitHessian"
 MAP_FILE = "Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap"
 CLAMS_FILE = "Content/Scenes/LS_Clams.uasset"
 
+# Live DRY B1K found that Shore02's outfit component resolves two short-role
+# slots: the shared body-shape material and a character-specific MI.  Preserve
+# the character-specific material as the child MI parent, but only when the
+# complete candidate set is exactly the measured pair.  Every unlisted or
+# drifted ambiguity remains a refusal.
+SHORT_PARENT_SELECTION_RULES = {
+    "Shore02_F52": {
+        "candidates": (
+            "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/DefaultGarment/ClothAssets/bodyShapeB/Meshes/bodytype2_short",
+            "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore02_F52/MHC_Shore02_F52/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Short",
+        ),
+        "selected": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore02_F52/MHC_Shore02_F52/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Short",
+        "reason": "prefer the character-specific resolved garment MI over its shared body-shape source",
+    },
+    "Shore04_F55": {
+        "candidates": (
+            "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/DefaultGarment/ClothAssets/bodyShapeB/Meshes/bodytype2_short",
+            "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Short",
+        ),
+        "selected": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Short",
+        "reason": "prefer the character-specific resolved garment MI over its shared body-shape source",
+    },
+    "Shore06_F25": {
+        "candidates": (
+            "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/DefaultGarment/ClothAssets/bodyShapeB/Meshes/bodytype2_short",
+            "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Short",
+        ),
+        "selected": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Short",
+        "reason": "prefer the character-specific resolved garment MI over its shared body-shape source",
+    },
+}
+
+# Shore05 is the sole retained v2 live-sack template. Unlike the five v3
+# shroud materials, its exact measured material exposes no WeaveTint parameter.
+# Treat it as an untinted weave only for this exact figure/asset/material tuple;
+# any asset drift leaves the tint unreadable and DRY remains unready.
+NEUTRAL_WEAVE_TINT_RULES = {
+    "Shore05_M53": {
+        "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore05_M53_v2",
+        "material": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth_v2",
+        "tint": [1.0, 1.0, 1.0, 1.0],
+        "reason": "exact v2 sack material has no WeaveTint; use the neutral weave mean",
+    },
+}
+
 
 class Stop(RuntimeError):
     pass
@@ -321,6 +366,16 @@ def cloth_template(figure):
                               "ChaosClothComponent")
 
 
+def neutral_weave_tint_fallback(figure, asset_path, material_path, vector_parameters):
+    rule = NEUTRAL_WEAVE_TINT_RULES.get(figure)
+    if (rule is None or "WeaveTint" in vector_parameters or
+            asset_path != rule["asset"] or material_path != rule["material"]):
+        return None, None
+    return list(rule["tint"]), {"rule": "explicit_exact_asset_material",
+                                "asset": asset_path, "material": material_path,
+                                "reason": rule["reason"]}
+
+
 def outfit_template(figure):
     bp = unreal.load_asset(core.BP_PATHS[figure])
     require(bp is not None, "BP_MISSING|" + core.BP_PATHS[figure])
@@ -343,13 +398,21 @@ def cloth_state(figure):
     material = cloth.get_material(0)
     mel = unreal.MaterialEditingLibrary
     vectors = [str(x) for x in mel.get_vector_parameter_names(material)] if material else []
+    asset = cloth.get_asset() if hasattr(cloth, "get_asset") else prop(cloth, "cloth_asset")
+    asset_path = path_of(asset)
+    material_path = path_of(material)
     tint = None
+    tint_source = None
     if material and "WeaveTint" in vectors:
         c = mel.get_material_instance_vector_parameter_value(material, "WeaveTint")
         tint = [float(c.r), float(c.g), float(c.b), float(c.a)]
-    asset = cloth.get_asset() if hasattr(cloth, "get_asset") else prop(cloth, "cloth_asset")
+        tint_source = {"rule": "material_parameter", "parameter": "WeaveTint"}
+    elif material:
+        tint, tint_source = neutral_weave_tint_fallback(
+            figure, asset_path, material_path, vectors)
     return bp, cloth, {"figure": figure, "blueprint": core.BP_PATHS[figure], "component": full_path(cloth),
-                       "asset": path_of(asset), "material": path_of(material), "weave_tint": tint,
+                       "asset": asset_path, "material": material_path, "weave_tint": tint,
+                       "weave_tint_source": tint_source,
                        "underwear_colour_linear": core.cloth_colour(tint) if tint else None,
                        "reset": bool(prop(cloth, "reset", False)),
                        "teleport": bool(prop(cloth, "teleport", False)),
@@ -368,6 +431,21 @@ def classify_material(path):
     return "unknown"
 
 
+def select_short_parent(figure, short_parents):
+    candidates = tuple(sorted(set(short_parents)))
+    if len(candidates) == 1:
+        return candidates[0], {"rule": "unique", "candidates": list(candidates)}
+    rule = SHORT_PARENT_SELECTION_RULES.get(figure)
+    require(rule is not None and candidates == tuple(sorted(rule["candidates"])),
+            "SHORT_PARENT_COUNT|%s|%r" % (figure, list(candidates)))
+    require(rule["selected"] in candidates,
+            "SHORT_PARENT_RULE_INVALID|%s|%s" % (figure, rule["selected"]))
+    return rule["selected"], {"rule": "explicit_exact_candidate_set",
+                              "candidates": list(candidates),
+                              "selected": rule["selected"],
+                              "reason": rule["reason"]}
+
+
 def outfit_template_state(figure, cfg, cloth_row):
     _, component, discovery = outfit_template(figure)
     materials = [component.get_material(i) for i in range(component.get_num_materials())]
@@ -376,8 +454,8 @@ def outfit_template_state(figure, cfg, cloth_row):
     require("short" in roles and "shirt" in roles and "unknown" not in roles,
             "OUTFIT_SLOTS|%s|%r" % (figure, list(zip(paths, roles))))
     short_parents = sorted(set(paths[i] for i, role in enumerate(roles) if role == "short"))
-    require(len(short_parents) == 1, "SHORT_PARENT_COUNT|%s|%r" % (figure, short_parents))
-    parent = unreal.load_asset(short_parents[0])
+    short_parent, short_parent_selection = select_short_parent(figure, short_parents)
+    parent = unreal.load_asset(short_parent)
     vectors = sorted(str(x) for x in unreal.MaterialEditingLibrary.get_vector_parameter_names(parent))
     parameter, error = None, None
     try:
@@ -387,7 +465,8 @@ def outfit_template_state(figure, cfg, cloth_row):
     child = OUTFIT_DIR + "/MI_%s_Shorts_Hessian_v%d" % (figure, cfg["outfit"]["asset_version"])
     return {"figure": figure, "component": full_path(component), "template_discovery": discovery,
             "resolved": paths, "roles": roles,
-            "short_parent": short_parents[0], "vector_parameters": vectors,
+            "short_parent": short_parent, "short_parent_selection": short_parent_selection,
+            "vector_parameters": vectors,
             "colour_parameter": parameter, "parameter_problem": error, "child": child,
             "target_colour_linear": cloth_row["underwear_colour_linear"]}
 

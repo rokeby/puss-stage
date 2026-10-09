@@ -1,7 +1,7 @@
 {
-  "mode": "DRY",
-  "confirm": "",
-  "extra_count": 0,
+  "mode": "APPLY",
+  "confirm": "APPLY P40SHORE",
+  "extra_count": 2,
   "seed": 4005,
   "candidate_count": 256,
   "placement_bounds_local_cm": [2450.0, 3950.0, -720.0, 780.0],
@@ -34,7 +34,8 @@
       "Base Color",
       "Color",
       "Colour",
-      "Tint"
+      "Tint",
+      "C_color"
     ]
   }
 }

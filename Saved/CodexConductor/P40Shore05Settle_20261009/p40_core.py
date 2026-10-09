@@ -118,7 +118,7 @@ def validate_args(raw: dict[str, Any], record_exists: bool = False) -> dict[str,
     version = material.get("asset_version", 1)
     require(isinstance(version, int) and 1 <= version <= 99, "OUTFIT_VERSION")
     candidates = material.get("colour_parameter_candidates") or [
-        "BaseColor Tint", "Base Color Tint", "BaseColor", "Base Color", "Color", "Colour", "Tint"
+        "BaseColor Tint", "Base Color Tint", "BaseColor", "Base Color", "Color", "Colour", "Tint", "C_color"
     ]
     require(isinstance(candidates, list) and candidates and all(isinstance(x, str) and x for x in candidates),
             "COLOUR_PARAMETER_CANDIDATES")

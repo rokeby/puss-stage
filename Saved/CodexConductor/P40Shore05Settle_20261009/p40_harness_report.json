@@ -87,6 +87,31 @@
       "passed": true
     },
     {
+      "control": "REGRESSION",
+      "name": "exact_short_parent_rules_select_character_mis",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "shore02_short_parent_candidate_drift_refused",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "unlisted_short_parent_ambiguity_refused",
+      "passed": true
+    },
+    {
+      "control": "REGRESSION",
+      "name": "shore05_exact_neutral_weave_fallback",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "shore05_neutral_weave_drift_not_selected",
+      "passed": true
+    },
+    {
       "control": "POSITIVE",
       "name": "placement_mandatory_shore05",
       "passed": true
@@ -157,6 +182,11 @@
       "passed": true
     },
     {
+      "control": "REGRESSION",
+      "name": "live_c_color_parameter_unique",
+      "passed": true
+    },
+    {
       "control": "NEGATIVE",
       "name": "colour_parameter_missing_refused",
       "passed": true
@@ -177,13 +207,13 @@
       "passed": true
     }
   ],
-  "negative_passed": 21,
-  "negative_total": 21,
-  "passed": 35,
+  "negative_passed": 27,
+  "negative_total": 27,
+  "passed": 41,
   "positive_passed": 14,
   "positive_total": 14,
   "result": "PASS",
   "schema": "p40_shore05_settle/1",
-  "total": 35,
+  "total": 41,
   "unreal_started": false
 }
