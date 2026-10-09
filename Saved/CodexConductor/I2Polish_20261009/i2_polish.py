@@ -111,6 +111,35 @@ def merged_params(raw):
     return out
 
 
+def enabled_parts(params):
+    """Return the mutation switches implied by the public arguments."""
+    return {
+        "boundary": bool(params.get("boundary_apply")),
+        "f17": bool(params.get("f17_fix_steps")),
+        "f18": bool(params.get("f18_target_ids")),
+    }
+
+
+def gate_refusals(params, common, boundary, f17, f18, mutation_counts=None):
+    """Gate APPLY only on enabled parts, while catching disabled-part writes."""
+    enabled = enabled_parts(params)
+    mutation_counts = mutation_counts or {}
+    refusals = list(common)
+    if enabled["boundary"]:
+        refusals += list(boundary)
+    if enabled["f17"]:
+        refusals += list(f17)
+    if enabled["f18"]:
+        refusals += list(f18)
+    for part in ("boundary", "f17", "f18"):
+        count = int(mutation_counts.get(part, 0))
+        if not enabled[part] and count:
+            refusals.append("DISABLED_PART_WOULD_MUTATE|%s|%d" % (part.upper(), count))
+    if not any(enabled.values()):
+        refusals.append("NO_ENABLED_PARTS")
+    return refusals
+
+
 def parse_clock(text):
     """Parse m:ss.cc (centiseconds), m:ss, or raw seconds."""
     value = str(text).strip()
@@ -652,25 +681,26 @@ class UnrealBackend(object):
         if show is None or master is None or i2 is None:
             self.fail("LOAD_AUTHORITY")
         playback = [int(i2.get_playback_start()), int(i2.get_playback_end())]
-        refusals = []
+        common_issues = []
+        boundary_refusals = []
         if playback != [0, EXPECTED_I2_END]:
-            refusals.append("P24_NOT_APPLIED|playback=%s|expected=[0,%d]" % (playback, EXPECTED_I2_END))
+            common_issues.append("P24_NOT_APPLIED|playback=%s|expected=[0,%d]" % (playback, EXPECTED_I2_END))
         scenes = self.scene_rows(show)
         plans = [boundary_plan(row, params["boundary_extend_frames"]) for row in scenes
                  if row["scene"] in params["boundary_scenes"]]
         if params["boundary_apply"]:
             for row in plans:
                 if row["status"] == "AMBIGUOUS_TERMINAL_NESTED":
-                    refusals.append("BOUNDARY_AMBIGUOUS|scene=%d" % row["scene"])
+                    boundary_refusals.append("BOUNDARY_AMBIGUOUS|scene=%d" % row["scene"])
         probe = None
         probe_name = str(params.get("boundary_probe_file") or "").strip()
         if params["boundary_apply"]:
             if not probe_name or os.path.basename(probe_name) != probe_name:
-                refusals.append("BOUNDARY_PROBE_FILE_REQUIRED|use a basename from this tool folder")
+                boundary_refusals.append("BOUNDARY_PROBE_FILE_REQUIRED|use a basename from this tool folder")
             else:
                 probe = _json_read(os.path.join(self.root, probe_name), required=False)
                 if not probe or not probe.get("census_unchanged"):
-                    refusals.append("BOUNDARY_PROBE_INVALID_OR_DIRTY|%s" % probe_name)
+                    boundary_refusals.append("BOUNDARY_PROBE_INVALID_OR_DIRTY|%s" % probe_name)
         for row in plans:
             row["probe"] = boundary_probe_evidence(probe, row["scene"]) if probe else {
                 "status": "NOT_SUPPLIED", "supports_fix": False}
@@ -688,7 +718,6 @@ class UnrealBackend(object):
             {"id": "HOLD_AFTER_FALL", "frame": FALL_END_FRAME,
              "note": "Freeze explicitly selected movement for P24's one-second tail."},
         ]
-        refusals += hold["refusals"]
         cue = self._i2_cue(show)
         external = str(cue.get_editor_property("scene").get_editor_property("external_sound"))
         unpausable = "declaredunpausable" in re.sub(r"[^A-Za-z]", "", external).lower()
@@ -699,12 +728,27 @@ class UnrealBackend(object):
         except Exception as exc:
             lighting = {"status": "UNCLEAR", "error": "%s: %s" % (type(exc).__name__, exc),
                         "searched": "I2 cut cameras, lights, PPVs, camera PP, fog at frames 1249/1250"}
-            refusals.append("F17_AUDIT_UNAVAILABLE|%s" % lighting["error"])
         fixes = validate_fix_steps(params["f17_fix_steps"], playback[1])
+        f17_issues = (["F17_AUDIT_UNAVAILABLE|%s" % lighting["error"]]
+                      if lighting.get("status") == "UNCLEAR" else [])
+        enabled = enabled_parts(params)
+        # P24's playback range protects the frame-addressed F17/F18 edits.  It
+        # is still reported for a boundary-only run, but does not gate that
+        # unrelated Scene-tail mutation.
+        common_refusals = list(common_issues) if (enabled["f17"] or enabled["f18"]) else []
+        boundary_mutations = sum(1 for row in plans if params["boundary_apply"]
+                                 and row["status"] == "READY"
+                                 and row.get("probe", {}).get("supports_fix"))
+        mutation_counts = {"boundary": boundary_mutations, "f17": len(fixes),
+                           "f18": len(hold["selected"])}
+        refusals = gate_refusals(params, common_refusals, boundary_refusals,
+                                 f17_issues, hold["refusals"], mutation_counts)
         state = {"scenes": scenes, "i2_playback": playback, "movement_channels": self._channel_rows(i2),
                  "i2_markers": self._marker_rows(i2), "master_markers": self._marker_rows(master)}
         report = {"schema_version": 1, "tool_version": TOOL_VERSION, "run": run, "params": params,
-                  "apply_ready": not refusals, "refusals": refusals, "boundary": plans,
+                  "apply_ready": not refusals, "refusals": refusals,
+                  "reported_issues": common_issues + f17_issues + hold["refusals"],
+                  "enabled_parts": enabled, "mutation_counts": mutation_counts, "boundary": plans,
                   "f17": lighting, "f17_fix_steps": fixes, "f18": hold, "runon": runon,
                   "input_digest": digest(state), "census": self.census(),
                   "proof": {"tier": "measured", "scope": "live DRY reads only; no rendered acceptance"}}

@@ -74,6 +74,20 @@ def full_path(obj):
     return None if obj is None else str(obj.get_path_name())
 
 
+def unique_template_candidate(objects, token):
+    """Collapse repeated subsystem handles, but never distinct object paths."""
+    raw_paths = [full_path(obj) for obj in objects]
+    unique = {path: obj for path, obj in zip(raw_paths, objects)}
+    require(None not in unique, "%s_PATH_NONE" % token)
+    require(len(unique) == 1, "%s|raw=%d|unique=%d|paths=%s" % (
+        token, len(objects), len(unique), sorted(unique)))
+    path, obj = next(iter(unique.items()))
+    return obj, {"raw_hit_count": len(objects), "unique_candidate_count": len(unique),
+                 "candidate_paths": sorted(unique),
+                 "duplicate_handles_collapsed": len(objects) - len(unique),
+                 "selected_path": path}
+
+
 def prop(obj, name, default=None):
     try:
         return obj.get_editor_property(name)
@@ -298,9 +312,8 @@ def blueprint_template(bp_path, names, class_name=None):
         if obj is not None and str(obj.get_name()) in names:
             if class_name is None or str(obj.get_class().get_name()) == class_name:
                 objects.append(obj)
-    unique = {full_path(obj): obj for obj in objects}
-    require(len(unique) == 1, "TEMPLATE_COUNT|%s|%s|%d" % (bp_path, names, len(unique)))
-    return bp, next(iter(unique.values()))
+    obj, _audit = unique_template_candidate(objects, "TEMPLATE_COUNT|%s|%s" % (bp_path, names))
+    return bp, obj
 
 
 def cloth_template(figure):
@@ -321,8 +334,8 @@ def outfit_template(figure):
         mesh = obj.get_skeletal_mesh_asset()
         if mesh is not None and "_outfits" in path_of(mesh).lower():
             hits.append(obj)
-    require(len(hits) == 1, "OUTFIT_TEMPLATE_COUNT|%s|%d" % (figure, len(hits)))
-    return bp, hits[0]
+    component, audit = unique_template_candidate(hits, "OUTFIT_TEMPLATE_COUNT|%s" % figure)
+    return bp, component, audit
 
 
 def cloth_state(figure):
@@ -356,7 +369,7 @@ def classify_material(path):
 
 
 def outfit_template_state(figure, cfg, cloth_row):
-    _, component = outfit_template(figure)
+    _, component, discovery = outfit_template(figure)
     materials = [component.get_material(i) for i in range(component.get_num_materials())]
     paths = [path_of(x) for x in materials]
     roles = [classify_material(x) for x in paths]
@@ -372,7 +385,8 @@ def outfit_template_state(figure, cfg, cloth_row):
     except Exception as exc:
         error = str(exc)
     child = OUTFIT_DIR + "/MI_%s_Shorts_Hessian_v%d" % (figure, cfg["outfit"]["asset_version"])
-    return {"figure": figure, "component": full_path(component), "resolved": paths, "roles": roles,
+    return {"figure": figure, "component": full_path(component), "template_discovery": discovery,
+            "resolved": paths, "roles": roles,
             "short_parent": short_parents[0], "vector_parameters": vectors,
             "colour_parameter": parameter, "parameter_problem": error, "child": child,
             "target_colour_linear": cloth_row["underwear_colour_linear"]}

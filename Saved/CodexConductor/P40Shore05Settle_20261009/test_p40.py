@@ -108,6 +108,34 @@ case("camera_zero_absolute_logged_passes_relative_passes_real_drift_refuses", "R
      camera_no_absolute_regression)
 
 
+class FakeTemplate(object):
+    def __init__(self, path):
+        self.path = path
+
+    def get_path_name(self):
+        return self.path
+
+
+def outfit_duplicate_handle_regression():
+    # B1H logged raw count 2 for Shore01.  Repeated handles to the identical
+    # object path are one candidate; genuinely distinct paths remain ambiguous.
+    path = "/Game/Shore01.BP_Shore01_C:SkeletalMesh_GEN_VARIABLE"
+    old_hits = [FakeTemplate(path), FakeTemplate(path)]
+    raises("OUTFIT_TEMPLATE_COUNT|Shore01_M56|2", lambda: E.require(
+        len(old_hits) == 1, "OUTFIT_TEMPLATE_COUNT|Shore01_M56|%d" % len(old_hits)))
+    obj, audit = E.unique_template_candidate(old_hits, "OUTFIT_TEMPLATE_COUNT|Shore01_M56")
+    assert obj.get_path_name() == path
+    assert audit["raw_hit_count"] == 2 and audit["unique_candidate_count"] == 1
+    assert audit["duplicate_handles_collapsed"] == 1
+    raises("unique=2", lambda: E.unique_template_candidate(
+        [FakeTemplate(path), FakeTemplate(path + "_OTHER")],
+        "OUTFIT_TEMPLATE_COUNT|Shore01_M56"))
+
+
+case("outfit_logged_duplicate_path_passes_genuine_ambiguity_refuses", "REGRESSION",
+     outfit_duplicate_handle_regression)
+
+
 def placement_zero_extra():
     cfg = C.validate_args(args())
     plan = C.build_placement_plan(cfg, [], cameras())

@@ -124,6 +124,16 @@ class PolishTests(unittest.TestCase):
     def test_positive_digest_order_independent(self):
         self.assertEqual(TOOL.digest({"a": 1, "b": 2}), TOOL.digest({"b": 2, "a": 1}))
 
+    def test_positive_logged_boundary_only_ignores_disabled_f17_audit(self):
+        # B1H-I2POLISH-BOUNDARY-DRY-20261009-092652: boundary enabled,
+        # F17 fixes empty, F18 targets empty, and the F17 audit was unavailable.
+        params = TOOL.merged_params({"boundary_scenes": [2], "boundary_apply": True,
+                                     "f17_fix_steps": [], "f18_target_ids": []})
+        old_refusals = ["F17_AUDIT_UNAVAILABLE|PlanError: F17_CAMERA_TRANSFORM_COUNT|I2 Hangar Hold Camera|0"]
+        self.assertFalse(not old_refusals)  # old apply_ready = not refusals
+        self.assertEqual([], TOOL.gate_refusals(params, [], [], old_refusals, [],
+                                                {"boundary": 1, "f17": 0, "f18": 0}))
+
     def test_positive_logged_master_i2_custom_track_regression(self):
         # B1E-I2POLISH-DRY-20261009-0858: the rebuilt Master uses the
         # plugin's managed scene track, which the former exact-name filter skipped.
@@ -203,6 +213,18 @@ class PolishTests(unittest.TestCase):
             TOOL.validate_fix_steps([{"id": "bad", "kind": "LIGHT_DIM", "actor_label": "Lamp",
                                       "keys": [[1951, 0.0]]}], 1950)
 
+    def test_negative_enabled_f17_unavailable_still_refused(self):
+        params = TOOL.merged_params({"f17_fix_steps": [{"id": "x"}]})
+        got = TOOL.gate_refusals(params, [], [], ["F17_AUDIT_UNAVAILABLE|x"], [],
+                                 {"boundary": 1, "f17": 1, "f18": 0})
+        self.assertIn("F17_AUDIT_UNAVAILABLE|x", got)
+
+    def test_negative_disabled_part_would_mutate_refused(self):
+        params = TOOL.merged_params({"f17_fix_steps": [], "f18_target_ids": []})
+        got = TOOL.gate_refusals(params, [], [], [], [],
+                                 {"boundary": 1, "f17": 1, "f18": 0})
+        self.assertIn("DISABLED_PART_WOULD_MUTATE|F17|1", got)
+
     def test_negative_boundary_extend_zero_refused(self):
         with self.assertRaises(TOOL.PlanError):
             TOOL.merged_params({"boundary_extend_frames": 0})
@@ -251,6 +273,6 @@ if __name__ == "__main__":
         json.dump(payload, handle, indent=1, sort_keys=True)
         handle.write("\n")
     print("HARNESS_RESULT|positive=%d/%d|negative=%d/%d|total=%d/%d" % (
-        len(positive), 15, len(negative), 16, len(result.passed), suite.countTestCases()))
-    print("HARNESS_STATUS|%s" % ("PASS" if result.wasSuccessful() and len(positive) == 15 and len(negative) == 16 else "FAIL"))
+        len(positive), 16, len(negative), 18, len(result.passed), suite.countTestCases()))
+    print("HARNESS_STATUS|%s" % ("PASS" if result.wasSuccessful() and len(positive) == 16 and len(negative) == 18 else "FAIL"))
     raise SystemExit(0 if result.wasSuccessful() else 1)

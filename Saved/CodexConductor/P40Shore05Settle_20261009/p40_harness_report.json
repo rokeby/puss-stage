@@ -82,6 +82,11 @@
       "passed": true
     },
     {
+      "control": "REGRESSION",
+      "name": "outfit_logged_duplicate_path_passes_genuine_ambiguity_refuses",
+      "passed": true
+    },
+    {
       "control": "POSITIVE",
       "name": "placement_mandatory_shore05",
       "passed": true
@@ -172,13 +177,13 @@
       "passed": true
     }
   ],
-  "negative_passed": 20,
-  "negative_total": 20,
-  "passed": 34,
+  "negative_passed": 21,
+  "negative_total": 21,
+  "passed": 35,
   "positive_passed": 14,
   "positive_total": 14,
   "result": "PASS",
   "schema": "p40_shore05_settle/1",
-  "total": 34,
+  "total": 35,
   "unreal_started": false
 }
