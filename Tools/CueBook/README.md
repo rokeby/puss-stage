@@ -21,7 +21,7 @@ segment, with stills, and edit it. No accounts. Built 8 Oct 2026 for Gary.
 | "Mark as cut" instead of delete | losing a cue |
 | `log` sheet: append-only record of every change (who, when, before, after) | any mistake: the old text is always there |
 | Google Sheets File > Version history | the sheet itself being damaged |
-| A copy of the spreadsheet every 6 hours into Drive "Puss Cue Book backups" | the sheet being deleted |
+| A copy of the spreadsheet every 6 hours ("Puss Cue Book backup <date>" in My Drive) | the sheet being deleted |
 | Backup button: download .json / .csv; restore shows every difference before changing anything | anything else |
 | `cue_sync cuebook` pulls into git | all of the above |
 
