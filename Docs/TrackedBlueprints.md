@@ -1,0 +1,31 @@
+# Tracked Unreal Blueprints (curated)
+
+Gary 9 Oct: essential project Blueprints tracked in plain git (binary, small). Content/ stays gitignored; these are added with `git add -f`. The Show data asset (DA_InfinityStage_V1Show, ~25 MB, changes nightly) is NOT tracked here — D:/F: snapshots + Backups/ cover it. Marketplace (AnimX common, StarterContent), Klara's levels (KK_*), MetaHuman bodies and saved versions are excluded.
+
+To re-snapshot after editing a BP: `git add -f <path>` then commit (editor must have saved it).
+
+- `Content/Blueprints/BP_Wing.uasset` (96 KB)
+- `Content/Blueprints/BP_StageConveyor.uasset` (21 KB)
+- `Content/InfinityStage/Interactions/BP_InfinityStageSequenceCurtain.uasset` (25 KB)
+- `Content/InfinityStage/Internal/BP_InfinityStageShadowCat.uasset` (49 KB)
+- `Content/InfinityStage/Internal/BP_InfinityStageShadowCatController.uasset` (32 KB)
+- `Content/InfinityStage/WingLibrary/DA_InfinityStageWingLibrary.uasset` (261 KB)
+- `Content/Scenes/BP_OrtalanSheet.uasset` (42 KB)
+- `Content/Scenes/Curtain/Chaos/BP_CurtainChaos.uasset` (27 KB)
+- `Content/Scenes/Curtain/Chaos/BP_CurtainChaosCloth.uasset` (24 KB)
+- `Content/Scenes/Curtain/Chaos/BP_CurtainChaos_Plain_Q15.uasset` (26 KB)
+- `Content/Scenes/Curtain/Chaos/BP_CurtainFloorCatch.uasset` (26 KB)
+- `Content/Scenes/Effects/BP_Effect_Candle.uasset` (36 KB)
+- `Content/Scenes/Effects/BP_Effect_FireBasket.uasset` (35 KB)
+- `Content/Scenes/Effects/BP_Effect_HazePot.uasset` (34 KB)
+- `Content/Scenes/Effects/BP_Effect_Motes.uasset` (33 KB)
+- `Content/Scenes/Effects/BP_Effect_SmokePot.uasset` (33 KB)
+- `Content/Scenes/Effects/BP_Effect_SteamKettle.uasset` (34 KB)
+- `Content/Scenes/Effects/BP_Effect_WingBurn.uasset` (34 KB)
+- `Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore01_M56_Draped.uasset` (227 KB)
+- `Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore02_F52_Draped.uasset` (224 KB)
+- `Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore03_M59_Draped.uasset` (229 KB)
+- `Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore04_F55_Draped.uasset` (224 KB)
+- `Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore05_M53_Draped.uasset` (228 KB)
+- `Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore06_F25_Draped.uasset` (225 KB)
+- `Content/CharacterPacks/AnimX/Cats/Realistic/CharBP_Cat_R.uasset` (147 KB)
