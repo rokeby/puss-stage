@@ -62,4 +62,22 @@ float BodyIntensity(const float FullIntensity, const float DramaScale, const flo
 {
     return FMath::Max(0.0f, FullIntensity) * FMath::Max(0.0f, DramaScale) * FMath::Clamp(Flicker, 0.0f, 1.0f);
 }
+
+FRotator CordSwingRotation(
+    const FInfinityBulbBodySettings& Settings,
+    const FGuid& Identity,
+    const double ShowSeconds)
+{
+    if (!Settings.bSwingOnCord)
+    {
+        return FRotator::ZeroRotator;
+    }
+    const double Period = FMath::Max(0.25, static_cast<double>(Settings.SwingPeriodSeconds));
+    const double Phase = static_cast<double>(HashUnit(Identity, Settings.SwaySeed, 0, 4u)) * UE_TWO_PI;
+    const double Angle = ShowSeconds * UE_TWO_PI / Period + Phase;
+    return FRotator(
+        Settings.SwingPitchAmplitudeDegrees * FMath::Sin(Angle + UE_HALF_PI),
+        Settings.SwingYawAmplitudeDegrees * FMath::Sin(Angle),
+        0.0);
+}
 }

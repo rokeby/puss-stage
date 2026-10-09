@@ -235,6 +235,11 @@ private:
     struct FBulbBodyRuntime
     {
         TWeakObjectPtr<class UMaterialInstanceDynamic> Material;
+        TWeakObjectPtr<class UPointLightComponent> PointLight;
+        TWeakObjectPtr<AActor> Cord;
+        FTransform AuthoredBodyRelative = FTransform::Identity;
+        FTransform AuthoredCordRelative = FTransform::Identity;
+        FVector CordTopRelative = FVector::ZeroVector;
         float FullIntensity = 1.0f;
         float Level = -1.0f;
         bool bPrepared = false;

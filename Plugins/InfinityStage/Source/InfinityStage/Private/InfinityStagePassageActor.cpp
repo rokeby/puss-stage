@@ -2004,10 +2004,16 @@ void AInfinityStagePassageActor::UpdateBulbBodies(
         if (!Runtime.bPrepared)
         {
             Runtime.bPrepared = true;
+            Runtime.AuthoredBodyRelative = (Body->GetRootComponent() ? Body->GetRootComponent()->GetRelativeTransform() : FTransform::Identity);
             float Authored = 1.0f;
             UStaticMeshComponent* Mesh = Body->FindComponentByClass<UStaticMeshComponent>();
+            FVector FilamentOffset = FVector::ZeroVector;
             if (Mesh && Mesh->GetNumMaterials() > 0)
             {
+                if (const UStaticMesh* StaticMesh = Mesh->GetStaticMesh())
+                {
+                    FilamentOffset = StaticMesh->GetBoundingBox().GetCenter();
+                }
                 if (const UMaterialInterface* Base = Mesh->GetMaterial(0))
                 {
                     float Read = 0.0f;
@@ -2020,6 +2026,52 @@ void AInfinityStagePassageActor::UpdateBulbBodies(
                 Runtime.Material = Mesh->CreateDynamicMaterialInstance(0);
             }
             Runtime.FullIntensity = Settings.FullIntensity > 0.0f ? Settings.FullIntensity : Authored;
+            if (Settings.bEmitPointLight && Body->GetRootComponent())
+            {
+                UPointLightComponent* Point = NewObject<UPointLightComponent>(Body, NAME_None, RF_Transient);
+                Point->SetupAttachment(Body->GetRootComponent());
+                Point->SetRelativeLocation(FilamentOffset);
+                Point->SetMobility(EComponentMobility::Movable);
+                Point->SetIntensityUnits(ELightUnits::Lumens);
+                Point->SetAttenuationRadius(FMath::Max(0.0f, Settings.PointLightAttenuationRadiusCm));
+                Point->SetSourceRadius(FMath::Max(0.0f, Settings.PointLightSourceRadiusCm));
+                Point->SetSoftSourceRadius(FMath::Max(0.0f, Settings.PointLightSoftSourceRadiusCm));
+                Point->SetUseTemperature(true);
+                Point->SetTemperature(FMath::Clamp(Settings.PointLightTemperatureKelvin, 1000.0f, 20000.0f));
+                Point->SetCastShadows(false);
+                Point->SetCastVolumetricShadow(false);
+                Point->SetAffectGlobalIllumination(true);
+                Point->SetAffectReflection(true);
+                Body->AddInstanceComponent(Point);
+                Point->RegisterComponent();
+                Runtime.PointLight = Point;
+            }
+            if (Settings.bSwingOnCord && Settings.CordAttachmentGuid.IsValid())
+            {
+                for (AActor* Candidate : ManagedAttachmentActors)
+                {
+                    FGuid CandidateCue;
+                    FGuid CandidateAttachment;
+                    if (IsValid(Candidate) && FindAttachmentByActor(Candidate, CandidateCue, CandidateAttachment)
+                        && CandidateCue == CueGuid && CandidateAttachment == Settings.CordAttachmentGuid)
+                    {
+                        Runtime.Cord = Candidate;
+                        Runtime.AuthoredCordRelative = (Candidate->GetRootComponent() ? Candidate->GetRootComponent()->GetRelativeTransform() : FTransform::Identity);
+                        if (const UStaticMeshComponent* CordMesh = Candidate->FindComponentByClass<UStaticMeshComponent>())
+                        {
+                            if (const UStaticMesh* StaticMesh = CordMesh->GetStaticMesh())
+                            {
+                                const FBox Box = StaticMesh->GetBoundingBox();
+                                Runtime.CordTopRelative = Runtime.AuthoredCordRelative.TransformPosition(FVector(
+                                    (Box.Min.X + Box.Max.X) * 0.5,
+                                    (Box.Min.Y + Box.Max.Y) * 0.5,
+                                    Box.Max.Z));
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
         }
         const float Level = InfinityStageBulbBody::BodyIntensity(Runtime.FullIntensity, DramaScale, Flicker);
         if (Level != Runtime.Level)
@@ -2028,6 +2080,31 @@ void AInfinityStagePassageActor::UpdateBulbBodies(
             if (UMaterialInstanceDynamic* Material = Runtime.Material.Get())
             {
                 Material->SetScalarParameterValue(Settings.IntensityParameter, Level);
+            }
+        }
+
+        if (UPointLightComponent* Point = Runtime.PointLight.Get())
+        {
+            const float LightLevel = FMath::Max(0.0f, Settings.PointLightLumens) * DramaScale * Flicker;
+            Point->SetVisibility(LightLevel > UE_KINDA_SMALL_NUMBER);
+            Point->SetIntensity(LightLevel);
+        }
+
+        if (Settings.bSwingOnCord && Runtime.Cord.IsValid())
+        {
+            const FQuat Swing = InfinityStageBulbBody::CordSwingRotation(Settings, AttachmentGuid, ShowSeconds).Quaternion();
+            const FVector Pivot = Runtime.CordTopRelative;
+            const auto SwingAroundPivot = [&Swing, &Pivot](const FTransform& Authored)
+            {
+                FTransform Result = Authored;
+                Result.SetLocation(Pivot + Swing.RotateVector(Authored.GetLocation() - Pivot));
+                Result.SetRotation(Swing * Authored.GetRotation());
+                return Result;
+            };
+            Body->SetActorRelativeTransform(SwingAroundPivot(Runtime.AuthoredBodyRelative));
+            if (AActor* Cord = Runtime.Cord.Get())
+            {
+                Cord->SetActorRelativeTransform(SwingAroundPivot(Runtime.AuthoredCordRelative));
             }
         }
 

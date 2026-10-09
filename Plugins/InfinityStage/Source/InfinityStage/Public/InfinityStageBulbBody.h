@@ -85,6 +85,55 @@ struct INFINITYSTAGE_API FInfinityBulbBodySettings
      * switched off at 0). Off: only the glass flickers. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body", meta = (EditCondition = "bFollowLight"))
     bool bFlickerAlsoDrivesLight = false;
+
+    /** Add a transient point light to the bulb actor in game worlds. This gives a
+     * bare bulb a small specular/reflection contribution without authoring a Light
+     * attachment (and therefore without asking the Structure for a lantern). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Practical", meta = (EditCondition = "bFollowLight"))
+    bool bEmitPointLight = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Practical",
+        meta = (ClampMin = "0.0", EditCondition = "bEmitPointLight"))
+    float PointLightLumens = 24.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Practical",
+        meta = (ClampMin = "0.0", Units = "cm", EditCondition = "bEmitPointLight"))
+    float PointLightAttenuationRadiusCm = 450.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Practical",
+        meta = (ClampMin = "0.0", Units = "cm", EditCondition = "bEmitPointLight"))
+    float PointLightSourceRadiusCm = 8.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Practical",
+        meta = (ClampMin = "0.0", Units = "cm", EditCondition = "bEmitPointLight"))
+    float PointLightSoftSourceRadiusCm = 18.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Practical",
+        meta = (ClampMin = "1000.0", ClampMax = "20000.0", Units = "K", EditCondition = "bEmitPointLight"))
+    float PointLightTemperatureKelvin = 2200.0f;
+
+    /** Rotate this bulb and its linked cord around the cord mesh's top in game
+     * worlds. The phase is a stable hash of attachment GUID + SwaySeed. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway")
+    bool bSwingOnCord = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway", meta = (EditCondition = "bSwingOnCord"))
+    FGuid CordAttachmentGuid;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway",
+        meta = (ClampMin = "0.0", ClampMax = "20.0", Units = "deg", EditCondition = "bSwingOnCord"))
+    float SwingYawAmplitudeDegrees = 2.5f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway",
+        meta = (ClampMin = "0.0", ClampMax = "20.0", Units = "deg", EditCondition = "bSwingOnCord"))
+    float SwingPitchAmplitudeDegrees = 1.5f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway",
+        meta = (ClampMin = "0.25", Units = "s", EditCondition = "bSwingOnCord"))
+    float SwingPeriodSeconds = 7.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway", meta = (EditCondition = "bSwingOnCord"))
+    int32 SwaySeed = 0;
 };
 
 namespace InfinityStageBulbBody
@@ -104,4 +153,11 @@ INFINITYSTAGE_API float FlickerScale(
 
 /** The emissive parameter value: Full x drama level x flicker, never negative. */
 INFINITYSTAGE_API float BodyIntensity(float FullIntensity, float DramaScale, float FlickerScale);
+
+/** Continuous deterministic sine sway. Yaw and pitch share a GUID-derived phase,
+ * with pitch one quarter-cycle ahead so rows of bulbs never move in lock-step. */
+INFINITYSTAGE_API FRotator CordSwingRotation(
+    const FInfinityBulbBodySettings& Settings,
+    const FGuid& Identity,
+    double ShowSeconds);
 }

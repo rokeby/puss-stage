@@ -1,6 +1,7 @@
 #include "InfinityStageBulbBody.h"
 
 #include "Components/LightComponent.h"
+#include "Components/PointLightComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/World.h"
@@ -84,6 +85,22 @@ bool FInfinityStageBulbBodyFlickerTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Body = full x drama x flicker"), BodyIntensity(6.0f, 0.5f, 0.5f), 1.5f);
     TestEqual(TEXT("An unstruck lamp's glass is dark"), BodyIntensity(6.0f, 0.0f, 1.0f), 0.0f);
     TestEqual(TEXT("Never negative"), BodyIntensity(-1.0f, 1.0f, 1.0f), 0.0f);
+
+    Settings.bSwingOnCord = true;
+    Settings.SwingYawAmplitudeDegrees = 3.0f;
+    Settings.SwingPitchAmplitudeDegrees = 2.0f;
+    Settings.SwingPeriodSeconds = 8.0f;
+    const FRotator Swing0 = CordSwingRotation(Settings, Bulb, 1.25);
+    const FRotator SwingRepeat = CordSwingRotation(Settings, Bulb, 1.25);
+    const FRotator SwingCycle = CordSwingRotation(Settings, Bulb, 9.25);
+    TestTrue(TEXT("Cord sway is deterministic"), Swing0.Equals(SwingRepeat, 1.0e-6f));
+    TestTrue(TEXT("Cord sway repeats exactly once per period"), Swing0.Equals(SwingCycle, 1.0e-4f));
+    TestTrue(TEXT("Cord sway stays within authored amplitudes"),
+        FMath::Abs(Swing0.Yaw) <= Settings.SwingYawAmplitudeDegrees + 1.0e-4f
+        && FMath::Abs(Swing0.Pitch) <= Settings.SwingPitchAmplitudeDegrees + 1.0e-4f);
+    FInfinityBulbBodySettings Still = Settings;
+    Still.bSwingOnCord = false;
+    TestTrue(TEXT("Cord sway is opt-in"), CordSwingRotation(Still, Bulb, 1.25).IsNearlyZero());
     return true;
 }
 
@@ -128,6 +145,8 @@ bool FInfinityStageBulbBodyFollowsLightTest::RunTest(const FString& Parameters)
     Glass.Body.bFollowLight = true;
     Glass.Body.LightAttachmentGuid = Lamp.AttachmentGuid;
     Glass.Body.FullIntensity = 6.0f;
+    Glass.Body.bEmitPointLight = true;
+    Glass.Body.PointLightLumens = 24.0f;
     FInfinityCueAttachment& Plain = Host.WingPair.Attachments.AddDefaulted_GetRef();
     Plain.AttachmentGuid = FGuid::NewGuid();
     Plain.Kind = EInfinityAttachmentKind::Prop;
@@ -184,11 +203,16 @@ bool FInfinityStageBulbBodyFollowsLightTest::RunTest(const FString& Parameters)
 
     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
     TestEqual(TEXT("Unstruck lamp: the glass is dark"), Passage->GetBulbBodyLevelForTests(Body), 0.0f);
+    UPointLightComponent* BulbPoint = Body->FindComponentByClass<UPointLightComponent>();
+    TestTrue(TEXT("A bulb-owned point light is created only in the game-world evaluation"), BulbPoint != nullptr);
+    TestTrue(TEXT("Unstruck bulb-owned point light is hidden"), BulbPoint && !BulbPoint->IsVisible());
     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 2375.0);
     TestTrue(TEXT("Half way up the strike: the glass is half lit"),
         FMath::IsNearlyEqual(Passage->GetBulbBodyLevelForTests(Body), 3.0f, 0.01f));
     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 1000.0);
     TestEqual(TEXT("Struck: the glass is at full"), Passage->GetBulbBodyLevelForTests(Body), 6.0f);
+    TestTrue(TEXT("Struck bulb-owned point light reaches its authored dim lumens"),
+        BulbPoint && BulbPoint->IsVisible() && FMath::IsNearlyEqual(BulbPoint->Intensity, 24.0f, 0.01f));
     TestEqual(TEXT("A prop without bFollowLight is never touched"), Passage->GetBulbBodyLevelForTests(PlainBody), -1.0f);
 
     // Fail mode with the light following: dies at the lamp, light switched off.
