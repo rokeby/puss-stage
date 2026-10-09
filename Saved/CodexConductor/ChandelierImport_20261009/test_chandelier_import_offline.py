@@ -67,7 +67,7 @@ def load_main_without_running():
 
 def main():
     # Positive socket contract and required negative controls.
-    good = ["SOCKET_Candle_%02d" % i for i in range(1, 45)] + ["ChainAttach"]
+    good = ["Candle_%02d" % i for i in range(1, 45)] + ["ChainAttach"]  # live UE names (prefix stripped)
     check("POS socket count 44 plus ChainAttach", C.socket_problems(good) == [])
     check("NEG socket count 43 refused", any("COUNT=43" in p for p in C.socket_problems(good[:-2] + ["ChainAttach"])))
     check("NEG duplicate socket refused", "DUPLICATE_SOCKET_NAMES" in C.socket_problems(good + [good[0]]))

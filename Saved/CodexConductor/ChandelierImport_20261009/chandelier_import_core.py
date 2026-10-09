@@ -93,7 +93,8 @@ def texture_settings_problems(spec: dict, got: dict) -> list[str]:
 
 def socket_problems(names: list[str]) -> list[str]:
     names = [str(n) for n in names]
-    candles = [n for n in names if re.fullmatch(r"SOCKET_Candle_.+", n)]
+    # [meas CHI-20261009-153452] UE strips the SOCKET_ prefix on FBX import
+    candles = [n for n in names if re.fullmatch(r"(?:SOCKET_)?Candle_\d+", n)]
     problems = []
     if len(names) != len(set(names)):
         problems.append("DUPLICATE_SOCKET_NAMES")
