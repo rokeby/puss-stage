@@ -1,0 +1,91 @@
+{
+ "mode": "DRY",
+ "confirm": "DRY REVIEW STILLS",
+ "dry_report": "",
+ "profile": "gary_q6",
+ "capture_session": "existing_pie",
+ "expected_world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "required_shot_ids": [
+  "opening_ragged_held",
+  "s2_end_drape_ragged",
+  "s3_end_drape_ragged"
+ ],
+ "params": {
+  "resolution": [
+   1600,
+   900
+  ],
+  "probe_resolution": [
+   256,
+   144
+  ],
+  "repose_seconds": 1.0,
+  "camera_hold_ticks": 24,
+  "settle_min_seconds": 2.0,
+  "settle_max_seconds": 10.0,
+  "probe_interval_seconds": 0.5,
+  "settle_window": 3,
+  "settle_abs_luma": 2.0,
+  "settle_rel_luma": 0.03,
+  "file_timeout_seconds": 45.0,
+  "file_min_bytes": 1000,
+  "file_stable_ticks": 4,
+  "run_timeout_seconds": 480.0,
+  "frame_tolerance_ticks": 1,
+  "contact_columns": 4,
+  "contact_thumb": [
+   400,
+   225
+  ],
+  "contact_gutter": 8
+ },
+ "shots": [
+  {
+   "id": "opening_ragged_held",
+   "note": "Opening ragged held curtain from the stalls (~held pose)",
+   "time": {
+    "kind": "segment_offset",
+    "cue_type": "WING_PAIR",
+    "ordinal": 1,
+    "offset_seconds": 10.0
+   },
+   "camera": {
+    "kind": "actor_camera",
+    "actor_label": "Opening — Stalls Camera"
+   }
+  },
+  {
+   "id": "s2_end_drape_ragged",
+   "note": "P02 end drape ragged, held pile, Scene 2 +3.5 s",
+   "time": {
+    "kind": "segment_offset",
+    "cue_type": "SCENE",
+    "ordinal": 2,
+    "offset_seconds": 3.5
+   },
+   "camera": {
+    "kind": "master"
+   }
+  },
+  {
+   "id": "s3_end_drape_ragged",
+   "note": "P03 end drape ragged, held pile, Scene 3 +3.5 s",
+   "time": {
+    "kind": "segment_offset",
+    "cue_type": "SCENE",
+    "ordinal": 3,
+    "offset_seconds": 3.5
+   },
+   "camera": {
+    "kind": "master"
+   }
+  }
+ ],
+ "_run_order": [
+  "Execute this file as DRY with confirm DRY REVIEW STILLS; copy its report filename into dry_report.",
+  "Change mode to RUN and confirm to RUN REVIEW STILLS.",
+  "Start exactly one conductor-owned PIE with Saved/CodexConductor/conductor_pie_begin_request.json.",
+  "Execute review_stills_request.json once and wait for REVIEW_STILLS_OK or REVIEW_STILLS_FAILED.",
+  "Only the operator that started PIE executes conductor_pie_end_request.json after the marker."
+ ]
+}
