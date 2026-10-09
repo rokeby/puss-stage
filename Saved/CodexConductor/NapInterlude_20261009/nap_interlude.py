@@ -606,7 +606,7 @@ class UnrealBackend(object):
         comp.set_animation(anim)
         comp.set_position(float(anim.get_editor_property("sequence_length")) * p["sleep_pose_fraction"], False)
         comp.set_play_rate(0.0)
-        camera.get_editor_property("cine_camera_component").set_editor_property(
+        camera.get_cine_camera_component().set_editor_property(  # [meas NAP-20261009-144707-APPLY1] no cine_camera_component property in 5.8 Python
             "current_focal_length", p["camera_focal_length_mm"])
         for light in p["lights"]:
             actor = eas.spawn_actor_from_class(ue.RectLight, loc(light["location"]), rot(light["rotation"]), False)

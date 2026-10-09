@@ -1,18 +1,26 @@
 {
-  "mode": "DRY",
-  "run_id": "NAP-SET-ME",
-  "confirm": "DRY NAP NAP-SET-ME",
+  "mode": "APPLY",
+  "run_id": "NAP-20261009-144707-APPLY1",
+  "confirm": "APPLY NAP NAP-20261009-144707-APPLY1",
   "source_run_id": "",
   "params": {
-    "expected_interaction4_guid": "",
-    "expected_passage5_guid": "",
+    "expected_interaction4_guid": "1196A03E4E16AE74EA811A8566C84E9B",
+    "expected_passage5_guid": "3B27C331B54325A469AE8A818B9049F9",
     "loop_seconds": 20.0,
     "wake_tail_seconds": 1.0,
     "breath_amplitude_cm": 1.5,
     "breath_period_seconds": 4.0,
     "sleep_pose_fraction": 0.85,
     "camera_focal_length_mm": 65.0,
-    "camera_drift_cm": [0.0, 0.0, 4.0],
-    "allow_new_shadow_casters": false
+    "camera_drift_cm": [
+      0.0,
+      0.0,
+      4.0
+    ],
+    "allow_new_shadow_casters": false,
+    "scene4_label": "Scene 4 — External Sound",
+    "interaction4_label": "Interaction 4 — Gets a Name",
+    "placement_after_label": "Interaction 4 — Gets a Name",
+    "passage5_label": "Passage 5"
   }
 }
