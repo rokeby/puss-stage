@@ -35,13 +35,13 @@ def raises(fn, *args, contains=None):
     return False
 
 
-def chain_doc():
+def chain_doc(count=24):
     return {"schema": "chandelier_chain_v1", "units": "cm",
             "frame": "UE (x fwd, y right, z up), origin = top hang point",
-            "count": 2, "length_cm": 40.0,
-            "links": [{"index": 0, "pivot_cm": [0, 0, 0], "length_cm": 20.0, "mass_kg": 1.0},
-                      {"index": 1, "pivot_cm": [0, 0, -20], "length_cm": 20.0, "mass_kg": 1.0}],
-            "body": {"attach_cm": [0, 0, -40], "mass_kg": 25.0}}
+            "count": count, "length_cm": float(count * 20),
+            "links": [{"index": i, "pivot_cm": [0, 0, -20 * i],
+                       "length_cm": 20.0, "mass_kg": 1.0} for i in range(count)],
+            "body": {"attach_cm": [0, 0, -20 * count], "mass_kg": 25.0}}
 
 
 def make_sources(root):
@@ -92,6 +92,14 @@ def main():
     check("NEG chain count refused", "COUNT" in C.chain_manifest_problems(bad))
     bad = chain_doc(); bad["schema"] = "v0"
     check("NEG chain schema refused", "SCHEMA" in C.chain_manifest_problems(bad))
+    links24 = C.chain_package_paths(chain_doc())
+    check("POS chain import accepts exactly 24 links", len(links24) == 24 and
+          C.chain_import_problems(links24, chain_doc()) == [])
+    check("NEG chain import refuses 23 links", bool(C.chain_import_problems(links24[:-1], chain_doc())))
+    combined = [C.CHAIN_DEST + "/" + C.CHAIN_NAME]
+    check("NEG combined chain refused when manifest says 24", bool(C.chain_import_problems(combined, chain_doc())))
+    check("POS combined chain allowed only when manifest says 1",
+          C.chain_import_problems(combined, chain_doc(1)) == [])
 
     master = {"textures": list(C.TEXTURE_PARAMS), "scalars": list(C.SCALAR_PARAMS),
               "switches": list(C.SWITCH_PARAMS),
@@ -128,7 +136,8 @@ def main():
         make_sources(temp)
         plan = C.build_plan(temp)
         check("POS synthetic source plan complete", plan["missing"] == [] and plan["manifest_problems"] == []
-              and len(plan["hashes"]) == 8)
+              and len(plan["hashes"]) == 8 and len(plan["chain_packages"]) == 24 and
+              len(plan["imported_packages"]) == 30)
         selected = C.select_import_asset(plan, "T_Chandelier_Iron3_Masks")
         check("POS selector resolves exactly one asset", selected["kind"] == "texture" and
               selected["dest"].endswith("/T_Chandelier_Iron3_Masks"))
@@ -153,7 +162,12 @@ def main():
     check("POS IMPORT has no seven-asset loops", 'for row in plan["meshes"]' not in run_import_source and
           'for row in plan["textures"]' not in run_import_source)
     check("POS IMPORT collects garbage before targeted save", run_import_source.index("collect_garbage()") <
-          run_import_source.index("save_asset(row[\"dest\"]"))
+          run_import_source.index("save_asset(path"))
+    check("POS existing body is verified and skipped", "EXISTING_BODY_SOCKET_READBACK" in run_import_source and
+          "skipped_existing=1" in run_import_source)
+    check("POS chain uses one FBX task for 24 package result", "_import_task(c, row[\"source\"]" in run_import_source and
+          "_chain_reports(c, new, plan[\"chain\"])" in run_import_source)
+    check("POS record exposes all chain paths to downstream jobs", "chain_link_paths" in run_import_source)
     check("POS modify-before texture setters", source.index("tex.modify()") < source.index("tex.set_editor_property(\"srgb\""))
 
     status = "PASS" if FAIL == 0 else "FAIL"

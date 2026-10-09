@@ -2,9 +2,10 @@
 
 Modes, read from ``chandelier_import_args.json``:
   DRY       read-only source/API/target/dirty census.
-  IMPORT    create-only import of exactly one selected FBX or texture per execution.
+  IMPORT    create-only import of one selected source per execution. The chain
+            selector is one FBX task whose manifest-declared links are saved separately.
   MAT_CHECK read-only compatible-master search and parameter/sampler report.
-  APPLY     create/reuse the aged master, create MI, bind both meshes, targeted save.
+  APPLY     create/reuse the aged master, create MI, bind body + all chain links, targeted save.
   REVERT    explicit-confirm deletion of packages recorded as created by this tool.
 
 The source DirectX normal is imported unchanged: Unreal tangent-space normal maps
@@ -154,22 +155,27 @@ def _pipeline(c, asset_name):
     return override, rb
 
 
-def _import_one(c, source, dest, options=None):
+def _import_task(c, source, dest_dir, dest_name, options=None):
     u = c.u
     before = listing(u)
     task = u.AssetImportTask()
-    for key, value in (("filename", source), ("destination_path", C.DEST),
-                       ("destination_name", dest.rsplit("/", 1)[-1]), ("automated", True),
+    for key, value in (("filename", source), ("destination_path", dest_dir),
+                       ("destination_name", dest_name), ("automated", True),
                        ("replace_existing", False), ("save", False)):
         task.set_editor_property(key, value)
     if options is not None:
         task.set_editor_property("options", options)
     u.AssetToolsHelpers.get_asset_tools().import_asset_tasks([task])  # exactly one task per call
     new = listing(u) - before
-    c.require(new == {dest}, "IMPORT_DELTA|want=%s|got=%s (no stray is deleted; Don't Save)" % (dest, sorted(new)))
-    asset = u.EditorAssetLibrary.load_asset(dest)
-    c.require(asset is not None, "IMPORT_MISSING|" + dest)
     c.past_write = True
+    return new
+
+
+def _import_one(c, source, dest, dest_dir, options=None):
+    new = _import_task(c, source, dest_dir, dest.rsplit("/", 1)[-1], options)
+    c.require(new == {dest}, "IMPORT_DELTA|want=%s|got=%s (no stray is deleted; Don't Save)" % (dest, sorted(new)))
+    asset = c.u.EditorAssetLibrary.load_asset(dest)
+    c.require(asset is not None, "IMPORT_MISSING|" + dest)
     return asset
 
 
@@ -185,6 +191,35 @@ def _texture_readback(tex):
             "max_texture_size": int(tex.get_editor_property("max_texture_size"))}
 
 
+def _bounds_report(mesh):
+    box = mesh.get_bounding_box()
+    minimum = [float(box.min.x), float(box.min.y), float(box.min.z)]
+    maximum = [float(box.max.x), float(box.max.y), float(box.max.z)]
+    size = [maximum[i] - minimum[i] for i in range(3)]
+    return {"min_cm": minimum, "max_cm": maximum, "size_cm": size,
+            "longest_cm": max(size)}
+
+
+def _chain_reports(c, packages, chain_doc):
+    problems = C.chain_import_problems(list(packages), chain_doc)
+    c.require(not problems, "%s (no stray is deleted; Don't Save)" % problems)
+    links = chain_doc["links"]
+    # A single-object manifest may legitimately retain the requested combined name.
+    by_index = sorted(packages)
+    reports = []
+    for index, path in enumerate(by_index):
+        mesh = c.u.EditorAssetLibrary.load_asset(path)
+        c.require(isinstance(mesh, c.u.StaticMesh), "CHAIN_MESH_CLASS|" + path)
+        manifest = links[index]
+        bounds = _bounds_report(mesh)
+        reports.append({"index": index, "path": path,
+                        "pivot_cm": [float(v) for v in manifest["pivot_cm"]],
+                        "json_length_cm": float(manifest["length_cm"]),
+                        "bounds_cm": bounds,
+                        "bounds_longest_minus_json_cm": bounds["longest_cm"] - float(manifest["length_cm"])})
+    return reports
+
+
 def _source_gate(c, plan):
     c.require(not plan["missing"], "SOURCE_SET|%s" % plan["missing"])
     c.require(not plan["manifest_problems"], "CHAIN_MANIFEST|%s" % plan["manifest_problems"])
@@ -194,6 +229,15 @@ def run_dry(c, plan, rec):
     _guard(c, clean=False)
     before = census(c.u)
     existing = sorted(p for p in plan["apply_packages"] if c.u.EditorAssetLibrary.does_asset_exist(p))
+    body_path = C.DEST + "/" + C.BODY_NAME
+    body_status = "missing"
+    if body_path in existing:
+        body = c.u.EditorAssetLibrary.load_asset(body_path)
+        c.require(isinstance(body, c.u.StaticMesh), "BODY_CLASS|" + body_path)
+        problems = C.socket_problems(_socket_names(body))
+        c.require(not problems, "EXISTING_BODY_SOCKET_READBACK|%s" % problems)
+        body_status = "existing_verified_skip_import"
+    blocking_existing = [p for p in existing if p != body_path]
     blockers = []
     if plan["missing"]:
         blockers.append("SOURCE_SET")
@@ -201,13 +245,14 @@ def run_dry(c, plan, rec):
         blockers.append("CHAIN_MANIFEST")
     if before != {"content": [], "maps": []}:
         blockers.append("DIRTY")
-    if existing:
+    if blocking_existing:
         blockers.append("TARGETS_EXIST")
     if rec:
         blockers.append("RECORD_EXISTS")
     c.require(census(c.u) == before, "DRY_DIRTIED")
-    c.log("%s_DRY_%s|run=%s|mutated=0|sources=%d|existing=%s|dirty=%s|blockers=%s"
-          % (C.MARK, "OK" if not blockers else "REFUSED", c.run, len(plan["hashes"]), existing, before, blockers))
+    c.log("%s_DRY_%s|run=%s|mutated=0|sources=%d|body=%s|existing_blockers=%s|dirty=%s|blockers=%s"
+          % (C.MARK, "OK" if not blockers else "REFUSED", c.run, len(plan["hashes"]), body_status,
+             blocking_existing, before, blockers))
 
 
 def run_import(c, plan, rec, values):
@@ -224,23 +269,58 @@ def run_import(c, plan, rec, values):
         c.require(not plan["manifest_problems"] and os.path.isfile(plan["chain_manifest"]),
                   "CHAIN_MANIFEST|%s" % plan["manifest_problems"])
     eal = c.u.EditorAssetLibrary
-    c.require(not eal.does_asset_exist(row["dest"]), "REFUSE_OVERWRITE|" + row["dest"])
     imported = dict((rec or {}).get("imported_assets", {}))
-    c.require(row["selector"] not in imported, "ASSET_ALREADY_RECORDED|" + row["selector"])
     source_rel = os.path.relpath(source, PROJECT)
-    backup = _backup(c, "ChandelierImport", [row["dest"]],
+    is_body = row["kind"] == "mesh" and row["name"] == C.BODY_NAME
+    is_chain = row["kind"] == "mesh" and row["name"] == C.CHAIN_NAME
+    c.require(row["selector"] not in imported or is_body, "ASSET_ALREADY_RECORDED|" + row["selector"])
+    target_packages = plan["chain_packages"] if is_chain else [row["dest"]]
+    if is_body and eal.does_asset_exist(row["dest"]):
+        body = eal.load_asset(row["dest"])
+        c.require(isinstance(body, c.u.StaticMesh), "BODY_CLASS|" + row["dest"])
+        sockets = _socket_names(body)
+        c.require(not C.socket_problems(sockets), "EXISTING_BODY_SOCKET_READBACK|%s" % C.socket_problems(sockets))
+        c.require(census(c.u) == {"content": [], "maps": []}, "BODY_SKIP_DIRTIED|%s" % census(c.u))
+        facts = {"kind": "mesh", "sockets": sockets, "lods": int(body.get_num_lods()),
+                 "preexisting_verified": True}
+        imported[row["selector"]] = {"packages": [row["dest"]], "run": c.run, "backup": None,
+                                      "source_hash": plan["hashes"].get(source_rel), "facts": facts,
+                                      "created": False}
+        complete = len(imported) == len(C.IMPORT_ASSETS) and set(imported) == set(C.IMPORT_ASSETS)
+        doc = dict(rec or {})
+        doc.update({"run": doc.get("run", c.run), "latest_import_run": c.run,
+                    "state": "imported" if complete else "importing", "imported_assets": imported,
+                    "chain_link_paths": list(plan["chain_packages"]),
+                    "created_packages": [p for item in imported.values() if item.get("created", True)
+                                         for p in item.get("packages", [])],
+                    "master": None, "facts": dict((rec or {}).get("facts", {}), **{row["selector"]: facts})})
+        _write_json(RECORD, doc, exclusive=rec is None)
+        c.log("%s_IMPORT_OK|run=%s|asset=%s|skipped_existing=1|verified=1|packages=1|completed=%d/%d|state=%s|gc=0|saved=0|dirty_after=0+0|record=%s"
+              % (C.MARK, c.run, row["selector"], len(imported), len(C.IMPORT_ASSETS), doc["state"], RECORD))
+        return
+    for path in target_packages:
+        c.require(not eal.does_asset_exist(path), "REFUSE_OVERWRITE|" + path)
+    if is_chain:
+        c.require(not eal.does_asset_exist(C.CHAIN_DEST + "/" + C.CHAIN_NAME),
+                  "REFUSE_OVERWRITE|" + C.CHAIN_DEST + "/" + C.CHAIN_NAME)
+    backup = _backup(c, "ChandelierImport", target_packages,
                      {"asset": row["selector"], "source_hash": plan["hashes"].get(source_rel)})
     facts = {}
     if row["kind"] == "mesh":
         options, pipe = _pipeline(c, row["name"])
-        mesh = _import_one(c, row["source"], row["dest"], options)
-        c.require(isinstance(mesh, c.u.StaticMesh), "MESH_CLASS|" + row["dest"])
-        sockets = _socket_names(mesh)
-        if row["name"] == C.BODY_NAME:
+        if is_chain:
+            new = _import_task(c, row["source"], row["dest_dir"], row["name"], options)
+            reports = _chain_reports(c, new, plan["chain"])
+            target_packages = sorted(new)
+            facts = {"kind": "chain", "count": len(reports), "links": reports, "pipeline": pipe}
+        else:
+            mesh = _import_one(c, row["source"], row["dest"], row["dest_dir"], options)
+            c.require(isinstance(mesh, c.u.StaticMesh), "MESH_CLASS|" + row["dest"])
+            sockets = _socket_names(mesh)
             c.require(not C.socket_problems(sockets), "SOCKETS|%s" % C.socket_problems(sockets))
-        facts = {"kind": "mesh", "sockets": sockets, "lods": int(mesh.get_num_lods()), "pipeline": pipe}
+            facts = {"kind": "mesh", "sockets": sockets, "lods": int(mesh.get_num_lods()), "pipeline": pipe}
     else:
-        tex = _import_one(c, row["matches"][0], row["dest"])
+        tex = _import_one(c, row["matches"][0], row["dest"], C.DEST)
         c.require(isinstance(tex, c.u.Texture2D), "TEXTURE_CLASS|" + row["dest"])
         tex.modify()
         tex.set_editor_property("srgb", row["srgb"])
@@ -256,31 +336,40 @@ def run_import(c, plan, rec, values):
     # Release transient importer state between the now-independent one-asset executions.
     c.u.SystemLibrary.collect_garbage()
     dirty = census(c.u)
-    c.require(not dirty["maps"] and dirty["content"] == [row["dest"]], "DIRTY_SCOPE|%s" % dirty)
-    c.require(eal.save_asset(row["dest"], only_if_is_dirty=False), "SAVE|" + row["dest"])
+    c.require(not dirty["maps"] and dirty["content"] == sorted(target_packages),
+              "DIRTY_SCOPE|%s|want=%s" % (dirty, sorted(target_packages)))
+    for path in sorted(target_packages):
+        c.require(eal.save_asset(path, only_if_is_dirty=False), "SAVE|" + path)
     c.require(census(c.u) == {"content": [], "maps": []}, "DIRTY_AFTER_SAVE|%s" % census(c.u))
-    saved = eal.load_asset(row["dest"])
+    saved = eal.load_asset(target_packages[0])
     if row["kind"] == "mesh":
-        if row["name"] == C.BODY_NAME:
+        if is_chain:
+            saved_reports = _chain_reports(c, target_packages, plan["chain"])
+            c.require(saved_reports == facts["links"], "SAVED_CHAIN_READBACK")
+            saved_facts = {"kind": "chain", "count": len(saved_reports), "links": saved_reports}
+        else:
             c.require(not C.socket_problems(_socket_names(saved)), "SAVED_SOCKET_READBACK")
-        saved_facts = {"kind": "mesh", "sockets": _socket_names(saved), "lods": int(saved.get_num_lods())}
+            saved_facts = {"kind": "mesh", "sockets": _socket_names(saved), "lods": int(saved.get_num_lods())}
     else:
         got = _texture_readback(saved)
         c.require(not C.texture_settings_problems(row, got), "SAVED_TEXTURE_READBACK|%s" % row["dest"])
         c.require(got["max_texture_size"] == values["max_texture_size"], "SAVED_MAX_TEXTURE_SIZE|%s" % got)
         saved_facts = {"kind": "texture", "settings": got}
-    imported[row["selector"]] = {"package": row["dest"], "run": c.run, "backup": backup,
-                                  "source_hash": plan["hashes"].get(source_rel), "facts": saved_facts}
+    imported[row["selector"]] = {"packages": sorted(target_packages), "run": c.run, "backup": backup,
+                                  "source_hash": plan["hashes"].get(source_rel), "facts": saved_facts,
+                                  "created": True}
     complete = len(imported) == len(C.IMPORT_ASSETS) and set(imported) == set(C.IMPORT_ASSETS)
     doc = dict(rec or {})
     doc.update({"run": doc.get("run", c.run), "latest_import_run": c.run,
                 "state": "imported" if complete else "importing", "imported_assets": imported,
-                "created_packages": [imported[name]["package"] for name in C.IMPORT_ASSETS if name in imported],
+                "chain_link_paths": list(plan["chain_packages"]),
+                "created_packages": [p for name in C.IMPORT_ASSETS if name in imported and imported[name].get("created", True)
+                                     for p in imported[name].get("packages", [])],
                 "master": None, "facts": dict((rec or {}).get("facts", {}), **{row["selector"]: facts})})
     _write_json(RECORD, doc, exclusive=rec is None)
-    c.log("%s_IMPORT_OK|run=%s|asset=%s|package=%s|completed=%d/7|state=%s|gc=1|saved=1|dirty_after=0+0|max_texture_size=%s|record=%s"
-          % (C.MARK, c.run, row["selector"], row["dest"], len(imported), doc["state"],
-             values["max_texture_size"] if row["kind"] == "texture" else "n/a", RECORD))
+    c.log("%s_IMPORT_OK|run=%s|asset=%s|packages=%s|completed=%d/%d|state=%s|gc=1|saved=%d|dirty_after=0+0|max_texture_size=%s|record=%s"
+          % (C.MARK, c.run, row["selector"], sorted(target_packages), len(imported), len(C.IMPORT_ASSETS), doc["state"],
+             len(target_packages), values["max_texture_size"] if row["kind"] == "texture" else "n/a", RECORD))
 
 
 def _sampler_name(tex):
@@ -471,9 +560,10 @@ def run_apply(c, plan, rec, values):
     c.require(got["switches"]["UseClean"] == values["use_clean"] and
               all(abs(got["scalars"][k] - v) <= 1e-4 for k, v in vals.items()), "MI_VALUES|%s" % got)
     mesh_rb = {}
-    for name in (C.BODY_NAME, C.CHAIN_NAME):
-        path = C.DEST + "/" + name
+    mesh_paths = [C.DEST + "/" + C.BODY_NAME] + plan["chain_packages"]
+    for path in mesh_paths:
         mesh = eal.load_asset(path)
+        c.require(isinstance(mesh, c.u.StaticMesh), "MESH_CLASS|" + path)
         mesh.modify()
         slots = list(mesh.get_editor_property("static_materials"))
         c.require(bool(slots), "NO_MATERIAL_SLOTS|" + path)
@@ -482,8 +572,8 @@ def run_apply(c, plan, rec, values):
         bound = [_pkg(row.get_editor_property("material_interface"))
                  for row in mesh.get_editor_property("static_materials")]
         c.require(bound == [mi_path] * len(bound), "MESH_MATERIAL_READBACK|%s|%s" % (path, bound))
-        mesh_rb[name] = bound
-    save = set(created_now + [C.DEST + "/" + C.BODY_NAME, C.DEST + "/" + C.CHAIN_NAME])
+        mesh_rb[path] = bound
+    save = set(created_now + mesh_paths)
     dirty = census(c.u)
     c.require(not dirty["maps"] and set(dirty["content"]) == save, "DIRTY_SCOPE|%s|want=%s" % (dirty, sorted(save)))
     for path in sorted(save):
@@ -495,8 +585,8 @@ def run_apply(c, plan, rec, values):
                 "master_created": master_path in created_now, "created_packages": rec["created_packages"] + created_now,
                 "mi": got2, "mesh_materials": mesh_rb})
     _write_json(RECORD, rec)
-    c.log("%s_APPLY_OK|run=%s|master=%s|reused=%d|mi=%s|meshes=2|saved=%d|dirty_after=0+0|record=%s"
-          % (C.MARK, c.run, master_path, bool(compatible), mi_path, len(save), RECORD))
+    c.log("%s_APPLY_OK|run=%s|master=%s|reused=%d|mi=%s|meshes=%d|saved=%d|dirty_after=0+0|record=%s"
+          % (C.MARK, c.run, master_path, bool(compatible), mi_path, len(mesh_paths), len(save), RECORD))
 
 
 def run_revert(c, rec):
@@ -511,7 +601,7 @@ def run_revert(c, rec):
     def deletion_priority(path):
         if path.endswith("/" + C.MI_NAME):
             return 0
-        if path.endswith("/" + C.BODY_NAME) or path.endswith("/" + C.CHAIN_NAME):
+        if path.endswith("/" + C.BODY_NAME) or "/Chain/ChainLink_" in path or path.endswith("/" + C.CHAIN_NAME):
             return 1
         if path.endswith("/" + C.MASTER_NAME):
             return 2

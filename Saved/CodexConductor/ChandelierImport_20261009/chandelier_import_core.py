@@ -14,6 +14,7 @@ import re
 
 MARK = "CHANDELIER_IMPORT"
 DEST = "/Game/Scenes/Props/Chandelier"
+CHAIN_DEST = DEST + "/Chain"
 BODY_NAME = "SM_Chandelier_Iron3"
 CHAIN_NAME = "SM_Chandelier_Iron3_Chain"
 MASTER_NAME = "M_AgedMaskedMetal_CreateOnly"
@@ -131,6 +132,31 @@ def chain_manifest_problems(doc: dict) -> list[str]:
     return problems
 
 
+def chain_package_paths(doc: dict) -> list[str]:
+    """Return the exact per-link package contract declared by the manifest."""
+    count = doc.get("count") if isinstance(doc, dict) else None
+    if not isinstance(count, int) or count < 1:
+        raise PlanError("CHAIN_COUNT|%r" % count)
+    return [CHAIN_DEST + "/ChainLink_%02d" % i for i in range(count)]
+
+
+def chain_import_problems(packages: list[str], doc: dict) -> list[str]:
+    """Validate Interchange's multi-object result without deleting stray assets.
+
+    A one-object FBX may retain the requested combined name, but that result is
+    forbidden whenever the manifest declares more than one physical link.
+    """
+    got = sorted(str(p) for p in packages)
+    expected = chain_package_paths(doc)
+    count = int(doc["count"])
+    accepted = [expected]
+    if count == 1:
+        accepted.append([CHAIN_DEST + "/" + CHAIN_NAME])
+    if got in accepted:
+        return []
+    return ["CHAIN_IMPORT_SET|count=%d|want=%s|got=%s" % (count, expected, got)]
+
+
 def _vec3(value) -> bool:
     return isinstance(value, list) and len(value) == 3 and all(isinstance(v, (int, float)) for v in value)
 
@@ -159,8 +185,10 @@ def build_plan(project: str) -> dict:
     project = os.path.abspath(project)
     mesh_root = os.path.join(project, SOURCE_MESH_REL)
     meshes = [
-        {"name": BODY_NAME, "source": os.path.join(mesh_root, BODY_NAME + ".fbx"), "dest": DEST + "/" + BODY_NAME},
-        {"name": CHAIN_NAME, "source": os.path.join(mesh_root, CHAIN_NAME + ".fbx"), "dest": DEST + "/" + CHAIN_NAME},
+        {"name": BODY_NAME, "source": os.path.join(mesh_root, BODY_NAME + ".fbx"),
+         "dest": DEST + "/" + BODY_NAME, "dest_dir": DEST},
+        {"name": CHAIN_NAME, "source": os.path.join(mesh_root, CHAIN_NAME + ".fbx"),
+         "dest": CHAIN_DEST + "/" + CHAIN_NAME, "dest_dir": CHAIN_DEST},
     ]
     manifest = os.path.join(mesh_root, "chandelier_Iron3_chain.json")
     textures = texture_specs(project)
@@ -179,10 +207,11 @@ def build_plan(project: str) -> dict:
         except Exception as exc:  # noqa: BLE001 - becomes a deterministic refusal
             manifest_problems = ["JSON:%s" % exc]
     hashes = {os.path.relpath(p, project): sha256_file(p) for p in sources if os.path.isfile(p)}
-    imported = [m["dest"] for m in meshes] + [r["dest"] for r in textures]
+    chain_packages = chain_package_paths(chain_doc) if chain_doc and not manifest_problems else []
+    imported = [meshes[0]["dest"]] + chain_packages + [r["dest"] for r in textures]
     return {"project": project, "meshes": meshes, "textures": textures, "chain_manifest": manifest,
             "chain": chain_doc, "missing": missing, "manifest_problems": manifest_problems,
-            "hashes": hashes, "imported_packages": imported,
+            "hashes": hashes, "chain_packages": chain_packages, "imported_packages": imported,
             "apply_packages": imported + [DEST + "/" + MASTER_NAME, DEST + "/" + MI_NAME],
             "normal_convention": normal_convention()}
 
