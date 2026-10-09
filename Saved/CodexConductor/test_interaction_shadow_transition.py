@@ -168,7 +168,7 @@ check("F3 args contain exactly I1..I5", set(args["interactions"]) == {"I1", "I2"
 check("F4 P44 args use applied I2 pattern as reference", args["reference_interaction"] == 2)
 check("F5 P44 stand-ins name the current BoyPussRub gobo", all(
     args["interactions"][key]["light_function_material"] ==
-    "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyPussRub" for key in ("I1", "I3", "I4", "I5")))
+    "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyRub" for key in ("I1", "I3", "I4", "I5")))
 check("F6 args put Gary's fade in each Interaction", all(row["fade_seconds"] == 4.0 for row in args["interactions"].values()))
 check("F7 source imports without Unreal", tool.unreal is None)
 

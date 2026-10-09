@@ -83,7 +83,7 @@ with open(os.path.join(ROOT, "interaction_shadow_transition_args.json"), "r", en
 check("P interactions use I2 pattern reference", interaction_args["reference_interaction"] == 2)
 check("P four requested interactions use current gobo stand-in", all(
     interaction_args["interactions"][key]["light_function_material"] ==
-    "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyPussRub" for key in ("I1", "I3", "I4", "I5")))
+    "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyRub" for key in ("I1", "I3", "I4", "I5")))
 
 source = open(os.path.join(HERE, "p44_probe.py"), "r", encoding="utf-8").read()
 check("P probe contains no save call", "save_asset(" not in source and "save_loaded_asset(" not in source)

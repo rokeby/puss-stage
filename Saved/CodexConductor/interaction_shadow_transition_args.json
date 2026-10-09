@@ -4,31 +4,31 @@
     "I1": {
       "fade_seconds": 4.0,
       "fade_out_seconds": 1.0,
-      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyPussRub",
+      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyRub",
       "spawn_lead_frames": 25
     },
     "I2": {
       "fade_seconds": 4.0,
       "fade_out_seconds": 1.0,
-      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyPussRub",
+      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyRub",
       "spawn_lead_frames": 25
     },
     "I3": {
       "fade_seconds": 4.0,
       "fade_out_seconds": 1.0,
-      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyPussRub",
+      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyRub",
       "spawn_lead_frames": 25
     },
     "I4": {
       "fade_seconds": 4.0,
       "fade_out_seconds": 1.0,
-      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyPussRub",
+      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyRub",
       "spawn_lead_frames": 25
     },
     "I5": {
       "fade_seconds": 4.0,
       "fade_out_seconds": 1.0,
-      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyPussRub",
+      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyRub",
       "spawn_lead_frames": 25
     }
   },
