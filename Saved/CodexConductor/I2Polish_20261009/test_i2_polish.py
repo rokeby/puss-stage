@@ -35,8 +35,8 @@ class FakeBackend(object):
     def __init__(self, root):
         self.root = root
         self.logs = []
-        self.state = 1
         self.applied = False
+        self.before_end = 3891
 
     def log(self, message):
         self.logs.append(message)
@@ -52,12 +52,18 @@ class FakeBackend(object):
             raise TOOL.Stop("CONFIRM")
 
     def build_report(self, params, run):
+        boundary = TOOL.boundary_plan(scene(), 1)
+        boundary["before_end"] = self.before_end
+        boundary["after_end"] = self.before_end + int(params["boundary_extend_frames"])
+        boundary["probe"] = {"supports_fix": True}
+        guarded = TOOL.plan_relevant_inputs(params, [boundary], [], {"selected": []}, [0, 1950])
         return {"schema_version": 1, "tool_version": TOOL.TOOL_VERSION, "run": run, "params": params,
                 "apply_ready": True, "refusals": [],
-                "boundary": [TOOL.boundary_plan(scene(), 1)],
+                "boundary": [boundary],
                 "f17": {"status": "OK"}, "f17_fix_steps": [],
                 "f18": {"candidates": [], "selected": [], "refusals": []},
-                "runon": {"source_guaranteed": True}, "input_digest": str(self.state),
+                "runon": {"source_guaranteed": True}, "input_digest": TOOL.digest(guarded),
+                "digest_inputs": guarded,
                 "census": self.census(), "proof": {"tier": "measured"}}
 
     def apply(self, report, run):
@@ -124,6 +130,18 @@ class PolishTests(unittest.TestCase):
     def test_positive_digest_order_independent(self):
         self.assertEqual(TOOL.digest({"a": 1, "b": 2}), TOOL.digest({"b": 2, "a": 1}))
 
+    def test_positive_guid_uses_value_converter_not_struct_address(self):
+        class AddressRepr(object):
+            def __init__(self, address):
+                self.address = address
+
+            def __str__(self):
+                return "<STRUCT 'GUID' (0X%s)>" % self.address
+
+        converter = lambda unused: "12345678-1234-1234-1234-1234567890ab"
+        self.assertEqual(TOOL._guid(AddressRepr("AAA"), converter),
+                         TOOL._guid(AddressRepr("BBB"), converter))
+
     def test_positive_logged_boundary_only_ignores_disabled_f17_audit(self):
         # B1H-I2POLISH-BOUNDARY-DRY-20261009-092652: boundary enabled,
         # F17 fixes empty, F18 targets empty, and the F17 audit was unavailable.
@@ -153,7 +171,7 @@ class PolishTests(unittest.TestCase):
             self.assertTrue(os.path.isfile(os.path.join(root, TOOL.PLAN)))
             self.assertTrue(any(line.startswith("I2_POLISH_DRY_OK") for line in backend.logs))
 
-    def test_positive_main_apply_then_revert(self):
+    def test_positive_main_dry_apply_allows_only_envelope_changes_then_revert(self):
         with tempfile.TemporaryDirectory() as root:
             backend = FakeBackend(root)
             TOOL.main({"mode": "DRY", "run_id": "T-DRY", "confirm": "DRY I2POLISH"}, backend=backend)
@@ -245,9 +263,22 @@ class PolishTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             backend = FakeBackend(root)
             TOOL.main({"mode": "DRY", "run_id": "T-DRY", "confirm": "DRY I2POLISH"}, backend=backend)
-            backend.state = 2
-            with self.assertRaises(TOOL.Stop):
+            backend.before_end = 3892
+            with self.assertRaisesRegex(TOOL.Stop, "DRY_STATE_DRIFT"):
                 TOOL.main({"mode": "APPLY", "run_id": "T-APPLY", "confirm": "APPLY I2POLISH"}, backend=backend)
+
+    def test_negative_apply_changed_fix_key_refused(self):
+        with tempfile.TemporaryDirectory() as root:
+            backend = FakeBackend(root)
+            dry_params = {"boundary_apply": False, "f17_fix_steps": [{
+                "id": "lamp", "kind": "LIGHT_DIM", "actor_label": "Lamp", "keys": [[0, 1.0]]}]}
+            TOOL.main({"mode": "DRY", "run_id": "T-DRY", "confirm": "DRY I2POLISH",
+                       "params": dry_params}, backend=backend)
+            apply_params = {"boundary_apply": False, "f17_fix_steps": [{
+                "id": "lamp", "kind": "LIGHT_DIM", "actor_label": "Lamp", "keys": [[0, 0.5]]}]}
+            with self.assertRaisesRegex(TOOL.Stop, "DRY_ARGS_DRIFT"):
+                TOOL.main({"mode": "APPLY", "run_id": "T-APPLY", "confirm": "APPLY I2POLISH",
+                           "params": apply_params}, backend=backend)
 
 
 class CountingResult(unittest.TextTestResult):
@@ -273,6 +304,6 @@ if __name__ == "__main__":
         json.dump(payload, handle, indent=1, sort_keys=True)
         handle.write("\n")
     print("HARNESS_RESULT|positive=%d/%d|negative=%d/%d|total=%d/%d" % (
-        len(positive), 16, len(negative), 18, len(result.passed), suite.countTestCases()))
-    print("HARNESS_STATUS|%s" % ("PASS" if result.wasSuccessful() and len(positive) == 16 and len(negative) == 18 else "FAIL"))
+        len(positive), 17, len(negative), 19, len(result.passed), suite.countTestCases()))
+    print("HARNESS_STATUS|%s" % ("PASS" if result.wasSuccessful() and len(positive) == 17 and len(negative) == 19 else "FAIL"))
     raise SystemExit(0 if result.wasSuccessful() else 1)

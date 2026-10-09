@@ -23,7 +23,7 @@ import shutil
 
 
 TOOL = "I2_POLISH"
-TOOL_VERSION = "2026-10-09b"
+TOOL_VERSION = "2026-10-09c"
 FOLDER = "I2Polish_20261009"
 MAP_PATH = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SHOW_PATH = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
@@ -91,6 +91,43 @@ def master_i2_start_from_rows(rows, sequence_path=I2_PATH,
 def digest(value):
     raw = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()
+
+
+def plan_relevant_inputs(params, boundary, fixes, hold, playback):
+    """Project a live report onto only the inputs its enabled edits consume.
+
+    Diagnostic inventories (other Scenes, run-on markers, lighting audit output,
+    and unselected movement channels) must not invalidate an otherwise identical
+    DRY plan.  Conversely, the exact selected section range/locator and selected
+    channel keys remain guarded.
+    """
+    enabled = enabled_parts(params)
+    projected = {"schema_version": 1, "params": params}
+    if enabled["boundary"]:
+        projected["boundary"] = [{
+            "scene": row["scene"],
+            "sequence": row["sequence"],
+            "locator": row.get("locator"),
+            "status": row["status"],
+            "nested_sequence": row.get("nested_sequence"),
+            "nested_final_camera": row.get("nested_final_camera"),
+            "root_tail_cameras": row.get("root_tail_cameras"),
+            "before_end": row.get("before_end"),
+            "after_end": row.get("after_end"),
+            "probe_supports_fix": bool(row.get("probe", {}).get("supports_fix")),
+        } for row in boundary]
+    if enabled["f17"]:
+        projected["i2_playback"] = list(playback)
+        projected["f17_fix_steps"] = fixes
+    if enabled["f18"]:
+        projected["i2_playback"] = list(playback)
+        projected["f18_selected"] = [{
+            "locator": {key: row[key] for key in (
+                "id", "binding_guid", "track_index", "section_index", "channel_index", "channel")},
+            "before": row["hold_plan"]["before"],
+            "after": row["hold_plan"]["after"],
+        } for row in hold["selected"]]
+    return projected
 
 
 def merged_params(raw):
@@ -387,8 +424,15 @@ def _plain(value):
     return str(value)
 
 
-def _guid(value):
-    return str(value).replace("-", "").replace("{", "").replace("}", "").upper()
+def _guid(value, converter=None):
+    """Return GUID value text, never Unreal's address-bearing struct repr."""
+    if converter is None:
+        try:
+            import unreal
+            converter = unreal.GuidLibrary.conv_guid_to_string
+        except (ImportError, AttributeError):
+            converter = str
+    return str(converter(value)).replace("-", "").replace("{", "").replace("}", "").upper()
 
 
 def _asset_file(path):
@@ -704,11 +748,12 @@ class UnrealBackend(object):
         for row in plans:
             row["probe"] = boundary_probe_evidence(probe, row["scene"]) if probe else {
                 "status": "NOT_SUPPLIED", "supports_fix": False}
-        hold = movement_plan(self._channel_rows(i2), params["f18_hold_frame"], playback[1],
+        channel_rows = self._channel_rows(i2)
+        hold = movement_plan(channel_rows, params["f18_hold_frame"], playback[1],
                              params["f18_target_ids"], params["numeric_tolerance"])
         window_start = max(playback[0], playback[1] - int(round(params["f18_window_seconds"] * self._rate(i2))))
         hold["window_start"] = window_start
-        hold["window_inventory"] = movement_inventory(self._channel_rows(i2), window_start, playback[1],
+        hold["window_inventory"] = movement_inventory(channel_rows, window_start, playback[1],
                                                         params["numeric_tolerance"])
         hold["proposals"] = [
             {"id": "END_AT_FALL_RELEASE", "frame": FALL_RELEASE_FRAME,
@@ -743,14 +788,14 @@ class UnrealBackend(object):
                            "f18": len(hold["selected"])}
         refusals = gate_refusals(params, common_refusals, boundary_refusals,
                                  f17_issues, hold["refusals"], mutation_counts)
-        state = {"scenes": scenes, "i2_playback": playback, "movement_channels": self._channel_rows(i2),
-                 "i2_markers": self._marker_rows(i2), "master_markers": self._marker_rows(master)}
+        guarded_inputs = plan_relevant_inputs(params, plans, fixes, hold, playback)
         report = {"schema_version": 1, "tool_version": TOOL_VERSION, "run": run, "params": params,
                   "apply_ready": not refusals, "refusals": refusals,
                   "reported_issues": common_issues + f17_issues + hold["refusals"],
                   "enabled_parts": enabled, "mutation_counts": mutation_counts, "boundary": plans,
                   "f17": lighting, "f17_fix_steps": fixes, "f18": hold, "runon": runon,
-                  "input_digest": digest(state), "census": self.census(),
+                  "input_digest": digest(guarded_inputs), "digest_inputs": guarded_inputs,
+                  "census": self.census(),
                   "proof": {"tier": "measured", "scope": "live DRY reads only; no rendered acceptance"}}
         return report
 
@@ -1070,6 +1115,7 @@ def main(args, backend=None, tool_root=None):
             path = os.path.join(backend.root, "i2_polish_dry_%s.json" % run)
             _json_write(path, report)
             _json_write(os.path.join(backend.root, PLAN), {"run": run, "input_digest": report["input_digest"],
+                                                            "digest_inputs": report.get("digest_inputs"),
                                                             "params": params, "report": path})
             if backend.census() != {"content": [], "maps": []}:
                 raise Stop("DRY_DIRTIED|%s" % json.dumps(backend.census()))
@@ -1083,8 +1129,11 @@ def main(args, backend=None, tool_root=None):
             report = backend.build_report(params, run)
             if not report["apply_ready"]:
                 raise Stop("APPLY_NOT_READY|%s" % json.dumps(report["refusals"]))
-            if plan["input_digest"] != report["input_digest"] or plan["params"] != params:
-                raise Stop("DRY_STATE_OR_ARGS_DRIFT|RERUN_DRY")
+            if plan["params"] != params:
+                raise Stop("DRY_ARGS_DRIFT|RERUN_DRY")
+            if plan["input_digest"] != report["input_digest"]:
+                raise Stop("DRY_STATE_DRIFT|dry=%s|apply=%s|RERUN_DRY" % (
+                    plan["input_digest"], report["input_digest"]))
             record = backend.apply(report, run)
             backend.log("I2_POLISH_APPLY_OK|run=%s|boundary=%d|f17=%d|f18=%d|saved=%s|backup=%s|record=%s|dirty=0" % (
                 run, len(record["boundary"]), len(record["f17"]), len(record["f18"]),
