@@ -158,6 +158,65 @@ void ReloadWorld(UWorld* World)
     }
 }
 
+UInfinityStageSurtitleSubsystem* SurtitlesOf(UWorld* World)
+{
+    UInfinityStageSurtitleSubsystem* Surtitles = World ? World->GetSubsystem<UInfinityStageSurtitleSubsystem>() : nullptr;
+    if (!Surtitles)
+    {
+        UE_LOG(LogInfinityStageSurtitles, Warning, TEXT("INFINITY_SURTITLES_CONTROL no game world (start PIE or the show first)"));
+    }
+    return Surtitles;
+}
+
+void LogControl(UInfinityStageSurtitleSubsystem* Surtitles, const TCHAR* What, const bool bOk)
+{
+    UE_LOG(LogInfinityStageSurtitles, Display, TEXT("INFINITY_SURTITLES_CONTROL %s ok=%d %s | %s"),
+        What, bOk ? 1 : 0, *Surtitles->GetLastMessage(), *Surtitles->DescribeSelected());
+}
+
+void StepWorld(const TArray<FString>& Args, UWorld* World)
+{
+    if (UInfinityStageSurtitleSubsystem* Surtitles = SurtitlesOf(World))
+    {
+        const int32 Delta = Args.Num() > 0 && FCString::Atoi(*Args[0]) < 0 ? -1 : 1;
+        LogControl(Surtitles, Delta > 0 ? TEXT("next") : TEXT("previous"), Surtitles->StepLine(Delta));
+    }
+}
+
+void StampWorld(const TArray<FString>& Args, UWorld* World)
+{
+    if (UInfinityStageSurtitleSubsystem* Surtitles = SurtitlesOf(World))
+    {
+        const bool bOut = Args.Num() > 0 && Args[0].Equals(TEXT("Out"), ESearchCase::IgnoreCase);
+        LogControl(Surtitles, bOut ? TEXT("stamp_out") : TEXT("stamp_in"), Surtitles->StampAtPlayhead(bOut));
+    }
+}
+
+void NudgeWorld(const TArray<FString>& Args, UWorld* World)
+{
+    if (UInfinityStageSurtitleSubsystem* Surtitles = SurtitlesOf(World))
+    {
+        const bool bOut = Args.Num() > 0 && Args[0].Equals(TEXT("Out"), ESearchCase::IgnoreCase);
+        const double Delta = Args.Num() > 1 ? FCString::Atod(*Args[1]) : 0.0;
+        LogControl(Surtitles, bOut ? TEXT("nudge_out") : TEXT("nudge_in"), Surtitles->Nudge(bOut, Delta));
+    }
+}
+
+FAutoConsoleCommandWithWorldAndArgs StepCommand(
+    TEXT("InfinityStage.Surtitles.Step"),
+    TEXT("1 next / -1 previous surtitle: scrubs there (pauses) and selects it."),
+    FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&StepWorld));
+
+FAutoConsoleCommandWithWorldAndArgs StampCommand(
+    TEXT("InfinityStage.Surtitles.Stamp"),
+    TEXT("In | Out: sets the selected surtitle's In or Out to the playhead, in the sheet."),
+    FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&StampWorld));
+
+FAutoConsoleCommandWithWorldAndArgs NudgeCommand(
+    TEXT("InfinityStage.Surtitles.Nudge"),
+    TEXT("In | Out <seconds>: moves the selected surtitle's In or Out, in the sheet."),
+    FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&NudgeWorld));
+
 FAutoConsoleCommandWithWorld DumpCommand(
     TEXT("InfinityStage.Surtitles.Dump"),
     TEXT("Logs every surtitle line at its absolute Master time (INFINITY_SURTITLE rows)."),
@@ -198,6 +257,7 @@ bool FInfinitySurtitleScript::LoadFromCsvText(const FString& Text)
     const int32 OutColumn = FindColumn(Header, { TEXT("Out"), TEXT("End") });
     const int32 SpeakerColumn = FindColumn(Header, { TEXT("Speaker") });
     const int32 TextColumn = FindColumn(Header, { TEXT("Text"), TEXT("Surtitle"), TEXT("Line") });
+    const int32 KeyColumn = FindColumn(Header, { TEXT("Key") });
     if (InColumn == INDEX_NONE || TextColumn == INDEX_NONE)
     {
         Warnings.Add(TEXT("the header needs In and Text columns"));
@@ -229,6 +289,7 @@ bool FInfinitySurtitleScript::LoadFromCsvText(const FString& Text)
         Line.SourceRow = SourceRow;
         Line.Segment = CarriedSegment;
         Line.Speaker = Cell(Cells, SpeakerColumn);
+        Line.Key = Cell(Cells, KeyColumn);
         Line.Text = LineText;
         if (Line.Segment.IsEmpty())
         {
@@ -439,6 +500,132 @@ FInfinitySurtitleShown Evaluate(
     return Shown;
 }
 
+FString SerializeCsv(const TArray<TArray<FString>>& Table, const TCHAR* LineEnd)
+{
+    FString Out;
+    for (const TArray<FString>& Row : Table)
+    {
+        for (int32 Column = 0; Column < Row.Num(); ++Column)
+        {
+            const FString& Value = Row[Column];
+            if (Column > 0)
+            {
+                Out.AppendChar(TEXT(','));
+            }
+            int32 Unused = 0;
+            if (Value.FindChar(TEXT(','), Unused) || Value.FindChar(TEXT('"'), Unused)
+                || Value.FindChar(TEXT('\n'), Unused) || Value.FindChar(TEXT('\r'), Unused))
+            {
+                Out += TEXT("\"") + Value.Replace(TEXT("\""), TEXT("\"\"")) + TEXT("\"");
+            }
+            else
+            {
+                Out += Value;
+            }
+        }
+        Out += LineEnd;
+    }
+    return Out;
+}
+
+bool SetLineTime(FString& InOutCsvText, const FInfinitySurtitleLine& Line, const bool bOut, const double Seconds, FString& OutError)
+{
+    TArray<TArray<FString>> Table;
+    FInfinityCueSheet::ParseCsv(InOutCsvText, Table);
+    int32 HeaderRow = INDEX_NONE;
+    for (int32 Row = 0; Row < Table.Num() && HeaderRow == INDEX_NONE; ++Row)
+    {
+        if (FindColumn(Table[Row], { TEXT("Segment") }) != INDEX_NONE)
+        {
+            HeaderRow = Row;
+        }
+    }
+    const int32 RowIndex = Line.SourceRow - 1;
+    if (HeaderRow == INDEX_NONE || RowIndex <= HeaderRow || !Table.IsValidIndex(RowIndex))
+    {
+        OutError = FString::Printf(TEXT("row %d is not in the sheet any more"), Line.SourceRow);
+        return false;
+    }
+    const TArray<FString>& Header = Table[HeaderRow];
+    const int32 InColumn = FindColumn(Header, { TEXT("In"), TEXT("Start") });
+    const int32 OutColumn = FindColumn(Header, { TEXT("Out"), TEXT("End") });
+    const int32 KeyColumn = FindColumn(Header, { TEXT("Key") });
+    TArray<FString>& Cells = Table[RowIndex];
+
+    // Stale guard: the row on disk must still be the line we loaded.
+    double DiskIn = -1.0;
+    if (Cell(Cells, KeyColumn) != Line.Key
+        || !ParseTime(Cell(Cells, InColumn), SheetFps, DiskIn) || !FMath::IsNearlyEqual(DiskIn, Line.InSeconds, 1e-6))
+    {
+        OutError = FString::Printf(TEXT("row %d changed on disk; reloaded, try again"), Line.SourceRow);
+        return false;
+    }
+    const int32 Column = bOut ? OutColumn : InColumn;
+    if (Column == INDEX_NONE)
+    {
+        OutError = TEXT("the sheet has no Out column");
+        return false;
+    }
+    if (Seconds < 0.0)
+    {
+        OutError = TEXT("a time cannot be before the segment start");
+        return false;
+    }
+    double OtherOut = -1.0;
+    const bool bHasOut = ParseTime(Cell(Cells, OutColumn), SheetFps, OtherOut);
+    if ((bOut && Seconds <= Line.InSeconds) || (!bOut && bHasOut && OtherOut <= Seconds))
+    {
+        OutError = TEXT("Out must stay after In");
+        return false;
+    }
+    while (Cells.Num() <= Column)
+    {
+        Cells.Add(FString());
+    }
+    Cells[Column] = FormatTime(Seconds);
+    InOutCsvText = SerializeCsv(Table, InOutCsvText.Contains(TEXT("\r\n")) ? TEXT("\r\n") : TEXT("\n"));
+    return true;
+}
+
+double LandingSeconds(const FInfinitySurtitleLine& Line, const double OutSeconds, const double FadeSeconds)
+{
+    return Line.InSeconds + FMath::Min(FMath::Max(0.0, FadeSeconds), FMath::Max(0.0, (OutSeconds - Line.InSeconds) * 0.5));
+}
+
+int32 FindStepTarget(
+    const FInfinitySurtitleScript& Script,
+    const TArray<FInfinityTransportSegment>& Segments,
+    const int64 MasterFrame,
+    const double TicksPerSecond,
+    const double FadeSeconds,
+    const int32 Delta,
+    int64& OutLandingFrame)
+{
+    int32 Best = INDEX_NONE;
+    int64 BestFrame = 0;
+    for (int32 LineIndex = 0; LineIndex < Script.Lines.Num(); ++LineIndex)
+    {
+        const FInfinitySurtitleLine& Line = Script.Lines[LineIndex];
+        const int32 SegmentIndex = ResolveSegment(Line.Segment, Segments);
+        if (Line.Text.IsEmpty() || SegmentIndex == INDEX_NONE)
+        {
+            continue;
+        }
+        const double Out = EffectiveOut(Script, LineIndex, Segments, SegmentIndex, TicksPerSecond);
+        const int64 Land = Segments[SegmentIndex].StartFrame.Value
+            + int64(FMath::RoundToDouble(LandingSeconds(Line, Out, FadeSeconds) * TicksPerSecond));
+        const bool bAhead = Delta > 0 ? Land > MasterFrame : Land < MasterFrame;
+        const bool bCloser = Best == INDEX_NONE || (Delta > 0 ? Land < BestFrame : Land > BestFrame);
+        if (bAhead && bCloser)
+        {
+            Best = LineIndex;
+            BestFrame = Land;
+        }
+    }
+    OutLandingFrame = BestFrame;
+    return Best;
+}
+
 FString ResolvePath()
 {
     const FString Override = CVarSurtitlesPath.GetValueOnGameThread();
@@ -482,8 +669,14 @@ bool UInfinityStageSurtitleSubsystem::Reload()
 {
     const FString Path = InfinityStageSurtitles::ResolvePath();
     LoadedStamp = IFileManager::Get().GetTimeStamp(*Path);
+    // Keep the selection across a reload (a Cue Book export lands while rehearsing): by Key, else by row.
+    const FInfinitySurtitleLine Selected = Script.Lines.IsValidIndex(SelectedLine) ? Script.Lines[SelectedLine] : FInfinitySurtitleLine();
     const bool bOk = Script.LoadFromFile(Path);
     ShownLine = INDEX_NONE;
+    SelectedLine = Selected.SourceRow == 0 ? INDEX_NONE : Script.Lines.IndexOfByPredicate([&Selected](const FInfinitySurtitleLine& Each)
+    {
+        return Selected.Key.IsEmpty() ? Each.SourceRow == Selected.SourceRow : Each.Key == Selected.Key;
+    });
     for (const FString& Warning : Script.Warnings)
     {
         UE_LOG(LogInfinityStageSurtitles, Warning, TEXT("INFINITY_SURTITLES_WARNING %s"), *Warning);
@@ -696,4 +889,135 @@ void UInfinityStageSurtitleSubsystem::Tick(const float DeltaTime)
     }
     Bar->SetRenderOpacity(Shown.Opacity);
     Overlay->SetVisibility(EVisibility::HitTestInvisible);
+}
+
+// --- Rehearsal controls ----------------------------------------------------
+
+bool UInfinityStageSurtitleSubsystem::Fail(const FString& Message)
+{
+    LastMessage = Message;
+    return false;
+}
+
+int32 UInfinityStageSurtitleSubsystem::GetSelectedLine() const
+{
+    return Script.Lines.IsValidIndex(SelectedLine) ? SelectedLine
+        : (Script.Lines.IsValidIndex(ShownLine) ? ShownLine : INDEX_NONE);
+}
+
+FString UInfinityStageSurtitleSubsystem::DescribeSelected() const
+{
+    const int32 LineIndex = GetSelectedLine();
+    if (LineIndex == INDEX_NONE)
+    {
+        return TEXT("no surtitle selected");
+    }
+    const FInfinitySurtitleLine& Line = Script.Lines[LineIndex];
+    const FString Out = Line.OutSeconds >= 0.0 ? InfinityStageSurtitles::FormatTime(Line.OutSeconds) : FString(TEXT("next"));
+    FString Text = Line.Text.Replace(TEXT("\r"), TEXT("")).Replace(TEXT("\n"), TEXT(" / "));
+    if (Text.Len() > 60)
+    {
+        Text = Text.Left(57) + TEXT("...");
+    }
+    const FString KeyPart = Line.Key.IsEmpty() ? FString() : FString::Printf(TEXT(" [%s]"), *Line.Key);
+    return FString::Printf(TEXT("%s row %d%s %s-%s %s%s%s"),
+        *Line.Segment, Line.SourceRow, *KeyPart,
+        *InfinityStageSurtitles::FormatTime(Line.InSeconds), *Out,
+        *Line.Speaker, Line.Speaker.IsEmpty() ? TEXT("") : TEXT(": "), *Text);
+}
+
+bool UInfinityStageSurtitleSubsystem::StepLine(const int32 Delta)
+{
+    AInfinityStageShowRoot* ShowRoot = FindRoot();
+    if (!ShowRoot)
+    {
+        return Fail(TEXT("no Show Root"));
+    }
+    UInfinityStageTransportController& Transport = *ShowRoot->Transport;
+    int64 Landing = 0;
+    const int32 Target = InfinityStageSurtitles::FindStepTarget(
+        Script, Transport.Segments, Transport.GetCurrentMasterFrame().Value,
+        ShowRoot->ShowAsset->TickResolution.AsDecimal(),
+        FMath::Max(0.0f, CVarSurtitlesFade.GetValueOnGameThread()), Delta, Landing);
+    if (Target == INDEX_NONE)
+    {
+        return Fail(Delta > 0 ? TEXT("no later surtitle") : TEXT("no earlier surtitle"));
+    }
+    const EInfinityTransportResult Result = Transport.ScrubToMasterFrame(FFrameNumber(int32(Landing)));
+    if (Result != EInfinityTransportResult::Succeeded)
+    {
+        // Never forced: a refusal is the transport's rule (e.g. a Scene in Performance mode).
+        return Fail(FString::Printf(TEXT("transport refused the jump (result=%d)"), int32(Result)));
+    }
+    SelectedLine = Target;
+    LastMessage = TEXT("jumped");
+    return true;
+}
+
+bool UInfinityStageSurtitleSubsystem::StampAtPlayhead(const bool bOut)
+{
+    AInfinityStageShowRoot* ShowRoot = FindRoot();
+    const int32 LineIndex = GetSelectedLine();
+    if (!ShowRoot || LineIndex == INDEX_NONE)
+    {
+        return Fail(ShowRoot ? TEXT("no surtitle selected (step to one first)") : TEXT("no Show Root"));
+    }
+    const TArray<FInfinityTransportSegment>& Segments = ShowRoot->Transport->Segments;
+    const int64 Frame = ShowRoot->Transport->GetCurrentMasterFrame().Value;
+    const int32 SegmentIndex = InfinityStageSurtitles::ResolveSegment(Script.Lines[LineIndex].Segment, Segments);
+    if (SegmentIndex == INDEX_NONE || Frame < Segments[SegmentIndex].StartFrame.Value || Frame >= Segments[SegmentIndex].EndFrame.Value)
+    {
+        return Fail(FString::Printf(TEXT("the playhead is not in %s"), *Script.Lines[LineIndex].Segment));
+    }
+    const double Local = double(Frame - Segments[SegmentIndex].StartFrame.Value) / ShowRoot->ShowAsset->TickResolution.AsDecimal();
+    return WriteLineTime(LineIndex, bOut, Local);
+}
+
+bool UInfinityStageSurtitleSubsystem::Nudge(const bool bOut, const double DeltaSeconds)
+{
+    AInfinityStageShowRoot* ShowRoot = FindRoot();
+    const int32 LineIndex = GetSelectedLine();
+    if (!ShowRoot || LineIndex == INDEX_NONE)
+    {
+        return Fail(ShowRoot ? TEXT("no surtitle selected (step to one first)") : TEXT("no Show Root"));
+    }
+    const FInfinitySurtitleLine& Line = Script.Lines[LineIndex];
+    double Base = Line.InSeconds;
+    if (bOut)
+    {
+        const TArray<FInfinityTransportSegment>& Segments = ShowRoot->Transport->Segments;
+        const int32 SegmentIndex = InfinityStageSurtitles::ResolveSegment(Line.Segment, Segments);
+        Base = InfinityStageSurtitles::EffectiveOut(Script, LineIndex, Segments, SegmentIndex, ShowRoot->ShowAsset->TickResolution.AsDecimal());
+    }
+    return WriteLineTime(LineIndex, bOut, FMath::Max(0.0, Base + DeltaSeconds));
+}
+
+bool UInfinityStageSurtitleSubsystem::WriteLineTime(const int32 LineIndex, const bool bOut, const double Seconds)
+{
+    const FString Path = InfinityStageSurtitles::ResolvePath();
+    const FInfinitySurtitleLine Line = Script.Lines[LineIndex];
+    FString Text;
+    if (!FFileHelper::LoadFileToString(Text, *Path))
+    {
+        return Fail(FString::Printf(TEXT("cannot read %s"), *Path));
+    }
+    FString Error;
+    if (!InfinityStageSurtitles::SetLineTime(Text, Line, bOut, Seconds, Error))
+    {
+        Reload();
+        return Fail(Error);
+    }
+    // Rename-over, so neither the Cue Book nor this runtime's own reload reads half a file.
+    const FString Temp = Path + TEXT(".tmp");
+    if (!FFileHelper::SaveStringToFile(Text, *Temp, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM)
+        || !IFileManager::Get().Move(*Path, *Temp, true, true))
+    {
+        IFileManager::Get().Delete(*Temp);
+        return Fail(FString::Printf(TEXT("cannot write %s"), *Path));
+    }
+    Reload();
+    SelectedLine = Script.Lines.IndexOfByPredicate([&Line](const FInfinitySurtitleLine& Each) { return Each.SourceRow == Line.SourceRow; });
+    LastMessage = FString::Printf(TEXT("row %d %s = %s"), Line.SourceRow, bOut ? TEXT("Out") : TEXT("In"), *InfinityStageSurtitles::FormatTime(Seconds));
+    UE_LOG(LogInfinityStageSurtitles, Display, TEXT("INFINITY_SURTITLES_WRITE %s path=%s"), *LastMessage, *Path);
+    return true;
 }

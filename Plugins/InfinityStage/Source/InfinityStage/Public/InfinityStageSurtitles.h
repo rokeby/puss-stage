@@ -49,6 +49,8 @@ struct INFINITYSTAGE_API FInfinitySurtitleLine
 {
     /** 1-based row in the CSV, for "see the sheet, row 12". */
     int32 SourceRow = 0;
+    /** The Cue Book's stable row id (Key column), or empty. Carried through, never invented here. */
+    FString Key;
     /** As written (after carry-down): "S5", "P2", "I1" or a cue label. */
     FString Segment;
     double InSeconds = 0.0;
@@ -113,6 +115,35 @@ INFINITYSTAGE_API FInfinitySurtitleShown Evaluate(
     double TicksPerSecond,
     double FadeSeconds);
 
+/**
+ * Rewrites one line's In or Out in the raw sheet text, touching that one cell only: every
+ * other cell, column (Key, Notes, unknown ones), row and the line endings are kept.
+ * Refuses (false, OutError) when the row no longer matches Line (Key or In changed on disk),
+ * when the sheet has no Out column, or when the result would be skipped by the parser
+ * (Out <= In).
+ */
+INFINITYSTAGE_API bool SetLineTime(FString& InOutCsvText, const FInfinitySurtitleLine& Line, bool bOut, double Seconds, FString& OutError);
+
+/** RFC-4180: quotes a cell only when it holds a comma, quote, CR or LF. */
+INFINITYSTAGE_API FString SerializeCsv(const TArray<TArray<FString>>& Table, const TCHAR* LineEnd);
+
+/** Where a step lands on a line: just past its fade-in, so a paused frame shows it. */
+INFINITYSTAGE_API double LandingSeconds(const FInfinitySurtitleLine& Line, double OutSeconds, double FadeSeconds);
+
+/**
+ * The line a Previous (-1) / Next (+1) step goes to from a Master frame, by landing time
+ * across the whole show; clear rows (no text) and unresolved segments are skipped.
+ * INDEX_NONE at either end. OutLandingFrame is the absolute Master frame to scrub to.
+ */
+INFINITYSTAGE_API int32 FindStepTarget(
+    const FInfinitySurtitleScript& Script,
+    const TArray<FInfinityTransportSegment>& Segments,
+    int64 MasterFrame,
+    double TicksPerSecond,
+    double FadeSeconds,
+    int32 Delta,
+    int64& OutLandingFrame);
+
 /** Content/InfinityStage/CueSheet/Puss_Surtitles.csv (console InfinityStage.Surtitles.Path overrides). */
 INFINITYSTAGE_API FString ResolvePath();
 
@@ -141,8 +172,30 @@ public:
 
     const FInfinitySurtitleScript& GetScript() const { return Script; }
 
+    // Rehearsal controls, for the Cue Director interface (Gary, 9 Oct: "part of the cue
+    // director interface to be adjustable and rehearsable"). Each returns false with a
+    // reason in GetLastMessage(); none of them writes the Show or the level.
+
+    /** Scrubs (ScrubToMasterFrame: pauses) to the next (+1) / previous (-1) line and selects it. */
+    bool StepLine(int32 Delta);
+
+    /** Sets the selected line's In (or Out) to the playhead, in the sheet file. */
+    bool StampAtPlayhead(bool bOut);
+
+    /** Moves the selected line's In (or Out) by DeltaSeconds, in the sheet file. A blank Out becomes explicit. */
+    bool Nudge(bool bOut, double DeltaSeconds);
+
+    /** The selected line: the last one stepped to, else the one on screen. INDEX_NONE: none. */
+    int32 GetSelectedLine() const;
+
+    /** "S5 row 12 [T3k] 1:14.00-1:25.00 West: We have been here..." or "no surtitle selected". */
+    FString DescribeSelected() const;
+
+    const FString& GetLastMessage() const { return LastMessage; }
+
 private:
-    void EnsureOverlay();
+    bool Fail(const FString& Message);
+    bool WriteLineTime(int32 LineIndex, bool bOut, double Seconds);
     void ApplyStyle();
     AInfinityStageShowRoot* FindRoot();
 
@@ -159,5 +212,7 @@ private:
     TSharedPtr<FSlateBrush> BarBrush;
     FString StyleKey;
     int32 ShownLine = INDEX_NONE;
+    int32 SelectedLine = INDEX_NONE;
+    FString LastMessage;
     bool bOverlayAdded = false;
 };
