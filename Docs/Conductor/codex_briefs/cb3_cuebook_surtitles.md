@@ -74,6 +74,12 @@ a **three-way merge**, never a blind overwrite:
    writes `Content/InfinityStage/CueSheet/Puss_Surtitles.csv` (cb1's command). Byte-stable output for unchanged
    input.
 
+4. **Cue `at` / `go` fields (left over from cb1, 0e658a6).** `cue_sync` now carries `at` (segment-relative time) and
+   `go` (`"<number> [HOLD|PASS]"`) per cue (`WEB_FIELDS`, `parse_cue_time`, `parse_go` in `Tools/CueSheet/cue_sync.py`),
+   but `Code.gs` `FIELDS` does not list them, so the server silently drops them, and the page has no inputs. Add both
+   to `Code.gs` `FIELDS` and the page editor (two small inputs: "At (time in segment)" and "GO"), validated like
+   `parse_cue_time` / `parse_go`; show them on the cue card when set. Same one Gary redeploy as the surtitles tab.
+
 ## Harness
 
 Browser mock (`Tools/CueBook/test/`): add/edit/conflict/offline-reload for lines (as was done for cues, see README
