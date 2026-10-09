@@ -12,6 +12,14 @@ segment, with stills, and edit it. No accounts. Built 8 Oct 2026 for Gary.
 - **Surtitles:** each segment has a light time-coded line view (In, Out, Speaker, Text, Notes). Empty Text with an
   In time is a clear-screen row. `cue_sync.py export <backup.json>` writes the Unreal CSV and merge base; if Unreal
   changed the CSV, export writes a previewable `kind: "changes"` file and refuses to overwrite that edit.
+- **Stills:** `segment_map.json` is the ordered Cue Book-name to Show-key map. Cueing copies
+  `unreal/cuebook_stills_driver.py` to `Saved/CodexCueing/`; the Conductor runs DRY and then confirmed APPLY inside
+  an already-running PIE. The driver imports the Conductor's `scene_stills.py`, never starts or ends PIE, and emits
+  `CUEBOOK_STILLS_OK|...` only after its capture manifests, frame restores, and package census pass. Publish the
+  passed run offline with `python Tools/CueBook/publish_stills.py DRY <run-dir>`, then the same command with `APPLY`
+  and `--confirm APPLY_CUEBOOK_STILLS_PUBLISH`. Existing site files are moved to
+  `Backups/PreCueBookStills-<run>/` before replacement; `REVERT <that-backup-dir>` with
+  `--confirm REVERT_CUEBOOK_STILLS_PUBLISH` restores them without deleting the published copies.
 
 ## How work is kept safe
 
