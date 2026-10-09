@@ -272,8 +272,13 @@ class UnrealOps:
             feet = None
             if w["mount"] == "wing":
                 raw_timber = dyn["_raw"][2]
+                # pole feet sit at the sidecar's bottom_z_cm (legacy -100; S2K falling wings -1.5): threshold halfway
+                # into the extension, capped at 10 cm above the foot (legacy = -90, unchanged)
+                pg = (w.get("expected") or {}).get("pole") or {}
+                bz = float(pg.get("bottom_z_cm", -100.0))
+                foot_thr = bz + min(10.0, 0.5 * abs(bz))
                 feet = [float(p.y) for c, p in zip(raw_timber["colors"], raw_timber["positions"])
-                        if float(c.r) > 0.99 and float(p.z) < -90.0]
+                        if float(c.r) > 0.99 and float(p.z) < foot_thr]
             m["lods"][str(lod)] = {"front": front, "flap": flap, "triangles": int(dyn["triangles"]), "foot_y": feet}
         return m
 
