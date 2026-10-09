@@ -34,7 +34,7 @@ Tiers: **measured** = run and read back from Unreal; **inferred** = not verified
 7. S3 had **Shore05_M53 missing from the level** (5 of 6 Shore figures placed) — intended?
 
 ## New questions (9 Oct morning)
-- **P06 scaffold on the keeper**: Wing 045 R is the sliding keeper of the left domino. Should its side become the real 3D scaffold bay (it would slide with the mechanism), or stay a flat? (W&T does the other 3 scaffold sides.)
+- ~~P06 scaffold on the keeper~~ ANSWERED: Wing 045 R becomes a real 3D scaffold bay too (all 4 sides, W&T, after the bake).
 - **P02 fences looked low quality** because their faces use 64×64 placeholder textures [binary-proven, W&T]; W&T is building an industrial tiling master to re-texture them — stills to you.
 
 ## Planned
