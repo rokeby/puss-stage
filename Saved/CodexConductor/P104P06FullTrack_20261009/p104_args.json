@@ -1,0 +1,8 @@
+{
+  "mode": "DRY",
+  "confirm": "DRY P06 FULL 125",
+  "decided_by": "Gary 9 Oct E27",
+  "reviewed_plan_sha256": "",
+  "run_id": null,
+  "delete_import_on_revert": false
+}

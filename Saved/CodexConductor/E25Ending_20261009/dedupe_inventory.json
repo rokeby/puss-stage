@@ -1,0 +1,35 @@
+{
+  "measured_offline_2026-10-09": {
+    "existing_e25_tool_or_sequence": {
+      "found": false,
+      "searches": [
+        "tracked paths containing E25 or Ending",
+        "tracked text containing E25, Ending, and LS_Ending_OpeningStage",
+        "git history through 5a6fdee0"
+      ]
+    },
+    "gary_note": {
+      "path": "Docs/Conductor/GARY_PIE_NOTES_2026-10-09_evening.md",
+      "line": 31,
+      "status": "not built yet"
+    },
+    "nap_pattern": {
+      "path": "Saved/CodexConductor/NapInterlude_20261009/nap_interlude.py",
+      "reused_contracts": [
+        "new Sequence cue insertion",
+        "engine-minted cue GUID read after rebuild",
+        "DRY/APPLY/REVERT transaction",
+        "backup, exact dirty census, named saves, read-back"
+      ]
+    },
+    "opening_pattern": {
+      "path": "Saved/CodexConductor/P87OpeningFixes_20261009",
+      "reused_contracts": [
+        "wide Opening camera start pose",
+        "live Opening end-pose read",
+        "Opening/P01 actor composition",
+        "existing curtain, bulbs and uplights remain unmodified"
+      ]
+    }
+  }
+}

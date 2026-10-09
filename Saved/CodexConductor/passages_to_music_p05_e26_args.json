@@ -1,0 +1,52 @@
+{
+ "mode": "DRY",
+ "confirm": "DRY PASSAGES TO MUSIC",
+ "run_id": "P103-E26-P05",
+ "record_by_run": true,
+ "second_pass": "P05_E26",
+ "review_from_dry": true,
+ "passages": ["5"],
+ "hold_passages": [],
+ "tail_overrides_s": {
+  "1": 0.0,
+  "2": 0.0,
+  "3": 0.0,
+  "4": 0.0,
+  "5": 0.0,
+  "6": 0.0
+ },
+ "speed_warning_cm_s": 500.0,
+ "review": {
+  "inventory_sha256": "FROM_KEYED_DRY_P103-E26-P05",
+  "past_end_actions": {
+   "P05:passage_channel:Camera.*": "MOVE_INSIDE"
+  }
+ },
+ "review_note": "Gary E26 authorizes every P05 Camera.* key at/after the new end to scale forward in source order. The old-end key maps to the new end's final 25 fps display frame. Exact same-tick/same-value duplicates are dropped; unequal collisions refuse. APPLY hydrates and verifies the exact inventory hash and expected ticks from this run id's apply-ready DRY artifact.",
+ "per_passage": {
+  "5": {
+   "guid": "3B27C331B54325A469AE8A818B9049F9",
+   "music_s": 42.022472,
+   "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P05_Walking5_Cameron",
+   "expected": {
+    "old_len_ticks": 4472727,
+    "new_len_ticks": 1008960,
+    "music_ticks": 1008539
+   }
+  }
+ },
+ "known_saved_baseline": {
+  "source_record": "E:/PussStage/Saved/CodexConductor/passages_to_music_record.json",
+  "source_run": "P33-20261009-084049",
+  "p05_start_tick": 35775360,
+  "p05_end_tick": 40248087,
+  "camera_height_late_ticks": [40212087, 40248087],
+  "predicted_new_ticks": [36776199, 36783360],
+  "choreo_song_marker_count": 16,
+  "choreo_song_marker_max_local_tick": 938458,
+  "saved_structure_slot_count": 185,
+  "note": "Saved-record evidence only. Live DRY after job 102 is authoritative and APPLY refuses drift."
+ },
+ "music_source": "Docs/Conductor/P11_MUSIC_TIMING_2026-10-08.md: P05 selected interval 42.022 s, rounded up to 42.040 s / 1008960 ticks at 25 fps.",
+ "decided_by": "Gary 9 Oct E26"
+}

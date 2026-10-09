@@ -1131,5 +1131,5 @@ def main():
         _stop(run, "PLAN_REFUSED|" + str(exc))
 
 
-if unreal is not None:
+if unreal is not None and not globals().get("WALKING_MUSIC_SWAP_IMPORT_ONLY"):
     main()

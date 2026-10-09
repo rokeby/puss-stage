@@ -1,0 +1,22 @@
+{
+  "job": 99,
+  "result": "no_existing_job_99_tool",
+  "searched": [
+    "Docs/Conductor/codex_briefs",
+    "Docs/Conductor reports",
+    "Saved/CodexConductor scripts and records",
+    "Scripts/Unreal"
+  ],
+  "reused_or_audited": {
+    "puss_shadow_spot": "Saved/CodexConductor/puss_shadow_spot_record.json",
+    "p06_fixture_mesh_swap": "Saved/CodexConductor/MeshyFixtures_20261007/meshy_swap_record_P06.json",
+    "job_35_uplights": "Saved/CodexConductor/P01FloorPracticals_20261008/p01_floor.py",
+    "jobs_30_43_parcans": "Saved/CodexConductor/opening_lighting_p13.py",
+    "p06_fx": "Saved/CodexConductor/Effects_20261007",
+    "p06_scaffold": "Saved/CodexConductor/Q3_P02IND_P06UV_Scaffold_20261009",
+    "p01_floor_practicals": "Saved/CodexConductor/P01FloorPracticals_20261008",
+    "sunset": "Saved/CodexConductor/p06_sunset_record.json",
+    "sky_policy": "Saved/CodexConductor/p18_sky_policy.py"
+  },
+  "important_record_fact": "The saved P06 Meshy swap reports one StructureFixtures ISM with SM_Lantern_ParCan and 120 instances; Job 99 therefore maps the live central instance back to its exact Show attachment instead of attributing it from appearance."
+}

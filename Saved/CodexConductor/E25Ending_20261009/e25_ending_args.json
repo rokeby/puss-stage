@@ -1,0 +1,25 @@
+{
+  "mode": "DRY",
+  "run_id": "E25-DRY-REPLACE",
+  "confirm": "DRY E25 E25-DRY-REPLACE",
+  "source_run_id": "",
+  "params": {
+    "expected_scene6_guid": "",
+    "expected_closing_guid": "",
+    "expected_camera_path": "",
+    "expected_stage_actor_paths": [],
+    "expected_hidden_actor_paths": [],
+    "black_seconds": 2.0,
+    "arrival_seconds": 10.0,
+    "camera_start_pose": {
+      "location": [-2400.0, 0.0, 150.0],
+      "rotation": [9.0, 0.0, 0.0],
+      "focal_mm": 15.0
+    },
+    "mask_transform": {
+      "location": [250.0, 0.0, 525.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [0.25, 22.0, 12.0]
+    }
+  }
+}

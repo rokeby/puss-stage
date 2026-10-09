@@ -147,6 +147,61 @@ def explicit_hold_keeps_passage_and_rejects_unknown_key():
 
 
 @test
+def p05_e26_second_pass_scope_and_run_keyed_artifacts():
+    second = args(passages=["5"], hold_passages=[], second_pass="P05_E26", record_by_run=True,
+                  run_id="P103-E26-P05")
+    second["per_passage"] = {"5": second["per_passage"]["5"]}
+    check(tool.validate_args(second) == [], "positive P05-only E26 args")
+    check(tool.artifact_name(second, "record", second["run_id"]) ==
+          "passages_to_music_record_P103-E26-P05.json", "positive run-keyed record cannot collide with P33")
+    bad = copy.deepcopy(second)
+    bad["record_by_run"] = False
+    check(any("RECORD_BY_RUN" in row for row in tool.validate_args(bad)),
+          "negative E26 legacy record collision refused")
+    bad = copy.deepcopy(second)
+    bad["passages"] = ["4", "5"]
+    check(any("ONLY_P05" in row for row in tool.validate_args(bad)), "negative E26 multi-Passage scope refused")
+    bad = copy.deepcopy(second)
+    bad["run_id"] = "../unsafe"
+    check(any("RUN_ID_UNSAFE" in row for row in tool.validate_args(bad)), "negative unsafe artifact run id refused")
+
+
+@test
+def p05_e26_apply_hydrates_exact_review_hash_from_its_keyed_dry():
+    apply = args(mode="APPLY", confirm="APPLY PASSAGES TO MUSIC", passages=["5"], hold_passages=[],
+                 second_pass="P05_E26", record_by_run=True, review_from_dry=True, run_id="P103-E26-P05")
+    apply["per_passage"] = {"5": apply["per_passage"]["5"]}
+    apply["review"]["past_end_actions"] = {"P05:passage_channel:Camera.*": "MOVE_INSIDE"}
+    with tempfile.TemporaryDirectory() as folder:
+        original_here = tool._here
+        tool._here = lambda: folder
+        try:
+            dry_args = copy.deepcopy(apply)
+            dry_args.update(mode="DRY", confirm="DRY PASSAGES TO MUSIC")
+            dry = {"mode": "DRY", "run": apply["run_id"], "applyReady": True, "args": dry_args,
+                   "reviewInventorySha256": "a" * 64,
+                   "expectedForApplyArgs": {"5": {"old_len_ticks": 4472727,
+                       "new_len_ticks": 1008960, "music_ticks": 1008539}}}
+            path = os.path.join(folder, tool.artifact_name(apply, "dry", apply["run_id"]))
+            with open(path, "w", encoding="utf-8") as handle:
+                json.dump(dry, handle)
+            hydrated = tool.resolve_review_from_dry(apply, apply["run_id"])
+            check(hydrated["review"]["inventory_sha256"] == "a" * 64 and
+                  hydrated["per_passage"]["5"]["expected"]["new_len_ticks"] == 1008960,
+                  "positive APPLY consumes exact keyed DRY hash and ticks")
+            changed = copy.deepcopy(apply)
+            changed["decided_by"] = "someone else"
+            try:
+                tool.resolve_review_from_dry(changed, changed["run_id"])
+            except tool.PlanError:
+                check(True, "negative changed decision owner refused after DRY")
+            else:
+                check(False, "negative changed decision owner refused after DRY")
+        finally:
+            tool._here = original_here
+
+
+@test
 def proportional_plan_and_residual():
     plan = tool.plan_scaled_timing(100, [200, 300, 400], 150, 1000)
     check(plan["new_ticks"] == 1000, "scaled plan exact")
@@ -262,6 +317,37 @@ def move_inside_lands_inside_and_revert_values_are_exact():
           "MOVE_INSIDE section lands within shortened Passage")
     keep = tool.build_move_inside_plan(per, {group: "KEEP_UNPLAYED" for group in actions})
     check(keep["passageKeys"] == [] and keep["choreoSections"] == [], "KEEP_UNPLAYED is never chosen implicitly")
+
+
+@test
+def e26_camera_endpoint_order_and_exact_duplicate_policy():
+    check(tool.camera_move_inside_tick(4436727, 4472727, 1008960, 960) == 1000839,
+          "positive E26 late height key scales proportionally")
+    check(tool.camera_move_inside_tick(4472727, 4472727, 1008960, 960) == 1008000,
+          "positive E26 old-end key maps to final 25 fps frame")
+    rows = [{"id": "P05|passage-key|Camera.HeightOffsetCm|999|0", "channel": "Camera.HeightOffsetCm",
+             "absoluteTick": 10999, "sectionLocalTick": 999, "value": 0.0},
+            {"id": "P05|passage-key|Camera.HeightOffsetCm|1000|1", "channel": "Camera.HeightOffsetCm",
+             "absoluteTick": 11000, "sectionLocalTick": 1000, "value": 0.0}]
+    per = {"5": {"guid": "g5", "plan": {"old_ticks": 1000, "new_ticks": 100},
+            "inventory": {"absolutePassageKeys": rows, "pastNewEnd": {"passageChannelKeys": rows,
+                "choreoSections": []}},
+            "reviewGroups": {"P05:passage_channel:Camera.HeightOffsetCm": [row["id"] for row in rows]},
+            "choreo": None}}
+    actions = {"P05:passage_channel:Camera.*": "MOVE_INSIDE"}
+    plan = tool.build_move_inside_plan(per, actions, display_frame_ticks=10)
+    check(len(plan["passageKeys"]) == 1 and len(plan["dropExactDuplicates"]) == 1,
+          "positive exact duplicate is dropped after order-preserving clamp")
+    check(plan["passageKeys"][0]["newLocal"] == 90, "positive surviving key is on final display frame")
+    conflict = copy.deepcopy(per)
+    conflict["5"]["inventory"]["absolutePassageKeys"][1]["value"] = 1.0
+    conflict["5"]["inventory"]["pastNewEnd"]["passageChannelKeys"][1]["value"] = 1.0
+    try:
+        tool.build_move_inside_plan(conflict, actions, display_frame_ticks=10)
+    except tool.PlanError:
+        check(True, "negative same-tick unequal-value collision refused")
+    else:
+        check(False, "negative same-tick unequal-value collision refused")
 
 
 def key_state(start, height=10.0, yaw=1.0):

@@ -1,0 +1,6 @@
+{
+  "name": "ExecuteProjectPythonFile",
+  "arguments": {
+    "relativeSavedPath": "CodexConductor/S6OldLadySwarm/swarm_sequence.py"
+  }
+}

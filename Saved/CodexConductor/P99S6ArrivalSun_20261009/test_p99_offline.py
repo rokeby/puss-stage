@@ -1,0 +1,47 @@
+import importlib.util, json, math, os, re
+HERE=os.path.dirname(os.path.abspath(__file__))
+s=importlib.util.spec_from_file_location("p99_core",os.path.join(HERE,"p99_core.py")); C=importlib.util.module_from_spec(s); s.loader.exec_module(C)
+passed=failed=0
+def check(name,ok):
+    global passed,failed
+    if ok: passed+=1; print("PASS",name)
+    else: failed+=1; print("FAIL",name)
+def raises(fn,token):
+    try: fn(); return False
+    except Exception as e: return token in str(e)
+
+check("enum plain",C.enum_name("LIGHT")=="LIGHT")
+check("enum qualified",C.enum_name("<InfinityAttachmentKind.LIGHT: 1>")=="LIGHT")
+check("guid digits",C.guid32("{12345678-1234-1234-1234-1234567890ab}")=="123456781234123412341234567890AB")
+check("guid negative",raises(lambda:C.guid32("bad"),"GUID_NORMALIZE"))
+check("sun pitch",C.sun_pitch_for_elevation(7)==-173)
+check("sun pitch negative",raises(lambda:C.sun_pitch_for_elevation(30),"SUN_ELEVATION_RANGE"))
+v=C.direction_uv([1,0,0],[0,1,0],[0,0,1],[1,0,0],60,16/9)
+check("direction centre",v["inside"] and all(abs(x-.5)<1e-9 for x in v["uv"]))
+check("direction behind",not C.direction_uv([1,0,0],[0,1,0],[0,0,1],[-1,0,0],60,16/9)["inside"])
+check("structure provenance",C.classify_provenance("Passage 06 Structure","StructureFixtures","SM_Lantern_ParCan",[],[],{})["tool"].startswith("MeshyFixtures"))
+check("puss provenance",C.classify_provenance("PussFollowSpot","","",[],[],None)["tool"]=="puss_shadow_spot.py")
+base=json.load(open(os.path.join(HERE,"p99_args.json"),encoding="utf-8"))
+check("dry args",C.validate_args(base)["mode"]=="DRY")
+check("apply confirm negative",raises(lambda:C.validate_args(dict(base,mode="APPLY")),"APPLY_CONFIRM"))
+good=dict(base,mode="APPLY",confirm="APPLY P99 S6 ARRIVAL SUN",dry_report="x",dry_report_sha256="a"*64,
+          obstruction_action="HIDE_ACTOR_S6",obstruction_actor_label="ParCan")
+check("apply hide",C.validate_args(good)["obstruction_action"]=="HIDE_ACTOR_S6")
+check("apply unset negative",raises(lambda:C.validate_args(dict(good,obstruction_action="UNSET")),"CHOOSE_OBSTRUCTION_ACTION"))
+move=dict(good,obstruction_action="MOVE_SHOW_ATTACHMENT",obstruction_cue_guid="1"*32,obstruction_attachment_guid="2"*32,obstruction_move_delta_cm=[0,300,0])
+check("apply move",C.validate_args(move)["obstruction_action"]=="MOVE_SHOW_ATTACHMENT")
+check("zero move negative",raises(lambda:C.validate_args(dict(move,obstruction_move_delta_cm=[0,0,0])),"OBSTRUCTION_MOVE_DELTA"))
+check("revert confirm negative",raises(lambda:C.validate_args(dict(base,mode="REVERT")),"REVERT_CONFIRM"))
+check("revert confirm",C.validate_args(dict(base,mode="REVERT",confirm="REVERT P99 S6 ARRIVAL SUN"))["mode"]=="REVERT")
+source=open(os.path.join(HERE,"p99_s6_arrival_sun.py"),encoding="utf-8").read()
+check("bHidden exact",'set_property_name_and_path("bHidden","bHidden")' in source)
+check("no bHiddenInGame", "bHiddenInGame" not in source)
+check("LinearColor trap not present", "set_light_color" not in source)
+check("no editor control",not any(x in source for x in ("editor_request_end_play","quit_editor","open_level_sequence","SequencerTools.get_bound_objects")))
+check("normalizers used","C.guid32" in source and "C.enum_name" in source)
+check("backup before writes",source.index("pre=backup(run,packages)") < source.index("spawn_actor_from_class", source.index("def apply")))
+check("success markers",all(x in source for x in ("P99_S6_DRY_OK","P99_S6_APPLY_OK","P99_S6_REVERT_OK")))
+check("save narrow","save_asset(p,only_if_is_dirty=True)" in source and "save_dirty_packages" not in source)
+check("structure exact ids",all(x in source for x in ("cue_guid","attachment_guid","instance_index")))
+print("P99_HARNESS|pass=%d|fail=%d"%(passed,failed))
+raise SystemExit(1 if failed else 0)

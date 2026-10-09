@@ -85,6 +85,25 @@ def hold_passages(args):
     return list(args.get("hold_passages") or [])
 
 
+def selected_passages(args):
+    return list(args.get("passages") or [])
+
+
+def _safe_run_id(value):
+    text = str(value or "")
+    if not text or any(ch not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-" for ch in text):
+        raise PlanError("RUN_ID_UNSAFE: %r" % value)
+    return text
+
+
+def artifact_name(args, kind, run):
+    """P103 second-pass artifacts are isolated by run id; P33 keeps its legacy names."""
+    if args.get("record_by_run"):
+        stem = _safe_run_id(run)
+        return "passages_to_music_%s_%s.json" % (kind, stem)
+    return {"dry": DRY_NAME, "record": RECORD_NAME}[kind]
+
+
 def planned_target_ticks(args, key, old_len, music_target):
     """Return the current length only for an explicitly held Passage."""
     return int(old_len) if key in hold_passages(args) else int(music_target)
@@ -105,13 +124,26 @@ def validate_args(args):
     if mode not in CONFIRMS:
         out.append("MODE_INVALID: %r" % args.get("mode"))
     keys = args.get("passages")
-    if keys != list(VALID_KEYS):
+    second_pass = str(args.get("second_pass") or "")
+    if second_pass == "P05_E26":
+        if keys != ["5"]:
+            out.append("P05_E26_MUST_SELECT_ONLY_P05: %r" % keys)
+            keys = []
+        if not args.get("record_by_run"):
+            out.append("P05_E26_REQUIRES_RECORD_BY_RUN")
+        try:
+            _safe_run_id(args.get("run_id"))
+        except PlanError as exc:
+            out.append(str(exc))
+    elif keys != list(VALID_KEYS):
         out.append("PASSAGES_MUST_BE_ALL_SIX_IN_ORDER: %r" % keys)
         keys = []
     held = args.get("hold_passages") or []
     if (not isinstance(held, list) or any(k not in VALID_KEYS for k in held)
             or len(set(held)) != len(held)):
         out.append("HOLD_PASSAGES_INVALID: %r" % held)
+    if second_pass == "P05_E26" and held:
+        out.append("P05_E26_CANNOT_HOLD_P05")
     tails = args.get("tail_overrides_s") or {}
     if not isinstance(tails, dict) or any(k not in VALID_KEYS for k in tails):
         out.append("TAIL_OVERRIDES_INVALID: %r" % tails)
@@ -175,6 +207,15 @@ def scale_inside_tick(local_tick, old_len, new_len, endpoint=False):
     scaled = (local_tick * new_len + old_len // 2) // old_len
     limit = new_len if endpoint else new_len - 1
     return max(0, min(int(scaled), limit))
+
+
+def camera_move_inside_tick(local_tick, old_len, new_len, display_frame_ticks):
+    """Proportional E26 move, clamped to the final display frame (end is exclusive)."""
+    frame = int(display_frame_ticks)
+    if frame <= 0 or int(new_len) < frame:
+        raise PlanError("DISPLAY_FRAME_TICKS_INVALID: %r" % display_frame_ticks)
+    scaled = scale_inside_tick(local_tick, old_len, new_len)
+    return min(scaled, int(new_len) - frame)
 
 
 def plan_scaled_timing(lead, intervals, tail, target):
@@ -349,10 +390,20 @@ def review_groups(passage, inventory):
     return groups
 
 
+def _review_action(actions, group):
+    if group in (actions or {}):
+        return actions[group]
+    wildcard_hits = [value for pattern, value in (actions or {}).items()
+                     if str(pattern).endswith("*") and group.startswith(str(pattern)[:-1])]
+    if len(wildcard_hits) > 1:
+        raise PlanError("PAST_END_ACTION_WILDCARD_AMBIGUOUS: %s" % group)
+    return wildcard_hits[0] if wildcard_hits else None
+
+
 def review_refusals(groups, actions):
     refusals, notes = [], []
     for group, ids in sorted(groups.items()):
-        action = (actions or {}).get(group)
+        action = _review_action(actions, group)
         if group.endswith(":relative_pins"):
             refusals.append("%s RELATIVE_PINS_MUST_BE_RESOLVED_BEFORE_APPLY: %s" % (group, ids))
             continue
@@ -370,14 +421,14 @@ def review_refusals(groups, actions):
     return refusals, notes
 
 
-def build_move_inside_plan(per_rows, actions):
+def build_move_inside_plan(per_rows, actions, display_frame_ticks=None):
     """Plain-data mutation plan. Unsupported MOVE_INSIDE categories refuse before any write."""
-    plan = {"passageKeys": [], "choreoSections": [], "assets": []}
+    plan = {"passageKeys": [], "dropExactDuplicates": [], "choreoSections": [], "assets": []}
     for key, row in sorted(per_rows.items()):
         old_len, new_len = row["plan"]["old_ticks"], row["plan"]["new_ticks"]
         inventory = row["inventory"]["pastNewEnd"]
         for group, ids in sorted(row["reviewGroups"].items()):
-            if (actions or {}).get(group) != "MOVE_INSIDE":
+            if _review_action(actions, group) != "MOVE_INSIDE":
                 continue
             wanted = set(ids)
             if ":passage_channel:" in group:
@@ -385,11 +436,19 @@ def build_move_inside_plan(per_rows, actions):
                 if len(hits) != len(wanted):
                     raise PlanError("MOVE_INSIDE_PASSAGE_KEYS_INCOMPLETE: %s" % group)
                 for item in hits:
+                    ordinal = int(item["id"].rsplit("|", 1)[1])
+                    moved_local = (camera_move_inside_tick(item["sectionLocalTick"], old_len, new_len,
+                                                           display_frame_ticks)
+                                   if display_frame_ticks is not None else
+                                   scale_inside_tick(item["sectionLocalTick"], old_len, new_len))
+                    old_absolute = int(item.get("absoluteTick", item["sectionLocalTick"]))
+                    section_start = old_absolute - int(item["sectionLocalTick"])
                     plan["passageKeys"].append({
                         "group": group, "passage": "P0%s" % key, "guid": row["guid"],
-                        "channel": item["channel"], "ordinal": int(item["id"].rsplit("|", 1)[1]),
+                        "channel": item["channel"], "ordinal": ordinal,
                         "oldLocal": int(item["sectionLocalTick"]),
-                        "newLocal": scale_inside_tick(item["sectionLocalTick"], old_len, new_len),
+                        "newLocal": moved_local, "oldAbsolute": old_absolute,
+                        "newAbsoluteInOldCoordinates": section_start + moved_local,
                         "value": item["value"]})
             elif group.endswith(":choreoSections"):
                 hits = [item for item in inventory["choreoSections"] if item["id"] in wanted]
@@ -411,6 +470,45 @@ def build_move_inside_plan(per_rows, actions):
                         "newStart": new_start, "newEnd": new_end})
             else:
                 raise PlanError("MOVE_INSIDE_CATEGORY_UNSUPPORTED: %s" % group)
+    # A proportional collapse may put two same-valued keys on one tick. Keep
+    # the pre-existing key where possible, otherwise the earlier source key;
+    # a same-tick value conflict refuses rather than changing curve meaning.
+    by_channel = {}
+    for key, row in sorted(per_rows.items()):
+        selected = {(item["guid"], item["channel"], item["ordinal"]): item
+                    for item in plan["passageKeys"] if item["guid"] == row["guid"]}
+        for item in row["inventory"].get("absolutePassageKeys") or []:
+            ordinal = int(item["id"].rsplit("|", 1)[1])
+            moved = selected.get((row["guid"], item["channel"], ordinal))
+            final_local = moved["newLocal"] if moved else int(item["sectionLocalTick"])
+            by_channel.setdefault((row["guid"], item["channel"]), []).append({
+                "ordinal": ordinal, "oldLocal": int(item["sectionLocalTick"]), "newLocal": final_local,
+                "value": item["value"], "moved": moved})
+    dropped_ids = set()
+    for (_guid, channel), entries in sorted(by_channel.items()):
+        by_tick = {}
+        for entry in entries:
+            by_tick.setdefault(entry["newLocal"], []).append(entry)
+        for new_local, collisions in sorted(by_tick.items()):
+            old_locals = {entry["oldLocal"] for entry in collisions}
+            if len(collisions) < 2 or len(old_locals) < 2 or not any(entry["moved"] for entry in collisions):
+                continue
+            first_value = collisions[0]["value"]
+            if any(not _values_equal(channel, first_value, entry["value"]) for entry in collisions[1:]):
+                raise PlanError("MOVE_INSIDE_KEY_COLLISION: %s local=%d values=%r" % (
+                    channel, new_local, [entry["value"] for entry in collisions]))
+            survivor = sorted(collisions, key=lambda entry: (entry["moved"] is not None, entry["ordinal"]))[0]
+            for entry in collisions:
+                if entry is survivor:
+                    continue
+                if entry["moved"] is None:
+                    raise PlanError("MOVE_INSIDE_WOULD_DELETE_UNREVIEWED_KEY: %s local=%d" % (channel, new_local))
+                drop = dict(entry["moved"], duplicateOfOrdinal=survivor["ordinal"])
+                plan["dropExactDuplicates"].append(drop)
+                dropped_ids.add((drop["guid"], drop["channel"], drop["ordinal"]))
+    if dropped_ids:
+        plan["passageKeys"] = [item for item in plan["passageKeys"]
+                               if (item["guid"], item["channel"], item["ordinal"]) not in dropped_ids]
     plan["assets"].sort()
     return plan
 
@@ -440,7 +538,8 @@ def p05_height_options(inventory, tick_rate, music_s):
 
 def inventory_sha256(per_rows):
     payload = {k: {"old": r["old"], "plan": r["plan"], "music": r["music"],
-                   "inventory": r["inventory"], "p05HeightOffset": r.get("p05HeightOffset")}
+                   "inventory": r["inventory"], "p05HeightOffset": r.get("p05HeightOffset"),
+                   "p05ContentAudit": r.get("p05ContentAudit")}
                for k, r in sorted(per_rows.items())}
     raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()
@@ -508,9 +607,9 @@ def live_gates(state):
     if state.get("census") != {"content": [], "maps": []}:
         out.append("DIRTY_CENSUS: %s" % json.dumps(state.get("census"), sort_keys=True))
     if mode == "APPLY" and state.get("record_exists"):
-        out.append("RECORD_EXISTS: %s" % RECORD_NAME)
+        out.append("RECORD_EXISTS: %s" % state.get("record_name", RECORD_NAME))
     if mode == "REVERT" and not state.get("record_applied"):
-        out.append("NO_APPLIED_RECORD: %s" % RECORD_NAME)
+        out.append("NO_APPLIED_RECORD: %s" % state.get("record_name", RECORD_NAME))
     return out
 
 
@@ -518,6 +617,31 @@ def _here():
     if unreal is not None:
         return os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexConductor")
     return os.path.dirname(os.path.abspath(__file__))
+
+
+def resolve_review_from_dry(args, run):
+    """Hydrate APPLY's exact hash/numbers from this run's reviewed keyed DRY artifact."""
+    if str(args.get("mode") or "").upper() != "APPLY" or not args.get("review_from_dry"):
+        return args
+    path = os.path.join(_here(), artifact_name(args, "dry", run))
+    with open(path, "r", encoding="utf-8") as handle:
+        dry = json.load(handle)
+    if dry.get("mode") != "DRY" or dry.get("run") != run or not dry.get("applyReady"):
+        raise PlanError("REVIEW_DRY_NOT_APPLY_READY: %s" % path)
+    dry_args = dry.get("args") or {}
+    checks = ("passages", "tail_overrides_s", "per_passage", "decided_by", "second_pass")
+    for field in checks:
+        if dry_args.get(field) != args.get(field):
+            raise PlanError("REVIEW_DRY_ARGS_CHANGED: %s" % field)
+    if (dry_args.get("review") or {}).get("past_end_actions") != (args.get("review") or {}).get("past_end_actions"):
+        raise PlanError("REVIEW_DRY_ACTIONS_CHANGED")
+    hydrated = copy.deepcopy(args)
+    hydrated.setdefault("review", {})["inventory_sha256"] = dry["reviewInventorySha256"]
+    for key in selected_passages(hydrated):
+        hydrated["per_passage"][key]["expected"] = dry["expectedForApplyArgs"][key]
+    with open(path, "rb") as handle:
+        hydrated["reviewSource"] = {"path": path, "sha256": hashlib.sha256(handle.read()).hexdigest()}
+    return hydrated
 
 
 def _project():
@@ -593,16 +717,66 @@ def _choreo_section(sequence, where):
     return hits[0]
 
 
-def _move_state(master, move_plan):
+def _find_key_at(channel, absolute_tick, value):
+    hits = []
+    for key in _sorted_keys(channel):
+        tick = int(key.get_time(time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION).frame_number.value)
+        try:
+            got = float(key.get_value())
+        except Exception:  # noqa: BLE001
+            got = None
+        if tick == int(absolute_tick) and _values_equal(str(channel.get_editor_property("channel_name")), got, value):
+            hits.append(key)
+    if len(hits) != 1:
+        raise PlanError("MOVE_INSIDE_KEY_MATCH_COUNT: tick=%d value=%r count=%d" % (
+            int(absolute_tick), value, len(hits)))
+    return hits[0]
+
+
+def _enum_name(value):
+    return str(getattr(value, "name", str(value).split(".")[-1])).split(".")[-1]
+
+
+def _key_style(key):
+    return {"interp": _enum_name(key.get_interpolation_mode()),
+            "tangentMode": _enum_name(key.get_tangent_mode()),
+            "weightMode": _enum_name(key.get_tangent_weight_mode()),
+            "arrive": float(key.get_arrive_tangent()), "leave": float(key.get_leave_tangent()),
+            "arriveWeight": float(key.get_arrive_tangent_weight()),
+            "leaveWeight": float(key.get_leave_tangent_weight())}
+
+
+def _capture_drop_styles(master, move_plan):
+    tick = base._rate(master.get_tick_resolution())
+    for item in move_plan.get("dropExactDuplicates") or []:
+        section = _passage_section(master, item["guid"])
+        start = int(base._section_range(section, tick)[0])
+        channel = _channel(section, item["channel"])
+        item["style"] = _key_style(_find_key_at(channel, start + int(item["oldLocal"]), item["value"]))
+
+
+def _restore_key(channel, absolute_tick, value, style):
+    key = channel.add_key(unreal.FrameNumber(int(absolute_tick)), float(value), 0.0,
+                          unreal.MovieSceneTimeUnit.TICK_RESOLUTION,
+                          unreal.MovieSceneKeyInterpolation.AUTO)
+    key.set_interpolation_mode(getattr(unreal.RichCurveInterpMode, style["interp"]))
+    key.set_tangent_mode(getattr(unreal.RichCurveTangentMode, style["tangentMode"]))
+    key.set_tangent_weight_mode(getattr(unreal.RichCurveTangentWeightMode, style["weightMode"]))
+    key.set_arrive_tangent(float(style["arrive"]))
+    key.set_leave_tangent(float(style["leave"]))
+    key.set_arrive_tangent_weight(float(style["arriveWeight"]))
+    key.set_leave_tangent_weight(float(style["leaveWeight"]))
+    return key
+
+
+def _move_state(master, move_plan, prefix):
     tick = base._rate(master.get_tick_resolution())
     out = {"passageKeys": [], "choreoSections": []}
     for item in move_plan.get("passageKeys") or []:
         section = _passage_section(master, item["guid"])
         start = base._section_range(section, tick)[0]
-        keys = _sorted_keys(_channel(section, item["channel"]))
-        if item["ordinal"] >= len(keys):
-            raise PlanError("MOVE_INSIDE_KEY_ORDINAL: %r" % item)
-        key = keys[item["ordinal"]]
+        channel = _channel(section, item["channel"])
+        key = _find_key_at(channel, int(start) + int(item[prefix + "Local"]), item["value"])
         absolute = int(key.get_time(time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION).frame_number.value)
         try:
             value = float(key.get_value())
@@ -660,18 +834,25 @@ def _apply_move_plan(master, move_plan, forward):
     tick = base._rate(master.get_tick_resolution())
     source, target = ("old", "new") if forward else ("new", "old")
     master.modify()
+    if not forward:
+        for item in move_plan.get("dropExactDuplicates") or []:
+            section = _passage_section(master, item["guid"])
+            start = int(base._section_range(section, tick)[0])
+            channel = _channel(section, item["channel"])
+            _restore_key(channel, start + int(item["oldLocal"]), item["value"], item["style"])
     for item in move_plan.get("passageKeys") or []:
         section = _passage_section(master, item["guid"])
         start = int(base._section_range(section, tick)[0])
-        keys = _sorted_keys(_channel(section, item["channel"]))
-        if item["ordinal"] >= len(keys):
-            raise PlanError("MOVE_INSIDE_KEY_ORDINAL: %r" % item)
-        key = keys[item["ordinal"]]
-        current = int(key.get_time(time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION).frame_number.value) - start
-        if current != item[source + "Local"]:
-            raise PlanError("MOVE_INSIDE_KEY_DRIFT: %s %d != %d" % (item["group"], current, item[source + "Local"]))
+        channel = _channel(section, item["channel"])
+        key = _find_key_at(channel, start + int(item[source + "Local"]), item["value"])
         key.set_time(unreal.FrameNumber(value=start + int(item[target + "Local"])), 0.0,
                      unreal.MovieSceneTimeUnit.TICK_RESOLUTION)
+    if forward:
+        for item in move_plan.get("dropExactDuplicates") or []:
+            section = _passage_section(master, item["guid"])
+            start = int(base._section_range(section, tick)[0])
+            channel = _channel(section, item["channel"])
+            channel.remove_key(_find_key_at(channel, start + int(item["oldLocal"]), item["value"]))
     for item in move_plan.get("choreoSections") or []:
         sequence = unreal.load_asset(item["asset"])
         if sequence is None:
@@ -703,11 +884,52 @@ def _selected_seconds_live(key, row, music):
     return selected_music_seconds(key, row, float(sound.get_editor_property("duration")))
 
 
+def _p05_content_audit(show, fact, inventory, choreo):
+    """Read-only E26 census of the specifically named P05 content classes."""
+    cues = list(show.get_editor_property("cues"))
+    attachment_rows = []
+    for cue_index in range(int(fact["first"]), int(fact["last"]) + 1):
+        cue = cues[cue_index]
+        wp = cue.get_editor_property("wing_pair")
+        for attachment in wp.get_editor_property("attachments"):
+            attachment_rows.append({"cueGuid": base._guid(cue.get_editor_property("cue_guid")),
+                                    "label": str(attachment.get_editor_property("label")),
+                                    "kind": str(attachment.get_editor_property("kind"))})
+    score_rows = [row for row in attachment_rows if row["label"].startswith("P05 SCORE")]
+    explicit = [row for row in fact.get("origins") or [] if "EXPLICIT" in str(row[1]).upper()]
+    late = inventory["pastNewEnd"]
+    markers = [{"label": label, "localTick": int(tick)} for label, tick in (choreo or {}).get("markers", [])]
+    curtains = []
+    try:
+        actors = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
+        for actor in actors:
+            if str(actor.get_actor_label()) == "P05 End Drape (stand-in)":
+                curtains.append({"label": str(actor.get_actor_label()), "path": str(actor.get_path_name())})
+    except Exception as exc:  # noqa: BLE001 - report uncertainty; timing APPLY does not own this level actor
+        curtains.append({"unreadable": repr(exc)})
+    return {
+        "cameraAndCatHeight": {"tier": "measured-live-read",
+            "pastEnd": list(late["passageChannelKeys"]),
+            "action": "MOVE_INSIDE_PROPORTIONAL; old-end key -> final display frame; exact duplicates dropped"},
+        "lightingScores": {"tier": "measured-live-read", "allAttachmentCount": len(attachment_rows),
+            "p05ScoreAttachmentCount": len(score_rows),
+            "action": "PRESERVE_DISTANCE_ANCHORED_UNCHANGED; timing intervals scale, attachment data does not"},
+        "choreoSongMarkers": {"tier": "measured-live-read", "markers": markers,
+            "pastEnd": list(late["choreoMarkers"]),
+            "action": "KEEP_UNCHANGED_WHEN_INSIDE; any past-end marker requires reviewed action"},
+        "curtainImage": {"tier": "measured-live-read", "actors": curtains,
+            "masterOrChoreoPastEndKeys": list(late["masterArtistKeys"]) + list(late["choreoKeys"]),
+            "action": "PRESERVE_LEVEL_ACTOR_AND_IMAGE_UNCHANGED; not saved by this tool"},
+        "mechanismSlots": {"tier": "declaration-proven-plus-live-show-read",
+            "wingCueCount": len(fact.get("wing_cues") or []), "explicitFrameOrigins": explicit,
+            "action": "PRESERVE_SPATIAL_STRUCTURE_UNCHANGED; refuse ExplicitFrame origins; slot count/render remain outside this timing tool"}}
+
+
 def _gather(args):
     show, master = unreal.load_asset(SHOW_PATH), unreal.load_asset(MASTER_PATH)
     if show is None or master is None:
         raise PlanError("SHOW_OR_MASTER_DID_NOT_LOAD")
-    keys = list(VALID_KEYS)
+    keys = selected_passages(args)
     held = set(hold_passages(args))
     snap = base._snapshot(show, master, keys)
     tick = snap["tick"]
@@ -772,6 +994,7 @@ def _gather(args):
                "inventory": inventory, "reviewGroups": groups, "choreo": choreo}
         if key == "5":
             row["p05HeightOffset"] = p05_height_options(inventory, tick, selected_s)
+            row["p05ContentAudit"] = _p05_content_audit(show, fact, inventory, choreo)
         per_rows[key] = row
         refusals += expected_refusals(key, row, args["per_passage"][key].get("expected") or {}, str(args["mode"]).upper())
     deltas = {label_of(k): per_rows[k]["plan"]["delta_ticks"] for k in keys}
@@ -788,13 +1011,15 @@ def _gather(args):
     if stale is None:
         warnings.append("HANDOFF_CHECK_FAILED: %s" % handoff_report)
     review_hash = inventory_sha256(per_rows)
-    move_plan = build_move_inside_plan(per_rows, actions)
+    display_frame_ticks = int(round(tick * float(fps[1]) / float(fps[0])))
+    move_plan = build_move_inside_plan(per_rows, actions, display_frame_ticks)
     if str(args["mode"]).upper() == "APPLY" and review.get("inventory_sha256") != review_hash:
         refusals.append("REVIEW_HASH_CHANGED: live %s args %r" % (review_hash, review.get("inventory_sha256")))
     report = {"tool": TOOL, "tickRate": tick, "displayRate": list(fps), "per": per_rows, "deltas": deltas,
               "segmentsPredicted": base.predict_segments(snap["segments"], deltas), "netDeltaTicks": sum(deltas.values()),
               "netDeltaSeconds": sum(deltas.values()) / tick, "oldShowEnd": old_end,
               "newShowEnd": old_end + sum(deltas.values()), "reviewInventorySha256": review_hash,
+              "displayFrameTicks": display_frame_ticks, "selectedPassages": keys,
               "heldPassages": sorted(held),
               "absoluteMasterContent": snap["artist"], "masterMarkers": snap["markers"],
               "handoffStaleBefore": stale, "handoffReport": handoff_report, "moveInsidePlan": move_plan,
@@ -823,7 +1048,7 @@ def run_dry(args, run):
     report, _snap, _show, _master, _facts = _gather(args)
     expected = {k: {"old_len_ticks": row["plan"]["old_ticks"], "new_len_ticks": row["plan"]["new_ticks"],
                     "music_ticks": row["music"]["selectedTicks"]} for k, row in report["per"].items()}
-    output = os.path.join(_here(), DRY_NAME)
+    output = os.path.join(_here(), artifact_name(args, "dry", run))
     with open(output, "w", encoding="utf-8") as handle:
         json.dump(dict(report, mode="DRY", run=run, args=args, applyReady=not report["refusals"],
                        expectedForApplyArgs=expected), handle, indent=1, sort_keys=True, default=str, ensure_ascii=False)
@@ -842,15 +1067,33 @@ def _relative_gate_with_moves(before_keys, after_keys, spans, move_plan):
     expected = copy.deepcopy(before_keys)
     actual = copy.deepcopy(after_keys)
     removals = {}
-    for item in move_plan.get("passageKeys") or []:
-        removals.setdefault((item["guid"], item["channel"]), []).append(int(item["ordinal"]))
-    for (guid, channel), ordinals in removals.items():
-        for rows in (expected, actual):
-            keys = rows[guid]["channels"][channel]
-            for ordinal in sorted(ordinals, reverse=True):
-                if ordinal >= len(keys):
+    for item in list(move_plan.get("passageKeys") or []) + list(move_plan.get("dropExactDuplicates") or []):
+        removals.setdefault((item["guid"], item["channel"]), []).append(item)
+    for (guid, channel), items in removals.items():
+        keys = expected[guid]["channels"][channel]
+        for item in sorted(items, key=lambda row: int(row["ordinal"]), reverse=True):
+            ordinal = int(item["ordinal"])
+            if ordinal >= len(keys):
+                return ["MOVE_INSIDE_KEY_ORDINAL: %s %s #%d" % (guid, channel, ordinal)]
+            del keys[ordinal]
+        actual_keys = actual[guid]["channels"][channel]
+        if any("newLocal" not in item for item in items):
+            for item in sorted(items, key=lambda row: int(row["ordinal"]), reverse=True):
+                ordinal = int(item["ordinal"])
+                if ordinal >= len(actual_keys):
                     return ["MOVE_INSIDE_KEY_ORDINAL: %s %s #%d" % (guid, channel, ordinal)]
-                del keys[ordinal]
+                del actual_keys[ordinal]
+            continue
+        actual_origin = _snapped_section_start(actual[guid]["start"], spans)
+        for item in move_plan.get("passageKeys") or []:
+            if item["guid"] != guid or item["channel"] != channel:
+                continue
+            hits = [index for index, pair in enumerate(actual_keys)
+                    if int(pair[0]) - int(actual_origin) == int(item["newLocal"])
+                    and _values_equal(channel, pair[1], item["value"])]
+            if len(hits) != 1:
+                return ["MOVE_INSIDE_ACTUAL_KEY_MATCH: %s %s %r" % (guid, channel, hits)]
+            del actual_keys[hits[0]]
     return relative_key_carry_gate(expected, actual, spans)
 
 
@@ -872,7 +1115,7 @@ def _post_gates(report, before, after, show, master):
         stale, text = base._handoffs(show)
         failures += ["HANDOFF_CHECK_FAILED_AFTER: %s" % text] if stale is None else base.handoff_gate(
             report["handoffStaleBefore"], stale)
-    if move_state_gate(_move_state(master, report["moveInsidePlan"]),
+    if move_state_gate(_move_state(master, report["moveInsidePlan"], "new"),
                        _expected_move_state(report["moveInsidePlan"], "new")):
         failures.append("MOVE_INSIDE_READBACK_FAILED")
     return failures
@@ -882,19 +1125,21 @@ def run_apply(args, run):
     report, before, show, master, facts = _gather(args)
     if report["refusals"]:
         _stop(run, "PLAN_REFUSED|" + " || ".join(report["refusals"]))
-    move_plan = report["moveInsidePlan"]
+    move_plan = copy.deepcopy(report["moveInsidePlan"])
+    _capture_drop_styles(master, move_plan)
+    report["moveInsidePlan"] = move_plan
     targets = _target_assets(move_plan)
-    record_path = os.path.join(_here(), RECORD_NAME)
+    record_path = os.path.join(_here(), artifact_name(args, "record", run))
     backup = _backup(run, targets)
     timing = {k: {"lead": row["plan"]["lead_frames"], "intervals": row["plan"]["intervals"],
                   "tail": row["plan"]["tail_frames"]} for k, row in report["per"].items()}
     protected = base.protected_view(show)
     record = {"schema": 1, "tool": TOOL, "run": run, "world": EXPECTED_WORLD, "backup": backup, "args": args,
-              "passages": list(VALID_KEYS), "decidedBy": args.get("decided_by"), "applied": False,
+              "passages": selected_passages(args), "decidedBy": args.get("decided_by"), "applied": False,
               "reviewInventorySha256": report["reviewInventorySha256"], "deltas": report["deltas"],
-              "moveInsidePlan": move_plan, "beforeMoveState": _move_state(master, move_plan),
+              "moveInsidePlan": move_plan, "beforeMoveState": _move_state(master, move_plan, "old"),
               "plannedTiming": timing, "rowsByKey": {k: {"index": facts[k]["index"], "first": facts[k]["first"],
-              "guid": facts[k]["guid"]} for k in VALID_KEYS}, "before": _plain(before), "rebuildCount": 0,
+              "guid": facts[k]["guid"]} for k in selected_passages(args)}, "before": _plain(before), "rebuildCount": 0,
               "protectedView": protected,
               "written": datetime.datetime.now().isoformat(timespec="seconds")}
     base.write_record_exclusive(record_path, record)
@@ -902,7 +1147,7 @@ def run_apply(args, run):
     try:
         _apply_move_plan(master, move_plan, True)
         base._write_timing(show, record["rowsByKey"], timing)
-        if base._read_timing(show, list(VALID_KEYS)) != base.timing_view(timing):
+        if base._read_timing(show, selected_passages(args)) != base.timing_view(timing):
             failures.append("TIMING_READBACK_FAILED")
         diff = base.protected_diff(protected, base.protected_view(show))
         if diff:
@@ -916,9 +1161,9 @@ def run_apply(args, run):
         if not ok:
             failures.append("REBUILD_FAILED: %s" % text)
     if not failures:
-        after = base._snapshot(show, master, list(VALID_KEYS))
+        after = base._snapshot(show, master, selected_passages(args))
         record["after"] = _plain(after)
-        record["afterMoveState"] = _move_state(master, move_plan)
+        record["afterMoveState"] = _move_state(master, move_plan, "new")
         failures += _post_gates(report, before, after, show, master)
     if record["rebuildCount"] != 1:
         failures.append("REBUILD_COUNT: %d" % record["rebuildCount"])
@@ -930,10 +1175,10 @@ def run_apply(args, run):
     for asset in targets:
         if not unreal.EditorAssetLibrary.save_asset(asset, only_if_is_dirty=False):
             _stop(run, "SAVE_FAILED|%s|backup=%s|record=%s" % (asset, backup, record_path))
-    final = base._snapshot(unreal.load_asset(SHOW_PATH), unreal.load_asset(MASTER_PATH), list(VALID_KEYS))
+    final = base._snapshot(unreal.load_asset(SHOW_PATH), unreal.load_asset(MASTER_PATH), selected_passages(args))
     readback = ["POST_SAVE_%s_DIFFERS" % field for field in ("timing", "segments", "managed", "keys")
                 if _plain(final)[field] != record["after"][field]]
-    if move_state_gate(_move_state(master, move_plan), record["afterMoveState"]):
+    if move_state_gate(_move_state(master, move_plan, "new"), record["afterMoveState"]):
         readback.append("POST_SAVE_MOVE_INSIDE_DIFFERS")
     readback += exact_census_gate(base._census(), [])
     if readback:
@@ -943,26 +1188,27 @@ def run_apply(args, run):
     record["applied"] = True
     record["postSaveCensus"] = base._census()
     base.update_record(record_path, record)
-    unreal.log("%s_APPLY_OK|run=%s|passages=6|rebuilds=1|net_s=%.6f|saved=%s|backup=%s|record=%s" % (
-        MARK, run, report["netDeltaSeconds"], ",".join(targets), backup, record_path))
+    unreal.log("%s_APPLY_OK|run=%s|passages=%d|rebuilds=1|net_s=%.6f|saved=%s|backup=%s|record=%s" % (
+        MARK, run, len(selected_passages(args)), report["netDeltaSeconds"], ",".join(targets), backup, record_path))
 
 
 def run_revert(args, run):
-    record_path = os.path.join(_here(), RECORD_NAME)
+    record_path = os.path.join(_here(), artifact_name(args, "record", run))
     with open(record_path, "r", encoding="utf-8") as handle:
         record = json.load(handle)
     if record.get("world") != EXPECTED_WORLD or not record.get("applied") or not record.get("after"):
         _stop(run, "REVERT_RECORD_CONTEXT")
     show, master = unreal.load_asset(SHOW_PATH), unreal.load_asset(MASTER_PATH)
-    move_plan = record.get("moveInsidePlan") or {"passageKeys": [], "choreoSections": [], "assets": []}
+    move_plan = record.get("moveInsidePlan") or {"passageKeys": [], "dropExactDuplicates": [], "choreoSections": [], "assets": []}
     targets = _target_assets(move_plan)
-    live = base._snapshot(show, master, list(VALID_KEYS))
+    record_keys = list(record.get("passages") or VALID_KEYS)
+    live = base._snapshot(show, master, record_keys)
     drift = base.drift_refusals(_plain(live), record)
     if _plain(live).get("keys") != record["after"].get("keys"):
         drift.append("STATE_DRIFTED_SINCE_APPLY: keys")
     if base.protected_view(show) != record.get("protectedView"):
         drift.append("STATE_DRIFTED_SINCE_APPLY: protected Show fields")
-    if move_state_gate(_move_state(master, move_plan), record.get("afterMoveState") or {}):
+    if move_state_gate(_move_state(master, move_plan, "new"), record.get("afterMoveState") or {}):
         drift.append("STATE_DRIFTED_SINCE_APPLY: MOVE_INSIDE items")
     if drift:
         _stop(run, "STATE_DRIFTED|%r|original_backup=%s" % (drift, record["backup"]))
@@ -976,7 +1222,7 @@ def run_revert(args, run):
     try:
         _apply_move_plan(master, move_plan, False)
         base._write_timing(show, record["rowsByKey"], record["before"]["timing"])
-        if base._read_timing(show, list(VALID_KEYS)) != record["before"]["timing"]:
+        if base._read_timing(show, record_keys) != record["before"]["timing"]:
             failures.append("TIMING_READBACK_FAILED")
         diff = base.protected_diff(protected, base.protected_view(show))
         if diff:
@@ -990,9 +1236,9 @@ def run_revert(args, run):
         if not ok:
             failures.append("REBUILD_FAILED: %s" % text)
     if not failures:
-        restored = _plain(base._snapshot(show, master, list(VALID_KEYS)))
+        restored = _plain(base._snapshot(show, master, record_keys))
         failures += base.revert_exact_gate(restored, record)
-        if move_state_gate(_move_state(master, move_plan), record.get("beforeMoveState") or {}):
+        if move_state_gate(_move_state(master, move_plan, "old"), record.get("beforeMoveState") or {}):
             failures.append("MOVE_INSIDE_REVERT_NOT_EXACT")
         attempt["afterRevert"] = restored
     if attempt["rebuildCount"] != 1:
@@ -1005,9 +1251,9 @@ def run_revert(args, run):
     for asset in targets:
         if not unreal.EditorAssetLibrary.save_asset(asset, only_if_is_dirty=False):
             _stop(run, "REVERT_SAVE_FAILED|%s|backup=%s" % (asset, backup))
-    final = _plain(base._snapshot(unreal.load_asset(SHOW_PATH), unreal.load_asset(MASTER_PATH), list(VALID_KEYS)))
+    final = _plain(base._snapshot(unreal.load_asset(SHOW_PATH), unreal.load_asset(MASTER_PATH), record_keys))
     failures = base.revert_exact_gate(final, record) + exact_census_gate(base._census(), [])
-    if move_state_gate(_move_state(master, move_plan), record.get("beforeMoveState") or {}):
+    if move_state_gate(_move_state(master, move_plan, "old"), record.get("beforeMoveState") or {}):
         failures.append("MOVE_INSIDE_POST_SAVE_REVERT_NOT_EXACT")
     if failures:
         attempt["postSaveReadbackFailed"] = failures
@@ -1017,8 +1263,8 @@ def run_revert(args, run):
     base.update_record(attempt_path, attempt)
     archived = record_path + ".reverted-" + run
     os.rename(record_path, archived)
-    unreal.log("%s_REVERT_OK|run=%s|passages=6|rebuilds=1|saved=%s|backup=%s|record=%s" % (
-        MARK, run, ",".join(targets), backup, archived))
+    unreal.log("%s_REVERT_OK|run=%s|passages=%d|rebuilds=1|saved=%s|backup=%s|record=%s" % (
+        MARK, run, len(record_keys), ",".join(targets), backup, archived))
 
 
 def main():
@@ -1027,13 +1273,17 @@ def main():
         with open(os.path.join(_here(), ARGS_NAME), "r", encoding="utf-8") as handle:
             args = json.load(handle)
     run = str(args.get("run_id") or datetime.datetime.now().strftime("P33-%Y%m%d-%H%M%S"))
+    try:
+        args = resolve_review_from_dry(args, run)
+    except (OSError, ValueError, PlanError) as exc:
+        _stop(run, "REVIEW_DRY|%s" % exc)
     mode = str(args.get("mode") or "").upper()
     bad = validate_args(args)
     if bad:
         _stop(run, "ARGS|" + " || ".join(bad))
     editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     world = editor.get_editor_world()
-    record_path = os.path.join(_here(), RECORD_NAME)
+    record_path = os.path.join(_here(), artifact_name(args, "record", run))
     applied = False
     if os.path.exists(record_path):
         try:
@@ -1043,7 +1293,8 @@ def main():
             applied = False
     state = {"mode": mode, "confirm": args.get("confirm"), "pie": editor.get_game_world() is not None,
              "sequencer_open": unreal.LevelSequenceEditorBlueprintLibrary.get_current_level_sequence() is not None,
-             "census": base._census(), "record_exists": os.path.exists(record_path), "record_applied": applied}
+              "census": base._census(), "record_exists": os.path.exists(record_path), "record_applied": applied,
+              "record_name": os.path.basename(record_path)}
     early = live_gates(state)
     if world is None or str(world.get_outermost().get_name()) != EXPECTED_WORLD:
         early.append("WRONG_WORLD")
