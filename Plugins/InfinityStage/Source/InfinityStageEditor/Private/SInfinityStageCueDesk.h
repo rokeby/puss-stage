@@ -41,6 +41,13 @@ struct FInfinityCueListItem
     bool bPassageCollapsed = false;
 };
 
+enum class EInfinityCueDeskPostPieAction : uint8
+{
+    None,
+    ApplyTransportPreference,
+    ApplyTransportPreferenceAndSeek
+};
+
 class SInfinityStageCueDesk final : public SCompoundWidget
 {
 public:
@@ -60,6 +67,11 @@ public:
      * text entry, the cue list — handle it first, so this only fires when nothing
      * more specific wanted it. */
     virtual FReply OnKeyDown(const FGeometry& Geometry, const FKeyEvent& KeyEvent) override;
+
+    /** Pure plan for PostPIEStarted. The rehearsal preference is independent of
+     * the optional start-at-playhead seek, so a normal PIE start must still push it. */
+    static EInfinityCueDeskPostPieAction ResolvePostPieAction(
+        bool bIsSimulating, bool bHasShow, bool bHasEngine, bool bStartsAtPlayhead);
 
 private:
     using FCueItem = TSharedPtr<FInfinityCueListItem>;

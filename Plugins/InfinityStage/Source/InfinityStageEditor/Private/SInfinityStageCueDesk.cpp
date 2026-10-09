@@ -5530,9 +5530,33 @@ bool SInfinityStageCueDesk::GetCueDeskPlayheadFrame(FFrameNumber& OutFrame) cons
     return false;
 }
 
+EInfinityCueDeskPostPieAction SInfinityStageCueDesk::ResolvePostPieAction(
+    const bool bIsSimulating,
+    const bool bHasShow,
+    const bool bHasEngine,
+    const bool bStartsAtPlayhead)
+{
+    if (bIsSimulating || !bHasShow || !bHasEngine)
+    {
+        return EInfinityCueDeskPostPieAction::None;
+    }
+    return bStartsAtPlayhead
+        ? EInfinityCueDeskPostPieAction::ApplyTransportPreferenceAndSeek
+        : EInfinityCueDeskPostPieAction::ApplyTransportPreference;
+}
+
 void SInfinityStageCueDesk::HandlePostPieStarted(const bool bIsSimulating)
 {
-    if (!bPieStartsAtPlayhead || bIsSimulating || !ShowAsset.IsValid() || !GEngine)
+    const EInfinityCueDeskPostPieAction Action = ResolvePostPieAction(
+        bIsSimulating, ShowAsset.IsValid(), GEngine != nullptr, bPieStartsAtPlayhead);
+    if (Action == EInfinityCueDeskPostPieAction::None)
+    {
+        return;
+    }
+    const int32 Applied = ApplyRehearsalTransportToLivePIE();
+    UE_LOG(LogTemp, Display, TEXT("INFINITY_REHEARSAL_PREFERENCE_ON_PIE rehearsal=%d transports=%d"),
+        bRehearsalTransport ? 1 : 0, Applied);
+    if (Action != EInfinityCueDeskPostPieAction::ApplyTransportPreferenceAndSeek)
     {
         return;
     }
@@ -5556,7 +5580,6 @@ void SInfinityStageCueDesk::HandlePostPieStarted(const bool bIsSimulating)
             {
                 continue;
             }
-            ApplyRehearsalTransportToLivePIE();
             EInfinityTransportResult Result = It->Transport->ScrubToMasterFrame(StartFrame);
             // Starting at the rehearsal playhead must respect the Show's
             // autoplay preference; ScrubToMasterFrame deliberately pauses.
