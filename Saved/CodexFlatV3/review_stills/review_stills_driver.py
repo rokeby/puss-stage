@@ -35,6 +35,13 @@ import zlib
 
 TOOL = "review_stills"
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+
+
+def editor_world_name(path):
+    """PIE duplicates the map as .../UEDPIE_<n>_<Map> (9 Oct RUN refusal). Strip ONLY that prefix on the last path
+    segment, so a genuinely different map still fails the world check."""
+    head, sep, leaf = str(path).rpartition("/")
+    return head + sep + re.sub(r"^UEDPIE_\d+_", "", leaf)
 HANDLE_NAME = "PUSS_REVIEW_STILLS_HANDLE"
 STATE_NAME = "PUSS_REVIEW_STILLS_STATE"
 ABORT_NAME = "PUSS_REVIEW_STILLS_ABORT"
@@ -562,7 +569,7 @@ def arm_run(adapter, config, base_dir, backup_root, owner_path, register=None, u
     dry_path, dry_report = verify_dry_report(config, base_dir)
     if adapter.world_kind() != "game":
         raise ReviewError("RUN_NEEDS_EXISTING_PIE")
-    if adapter.world_name() != config["expected_world"]:
+    if editor_world_name(adapter.world_name()) != config["expected_world"]:
         raise ReviewError("WRONG_WORLD|actual=%s|expected=%s" % (adapter.world_name(), config["expected_world"]))
     if owner_active(owner_path):
         raise ReviewError("FOREIGN_PIE_OWNER_ACTIVE|%s" % pathlib.Path(owner_path).as_posix())

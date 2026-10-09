@@ -219,6 +219,19 @@ try:
         FakeAdapter([0.0]), cfg_negative, tmp / "owned", tmp / "owned_b", owner, store=Store()),
         "FOREIGN_PIE_OWNER_ACTIVE")
 
+    # PIE world prefix (9 Oct RUN refusal: UEDPIE_0_ on the leaf). +/- controls.
+    _ok = rs.EXPECTED_WORLD
+    _dir, _leaf = _ok.rsplit("/", 1)
+    check("POS PIE world UEDPIE_0_ accepted", rs.editor_world_name(_dir + "/UEDPIE_0_" + _leaf) == _ok, _ok)
+    check("POS PIE world UEDPIE_12_ accepted", rs.editor_world_name(_dir + "/UEDPIE_12_" + _leaf) == _ok, _ok)
+    check("POS editor world unchanged", rs.editor_world_name(_ok) == _ok, _ok)
+    check("NEG other map under PIE still differs", rs.editor_world_name(_dir + "/UEDPIE_0_L_Other") != _ok, _dir)
+    check("NEG prefix stripped on the leaf only",
+          rs.editor_world_name("/Game/UEDPIE_0_Maps/L_InfinityStage_V1VerticalSlice") != _ok, "")
+    _pie_other = FakeAdapter([0.0]); _pie_other.path = _dir + "/UEDPIE_0_L_Other"
+    rejects("NEG RUN other map under PIE", lambda: rs.arm_run(
+        _pie_other, cfg_negative, tmp / "pieother", tmp / "pieother_b", tmp / "none3.json", store=Store()), "WRONG_WORLD")
+
     # Source-level destructive and ownership controls.
     source = (HERE / "review_stills_driver.py").read_text(encoding="utf-8")
     forbidden = ("editor_request_begin_play", "editor_request_end_play", "save_package(",
@@ -238,3 +251,4 @@ try:
         raise SystemExit(1)
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
+
