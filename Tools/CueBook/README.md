@@ -14,6 +14,11 @@ segment, with stills, and edit it. No accounts. Built 8 Oct 2026 for Gary.
   changed the CSV, export writes a previewable `kind: "changes"` file and refuses to overwrite that edit.
 - **Order:** each cue can move one step or after a named cue key. Only that cue's fractional `ord` changes, and a
   stale move becomes a conflict. The header's read-only Running order view shows the complete show on one page.
+- **Undo:** the header button (or Ctrl/Cmd+Z outside a typing field) reverses this viewer's cue and surtitle edits,
+  adds, cuts/restores and moves. Undo uses the ordinary offline queue and base-value conflict checks; added rows are
+  marked as cut, never deleted. The viewer's last 100 undo steps are kept in browser storage.
+- **At / GO help:** cue editing keeps a short explanation under At, GO and Pause possible, with a `?` expansion for
+  accepted time formats and the real HOLD/PASS/BREATH behaviour.
 - **Print / PDF:** the header's **Print…** panel offers Full, Stage manager, Klara, Gary, Cameron, Lighting and
   Sound presets, an optional segment range and an include-cut control. Its preview is the print layout; use the
   browser print dialog's **Save as PDF**. The same definitions live in `site/print_presets.json` and drive the
@@ -74,10 +79,10 @@ in the browser on a fake spreadsheet (`test/mock_services.js`), so the whole flo
 connection.
 
 `python Tools/CueBook/test/build_test_site.py --browser-harness` also injects the automated browser runner. Serve
-`test/_build` and open it in a browser: it finishes with `CUEBOOK_BROWSER_HARNESS_OK 13/13` after print presets,
-include-cut, running-order,
-move/audit, move-conflict, offline move, line add/edit/conflict, offline line, and both old-deployment controls. The
-normal build remains the interactive mock.
+`test/_build` and open it in a 375 px-wide browser: it finishes with `CUEBOOK_BROWSER_HARNESS_OK 22/22` after print
+presets, include-cut, running-order, accessible At/GO/pause help, field/move/add/cut and surtitle undo, undo conflict,
+the typing Ctrl+Z negative control, offline undo/move/line reloads, line conflict, and both old-deployment controls.
+The normal build remains the interactive mock.
 
 Checked 8 Oct in the browser against the real `Code.gs` on the fake spreadsheet:
 - seed: 96 cues round-trip field for field; a second seed is refused; a wrong passcode is refused;
