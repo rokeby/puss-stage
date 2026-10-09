@@ -35,7 +35,7 @@ import shutil
 
 
 TOOL = "I2_MOVE_IN"
-TOOL_VERSION = "2026-10-09b"
+TOOL_VERSION = "2026-10-09c"
 FOLDER = "I2SleightMoveIn_20261009"
 SEQ_PATH = "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips"
 MAP_PATH = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
@@ -356,12 +356,20 @@ def _assert_live_baseline(live, evidence, params):
         raise PlanError("MOVE_START_RANGE|move=%d|cut=%d" % (params["move_start"], cut_frame))
     hangar = _binding(snapshot, HANGAR_GUID, HANGAR_NAME)
     mouth = _binding(snapshot, MOUTH_GUID, MOUTH_NAME)
-    component = _component_binding(snapshot, MOUTH_GUID)
-    if component.get("parent", "") != MOUTH_GUID:
-        raise PlanError("MOUTH_COMPONENT_PARENT_LIVE")
-    if live.get("mouth_component_guid") != component.get("guid"):
-        raise PlanError("MOUTH_COMPONENT_OBJECT_BINDING|tracks=%s|object=%s" %
-                        (component.get("guid"), live.get("mouth_component_guid")))
+    component_guid = live.get("mouth_component_guid")
+    create_component = component_guid is None
+    if create_component:
+        children = [row for row in snapshot.get("bindings", []) if row.get("parent") == MOUTH_GUID]
+        if children:
+            raise PlanError("MOUTH_COMPONENT_MISSING_WITH_FOREIGN_CHILDREN|%s" %
+                            [(row.get("guid"), row.get("name")) for row in children])
+    else:
+        component = _component_binding(snapshot, MOUTH_GUID)
+        if component.get("parent", "") != MOUTH_GUID:
+            raise PlanError("MOUTH_COMPONENT_PARENT_LIVE")
+        if component_guid != component.get("guid"):
+            raise PlanError("MOUTH_COMPONENT_OBJECT_BINDING|tracks=%s|object=%s" %
+                            (component.get("guid"), component_guid))
     existing = [row for row in hangar.get("tracks", []) if row.get("class") == TRANSFORM_CLASS]
     if existing:
         raise PlanError("EXISTING_HANGAR_TRANSFORM_TRACK")
@@ -384,7 +392,8 @@ def _assert_live_baseline(live, evidence, params):
     for name in ("pitch", "yaw", "roll"):
         if abs(float(hfact["rotation_deg"][name]) - float(recorded_actor["rotation_deg"][name])) > params["rotation_tolerance_deg"]:
             raise PlanError("HANGAR_ACTOR_ROTATION_DRIFT|%s" % name)
-    return {"cut": cut_context, "mouth_component_guid": component["guid"]}
+    return {"cut": cut_context, "mouth_component_guid": component_guid,
+            "create_mouth_component": create_component}
 
 
 def coverage_for_pose(pose, drape, bounds, hfov_deg, aspect, edge_guard_cm):
@@ -487,10 +496,14 @@ def build_plan(live, evidence, params):
     if params["mouth_after"] == "EASE_OUT" and ease_end <= cut_frame:
         raise PlanError("EASE_OUT_FRAME_RANGE")
     live_mouth = _binding(live["snapshot"], MOUTH_GUID)
-    live_component = _binding(live["snapshot"], mouth_component_guid)
     mouth_transform_range = list(_track(live_mouth, TRANSFORM_CLASS, "Transform")["sections"][0]["range"])
-    mouth_focal_range = list(_track(live_component, FLOAT_CLASS, "CurrentFocalLength")["sections"][0]["range"])
-    mouth_focus_range = list(_track(live_component, FLOAT_CLASS, "ManualFocusDistance")["sections"][0]["range"])
+    if context["create_mouth_component"]:
+        mouth_focal_range = [playback[0], playback_end + 1]
+        mouth_focus_range = [playback[0], playback_end + 1]
+    else:
+        live_component = _binding(live["snapshot"], mouth_component_guid)
+        mouth_focal_range = list(_track(live_component, FLOAT_CLASS, "CurrentFocalLength")["sections"][0]["range"])
+        mouth_focus_range = list(_track(live_component, FLOAT_CLASS, "ManualFocusDistance")["sections"][0]["range"])
     plan = {
         "tool_version": TOOL_VERSION, "sequence": SEQ_PATH, "cut_frame": cut_frame,
         "playback": playback, "cut_source": params["cut_frame"],
@@ -501,6 +514,7 @@ def build_plan(live, evidence, params):
         "edge_guard_cm": params["edge_guard_cm"], "drape_bounds": evidence["drape_bounds"],
         "hangar_drape": hangar_drape, "mouth_drape": mouth_drape,
         "guids": {"hangar": HANGAR_GUID, "mouth": MOUTH_GUID, "mouth_component": mouth_component_guid},
+        "create_mouth_component": context["create_mouth_component"],
         "hangar": {"start_pose": hstart, "close_pose": hclose, "sensor_width_mm": hangar_fact["sensor_width_mm"],
                    "sensor_height_mm": hangar_fact["sensor_height_mm"], "focal_mm": hangar_focal,
                    "start_focus_cm": -hlocal[0]},
@@ -549,6 +563,14 @@ def build_plan(live, evidence, params):
         mkeys[name] = _key_rows(mframes, [pose[field] for pose in mposes])
     mtransform = _transform_spec(ORIGINAL_TRACK_NAME, mkeys, mouth_transform_range, cut_frame)
     mfocus = _key_rows(mframes, [-local_from_frame(mouth_drape, pose["loc"])[0] for pose in mposes])
+    mfocal = [[cut_frame, mouth_focal], [playback_end, mouth_focal]]
+    mouth_replace_from = cut_frame
+    if context["create_mouth_component"]:
+        mfocus = [[playback[0], recorded["focus_cm"]],
+                  [cut_frame - 1, recorded["focus_cm"]]] + mfocus
+        mfocal = [[playback[0], recorded["focal_mm"]],
+                  [cut_frame - 1, recorded["focal_mm"]]] + mfocal
+        mouth_replace_from = None
     plan["writes"] = {
         "hangar_transform": htransform,
         "hangar_focal": _float_spec(TRACK_NAME, "CurrentFocalLength", "CurrentFocalLength", hfocal,
@@ -557,10 +579,9 @@ def build_plan(live, evidence, params):
                                     [playback[0], cut_frame + 1]),
         "mouth_transform": mtransform,
         "mouth_focal": _float_spec(ORIGINAL_TRACK_NAME, "CurrentFocalLength", "CurrentFocalLength",
-                                   [[cut_frame, mouth_focal], [playback_end, mouth_focal]],
-                                   mouth_focal_range, cut_frame),
+                                   mfocal, mouth_focal_range, mouth_replace_from),
         "mouth_focus": _float_spec(ORIGINAL_TRACK_NAME, "ManualFocusDistance", "FocusSettings.ManualFocusDistance",
-                                   mfocus, mouth_focus_range, cut_frame),
+                                   mfocus, mouth_focus_range, mouth_replace_from),
     }
     plan["cut_match"] = {
         "hangar_distance_cm": -local_from_frame(hangar_drape, hclose["loc"])[0],
@@ -667,14 +688,14 @@ def _expected_track(before_track, spec):
 
 def expected_owned_tracks(before, plan):
     mouth = _binding(before, MOUTH_GUID)
-    component = _binding(before, plan["guids"]["mouth_component"])
+    component = None if plan.get("create_mouth_component") else _binding(before, plan["guids"]["mouth_component"])
     return {
         "hangar_transform": _expected_track(None, plan["writes"]["hangar_transform"]),
         "hangar_focal": _expected_track(None, plan["writes"]["hangar_focal"]),
         "hangar_focus": _expected_track(None, plan["writes"]["hangar_focus"]),
         "mouth_transform": _expected_track(_track(mouth, TRANSFORM_CLASS, "Transform"), plan["writes"]["mouth_transform"]),
-        "mouth_focal": _expected_track(_track(component, FLOAT_CLASS, "CurrentFocalLength"), plan["writes"]["mouth_focal"]),
-        "mouth_focus": _expected_track(_track(component, FLOAT_CLASS, "ManualFocusDistance"), plan["writes"]["mouth_focus"]),
+        "mouth_focal": _expected_track(None if component is None else _track(component, FLOAT_CLASS, "CurrentFocalLength"), plan["writes"]["mouth_focal"]),
+        "mouth_focus": _expected_track(None if component is None else _track(component, FLOAT_CLASS, "ManualFocusDistance"), plan["writes"]["mouth_focus"]),
     }
 
 
@@ -726,7 +747,7 @@ def validate_apply(before, after, plan, mutation, params):
     expected = expected_owned_tracks(before, plan)
     hangar = _binding(after, HANGAR_GUID)
     mouth = _binding(after, MOUTH_GUID)
-    mouth_component_guid = plan["guids"]["mouth_component"]
+    mouth_component_guid = mutation["mouth_component_guid"]
     mouth_comp = _binding(after, mouth_component_guid)
     new_comp = _binding(after, mutation["hangar_component_guid"], HANGAR_COMPONENT_NAME)
     if new_comp.get("parent") != HANGAR_GUID:
@@ -741,9 +762,14 @@ def validate_apply(before, after, plan, mutation, params):
     normalized["bindings"] = [row for row in normalized["bindings"] if row.get("guid") != mutation["hangar_component_guid"]]
     nh = _binding(normalized, HANGAR_GUID)
     nh["tracks"] = [row for row in nh["tracks"] if not (row.get("class") == TRANSFORM_CLASS and row.get("property") == "Transform")]
-    for guid, cls, prop in ((MOUTH_GUID, TRANSFORM_CLASS, "Transform"),
-                            (mouth_component_guid, FLOAT_CLASS, "CurrentFocalLength"),
-                            (mouth_component_guid, FLOAT_CLASS, "ManualFocusDistance")):
+    if mutation.get("mouth_component_created"):
+        normalized["bindings"] = [row for row in normalized["bindings"] if row.get("guid") != mouth_component_guid]
+        restore_targets = ((MOUTH_GUID, TRANSFORM_CLASS, "Transform"),)
+    else:
+        restore_targets = ((MOUTH_GUID, TRANSFORM_CLASS, "Transform"),
+                           (mouth_component_guid, FLOAT_CLASS, "CurrentFocalLength"),
+                           (mouth_component_guid, FLOAT_CLASS, "ManualFocusDistance"))
+    for guid, cls, prop in restore_targets:
         nb, bb = _binding(normalized, guid), _binding(before, guid)
         nb["tracks"] = [row for row in nb["tracks"] if not (row.get("class") == cls and row.get("property") == prop)]
         nb["tracks"].append(copy.deepcopy(_track(bb, cls, prop)))
@@ -910,26 +936,34 @@ class UnrealBackend(object):
         except Exception as error:
             return ["<resolve-error:%s>" % error]
 
+    def _binding_diagnostic(self, binding):
+        tracks = []
+        for track in binding.get_tracks():
+            try:
+                prop = str(track.get_property_name())
+            except Exception:
+                prop = ""
+            tracks.append({"class": track.get_class().get_name(), "property": prop,
+                           "name": str(track.get_display_name())})
+        return {"name": str(binding.get_display_name()), "guid": self._guid(binding.get_id()),
+                "parent": self._binding_parent_guid(binding), "tracks": tracks,
+                "objects_parent_context": self._bound_object_paths(binding, self._mouth_actor),
+                "objects_world_context": self._bound_object_paths(binding, self.world)}
+
+    def _all_binding_diagnostics(self):
+        rows = [self._binding_diagnostic(binding) for binding in self.seq.get_bindings()]
+        rows.sort(key=lambda row: (row["guid"], row["name"]))
+        return rows
+
     def _mouth_child_diagnostics(self):
         rows = []
         for binding in self.seq.get_bindings():
             if self._binding_parent_guid(binding) != MOUTH_GUID:
                 continue
-            tracks = []
-            for track in binding.get_tracks():
-                try:
-                    prop = str(track.get_property_name())
-                except Exception:
-                    prop = ""
-                tracks.append({"class": track.get_class().get_name(), "property": prop,
-                               "name": str(track.get_display_name())})
-            rows.append({"name": str(binding.get_display_name()), "guid": self._guid(binding.get_id()),
-                         "parent": self._binding_parent_guid(binding), "tracks": tracks,
-                         "objects_parent_context": self._bound_object_paths(binding, self._mouth_actor),
-                         "objects_world_context": self._bound_object_paths(binding, self.world)})
+            rows.append(self._binding_diagnostic(binding))
         return rows
 
-    def _mouth_component_binding(self):
+    def _mouth_component_binding(self, allow_missing=False):
         required = {(FLOAT_CLASS, "CurrentFocalLength"), (FLOAT_CLASS, "ManualFocusDistance")}
         candidates = []
         for binding in self.seq.get_bindings():
@@ -944,6 +978,8 @@ class UnrealBackend(object):
                 signature.add((track.get_class().get_name(), prop))
             if required.issubset(signature):
                 candidates.append(binding)
+        if not candidates and allow_missing and not self._mouth_child_diagnostics():
+            return None
         if len(candidates) != 1:
             raise PlanError("MOUTH_COMPONENT_TRACK_BINDING_COUNT|%d|diag=%s" %
                             (len(candidates), self._mouth_child_diagnostics()))
@@ -982,9 +1018,10 @@ class UnrealBackend(object):
             raise PlanError("CAMERA_ACTOR_COUNT|hangar=%d|mouth=%d" % (len(by_tag), len(by_label.get(MOUTH_NAME, []))))
         self._hangar_actor, self._mouth_actor = by_tag[0], by_label[MOUTH_NAME][0]
         self._hangar_component, self._mouth_component = self._camera_component(self._hangar_actor), self._camera_component(self._mouth_actor)
-        mouth_component_binding = self._mouth_component_binding()
+        mouth_component_binding = self._mouth_component_binding(allow_missing=True)
         return {"snapshot": self.snapshot(),
-                "mouth_component_guid": self._guid(mouth_component_binding.get_id()),
+                "mouth_component_guid": (self._guid(mouth_component_binding.get_id())
+                                         if mouth_component_binding is not None else None),
                 "hangar_camera": self._camera_fact(self._hangar_actor, HANGAR_GUID),
                 "mouth_camera": self._camera_fact(self._mouth_actor, MOUTH_GUID)}
 
@@ -1008,7 +1045,8 @@ class UnrealBackend(object):
                 "expected_component_path": expected_path, "selected_by_tracks": selected,
                 "selected_binds_expected_component": len(selected) == 1 and
                     [row["objects_parent_context"] for row in children if row["guid"] == selected[0]] == [[expected_path]],
-                "children": children, "census": self.census()}
+                "children": children, "all_bindings": self._all_binding_diagnostics(),
+                "census": self.census()}
 
     def _binding_live(self, guid):
         rows = [binding for binding in self.seq.get_bindings() if self._guid(binding.get_id()) == guid]
@@ -1082,8 +1120,20 @@ class UnrealBackend(object):
         self.seq.modify()
         hangar = self._binding_live(HANGAR_GUID)
         mouth = self._binding_live(MOUTH_GUID)
-        mouth_component = self._binding_live(plan["guids"]["mouth_component"])
         before_guids = {self._guid(binding.get_id()) for binding in self.seq.get_bindings()}
+        mouth_component_created = bool(plan.get("create_mouth_component"))
+        if mouth_component_created:
+            if self._mouth_component_binding(allow_missing=True) is not None:
+                raise PlanError("MOUTH_COMPONENT_APPEARED_SINCE_DRY")
+            mouth_component = self.seq.add_possessable(self._mouth_component)
+            if (mouth_component is None or not mouth_component.is_valid() or
+                    self._guid(mouth_component.get_id()) in before_guids):
+                raise PlanError("MOUTH_COMPONENT_BINDING_NOT_NEW")
+            mouth_component.set_parent(mouth)
+            mouth_component.set_display_name(MOUTH_COMPONENT_NAME)
+            before_guids.add(self._guid(mouth_component.get_id()))
+        else:
+            mouth_component = self._binding_live(plan["guids"]["mouth_component"])
         child = self.seq.add_possessable(self._hangar_component)
         if child is None or not child.is_valid() or self._guid(child.get_id()) in before_guids:
             raise PlanError("HANGAR_COMPONENT_BINDING_NOT_NEW")
@@ -1093,9 +1143,11 @@ class UnrealBackend(object):
         self._write_spec(child, plan["writes"]["hangar_focal"], True)
         self._write_spec(child, plan["writes"]["hangar_focus"], True)
         self._write_spec(mouth, plan["writes"]["mouth_transform"], False)
-        self._write_spec(mouth_component, plan["writes"]["mouth_focal"], False)
-        self._write_spec(mouth_component, plan["writes"]["mouth_focus"], False)
-        return {"hangar_component_guid": self._guid(child.get_id())}
+        self._write_spec(mouth_component, plan["writes"]["mouth_focal"], mouth_component_created)
+        self._write_spec(mouth_component, plan["writes"]["mouth_focus"], mouth_component_created)
+        return {"hangar_component_guid": self._guid(child.get_id()),
+                "mouth_component_guid": self._guid(mouth_component.get_id()),
+                "mouth_component_created": mouth_component_created}
 
     def _restore_track(self, binding, original):
         track = self._track_live(binding, original["class"], original["property"])
@@ -1129,17 +1181,27 @@ class UnrealBackend(object):
             raise PlanError("REFUSE_REMOVE_FOREIGN_CHILD")
         child.remove()
         before = record["snapshot_before"]
-        mouth_component_guid = record["plan"]["guids"]["mouth_component"]
-        for guid, cls, prop in ((MOUTH_GUID, TRANSFORM_CLASS, "Transform"),
-                                (mouth_component_guid, FLOAT_CLASS, "CurrentFocalLength"),
-                                (mouth_component_guid, FLOAT_CLASS, "ManualFocusDistance")):
+        mouth_component_guid = record["mutation"]["mouth_component_guid"]
+        for guid, cls, prop in ((MOUTH_GUID, TRANSFORM_CLASS, "Transform"),):
             self._restore_track(self._binding_live(guid), _track(_binding(before, guid), cls, prop))
+        if record["mutation"].get("mouth_component_created"):
+            mouth_component = self._binding_live(mouth_component_guid)
+            if (str(mouth_component.get_display_name()) != MOUTH_COMPONENT_NAME or
+                    self._binding_parent_guid(mouth_component) != MOUTH_GUID):
+                raise PlanError("REFUSE_REMOVE_FOREIGN_MOUTH_CHILD")
+            mouth_component.remove()
+        else:
+            for cls, prop in ((FLOAT_CLASS, "CurrentFocalLength"),
+                              (FLOAT_CLASS, "ManualFocusDistance")):
+                self._restore_track(self._binding_live(mouth_component_guid),
+                                    _track(_binding(before, mouth_component_guid), cls, prop))
 
-    def verify_evaluation(self, plan):
+    def verify_evaluation(self, plan, mutation=None):
         """Assert count and pre-cut holds using display-rate ranges (rule 9)."""
         problems = []
         cut_frame = int(plan["cut_frame"])
-        mouth_component_guid = plan["guids"]["mouth_component"]
+        mouth_component_guid = ((mutation or {}).get("mouth_component_guid") or
+                                plan["guids"]["mouth_component"])
         targets = ((MOUTH_GUID, TRANSFORM_CLASS, "Transform"),
                    (mouth_component_guid, FLOAT_CLASS, "CurrentFocalLength"),
                    (mouth_component_guid, FLOAT_CLASS, "ManualFocusDistance"))
@@ -1220,7 +1282,15 @@ def run_probe(run, params, backend, root):
     backend.preflight("PROBE")
     report = backend.probe()
     report.update({"schema_version": 1, "tool_version": TOOL_VERSION, "run": run, "mode": "PROBE",
-                   "proof": "measured read-only; no Unreal package mutation"})
+                   "proof": "measured read-only; no Unreal package mutation",
+                   "claims": [
+                       {"tier": "declaration-proven",
+                        "claim": "Children are selected from all sequence bindings by get_parent GUID, not a child-only API.",
+                        "cite": "Docs/Conductor/codex_briefs/p60b_i2_move_in_probe_children_empty.md:12-21"},
+                       {"tier": "measured",
+                        "claim": "all_bindings is the live read-only binding inventory for this run.",
+                        "cite": "Saved/CodexConductor/I2SleightMoveIn_20261009/i2_sleight_move_in.py:953-956"},
+                   ]})
     report_path = os.path.join(root, "i2_sleight_move_in_probe_%s.json" % run)
     json_write(report_path, report)
     if backend.census() != {"content": [], "maps": []}:
@@ -1277,7 +1347,7 @@ def run_apply(run, params, backend, root):
         json_write(record_path, record)
         after = backend.inspect()["snapshot"]
         problems = validate_apply(live["snapshot"], after, report["plan"], mutation, params)
-        problems += backend.verify_evaluation(report["plan"])
+        problems += backend.verify_evaluation(report["plan"], mutation)
         if problems:
             _stop(backend, run, "PRESAVE_READBACK|%s|NOTHING SAVED; Don't-Save restart; backup=%s" %
                   (json.dumps(problems), backup["root"]))
@@ -1286,7 +1356,7 @@ def run_apply(run, params, backend, root):
         saves = backend.save()
         after2 = backend.inspect()["snapshot"]
         problems = validate_apply(live["snapshot"], after2, report["plan"], mutation, params)
-        problems += backend.verify_evaluation(report["plan"])
+        problems += backend.verify_evaluation(report["plan"], mutation)
         if after2 != after:
             problems.append("POSTSAVE_SNAPSHOT_DIFFERS")
         if problems or backend.census() != {"content": [], "maps": []}:

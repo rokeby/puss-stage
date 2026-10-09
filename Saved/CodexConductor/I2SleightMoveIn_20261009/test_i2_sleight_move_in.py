@@ -124,15 +124,27 @@ class FakeUnreal(object):
             raise TOOL.PlanError("DIRTY_CENSUS|%s" % self.dirty)
 
     def probe(self):
+        children = [copy.deepcopy(row) for row in self.snapshot_value["bindings"]
+                    if row.get("parent") == TOOL.MOUTH_GUID]
+        selected = []
+        required = {(TOOL.FLOAT_CLASS, "CurrentFocalLength"),
+                    (TOOL.FLOAT_CLASS, "ManualFocusDistance")}
+        for row in children:
+            signature = {(item.get("class"), item.get("property")) for item in row.get("tracks", [])}
+            if required.issubset(signature):
+                selected.append(row["guid"])
         return {"sequence": TOOL.SEQ_PATH, "parent_guid": TOOL.MOUTH_GUID,
                 "expected_component_path": "/Fake/CameraComponent",
-                "selected_by_tracks": [SHIFTED_MOUTH_COMPONENT_GUID],
-                "selected_binds_expected_component": True,
-                "children": [{"guid": SHIFTED_MOUTH_COMPONENT_GUID}], "census": self.census()}
+                "selected_by_tracks": selected,
+                "selected_binds_expected_component": len(selected) == 1,
+                "children": children, "all_bindings": copy.deepcopy(self.snapshot_value["bindings"]),
+                "census": self.census()}
 
     def inspect(self):
-        component = TOOL._component_binding(self.snapshot_value, TOOL.MOUTH_GUID)
-        return {"snapshot": copy.deepcopy(self.snapshot_value), "mouth_component_guid": component["guid"],
+        children = [row for row in self.snapshot_value["bindings"] if row.get("parent") == TOOL.MOUTH_GUID]
+        component = TOOL._component_binding(self.snapshot_value, TOOL.MOUTH_GUID) if children else None
+        return {"snapshot": copy.deepcopy(self.snapshot_value),
+                "mouth_component_guid": component["guid"] if component is not None else None,
                 "hangar_camera": copy.deepcopy(self.hangar_camera), "mouth_camera": copy.deepcopy(self.mouth_camera)}
 
     def backup(self, run):
@@ -147,7 +159,15 @@ class FakeUnreal(object):
         expected = TOOL.expected_owned_tracks(self.snapshot_value, plan)
         hangar = TOOL._binding(self.snapshot_value, TOOL.HANGAR_GUID)
         mouth = TOOL._binding(self.snapshot_value, TOOL.MOUTH_GUID)
-        mouth_comp = TOOL._binding(self.snapshot_value, plan["guids"]["mouth_component"])
+        mouth_component_created = bool(plan.get("create_mouth_component"))
+        if mouth_component_created:
+            mouth_component_guid = "C5273C9D4C80612C7E84CFA8EC530EA3"
+            mouth_comp = {"guid": mouth_component_guid, "name": TOOL.MOUTH_COMPONENT_NAME,
+                          "parent": TOOL.MOUTH_GUID, "tracks": []}
+            self.snapshot_value["bindings"].append(mouth_comp)
+        else:
+            mouth_component_guid = plan["guids"]["mouth_component"]
+            mouth_comp = TOOL._binding(self.snapshot_value, mouth_component_guid)
         hangar["tracks"].append(copy.deepcopy(expected["hangar_transform"]))
         child_guid = "B4162B8C4B7F601B6D73BF97DB42FD92"
         self.snapshot_value["bindings"].append({"guid": child_guid, "name": TOOL.HANGAR_COMPONENT_NAME,
@@ -160,9 +180,10 @@ class FakeUnreal(object):
             row["tracks"].sort(key=lambda item: (item["class"], item["property"], item["display_name"]))
         self.snapshot_value["bindings"].sort(key=lambda row: (row["guid"], row["name"]))
         self.dirty = {"content": [TOOL.SEQ_PATH], "maps": []}
-        return {"hangar_component_guid": child_guid}
+        return {"hangar_component_guid": child_guid, "mouth_component_guid": mouth_component_guid,
+                "mouth_component_created": mouth_component_created}
 
-    def verify_evaluation(self, plan):
+    def verify_evaluation(self, plan, mutation=None):
         return []
 
     def save(self):
@@ -231,6 +252,42 @@ def positive_round_trip():
     assert env.snapshot_value == before
     assert env.events == ["backup", "revert", "save"]
     assert any("I2_MOVE_IN_REVERT_OK" in row for row in env.logs)
+
+
+def positive_missing_child_create_round_trip():
+    root, env, params = fresh_case()
+    env.snapshot_value["bindings"] = [row for row in env.snapshot_value["bindings"]
+                                      if row.get("guid") != SHIFTED_MOUTH_COMPONENT_GUID]
+    env.original = copy.deepcopy(env.snapshot_value)
+    before = copy.deepcopy(env.snapshot_value)
+    dry = TOOL.main(args("DRY", params, "MISSING-DRY"), backend=env, tool_root=root)
+    assert dry["plan"]["create_mouth_component"] is True
+    assert dry["plan"]["guids"]["mouth_component"] is None
+    TOOL.main(args("APPLY", params, "MISSING-APPLY"), backend=env, tool_root=root)
+    created = [row for row in env.snapshot_value["bindings"]
+               if row.get("parent") == TOOL.MOUTH_GUID]
+    assert len(created) == 1
+    assert {item["property"] for item in created[0]["tracks"]} == {
+        "CurrentFocalLength", "ManualFocusDistance"}
+    for item in created[0]["tracks"]:
+        keys = item["sections"][0]["channels"][0]["keys"]
+        assert keys[0][0] == 0 and keys[1][0] == 1249
+        assert keys[0][1] == keys[1][1]
+    env.events = []
+    TOOL.main(args("REVERT", params, "MISSING-REVERT"), backend=env, tool_root=root)
+    assert env.snapshot_value == before
+
+
+def positive_missing_child_probe_lists_all_bindings():
+    root, env, params = fresh_case()
+    env.snapshot_value["bindings"] = [row for row in env.snapshot_value["bindings"]
+                                      if row.get("guid") != SHIFTED_MOUTH_COMPONENT_GUID]
+    before = copy.deepcopy(env.snapshot_value)
+    result = TOOL.main(args("PROBE", params, "MISSING-PROBE"), backend=env, tool_root=root)
+    assert result["children"] == []
+    assert result["selected_by_tracks"] == []
+    assert len(result["all_bindings"]) == len(before["bindings"])
+    assert env.snapshot_value == before
 
 
 def negative_moved_cut():
@@ -343,6 +400,8 @@ def positive_import_offline():
 CASES = [
     ("+ LIVE cut, shifted child GUID, shrunk sequence produce matched cut", positive_plan_math),
     ("+ fake Unreal APPLY->REVERT is exact", positive_round_trip),
+    ("+ missing mouth child is created and REVERT removes only that child", positive_missing_child_create_round_trip),
+    ("+ missing-child PROBE emits the complete binding inventory", positive_missing_child_probe_lists_all_bindings),
     ("- explicit stale cut arg refuses", negative_moved_cut),
     ("- rebound hangar camera refuses", negative_rebound_camera),
     ("- duplicate hangar/mouth boundary refuses", negative_duplicate_cut_boundary),

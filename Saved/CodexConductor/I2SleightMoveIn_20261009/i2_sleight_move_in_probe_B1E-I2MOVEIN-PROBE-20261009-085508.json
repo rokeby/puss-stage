@@ -1,0 +1,17 @@
+{
+  "census": {
+    "content": [],
+    "maps": []
+  },
+  "children": [],
+  "expected_component_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_29.CameraComponent",
+  "mode": "PROBE",
+  "parent_guid": "E6CF63464549232FD6CEA88D81178F0D",
+  "proof": "measured read-only; no Unreal package mutation",
+  "run": "B1E-I2MOVEIN-PROBE-20261009-085508",
+  "schema_version": 1,
+  "selected_binds_expected_component": false,
+  "selected_by_tracks": [],
+  "sequence": "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips",
+  "tool_version": "2026-10-09b"
+}

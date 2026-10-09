@@ -1,6 +1,6 @@
 {
   "failed": 0,
-  "passed": 16,
+  "passed": 18,
   "results": [
     {
       "name": "+ LIVE cut, shifted child GUID, shrunk sequence produce matched cut",
@@ -8,6 +8,14 @@
     },
     {
       "name": "+ fake Unreal APPLY->REVERT is exact",
+      "status": "PASS"
+    },
+    {
+      "name": "+ missing mouth child is created and REVERT removes only that child",
+      "status": "PASS"
+    },
+    {
+      "name": "+ missing-child PROBE emits the complete binding inventory",
       "status": "PASS"
     },
     {
@@ -67,5 +75,5 @@
       "status": "PASS"
     }
   ],
-  "total": 16
+  "total": 18
 }

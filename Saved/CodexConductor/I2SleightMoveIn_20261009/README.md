@@ -5,25 +5,34 @@ hangar-camera binding, matches the mouth camera at frame 1250, and (by default)
 eases the mouth camera back to its recorded hold pose over 6 seconds. It does
 not move the cut and does not touch either gobo spot or the MPC track.
 
-## P60 binding/cut repair (9 October)
+## P60/P60b binding/cut repair (9 October)
 
 - **declaration-proven** - the shrink tool enumerates the sequence's existing
   bindings, then changes only section end/active state; it contains no camera
   rebind path (`E:/PussStage/Saved/CodexSoftGoods/shrink_scene_playback.py:274-278,467-475`).
-- **measured** - the live shrink record retains child binding
+- **measured** - the live shrink record addresses child binding
   `A4162B8C4B7F601B6D73BF97DB42FD91` and trims its two float sections to 1950;
-  the camera cut remains 1250 while playback ends at 1950
-  (`E:/PussStage/Saved/CodexSoftGoods/shrink_scene_playback_apply_51C-I2SHRINK-APPLY-20261009-0530.json:1-27,2082-2145`).
+  it records both the before and after states under the same binding and track
+  identities (`E:/PussStage/Saved/CodexSoftGoods/shrink_scene_playback_record.json:2040-2115`).
+- **measured** - Job 24's post-save report is green, has no section or read-back
+  failures, and ends with an empty dirty census
+  (`E:/PussStage/Saved/CodexSoftGoods/shrink_scene_playback_apply_51C-I2SHRINK-APPLY-20261009-0530.json:26-43,2757-2773`).
 - **measured** - the first live move-in attempt failed because `LevelSequence`
   has no `find_binding_from_object`; the replacement world-context scan then
   refused the component GUID (`E:/PussStage/Saved/Logs/PussStage.log:3028-3041,3089-3100`).
-- **inferred** - the world was the wrong resolution context for the child
-  component binding. The repair selects the unique child of mouth actor binding
-  `E6CF...` whose tracks contain `CurrentFocalLength` and
-  `ManualFocusDistance`, then resolves that child against the parent camera
-  actor and asserts the resulting object path is the actual
-  `CineCameraComponent`. `PROBE` records both parent-actor and world-context
-  results so the conductor can verify that inference live without mutation.
+- **measured** - the later read-only P60 probe found zero children beneath
+  `E6CF...`, while resolving the expected live camera component path and leaving
+  the census clean
+  (`E:/PussStage/Saved/CodexConductor/I2SleightMoveIn_20261009/i2_sleight_move_in_probe_B1E-I2MOVEIN-PROBE-20261009-085508.json:2-16`).
+- **inferred** - the child binding disappeared after Job 24's verified
+  read-back. The exact intervening operation is UNCLEAR; the named Job 24 tool,
+  record, report and backup were checked and do not prove a delete, recreation
+  or re-parent. P60b therefore supports both states: it adopts the unique
+  existing child selected by parent GUID plus its two owned tracks, or plans a
+  new child binding on the existing mouth actor when no child exists. APPLY
+  first looks up the component again, creates only when still absent, records
+  that ownership, and REVERT removes the mouth child only when this run created
+  it.
 
 The component GUID is therefore live-derived rather than fixed. The cut is also
 an argument defaulting to `"LIVE"`: DRY reads the unique hangar/mouth boundary
@@ -51,7 +60,7 @@ are superseded by the P60 live-derived component/cut contract above.
 
 ## Files
 
-`i2_sleight_move_in.py` now also exposes read-only `PROBE`; DRY/APPLY/REVERT
+`i2_sleight_move_in.py` also exposes read-only `PROBE`; DRY/APPLY/REVERT
 retain their original confirmation, backup, census, save and read-back contract.
 
 - `i2_sleight_move_in.py` — DRY/APPLY/REVERT tool.
@@ -66,16 +75,20 @@ retain their original confirmation, backup, census, save and read-back contract.
 
 1. With Unreal clean and untouched, set a unique run id and run `PROBE` with
    `confirm: "PROBE I2MOVEIN"`. Require `I2_MOVE_IN_PROBE_OK`; inspect every
-   child row and require the track-selected child to resolve to the expected
-   mouth `CineCameraComponent` under parent-actor context. PROBE writes only a
-   JSON diagnostic under this folder and dirties no package.
+   `all_bindings`, whose rows include name, GUID, parent GUID, tracks and bound
+   object paths. If a track-selected mouth child exists, require it to resolve
+   to the expected mouth `CineCameraComponent` under parent-actor context. If
+   `children` is empty, confirm the expected component path is correct; DRY will
+   plan a new child binding and its lens/focus tracks. PROBE writes only a JSON
+   diagnostic under this folder and dirties no package.
 2. Review the args and the two SVG previews. Regenerate them offline with
    `python make_previews.py` after any value change.
 3. Ensure PIE/SIE is stopped, Sequencer is closed, the vertical-slice world is
    current, and the full dirty census is empty. Set a unique run id and run
    `DRY` with `confirm: "DRY I2MOVEIN"`. Require
    `I2_MOVE_IN_DRY_OK|run=<id>` and inspect the DRY JSON. Confirm `cut_source`
-   is `LIVE`, `cut_frame` is the measured boundary, and `playback` is current.
+   is `LIVE`, `cut_frame` is the measured boundary, `playback` is current, and
+   `create_mouth_component` matches the PROBE result.
 4. With no intervening I2 edit, change only mode, confirm and run id to `APPLY`,
    `APPLY I2MOVEIN`, and a fresh id. Send the same request. Require
    `I2_MOVE_IN_APPLY_OK|run=<id>`. APPLY creates
@@ -95,4 +108,6 @@ With a clean editor and no intervening I2 change, use a fresh run id plus
 `mode: "REVERT"` and `confirm: "REVERT I2MOVEIN"`. Require
 `I2_MOVE_IN_REVERT_OK|run=<id>`. REVERT makes its own
 `Backups/PreI2MoveIn-<run>`, restores the exact pre-APPLY snapshot, saves only
-the named sequence, and archives the apply record.
+the named sequence, and archives the apply record. If APPLY created the missing
+mouth component binding, REVERT validates its name and parent then removes only
+that recorded binding; an adopted pre-existing child is retained and restored.
