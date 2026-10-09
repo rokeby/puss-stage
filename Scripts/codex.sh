@@ -95,6 +95,10 @@ echo "final message -> $LAST" >&2
 # NOT exec: the run is timed and recorded. Monitoring belongs in the instrument
 # rather than in whoever remembers to write it down -- reliability data that
 # depends on being remembered is the data you do not have when you need it.
+# Only --unreal may reach the editor. The project .codex/config.toml registers unreal-mcp (port 8010), and codex.exe
+# connects at startup even on offline briefs (gobo session, 9 Oct: "fail to delete session ... 127.0.0.1:8010") -> each
+# request is a 40-80 ms editor hitch. Disable it for every other mode.
+[ "$LABEL" != "unreal" ] && EXTRA+=(-c mcp_servers.unreal-mcp.enabled=false)
 T0=$(date +%s)
 set +e
 "$EXE" exec -C "$REPO" ${SANDBOX:+-s "$SANDBOX"} ${MODE:+$MODE} \
