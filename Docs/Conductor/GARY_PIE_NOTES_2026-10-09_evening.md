@@ -24,3 +24,4 @@
 - **E19 (S5)**: awfully bright, but Gary doesn't mind it here; a little washed out by fog. The brightness exposes the metal girder structures: they need more texture, like the Hyper3D work on parts of the front. → Codex job 98 (offline girder texture plan, dedupe against Hyper3D front work).
 - **E20 (cloud wings)**: the last few bays of cloud wings should widen a lot — **Gary does this manually**. No job.
 - **E21 (P05 transition curtain image)**: change it from a rabbit in a circle of toadstools to a **deer looking at the camera**, with the deer drawn a bit smaller. **Gary's note to self**: no job unless he asks.
+- **E22 (I5 curtain)**: hidden behind a wall. Not urgent, since the S5 hangar will change or go when Rob's material comes in. Revisit after Rob's S5 lands. No job now.
