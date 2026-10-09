@@ -1,0 +1,141 @@
+diff --git a/Saved/CodexConductor/NapInterlude_20261009/nap_interlude.py b/Saved/CodexConductor/NapInterlude_20261009/nap_interlude.py
+index a7d23880..41992427 100644
+--- a/Saved/CodexConductor/NapInterlude_20261009/nap_interlude.py
++++ b/Saved/CodexConductor/NapInterlude_20261009/nap_interlude.py
+@@ -223,6 +223,43 @@ def seam_failures(keys, loop_frames, tolerance=1.0e-4):
+     return failures
+ 
+ 
++def seam_diagnostics(keys, loop_frames, tolerance=1.0e-4):
++    """Expose the exact values used by ``seam_failures`` without changing them."""
++    by_frame = {int(row[0]): float(row[1]) for row in keys}
++    frames = sorted(by_frame)
++    first_pair = frames[:2]
++    implementation_last_pair = frames[-2:]
++    loop_frames_present = [frame for frame in frames if frame <= int(loop_frames)]
++    loop_last_pair = loop_frames_present[-2:]
++
++    def pair_report(pair):
++        if len(pair) != 2:
++            return None
++        a, b = pair
++        return {"frames": [a, b], "values": [by_frame[a], by_frame[b]],
++                "slope": (by_frame[b] - by_frame[a]) / float(b - a)}
++
++    first = pair_report(first_pair)
++    implementation_last = pair_report(implementation_last_pair)
++    loop_last = pair_report(loop_last_pair)
++    return {
++        "loop_frame": int(loop_frames),
++        "tolerance": float(tolerance),
++        "all_keys": [[frame, by_frame[frame]] for frame in frames],
++        "loop_start_pair": first,
++        "loop_end_pair": loop_last,
++        "implementation_last_pair": implementation_last,
++        "implementation_slope_delta": (
++            abs(first["slope"] - implementation_last["slope"])
++            if first and implementation_last else None),
++        "loop_slope_delta": (
++            abs(first["slope"] - loop_last["slope"])
++            if first and loop_last else None),
++        "implementation_uses_tail_key": bool(frames and frames[-1] > int(loop_frames)),
++        "failures": seam_failures(keys, loop_frames, tolerance),
++    }
++
++
+ def expected_segments(before, insert_after_index, nap, delta_ticks):
+     start = int(before[insert_after_index]["end"])
+     output = []
+@@ -575,6 +612,79 @@ class UnrealBackend(object):
+                     camera_cut_range=[int(cuts[0].get_start_frame()), int(cuts[0].get_end_frame())]
+                     if len(cuts) == 1 else None)
+ 
++    def dump_presave_diagnostic(self, args, plan, mutation, facts, failures, dirty, path):
++        """Write a read-only account of the exact presave state, then let the caller stop."""
++        ue = self.ue
++        show = ue.load_asset(args["show_package"])
++        cues = list(show.get_editor_property("cues"))
++        first = max(0, int(plan["anchors"]["insert_show_index"]) - 2)
++        last = min(len(cues), int(plan["anchors"]["insert_show_index"]) + 3)
++        cue_rows = []
++        for index in range(first, last):
++            cue = cues[index]
++            label = str(cue.get_editor_property("label"))
++            guid_text = str(ue.GuidLibrary.conv_guid_to_string(cue.get_editor_property("cue_guid")))
++            scene = cue.get_editor_property("scene")
++            sequence = scene.get_editor_property("sequence")
++            sequence_path = str(sequence.get_path_name()) if sequence is not None else None
++            cue_rows.append({
++                "show_index": index,
++                "label": label,
++                "label_utf8_hex": label.encode("utf-8").hex(),
++                "label_codepoints": [ord(char) for char in label],
++                "identity_label": identity_label(label),
++                "type": str(cue.get_editor_property("type")),
++                "cue_guid_conv_guid_to_string": guid_text,
++                "cue_guid_normalised": norm_guid(guid_text),
++                "enabled": bool(cue.get_editor_property("enabled")),
++                "scene_sequence_path": sequence_path,
++            })
++
++        compiled = copy.deepcopy(facts.get("segments", []))
++        nap_label = plan["nap"]["label"]
++        recorded_guid = norm_guid(plan["nap"].get("guid"))
++        show_nap = [row for row in cue_rows if row["label"] == nap_label]
++        compiled_label = [row for row in compiled if row.get("label") == nap_label]
++        compiled_identity = [row for row in compiled if identity_label(row.get("label", "")) == identity_label(nap_label)]
++        compiled_recorded_guid = [row for row in compiled if norm_guid(row.get("guid")) == recorded_guid]
++        actual_show_guid = show_nap[0]["cue_guid_normalised"] if len(show_nap) == 1 else None
++        compiled_actual_guid = [row for row in compiled if actual_show_guid and norm_guid(row.get("guid")) == actual_show_guid]
++        payload = {
++            "schema_version": 1,
++            "run_stage": "APPLY_PRESAVE_READBACK_NOT_SAVED",
++            "show_cues_around_i4_nap_p05": cue_rows,
++            "compiled_segments_readback": {
++                "obtained_by": (
++                    "UnrealBackend.inspect -> _segments: construct transient "
++                    "InfinityStageTransportController, call build_segments(show), then read its segments property"),
++                "all_segments": compiled,
++                "nap_exact_label_matches": compiled_label,
++                "nap_identity_label_matches": compiled_identity,
++            },
++            "nap_membership_analysis": {
++                "guid_recorded_immediately_after_cue_insertion": recorded_guid,
++                "guid_returned_by_apply_before_rebuild_readback": norm_guid(mutation.get("minted_nap_cue_guid")),
++                "guid_observed_on_show_at_presave_readback": actual_show_guid,
++                "compiled_matches_recorded_guid": compiled_recorded_guid,
++                "compiled_matches_presave_show_guid": compiled_actual_guid,
++                "compiled_matches_exact_label": compiled_label,
++                "compiled_matches_normalised_label": compiled_identity,
++                "cue_type_at_presave_readback": show_nap[0]["type"] if len(show_nap) == 1 else None,
++                "cue_enabled_at_presave_readback": show_nap[0]["enabled"] if len(show_nap) == 1 else None,
++                "sequence_path_at_presave_readback": show_nap[0]["scene_sequence_path"] if len(show_nap) == 1 else None,
++                "recorded_guid_differs_from_presave_show_guid": bool(
++                    actual_show_guid and recorded_guid != actual_show_guid),
++            },
++            "seam_slope_readback": seam_diagnostics(
++                facts.get("breathing_z_keys", []), plan["loop_frames"]),
++            "verify_after_failures": list(failures),
++            "dirty_packages": list(dirty),
++            "save_called": False,
++        }
++        write_json(path, payload)
++        self.log("P79_NAP_DIAG_WRITTEN|path=%s|failures=%s|NOTHING_SAVED" % (path, failures))
++        return path
++
+     def _read_breath_keys(self, seq, plan):
+         ue = self.ue
+         bindings = [b for b in seq.get_bindings() if str(b.get_display_name()) == plan["params"]["cat_label"]]
+@@ -841,8 +951,10 @@ def run_apply(run, args, backend, root):
+     failures = verify_after(plan, facts)
+     expected_dirty = sorted(plan["named_packages"])
+     dirty = sorted(set(backend.census()["content"] + backend.census()["maps"]))
+-    if failures or dirty != expected_dirty:
+-        _stop(backend, run, "PRESAVE_READBACK|failures=%s|dirty=%s|NOTHING SAVED" % (failures, dirty))
++    diag_path = backend.dump_presave_diagnostic(
++        args, plan, mutation, facts, failures, dirty, os.path.join(root, "nap_diag.json"))
++    _stop(backend, run, "LIVE_DIAGNOSTIC_PRESAVE_READBACK|failures=%s|dirty=%s|diag=%s|NOTHING SAVED" %
++          (failures, dirty, diag_path))
+     saved = backend.save(plan["named_packages"])
+     facts = backend.inspect(args, plan)
+     failures = verify_after(plan, facts)

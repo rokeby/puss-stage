@@ -1,0 +1,536 @@
+{
+  "compiled_segments_readback": {
+    "all_segments": [
+      {
+        "end": 2312640,
+        "first_show_index": 0,
+        "guid": "5674D1134EC0FFE62815588E1E88F9FF",
+        "label": "Opening — Curtain",
+        "start": 0,
+        "type": "SEQUENCE: 2>"
+      },
+      {
+        "end": 4077120,
+        "first_show_index": 1,
+        "guid": "659D5386D64DA7742A351B9499ECCE4C",
+        "label": "Passage 1",
+        "start": 2312640,
+        "type": "WING_PAIR: 0>"
+      },
+      {
+        "end": 10006080,
+        "first_show_index": 49,
+        "guid": "91030A272145EBEF25D33BA016458739",
+        "label": "Scene 1 — External Sound",
+        "start": 4077120,
+        "type": "SCENE: 1>"
+      },
+      {
+        "end": 12101760,
+        "first_show_index": 50,
+        "guid": "E49499EB417AC22745470BA7C85FB609",
+        "label": "Interaction 1 — Washing the Boy",
+        "start": 10006080,
+        "type": "SEQUENCE: 2>"
+      },
+      {
+        "end": 13194240,
+        "first_show_index": 51,
+        "guid": "7FF34BBDA744E406C264A7B7E4DD61D9",
+        "label": "Passage 2",
+        "start": 12101760,
+        "type": "WING_PAIR: 0>"
+      },
+      {
+        "end": 16929600,
+        "first_show_index": 74,
+        "guid": "42D2F59416487AF7018DAEB62639C9BB",
+        "label": "Scene 2 — External Sound",
+        "start": 13194240,
+        "type": "SCENE: 1>"
+      },
+      {
+        "end": 18801600,
+        "first_show_index": 75,
+        "guid": "E082311A4165CFA7949986829B0833E5",
+        "label": "Interaction 2 — Turnips",
+        "start": 16929600,
+        "type": "SEQUENCE: 2>"
+      },
+      {
+        "end": 19767360,
+        "first_show_index": 76,
+        "guid": "49F93D652B46B99C10116EBAE927A3C6",
+        "label": "Passage 3",
+        "start": 18801600,
+        "type": "WING_PAIR: 0>"
+      },
+      {
+        "end": 26007360,
+        "first_show_index": 97,
+        "guid": "D8F61D9DF94F1E6080CC8D9028EE49D3",
+        "label": "Scene 3 — External Sound",
+        "start": 19767360,
+        "type": "SCENE: 1>"
+      },
+      {
+        "end": 28155840,
+        "first_show_index": 98,
+        "guid": "7A03F85B4E7FAE6807F9748D6802822D",
+        "label": "Interaction 3 — Forgets His Name",
+        "start": 26007360,
+        "type": "SEQUENCE: 2>"
+      },
+      {
+        "end": 29317440,
+        "first_show_index": 99,
+        "guid": "0067B5F57142956FB5B80EA31B1210B5",
+        "label": "Passage 4",
+        "start": 28155840,
+        "type": "WING_PAIR: 0>"
+      },
+      {
+        "end": 34011840,
+        "first_show_index": 120,
+        "guid": "5C960C0C7A462BFEA4C86F93ADF5558D",
+        "label": "Scene 4 — External Sound",
+        "start": 29317440,
+        "type": "SCENE: 1>"
+      },
+      {
+        "end": 35775360,
+        "first_show_index": 121,
+        "guid": "1196A03E4E16AE74EA811A8566C84E9B",
+        "label": "Interaction 4 — Gets a Name",
+        "start": 34011840,
+        "type": "SEQUENCE: 2>"
+      },
+      {
+        "end": 36279360,
+        "first_show_index": 122,
+        "guid": "211B6129497610E7977707AA939D7763",
+        "label": "Nap — battery change",
+        "start": 35775360,
+        "type": "SEQUENCE: 2>"
+      },
+      {
+        "end": 40752087,
+        "first_show_index": 123,
+        "guid": "3B27C331B54325A469AE8A818B9049F9",
+        "label": "Passage 5",
+        "start": 36279360,
+        "type": "WING_PAIR: 0>"
+      },
+      {
+        "end": 41928087,
+        "first_show_index": 216,
+        "guid": "730D67269F425DDC45C72A867BA04217",
+        "label": "Scene 5 — External Sound",
+        "start": 40752087,
+        "type": "SCENE: 1>"
+      },
+      {
+        "end": 43691607,
+        "first_show_index": 217,
+        "guid": "FB09B25844709C21708A77A3FB2E9B96",
+        "label": "Interaction 5 — Becomes King",
+        "start": 41928087,
+        "type": "SEQUENCE: 2>"
+      },
+      {
+        "end": 46346007,
+        "first_show_index": 218,
+        "guid": "9BFC29C45D47911FF7836BB8537230D2",
+        "label": "Passage 6",
+        "start": 43691607,
+        "type": "WING_PAIR: 0>"
+      },
+      {
+        "end": 51615447,
+        "first_show_index": 282,
+        "guid": "673B3535884DEBAE99723B8CC6BE877B",
+        "label": "Scene 6 — External Sound",
+        "start": 46346007,
+        "type": "SCENE: 1>"
+      },
+      {
+        "end": 51975447,
+        "first_show_index": 283,
+        "guid": "86CEBAF64E3A9FF279651AB0D2E279B4",
+        "label": "Closing — Sweeping Up",
+        "start": 51615447,
+        "type": "SEQUENCE: 2>"
+      }
+    ],
+    "nap_exact_label_matches": [
+      {
+        "end": 36279360,
+        "first_show_index": 122,
+        "guid": "211B6129497610E7977707AA939D7763",
+        "label": "Nap — battery change",
+        "start": 35775360,
+        "type": "SEQUENCE: 2>"
+      }
+    ],
+    "nap_identity_label_matches": [
+      {
+        "end": 36279360,
+        "first_show_index": 122,
+        "guid": "211B6129497610E7977707AA939D7763",
+        "label": "Nap — battery change",
+        "start": 35775360,
+        "type": "SEQUENCE: 2>"
+      }
+    ],
+    "obtained_by": "UnrealBackend.inspect -> _segments: construct transient InfinityStageTransportController, call build_segments(show), then read its segments property"
+  },
+  "dirty_packages": [
+    "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
+    "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+    "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master",
+    "/Game/InfinityStage/Dev/Sequences/LS_Nap_BatteryChange"
+  ],
+  "nap_membership_analysis": {
+    "compiled_matches_exact_label": [
+      {
+        "end": 36279360,
+        "first_show_index": 122,
+        "guid": "211B6129497610E7977707AA939D7763",
+        "label": "Nap — battery change",
+        "start": 35775360,
+        "type": "SEQUENCE: 2>"
+      }
+    ],
+    "compiled_matches_normalised_label": [
+      {
+        "end": 36279360,
+        "first_show_index": 122,
+        "guid": "211B6129497610E7977707AA939D7763",
+        "label": "Nap — battery change",
+        "start": 35775360,
+        "type": "SEQUENCE: 2>"
+      }
+    ],
+    "compiled_matches_presave_show_guid": [
+      {
+        "end": 36279360,
+        "first_show_index": 122,
+        "guid": "211B6129497610E7977707AA939D7763",
+        "label": "Nap — battery change",
+        "start": 35775360,
+        "type": "SEQUENCE: 2>"
+      }
+    ],
+    "compiled_matches_recorded_guid": [],
+    "cue_enabled_at_presave_readback": true,
+    "cue_type_at_presave_readback": "<InfinityCueType.SEQUENCE: 2>",
+    "guid_observed_on_show_at_presave_readback": "211B6129497610E7977707AA939D7763",
+    "guid_recorded_immediately_after_cue_insertion": "00000000000000000000000000000000",
+    "guid_returned_by_apply_before_rebuild_readback": "00000000000000000000000000000000",
+    "recorded_guid_differs_from_presave_show_guid": true,
+    "sequence_path_at_presave_readback": "/Game/InfinityStage/Dev/Sequences/LS_Nap_BatteryChange.LS_Nap_BatteryChange"
+  },
+  "run_stage": "APPLY_PRESAVE_READBACK_NOT_SAVED",
+  "save_called": false,
+  "schema_version": 1,
+  "seam_slope_readback": {
+    "all_keys": [
+      [
+        0,
+        100.0
+      ],
+      [
+        25,
+        101.5
+      ],
+      [
+        50,
+        100.0
+      ],
+      [
+        75,
+        98.5
+      ],
+      [
+        100,
+        100.0
+      ],
+      [
+        125,
+        101.5
+      ],
+      [
+        150,
+        100.0
+      ],
+      [
+        175,
+        98.5
+      ],
+      [
+        200,
+        100.0
+      ],
+      [
+        225,
+        101.5
+      ],
+      [
+        250,
+        100.0
+      ],
+      [
+        275,
+        98.5
+      ],
+      [
+        300,
+        100.0
+      ],
+      [
+        325,
+        101.5
+      ],
+      [
+        350,
+        100.0
+      ],
+      [
+        375,
+        98.5
+      ],
+      [
+        400,
+        100.0
+      ],
+      [
+        425,
+        101.5
+      ],
+      [
+        450,
+        100.0
+      ],
+      [
+        475,
+        98.5
+      ],
+      [
+        500,
+        100.0
+      ],
+      [
+        525,
+        100.0
+      ]
+    ],
+    "failures": [
+      "SEAM_SLOPE"
+    ],
+    "implementation_last_pair": {
+      "frames": [
+        500,
+        525
+      ],
+      "slope": 0.0,
+      "values": [
+        100.0,
+        100.0
+      ]
+    },
+    "implementation_slope_delta": 0.06,
+    "implementation_uses_tail_key": true,
+    "loop_end_pair": {
+      "frames": [
+        475,
+        500
+      ],
+      "slope": 0.06,
+      "values": [
+        98.5,
+        100.0
+      ]
+    },
+    "loop_frame": 500,
+    "loop_slope_delta": 0.0,
+    "loop_start_pair": {
+      "frames": [
+        0,
+        25
+      ],
+      "slope": 0.06,
+      "values": [
+        100.0,
+        101.5
+      ]
+    },
+    "tolerance": 0.0001
+  },
+  "show_cues_around_i4_nap_p05": [
+    {
+      "cue_guid_conv_guid_to_string": "5C960C0C7A462BFEA4C86F93ADF5558D",
+      "cue_guid_normalised": "5C960C0C7A462BFEA4C86F93ADF5558D",
+      "enabled": true,
+      "identity_label": "scene 4 external sound",
+      "label": "Scene 4 — External Sound",
+      "label_codepoints": [
+        83,
+        99,
+        101,
+        110,
+        101,
+        32,
+        52,
+        32,
+        8212,
+        32,
+        69,
+        120,
+        116,
+        101,
+        114,
+        110,
+        97,
+        108,
+        32,
+        83,
+        111,
+        117,
+        110,
+        100
+      ],
+      "label_utf8_hex": "5363656e65203420e280942045787465726e616c20536f756e64",
+      "scene_sequence_path": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04.LS_DevScene_04",
+      "show_index": 120,
+      "type": "<InfinityCueType.SCENE: 1>"
+    },
+    {
+      "cue_guid_conv_guid_to_string": "1196A03E4E16AE74EA811A8566C84E9B",
+      "cue_guid_normalised": "1196A03E4E16AE74EA811A8566C84E9B",
+      "enabled": true,
+      "identity_label": "interaction 4 gets a name",
+      "label": "Interaction 4 — Gets a Name",
+      "label_codepoints": [
+        73,
+        110,
+        116,
+        101,
+        114,
+        97,
+        99,
+        116,
+        105,
+        111,
+        110,
+        32,
+        52,
+        32,
+        8212,
+        32,
+        71,
+        101,
+        116,
+        115,
+        32,
+        97,
+        32,
+        78,
+        97,
+        109,
+        101
+      ],
+      "label_utf8_hex": "496e746572616374696f6e203420e2809420476574732061204e616d65",
+      "scene_sequence_path": "/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName.LS_Interaction_04_GetsAName",
+      "show_index": 121,
+      "type": "<InfinityCueType.SEQUENCE: 2>"
+    },
+    {
+      "cue_guid_conv_guid_to_string": "211B6129497610E7977707AA939D7763",
+      "cue_guid_normalised": "211B6129497610E7977707AA939D7763",
+      "enabled": true,
+      "identity_label": "nap battery change",
+      "label": "Nap — battery change",
+      "label_codepoints": [
+        78,
+        97,
+        112,
+        32,
+        8212,
+        32,
+        98,
+        97,
+        116,
+        116,
+        101,
+        114,
+        121,
+        32,
+        99,
+        104,
+        97,
+        110,
+        103,
+        101
+      ],
+      "label_utf8_hex": "4e617020e280942062617474657279206368616e6765",
+      "scene_sequence_path": "/Game/InfinityStage/Dev/Sequences/LS_Nap_BatteryChange.LS_Nap_BatteryChange",
+      "show_index": 122,
+      "type": "<InfinityCueType.SEQUENCE: 2>"
+    },
+    {
+      "cue_guid_conv_guid_to_string": "D9985461DE475468200B6AAF36E80C4B",
+      "cue_guid_normalised": "D9985461DE475468200B6AAF36E80C4B",
+      "enabled": true,
+      "identity_label": "p05 wing 1",
+      "label": "P05 Wing 001",
+      "label_codepoints": [
+        80,
+        48,
+        53,
+        32,
+        87,
+        105,
+        110,
+        103,
+        32,
+        48,
+        48,
+        49
+      ],
+      "label_utf8_hex": "5030352057696e6720303031",
+      "scene_sequence_path": null,
+      "show_index": 123,
+      "type": "<InfinityCueType.WING_PAIR: 0>"
+    },
+    {
+      "cue_guid_conv_guid_to_string": "D9809927C9409586DAE008839DE18EF5",
+      "cue_guid_normalised": "D9809927C9409586DAE008839DE18EF5",
+      "enabled": true,
+      "identity_label": "p05 wing 2",
+      "label": "P05 Wing 002",
+      "label_codepoints": [
+        80,
+        48,
+        53,
+        32,
+        87,
+        105,
+        110,
+        103,
+        32,
+        48,
+        48,
+        50
+      ],
+      "label_utf8_hex": "5030352057696e6720303032",
+      "scene_sequence_path": null,
+      "show_index": 124,
+      "type": "<InfinityCueType.WING_PAIR: 0>"
+    }
+  ],
+  "verify_after_failures": [
+    "SEAM_SLOPE",
+    "NAP_GUID_COUNT|0",
+    "NAP_IDENTITY_COUNT|0"
+  ]
+}
