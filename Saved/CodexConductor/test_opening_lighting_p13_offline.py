@@ -35,7 +35,8 @@ P01_INVENTORY = [
      "cue_guid": "11111111111111111111111111111111", "cue_label": "P01 Wing 001",
      "base_intensity": 300.0, "intensity_units": "LUMENS", "light_type": "POINT"},
 ]
-plan = tool.build_plan({}, P01_INVENTORY)
+BASE_ARGS = {"p01_opening_light_labels": [P01_INVENTORY[0]["label"]]}
+plan = tool.build_plan(BASE_ARGS, P01_INVENTORY)
 p = plan["params"]
 
 # A. positive creative-plan controls
@@ -53,13 +54,13 @@ check("A11 focal pull 15 to 25", plan["perspective_keys"][1][1] == 15 and plan["
 check("A12 curtain has hold fall pile", len(plan["curtain_sections"]) == 3)
 check("A13 curtain sections contiguous", plan["curtain_sections"][0][1] == plan["curtain_sections"][1][0] and plan["curtain_sections"][1][1] == plan["curtain_sections"][2][0])
 check("A14 old rig disabled not deleted", plan["disable_existing_bindings_prefix"] == "Opening Rig - ")
-check("A15 deterministic digest", plan["digest"] == tool.build_plan({}, P01_INVENTORY)["digest"])
+check("A15 deterministic digest", plan["digest"] == tool.build_plan(BASE_ARGS, P01_INVENTORY)["digest"])
 check("A16 every flurry has two corner peaks", all(sum(1 for x in plan["fixtures"] if x["role"] == "corner_pulse" and [f["frame"], p["corner_intensity_cd"]] in x["intensity_keys"]) == 2 for f in plan["flurries"]))
 check("A17 spots remain lit after movement", all(x["intensity_keys"][-2][1] > 0 for x in plan["fixtures"] if x["role"] == "moving_spot"))
 check("A18 end is dark", all(x["intensity_keys"][-1][1] == 0 for x in plan["fixtures"]))
 facade = [x for x in plan["fixtures"] if x["role"] == "facade_par"]
-check("A19 seven facade PARs", len(facade) == 7)
-check("A20 facade row spans args", facade[0]["world_location_cm"][1] == p["facade_par_y_min_cm"] and facade[-1]["world_location_cm"][1] == p["facade_par_y_max_cm"])
+check("A19 six non-bay-1 facade PARs", len(facade) == 6 and [x["facade_slot"] for x in facade] == [2,3,4,5,6,7])
+check("A20 facade subset ends at args max", facade[0]["world_location_cm"][1] > p["facade_par_y_min_cm"] and facade[-1]["world_location_cm"][1] == p["facade_par_y_max_cm"])
 check("A21 facade placed audience-side", all(x["world_location_cm"][0] < -75 for x in facade))
 check("A22 facade aims at valance plane", all(x["end_target_cm"][0] == -60 and x["end_target_cm"][2] == 1120 for x in facade))
 check("A23 facade warm and tight", all(x["temperature_kelvin"] == 2700 and x["outer_cone_deg"] == 9 for x in facade))
@@ -71,8 +72,8 @@ check("A28 P01 base identity preserved", plan["p01_lights"][0]["guid"] == P01_IN
 check("A29 pass-2 markers", {"P13 facade PARs on", "P13 P01 subset on"} <= {row[0] for row in plan["markers"]})
 
 # B. args and negative controls
-alt = tool.build_plan({"spot_count": 6, "curtain_flurry_index": 3, "spot_intensity_cd": 975,
-                       "spot_outer_cone_deg": 14, "spot_inner_cone_deg": 8}, P01_INVENTORY)
+alt = tool.build_plan(dict(BASE_ARGS, spot_count=6, curtain_flurry_index=3, spot_intensity_cd=975,
+                           spot_outer_cone_deg=14, spot_inner_cone_deg=8), P01_INVENTORY)
 check("B01 spot count arg", len([x for x in alt["fixtures"] if x["role"] == "moving_spot"]) == 6)
 check("B02 curtain index arg", alt["cue_frames"]["curtain_drop"] == alt["flurries"][2]["frame"])
 check("B03 intensity arg", all(x["intensity_cd"] == 975 for x in alt["fixtures"] if x["role"] == "moving_spot"))
@@ -92,10 +93,10 @@ raises("B16 -control facade y inverted", {"facade_par_y_min_cm": 10, "facade_par
 raises("B17 -control P01 labels not list", {"p01_opening_light_labels": "P01 X"}, "P01_LIGHT_LABELS")
 raises("B18 -control duplicate P01 label", {"p01_opening_light_labels": ["P01 X", "P01 X"]}, "P01_LIGHT_LABELS")
 raises("B19 -control full P01 intensity", {"p01_opening_intensity_scale": 1.0}, "P01_OPENING_INTENSITY_SCALE")
-raises("B20 -control missing live label", {}, "P01_LIGHT_INVENTORY", [])
+raises("B20 -control missing live label", BASE_ARGS, "P01_LIGHT_INVENTORY", [])
 zero_inventory = [dict(row) for row in P01_INVENTORY]
 zero_inventory[0]["base_intensity"] = 0.0
-raises("B21 -control zero live P01 intensity", {}, "P01_LIGHT_NOT_LIT_IN_P01", zero_inventory)
+raises("B21 -control zero live P01 intensity", BASE_ARGS, "P01_LIGHT_NOT_LIT_IN_P01", zero_inventory)
 two_labels = {"p01_opening_light_labels": [P01_INVENTORY[0]["label"], "P01 OTHER"]}
 raises("B22 -control incomplete live inventory", two_labels, "P01_LIGHT_INVENTORY", P01_INVENTORY[:1])
 

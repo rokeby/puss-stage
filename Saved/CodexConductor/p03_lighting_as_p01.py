@@ -1,4 +1,4 @@
-"""P16: make Passage 03 use Passage 01's lighting structure, but keep P03 colour.
+"""P16/P43: make a selected Passage use Passage 01's lighting structure.
 
 Offline-authored only.  The conductor runs this later through
 ``p03_lighting_as_p01_run.py``.  Modes are DRY / APPLY / REVERT.
@@ -77,6 +77,9 @@ C = _load("_fx_authoring_common")
 S = _load("_infinity_attachment_state")
 
 DEFAULTS = {
+    # Kept at 3 so the landed P03 REVERT contract remains byte-for-byte addressable.
+    # P43's P02 runner supplies 2 explicitly.
+    "target_passage_number": 3,
     "mode": "DRY",
     "confirm": "",
     "expected_plan_sha256": "",
@@ -95,6 +98,18 @@ DEFAULTS = {
         "footprint_half_z_cm": 6000.0,
     },
     "ack_records": [],
+    "performance_gate": {
+        "max_total_lights": 450,
+        "max_shadow_casting_lights": 125,
+        "max_volumetric_shadow_lights": 32,
+        "max_uncached_shadow_lights": 125,
+        "max_light_function_lights": 64,
+        "required_vsm_cvars": {
+            "r.Shadow.Virtual.Enable": {"equals": 1.0},
+            "r.Shadow.Virtual.OnePassProjection.MaxLightsPerPixel": {"min": 1.0, "max": 64.0},
+            "r.VolumetricFog.InjectShadowedLightsSeparately": {"min": 0.0, "max": 1.0},
+        },
+    },
 }
 
 
@@ -122,17 +137,53 @@ def finite(value, label):
     return value
 
 
+def target_context(number):
+    """Return every target-derived name in one place; no stale P03 literal may select data."""
+    require(isinstance(number, int) and not isinstance(number, bool) and 2 <= number <= 6,
+            "TARGET_PASSAGE_NUMBER|need integer 2..6")
+    prefix = "P%02d" % number
+    legacy = number == 3
+    stem = "p03_lighting_as_p01" if legacy else prefix.lower() + "_lighting_as_p01"
+    return {
+        "number": number,
+        "passage": "Passage %d" % number,
+        "prefix": prefix,
+        "mark": prefix + "ASP01",
+        "managed_prefix": "%s P01STRUCT" % prefix,
+        "record_path": os.path.join(HERE, stem + "_record.json"),
+        "args_path": os.path.join(HERE, stem + "_args.json"),
+        "stem": stem,
+        "backup": "Pre%sLightingAsP01-" % prefix,
+        "revert_backup": "Pre%sLightingAsP01Revert-" % prefix,
+    }
+
+
+def configure_target(number):
+    """Configure this single-shot Unreal script for the selected Passage."""
+    ctx = target_context(number)
+    globals().update({
+        "TARGET_PASSAGE": ctx["passage"], "TARGET_PREFIX": ctx["prefix"],
+        "MANAGED_PREFIX": ctx["managed_prefix"], "MARK": ctx["mark"],
+        "RECORD_PATH": ctx["record_path"], "ARGS_PATH": ctx["args_path"],
+    })
+    return ctx
+
+
 def check_args(raw):
     require(isinstance(raw, dict), "ARGS_NOT_OBJECT")
     unknown = sorted(set(raw) - set(DEFAULTS))
     require(not unknown, "ARGS_UNKNOWN|" + ",".join(unknown))
     out = copy.deepcopy(DEFAULTS)
     out.update(copy.deepcopy(raw))
+    target = out["target_passage_number"]
+    require(isinstance(target, int) and not isinstance(target, bool) and 2 <= target <= 6,
+            "TARGET_PASSAGE_NUMBER|need integer 2..6")
+    mark = target_context(target)["mark"]
     mode = str(out["mode"]).upper()
     require(mode in ("DRY", "APPLY", "REVERT"), "MODE_INVALID|" + mode)
     out["mode"] = mode
     if mode != "DRY":
-        require(out["confirm"] == "%s %s" % (mode, MARK), "CONFIRM_MISSING|want=%s %s" % (mode, MARK))
+        require(out["confirm"] == "%s %s" % (mode, mark), "CONFIRM_MISSING|want=%s %s" % (mode, mark))
     if mode == "APPLY":
         require(re.fullmatch(r"[0-9a-f]{64}", str(out["expected_plan_sha256"])), "EXPECTED_PLAN_SHA256_REQUIRED")
     require(isinstance(out["match_p01_atmosphere"], bool), "MATCH_ATMOS_NOT_BOOL")
@@ -151,6 +202,20 @@ def check_args(raw):
         require(atm[key] > 0.0, key.upper() + "_RANGE")
     require(isinstance(out["ack_records"], list) and all(isinstance(x, str) for x in out["ack_records"]),
             "ACK_RECORDS_INVALID")
+    gate = out["performance_gate"]
+    require(isinstance(gate, dict) and set(gate) == set(DEFAULTS["performance_gate"]), "PERF_GATE_KEYS")
+    for key in ("max_total_lights", "max_shadow_casting_lights", "max_volumetric_shadow_lights",
+                "max_uncached_shadow_lights", "max_light_function_lights"):
+        require(isinstance(gate[key], int) and not isinstance(gate[key], bool) and gate[key] >= 0,
+                "PERF_GATE_LIMIT|%s" % key)
+    rules = gate["required_vsm_cvars"]
+    require(isinstance(rules, dict) and rules, "PERF_GATE_VSM_RULES")
+    for name, rule in rules.items():
+        require(isinstance(name, str) and name and isinstance(rule, dict) and rule,
+                "PERF_GATE_VSM_RULE|%s" % name)
+        require(set(rule) <= {"equals", "min", "max"}, "PERF_GATE_VSM_RULE_KEYS|%s" % name)
+        for rkey, value in rule.items():
+            rule[rkey] = finite(value, "PERF_GATE_VSM_%s_%s" % (name, rkey))
     return out
 
 
@@ -323,6 +388,68 @@ def build_plan(source_cues, target_cues, args):
     }
     plan["plan_sha256"] = state_hash({k: v for k, v in plan.items() if k != "plan_sha256"})
     return plan
+
+
+def light_performance_metrics(plan):
+    """Count the exact post-plan LIGHT rows and the settings that amplify VSM/fog cost."""
+    rows = [row for target in plan["targets"]
+            for row in ([item["row"] for item in target["kept"]] + target["added_specs"])
+            if is_light(row) and bool(row.get("enabled", True))]
+    lighting = [row.get("lighting") or {} for row in rows]
+    return {
+        "total_lights": len(rows),
+        "shadow_casting_lights": sum(bool(item.get("cast_shadows", False)) for item in lighting),
+        "volumetric_shadow_lights": sum(bool(item.get("cast_shadows", False)) and
+                                         bool(item.get("cast_volumetric_shadow", False)) for item in lighting),
+        "uncached_shadow_lights": sum(bool(item.get("cast_shadows", False)) and not
+                                      bool(item.get("force_cached_shadows_for_movable_primitives", False))
+                                      for item in lighting),
+        "light_function_lights": sum(bool(item.get("light_function_material")) for item in lighting),
+    }
+
+
+def evaluate_performance_gate(plan, cvars, gate):
+    """Pure gate used by both live DRY/APPLY and the offline positive/negative harness."""
+    metrics = light_performance_metrics(plan)
+    mapping = {
+        "total_lights": "max_total_lights",
+        "shadow_casting_lights": "max_shadow_casting_lights",
+        "volumetric_shadow_lights": "max_volumetric_shadow_lights",
+        "uncached_shadow_lights": "max_uncached_shadow_lights",
+        "light_function_lights": "max_light_function_lights",
+    }
+    refusals = []
+    for metric, limit in mapping.items():
+        if metrics[metric] > gate[limit]:
+            refusals.append("%s=%d>%s=%d" % (metric, metrics[metric], limit, gate[limit]))
+    checked = {}
+    for name, rule in sorted(gate["required_vsm_cvars"].items()):
+        value = cvars.get(name)
+        checked[name] = value
+        if value is None:
+            refusals.append("vsm_cvar_missing=" + name)
+            continue
+        value = float(value)
+        if "equals" in rule and abs(value - float(rule["equals"])) > FLOAT_TOL:
+            refusals.append("%s=%s!=%s" % (name, value, rule["equals"]))
+        if "min" in rule and value < float(rule["min"]):
+            refusals.append("%s=%s<%s" % (name, value, rule["min"]))
+        if "max" in rule and value > float(rule["max"]):
+            refusals.append("%s=%s>%s" % (name, value, rule["max"]))
+    return {"ok": not refusals, "metrics": metrics, "cvars": checked,
+            "limits": copy.deepcopy(gate), "refusals": refusals}
+
+
+def _live_performance_gate(plan, gate):
+    cvars = {}
+    for name in gate["required_vsm_cvars"]:
+        try:
+            cvars[name] = float(unreal.SystemLibrary.get_console_variable_float_value(name))
+        except Exception:
+            cvars[name] = None
+    result = evaluate_performance_gate(plan, cvars, gate)
+    require(result["ok"], "PERF_GATE_REFUSED|" + ";".join(result["refusals"]))
+    return result
 
 
 def atmos_plan(source_actors, target_actors, target_bay_count, enabled=True):
@@ -899,7 +1026,7 @@ def _verify_rows(show, plan, side):
 def _foreign_records():
     rows = []
     for name in os.listdir(HERE):
-        if not (name.endswith(".json") and "record" in name.lower() and "p03" in name.lower()):
+        if not (name.endswith(".json") and "record" in name.lower() and TARGET_PREFIX.lower() in name.lower()):
             continue
         path = os.path.join(HERE, name)
         if path == RECORD_PATH:
@@ -923,11 +1050,13 @@ def _context():
 
 
 def _report_path(mode, run):
-    return os.path.join(HERE, "p03_lighting_as_p01_report_%s_%s.json" % (mode, run))
+    return os.path.join(HERE, "%s_lighting_as_p01_report_%s_%s.json" %
+                        (TARGET_PREFIX.lower(), mode, run))
 
 
 def _preview_path(mode, run):
-    return os.path.join(HERE, "p03_lighting_as_p01_preview_%s_%s.png" % (mode, run))
+    return os.path.join(HERE, "%s_lighting_as_p01_preview_%s_%s.png" %
+                        (TARGET_PREFIX.lower(), mode, run))
 
 
 def _log_table(run, plan):
@@ -936,7 +1065,7 @@ def _log_table(run, plan):
         added = ",".join(r["label"] for r in t["added_specs"]) or "-"
         kept = ",".join("%s{%s}" % (k["row"]["label"], k["reason"]) for k in t["kept"]
                         if is_light(k["row"]) or is_effect(k["row"])) or "-"
-        unreal.log("%s_DRY_ROW|run=%s|p03=%02d|p01=%02d|removed=%s|added=%s|kept=%s" %
+        unreal.log("%s_DRY_ROW|run=%s|target=%02d|p01=%02d|removed=%s|added=%s|kept=%s" %
                    (MARK, run, t["ordinal"], t["source_ordinal"], removed, added, kept))
 
 
@@ -993,20 +1122,21 @@ def _run(args):
             record = C.load_json(RECORD_PATH)
             require(record.get("status") == "saved_readback_verified", "REVERT_RECORD_STATUS")
             _verify_rows(show, record["plan"], "after")
-            p03_actor = _passage_actor(show, 3)
-            current_atmos = _actor_readback(record.get("atmos_after", []), p03_actor,
+            target_number = int(record["args"].get("target_passage_number", 3))
+            target_actor = _passage_actor(show, target_number)
+            current_atmos = _actor_readback(record.get("atmos_after", []), target_actor,
                                             record["args"]["atmosphere"], TARGET_PREFIX)
             _require_actor_rows(current_atmos, record.get("atmos_after", []), "REVERT_ATMOS_DRIFT")
-            backup = C.backup_packages(unreal, "PreP03LightingAsP01Revert-", run,
+            backup = C.backup_packages(unreal, target_context(target_number)["revert_backup"], run,
                                        [C.SHOW_PATH, C.EXPECTED_WORLD])
             for row in record.get("atmos_before", []):
-                _restore_actor_state(row, p03_actor)
+                _restore_actor_state(row, target_actor)
             _restore_lights(show, record["plan"])
             require(_outside_hash(show, record["plan"]["target_cue_guids"]) == record["outside_before_hash"],
                     "REVERT_OUTSIDE_CHANGED")
-            materialized = C.find_passage_actor(unreal, show, 3).materialize_passage()
-            require(bool(materialized), "P03_MATERIALIZE_FAILED")
-            restored_atmos = _actor_readback(record.get("atmos_before", []), p03_actor,
+            materialized = C.find_passage_actor(unreal, show, target_number).materialize_passage()
+            require(bool(materialized), "%s_MATERIALIZE_FAILED" % TARGET_PREFIX)
+            restored_atmos = _actor_readback(record.get("atmos_before", []), target_actor,
                                              record["args"]["atmosphere"], TARGET_PREFIX)
             _require_actor_rows(restored_atmos, record.get("atmos_before", []), "REVERT_ATMOS_READBACK")
             expected_dirty = {"content": [C.SHOW_PATH], "maps": [C.EXPECTED_WORLD]}
@@ -1014,7 +1144,7 @@ def _run(args):
             C.save_show_and_level(unreal)
             show_rb = unreal.EditorAssetLibrary.load_asset(C.SHOW_PATH)
             _verify_rows(show_rb, record["plan"], "before")
-            restored_saved = _actor_readback(record.get("atmos_before", []), p03_actor,
+            restored_saved = _actor_readback(record.get("atmos_before", []), target_actor,
                                               record["args"]["atmosphere"], TARGET_PREFIX)
             _require_actor_rows(restored_saved, record.get("atmos_before", []), "REVERT_ATMOS_SAVED_READBACK")
             command = C.queue_saved_master_test(unreal, world, MARK + "_REVERT", run)
@@ -1033,12 +1163,15 @@ def _run(args):
                      "target_cue_guids": [t["cue_guid"] for t in plan["targets"]]})
         # Hash includes live passage identity but excludes itself.
         plan["plan_sha256"] = state_hash({k: v for k, v in plan.items() if k != "plan_sha256"})
+        target_number = int(args["target_passage_number"])
         p01_actor, p01_atmos = _atmos_actors(show, 1, args["atmosphere"])
-        p03_actor, p03_atmos = _atmos_actors(show, 3, args["atmosphere"])
-        atmosphere = atmos_plan(p01_atmos, p03_atmos, len(target), args["match_p01_atmosphere"])
+        target_actor, target_atmos = _atmos_actors(show, target_number, args["atmosphere"])
+        atmosphere = atmos_plan(p01_atmos, target_atmos, len(target), args["match_p01_atmosphere"])
+        performance_gate = _live_performance_gate(plan, args["performance_gate"])
         foreign = _foreign_records()
         special_level_actors = _special_level_actors(show, args)
         report.update({"dirty_before": dirty_before, "plan": plan, "atmosphere": atmosphere,
+                       "performance_gate": performance_gate,
                        "foreign_active_records": foreign, "kept_special_level_actors": special_level_actors})
         preview = write_preview_png(_preview_path(mode, run), plan)
         report["preview"] = preview
@@ -1050,11 +1183,14 @@ def _run(args):
             require(C.dirty_census(unreal) == dirty_before, "DRY_CHANGED_CENSUS")
             report.update({"ok": True, "mutated": False, "dirty_after": C.dirty_census(unreal)})
             C.write_json(_report_path(mode, run), report)
-            unreal.log("%s_DRY_OK|run=%s|p01_bays=%d|p03_bays=%d|removed=%d|added=%d|kept_specials=%d|"
-                       "wrapped=%d|fallback_colours=%d|atmos_changes=%d|plan_sha256=%s|preview=%s|mutated=0" %
+            unreal.log("%s_DRY_OK|run=%s|p01_bays=%d|target_bays=%d|removed=%d|added=%d|kept_specials=%d|"
+                       "wrapped=%d|fallback_colours=%d|atmos_changes=%d|lights=%d|shadow_casters=%d|"
+                       "plan_sha256=%s|preview=%s|mutated=0" %
                        (MARK, run, plan["source_bays"], plan["target_bays"], plan["counts"]["removed_lights"],
                         plan["counts"]["added_lights"], plan["counts"]["kept_specials"], int(plan["wrapped"]),
-                        plan["counts"]["dominant_fallbacks"], len(atmosphere["changes"]), plan["plan_sha256"],
+                        plan["counts"]["dominant_fallbacks"], len(atmosphere["changes"]),
+                        performance_gate["metrics"]["total_lights"],
+                        performance_gate["metrics"]["shadow_casting_lights"], plan["plan_sha256"],
                         preview["path"]))
             return report
 
@@ -1065,9 +1201,11 @@ def _run(args):
         require(not unacked, "FOREIGN_ACTIVE_RECORDS_UNACKNOWLEDGED|" + ";".join(unacked))
         require(not os.path.exists(RECORD_PATH), "ACTIVE_REVERT_RECORD_EXISTS")
         outside_before = _outside_hash(show, plan["target_cue_guids"])
-        backup = C.backup_packages(unreal, "PreP03LightingAsP01-", run, [C.SHOW_PATH, C.EXPECTED_WORLD])
+        backup = C.backup_packages(unreal, target_context(target_number)["backup"], run,
+                                   [C.SHOW_PATH, C.EXPECTED_WORLD])
         record = {"schema_version": 1, "status": "prepared", "run": run, "args": args, "plan": plan,
-                  "atmosphere": atmosphere, "atmos_before": p03_atmos, "backup": backup,
+                  "atmosphere": atmosphere, "atmos_before": target_atmos, "backup": backup,
+                  "performance_gate": performance_gate,
                   "outside_before_hash": outside_before, "acknowledged_records": sorted(ack)}
         C.write_json(RECORD_PATH, record, exclusive=True)
         try:
@@ -1075,27 +1213,27 @@ def _run(args):
             if atmosphere["enabled"]:
                 for change in atmosphere["changes"]:
                     if change["action"] == "match_beam_actor":
-                        _apply_actor_state(change["target"], p03_actor, source=change["source"])
+                        _apply_actor_state(change["target"], target_actor, source=change["source"])
                     elif change["action"] == "zero_lfv":
-                        _apply_actor_state(change["target"], p03_actor, zero_lfv=True)
+                        _apply_actor_state(change["target"], target_actor, zero_lfv=True)
                     else:
-                        _apply_actor_state(change["target"], p03_actor, suppress=True)
-            record["atmos_after"] = _actor_readback(p03_atmos, p03_actor, args["atmosphere"], TARGET_PREFIX)
+                        _apply_actor_state(change["target"], target_actor, suppress=True)
+            record["atmos_after"] = _actor_readback(target_atmos, target_actor, args["atmosphere"], TARGET_PREFIX)
             _verify_atmos_result(atmosphere, record["atmos_after"], "ATMOS_WRITE_READBACK")
         except Exception as original:
             import traceback
             unreal.log_error("%s_ORIGINAL_ERROR|run=%s|%r|%s" % (MARK, run, original,
                              traceback.format_exc().replace(chr(10), " / ")[-1500:]))
             _restore_lights(show, plan)
-            for row in p03_atmos:
-                _restore_actor_state(row, p03_actor)
+            for row in target_atmos:
+                _restore_actor_state(row, target_actor)
             record["status"] = "failed_rolled_back_in_memory"
             C.write_json(RECORD_PATH, record)
             os.rename(RECORD_PATH, RECORD_PATH + ".failed-" + run)
             raise
         _verify_rows(show, plan, "after")
-        require(_outside_hash(show, plan["target_cue_guids"]) == outside_before, "OUTSIDE_P03_CHANGED")
-        require(bool(p03_actor.materialize_passage()), "P03_MATERIALIZE_FAILED")
+        require(_outside_hash(show, plan["target_cue_guids"]) == outside_before, "OUTSIDE_TARGET_CHANGED")
+        require(bool(target_actor.materialize_passage()), "%s_MATERIALIZE_FAILED" % TARGET_PREFIX)
         expected_dirty = {"content": [C.SHOW_PATH], "maps": [C.EXPECTED_WORLD]}
         require(C.dirty_census(unreal) == expected_dirty, "APPLY_DIRTY_SCOPE|%s" % C.dirty_census(unreal))
         record.update({"status": "mutated_verified", "plan": plan, "added_count": added})
@@ -1103,7 +1241,7 @@ def _run(args):
         C.save_show_and_level(unreal)
         show_rb = unreal.EditorAssetLibrary.load_asset(C.SHOW_PATH)
         _verify_rows(show_rb, plan, "after")
-        saved_atmos = _actor_readback(record["atmos_after"], p03_actor, args["atmosphere"], TARGET_PREFIX)
+        saved_atmos = _actor_readback(record["atmos_after"], target_actor, args["atmosphere"], TARGET_PREFIX)
         _require_actor_rows(saved_atmos, record["atmos_after"], "ATMOS_SAVED_READBACK")
         _verify_atmos_result(atmosphere, saved_atmos, "ATMOS_SAVED_SEMANTICS")
         record.update({"status": "saved_readback_verified", "saved_census": C.dirty_census(unreal)})
@@ -1132,7 +1270,9 @@ def _run(args):
 def main(raw=None):
     if raw is None:
         raw = C.load_json(ARGS_PATH) if os.path.isfile(ARGS_PATH) else {}
-    return _run(check_args(raw))
+    checked = check_args(raw)
+    configure_target(checked["target_passage_number"])
+    return _run(checked)
 
 
 if unreal is not None and __name__ in ("__main__", "__p03_lighting_as_p01_runner__"):

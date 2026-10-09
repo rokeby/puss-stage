@@ -105,7 +105,11 @@ DEFAULTS = {
     "corner_pulse_release_s": 0.55,
     # Pass 2: a row just audience-side of the paper proscenium (board fronts x -75/-60).
     # All values are inferred look proposals and remain args for Gary.
+    # Seven authored slots exist across the facade; Gary refused slot 1 / the
+    # bay-1 practical.  The exact six-slot subset is data, never a selector.
     "facade_par_count": 7,
+    "facade_par_indices": [2, 3, 4, 5, 6, 7],
+    "parcan_mesh_path": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan",
     "facade_par_intensity_cd": 2600.0,
     "facade_par_fade_in_s": 0.35,
     "facade_par_outer_cone_deg": 9.0,
@@ -126,7 +130,7 @@ DEFAULTS = {
     "facade_par_aim_x_cm": -60.0,
     "facade_par_aim_z_cm": 1120.0,
     # Exact labels only: no role/substring selector may silently widen this subset.
-    "p01_opening_light_labels": ["P01 SCORE B01 VOID PRACTICAL_DEAD"],
+    "p01_opening_light_labels": [],
     "p01_opening_intensity_scale": 0.35,
     "p01_opening_fade_in_s": 0.75,
     "p01_full_rise_s": 0.80,
@@ -214,6 +218,10 @@ def merge_args(overrides=None):
     if not isinstance(p["p01_opening_light_labels"], list):
         raise P13Error("P01_LIGHT_LABELS|must be a list")
     p["p01_opening_light_labels"] = [str(v).strip() for v in p["p01_opening_light_labels"]]
+    if not isinstance(p["facade_par_indices"], list):
+        raise P13Error("FACADE_PAR_INDICES|must be a list")
+    p["facade_par_indices"] = [int(v) for v in p["facade_par_indices"]]
+    p["parcan_mesh_path"] = str(p["parcan_mesh_path"]).strip().split(".")[0]
     for name in ("fps", "opening_end_s", "spot_intensity_cd", "spot_hold_scale", "spot_fade_in_s",
                  "spot_fade_out_s", "spot_outer_cone_deg", "spot_inner_cone_deg", "spot_falloff_exponent",
                  "corner_intensity_cd", "corner_outer_cone_deg", "corner_inner_cone_deg",
@@ -232,10 +240,18 @@ def merge_args(overrides=None):
         raise P13Error("SPOT_COUNT|must be 2..8")
     if not (3 <= p["facade_par_count"] <= 15):
         raise P13Error("FACADE_PAR_COUNT|must be 3..15")
-    if not p["p01_opening_light_labels"] or any(not label for label in p["p01_opening_light_labels"]):
-        raise P13Error("P01_LIGHT_LABELS|need non-empty exact labels")
+    if any(not label for label in p["p01_opening_light_labels"]):
+        raise P13Error("P01_LIGHT_LABELS|empty exact label")
     if len(set(p["p01_opening_light_labels"])) != len(p["p01_opening_light_labels"]):
         raise P13Error("P01_LIGHT_LABELS|duplicates")
+    if not p["facade_par_indices"] or len(set(p["facade_par_indices"])) != len(p["facade_par_indices"]):
+        raise P13Error("FACADE_PAR_INDICES|need unique non-empty indices")
+    if any(v < 1 or v > p["facade_par_count"] for v in p["facade_par_indices"]):
+        raise P13Error("FACADE_PAR_INDICES|outside 1..facade_par_count")
+    if 1 in p["facade_par_indices"]:
+        raise P13Error("BAY1_PRACTICAL_REFUSED|facade slot 1 must stay absent")
+    if not p["parcan_mesh_path"].startswith("/Game/"):
+        raise P13Error("PARCAN_MESH_PATH")
     if p["flurry_times_s"] != sorted(p["flurry_times_s"]) or len(p["flurry_times_s"]) < 3:
         raise P13Error("FLURRIES|need at least three strictly ordered seconds")
     if len(set(p["flurry_times_s"])) != len(p["flurry_times_s"]):
@@ -386,7 +402,7 @@ def build_plan(overrides=None, p01_inventory=None):
             "cast_shadows": p["corner_cast_shadows"], "cast_volumetric_shadows": p["corner_cast_volumetric_shadows"],
         })
     par_fade = max(1, frame(p["facade_par_fade_in_s"], fps))
-    for i in range(p["facade_par_count"]):
+    for i in (index - 1 for index in p["facade_par_indices"]):
         alpha = 0.5 if p["facade_par_count"] == 1 else i / float(p["facade_par_count"] - 1)
         y = p["facade_par_y_min_cm"] + alpha * (p["facade_par_y_max_cm"] - p["facade_par_y_min_cm"])
         origin = [p["facade_par_world_x_cm"], y, p["facade_par_world_z_cm"]]
@@ -394,6 +410,7 @@ def build_plan(overrides=None, p01_inventory=None):
         rotation = aim_rotation(origin, target)
         fixtures.append({
             "label": "P13 Facade PAR %02d" % (i + 1), "role": "facade_par", "type": "SPOT",
+            "housing_mesh": p["parcan_mesh_path"], "facade_slot": i + 1,
             "world_location_cm": origin,
             "relative_location_cm": [origin[0] - p["station_world_x_cm"], origin[1], origin[2]],
             "start_target_cm": target, "end_target_cm": target,
@@ -456,7 +473,7 @@ def validate_plan(plan):
     if plan["curtain_sections"][1][1] >= plan["opening_end_frame"]:
         out.append("CURTAIN_NOT_LANDED")
     labels = [f["label"] for f in plan["fixtures"]]
-    if len(labels) != len(set(labels)) or len(labels) != p["spot_count"] + 2 + p["facade_par_count"]:
+    if len(labels) != len(set(labels)) or len(labels) != p["spot_count"] + 2 + len(p["facade_par_indices"]):
         out.append("FIXTURE_LABELS")
     for fx in plan["fixtures"]:
         if fx["inner_cone_deg"] >= fx["outer_cone_deg"]:
@@ -466,14 +483,45 @@ def validate_plan(plan):
         frames = [row[0] for row in fx["intensity_keys"]]
         if frames != sorted(frames):
             out.append("INTENSITY_ORDER|" + fx["label"])
-    if not all(fx["role"] == "facade_par" for fx in plan["fixtures"][-p["facade_par_count"]:]):
+    facade = [fx for fx in plan["fixtures"] if fx["role"] == "facade_par"]
+    if len(facade) != len(p["facade_par_indices"]):
         out.append("FACADE_PAR_ROWS")
+    if [fx.get("facade_slot") for fx in facade] != p["facade_par_indices"]:
+        out.append("FACADE_PAR_SUBSET")
+    meshes = {fx.get("housing_mesh") for fx in facade}
+    if meshes != {p["parcan_mesh_path"]}:
+        out.append("FACADE_PAR_MESHES|%r" % sorted(str(v) for v in meshes))
     if [row["label"] for row in plan["p01_lights"]] != p["p01_opening_light_labels"]:
         out.append("P01_LIGHT_LABEL_DRIFT")
     for row in plan["p01_lights"]:
         if row["intensity_keys"] is not None and [key[0] for key in row["intensity_keys"]] != sorted(key[0] for key in row["intensity_keys"]):
             out.append("P01_INTENSITY_ORDER|" + row["label"])
     return [x for x in out if x]
+
+
+def parcan_mesh_audit(fixtures, expected_mesh, show_inventory=()):
+    """Pure audit: planned facade placements must share one model; foreign models are reported."""
+    expected = str(expected_mesh).split(".")[0]
+    planned = [{"label": row["label"], "mesh": str(row.get("housing_mesh", "")).split(".")[0]}
+               for row in fixtures if row.get("role") == "facade_par"]
+    other = [dict(row) for row in show_inventory if str(row.get("mesh", "")).split(".")[0] != expected]
+    missing = [row["label"] for row in planned if not row["mesh"]]
+    mismatched = [row for row in planned if row["mesh"] and row["mesh"] != expected]
+    return {"ok": bool(planned) and not missing and not mismatched,
+            "expected_mesh": expected, "planned": planned, "planned_count": len(planned),
+            "missing": missing, "mismatched": mismatched, "other_parcan_models_in_show": other}
+
+
+def _live_parcan_inventory():
+    rows = []
+    for actor in _actors():
+        for component in actor.get_components_by_class(unreal.StaticMeshComponent):
+            mesh = component.get_editor_property("static_mesh")
+            path = None if mesh is None else str(mesh.get_path_name()).split(".")[0]
+            label = str(actor.get_actor_label())
+            if "parcan" in (path or "").lower() or "par can" in label.lower() or "facade par" in label.lower():
+                rows.append({"actor": label, "component": str(component.get_name()), "mesh": path})
+    return sorted(rows, key=lambda row: (row["actor"], row["component"], str(row["mesh"])))
 
 
 def preflight_refusals(mode, state):
@@ -1142,17 +1190,21 @@ def _report_paths(run):
 
 def run_dry(run,args,confirm):
     show,seq,idx,target,_,p01_cues=_context("DRY",confirm,run); params=merge_args(args); inventory=_selected_p01_inventory(p01_cues,params["p01_opening_light_labels"],run); plan=build_plan(args,inventory); before=_snapshot_live(seq,target); env=load_envelope(plan["params"].get("analysis_path")); root=os.path.join(_project_root(),"DerivedAssets","OpeningLighting")
+    mesh_audit=parcan_mesh_audit(plan["fixtures"],params["parcan_mesh_path"],_live_parcan_inventory())
+    if not mesh_audit["ok"]:_stop(run,"PARCAN_MESH_AUDIT|"+canonical(mesh_audit))
     rig=write_rig_diagram(os.path.join(root,"P13_opening_rig_top_front.png"),plan); timeline=write_timeline(os.path.join(root,"P13_opening_cue_timeline.png"),plan,env)
-    report={"schema_version":2,"mode":"DRY","run":run,"apply_ready":before["curtain_asset"]==plan["params"]["curtain_cache_path"],"mutated":False,"plan":plan,"plan_digest":plan["digest"],"live_before":before,"previews":{"rig":rig,"timeline":timeline},"claims":CLAIMS,"warnings":["APPLY_NOT_RUN","VISUAL_ACCEPTANCE_PENDING","facade PAR placement and look are inferred defaults pending Gary","P01 subset is exact-label and scaled from the live P01 intensity","perspective is focal-only; camera translation is untouched"]}
+    report={"schema_version":2,"mode":"DRY","run":run,"apply_ready":before["curtain_asset"]==plan["params"]["curtain_cache_path"],"mutated":False,"plan":plan,"plan_digest":plan["digest"],"live_before":before,"parcan_mesh_audit":mesh_audit,"previews":{"rig":rig,"timeline":timeline},"claims":CLAIMS,"warnings":["APPLY_NOT_RUN","VISUAL_ACCEPTANCE_PENDING","facade PAR placement and look are inferred defaults pending Gary","bay-1 practical is refused; facade subset is exact indices","other_parcan_models_in_show is a report, not an automatic rewrite","perspective is focal-only; camera translation is untouched"]}
     out,pf=_report_paths(run); write_json(out,report); write_json(pf,{"run":run,"plan_digest":plan["digest"],"target_cue_guid":_guid(target.get_editor_property("cue_guid")),"sequence":seq.get_path_name().split('.')[0],"args":args})
     if _census()!={"content":[],"maps":[]}:_stop(run,"DRY_DIRTIED|"+canonical(_census()))
-    unreal.log("P13_OPENING_LIGHTING_DRY_OK|run=%s|mutated=0|spots=%d|facade_pars=%d|p01_subset=%d|curtain_frame=%d|lights_frame=%d|perspective_frame=%d|report=%s"%(run,plan["params"]["spot_count"],plan["params"]["facade_par_count"],len(plan["p01_lights"]),plan["cue_frames"]["curtain_drop"],plan["cue_frames"]["lights_on"],plan["cue_frames"]["perspective"],out))
+    unreal.log("P13_OPENING_LIGHTING_DRY_OK|run=%s|mutated=0|spots=%d|facade_pars=%d|p01_subset=%d|parcan_mesh=%s|other_parcan_models=%d|curtain_frame=%d|lights_frame=%d|perspective_frame=%d|report=%s"%(run,plan["params"]["spot_count"],len(plan["params"]["facade_par_indices"]),len(plan["p01_lights"]),mesh_audit["expected_mesh"],len(mesh_audit["other_parcan_models_in_show"]),plan["cue_frames"]["curtain_drop"],plan["cue_frames"]["lights_on"],plan["cue_frames"]["perspective"],out))
 
 
 def run_apply(run,args,confirm):
     show,seq,idx,target,_,p01_cues=_context("APPLY",confirm,run); params=merge_args(args); inventory=_selected_p01_inventory(p01_cues,params["p01_opening_light_labels"],run); plan=build_plan(args,inventory); pf=load_json(os.path.join(_here(),PLAN_NAME)) or {}; target_guid=_guid(target.get_editor_property("cue_guid")); seq_path=seq.get_path_name().split('.')[0]
+    mesh_audit=parcan_mesh_audit(plan["fixtures"],params["parcan_mesh_path"],_live_parcan_inventory())
+    if not mesh_audit["ok"]:_stop(run,"PARCAN_MESH_AUDIT|"+canonical(mesh_audit))
     if pf.get("plan_digest")!=plan["digest"] or pf.get("target_cue_guid")!=target_guid or pf.get("sequence")!=seq_path:_stop(run,"PLAN_CHANGED_SINCE_DRY")
-    before=_snapshot_live(seq,target); backup=_backup([SHOW_PATH,seq_path,LEVEL_PATH],run); record_path=os.path.join(_here(),RECORD_NAME); record={"schema_version":2,"run":run,"status":"recorded_before_mutation","plan":plan,"plan_digest":plan["digest"],"show":SHOW_PATH,"sequence":seq_path,"level":LEVEL_PATH,"target_cue_guid":target_guid,"target_index":idx,"before":before,"backup":backup,"dirty_before":_census()}; write_json(record_path,record,exclusive=True)
+    before=_snapshot_live(seq,target); backup=_backup([SHOW_PATH,seq_path,LEVEL_PATH],run); record_path=os.path.join(_here(),RECORD_NAME); record={"schema_version":2,"run":run,"status":"recorded_before_mutation","plan":plan,"plan_digest":plan["digest"],"show":SHOW_PATH,"sequence":seq_path,"level":LEVEL_PATH,"target_cue_guid":target_guid,"target_index":idx,"before":before,"backup":backup,"dirty_before":_census(),"parcan_mesh_audit":mesh_audit}; write_json(record_path,record,exclusive=True)
     try:
         added=_mint(show,idx,plan,run); record["added_attachments"]=added; record["status"]="show_mutated"; write_json(record_path,record)
         passage=_passage_actor(show)
@@ -1173,7 +1225,7 @@ def run_apply(run,args,confirm):
         want_content={SHOW_PATH,seq_path}; want_maps={LEVEL_PATH}; census=_census()
         if set(census["content"])!=want_content or set(census["maps"])!=want_maps:_stop(run,"DIRTY_PRESAVE|"+canonical(census))
         _save(SHOW_PATH,seq_path); record["saved_readback"]=_verify_saved_apply(plan,record); record["status"]="saved_readback_verified"; record["dirty_after"]=_census(); write_json(record_path,record)
-        unreal.log("P13_OPENING_LIGHTING_APPLY_OK|run=%s|attachments=%d|facade_pars=%d|p01_subset=%d|old_rig_disabled=%d|saved=%s,%s,%s|backup=%s|record=%s"%(run,len(added),plan["params"]["facade_par_count"],len(plan["p01_lights"]),len(disabled),SHOW_PATH,seq_path,LEVEL_PATH,backup["root"],record_path))
+        unreal.log("P13_OPENING_LIGHTING_APPLY_OK|run=%s|attachments=%d|facade_pars=%d|p01_subset=%d|parcan_mesh=%s|old_rig_disabled=%d|saved=%s,%s,%s|backup=%s|record=%s"%(run,len(added),len(plan["params"]["facade_par_indices"]),len(plan["p01_lights"]),plan["params"]["parcan_mesh_path"],len(disabled),SHOW_PATH,seq_path,LEVEL_PATH,backup["root"],record_path))
     finally:
         if unreal.LevelSequenceEditorBlueprintLibrary.get_current_level_sequence() is not None:unreal.LevelSequenceEditorBlueprintLibrary.close_level_sequence()
 
@@ -1217,7 +1269,7 @@ def offline_preview_main():
     rig=write_rig_diagram(os.path.join(root,"P13_opening_rig_top_front.png"),plan)
     timeline=write_timeline(os.path.join(root,"P13_opening_cue_timeline.png"),plan,env)
     print("P13_OPENING_LIGHTING_PREVIEW_OK|digest=%s|facade_pars=%d|p01_subset=%d|rig=%s|timeline=%s"%
-          (plan["digest"],plan["params"]["facade_par_count"],len(plan["p01_lights"]),rig["path"],timeline["path"]))
+          (plan["digest"],len(plan["params"]["facade_par_indices"]),len(plan["p01_lights"]),rig["path"],timeline["path"]))
 
 
 def main():

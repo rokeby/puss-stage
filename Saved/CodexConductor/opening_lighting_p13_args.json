@@ -68,6 +68,8 @@
   "corner_pulse_attack_s": 0.08,
   "corner_pulse_release_s": 0.55,
   "facade_par_count": 7,
+  "facade_par_indices": [2, 3, 4, 5, 6, 7],
+  "parcan_mesh_path": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan",
   "facade_par_intensity_cd": 2600.0,
   "facade_par_fade_in_s": 0.35,
   "facade_par_outer_cone_deg": 9.0,
@@ -91,9 +93,7 @@
   "facade_par_world_z_cm": 45.0,
   "facade_par_aim_x_cm": -60.0,
   "facade_par_aim_z_cm": 1120.0,
-  "p01_opening_light_labels": [
-   "P01 SCORE B01 VOID PRACTICAL_DEAD"
-  ],
+  "p01_opening_light_labels": [],
   "p01_opening_intensity_scale": 0.35,
   "p01_opening_fade_in_s": 0.75,
   "p01_full_rise_s": 0.8,
@@ -108,5 +108,5 @@
   "curtain_cache_path": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
   "analysis_path": "DerivedAssets/MusicAnalysis/Opening.json"
  },
- "conductor_note": "P30 pass 2, not applied: Gary's order is 1 curtain, 2 all lights including 7 facade PARs + exact first-bay P01 practical subset, 3 move in. Every look value remains an arg."
+ "conductor_note": "P43/P30 pass 2, not applied: slot 1 / bay-1 practical refused; exact facade subset is slots 2-7 (six PARs), all using one SM_Lantern_ParCan model. Gary's order remains 1 curtain, 2 lights, 3 move in."
 }
