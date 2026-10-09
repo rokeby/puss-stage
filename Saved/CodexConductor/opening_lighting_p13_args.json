@@ -67,6 +67,36 @@
   "corner_aim_z_cm": 430.0,
   "corner_pulse_attack_s": 0.08,
   "corner_pulse_release_s": 0.55,
+  "facade_par_count": 7,
+  "facade_par_intensity_cd": 2600.0,
+  "facade_par_fade_in_s": 0.35,
+  "facade_par_outer_cone_deg": 9.0,
+  "facade_par_inner_cone_deg": 4.0,
+  "facade_par_falloff_exponent": 12.0,
+  "facade_par_source_radius_cm": 3.0,
+  "facade_par_soft_source_radius_cm": 6.0,
+  "facade_par_temperature_kelvin": 2700.0,
+  "facade_par_color_rgb_linear": [
+   1.0,
+   0.72,
+   0.42
+  ],
+  "facade_par_attenuation_cm": 1800.0,
+  "facade_par_volumetric_scattering": 0.4,
+  "facade_par_cast_shadows": true,
+  "facade_par_cast_volumetric_shadows": false,
+  "facade_par_world_x_cm": -135.0,
+  "facade_par_y_min_cm": -850.0,
+  "facade_par_y_max_cm": 850.0,
+  "facade_par_world_z_cm": 45.0,
+  "facade_par_aim_x_cm": -60.0,
+  "facade_par_aim_z_cm": 1120.0,
+  "p01_opening_light_labels": [
+   "P01 SCORE B01 VOID PRACTICAL_DEAD"
+  ],
+  "p01_opening_intensity_scale": 0.35,
+  "p01_opening_fade_in_s": 0.75,
+  "p01_full_rise_s": 0.8,
   "perspective_start_mm": 15.0,
   "perspective_end_mm": 25.0,
   "perspective_duration_s": 2.4,
@@ -78,5 +108,5 @@
   "curtain_cache_path": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
   "analysis_path": "DerivedAssets/MusicAnalysis/Opening.json"
  },
- "conductor_note": "8 Oct: flurry peaks from P11 (Opening.json); Gary's order: 1 curtain falls, 2 lights (parcans on the facade + some P01 lights inside), 3 move in to the stage"
+ "conductor_note": "P30 pass 2, not applied: Gary's order is 1 curtain, 2 all lights including 7 facade PARs + exact first-bay P01 practical subset, 3 move in. Every look value remains an arg."
 }

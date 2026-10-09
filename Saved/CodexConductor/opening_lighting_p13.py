@@ -1,11 +1,12 @@
 """P13 opening-lighting proposal (8 Oct 2026; authored offline, never run here).
 
 DRY/APPLY/REVERT tool for the Show-owned opening lamps and the Opening sequence.
-The first P01 WingPair cue owns every new light attachment.  The Opening sequence
-drives those attachments through UInfinityStageAttachmentBinding, whose GUID tag
-survives Passage materialization.  APPLY also disables (never deletes) the old
-``Opening Rig - *`` spawnables, re-times the existing curtain Geometry Cache, and
-places the focal-length perspective adjustment on the selected flurry.
+The first P01 WingPair cue owns every new light attachment, including the facade
+PAR row.  The Opening sequence drives those attachments and an exact, args-owned
+subset of existing P01 lights through UInfinityStageAttachmentBinding, whose GUID
+tag survives Passage materialization.  APPLY also disables (never deletes) the
+old ``Opening Rig - *`` spawnables, re-times the existing curtain Geometry Cache,
+and places the focal-length perspective adjustment on the selected flurry.
 
 Globals supplied by opening_lighting_p13_run.py:
   P13_MODE = DRY|APPLY|REVERT
@@ -45,11 +46,13 @@ ANALYSIS_FALLBACK = os.path.join("Saved", "InfinityStage", "MusicAnalysis", "Ope
                                  "P01_Opening_Tuning_sketch2.analysis.json")
 P11_GLOB_HINT = os.path.join("DerivedAssets", "MusicAnalysis")
 MODES = ("DRY", "APPLY", "REVERT")
+FLOAT_TOLERANCE = 1.0e-4
+ROTATION_TOLERANCE_DEG = 1.0e-3
 
 DEFAULTS = {
-    # P11 had not landed in this worktree.  These are args, not claimed musical truth.
-    "flurry_times_s": [36.1767, 43.8393, 59.5360],
-    "curtain_flurry_index": 2,
+    # P11 peaks and Gary's clarified 1 curtain / 2 lights / 3 move-in order.
+    "flurry_times_s": [37.44, 57.36, 70.44],
+    "curtain_flurry_index": 1,
     "lights_on_flurry_index": 2,
     "perspective_flurry_index": 3,
     "opening_end_s": 96.36,
@@ -100,6 +103,33 @@ DEFAULTS = {
     "corner_aim_z_cm": 430.0,
     "corner_pulse_attack_s": 0.08,
     "corner_pulse_release_s": 0.55,
+    # Pass 2: a row just audience-side of the paper proscenium (board fronts x -75/-60).
+    # All values are inferred look proposals and remain args for Gary.
+    "facade_par_count": 7,
+    "facade_par_intensity_cd": 2600.0,
+    "facade_par_fade_in_s": 0.35,
+    "facade_par_outer_cone_deg": 9.0,
+    "facade_par_inner_cone_deg": 4.0,
+    "facade_par_falloff_exponent": 12.0,
+    "facade_par_source_radius_cm": 3.0,
+    "facade_par_soft_source_radius_cm": 6.0,
+    "facade_par_temperature_kelvin": 2700.0,
+    "facade_par_color_rgb_linear": [1.0, 0.72, 0.42],
+    "facade_par_attenuation_cm": 1800.0,
+    "facade_par_volumetric_scattering": 0.40,
+    "facade_par_cast_shadows": True,
+    "facade_par_cast_volumetric_shadows": False,
+    "facade_par_world_x_cm": -135.0,
+    "facade_par_y_min_cm": -850.0,
+    "facade_par_y_max_cm": 850.0,
+    "facade_par_world_z_cm": 45.0,
+    "facade_par_aim_x_cm": -60.0,
+    "facade_par_aim_z_cm": 1120.0,
+    # Exact labels only: no role/substring selector may silently widen this subset.
+    "p01_opening_light_labels": ["P01 SCORE B01 VOID PRACTICAL_DEAD"],
+    "p01_opening_intensity_scale": 0.35,
+    "p01_opening_fade_in_s": 0.75,
+    "p01_full_rise_s": 0.80,
     "perspective_start_mm": 15.0,
     "perspective_end_mm": 25.0,
     "perspective_duration_s": 2.4,
@@ -125,6 +155,12 @@ CLAIMS = [
      "cite": "Docs/Conductor/codex_briefs/p13_opening_lighting.md:2-10; Saved/CodexConductor/opening_lighting_p13_args.json:6-67"},
     {"tier": "inferred", "claim": "Gary's perspective adjustment means a 15-to-25 mm focal pull; camera translation is deliberately not changed.",
      "cite": "Docs/Conductor/codex_briefs/p13_opening_lighting.md:2-3; Saved/CodexConductor/opening_lighting_p13_args.json:58-61"},
+    {"tier": "declaration-proven", "claim": "The paper-proscenium board fronts are x -75 cm on the sides and x -60 cm on the valance.",
+     "cite": "DerivedAssets/StageFront_PaperProscenium/PAPER_PROSCENIUM_SPEC.md:10-17"},
+    {"tier": "inferred", "claim": "Seven 9-degree 2700 K PAR beams from x -135 cm should rake warmly up the paper facade; rendered acceptance is pending.",
+     "cite": "Docs/Conductor/codex_briefs/p30_opening_parcans.md:1-8; Saved/CodexConductor/opening_lighting_p13_args.json"},
+    {"tier": "inferred", "claim": "Thirty-five percent of the live first-bay practical intensity is a partial P01 preset, not an approved look.",
+     "cite": "Docs/Conductor/FINAL_JOBS_BEFORE_REHEARSAL_2026-10-08.md:76-83; Saved/CodexConductor/opening_lighting_p13_args.json"},
 ]
 
 
@@ -175,19 +211,31 @@ def merge_args(overrides=None):
     p = copy.deepcopy(DEFAULTS)
     p.update(overrides or {})
     p["flurry_times_s"] = [float(v) for v in p["flurry_times_s"]]
+    if not isinstance(p["p01_opening_light_labels"], list):
+        raise P13Error("P01_LIGHT_LABELS|must be a list")
+    p["p01_opening_light_labels"] = [str(v).strip() for v in p["p01_opening_light_labels"]]
     for name in ("fps", "opening_end_s", "spot_intensity_cd", "spot_hold_scale", "spot_fade_in_s",
                  "spot_fade_out_s", "spot_outer_cone_deg", "spot_inner_cone_deg", "spot_falloff_exponent",
                  "corner_intensity_cd", "corner_outer_cone_deg", "corner_inner_cone_deg",
                  "corner_falloff_exponent", "corner_pulse_attack_s", "corner_pulse_release_s",
+                 "facade_par_intensity_cd", "facade_par_fade_in_s", "facade_par_outer_cone_deg",
+                 "facade_par_inner_cone_deg", "facade_par_falloff_exponent",
+                 "p01_opening_intensity_scale", "p01_opening_fade_in_s", "p01_full_rise_s",
                  "perspective_start_mm", "perspective_end_mm", "perspective_duration_s"):
         p[name] = float(p[name])
     for name in ("spot_count", "curtain_flurry_index", "lights_on_flurry_index",
-                 "perspective_flurry_index", "curtain_fall_frames"):
+                 "perspective_flurry_index", "curtain_fall_frames", "facade_par_count"):
         p[name] = int(p[name])
     if p["perspective_mode"] != "focal_only":
         raise P13Error("PERSPECTIVE_MODE|only focal_only is implemented; camera translation needs Gary")
     if not (2 <= p["spot_count"] <= 8):
         raise P13Error("SPOT_COUNT|must be 2..8")
+    if not (3 <= p["facade_par_count"] <= 15):
+        raise P13Error("FACADE_PAR_COUNT|must be 3..15")
+    if not p["p01_opening_light_labels"] or any(not label for label in p["p01_opening_light_labels"]):
+        raise P13Error("P01_LIGHT_LABELS|need non-empty exact labels")
+    if len(set(p["p01_opening_light_labels"])) != len(p["p01_opening_light_labels"]):
+        raise P13Error("P01_LIGHT_LABELS|duplicates")
     if p["flurry_times_s"] != sorted(p["flurry_times_s"]) or len(p["flurry_times_s"]) < 3:
         raise P13Error("FLURRIES|need at least three strictly ordered seconds")
     if len(set(p["flurry_times_s"])) != len(p["flurry_times_s"]):
@@ -195,7 +243,7 @@ def merge_args(overrides=None):
     for name in ("curtain_flurry_index", "lights_on_flurry_index", "perspective_flurry_index"):
         if not 1 <= p[name] <= len(p["flurry_times_s"]):
             raise P13Error("FLURRY_INDEX|%s=%d" % (name, p[name]))
-    for prefix in ("spot", "corner"):
+    for prefix in ("spot", "corner", "facade_par"):
         inner, outer = p[prefix + "_inner_cone_deg"], p[prefix + "_outer_cone_deg"]
         if not (1.0 <= inner < outer <= 45.0):
             raise P13Error("CONE|%s %.3f/%.3f" % (prefix, inner, outer))
@@ -203,6 +251,10 @@ def merge_args(overrides=None):
             raise P13Error("FALLOFF|%s" % prefix)
     if not (0.0 < p["spot_hold_scale"] <= 1.0):
         raise P13Error("SPOT_HOLD_SCALE")
+    if not (0.0 < p["p01_opening_intensity_scale"] < 1.0):
+        raise P13Error("P01_OPENING_INTENSITY_SCALE")
+    if p["facade_par_y_min_cm"] >= p["facade_par_y_max_cm"]:
+        raise P13Error("FACADE_PAR_Y_RANGE")
     if p["opening_end_s"] <= p["flurry_times_s"][-1]:
         raise P13Error("OPENING_END_BEFORE_FLURRIES")
     return p
@@ -231,7 +283,49 @@ def _spot_origins(p):
     return out
 
 
-def build_plan(overrides=None):
+def _p01_plan_rows(p, lights, end, inventory=None):
+    """Build exact-label existing-light rows; inventory is live in DRY/APPLY and synthetic offline."""
+    supplied = None if inventory is None else {row["label"]: row for row in inventory}
+    if supplied is not None and set(supplied) != set(p["p01_opening_light_labels"]):
+        raise P13Error("P01_LIGHT_INVENTORY|want=%r|got=%r" %
+                       (p["p01_opening_light_labels"], sorted(supplied)))
+    fade = max(1, frame(p["p01_opening_fade_in_s"], p["fps"]))
+    full_rise = max(1, frame(p["p01_full_rise_s"], p["fps"]))
+    full_rise_start = end - full_rise
+    if full_rise_start <= lights["frame"] + fade:
+        raise P13Error("P01_FULL_RISE_OVERLAP")
+    out = []
+    for label in p["p01_opening_light_labels"]:
+        source = None if supplied is None else supplied[label]
+        base = None if source is None else float(source["base_intensity"])
+        if base is not None and base <= 0.0:
+            raise P13Error("P01_LIGHT_NOT_LIT_IN_P01|%s|%.6f" % (label, base))
+        target = None if base is None else base * p["p01_opening_intensity_scale"]
+        row = {
+            "label": label,
+            "role": "p01_existing",
+            "guid": None if source is None else source["guid"],
+            "cue_index": None if source is None else source.get("cue_index"),
+            "cue_guid": None if source is None else source.get("cue_guid"),
+            "cue_label": None if source is None else source.get("cue_label"),
+            "base_intensity": base,
+            "intensity_units": None if source is None else source.get("intensity_units"),
+            "light_type": None if source is None else source.get("light_type"),
+            "target_intensity": target,
+            "intensity_scale_keys": [[0, 0.0], [lights["frame"], 0.0],
+                                     [lights["frame"] + fade, p["p01_opening_intensity_scale"]],
+                                     [full_rise_start, p["p01_opening_intensity_scale"]],
+                                     [end, 1.0]],
+            "intensity_keys": None if target is None else
+                [[0, 0.0], [lights["frame"], 0.0], [lights["frame"] + fade, target],
+                 [full_rise_start, target], [end, base]],
+            "rotation_keys": [],
+        }
+        out.append(row)
+    return out
+
+
+def build_plan(overrides=None, p01_inventory=None):
     p = merge_args(overrides)
     fps = p["fps"]
     flurries = [{"index": i + 1, "seconds": t, "frame": frame(t, fps)}
@@ -291,11 +385,45 @@ def build_plan(overrides=None):
             "attenuation_cm": p["corner_attenuation_cm"], "volumetric_scattering": p["corner_volumetric_scattering"],
             "cast_shadows": p["corner_cast_shadows"], "cast_volumetric_shadows": p["corner_cast_volumetric_shadows"],
         })
+    par_fade = max(1, frame(p["facade_par_fade_in_s"], fps))
+    for i in range(p["facade_par_count"]):
+        alpha = 0.5 if p["facade_par_count"] == 1 else i / float(p["facade_par_count"] - 1)
+        y = p["facade_par_y_min_cm"] + alpha * (p["facade_par_y_max_cm"] - p["facade_par_y_min_cm"])
+        origin = [p["facade_par_world_x_cm"], y, p["facade_par_world_z_cm"]]
+        target = [p["facade_par_aim_x_cm"], y, p["facade_par_aim_z_cm"]]
+        rotation = aim_rotation(origin, target)
+        fixtures.append({
+            "label": "P13 Facade PAR %02d" % (i + 1), "role": "facade_par", "type": "SPOT",
+            "world_location_cm": origin,
+            "relative_location_cm": [origin[0] - p["station_world_x_cm"], origin[1], origin[2]],
+            "start_target_cm": target, "end_target_cm": target,
+            "start_rotation_rpy_deg": rotation, "end_rotation_rpy_deg": rotation,
+            "rotation_keys": [],
+            "intensity_keys": [[0, 0.0], [lights["frame"], 0.0],
+                               [lights["frame"] + par_fade, p["facade_par_intensity_cd"]],
+                               [max(lights["frame"] + par_fade, end - fade_out), p["facade_par_intensity_cd"]],
+                               [end, 0.0]],
+            "intensity_cd": p["facade_par_intensity_cd"],
+            "inner_cone_deg": p["facade_par_inner_cone_deg"],
+            "outer_cone_deg": p["facade_par_outer_cone_deg"],
+            "falloff_exponent": p["facade_par_falloff_exponent"],
+            "source_radius_cm": p["facade_par_source_radius_cm"],
+            "soft_source_radius_cm": p["facade_par_soft_source_radius_cm"],
+            "temperature_kelvin": p["facade_par_temperature_kelvin"],
+            "color_rgb_linear": p["facade_par_color_rgb_linear"],
+            "attenuation_cm": p["facade_par_attenuation_cm"],
+            "volumetric_scattering": p["facade_par_volumetric_scattering"],
+            "cast_shadows": p["facade_par_cast_shadows"],
+            "cast_volumetric_shadows": p["facade_par_cast_volumetric_shadows"],
+        })
+    p01_lights = _p01_plan_rows(p, lights, end, p01_inventory)
     marker_rows = [("P13 flurry %02d" % f["index"], f["frame"]) for f in flurries]
     marker_rows += [("P13 curtain drop", curtain["frame"]), ("P13 lights on", lights["frame"]),
+                    ("P13 facade PARs on", lights["frame"]),
+                    ("P13 P01 subset on", lights["frame"]),
                     ("P13 perspective", perspective["frame"])]
     plan = {
-        "schema_version": 1, "fps": fps, "opening_end_frame": end, "flurries": flurries,
+        "schema_version": 2, "fps": fps, "opening_end_frame": end, "flurries": flurries,
         "cue_frames": {"curtain_drop": curtain["frame"], "lights_on": lights["frame"],
                        "perspective": perspective["frame"], "perspective_end": perspective_end},
         "curtain_sections": [[0, curtain["frame"], p["curtain_hold_offset_ticks"], p["curtain_hold_offset_ticks"] + 1],
@@ -305,7 +433,7 @@ def build_plan(overrides=None):
                               p["curtain_pile_offset_ticks"], p["curtain_pile_offset_ticks"] + 1]],
         "perspective_keys": [[0, p["perspective_start_mm"]], [perspective["frame"], p["perspective_start_mm"]],
                              [perspective_end, p["perspective_end_mm"]], [end, p["perspective_end_mm"]]],
-        "markers": marker_rows, "fixtures": fixtures,
+        "markers": marker_rows, "fixtures": fixtures, "p01_lights": p01_lights,
         "disable_existing_bindings_prefix": OLD_RIG_PREFIX,
         "authority": {"show": SHOW_PATH, "attachment_owner": "first WingPair in Passage 1",
                       "sequence": "resolved from Show cue '%s'" % OPENING_LABEL},
@@ -328,7 +456,7 @@ def validate_plan(plan):
     if plan["curtain_sections"][1][1] >= plan["opening_end_frame"]:
         out.append("CURTAIN_NOT_LANDED")
     labels = [f["label"] for f in plan["fixtures"]]
-    if len(labels) != len(set(labels)) or len(labels) != p["spot_count"] + 2:
+    if len(labels) != len(set(labels)) or len(labels) != p["spot_count"] + 2 + p["facade_par_count"]:
         out.append("FIXTURE_LABELS")
     for fx in plan["fixtures"]:
         if fx["inner_cone_deg"] >= fx["outer_cone_deg"]:
@@ -338,8 +466,13 @@ def validate_plan(plan):
         frames = [row[0] for row in fx["intensity_keys"]]
         if frames != sorted(frames):
             out.append("INTENSITY_ORDER|" + fx["label"])
-    if p["curtain_flurry_index"] == 2:
-        out.append("" if p["curtain_flurry_index"] == p["lights_on_flurry_index"] else "CUE_LIST_INDEX_DRIFT")
+    if not all(fx["role"] == "facade_par" for fx in plan["fixtures"][-p["facade_par_count"]:]):
+        out.append("FACADE_PAR_ROWS")
+    if [row["label"] for row in plan["p01_lights"]] != p["p01_opening_light_labels"]:
+        out.append("P01_LIGHT_LABEL_DRIFT")
+    for row in plan["p01_lights"]:
+        if row["intensity_keys"] is not None and [key[0] for key in row["intensity_keys"]] != sorted(key[0] for key in row["intensity_keys"]):
+            out.append("P01_INTENSITY_ORDER|" + row["label"])
     return [x for x in out if x]
 
 
@@ -405,36 +538,47 @@ def write_rig_diagram(path, plan, size=(1400, 800)):
     draw.text((25, 42), "Show-owned spots; cones schematic, creative values remain args", fill=(165, 172, 184), font=font)
     # top panel: x horizontal, y vertical
     top = (30, 80, mid - 20, h - 40); front = (mid + 20, 80, w - 30, h - 40)
-    for box, title in ((top, "TOP - aims travel from edge pools into centre"), (front, "FRONT - upper-corner flurry accents")):
+    for box, title in ((top, "TOP - moving pools + facade PAR row"), (front, "FRONT - paper facade + warm PAR uplight")):
         draw.rectangle(box, outline=(80, 88, 100), width=2); draw.text((box[0] + 10, box[1] + 8), title, fill=(215, 218, 224), font=font)
     def top_xy(v):
         return (top[0] + 40 + (v[0] + 1900) / 2400 * (top[2] - top[0] - 80),
                 (top[1] + top[3]) / 2 + v[1] / 2400 * (top[3] - top[1] - 90))
     draw.line([top_xy([-1800, 0, 0]), top_xy([500, 0, 0])], fill=(80, 80, 86), width=2)
     for fx in plan["fixtures"]:
-        if fx["role"] != "moving_spot":
+        if fx["role"] not in ("moving_spot", "facade_par"):
             continue
         o, s, e = top_xy(fx["world_location_cm"]), top_xy(fx["start_target_cm"]), top_xy(fx["end_target_cm"])
-        draw.ellipse([o[0]-5,o[1]-5,o[0]+5,o[1]+5], fill=(255,190,85)); _draw_arrow(draw,o,s,(105,150,220),2); _draw_arrow(draw,o,e,(255,190,85),3)
+        is_par = fx["role"] == "facade_par"
+        colour = (255, 143, 55) if is_par else (255, 190, 85)
+        draw.ellipse([o[0]-5,o[1]-5,o[0]+5,o[1]+5], fill=colour)
+        if not is_par:
+            _draw_arrow(draw,o,s,(105,150,220),2)
+        _draw_arrow(draw,o,e,colour,3)
         z_mid=(plan["params"]["fixture_low_z_cm"]+plan["params"]["fixture_high_z_cm"])/2.0
         label_dy=-18 if fx["world_location_cm"][2] <= z_mid else 7
-        draw.text((o[0]+7,o[1]+label_dy), fx["label"].split()[-1], fill=(220,220,225), font=font)
-    draw.text((top[0]+12,top[3]-24), "blue=start aim   amber=end/centre aim", fill=(150,160,176), font=font)
+        draw.text((o[0]+7,o[1]+label_dy), ("PAR " if is_par else "") + fx["label"].split()[-1], fill=(220,220,225), font=font)
+    draw.text((top[0]+12,top[3]-24), "blue=start   amber=centre   orange=facade PAR", fill=(150,160,176), font=font)
     def front_yz(v):
         return (front[0] + (v[1] + 1250) / 2500 * (front[2] - front[0]),
                 front[3] - 35 - v[2] / 1450 * (front[3] - front[1] - 75))
+    # Paper-proscenium silhouette from the read-only spec: sides y 950..1230, valance z 1000..1330.
+    draw.rectangle([front_yz([0,-1230,1330]), front_yz([0,-950,0])], outline=(158,132,91), width=4)
+    draw.rectangle([front_yz([0,950,1330]), front_yz([0,1230,0])], outline=(158,132,91), width=4)
+    draw.rectangle([front_yz([0,-950,1330]), front_yz([0,950,1000])], outline=(158,132,91), width=4)
     draw.line([front_yz([0,-900,0]), front_yz([0,900,0])], fill=(100,90,75), width=5)
     for fx in plan["fixtures"]:
         o, e = front_yz(fx["world_location_cm"]), front_yz(fx["end_target_cm"])
-        col = (255,122,72) if fx["role"] == "corner_pulse" else (255,190,85)
+        col = ((255,122,72) if fx["role"] == "corner_pulse" else
+               (255,143,55) if fx["role"] == "facade_par" else (255,190,85))
         draw.ellipse([o[0]-6,o[1]-6,o[0]+6,o[1]+6], fill=col); _draw_arrow(draw,o,e,col,2)
-        draw.text((o[0]+8,o[1]-7), fx["label"].replace("P13 Opening ", ""), fill=(225,225,228), font=font)
-    draw.text((front[0]+12,front[3]-24), "orange=corner pulse   amber=tight moving pool", fill=(150,160,176), font=font)
+        if fx["role"] != "facade_par":
+            draw.text((o[0]+8,o[1]-7), fx["label"].replace("P13 Opening ", ""), fill=(225,225,228), font=font)
+    draw.text((front[0]+12,front[3]-24), "orange row=7 warm PARs; outlines=paper sides + valance", fill=(150,160,176), font=font)
     os.makedirs(os.path.dirname(path), exist_ok=True); image.save(path)
     return {"path": path, "sha256": hashlib.sha256(open(path, "rb").read()).hexdigest(), "size": list(size)}
 
 
-def write_timeline(path, plan, envelope, size=(1600, 700)):
+def write_timeline(path, plan, envelope, size=(1600, 760)):
     from PIL import Image, ImageDraw, ImageFont
     image = Image.new("RGB", size, (15, 17, 21)); draw = ImageDraw.Draw(image); font = ImageFont.load_default()
     w, h = size; x0, x1, y0, y1 = 180, w - 35, 80, 380; duration = plan["opening_end_frame"] / plan["fps"]
@@ -456,19 +600,27 @@ def write_timeline(path, plan, envelope, size=(1600, 700)):
         draw.line((x,y0,x,h-55),fill=colors[key],width=3); draw.text((x+5, y0+12+22*list(colors).index(key)), key.replace("_"," "), fill=colors[key],font=font)
     for fl in plan["flurries"]:
         x=x0+fl["seconds"]/duration*(x1-x0); draw.ellipse((x-5,y1+52,x+5,y1+62),fill=(245,245,245)); draw.text((x-22,y1+68),"flurry %d"%fl["index"],fill=(210,210,215),font=font)
-    lanes=[("MOVING SPOTS",(255,190,85)),("CORNER PULSES",(255,122,72)),("CURTAIN FALL",(235,92,92)),("FOCAL 15->25 mm",(177,132,255))]
+    lanes=[("MOVING SPOTS",(255,190,85)),("CORNER PULSES",(255,122,72)),
+           ("FACADE PAR ROW",(255,143,55)),("P01 PARTIAL SUBSET",(238,210,126)),
+           ("CURTAIN FALL",(235,92,92)),("FOCAL 15->25 mm",(177,132,255))]
     base=y1+125
-    for i,(label,col) in enumerate(lanes): draw.text((25,base+i*45),label,fill=col,font=font)
+    lane_step=max(24,min(45,int((h-base-22)/max(1,len(lanes)-1))))
+    for i,(label,col) in enumerate(lanes): draw.text((25,base+i*lane_step),label,fill=col,font=font)
     lx0=x0
     l_on=lx0+(plan["cue_frames"]["lights_on"]/plan["fps"])/duration*(x1-lx0)
     l_end=lx0+(plan["opening_end_frame"]/plan["fps"])/duration*(x1-lx0)
     draw.rectangle((l_on,base-2,l_end,base+12),fill=lanes[0][1])
     for fl in plan["flurries"]:
-        x=lx0+fl["seconds"]/duration*(x1-lx0); draw.rectangle((x-3,base+43,x+7,base+57),fill=lanes[1][1])
+        x=lx0+fl["seconds"]/duration*(x1-lx0); draw.rectangle((x-3,base+lane_step-2,x+7,base+lane_step+12),fill=lanes[1][1])
+    draw.rectangle((l_on,base+2*lane_step-2,l_end,base+2*lane_step+12),fill=lanes[2][1])
+    full_frame=plan["p01_lights"][0]["intensity_scale_keys"][-2][0]
+    full_x=lx0+(full_frame/plan["fps"])/duration*(x1-lx0)
+    draw.rectangle((l_on,base+3*lane_step-2,full_x,base+3*lane_step+12),fill=lanes[3][1])
+    draw.rectangle((full_x,base+3*lane_step-2,l_end,base+3*lane_step+12),fill=(255,244,196))
     c=lx0+(plan["cue_frames"]["curtain_drop"]/plan["fps"])/duration*(x1-lx0); ce=lx0+((plan["cue_frames"]["curtain_drop"]+plan["params"]["curtain_fall_frames"])/plan["fps"])/duration*(x1-lx0)
-    draw.rectangle((c,base+88,ce,base+102),fill=lanes[2][1])
+    draw.rectangle((c,base+4*lane_step-2,ce,base+4*lane_step+12),fill=lanes[4][1])
     ps=lx0+(plan["cue_frames"]["perspective"]/plan["fps"])/duration*(x1-lx0); pe=lx0+(plan["cue_frames"]["perspective_end"]/plan["fps"])/duration*(x1-lx0)
-    draw.rectangle((ps,base+133,pe,base+147),fill=lanes[3][1])
+    draw.rectangle((ps,base+5*lane_step-2,pe,base+5*lane_step+12),fill=lanes[5][1])
     os.makedirs(os.path.dirname(path),exist_ok=True); image.save(path)
     return {"path":path,"sha256":hashlib.sha256(open(path,"rb").read()).hexdigest(),"size":list(size),"envelope":envelope["source"]}
 
@@ -516,9 +668,14 @@ def _context(mode, confirm, run):
     if seq is None:_stop(run,"OPENING_SEQUENCE_NULL")
     passages=[p for p in show.get_editor_property("passages") if str(p.get_editor_property("label"))==P01_LABEL]
     if len(passages)!=1:_stop(run,"P01_PASSAGE_COUNT|%d"%len(passages))
-    first=_guid(passages[0].get_editor_property("first_cue_guid")); targets=[(i,c) for i,c in enumerate(cues) if _guid(c.get_editor_property("cue_guid"))==first]
+    passage=passages[0]
+    p01_guids=[_guid(g) for g in show.get_wing_pair_cue_guids_in_passage(passage.get_editor_property("passage_guid"))]
+    p01_lookup={_guid(c.get_editor_property("cue_guid")):(i,c) for i,c in enumerate(cues)}
+    if not p01_guids or any(g not in p01_lookup for g in p01_guids):_stop(run,"P01_CUE_GUIDS_UNRESOLVED")
+    p01_cues=[p01_lookup[g] for g in p01_guids]
+    first=_guid(passage.get_editor_property("first_cue_guid")); targets=[(i,c) for i,c in p01_cues if _guid(c.get_editor_property("cue_guid"))==first]
     if len(targets)!=1:_stop(run,"P01_FIRST_CUE_COUNT|%d"%len(targets))
-    return show,seq,targets[0][0],targets[0][1],record
+    return show,seq,targets[0][0],targets[0][1],record,p01_cues
 
 
 def _pair_attachments(cue):
@@ -529,6 +686,40 @@ def _set_pair_attachments(show,index,attachments):
     cues=list(show.get_editor_property("cues")); cue=cues[index]; pair=cue.get_editor_property("wing_pair")
     pair.set_editor_property("attachments",list(attachments)); cue.set_editor_property("wing_pair",pair); cues[index]=cue
     show.modify(); show.set_editor_property("cues",cues)
+
+
+def _selected_p01_inventory(p01_cues, labels, run):
+    candidates = []
+    for cue_index, cue in p01_cues:
+        cue_guid = _guid(cue.get_editor_property("cue_guid"))
+        cue_label = str(cue.get_editor_property("label"))
+        for att in _pair_attachments(cue):
+            candidates.append((cue_index, cue_guid, cue_label, att))
+    out = []
+    for label in labels:
+        rows = [row for row in candidates if str(row[3].get_editor_property("label")) == label]
+        if len(rows) != 1:
+            _stop(run, "P01_LIGHT_LABEL_COUNT|%s|%d" % (label, len(rows)))
+        cue_index, cue_guid, cue_label, att = rows[0]
+        if not _is_light(att):
+            _stop(run, "P01_LIGHT_NOT_LIGHT|" + label)
+        if not bool(att.get_editor_property("enabled")):
+            _stop(run, "P01_LIGHT_DISABLED|" + label)
+        settings = att.get_editor_property("lighting")
+        intensity = float(settings.get_editor_property("intensity"))
+        if intensity <= 0.0:
+            _stop(run, "P01_LIGHT_NOT_LIT_IN_P01|%s|%.6f" % (label, intensity))
+        out.append({
+            "label": label,
+            "guid": _guid(att.get_editor_property("attachment_guid")),
+            "cue_index": cue_index,
+            "cue_guid": cue_guid,
+            "cue_label": cue_label,
+            "base_intensity": intensity,
+            "intensity_units": str(settings.get_editor_property("intensity_units")),
+            "light_type": str(settings.get_editor_property("type")),
+        })
+    return out
 
 
 def _is_light(att):
@@ -598,6 +789,50 @@ def _find_binding(seq,name):
     rows=[b for b in seq.get_bindings() if str(b.get_display_name())==name]
     if len(rows)!=1:raise P13Error("BINDING_COUNT|%s|%d"%(name,len(rows)))
     return rows[0]
+
+
+def _binding_by_guid(seq, guid):
+    rows = [b for b in seq.get_bindings() if _guid(b.get_id()) == guid]
+    if len(rows) != 1:
+        raise P13Error("BINDING_GUID_COUNT|%s|%d" % (guid, len(rows)))
+    return rows[0]
+
+
+def _custom_tag(subsystem, binding):
+    try:
+        objects = list(subsystem.get_custom_binding_objects(binding))
+    except Exception:
+        return None
+    tags = []
+    for obj in objects:
+        if obj is None:
+            continue
+        try:
+            tags.append(str(obj.get_editor_property("attachment_tag")))
+        except Exception:
+            pass
+    return tags[0] if len(tags) == 1 else None
+
+
+def _actor_attachment_tag(actor):
+    tags = [str(tag) for tag in actor.get_editor_property("tags")
+            if str(tag).startswith("InfinityStage.Attachment.")]
+    if len(tags) != 1:
+        raise P13Error("ACTOR_ATTACHMENT_TAG_COUNT|%s|%d" % (actor.get_actor_label(), len(tags)))
+    return tags[0]
+
+
+def _matching_tracks(binding, class_name, prop=None, display=None):
+    rows = []
+    for track in binding.get_tracks():
+        if track.get_class().get_name() != class_name:
+            continue
+        if display is not None and str(track.get_display_name()) != display:
+            continue
+        if prop is not None and str(track.get_property_name()) != prop:
+            continue
+        rows.append(track)
+    return rows
 
 
 def _channel_state(channel):
@@ -683,15 +918,14 @@ def _restore_track(binding,track,snapshot):
     if default is not None:ch.set_default(float(default))
 
 
-def _find_materialized(added,target_cue_guid):
-    want={r["guid"]:r for r in added}; found={}
-    prefix="InfinityStage.Attachment.%s|"%target_cue_guid
+def _find_materialized(rows):
+    want={"InfinityStage.Attachment.%s|%s"%(r["cue_guid"],r["guid"]):r for r in rows}; found={}
     for actor in _actors():
         for tag in actor.get_editor_property("tags"):
             text=str(tag)
-            if text.startswith(prefix) and text[len(prefix):].upper() in want:found[text[len(prefix):].upper()]=actor
+            if text in want:found[text]=actor
     if set(found)!=set(want):raise P13Error("MATERIALIZED_P13|want=%r|found=%r"%(sorted(want),sorted(found)))
-    return found
+    return {want[tag]["guid"]:actor for tag,actor in found.items()}
 
 
 def _passage_actor(show):
@@ -700,20 +934,55 @@ def _passage_actor(show):
     return rows[0]
 
 
+def _light_component(actor, label, run):
+    rows = []
+    for class_name in ("SpotLightComponent", "PointLightComponent", "RectLightComponent"):
+        cls = getattr(unreal, class_name, None)
+        if cls is not None:
+            rows.extend(list(actor.get_components_by_class(cls)))
+    unique = {str(component.get_path_name()): component for component in rows}
+    if len(unique) != 1:
+        _stop(run, "LIGHT_COMPONENT_COUNT|%s|%d" % (label, len(unique)))
+    return list(unique.values())[0]
+
+
 def _bind_fixture(seq,actor,fx,run):
     if not unreal.LevelSequenceEditorBlueprintLibrary.open_level_sequence(seq):_stop(run,"OPEN_SEQUENCE_FAILED")
-    sub=unreal.get_editor_subsystem(unreal.LevelSequenceEditorSubsystem); ordinary=seq.add_possessable(actor)
-    if ordinary is None or not ordinary.is_valid():_stop(run,"ADD_ACTOR_BINDING")
-    binding=sub.convert_to_custom_binding(ordinary,unreal.InfinityStageAttachmentBinding)
-    if binding is None or not binding.is_valid():_stop(run,"CUSTOM_BINDING_CONVERT|"+fx["label"])
-    binding.set_display_name(fx["label"]); custom=sub.get_custom_binding_objects(binding)
-    if len(custom)!=1 or not str(custom[0].get_editor_property("attachment_tag")).startswith("InfinityStage.Attachment."):_stop(run,"CUSTOM_BINDING_READBACK|"+fx["label"])
-    if fx["rotation_keys"]:_write_transform(binding,fx,seq.get_playback_end())
-    comps=list(actor.get_components_by_class(unreal.SpotLightComponent))
-    if len(comps)!=1:_stop(run,"SPOT_COMPONENT_COUNT|"+fx["label"])
-    child=seq.add_possessable(comps[0]); child.set_parent(binding); child.set_display_name(fx["label"]+" SpotLightComponent")
+    sub=unreal.get_editor_subsystem(unreal.LevelSequenceEditorSubsystem)
+    tag=_actor_attachment_tag(actor); before={_guid(b.get_id()) for b in seq.get_bindings()}
+    tagged=[b for b in seq.get_bindings() if _custom_tag(sub,b)==tag]
+    if len(tagged)>1:_stop(run,"EXISTING_TAG_BINDING_COUNT|%s|%d"%(tag,len(tagged)))
+    if tagged:
+        binding=tagged[0]; actor_owned=False
+    else:
+        ordinary=seq.add_possessable(actor)
+        if ordinary is None or not ordinary.is_valid():_stop(run,"ADD_ACTOR_BINDING|"+fx["label"])
+        actor_owned=_guid(ordinary.get_id()) not in before
+        if actor_owned:
+            binding=sub.convert_to_custom_binding(ordinary,unreal.InfinityStageAttachmentBinding)
+            if binding is None or not binding.is_valid():_stop(run,"CUSTOM_BINDING_CONVERT|"+fx["label"])
+            binding.set_display_name(fx["label"])
+        else:
+            binding=ordinary  # add_possessable returns the existing binding; never rename it.
+    live_tag=_custom_tag(sub,binding)
+    if actor_owned and live_tag!=tag:_stop(run,"CUSTOM_BINDING_READBACK|%s|%s|%s"%(fx["label"],tag,live_tag))
+    transform_added=bool(fx["rotation_keys"])
+    if transform_added and any(t.get_class().get_name()=="MovieScene3DTransformTrack" for t in binding.get_tracks()):
+        _stop(run,"TRANSFORM_TRACK_CONFLICT|"+fx["label"])
+    if transform_added:_write_transform(binding,fx,seq.get_playback_end())
+    component=_light_component(actor,fx["label"],run); component_before={_guid(b.get_id()) for b in seq.get_bindings()}
+    child=seq.add_possessable(component)
+    if child is None or not child.is_valid():_stop(run,"ADD_COMPONENT_BINDING|"+fx["label"])
+    component_owned=_guid(child.get_id()) not in component_before
+    if component_owned:
+        child.set_parent(binding); child.set_display_name(fx["label"]+" LightComponent")
+    conflicts=[t for t in child.get_tracks() if t.get_class().get_name()=="MovieSceneFloatTrack" and str(t.get_property_name())=="Intensity"]
+    if conflicts:_stop(run,"INTENSITY_TRACK_CONFLICT|%s|%d"%(fx["label"],len(conflicts)))
+    if fx["intensity_keys"] is None:_stop(run,"P01_INTENSITY_UNRESOLVED|"+fx["label"])
     _write_float_track(child,"Intensity","Intensity",fx["intensity_keys"],seq.get_playback_end())
-    return {"actor_binding_guid":_guid(binding.get_id()),"component_binding_guid":_guid(child.get_id()),"tag":str(custom[0].get_editor_property("attachment_tag"))}
+    return {"actor_binding_guid":_guid(binding.get_id()),"component_binding_guid":_guid(child.get_id()),
+            "actor_binding_owned":actor_owned,"component_binding_owned":component_owned,
+            "transform_track_added":transform_added,"tag":tag,"binding_tag":live_tag}
 
 
 def _snapshot_live(seq,target_cue):
@@ -731,6 +1000,86 @@ def _focal_keys(seq):
     return _channel_state(list(sections[0].get_all_channels())[0])["keys"]
 
 
+def _keys_close(got, want, tolerance):
+    if len(got) != len(want):
+        return False
+    return all(int(a[0]) == int(b[0]) and abs(float(a[1]) - float(b[1])) <= tolerance
+               for a, b in zip(got, want))
+
+
+def _verify_binding_tracks(seq, plan, bindings):
+    by_label = {row["label"]: row for row in plan["fixtures"] + plan["p01_lights"]}
+    rows = {}
+    for label, pair in bindings.items():
+        fx = by_label[label]
+        actor = _binding_by_guid(seq, pair["actor_binding_guid"])
+        child = _binding_by_guid(seq, pair["component_binding_guid"])
+        intensity = _matching_tracks(child, "MovieSceneFloatTrack", "Intensity")
+        if len(intensity) != 1 or len(intensity[0].get_sections()) != 1:
+            raise P13Error("READBACK_INTENSITY_TRACK|%s|%d" % (label, len(intensity)))
+        channels = list(intensity[0].get_sections()[0].get_all_channels())
+        if len(channels) != 1:
+            raise P13Error("READBACK_INTENSITY_CHANNEL|%s|%d" % (label, len(channels)))
+        got = _channel_state(channels[0])["keys"]
+        if not _keys_close(got, fx["intensity_keys"], FLOAT_TOLERANCE):
+            raise P13Error("READBACK_INTENSITY_KEYS|%s|%r|%r" % (label, got, fx["intensity_keys"]))
+        transform_rows = _matching_tracks(actor, "MovieScene3DTransformTrack")
+        if fx["rotation_keys"] and len(transform_rows) != 1:
+            raise P13Error("READBACK_TRANSFORM_TRACK|%s|%d" % (label, len(transform_rows)))
+        if fx["rotation_keys"]:
+            sections = list(transform_rows[0].get_sections())
+            if len(sections) != 1:
+                raise P13Error("READBACK_TRANSFORM_SECTION|" + label)
+            ch = {str(channel.channel_name): channel for channel in sections[0].get_all_channels()}
+            for name, value in zip(("Location.X", "Location.Y", "Location.Z"), fx["relative_location_cm"]):
+                if name not in ch or abs(float(ch[name].get_default()) - float(value)) > 0.01:
+                    raise P13Error("READBACK_LOCATION|%s|%s" % (label, name))
+            for index, name in enumerate(("Rotation.X", "Rotation.Y", "Rotation.Z")):
+                want = [[key[0], key[1][index]] for key in fx["rotation_keys"]]
+                got_rotation = _channel_state(ch[name])["keys"] if name in ch else []
+                if not _keys_close(got_rotation, want, ROTATION_TOLERANCE_DEG):
+                    raise P13Error("READBACK_ROTATION|%s|%s|%r|%r" %
+                                   (label, name, got_rotation, want))
+        rows[label] = {"intensity_keys": got, "actor_binding_owned": pair["actor_binding_owned"],
+                       "component_binding_owned": pair["component_binding_owned"]}
+    return rows
+
+
+def _remove_binding_work(seq, pair, label, run):
+    child = _binding_by_guid(seq, pair["component_binding_guid"])
+    tracks = _matching_tracks(child, "MovieSceneFloatTrack", "Intensity")
+    if len(tracks) != 1:
+        _stop(run, "REVERT_INTENSITY_TRACK|%s|%d" % (label, len(tracks)))
+    child.remove_track(tracks[0])
+    if pair["component_binding_owned"]:
+        child.remove()
+    actor = _binding_by_guid(seq, pair["actor_binding_guid"])
+    if pair["transform_track_added"]:
+        transform = _matching_tracks(actor, "MovieScene3DTransformTrack")
+        if len(transform) != 1:
+            _stop(run, "REVERT_TRANSFORM_TRACK|%s|%d" % (label, len(transform)))
+        actor.remove_track(transform[0])
+    if pair["actor_binding_owned"]:
+        actor.remove()
+
+
+def _verify_reverted_binding_work(seq, bindings):
+    live = {_guid(binding.get_id()): binding for binding in seq.get_bindings()}
+    for label, pair in bindings.items():
+        if pair["component_binding_owned"] and pair["component_binding_guid"] in live:
+            raise P13Error("REVERT_COMPONENT_BINDING_REMAINS|" + label)
+        if not pair["component_binding_owned"]:
+            child = live.get(pair["component_binding_guid"])
+            if child is None or _matching_tracks(child, "MovieSceneFloatTrack", "Intensity"):
+                raise P13Error("REVERT_COMPONENT_TRACK_REMAINS|" + label)
+        if pair["actor_binding_owned"] and pair["actor_binding_guid"] in live:
+            raise P13Error("REVERT_ACTOR_BINDING_REMAINS|" + label)
+        if not pair["actor_binding_owned"] and pair["transform_track_added"]:
+            actor = live.get(pair["actor_binding_guid"])
+            if actor is None or _matching_tracks(actor, "MovieScene3DTransformTrack"):
+                raise P13Error("REVERT_TRANSFORM_TRACK_REMAINS|" + label)
+
+
 def _verify_saved_apply(plan,record):
     show=unreal.load_asset(SHOW_PATH); seq=unreal.load_asset(record["sequence"])
     if show is None or seq is None:raise P13Error("READBACK_LOAD")
@@ -740,14 +1089,14 @@ def _verify_saved_apply(plan,record):
     if not want.issubset(rows):raise P13Error("READBACK_ATTACHMENTS")
     unused,secs,asset=_gc(seq)
     if asset!=plan["params"]["curtain_cache_path"] or _gc_state(secs)!=plan["curtain_sections"]:raise P13Error("READBACK_CURTAIN")
-    got=[[int(f),round(float(v),4)] for f,v in _focal_keys(seq)]; want_f=[[int(f),round(float(v),4)] for f,v in plan["perspective_keys"]]
-    if got!=want_f:raise P13Error("READBACK_PERSPECTIVE|%r|%r"%(got,want_f))
+    got=_focal_keys(seq); want_f=plan["perspective_keys"]
+    if not _keys_close(got,want_f,FLOAT_TOLERANCE):raise P13Error("READBACK_PERSPECTIVE|%r|%r"%(got,want_f))
     marks={(m["label"],m["frame"]) for m in _markers(seq)}
     if not set(plan["markers"]).issubset(marks):raise P13Error("READBACK_MARKERS")
-    names={str(b.get_display_name()) for b in seq.get_bindings()}
-    if not {f["label"] for f in plan["fixtures"]}.issubset(names):raise P13Error("READBACK_BINDINGS")
+    track_readback=_verify_binding_tracks(seq,plan,record["bindings"])
     if _census()!={"content":[],"maps":[]}:raise P13Error("READBACK_DIRTY")
-    return {"attachments":len(want),"curtain":_gc_state(secs),"focal_keys":got,"markers":len(plan["markers"]),"bindings":len(plan["fixtures"])}
+    return {"attachments":len(want),"curtain":_gc_state(secs),"focal_keys":got,
+            "markers":len(plan["markers"]),"bindings":len(record["bindings"]),"tracks":track_readback}
 
 
 def _verify_saved_revert(record):
@@ -761,6 +1110,7 @@ def _verify_saved_revert(record):
     if snapshot["old_rig_spawn"]!=record["before"]["old_rig_spawn"]:raise P13Error("REVERT_READBACK_OLD_RIG")
     if snapshot["focal"]!=record["before"]["focal"]:raise P13Error("REVERT_READBACK_FOCAL")
     if _markers(seq)!=record["before"]["markers"]:raise P13Error("REVERT_READBACK_MARKERS")
+    _verify_reverted_binding_work(seq,record["bindings"])
     if _census()!={"content":[],"maps":[]}:raise P13Error("REVERT_READBACK_DIRTY")
     return {"attachments":len(rows),"curtain":_gc_state(secs),"markers":len(_markers(seq))}
 
@@ -791,53 +1141,53 @@ def _report_paths(run):
 
 
 def run_dry(run,args,confirm):
-    show,seq,idx,target,_=_context("DRY",confirm,run); plan=build_plan(args); before=_snapshot_live(seq,target); env=load_envelope(plan["params"].get("analysis_path")); root=os.path.join(_project_root(),"DerivedAssets","OpeningLighting")
+    show,seq,idx,target,_,p01_cues=_context("DRY",confirm,run); params=merge_args(args); inventory=_selected_p01_inventory(p01_cues,params["p01_opening_light_labels"],run); plan=build_plan(args,inventory); before=_snapshot_live(seq,target); env=load_envelope(plan["params"].get("analysis_path")); root=os.path.join(_project_root(),"DerivedAssets","OpeningLighting")
     rig=write_rig_diagram(os.path.join(root,"P13_opening_rig_top_front.png"),plan); timeline=write_timeline(os.path.join(root,"P13_opening_cue_timeline.png"),plan,env)
-    report={"schema_version":1,"mode":"DRY","run":run,"apply_ready":before["curtain_asset"]==plan["params"]["curtain_cache_path"],"mutated":False,"plan":plan,"plan_digest":plan["digest"],"live_before":before,"previews":{"rig":rig,"timeline":timeline},"claims":CLAIMS,"warnings":["APPLY_NOT_RUN","VISUAL_ACCEPTANCE_PENDING","curtain_flurry_index defaults to 2 despite the prose saying final flurry; change the arg if Gary meant 3","perspective is focal-only; camera translation is untouched"]}
+    report={"schema_version":2,"mode":"DRY","run":run,"apply_ready":before["curtain_asset"]==plan["params"]["curtain_cache_path"],"mutated":False,"plan":plan,"plan_digest":plan["digest"],"live_before":before,"previews":{"rig":rig,"timeline":timeline},"claims":CLAIMS,"warnings":["APPLY_NOT_RUN","VISUAL_ACCEPTANCE_PENDING","facade PAR placement and look are inferred defaults pending Gary","P01 subset is exact-label and scaled from the live P01 intensity","perspective is focal-only; camera translation is untouched"]}
     out,pf=_report_paths(run); write_json(out,report); write_json(pf,{"run":run,"plan_digest":plan["digest"],"target_cue_guid":_guid(target.get_editor_property("cue_guid")),"sequence":seq.get_path_name().split('.')[0],"args":args})
     if _census()!={"content":[],"maps":[]}:_stop(run,"DRY_DIRTIED|"+canonical(_census()))
-    unreal.log("P13_OPENING_LIGHTING_DRY_OK|run=%s|mutated=0|spots=%d|curtain_frame=%d|lights_frame=%d|perspective_frame=%d|report=%s"%(run,plan["params"]["spot_count"],plan["cue_frames"]["curtain_drop"],plan["cue_frames"]["lights_on"],plan["cue_frames"]["perspective"],out))
+    unreal.log("P13_OPENING_LIGHTING_DRY_OK|run=%s|mutated=0|spots=%d|facade_pars=%d|p01_subset=%d|curtain_frame=%d|lights_frame=%d|perspective_frame=%d|report=%s"%(run,plan["params"]["spot_count"],plan["params"]["facade_par_count"],len(plan["p01_lights"]),plan["cue_frames"]["curtain_drop"],plan["cue_frames"]["lights_on"],plan["cue_frames"]["perspective"],out))
 
 
 def run_apply(run,args,confirm):
-    show,seq,idx,target,_=_context("APPLY",confirm,run); plan=build_plan(args); pf=load_json(os.path.join(_here(),PLAN_NAME)) or {}; target_guid=_guid(target.get_editor_property("cue_guid")); seq_path=seq.get_path_name().split('.')[0]
+    show,seq,idx,target,_,p01_cues=_context("APPLY",confirm,run); params=merge_args(args); inventory=_selected_p01_inventory(p01_cues,params["p01_opening_light_labels"],run); plan=build_plan(args,inventory); pf=load_json(os.path.join(_here(),PLAN_NAME)) or {}; target_guid=_guid(target.get_editor_property("cue_guid")); seq_path=seq.get_path_name().split('.')[0]
     if pf.get("plan_digest")!=plan["digest"] or pf.get("target_cue_guid")!=target_guid or pf.get("sequence")!=seq_path:_stop(run,"PLAN_CHANGED_SINCE_DRY")
-    before=_snapshot_live(seq,target); backup=_backup([SHOW_PATH,seq_path,LEVEL_PATH],run); record_path=os.path.join(_here(),RECORD_NAME); record={"schema_version":1,"run":run,"status":"recorded_before_mutation","plan":plan,"plan_digest":plan["digest"],"show":SHOW_PATH,"sequence":seq_path,"level":LEVEL_PATH,"target_cue_guid":target_guid,"target_index":idx,"before":before,"backup":backup,"dirty_before":_census()}; write_json(record_path,record,exclusive=True)
+    before=_snapshot_live(seq,target); backup=_backup([SHOW_PATH,seq_path,LEVEL_PATH],run); record_path=os.path.join(_here(),RECORD_NAME); record={"schema_version":2,"run":run,"status":"recorded_before_mutation","plan":plan,"plan_digest":plan["digest"],"show":SHOW_PATH,"sequence":seq_path,"level":LEVEL_PATH,"target_cue_guid":target_guid,"target_index":idx,"before":before,"backup":backup,"dirty_before":_census()}; write_json(record_path,record,exclusive=True)
     try:
         added=_mint(show,idx,plan,run); record["added_attachments"]=added; record["status"]="show_mutated"; write_json(record_path,record)
         passage=_passage_actor(show)
         if not bool(passage.materialize_passage()):_stop(run,"MATERIALIZE_FAILED")
-        actors=_find_materialized(added,target_guid); seq.modify(); disabled=_disable_old_rig(seq)
+        added_with_cue=[dict(row,cue_guid=target_guid) for row in added]
+        selected=[{"guid":row["guid"],"label":row["label"],"cue_guid":row["cue_guid"]} for row in plan["p01_lights"]]
+        actors=_find_materialized(added_with_cue+selected); seq.modify(); disabled=_disable_old_rig(seq)
         _,secs,asset=_gc(seq)
         if asset!=plan["params"]["curtain_cache_path"]:_stop(run,"CURTAIN_ASSET|"+str(asset))
         _set_gc(secs,plan["curtain_sections"])
         fb,ft=_focal_track(seq); focal_before=before["focal"]; fb.remove_track(ft); _write_float_track(fb,"CurrentFocalLength","CurrentFocalLength",plan["perspective_keys"],plan["opening_end_frame"])
         bindings={}
         for fx,row in zip(plan["fixtures"],added):bindings[fx["label"]]=_bind_fixture(seq,actors[row["guid"]],fx,run)
+        for fx in plan["p01_lights"]:bindings[fx["label"]]=_bind_fixture(seq,actors[fx["guid"]],fx,run)
         for label,fr in plan["markers"]:_set_marker(seq,label,fr)
         unreal.LevelSequenceEditorBlueprintLibrary.close_level_sequence()
         record.update({"status":"mutated_verified_presave","disabled_old_rig":disabled,"bindings":bindings,"focal_before":focal_before,"after":_snapshot_live(seq,list(show.get_editor_property("cues"))[idx]),"dirty_presave":_census()}); write_json(record_path,record)
         want_content={SHOW_PATH,seq_path}; want_maps={LEVEL_PATH}; census=_census()
         if set(census["content"])!=want_content or set(census["maps"])!=want_maps:_stop(run,"DIRTY_PRESAVE|"+canonical(census))
         _save(SHOW_PATH,seq_path); record["saved_readback"]=_verify_saved_apply(plan,record); record["status"]="saved_readback_verified"; record["dirty_after"]=_census(); write_json(record_path,record)
-        unreal.log("P13_OPENING_LIGHTING_APPLY_OK|run=%s|attachments=%d|old_rig_disabled=%d|saved=%s,%s,%s|backup=%s|record=%s"%(run,len(added),len(disabled),SHOW_PATH,seq_path,LEVEL_PATH,backup["root"],record_path))
+        unreal.log("P13_OPENING_LIGHTING_APPLY_OK|run=%s|attachments=%d|facade_pars=%d|p01_subset=%d|old_rig_disabled=%d|saved=%s,%s,%s|backup=%s|record=%s"%(run,len(added),plan["params"]["facade_par_count"],len(plan["p01_lights"]),len(disabled),SHOW_PATH,seq_path,LEVEL_PATH,backup["root"],record_path))
     finally:
         if unreal.LevelSequenceEditorBlueprintLibrary.get_current_level_sequence() is not None:unreal.LevelSequenceEditorBlueprintLibrary.close_level_sequence()
 
 
 def run_revert(run,confirm):
-    show,seq,idx,target,record=_context("REVERT",confirm,run); seq_path=record["sequence"]
+    show,seq,idx,target,record,p01_cues=_context("REVERT",confirm,run); seq_path=record["sequence"]
     live=_snapshot_live(seq,target)
     if digest(live)!=digest(record["after"]):_stop(run,"STATE_DRIFTED_SINCE_APPLY")
+    _verify_binding_tracks(seq,record["plan"],record["bindings"])
     backup=_backup([SHOW_PATH,seq_path,LEVEL_PATH],run,"PreP13OpeningLighting-Revert-"); txn=os.path.join(_here(),"opening_lighting_p13_revert_%s.json"%run); write_json(txn,{"run":run,"status":"recorded_before_mutation","source_record":os.path.join(_here(),RECORD_NAME),"backup":backup,"dirty_before":_census()},exclusive=True)
     added={r["guid"] for r in record["added_attachments"]}; current=_pair_attachments(target); live_added={_guid(a.get_editor_property("attachment_guid")) for a in current if _guid(a.get_editor_property("attachment_guid")) in added}
     if live_added!=added:_stop(run,"REVERT_ATTACHMENT_DRIFT|%r"%sorted(live_added))
     seq.modify()
-    for pair in record["bindings"].values():
-        for gid in (pair["component_binding_guid"],pair["actor_binding_guid"]):
-            hits=[b for b in seq.get_bindings() if _guid(b.get_id())==gid]
-            if len(hits)!=1:_stop(run,"REVERT_BINDING_DRIFT|"+gid)
-            hits[0].remove()
+    for label,pair in record["bindings"].items():_remove_binding_work(seq,pair,label,run)
     for name,specs in record["before"]["old_rig_spawn"].items():
         b=_find_binding(seq,name); tracks=[t for t in b.get_tracks() if t.get_class().get_name()=="MovieSceneSpawnTrack"]
         if len(tracks)!=1:_stop(run,"REVERT_SPAWN_TRACK|"+name)
@@ -857,7 +1207,17 @@ def run_revert(run,confirm):
     census=_census()
     if set(census["content"])!={SHOW_PATH,seq_path} or set(census["maps"])!={LEVEL_PATH}:_stop(run,"REVERT_DIRTY_PRESAVE|"+canonical(census))
     _save(SHOW_PATH,seq_path); readback=_verify_saved_revert(record); archived=os.path.join(_here(),RECORD_NAME)+".reverted-"+run; os.rename(os.path.join(_here(),RECORD_NAME),archived); write_json(txn,{"run":run,"status":"saved_readback_verified","source_record_archived":archived,"backup":backup,"saved_readback":readback,"dirty_after":_census()})
-    unreal.log("P13_OPENING_LIGHTING_REVERT_OK|run=%s|attachments_removed=%d|saved=%s,%s,%s|backup=%s|record=%s"%(run,len(added),SHOW_PATH,seq_path,LEVEL_PATH,backup["root"],archived))
+    unreal.log("P13_OPENING_LIGHTING_REVERT_OK|run=%s|attachments_removed=%d|bindings_reverted=%d|saved=%s,%s,%s|backup=%s|record=%s"%(run,len(added),len(record["bindings"]),SHOW_PATH,seq_path,LEVEL_PATH,backup["root"],archived))
+
+
+def offline_preview_main():
+    config=load_json(os.path.join(_here(),"opening_lighting_p13_args.json")) or {}
+    args=config.get("args") or {}; plan=build_plan(args); env=load_envelope(plan["params"].get("analysis_path"))
+    root=os.path.join(_project_root(),"DerivedAssets","OpeningLighting")
+    rig=write_rig_diagram(os.path.join(root,"P13_opening_rig_top_front.png"),plan)
+    timeline=write_timeline(os.path.join(root,"P13_opening_cue_timeline.png"),plan,env)
+    print("P13_OPENING_LIGHTING_PREVIEW_OK|digest=%s|facade_pars=%d|p01_subset=%d|rig=%s|timeline=%s"%
+          (plan["digest"],plan["params"]["facade_par_count"],len(plan["p01_lights"]),rig["path"],timeline["path"]))
 
 
 def main():
@@ -871,3 +1231,5 @@ def main():
 
 if unreal is not None:
     main()
+elif __name__ == "__main__":
+    offline_preview_main()
