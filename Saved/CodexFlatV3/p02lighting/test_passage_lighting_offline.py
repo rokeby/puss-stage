@@ -5,6 +5,7 @@ import ast
 import copy
 import json
 import pathlib
+import re
 import sys
 import tempfile
 
@@ -49,11 +50,18 @@ def cue(prefix, ordinal, rows):
 
 roles = ["CROSS +Y", "CROSS -Y", "LOW_SIDE_L_KEY", "LOW_SIDE_R_FILL",
          "TOP_L", "TOP_R", "ENTRY_TOP", "PRACTICAL_BULB"]
-# Synthetic source realizes the plan's declared 414-light default. The prose
-# table itself sums to 415, so live DRY remains the authority and will stop on
-# any mismatch instead of silently accepting either number.
-counts = [16, 14, 19, 19, 19, 19, 18, 14, 19, 19, 19, 19, 19, 19, 19, 18, 14, 19, 18, 19, 18, 19, 18]
-check("fixture total is plan default 414", sum(counts) == 414)
+# Reconciled source-ordinal vector: P03's APPLY record proves ordinals 1-21
+# total 377; P01's rig record proves ordinals 22/23 are 19/18.  The P02 table
+# uses target show order (Wing 003 is target ordinal 14), not numeric labels.
+counts = [16, 14, 19, 19, 19, 19, 19, 14, 19, 19, 19, 19, 19, 18, 19, 18, 14, 19, 18, 19, 18, 19, 18]
+check("reconciled P03 ordinals 1-21 total 377", sum(counts[:21]) == 377)
+check("reconciled P02 total is 377 + 19 + 18 = 414",
+      counts[21:] == [19, 18] and sum(counts) == 414)
+plan_text = (HERE.parent / "p02p03_audit" / "LIGHTING_PLAN.md").read_text(encoding="utf-8")
+documented_counts = [int(match.group(1)) for match in re.finditer(
+    r"^\| P02 Wing \d+ \| \d+ \| \d+ \| (\d+) \|$", plan_text, re.MULTILINE)]
+check("documented 23-row table pins the reconciled source vector",
+      documented_counts == counts and sum(documented_counts) == 414)
 
 source = []
 counter = 0
@@ -156,6 +164,12 @@ drifted_managed = copy.deepcopy(managed)
 drifted_managed["lighting"]["temperature_kelvin"] = 9999.0
 check("negative owned-field drift blocks revert", raises(lambda: P.field_scoped_revert_rows(
       [drifted_managed, special], target_record), "REVERT_OWNED_FIELD_DRIFT"))
+ready_record = {"status": "saved_readback_verified", "args": defaults}
+immediate = P.immediate_revert_args(ready_record)
+check("immediate revert derives exact field-scoped mode and confirm",
+      immediate["mode"] == "REVERT" and immediate["confirm"] == "REVERT PASSAGELIGHT")
+check("negative immediate revert refuses unverified record", raises(lambda: P.immediate_revert_args(
+      {"status": "prepared", "args": defaults}), "IMMEDIATE_REVERT_RECORD_NOT_READY"))
 
 # Atmosphere and preview controls.
 source_atmos = [{"id": "S1", "label": "P01 Beam B01", "beam": True, "ordinal": 1}]
@@ -177,6 +191,7 @@ check("negative corrupt preview rejected by signature", not tmp.read_bytes().sta
 
 # Shipped configuration and syntax.
 for name in ("passage_lighting_as_source.py", "passage_lighting_run.py",
+             "passage_lighting_immediate_revert.py",
              "passage_lighting_perf_probe.py", "test_passage_lighting_offline.py"):
     ast.parse((HERE / name).read_text(encoding="utf-8"))
 check("all shipped Python parses", True)
@@ -187,9 +202,17 @@ check("request routes guarded runner", request["arguments"]["arguments"]["relati
 perf_request = json.loads((HERE / "passage_lighting_perf_probe_request.json").read_text(encoding="utf-8"))
 check("perf request routes read-only hook", perf_request["arguments"]["arguments"]["relativeSavedPath"] ==
       defaults["perf_probe"]["relative_saved_path"])
+revert_request = json.loads((HERE / "passage_lighting_immediate_revert_request.json").read_text(encoding="utf-8"))
+check("immediate revert request routes dedicated guarded runner",
+      revert_request["arguments"]["arguments"]["relativeSavedPath"] ==
+      "CodexFlatV3/p02lighting/passage_lighting_immediate_revert.py")
 perf_args = json.loads((HERE / "passage_lighting_perf_probe_args.json").read_text(encoding="utf-8"))
 check("perf summary positive control", F.summarise([16.0] * 100, perf_args)["passed"] is True)
 check("perf summary negative threshold control", F.summarise([60.0] * 100, perf_args)["passed"] is False)
+gpu_failed = F.summarise([16.0] * 100, perf_args, log_delta="DXGI_ERROR_DEVICE_REMOVED")
+check("GPU health negative device-removal control",
+      gpu_failed["passed"] is False and gpu_failed["gpu_health"]["loss_signatures"] ==
+      ["DXGI_ERROR_DEVICE_REMOVED"])
 check("perf summary negative empty control", raises(lambda: F.summarise([], perf_args), "NO_SAMPLES"))
 
 failed = [name for name, ok in RESULTS if not ok]

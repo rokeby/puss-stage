@@ -35,6 +35,8 @@ The ranges below are **measured** from the saved P01 rig record; positions are p
 
 `P01 add` is the exact source-light count for the corresponding P01 ordinal. Final P02 totals remain **UNCLEAR** until live DRY classifies preserved car/event/effect lights.
 
+**Measured reconciliation (9 Oct):** the table is in P02 target Show order, not numeric label order: `P02 Wing 004` is target/source ordinal 3 and `P02 Wing 003` is target/source ordinal 14. The saved P03 APPLY proves source ordinals 1-21 are `16+14+19+19+19+19+19+14+19+19+19+19+19+18+19+18+14+19+18+19+18 = 377` (`E:/PussStage/Saved/CodexConductor/p03_lighting_as_p01_report_APPLY_20261008-051137.json:1`). The saved P01 rig rows prove source ordinal 22 has 19 lights and ordinal 23 has 18 (`E:/PussStage/Saved/CodexConductor/p01_rig_pattern_record.json:1`). Therefore the 23-row table is `377 + 19 + 18 = 414`, matching the declared expected count and cap below. No row is extra or double-counted; the former 415 claim was a stale arithmetic statement, not a source or cap defect.
+
 | P02 row | Current lights | Non-lights | P01 add |
 |---|---:|---:|---:|
 | P02 Wing 001 | 13 | 2 | 16 |

@@ -50,6 +50,14 @@ ARGS_PATH = os.path.join(HERE, "passage_lighting_args.json")
 MARK = "PASSAGELIGHT"
 FLOAT_TOL = 1.0e-4
 TERMINAL_RECORD_STATUSES = {"reverted", "archived", "complete", "failed", "failed_rolled_back_in_memory"}
+GPU_PROBE_COMMAND = (
+    "python Saved/CodexMocap/mcp_request.py tools/call --params-file "
+    "Saved/CodexFlatV3/p02lighting/passage_lighting_perf_probe_request.json"
+)
+IMMEDIATE_REVERT_COMMAND = (
+    "python Saved/CodexMocap/mcp_request.py tools/call --params-file "
+    "Saved/CodexFlatV3/p02lighting/passage_lighting_immediate_revert_request.json"
+)
 MOVER_FIELDS = ("enabled", "trigger", "approach_distance_cm", "yaw_amplitude_degrees",
                 "pitch_amplitude_degrees", "steps_per_second", "ease_fraction", "calm_scale",
                 "erratic_ramp_cm", "seed")
@@ -201,6 +209,17 @@ def check_args(raw):
     require(isinstance(out["ack_records"], list) and all(isinstance(x, str) for x in out["ack_records"]),
             "ACK_RECORDS_INVALID")
     return out
+
+
+def immediate_revert_args(record):
+    """Build the exact field-scoped REVERT args from the active APPLY record."""
+    require(isinstance(record, dict), "IMMEDIATE_REVERT_RECORD_NOT_OBJECT")
+    require(record.get("status") == "saved_readback_verified", "IMMEDIATE_REVERT_RECORD_NOT_READY")
+    raw = copy.deepcopy(record.get("args"))
+    require(isinstance(raw, dict), "IMMEDIATE_REVERT_RECORD_ARGS_MISSING")
+    raw["mode"] = "REVERT"
+    raw["confirm"] = "REVERT " + MARK
+    return check_args(raw)
 
 
 def enum_name(value):
@@ -1172,6 +1191,12 @@ def _preview_path(mode, run):
     return os.path.join(HERE, "passage_lighting_preview_%s_%s.png" % (mode, run))
 
 
+def _gpu_log_cursor():
+    path = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_log_dir()),
+                        "PussStage.log")
+    return {"log_path": path, "log_offset": os.path.getsize(path) if os.path.isfile(path) else 0}
+
+
 def _log_table(run, plan):
     for t in plan["targets"]:
         removed = ",".join(r["label"] for r in t["removed"]) or "-"
@@ -1345,12 +1370,19 @@ def _run(args):
         require(not unacked, "FOREIGN_ACTIVE_RECORDS_UNACKNOWLEDGED|" + ";".join(unacked))
         require(not os.path.exists(RECORD_PATH), "ACTIVE_REVERT_RECORD_EXISTS")
         outside_before = _outside_hash(show, plan["target_cue_guids"])
+        gpu_cursor = _gpu_log_cursor()
         backup = C.backup_packages(
             unreal, "Pre%sLightingAs%s-" % (target_prefix, source_prefix), run,
             [C.SHOW_PATH, C.EXPECTED_WORLD])
-        record = {"schema_version": 2, "status": "prepared", "run": run, "args": args, "plan": plan,
-                  "atmosphere": atmosphere, "atmos_before": target_atmos, "backup": backup,
-                  "outside_before_hash": outside_before, "acknowledged_records": sorted(ack)}
+        record = {"schema_version": 3, "status": "prepared", "run": run, "args": args, "plan": plan,
+                   "atmosphere": atmosphere, "atmos_before": target_atmos, "backup": backup,
+                  "outside_before_hash": outside_before, "acknowledged_records": sorted(ack),
+                  "dirty_before": dirty_before,
+                  "gpu_health_probe": dict({"status": "PENDING", "command": GPU_PROBE_COMMAND},
+                                           **gpu_cursor),
+                  "immediate_revert": {"status": "READY_AFTER_SAVED_READBACK",
+                                       "field_scoped": True,
+                                       "command": IMMEDIATE_REVERT_COMMAND}}
         C.write_json(RECORD_PATH, record, exclusive=True)
         try:
             added = _mutate_lights(show, plan)
@@ -1388,25 +1420,31 @@ def _run(args):
         saved_atmos = _actor_readback(record["atmos_after"], target_actor, args["atmosphere"], target_prefix)
         _verify_atmos_result(atmosphere, saved_atmos, "ATMOS_SAVED_SEMANTICS")
         perf_hook = {"status": "PENDING", "required": True,
-                     "relative_saved_path": args["perf_probe"]["relative_saved_path"],
-                     "args_path": os.path.join(HERE, "passage_lighting_perf_probe_args.json"),
-                     "request_path": os.path.join(HERE, "passage_lighting_perf_probe_request.json"),
-                     "thresholds": {"max_p95_ms": args["perf_probe"]["max_p95_ms"],
-                                    "max_p99_ms": args["perf_probe"]["max_p99_ms"]}}
+                      "relative_saved_path": args["perf_probe"]["relative_saved_path"],
+                      "args_path": os.path.join(HERE, "passage_lighting_perf_probe_args.json"),
+                      "request_path": os.path.join(HERE, "passage_lighting_perf_probe_request.json"),
+                      "command": GPU_PROBE_COMMAND,
+                      "gpu_loss_log_scan": True,
+                      "thresholds": {"max_p95_ms": args["perf_probe"]["max_p95_ms"],
+                                     "max_p99_ms": args["perf_probe"]["max_p99_ms"]}}
         record.update({"status": "saved_readback_verified", "saved_census": C.dirty_census(unreal),
                        "post_apply_perf_gate": perf_hook})
         C.write_json(RECORD_PATH, record)
         command = C.queue_saved_master_test(unreal, world, MARK, run)
         report.update({"ok": True, "backup": backup, "record": RECORD_PATH, "added_count": added,
-                       "dirty_after": C.dirty_census(unreal), "saved_master_command": command,
-                       "post_apply_perf_gate": perf_hook})
+                        "dirty_after": C.dirty_census(unreal), "saved_master_command": command,
+                       "post_apply_perf_gate": perf_hook,
+                       "gpu_health_probe_command": GPU_PROBE_COMMAND,
+                       "immediate_revert_command": IMMEDIATE_REVERT_COMMAND})
         C.write_json(_report_path(mode, run), report)
         unreal.log("%s_APPLY_OK|run=%s|source=%s|target=%s|removed=%d|added=%d|kept_specials=%d|"
                    "atmos_changes=%d|show_saved=1|level_saved=1|field_scoped=1|readback=1|"
-                   "saved_master=queued|perf_gate=PENDING|perf_hook=%s" %
+                   "saved_master=queued|gpu_health=PENDING|gpu_probe_command=%s|"
+                   "immediate_revert_command=%s|perf_hook=%s" %
                    (MARK, run, source_prefix, target_prefix, plan["counts"]["removed_lights"], added,
-                    plan["counts"]["kept_specials"], len(atmosphere["changes"]),
-                    args["perf_probe"]["relative_saved_path"]))
+                     plan["counts"]["kept_specials"], len(atmosphere["changes"]),
+                     GPU_PROBE_COMMAND, IMMEDIATE_REVERT_COMMAND,
+                     args["perf_probe"]["relative_saved_path"]))
         return report
     except Exception as error:
         report["error"] = "%s: %s" % (type(error).__name__, error)

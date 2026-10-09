@@ -1,4 +1,4 @@
-"""Read-only post-APPLY PIE frame-time gate for PASSAGELIGHT.
+"""Read-only post-APPLY PIE frame-time and GPU-loss gate for PASSAGELIGHT.
 
 The conductor starts PIE at the chosen early/middle/late P02 review position,
 then runs this hook. It never starts/stops PIE and never saves a package.
@@ -16,6 +16,13 @@ except ModuleNotFoundError:  # offline harness
 HERE = (os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()),
                      "CodexFlatV3", "p02lighting") if unreal is not None else os.path.dirname(__file__))
 KEY = "PUSS_PASSAGE_LIGHTING_PERF_PROBE"
+GPU_LOSS_TOKENS = (
+    "DXGI_ERROR_DEVICE_REMOVED",
+    "DeviceRemovedNoGpuFault",
+    "GPU is lost",
+    "GPU crash dump triggered",
+    "GPU timeout",
+)
 
 
 def require(condition, message):
@@ -30,7 +37,12 @@ def percentile(values, fraction):
     return ordered[index]
 
 
-def summarise(values, args, run="offline", apply_run="offline"):
+def gpu_loss_hits(text):
+    lower = str(text).lower()
+    return [token for token in GPU_LOSS_TOKENS if token.lower() in lower]
+
+
+def summarise(values, args, run="offline", apply_run="offline", log_delta=""):
     require(values, "NO_SAMPLES")
     result = {"run": run, "apply_run": apply_run, "label": args["label"],
               "n": len(values), "mean_ms": sum(values) / len(values),
@@ -38,7 +50,11 @@ def summarise(values, args, run="offline", apply_run="offline"):
               "p99_ms": percentile(values, 0.99), "max_ms": max(values),
               "thresholds": {"max_p95_ms": float(args["max_p95_ms"]),
                              "max_p99_ms": float(args["max_p99_ms"])}}
-    result["passed"] = (result["p95_ms"] <= result["thresholds"]["max_p95_ms"] and
+    hits = gpu_loss_hits(log_delta)
+    result["gpu_health"] = {"passed": not hits, "loss_signatures": hits,
+                            "log_delta_bytes": len(log_delta.encode("utf-8", errors="replace"))}
+    result["passed"] = (not hits and
+                        result["p95_ms"] <= result["thresholds"]["max_p95_ms"] and
                         result["p99_ms"] <= result["thresholds"]["max_p99_ms"])
     return result
 
@@ -58,8 +74,12 @@ def main():
     seconds = float(args["seconds"])
     skip = int(args["skip_frames"])
     require(seconds > 0.0 and skip >= 0, "PROBE_ARGS_INVALID")
+    gpu_probe = record.get("gpu_health_probe") or {}
+    log_path = str(gpu_probe.get("log_path", ""))
+    log_offset = gpu_probe.get("log_offset")
+    require(log_path and isinstance(log_offset, int) and log_offset >= 0, "GPU_LOG_CURSOR_MISSING")
     state = {"run": run, "args": args, "apply_run": record.get("run"), "seen": 0,
-             "elapsed": 0.0, "deltas_ms": []}
+             "elapsed": 0.0, "deltas_ms": [], "log_path": log_path, "log_offset": log_offset}
 
     def finish(st, error=None):
         try:
@@ -70,7 +90,14 @@ def main():
         if error is not None:
             unreal.log_error("PASSAGELIGHT_PERF_FAILED|run=%s|reason=%s" % (st["run"], error))
             return
-        result = summarise(st["deltas_ms"], args, st["run"], st["apply_run"])
+        log_delta = ""
+        if os.path.isfile(st["log_path"]):
+            with open(st["log_path"], "rb") as handle:
+                handle.seek(st["log_offset"])
+                log_delta = handle.read().decode("utf-8", errors="replace")
+        result = summarise(st["deltas_ms"], args, st["run"], st["apply_run"], log_delta)
+        result["log_path"] = st["log_path"]
+        result["log_offset"] = st["log_offset"]
         out = os.path.join(HERE, "passage_lighting_perf_%s.json" % st["run"])
         with open(out, "w", encoding="utf-8") as handle:
             json.dump(result, handle, indent=2, sort_keys=True)
@@ -78,7 +105,12 @@ def main():
         log = unreal.log if result["passed"] else unreal.log_error
         log("%s|run=%s|apply_run=%s|n=%d|p95_ms=%.3f|p99_ms=%.3f|max_ms=%.3f|out=%s" %
             (marker, st["run"], st["apply_run"], result["n"], result["p95_ms"],
-             result["p99_ms"], result["max_ms"], out))
+              result["p99_ms"], result["max_ms"], out))
+        gpu_marker = "PASSAGELIGHT_GPU_HEALTH_OK" if result["gpu_health"]["passed"] else "PASSAGELIGHT_GPU_HEALTH_FAILED"
+        gpu_log = unreal.log if result["gpu_health"]["passed"] else unreal.log_error
+        gpu_log("%s|run=%s|apply_run=%s|loss_signatures=%s|log=%s" %
+                (gpu_marker, st["run"], st["apply_run"],
+                 ",".join(result["gpu_health"]["loss_signatures"]) or "none", st["log_path"]))
 
     def tick(delta):
         st = getattr(builtins, KEY, None)
