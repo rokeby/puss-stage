@@ -132,6 +132,7 @@ FLOOR_DEFAULTS = {
     "body_gap_cm": 8.0,                     # lamp body beside its lantern
     "lamp_body_rotation": {"SM_Lamp_Ceiling": [[1.0, 0.0, 0.0], 180.0], "SM_Lamp_Wall": [[0.0, 1.0, 0.0], 90.0]},
     "floor_tol_cm": 1.0,                    # every moved support point within +-1 cm of its floor
+    "floor_disagree_expected_cm": 0.0,      # measured uniform floor-actor-top minus panel-foot offset (P01: 100.5, 8 Oct DRY)
     "floor_disagree_max_cm": 3.0,           # floor actor top vs panel foot: larger -> that item is refused (listed)
     "floor_label_regex": r"Floor",
     # (B) what stands on the floor for a domestic uplight (Gary 8 Oct, second message: "replaced with theatre light
@@ -580,7 +581,10 @@ def floor_plan(cues, ctx_by_cue, mesh_bounds, table, caps, lantern, grid, opts, 
                 continue
             side = 1.0 if y_ref >= 0 else -1.0
             fl = floor_by_guid.get(body["guid"]) or {"z": panel["min"][2], "source": "PANEL_FOOT"}
-            if fl.get("disagree_cm") is not None and abs(fl["disagree_cm"]) > float(opts["floor_disagree_max_cm"]):
+            # 8 Oct live DRY: every P01 floor-actor top sat exactly 100.50 cm above the wing-panel foot (the panels reach
+            # below the visible floor). floor_disagree_expected_cm (arg) is that measured, uniform offset; an item is
+            # refused only when its own disagreement departs from it by more than floor_disagree_max_cm.
+            if fl.get("disagree_cm") is not None and abs(fl["disagree_cm"] - float(opts.get("floor_disagree_expected_cm", 0.0)))                     > float(opts["floor_disagree_max_cm"]):
                 refused.append(dict(item, why="FLOOR_DISAGREES|%.2f cm" % fl["disagree_cm"]))
                 continue
             floor_z = float(fl["z"])
@@ -917,7 +921,7 @@ def add_uplights_plan(cues, ctx_by_cue, lantern, grid, opts, passage, floor_by_g
                 y = ylo + (yhi - ylo) * (k + 1.0) / (n + 1.0)
                 guid = "NEW%s" % hashlib.sha256(key.encode()).hexdigest()[:29].upper()
                 fl = floor_by_guid.get(guid) or {"z": panel["min"][2], "source": "PANEL_FOOT"}
-                if fl.get("disagree_cm") is not None and abs(fl["disagree_cm"]) > float(opts["floor_disagree_max_cm"]):
+                if fl.get("disagree_cm") is not None and abs(fl["disagree_cm"] - float(opts.get("floor_disagree_expected_cm", 0.0))) > float(opts["floor_disagree_max_cm"]):
                     skipped.append({"cue": cue["label"], "side": tag, "why": "FLOOR_DISAGREES"})
                     continue
                 x = panel["min"][0] - float(opts["wing_clearance_cm"]) - cmax[0]
