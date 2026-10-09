@@ -36,6 +36,10 @@ public:
         double StartSeconds = 0.0;
         double LengthSeconds = 0.0;
         FString GoNumber;
+        /** "S3" for the third Scene; empty for other segments. */
+        FString SceneKey;
+        /** A fallback video for this Scene is listed in current.json. */
+        bool bVideoAvailable = false;
     };
 
 private:

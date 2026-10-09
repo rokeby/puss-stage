@@ -98,6 +98,10 @@ struct INFINITYSTAGE_API FInfinityCueDirectorSettings
     bool bRunThrough = false;
     TArray<FGuid> StopAfterSegments;
     TArray<FString> HoldGoNumbers;
+    /** Scenes ("S3") that play their pre-rendered video instead of the live Scene. */
+    TArray<FString> UseVideoScenes;
+    /** Who plays a video Scene's sound: "ue" (the muxed file) or "desk" (Cameron's WAV; UE silent). */
+    FString VideoAudio = TEXT("ue");
 
     /** Unknown keys and bad GUIDs become warnings; nothing is fatal. */
     void Parse(const FString& Text, TArray<FString>& OutWarnings);

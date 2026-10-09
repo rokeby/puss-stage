@@ -4,8 +4,11 @@
 #include "InfinityStageCompiler.h"
 #include "InfinityStageShowAsset.h"
 #include "InfinityStageTransportController.h"
+#include "InfinityStageVideoFallback.h"
 #include "LevelSequence.h"
 #include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
+#include "Widgets/SNullWidget.h"
 #include "MovieScene.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SCheckBox.h"
@@ -99,6 +102,29 @@ public:
                     *Dirty = true;
                 });
         }
+        if (Column == TEXT("Video"))
+        {
+            if (bGo || Row->SceneKey.IsEmpty())
+            {
+                return SNullWidget::NullWidget;
+            }
+            return SNew(SCheckBox)
+                .IsEnabled(Row->bVideoAvailable)
+                .ToolTipText(Row->bVideoAvailable
+                    ? LOCTEXT("VideoTip", "Play this Scene's pre-rendered video instead of the live Scene (falls back to live if the file fails).")
+                    : LOCTEXT("NoVideoTip", "No video for this Scene in Renders/Fallbacks/current.json yet."))
+                .IsChecked_Lambda([this]()
+                {
+                    return Settings->UseVideoScenes.Contains(Row->SceneKey) ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
+                })
+                .OnCheckStateChanged_Lambda([this](const ECheckBoxState State)
+                {
+                    State == ECheckBoxState::Checked
+                        ? (void)Settings->UseVideoScenes.AddUnique(Row->SceneKey)
+                        : (void)Settings->UseVideoScenes.Remove(Row->SceneKey);
+                    *Dirty = true;
+                });
+        }
         FString Text;
         if (Column == TEXT("Label"))
         {
@@ -182,6 +208,7 @@ void SInfinityStageCueDirectorPanel::Construct(const FArguments& InArgs)
             (
                 SNew(SHeaderRow)
                 + SHeaderRow::Column(TEXT("Stop")).DefaultLabel(LOCTEXT("ColStop", "Klara GO")).FixedWidth(90.0f)
+                + SHeaderRow::Column(TEXT("Video")).DefaultLabel(LOCTEXT("ColVideo", "Use video")).FixedWidth(80.0f)
                 + SHeaderRow::Column(TEXT("Label")).DefaultLabel(LOCTEXT("ColLabel", "Segment / GO marker")).FillWidth(0.4f)
                 + SHeaderRow::Column(TEXT("Time")).DefaultLabel(LOCTEXT("ColTime", "Starts")).FixedWidth(80.0f)
                 + SHeaderRow::Column(TEXT("Length")).DefaultLabel(LOCTEXT("ColLength", "Length")).FixedWidth(80.0f)
@@ -214,6 +241,17 @@ void SInfinityStageCueDirectorPanel::Refresh()
         return;
     }
     const UInfinityStageShowAsset& ShowRef = *Show.Get();
+    TMap<int32, FInfinityFallbackClip> Clips;
+    {
+        FString Json;
+        TArray<FString> VideoWarnings;
+        const FString Root = InfinityStageVideoFallback::ResolveRoot();
+        if (FFileHelper::LoadFileToString(Json, *FPaths::Combine(Root, TEXT("current.json"))))
+        {
+            Clips = InfinityStageVideoFallback::ParseRegistry(Json, Root, VideoWarnings);
+        }
+    }
+    int32 SceneOrdinal = 0;
     const FInfinityCompileResult Compiled = FInfinityStageCompiler::Compile(ShowRef);
     const double TickRate = ShowRef.TickResolution.AsDecimal();
     for (int32 Index = 0; Index < Compiled.Segments.Num(); ++Index)
@@ -225,6 +263,12 @@ void SInfinityStageCueDirectorPanel::Refresh()
         Row->StartSeconds = Segment.StartFrame.Value / TickRate;
         Row->LengthSeconds = (Segment.EndFrame - Segment.StartFrame).Value / TickRate;
         Row->SheetLabel = Sheet.SegmentLabels.IsValidIndex(Index) ? Sheet.SegmentLabels[Index] : FString(TEXT("(not in the sheet)"));
+        if (Segment.Type == EInfinityCueType::Scene)
+        {
+            ++SceneOrdinal;
+            Row->SceneKey = FString::Printf(TEXT("S%d"), SceneOrdinal);
+            Row->bVideoAvailable = Clips.Contains(SceneOrdinal);
+        }
         const UMovieSceneSequence* Sequence = nullptr;
         if (Segment.Type == EInfinityCueType::WingPair)
         {
