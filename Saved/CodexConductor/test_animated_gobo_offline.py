@@ -345,6 +345,18 @@ check("I16 MPC carries Frame, Clock, Approach", tuple(ag.MPC_SCALARS) == ("Frame
 check("I17 every Edge input is wired", all(n in src for n in ('"Clock", "Approach") + HAND_NAMES',))
       and set(ag.EDGE_INPUTS) >= {"Mask", "Border", "Clock", "Approach"} | set(ag.HAND_NAMES))
 
+# J. Older records (run 004, v1 snapshot without clock_keys) must stay revertible.
+OLD = {"playback": [0, 2226], "lights": {"A": "/Game/X/MI"}, "track": {"name": ag.TRACK_NAME, "mpc": ag.MPC,
+       "parameter": "Frame", "keys": [[175, 0.0], [250, 24.0]], "channel_count": 1, "range": [175, 251]}}
+LIVE = copy.deepcopy(OLD)
+LIVE["track"]["clock_keys"] = []
+check("J01 v2 live snapshot of an untouched v1 run is not drift", ag.snapshot_diff(ag.comparable(LIVE, OLD), OLD) == [])
+check("J02 -control without comparable() the extra field reads as drift", bool(ag.snapshot_diff(LIVE, OLD)))
+MOVED = copy.deepcopy(LIVE)
+MOVED["track"]["keys"][1][1] = 23.0
+check("J03 -control a real key change on a v1 run is still drift", bool(ag.snapshot_diff(ag.comparable(MOVED, OLD), OLD)))
+check("J04 comparable() leaves a missing track alone", ag.comparable({"track": None}, OLD) == {"track": None})
+
 # E. Static safety contract: cheap but catches accidental erosion of house rules.
 source = (HERE / "animated_gobo.py").read_text(encoding="utf-8")
 runner = (HERE / "animated_gobo_run.py").read_text(encoding="utf-8")

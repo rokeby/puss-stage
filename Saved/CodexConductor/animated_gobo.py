@@ -574,6 +574,15 @@ def revert_model(after: dict, record: dict) -> dict:
     return restored
 
 
+def comparable(current: dict, recorded: dict) -> dict:
+    """Records written by an older tool lack newer track fields (v1 had no clock_keys); compare only the fields the
+    record holds, so an untouched older run is not refused as drifted."""
+    out = copy.deepcopy(current)
+    if isinstance(out.get("track"), dict) and isinstance(recorded.get("track"), dict):
+        out["track"] = {k: v for k, v in out["track"].items() if k in recorded["track"]}
+    return out
+
+
 def snapshot_diff(a: dict, b: dict) -> list[str]:
     return [] if a == b else ["SNAPSHOT_DIFF|got=%s|want=%s" % (_digest(a), _digest(b))]
 
@@ -969,7 +978,7 @@ def _verify_assets(plan, seq, record, run):
             if abs(got - float(want)) > FLOAT_TOL:
                 failures.append("MI_SCALAR|%s|%.7g|%.7g" % (name, got, want))
     snap = _snapshot(seq, plan["light_labels"], run)
-    failures.extend(snapshot_diff(snap, record["snapshot_after"]))
+    failures.extend(snapshot_diff(comparable(snap, record["snapshot_after"]), record["snapshot_after"]))
     return failures
 
 
@@ -1116,7 +1125,7 @@ def run_revert(args, run):
     if refusals:
         _stop(run, "REFUSED|" + " || ".join(refusals))
     current = _snapshot(seq, plan["light_labels"], run)
-    drift = snapshot_diff(current, record["snapshot_after"])
+    drift = snapshot_diff(comparable(current, record["snapshot_after"]), record["snapshot_after"])
     if drift:
         _stop(run, "STATE_DRIFTED_SINCE_APPLY|%s" % drift)
     # Refuse before any mutation if anything outside this record still refers to an asset this run created (e.g. a
