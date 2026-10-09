@@ -1,5 +1,5 @@
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs b/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
-index 168a8a4..e5b066f 100644
+index 168a8a493ae06e1e70d98a4ac91604df7539750d..e5b066f8bea65535e5d333a056c53dea17ae64b0 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
 +++ b/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
 @@ -21,6 +21,9 @@ public class InfinityStage : ModuleRules
@@ -13,7 +13,7 @@ index 168a8a4..e5b066f 100644
              // The rehearsal bar (Cue Director) is a Slate widget shown in the game viewport too.
              "Slate",
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
-index fc5a27b..d36e247 100644
+index fc5a27b4993b7e3747217113af29cd7fe229eb7f..18653e498db644d6f560d6988323f986e5d8c0e7 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
 @@ -4,6 +4,8 @@
@@ -25,7 +25,7 @@ index fc5a27b..d36e247 100644
  #include "Camera/CameraComponent.h"
  #include "Camera/PlayerCameraManager.h"
  #include "GameFramework/PlayerController.h"
-@@ -50,34 +52,172 @@ UAnimSequence* GetShadowCatIdleAnimation()
+@@ -50,34 +52,180 @@ UAnimSequence* GetShadowCatIdleAnimation()
      return IdleAnimation;
  }
  
@@ -46,10 +46,11 @@ index fc5a27b..d36e247 100644
          return;
      }
  
+-    if (CatMesh->GetAnimationMode() != EAnimationMode::AnimationSingleNode)
 +    // The no-action gait stays on the existing single-node instance exactly
 +    // as required: stopped, explicitly positioned, and never wall-time played.
 +    if (!ActionAnimation || ActionWeight <= UE_DOUBLE_SMALL_NUMBER)
-+    {
+     {
 +        if (CatMesh->GetAnimationMode() != EAnimationMode::AnimationSingleNode)
 +        {
 +            CatMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
@@ -67,12 +68,11 @@ index fc5a27b..d36e247 100644
 +        return;
 +    }
 +
--    if (CatMesh->GetAnimationMode() != EAnimationMode::AnimationSingleNode)
 +    bool bWasCreated = false;
 +    UAnimSequencerInstance* Sequencer =
 +        FAnimCustomInstanceHelper::BindToSkeletalMeshComponent<UAnimSequencerInstance>(CatMesh, bWasCreated);
 +    if (!Sequencer)
-     {
++    {
 +        // Defensive fallback only. The normal path above is the weighted
 +        // Sequencer evaluator; this at least remains Master-time locked.
          CatMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
@@ -136,15 +136,15 @@ index fc5a27b..d36e247 100644
      }
 +    return Wrapped;
 +}
-+
+ 
+-    UAnimSingleNodeInstance* SingleNode = CatMesh->GetSingleNodeInstance();
+-    if (!SingleNode || SingleNode->GetAnimationAsset() != Animation)
 +double SmoothUnit(const double Alpha)
 +{
 +    const double Clamped = FMath::Clamp(Alpha, 0.0, 1.0);
 +    return Clamped * Clamped * (3.0 - 2.0 * Clamped);
 +}
- 
--    UAnimSingleNodeInstance* SingleNode = CatMesh->GetSingleNodeInstance();
--    if (!SingleNode || SingleNode->GetAnimationAsset() != Animation)
++
 +double SeededSignedUnit(const int32 Seed, const int32 Salt)
 +{
 +    FRandomStream Stream(Seed ^ Salt);
@@ -156,6 +156,10 @@ index fc5a27b..d36e247 100644
 +{
 +    UAnimSequence* Animation = nullptr;
 +    FInfinityShadowCatActionTiming Timing;
++    EInfinityShadowCatCameraMode CameraMode = EInfinityShadowCatCameraMode::Route;
++    EInfinityShadowCatBodyVisibility BodyVisibility = EInfinityShadowCatBodyVisibility::ShadowOnly;
++    FName HeadPOVBone = TEXT("Head");
++    FVector HeadPOVOffsetCm = FVector(12.0, 0.0, 3.0);
 +    int32 StartFrame = INDEX_NONE;
 +};
 +
@@ -204,6 +208,10 @@ index fc5a27b..d36e247 100644
 +        {
 +            Result.Animation = Animation;
 +            Result.Timing = Timing;
++            Result.CameraMode = Action.CameraMode;
++            Result.BodyVisibility = Action.BodyVisibility;
++            Result.HeadPOVBone = Action.HeadPOVBone;
++            Result.HeadPOVOffsetCm = Action.HeadPOVOffsetCm;
 +            Result.StartFrame = Action.StartFrame.Value;
 +        }
      }
@@ -211,7 +219,112 @@ index fc5a27b..d36e247 100644
  }
  
  const FInfinityCompiledPassage* FindCompiledPassage(const FInfinityCompileResult& Compiled, const FGuid& PassageGuid)
-@@ -479,22 +619,24 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
+@@ -255,7 +403,7 @@ void AInfinityStageCameraRig::UpdateShadowFigureVisibility()
+     }
+ }
+ 
+-bool AInfinityStageCameraRig::ShouldDrawShadowCatBody() const
++bool AInfinityStageCameraRig::ShouldDrawShadowCatBody() cons
+ {
+     const UWorld* World = GetWorld();
+     return bShadowCatRenderInMainPass && !(World && World->IsGameWorld());
+@@ -265,29 +413,42 @@ static void ApplyShadowCatBodyRendering(
+     USkeletalMeshComponent* CatMesh,
+     const bool bDrawBody,
+     const bool bGameWorld,
+-    const bool bVisibleInReflections)
++    const bool bVisibleInReflections,
++    const EInfinityShadowCatBodyVisibility BodyVisibility)
+ {
+     if (!CatMesh)
+     {
+         return;
+     }
+ 
+-    CatMesh->SetRenderInMainPass(bDrawBody);
+-    CatMesh->SetVisibleInRayTracing(!bGameWorld && bVisibleInReflections);
++    const bool bPOVBody = bGameWorld && BodyVisibility == EInfinityShadowCatBodyVisibility::POVBody;
++    const bool bReflectionOnly = bGameWorld
++        && BodyVisibility == EInfinityShadowCatBodyVisibility::ReflectionOnly;
++    CatMesh->SetRenderInMainPass(bPOVBody || (!bGameWorld && bDrawBody));
++    CatMesh->SetVisibleInRayTracing(
++        bVisibleInReflections && (!bGameWorld || bPOVBody || bReflectionOnly));
++    CatMesh->SetVisibleInSceneCaptureOnly(false);
++    CatMesh->SetHiddenInSceneCapture(false);
+     if (!bGameWorld)
+     {
+         return;
+     }
+ 
++    const bool bCaptureVisible = bVisibleInReflections && (bPOVBody || bReflectionOnly);
+     bool bCaptureVisibilityChanged = false;
+-    if (CatMesh->bVisibleInReflectionCaptures)
++    if (CatMesh->bVisibleInReflectionCaptures != bCaptureVisible)
+     {
+-        CatMesh->bVisibleInReflectionCaptures = false;
++        CatMesh->bVisibleInReflectionCaptures = bCaptureVisible;
+         bCaptureVisibilityChanged = true;
+     }
+-    if (CatMesh->bVisibleInRealTimeSkyCaptures)
++    if (CatMesh->bVisibleInRealTimeSkyCaptures != bCaptureVisible)
+     {
+-        CatMesh->bVisibleInRealTimeSkyCaptures = false;
++        CatMesh->bVisibleInRealTimeSkyCaptures = bCaptureVisible;
++        bCaptureVisibilityChanged = true;
++    }
++    if (CatMesh->bVisibleInReflections != bVisibleInReflections)
++    {
++        CatMesh->bVisibleInReflections = bVisibleInReflections;
+         bCaptureVisibilityChanged = true;
+     }
+     if (bCaptureVisibilityChanged)
+@@ -299,7 +460,7 @@ static void ApplyShadowCatBodyRendering(
+ 
+ void AInfinityStageCameraRig::ApplyShadowFigureVisibility()
+ {
+-    // Live: the cat is present for its SHADOW (the follow light throws it
++    // Live: the cat is present for its SHADOW (the follow light throws i
+     // ahead); in a game world its body stays out of the main pass, so no camera
+     // ever sees a cat in front of it. Not live: neither body nor shadow.
+     const bool bShowCat = bEnableShadowCat && bShadowFiguresLive;
+@@ -314,7 +475,8 @@ void AInfinityStageCameraRig::ApplyShadowFigureVisibility()
+                 CatMesh,
+                 ShouldDrawShadowCatBody(),
+                 GetWorld() && GetWorld()->IsGameWorld(),
+-                bShadowCatVisibleInReflections);
++                bShadowCatVisibleInReflections,
++                CurrentShadowCatBodyVisibility);
+             CatMesh->SetCastShadow(bShadowCatCastShadow);
+         }
+     }
+@@ -334,7 +496,7 @@ void AInfinityStageCameraRig::BeginPlay()
+     // PIE duplicates can restore Blueprint tick defaults after construction.
+     // Reassert the camera-driven configuration once the game world is live.
+     // A rig is not live until the player is looking through it: while the
+-    // Opening's stalls cut is up, the P01 rig is never evaluated, and its cat
++    // Opening's stalls cut is up, the P01 rig is never evaluated, and its ca
+     // would otherwise stand wherever the last level save left it, in shot.
+     if (GetWorld() && GetWorld()->IsGameWorld())
+     {
+@@ -368,7 +530,7 @@ void AInfinityStageCameraRig::HideCameraBodyInGame()
+     }
+ }
+ 
+-FTransform AInfinityStageCameraRig::BuildShadowCatRelativeTransform() const
++FTransform AInfinityStageCameraRig::BuildShadowCatRelativeTransform() cons
+ {
+     FTransform Result = ShadowCatRelativeTransform;
+     Result.AddToTranslation(ShadowCatPositionOffset);
+@@ -457,7 +619,7 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
+     {
+         return false;
+     }
+-    // Establish this master frame's speed before sampling or applying its gait
++    // Establish this master frame's speed before sampling or applying its gai
+     // lift, so no weight can leak in from a previous play of this rig.
+     UpdateShadowCatAtMasterFrame(MasterFrame, CameraTransform, *Passage);
+     const FFrameRate& TickResolution = PassageActor->ShowAsset->TickResolution;
+@@ -479,22 +641,24 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
          CurrentShadowSpotIntensity = 0.0f;
      }
      ApplyFollowLightState();
@@ -247,7 +360,16 @@ index fc5a27b..d36e247 100644
      CurrentShadowCatBobWalkWeight = ShadowCatGaitBobState.WalkWeight;
      CurrentShadowCatCameraBobCm = GaitBob.HeightCm;
      if (!FMath::IsNearlyZero(CurrentShadowCatCameraBobCm))
-@@ -581,15 +723,6 @@ void AInfinityStageCameraRig::ConfigureShadowCat()
+@@ -525,6 +689,8 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
+         const FRotator CameraRotation = GetActorRotation();
+         ShadowFigureRoot->SetWorldRotation(FRotator(0.0, CameraRotation.Yaw, 0.0));
+     }
++    ApplyShadowCatActionRendering();
++    ApplyShadowCatPOVCamera(CameraTransform);
+ 
+     CurrentCameraDistanceCm = CameraEvaluation.DistanceCm;
+     PassageActor->EvaluateMechanismsAtCameraDistance(MasterFrame, CameraEvaluation.DistanceCm);
+@@ -581,15 +747,6 @@ void AInfinityStageCameraRig::ConfigureShadowCat()
          {
              CatMesh->SetSkeletalMeshAsset(ShadowCatSkeletalMesh);
          }
@@ -263,16 +385,129 @@ index fc5a27b..d36e247 100644
          CatMesh->SetActive(bEnableShadowCat, true);
          CatMesh->SetComponentTickEnabled(bEnableShadowCat);
          CatMesh->bPauseAnims = false;
-@@ -649,6 +782,8 @@ void AInfinityStageCameraRig::UpdateShadowCatAtMasterFrame(
+@@ -601,7 +758,8 @@ void AInfinityStageCameraRig::ConfigureShadowCat()
+             CatMesh,
+             ShouldDrawShadowCatBody(),
+             GetWorld() && GetWorld()->IsGameWorld(),
+-            bShadowCatVisibleInReflections);
++            bShadowCatVisibleInReflections,
++            CurrentShadowCatBodyVisibility);
+     }
+ 
+     const FName ReadyTag(TEXT("InfinityStageShadowCatReady"));
+@@ -638,6 +796,100 @@ void AInfinityStageCameraRig::ConfigureShadowCat()
+ 
+ }
+ 
++void AInfinityStageCameraRig::ApplyShadowCatActionRendering()
++{
++    AActor* CatActor = ShadowCat ? ShadowCat->GetChildActor() : nullptr;
++    if (!CatActor)
++    {
++        return;
++    }
++
++    TInlineComponentArray<USkeletalMeshComponent*> CatMeshes(CatActor);
++    const FName PreviouslyHiddenBone = ShadowCatLastHiddenPOVBone;
++    const bool bHidePOVHead = CurrentShadowCatBodyVisibility
++        == EInfinityShadowCatBodyVisibility::POVBody;
++    for (USkeletalMeshComponent* CatMesh : CatMeshes)
++    {
++        if (!PreviouslyHiddenBone.IsNone())
++        {
++            CatMesh->UnHideBoneByName(PreviouslyHiddenBone);
++        }
++
++        if (bHidePOVHead
++            && CatMesh->GetBoneIndex(CurrentShadowCatHeadPOVBone) != INDEX_NONE)
++        {
++            // UE 5.8 HideBoneByName scales this bone (and therefore its children)
++            // to zero. This is not view-specific: the POV body keeps casting a
++            // body shadow, but the hidden head is absent from that shadow too.
++            CatMesh->HideBoneByName(CurrentShadowCatHeadPOVBone, PBO_None);
++        }
++
++        ApplyShadowCatBodyRendering(
++            CatMesh,
++            ShouldDrawShadowCatBody(),
++            GetWorld() && GetWorld()->IsGameWorld(),
++            bShadowCatVisibleInReflections,
++            CurrentShadowCatBodyVisibility);
++        CatMesh->SetCastShadow(bShadowCatCastShadow);
++    }
++    ShadowCatLastHiddenPOVBone = bHidePOVHead ? CurrentShadowCatHeadPOVBone : NAME_None;
++}
++
++void AInfinityStageCameraRig::ApplyShadowCatPOVCamera(const FTransform& RouteCameraTransform)
++{
++    if (!Camera)
++    {
++        return;
++    }
++    if (!bShadowCatRouteNearClipCached)
++    {
++        bShadowCatRouteNearClipCached = true;
++        bShadowCatRouteNearClipOverride = Camera->bOverride_CustomNearClippingPlane;
++        ShadowCatRouteNearClipCm = Camera->CustomNearClippingPlane;
++    }
++
++    const bool bWantsHeadPOV = CurrentShadowCatCameraMode == EInfinityShadowCatCameraMode::HeadPOV;
++    const bool bNearClipSafe = IsShadowCatHeadPOVNearClipSafe(
++        CurrentShadowCatHeadPOVOffsetCm,
++        ShadowCatHeadPOVNearClipCm,
++        ShadowCatHeadPOVNearClipClearanceCm);
++    AActor* CatActor = ShadowCat ? ShadowCat->GetChildActor() : nullptr;
++    USkeletalMeshComponent* CatMesh = nullptr;
++    if (CatActor)
++    {
++        TInlineComponentArray<USkeletalMeshComponent*> CatMeshes(CatActor);
++        CatMesh = CatMeshes.IsEmpty() ? nullptr : CatMeshes[0];
++    }
++    const bool bBoneExists = CatMesh
++        && CatMesh->GetBoneIndex(CurrentShadowCatHeadPOVBone) != INDEX_NONE;
++
++    if (!bWantsHeadPOV || !bNearClipSafe || !bBoneExists)
++    {
++        ensureAlwaysMsgf(
++            !bWantsHeadPOV || (bNearClipSafe && bBoneExists),
++            TEXT("SHADOW_CAT_HEAD_POV_REFUSED|rig=%s|bone=%s|offset_x=%.3f|near=%.3f|clearance=%.3f|bone_exists=%d"),
++            *GetName(),
++            *CurrentShadowCatHeadPOVBone.ToString(),
++            CurrentShadowCatHeadPOVOffsetCm.X,
++            ShadowCatHeadPOVNearClipCm,
++            ShadowCatHeadPOVNearClipClearanceCm,
++            bBoneExists);
++        Camera->bOverride_CustomNearClippingPlane = bShadowCatRouteNearClipOverride;
++        Camera->SetCustomNearClippingPlane(ShadowCatRouteNearClipCm);
++        Camera->SetRelativeTransform(FTransform::Identity);
++        return;
++    }
++
++    Camera->bOverride_CustomNearClippingPlane = true;
++    Camera->SetCustomNearClippingPlane(static_cast<float>(ShadowCatHeadPOVNearClipCm));
++    const FTransform HeadTransform = CatMesh->GetSocketTransform(CurrentShadowCatHeadPOVBone, RTS_World);
++    Camera->SetWorldTransform(BlendShadowCatCameraTransform(
++        RouteCameraTransform,
++        HeadTransform,
++        CurrentShadowCatHeadPOVOffsetCm,
++        CurrentShadowCatActionWeight));
++}
++
+ void AInfinityStageCameraRig::UpdateShadowCatAtMasterFrame(
+     const FFrameNumber MasterFrame,
+     const FTransform& CameraTransform,
+@@ -649,6 +901,10 @@ void AInfinityStageCameraRig::UpdateShadowCatAtMasterFrame(
      {
          CurrentShadowCatCameraSpeedCmPerSecond = 0.0;
          CurrentShadowCatPlayRate = 0.0;
 +        CurrentShadowCatActionWeight = 0.0;
 +        CurrentShadowCatBobGainScale = 1.0;
++        CurrentShadowCatCameraMode = EInfinityShadowCatCameraMode::Route;
++        CurrentShadowCatBodyVisibility = EInfinityShadowCatBodyVisibility::ShadowOnly;
          return;
      }
  
-@@ -657,24 +792,186 @@ void AInfinityStageCameraRig::UpdateShadowCatAtMasterFrame(
+@@ -657,24 +913,240 @@ void AInfinityStageCameraRig::UpdateShadowCatAtMasterFrame(
          CameraTransform,
          Passage);
      const double ReferenceSpeed = FMath::Max(1.0, ShadowCatReferenceWalkSpeedCmPerSecond);
@@ -321,6 +556,14 @@ index fc5a27b..d36e247 100644
 +            PassageDurationSeconds,
 +            TickRate);
 +        CurrentShadowCatActionWeight = ResolvedAction.Timing.Weight;
++        CurrentShadowCatCameraMode = ResolvedAction.Timing.bActive
++            ? ResolvedAction.CameraMode
++            : EInfinityShadowCatCameraMode::Route;
++        CurrentShadowCatBodyVisibility = ResolveShadowCatBodyVisibility(
++            ResolvedAction.Timing,
++            ResolvedAction.BodyVisibility);
++        CurrentShadowCatHeadPOVBone = ResolvedAction.HeadPOVBone;
++        CurrentShadowCatHeadPOVOffsetCm = ResolvedAction.HeadPOVOffsetCm;
 +        UAnimSequence* GaitAnimation = bIsMoving
 +            ? GetShadowCatWalkAnimation()
 +            : GetShadowCatIdleAnimation();
@@ -345,6 +588,8 @@ index fc5a27b..d36e247 100644
 +    else
 +    {
 +        CurrentShadowCatActionWeight = 0.0;
++        CurrentShadowCatCameraMode = EInfinityShadowCatCameraMode::Route;
++        CurrentShadowCatBodyVisibility = EInfinityShadowCatBodyVisibility::ShadowOnly;
 +    }
 +}
 +
@@ -365,6 +610,50 @@ index fc5a27b..d36e247 100644
 +        }
 +    }
 +    return PhaseSeconds;
++}
++
++FTransform AInfinityStageCameraRig::BlendShadowCatCameraTransform(
++    const FTransform& RouteCameraTransform,
++    const FTransform& HeadBoneTransform,
++    const FVector& HeadLocalOffsetCm,
++    const double Weight)
++{
++    const double Alpha = FMath::Clamp(Weight, 0.0, 1.0);
++    FTransform HeadCameraTransform = HeadBoneTransform;
++    HeadCameraTransform.SetLocation(HeadBoneTransform.TransformPosition(HeadLocalOffsetCm));
++    FTransform Result;
++    Result.SetLocation(FMath::Lerp(
++        RouteCameraTransform.GetLocation(),
++        HeadCameraTransform.GetLocation(),
++        Alpha));
++    Result.SetRotation(FQuat::Slerp(
++        RouteCameraTransform.GetRotation(),
++        HeadCameraTransform.GetRotation(),
++        Alpha).GetNormalized());
++    Result.SetScale3D(FVector::OneVector);
++    return Result;
++}
++
++bool AInfinityStageCameraRig::IsShadowCatHeadPOVNearClipSafe(
++    const FVector& HeadLocalOffsetCm,
++    const double NearClipCm,
++    const double ClearanceCm)
++{
++    return FMath::IsFinite(HeadLocalOffsetCm.X)
++        && FMath::IsFinite(NearClipCm)
++        && FMath::IsFinite(ClearanceCm)
++        && NearClipCm > 0.0
++        && ClearanceCm >= 0.0
++        && HeadLocalOffsetCm.X >= NearClipCm + ClearanceCm;
++}
++
++EInfinityShadowCatBodyVisibility AInfinityStageCameraRig::ResolveShadowCatBodyVisibility(
++    const FInfinityShadowCatActionTiming& Timing,
++    const EInfinityShadowCatBodyVisibility RequestedMode)
++{
++    return Timing.bActive
++        ? RequestedMode
++        : EInfinityShadowCatBodyVisibility::ShadowOnly;
 +}
 +
 +double AInfinityStageCameraRig::PassageSecondsAtMasterFrame(
@@ -463,16 +752,28 @@ index fc5a27b..d36e247 100644
  }
  
  FInfinityGaitBob AInfinityStageCameraRig::StepGaitBob(
-@@ -741,7 +1038,79 @@ double AInfinityStageCameraRig::GetCrossingSettleFrames() const
+@@ -731,9 +1203,9 @@ FInfinityGaitBob AInfinityStageCameraRig::SettleGaitBob(const FInfinityGaitBob&
+     return {Bob.HeightCm * Weight, Bob.RollDeg * Weight};
+ }
+ 
+-double AInfinityStageCameraRig::GetCrossingSettleFrames() const
++double AInfinityStageCameraRig::GetCrossingSettleFrames() cons
+ {
+-    if (!(CrossingSettleSeconds > 0.0) || !PassageActor || !PassageActor->ShowAsset
++    if (!(CrossingSettleSeconds > 0.0) || !PassageActor || !PassageActor->ShowAsse
+         || !PassageActor->ShowAsset->TickResolution.IsValid())
+     {
+         return 0.0;
+@@ -741,7 +1213,79 @@ double AInfinityStageCameraRig::GetCrossingSettleFrames() const
      return CrossingSettleSeconds * PassageActor->ShowAsset->TickResolution.AsDecimal();
  }
  
 -double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
 +double AInfinityStageCameraRig::EvaluateShadowCatGaitPhaseSeconds(
 +    const FFrameNumber MasterFrame,
-+    const FInfinityCompiledPassage& Passage) const
++    const FInfinityCompiledPassage& Passage) cons
 +{
-+    if (!PassageActor || !PassageActor->ShowAsset
++    if (!PassageActor || !PassageActor->ShowAsse
 +        || !PassageActor->ShowAsset->TickResolution.IsValid()
 +        || !PassageActor->ShowAsset->DisplayRate.IsValid())
 +    {
@@ -540,11 +841,11 @@ index fc5a27b..d36e247 100644
 +    return PhaseSeconds;
 +}
 +
-+double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm(const double VariationGainScale) const
++double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm(const double VariationGainScale) cons
  {
      if (!bShadowCatCameraBob || !bEnableShadowCat || ShadowCatCameraBobGain <= 0.0 || !ShadowCat)
      {
-@@ -778,7 +1147,8 @@ double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
+@@ -778,7 +1322,8 @@ double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
      const double RestZ = RestComponentSpace[BoneIndex].GetTranslation().Z;
      const double PoseZ = CatMesh->GetSocketTransform(ShadowCatBobReferenceBone, RTS_Component).GetTranslation().Z;
      const double WorldScaleZ = CatMesh->GetComponentScale().Z;
@@ -554,7 +855,7 @@ index fc5a27b..d36e247 100644
  
      if (!bShadowCatBobReported)
      {
-@@ -786,13 +1156,14 @@ double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
+@@ -786,13 +1331,14 @@ double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
          UE_LOG(
              LogInfinityStageShadowCat,
              Display,
@@ -570,8 +871,56 @@ index fc5a27b..d36e247 100644
              LiftCm);
      }
      return LiftCm;
+@@ -801,9 +1347,9 @@ double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
+ double AInfinityStageCameraRig::CalculateCameraSpeedAtMasterFrame(
+     const FFrameNumber MasterFrame,
+     const FTransform& CameraTransform,
+-    const FInfinityCompiledPassage& Passage) const
++    const FInfinityCompiledPassage& Passage) cons
+ {
+-    if (!PassageActor || !PassageActor->ShowAsset
++    if (!PassageActor || !PassageActor->ShowAsse
+         || !PassageActor->ShowAsset->TickResolution.IsValid()
+         || !PassageActor->ShowAsset->DisplayRate.IsValid())
+     {
+@@ -844,7 +1390,7 @@ double AInfinityStageCameraRig::CalculateCameraSpeedAtMasterFrame(
+ 
+ bool AInfinityStageCameraRig::GetCameraTransformAtMasterFrame(
+     const FFrameNumber MasterFrame,
+-    FTransform& OutWorldTransform) const
++    FTransform& OutWorldTransform) cons
+ {
+     FInfinityPassageCameraEvaluation CameraEvaluation;
+     return GetCameraStateAtMasterFrame(MasterFrame, OutWorldTransform, CameraEvaluation);
+@@ -854,7 +1400,7 @@ bool AInfinityStageCameraRig::GetCameraViewAtMasterFrame(
+     const FFrameNumber MasterFrame,
+     FTransform& OutWorldTransform,
+     float& OutFocalLengthMm,
+-    float& OutFocusDistanceCm) const
++    float& OutFocusDistanceCm) cons
+ {
+     FInfinityPassageCameraEvaluation CameraEvaluation;
+     if (!GetCameraStateAtMasterFrame(MasterFrame, OutWorldTransform, CameraEvaluation))
+@@ -869,7 +1415,7 @@ bool AInfinityStageCameraRig::GetCameraViewAtMasterFrame(
+ bool AInfinityStageCameraRig::GetCameraStateAtMasterFrame(
+     const FFrameNumber MasterFrame,
+     FTransform& OutWorldTransform,
+-    FInfinityPassageCameraEvaluation& OutEvaluation) const
++    FInfinityPassageCameraEvaluation& OutEvaluation) cons
+ {
+     if (!PassageActor || !PassageActor->ShowAsset || !PassageActor->Route)
+     {
+@@ -884,7 +1430,7 @@ bool AInfinityStageCameraRig::GetCameraStateForCompiledPassage(
+     const FInfinityCompiledPassage& CompiledPassage,
+     const FFrameNumber MasterFrame,
+     FTransform& OutWorldTransform,
+-    FInfinityPassageCameraEvaluation& OutEvaluation) const
++    FInfinityPassageCameraEvaluation& OutEvaluation) cons
+ {
+     if (!PassageActor || !PassageActor->ShowAsset || !PassageActor->Route
+         || MasterFrame < CompiledPassage.SegmentStartFrame || MasterFrame > CompiledPassage.SegmentEndFrame)
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
-index 960e5f5..861bfbf 100644
+index 960e5f58d5b517a197db361fa609f7e0ec728287..1045d400543444949051de33f9e89064c2945ad9 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
 @@ -27,6 +27,19 @@ struct FInfinityGaitBob
@@ -594,7 +943,44 @@ index 960e5f5..861bfbf 100644
  /**
   * One occasional appearance of the Puss shadow spot (PS, Gary 7 Oct: "a Puss
   * walking shadow spotlight which lights Puss from behind, very occasionally
-@@ -220,6 +233,61 @@ public:
+@@ -86,7 +99,7 @@ public:
+      * Travelling light behind the camera.
+      *
+      * Attached to the rig root, so it follows the route without any evaluation
+-     * of its own. Placed behind the shadow figure and pointing forward, it
++     * of its own. Placed behind the shadow figure and pointing forward, i
+      * throws the cat's shadow into the stage ahead of the camera.
+      */
+     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Infinity Stage|Follow Light")
+@@ -105,8 +118,8 @@ public:
+     FRotator FollowLightRotation = FRotator(-8.0, 0.0, 0.0);
+ 
+     /**
+-     * Puss shadow spot schedule. Empty (the default) leaves the follow light
+-     * exactly as before. Non-empty, the schedule owns the FollowLight
++     * Puss shadow spot schedule. Empty (the default) leaves the follow ligh
++     * exactly as before. Non-empty, the schedule owns the FollowLigh
+      * component: it is placed at ShadowSpotOffset/Rotation, casts shadows, and
+      * is visible only while a cue's envelope is above zero (and the rig is
+      * live), at envelope x Intensity; the component's units, cone, colour and
+@@ -168,6 +181,16 @@ public:
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Rendering")
+     bool bShadowCatVisibleInReflections = true;
+ 
++    /** HeadPOV perspective near plane. Creative value; guarded against HeadPOVOffsetCm.X below. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|POV",
++        meta = (ClampMin = "0.00001", Units = "cm"))
++    double ShadowCatHeadPOVNearClipCm = 3.0;
++
++    /** Required space between the near plane and the hidden head origin. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|POV",
++        meta = (ClampMin = "0.0", Units = "cm"))
++    double ShadowCatHeadPOVNearClipClearanceCm = 2.0;
++
+     /** Extra placement controls exposed on the parent passage camera instance. */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Placement", meta = (Units = "cm"))
+     FVector ShadowCatPositionOffset = FVector::ZeroVector;
+@@ -220,6 +243,79 @@ public:
      UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Animation", meta = (ClampMin = "0.0"))
      double ShadowCatMaxPlayRate = 1.25;
  
@@ -653,15 +1039,57 @@ index 960e5f5..861bfbf 100644
 +        double StrideSeconds,
 +        double PerStrideChance);
 +
++    /** Pure camera blend used by runtime, automation and the offline port. */
++    static FTransform BlendShadowCatCameraTransform(
++        const FTransform& RouteCameraTransform,
++        const FTransform& HeadBoneTransform,
++        const FVector& HeadLocalOffsetCm,
++        double Weight);
++
++    /** Conservative configuration gate: the eye offset must clear the perspective near plane. */
++    static bool IsShadowCatHeadPOVNearClipSafe(
++        const FVector& HeadLocalOffsetCm,
++        double NearClipCm,
++        double ClearanceCm);
++
++    /** Action modes switch only on the action's active interval; outside it the legacy mode wins. */
++    static EInfinityShadowCatBodyVisibility ResolveShadowCatBodyVisibility(
++        const FInfinityShadowCatActionTiming& Timing,
++        EInfinityShadowCatBodyVisibility RequestedMode);
++
      /**
       * Lift the camera with the cat's gait. The vertical travel of the reference
       * bone against its rest pose, in world centimetres after the cat's scale, is
-@@ -315,6 +383,12 @@ public:
+@@ -268,7 +364,7 @@ public:
+     static FInfinityGaitBob SettleGaitBob(const FInfinityGaitBob& Bob, double SettleWeight);
+ 
+     /**
+-     * Crossing settle (Gary, 30 Sep: "in that moment between passages, we don't
++     * Crossing settle (Gary, 30 Sep: "in that moment between passages, we don'
+      * need the cat's bob at all"). Over the last CrossingSettleSeconds of the
+      * Passage the route speed eases to a stop exactly at the route-end pose the
+      * Scene's Entry Handoff camera is matched to, and the gait bob and its roll
+@@ -288,7 +384,7 @@ public:
+ 
+     /**
+      * CrossingSettleSeconds in Master ticks; 0 when disabled or unresolvable.
+-     * Every caller of UMovieSceneInfinityPassageSection::EvaluateCamera that
++     * Every caller of UMovieSceneInfinityPassageSection::EvaluateCamera tha
+      * must agree with this rig's pose (Camera Pilot anchors, the Cue Desk
+      * speed readout) passes this, because the settle renormalizes the whole
+      * last span, not only its final second.
+@@ -315,6 +411,18 @@ public:
      UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat")
      double CurrentShadowCatPlayRate = 0.0;
  
 +    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat")
 +    double CurrentShadowCatActionWeight = 0.0;
++
++    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat|POV")
++    EInfinityShadowCatCameraMode CurrentShadowCatCameraMode = EInfinityShadowCatCameraMode::Route;
++
++    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat|POV")
++    EInfinityShadowCatBodyVisibility CurrentShadowCatBodyVisibility = EInfinityShadowCatBodyVisibility::ShadowOnly;
 +
 +    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat|Variation")
 +    double CurrentShadowCatBobGainScale = 1.0;
@@ -669,7 +1097,30 @@ index 960e5f5..861bfbf 100644
      UFUNCTION(BlueprintCallable, Category = "Infinity Stage")
      bool EvaluateAtMasterFrame(FFrameNumber MasterFrame);
  
-@@ -392,7 +466,12 @@ private:
+@@ -334,7 +442,7 @@ public:
+ 
+     /**
+      * Hides the camera's editor body (the SM_CineCam proxy) in game, whatever
+-     * the saved "camera mesh hidden in game" flag says. Four saved rigs had it
++     * the saved "camera mesh hidden in game" flag says. Four saved rigs had i
+      * showing, which put a camera body into other cameras' shots in PIE (the
+      * box in the Opening's stalls view, 29 Sep). Called at BeginPlay in game
+      * worlds; the editor keeps the body for authoring.
+@@ -366,10 +474,12 @@ private:
+     FTransform BuildShadowCatRelativeTransform() const;
+     void ConfigureShadowCat();
+     void ApplyShadowFigureVisibility();
++    void ApplyShadowCatActionRendering();
++    void ApplyShadowCatPOVCamera(const FTransform& RouteCameraTransform);
+ 
+     /**
+      * Whether the cat's BODY is drawn. Never in a game world: the camera IS the
+-     * cat in any passage or curtain view (Gary, 30 Sep: "we are always the cat
++     * cat in any passage or curtain view (Gary, 30 Sep: "we are always the ca
+      * when in passage or curtain view"), so only its shadow may appear. The
+      * editor keeps the body (per bShadowCatRenderInMainPass) for authoring.
+      */
+@@ -392,10 +502,21 @@ private:
          const FInfinityCompiledPassage& Passage) const;
  
      /** Current gait lift of the reference bone over its rest pose, in world cm, scaled by the bob gain. */
@@ -683,11 +1134,20 @@ index 960e5f5..861bfbf 100644
  
      bool bShadowCatBobReported = false;
      FInfinityGaitBobState ShadowCatGaitBobState;
++    FName CurrentShadowCatHeadPOVBone = TEXT("Head");
++    FVector CurrentShadowCatHeadPOVOffsetCm = FVector(12.0, 0.0, 3.0);
++    FName ShadowCatLastHiddenPOVBone = NAME_None;
++    bool bShadowCatRouteNearClipCached = false;
++    bool bShadowCatRouteNearClipOverride = false;
++    float ShadowCatRouteNearClipCm = 0.0f;
+ 
+     bool GetCameraStateAtMasterFrame(
+         FFrameNumber MasterFrame,
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
-index f88c53c..b13f8ef 100644
+index f88c53ca161b3418f471ebb99e8b10bb2bdb7010..46385c19e10b218ddbad71d2836baed70a4cd82c 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
-@@ -14,6 +14,7 @@
+@@ -14,9 +14,25 @@
  #include "InfinityStageTypes.generated.h"
  
  class ULevelSequence;
@@ -695,7 +1155,104 @@ index f88c53c..b13f8ef 100644
  class UInfinityStageMusicMapAsset;
  class UMaterialInterface;
  class UStaticMesh;
-@@ -959,6 +960,42 @@ struct INFINITYSTAGE_API FInfinityShowCue
++
++UENUM(BlueprintType)
++enum class EInfinityShadowCatCameraMode : uint8
++{
++    Route,
++    HeadPOV
++};
++
++UENUM(BlueprintType)
++enum class EInfinityShadowCatBodyVisibility : uint8
++{
++    ShadowOnly,
++    POVBody,
++    ReflectionOnly
++};
+ class UTexture;
+ class UTextureLightProfile;
+ 
+@@ -41,7 +57,7 @@ enum class EInfinityMusicBindingMode : uint8
+  * Who drives the camera during a segment.
+  *
+  * Authored in the Show so the score records it, rather than living as a setting
+- * on whichever actor happens to carry the telemetry component. The dog is not
++ * on whichever actor happens to carry the telemetry component. The dog is no
+  * always present, so Timeline must always remain a valid fallback.
+  */
+ UENUM(BlueprintType)
+@@ -92,7 +108,7 @@ enum class EInfinityMotionPlaybackMode : uint8
+     OneShot,
+     ContinuousLoop,
+     BoundedLoop,
+-    CameraGust
++    CameraGus
+ };
+ 
+ UENUM(BlueprintType)
+@@ -144,7 +160,7 @@ enum class EInfinityAttachmentKind : uint8
+     Light,
+     AnimationTrigger,
+     Sound,
+-    Effect
++    Effec
+ };
+ 
+ /** Whether an attachment rides a moving panel or stays at the fixed station. */
+@@ -389,13 +405,13 @@ enum class EInfinityMechanismSoundPolicy : uint8
+ /**
+  * Wheeling, squeaking and creaking for wing movement.
+  *
+- * Timing is never authored here: it is derived from the mechanism data that
++ * Timing is never authored here: it is derived from the mechanism data tha
+  * already says when a pair moves and how fast, so re-timing the music re-times
+  * the squeaks with it. Authoring the times separately would create exactly the
+  * stale-snapshot problem the attachment system exists to avoid.
+  */
+ USTRUCT(BlueprintType)
+-struct INFINITYSTAGE_API FInfinityMechanismSoundSet
++struct INFINITYSTAGE_API FInfinityMechanismSoundSe
+ {
+     GENERATED_BODY()
+ 
+@@ -432,7 +448,7 @@ struct INFINITYSTAGE_API FInfinityMechanismSoundSet
+ };
+ 
+ USTRUCT(BlueprintType)
+-struct INFINITYSTAGE_API FInfinityCueAttachment
++struct INFINITYSTAGE_API FInfinityCueAttachmen
+ {
+     GENERATED_BODY()
+ 
+@@ -695,7 +711,7 @@ struct INFINITYSTAGE_API FInfinityMechanismMotion
+      * movement preset did not author one — so a side-only preset can still drive
+      * the ceiling. Off, the Top holds at its rest position whatever is authored.
+      *
+-     * Defaults on, which leaves existing content unchanged: a preset that left
++     * Defaults on, which leaves existing content unchanged: a preset that lef
+      * the Top curve flat still produces no ceiling movement.
+      */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism",
+@@ -854,7 +870,7 @@ struct INFINITYSTAGE_API FInfinitySceneCueData
+     /**
+      * Keep the camera from the preceding segment for this cue.
+      *
+-     * Post-Scene interstitials use this so the curtain lowers over the last
++     * Post-Scene interstitials use this so the curtain lowers over the las
+      * authored Scene shot instead of cutting early to the next Passage camera.
+      */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Handoff")
+@@ -919,7 +935,7 @@ struct INFINITYSTAGE_API FInfinityCelestialCycleSettings
+         meta = (ClampMin = "0.01", UIMin = "1.0", Units = "s", DisplayName = "Seconds Per Day/Night Cycle"))
+     double CycleDurationSeconds = 20.0;
+ 
+-    /** Per-Passage time-compression control. A value of 10 makes ten apparent
++    /** Per-Passage time-compression control. A value of 10 makes ten apparen
+      * days pass in the time that normally produces one day/night cycle. */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temporality",
+         meta = (ClampMin = "0.0", UIMin = "0.0", UIMax = "100.0", DisplayName = "Passage Temporality Rate"))
+@@ -959,6 +975,58 @@ struct INFINITYSTAGE_API FInfinityShowCue
      FInfinitySceneCueData Scene;
  };
  
@@ -712,6 +1269,22 @@ index f88c53c..b13f8ef 100644
 +    /** Animation on the AnimX cat skeleton. Leave empty as a slot for a not-yet-authored clip (for example Arch). */
 +    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action")
 +    TSoftObjectPtr<UAnimSequence> Animation;
++
++    /** Route leaves the scored Passage camera alone; HeadPOV follows the posed cat head in Master time. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action|POV")
++    EInfinityShadowCatCameraMode CameraMode = EInfinityShadowCatCameraMode::Route;
++
++    /** ShadowOnly is the legacy game view; POVBody exposes paws/body; ReflectionOnly is capture-oriented. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action|POV")
++    EInfinityShadowCatBodyVisibility BodyVisibility = EInfinityShadowCatBodyVisibility::ShadowOnly;
++
++    /** AnimX bone used as the HeadPOV origin. Binary asset strings prove Head exists. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action|POV")
++    FName HeadPOVBone = TEXT("Head");
++
++    /** Creative/rehearsal knob: camera offset in the head bone's local space. Positive X is forward. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action|POV", meta = (Units = "cm"))
++    FVector HeadPOVOffsetCm = FVector(12.0, 0.0, 3.0);
 +
 +    /** Start in Show ticks after this Passage's compiled segment start. */
 +    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action", meta = (ClampMin = "0"))
@@ -738,10 +1311,11 @@ index f88c53c..b13f8ef 100644
  USTRUCT(BlueprintType)
  struct INFINITYSTAGE_API FInfinityPassageSettings
  {
-@@ -1006,6 +1043,14 @@ struct INFINITYSTAGE_API FInfinityPassageSettings
+@@ -1006,7 +1074,15 @@ struct INFINITYSTAGE_API FInfinityPassageSettings
      UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Choreography")
      TSoftObjectPtr<ULevelSequence> Choreography;
  
+-    /** When enabled, Continuous Loop rows derive their phase from their current
 +    /**
 +     * Scripted cat poses for this Passage. Relative frames are Show authority,
 +     * so rehearsal may move WHEN an action happens without editing the camera
@@ -750,15 +1324,16 @@ index f88c53c..b13f8ef 100644
 +    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Actions")
 +    TArray<FInfinityShadowCatAction> ShadowCatActions;
 +
-     /** When enabled, Continuous Loop rows derive their phase from their current
++    /** When enabled, Continuous Loop rows derive their phase from their curren
       * order in this Passage. Reordering rows therefore immediately preserves the
       * travelling wave without reapplying a preset. A row can opt out with its
+      * Mechanism Phase local-override flag. */
 diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShadowCatActionTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShadowCatActionTests.cpp
 new file mode 100644
-index 0000000..9685a3a
+index 0000000000000000000000000000000000000000..103517b62dc14bf3fcad8cb2e4591029cc8f1c1e
 --- /dev/null
 +++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShadowCatActionTests.cpp
-@@ -0,0 +1,126 @@
+@@ -0,0 +1,209 @@
 +#include "InfinityStageCameraRig.h"
 +#include "InfinityStageTypes.h"
 +#include "Misc/AutomationTest.h"
@@ -881,6 +1456,89 @@ index 0000000..9685a3a
 +    TestEqual(TEXT("Moved action has the same active state"), AfterTiming.bActive, BeforeTiming.bActive);
 +    TestEqual(TEXT("Moved action has the same pose"), AfterTiming.PositionSeconds, BeforeTiming.PositionSeconds);
 +    TestEqual(TEXT("Moved action has the same blend weight"), AfterTiming.Weight, BeforeTiming.Weight);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageShadowCatCameraModeBlendContinuityTest,
++    "InfinityStage.Editor.ShadowCatActions.CameraModeBlendContinuity",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageShadowCatCameraModeBlendContinuityTest::RunTest(const FString& Parameters)
++{
++    const FTransform Route(FRotator(0.0, 10.0, 0.0), FVector(100.0, 20.0, 180.0));
++    const FTransform Head(FRotator(-15.0, 35.0, 2.0), FVector(-80.0, 15.0, 130.0));
++    const FVector EyeOffset(12.0, 0.0, 3.0);
++    constexpr double Epsilon = 1.0e-6;
++    const FTransform AtRoute = AInfinityStageCameraRig::BlendShadowCatCameraTransform(
++        Route, Head, EyeOffset, 0.0);
++    const FTransform JustAfterRoute = AInfinityStageCameraRig::BlendShadowCatCameraTransform(
++        Route, Head, EyeOffset, Epsilon);
++    const FTransform AtHead = AInfinityStageCameraRig::BlendShadowCatCameraTransform(
++        Route, Head, EyeOffset, 1.0);
++    const FTransform JustBeforeHead = AInfinityStageCameraRig::BlendShadowCatCameraTransform(
++        Route, Head, EyeOffset, 1.0 - Epsilon);
++    TestTrue(TEXT("HeadPOV begins exactly on the Route camera"), AtRoute.Equals(Route, 1.0e-6));
++    TestTrue(TEXT("HeadPOV blend is continuous at Route"),
++        FVector::Distance(AtRoute.GetLocation(), JustAfterRoute.GetLocation()) < 1.0e-3);
++    TestTrue(TEXT("HeadPOV blend is continuous at the head"),
++        FVector::Distance(AtHead.GetLocation(), JustBeforeHead.GetLocation()) < 1.0e-3);
++    TestTrue(TEXT("HeadPOV endpoint uses the configured local eye offset"),
++        AtHead.GetLocation().Equals(Head.TransformPosition(EyeOffset), 1.0e-6));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageShadowCatVisibilityModeEdgesTest,
++    "InfinityStage.Editor.ShadowCatActions.VisibilityModeEdges",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageShadowCatVisibilityModeEdgesTest::RunTest(const FString& Parameters)
++{
++    const FInfinityShadowCatActionTiming Before;
++    FInfinityShadowCatActionTiming Active;
++    Active.bActive = true;
++    Active.Weight = 0.0;
++    TestTrue(
++        TEXT("Before an action the body is ShadowOnly"),
++        AInfinityStageCameraRig::ResolveShadowCatBodyVisibility(
++            Before, EInfinityShadowCatBodyVisibility::POVBody)
++            == EInfinityShadowCatBodyVisibility::ShadowOnly);
++    TestTrue(
++        TEXT("At the exact active edge POVBody switches on even while camera weight is zero"),
++        AInfinityStageCameraRig::ResolveShadowCatBodyVisibility(
++            Active, EInfinityShadowCatBodyVisibility::POVBody)
++            == EInfinityShadowCatBodyVisibility::POVBody);
++    TestTrue(
++        TEXT("ReflectionOnly is retained through the active interval"),
++        AInfinityStageCameraRig::ResolveShadowCatBodyVisibility(
++            Active, EInfinityShadowCatBodyVisibility::ReflectionOnly)
++            == EInfinityShadowCatBodyVisibility::ReflectionOnly);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageShadowCatPOVDeterminismAndNearClipTest,
++    "InfinityStage.Editor.ShadowCatActions.POVDeterminismAndNearClip",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageShadowCatPOVDeterminismAndNearClipTest::RunTest(const FString& Parameters)
++{
++    const FTransform Route(FRotator(0.0, 10.0, 0.0), FVector(100.0, 20.0, 180.0));
++    const FTransform Head(FRotator(-15.0, 35.0, 2.0), FVector(-80.0, 15.0, 130.0));
++    const FVector EyeOffset(12.0, 0.0, 3.0);
++    const FTransform First = AInfinityStageCameraRig::BlendShadowCatCameraTransform(
++        Route, Head, EyeOffset, 0.375);
++    AInfinityStageCameraRig::BlendShadowCatCameraTransform(
++        FTransform::Identity, FTransform::Identity, FVector::ZeroVector, 0.9);
++    const FTransform Again = AInfinityStageCameraRig::BlendShadowCatCameraTransform(
++        Route, Head, EyeOffset, 0.375);
++    TestTrue(TEXT("Same Master pose and weight produce an identical POV transform"),
++        First.Equals(Again, ShadowCatActionTolerance));
++    TestTrue(TEXT("Default 12 cm eye offset clears 3 cm near clip plus 2 cm guard"),
++        AInfinityStageCameraRig::IsShadowCatHeadPOVNearClipSafe(EyeOffset, 3.0, 2.0));
++    TestFalse(TEXT("Near-plane intersection mutant is rejected"),
++        AInfinityStageCameraRig::IsShadowCatHeadPOVNearClipSafe(FVector(4.0, 0.0, 0.0), 3.0, 2.0));
 +    return true;
 +}
 +

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520">
+  <rect width="1200" height="520" fill="#12141a"/>
+  <style>
+    text { font-family: Segoe UI, sans-serif; fill: #f2eee5; }
+    .title { font-size: 30px; font-weight: 700; }
+    .label { font-size: 22px; font-weight: 600; }
+    .note { font-size: 16px; fill: #bbb7ad; }
+    .route { stroke: #d4a84f; stroke-width: 5; fill: none; }
+    .blend { stroke: #73c7df; stroke-width: 7; fill: none; }
+    .cat { fill: #343946; stroke: #d8d2c5; stroke-width: 3; }
+    .hidden { fill: none; stroke: #ef7f73; stroke-width: 3; stroke-dasharray: 8 7; }
+  </style>
+  <text x="48" y="52" class="title">P46b shadow-cat action camera / body modes</text>
+  <path class="route" d="M70 180 C310 95 475 95 650 180 S980 265 1130 180"/>
+  <circle cx="340" cy="133" r="12" fill="#d4a84f"/>
+  <text x="288" y="105" class="label">Route</text>
+  <ellipse cx="720" cy="310" rx="112" ry="58" class="cat"/>
+  <circle cx="820" cy="274" r="49" class="hidden"/>
+  <path d="M635 320 Q575 265 600 215" class="cat" fill="none" stroke-width="22"/>
+  <path class="blend" d="M340 133 C500 140 620 215 826 273"/>
+  <circle cx="845" cy="270" r="10" fill="#73c7df"/>
+  <path d="M845 270 l70 -25 l-20 24 l21 13 z" fill="#73c7df"/>
+  <text x="868" y="220" class="label">HeadPOV</text>
+  <text x="868" y="246" class="note">Head bone + local eye offset</text>
+  <text x="70" y="425" class="label">ShadowOnly</text>
+  <text x="70" y="454" class="note">No main-pass body; shadow remains</text>
+  <text x="430" y="425" class="label">POVBody</text>
+  <text x="430" y="454" class="note">Paws/body visible; Head bone hidden</text>
+  <text x="800" y="425" class="label">ReflectionOnly</text>
+  <text x="800" y="454" class="note">No main pass; reflection flags enabled</text>
+  <text x="48" y="500" class="note">Illustrative defaults only. Gary approves offsets, framing, puddle/reflection method and action timing after the held patch is built.</text>
+</svg>

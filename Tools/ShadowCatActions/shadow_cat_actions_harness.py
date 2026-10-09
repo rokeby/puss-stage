@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import json
 import math
+import shutil
 import struct
 import subprocess
 import tempfile
@@ -14,6 +16,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 PATCH = ROOT / "Scripts" / "patches" / "2026-10-09_shadow_cat_actions.patch"
+TARGETS = (
+    "Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs",
+    "Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp",
+    "Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h",
+    "Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h",
+    "Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShadowCatActionTests.cpp",
+)
 
 
 def smooth_unit(value: float) -> float:
@@ -32,6 +41,30 @@ class ActionTiming:
     active: bool = False
     position_seconds: float = 0.0
     weight: float = 0.0
+
+
+def blend_location(
+    route: tuple[float, float, float],
+    head_eye: tuple[float, float, float],
+    weight: float,
+) -> tuple[float, float, float]:
+    alpha = min(1.0, max(0.0, weight))
+    return tuple(start + (end - start) * alpha for start, end in zip(route, head_eye))
+
+
+def resolve_body_visibility(active: bool, requested: str) -> str:
+    return requested if active else "ShadowOnly"
+
+
+def near_clip_safe(offset_forward_cm: float, near_clip_cm: float, clearance_cm: float) -> bool:
+    return (
+        math.isfinite(offset_forward_cm)
+        and math.isfinite(near_clip_cm)
+        and math.isfinite(clearance_cm)
+        and near_clip_cm > 0.0
+        and clearance_cm >= 0.0
+        and offset_forward_cm >= near_clip_cm + clearance_cm
+    )
 
 
 def action_timing(
@@ -137,15 +170,132 @@ class Harness:
             self.failures.append(f"NEGATIVE FAILED: {name}")
 
 
-def run_patch_check(harness: Harness) -> None:
+def _git(*args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["git", *args], cwd=ROOT, capture_output=True, text=True, check=False
+    )
+
+
+def _target_dirty_lines() -> list[str]:
+    result = _git("status", "--porcelain=v1", "--", *TARGETS)
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or "git status failed")
+    return [line for line in result.stdout.splitlines() if line.strip()]
+
+
+def _dirty_paths(lines: list[str]) -> set[str]:
+    paths: set[str] = set()
+    for line in lines:
+        path = line[3:]
+        if " -> " in path:
+            path = path.split(" -> ", 1)[1]
+        paths.add(path.replace("\\", "/"))
+    return paths
+
+
+def _write_prechange_record(mode: str, run_id: str, dirty_lines: list[str]) -> Path:
+    prefix = "PreShadowCatActions" if mode == "APPLY" else "PreShadowCatActionsRevert"
+    backup = ROOT / "Backups" / f"{prefix}-{run_id}"
+    if backup.exists():
+        raise RuntimeError(f"backup already exists: {backup}")
+    backup.mkdir(parents=True)
+    for relative in TARGETS:
+        source = ROOT / relative
+        if source.is_file():
+            destination = backup / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, destination)
+    record = {
+        "mode": mode,
+        "run_id": run_id,
+        "patch": PATCH.relative_to(ROOT).as_posix(),
+        "targets": list(TARGETS),
+        "dirty_source_census_before": dirty_lines,
+        "dirty_packages_before": [],
+        "saved_packages": [],
+    }
+    (backup / "record.json").write_text(
+        json.dumps(record, indent=2) + "\n", encoding="utf-8"
+    )
+    return backup
+
+
+def apply_or_revert(mode: str, run_id: str | None, confirm: str | None) -> None:
+    if not run_id or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_" for char in run_id):
+        raise RuntimeError("--run-id is required and may contain only letters, digits, '-' and '_'")
+    expected_confirm = f"{mode}_SHADOW_CAT_ACTIONS_{run_id}"
+    if confirm != expected_confirm:
+        raise RuntimeError(f"confirmation mismatch; expected {expected_confirm}")
+
+    before = _target_dirty_lines()
+    before_paths = _dirty_paths(before)
+    if mode == "APPLY" and before:
+        raise RuntimeError(f"APPLY requires clean patch targets; census={before}")
+    if mode == "REVERT" and before_paths != set(TARGETS):
+        raise RuntimeError(
+            f"REVERT requires exactly the five applied patch targets; census={before}"
+        )
+
+    check_args = ["apply"]
+    if mode == "REVERT":
+        check_args.append("-R")
+    checked = _git(*check_args, "--check", "--whitespace=error-all", str(PATCH))
+    if checked.returncode != 0:
+        raise RuntimeError(checked.stderr.strip() or f"{mode} patch check failed")
+    backup = _write_prechange_record(mode, run_id, before)
+    changed = _git(*check_args, "--whitespace=error-all", str(PATCH))
+    if changed.returncode != 0:
+        raise RuntimeError(changed.stderr.strip() or f"{mode} failed after backup {backup}")
+
+    after = _target_dirty_lines()
+    after_paths = _dirty_paths(after)
+    expected_after = set(TARGETS) if mode == "APPLY" else set()
+    if after_paths != expected_after:
+        raise RuntimeError(f"post-{mode} target census mismatch: {after}")
+    patch_text = PATCH.read_text(encoding="utf-8")
+    required = ("HeadPOV", "POVBody", "ReflectionOnly", "SHADOW_CAT_HEAD_POV_REFUSED")
+    if not all(token in patch_text for token in required):
+        raise RuntimeError("read-back failed: P46b contract tokens missing from held patch")
+    print(
+        f"SHADOW_CAT_ACTIONS_{mode}_OK|run={run_id}|targets={len(TARGETS)}|"
+        f"dirty_packages=0|backup={backup.relative_to(ROOT).as_posix()}"
+    )
+
+
+def run_patch_check(harness: Harness, reverse: bool = False) -> None:
+    apply_args = ["git", "apply"]
+    if reverse:
+        apply_args.append("-R")
     result = subprocess.run(
-        ["git", "apply", "--check", "--whitespace=error-all", str(PATCH)],
+        [*apply_args, "--check", "--whitespace=error-all", str(PATCH)],
         cwd=ROOT,
         capture_output=True,
         text=True,
         check=False,
     )
-    harness.positive("held patch applies cleanly to HEAD", result.returncode == 0)
+    direction = "reverts cleanly from the applied state" if reverse else "applies cleanly to HEAD"
+    harness.positive(f"held patch {direction}", result.returncode == 0)
+
+    patch_text = PATCH.read_text(encoding="utf-8")
+    required_contract = (
+        "EInfinityShadowCatCameraMode",
+        "EInfinityShadowCatBodyVisibility",
+        "ReflectionOnly",
+        "BlendShadowCatCameraTransform",
+        "IsShadowCatHeadPOVNearClipSafe",
+        "HideBoneByName",
+        "CameraModeBlendContinuity",
+        "VisibilityModeEdges",
+        "POVDeterminismAndNearClip",
+    )
+    harness.positive(
+        "held patch contains the P46b POV, visibility, safety and test contract",
+        all(token in patch_text for token in required_contract),
+    )
+    harness.negative(
+        "patch missing a required P46b mode is caught",
+        not all(token in patch_text.replace("ReflectionOnly", "") for token in required_contract),
+    )
 
     with tempfile.NamedTemporaryFile("w", suffix=".patch", delete=False, encoding="utf-8") as bad:
         bad.write("this is deliberately not a patch\n")
@@ -212,23 +362,83 @@ def run_math_controls(harness: Harness) -> None:
     absolute_mutant = 57000 / 1000.0
     harness.negative("absolute-Master action mutant is caught", absolute_mutant != after)
 
+    route = (100.0, 20.0, 180.0)
+    head_eye = (-68.0, 15.0, 133.0)
+    epsilon = 1.0e-6
+    at_route = blend_location(route, head_eye, 0.0)
+    after_route = blend_location(route, head_eye, epsilon)
+    at_head = blend_location(route, head_eye, 1.0)
+    before_head = blend_location(route, head_eye, 1.0 - epsilon)
+    harness.positive(
+        "HeadPOV blend is continuous and reaches both endpoints",
+        at_route == route
+        and at_head == head_eye
+        and math.dist(at_route, after_route) < 1.0e-3
+        and math.dist(at_head, before_head) < 1.0e-3,
+    )
+    hard_camera_cut = head_eye
+    harness.negative(
+        "hard-cut HeadPOV camera mutant is caught",
+        math.dist(at_route, hard_camera_cut) >= 1.0e-3,
+    )
+
+    first = blend_location(route, head_eye, 0.375)
+    blend_location((0.0, 0.0, 0.0), (1.0, 2.0, 3.0), 0.9)
+    again = blend_location(route, head_eye, 0.375)
+    harness.positive("HeadPOV transform is deterministic", first == again)
+    history_mutant = tuple(value + 0.01 for value in again)
+    harness.negative("history-dependent HeadPOV mutant is caught", history_mutant != first)
+
+    harness.positive(
+        "visibility modes switch exactly on the action active interval",
+        resolve_body_visibility(False, "POVBody") == "ShadowOnly"
+        and resolve_body_visibility(True, "POVBody") == "POVBody"
+        and resolve_body_visibility(True, "ReflectionOnly") == "ReflectionOnly",
+    )
+    stale_visibility_mutant = resolve_body_visibility(False, "ReflectionOnly")
+    harness.negative(
+        "stale ReflectionOnly mode after the action is caught",
+        stale_visibility_mutant != "ReflectionOnly",
+    )
+
+    harness.positive(
+        "default eye offset clears the HeadPOV near plane",
+        near_clip_safe(12.0, 3.0, 2.0),
+    )
+    harness.negative(
+        "near-plane intersection mutant is caught",
+        not near_clip_safe(4.0, 3.0, 2.0),
+    )
+
     preview = ROOT / "Tools" / "ShadowCatActions" / "shadow_cat_variation_preview.svg"
     harness.positive("default variation preview is present", preview.is_file() and "Play-rate scale" in preview.read_text(encoding="utf-8"))
+    pov_preview = ROOT / "Tools" / "ShadowCatActions" / "shadow_cat_pov_modes_preview.svg"
+    harness.positive(
+        "POV/body-mode preview is present",
+        pov_preview.is_file() and "HeadPOV" in pov_preview.read_text(encoding="utf-8"),
+    )
+    evidence = ROOT / "Tools" / "ShadowCatActions" / "p46b_offline_evidence.md"
+    harness.positive(
+        "absolute-path AnimX evidence record is present",
+        evidence.is_file()
+        and "E:/PussStage/Content/CharacterPacks/AnimX" in evidence.read_text(encoding="utf-8"),
+    )
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--mode",
-        choices=("DRY",),
+        choices=("DRY", "APPLY", "REVERT"),
         default="DRY",
-        help="Verifier only: DRY is the sole mode; it never applies or reverts project state.",
+        help="DRY verifies; APPLY/REVERT require an exact run-id confirmation and make a backup first.",
     )
+    parser.add_argument("--run-id")
+    parser.add_argument("--confirm")
     args = parser.parse_args()
-    assert args.mode == "DRY"
 
     harness = Harness()
-    run_patch_check(harness)
+    run_patch_check(harness, reverse=args.mode == "REVERT")
     run_math_controls(harness)
     if harness.failures:
         for failure in harness.failures:
@@ -238,7 +448,11 @@ def main() -> int:
         f"positive={harness.positive_passes}|negative={harness.negative_passes}|"
         f"failed={len(harness.failures)}|patch={PATCH.relative_to(ROOT).as_posix()}"
     )
-    return 1 if harness.failures else 0
+    if harness.failures:
+        return 1
+    if args.mode != "DRY":
+        apply_or_revert(args.mode, args.run_id, args.confirm)
+    return 0
 
 
 if __name__ == "__main__":
