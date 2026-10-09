@@ -109,6 +109,96 @@ def synth_channels(label, level_yaw=-43.57, rng=None):
     return out
 
 
+def fake_eval(keys, t):
+    """The fake's channel evaluator (stands in for UE): constant extrapolation; per segment LINEAR, CONSTANT or CUBIC
+    (Bezier with P1 = v0 + leave0*dt/3, P2 = v1 - arrive1*dt/3, tangents in value per tick).  keys rows:
+    [tick, value, interp, tmode, arrive, leave, wmode]."""
+    if not keys:
+        return 0.0
+    if t <= keys[0][0]:
+        return float(keys[0][1])
+    if t >= keys[-1][0]:
+        return float(keys[-1][1])
+    i = max(j for j in range(len(keys)) if keys[j][0] <= t)
+    a, b = keys[i], keys[i + 1]
+    dt = float(b[0] - a[0])
+    u = (t - a[0]) / dt
+    if a[2] == "RCIM_CONSTANT":
+        return float(a[1])
+    if a[2] == "RCIM_LINEAR":
+        return a[1] + (b[1] - a[1]) * u
+    p0, p3 = a[1], b[1]
+    p1, p2 = p0 + a[5] * dt / 3.0, p3 - b[4] * dt / 3.0
+    return (1 - u) ** 3 * p0 + 3 * (1 - u) ** 2 * u * p1 + 3 * (1 - u) * u ** 2 * p2 + u ** 3 * p3
+
+
+def cubic_channels(label, level_yaw=-43.57, tangent_scale=1.0):
+    """Her copy channels as measured live (DRY S2V3OV-20261008-212010): RCIM_CUBIC x/y/z/roll/pitch on her 30 fps frame
+    grid (800 ticks), counts from her_seq_decode.json, auto-like tangents; yaw one key."""
+    lin = synth_channels(label, level_yaw)
+    out = {}
+    for n in ("x", "y", "z", "roll", "pitch"):
+        ks = lin[n]["keys"]
+        ks = [[int(round(k[0] / 800.0)) * 800, k[1]] for k in ks]
+        rows = []
+        for i, (t, v) in enumerate(ks):
+            lo, hi = ks[max(i - 1, 0)], ks[min(i + 1, len(ks) - 1)]
+            slope = 0.0 if hi[0] == lo[0] else (hi[1] - lo[1]) / float(hi[0] - lo[0]) * tangent_scale
+            rows.append([t, v, "RCIM_CUBIC", "RCTM_AUTO", slope, slope, "RCTWM_WEIGHTED_NONE"])
+        out[n] = {"keys": rows, "default": None, "pre": "RCCE_CONSTANT", "post": "RCCE_CONSTANT"}
+    out["yaw"] = {"keys": [[0, level_yaw, "RCIM_LINEAR", "RCTM_AUTO", 0.0, 0.0, "RCTWM_WEIGHTED_NONE"]],
+                  "default": None, "pre": "RCCE_CONSTANT", "post": "RCCE_CONSTANT"}
+    return out
+
+
+def part_a15():
+    label = "SM_S2_L_Wing_Shrine4"                     # 136 keys, longest fall
+    ch = cubic_channels(label)
+    kt = [k[0] for n in C.CHANNELS for k in ch[n]["keys"]]
+    g = C.sampling_grid(kt, [24000, 1], [30, 1], [25, 1], 261120)
+    check("A15+ grid: 160 ticks (150 fps) = gcd(800, 960); covers every 30 and 25 fps tick",
+          g["interval"] == 160 and g["rate"] == [150, 1] and all(t % 160 == 0 for t in g["ticks"][:50]), g["interval"])
+    samples = {n: [fake_eval(ch[n]["keys"], t) for t in g["ticks"]] for n in C.CHANNELS}
+    al = C.key_alignment(ch, g["ticks"], samples)
+    check("A15+ alignment: evaluated == key value at every key tick", not al["problems"] and al["checked"] == al["keys"],
+          al)
+    shifted = {n: v[1:] + v[-1:] for n, v in samples.items()}
+    check("A15- samples shifted by one interval -> SAMPLE_ALIGNMENT", any(x.startswith("SAMPLE_ALIGNMENT") for x in
+                                                                        C.key_alignment(ch, g["ticks"], shifted)["problems"]))
+    expect_raise("A15- old linear-only path refuses the cubic source (what the live DRY saw)",
+                 lambda: C.req(not C.source_problems(ch), "|".join(C.source_problems(ch))), "NONLINEAR_SOURCE")
+    check("A15+ sampled path accepts cubic (source_problems linear_only=False)",
+          C.source_problems(ch, linear_only=False) == [])
+    row = type_row("L")
+    kp = C.plan_wing_keys_sampled(samples, g["ticks"], row)
+    check("A15+ cubic -> LINEAR fit passes the gate (max %.4f cm / %.5f deg), %d keys from %d samples" % (
+        kp["max_dev_cm"], kp["max_dev_deg"], kp["n"], kp["samples"]), not kp["problems"] and kp["n"] < kp["samples"],
+        kp["problems"])
+    fine = [t + 40 for t in g["ticks"][:-1]]                  # quarter-sample probe: between render ticks
+    worst = 0.0
+    for t in fine:
+        her = [fake_eval(ch[n]["keys"], t) for n in C.CHANNELS]
+        q = C.eval_linear_keys(kp["keys"], t)
+        tr = C.compose_pose(her, row)
+        worst = max(worst, math.sqrt(sum((q[i] - tr[i]) ** 2 for i in range(3))))
+    check("A15+ between samples (off the render grid) our linear keys stay within 0.5 cm of her cubic (%.4f cm)" % worst,
+          worst <= 0.5, worst)
+    zero = dict(row, pivot_offset_cm=[0.0, 0.0, 0.0], rot_offset_deg=[0.0, 0.0, 0.0])
+    kz = C.plan_wing_keys_sampled(samples, g["ticks"], zero)
+    errz = max(abs(C.eval_linear_keys(kz["keys"], t)[2] - samples["z"][i]) for i, t in enumerate(g["ticks"]))
+    check("A15+ zero offset: our Z reproduces her UE-evaluated Z at every sample within the 0.1 cm fit (%.4f)" % errz,
+          errz <= 0.1 + 1e-9)
+    kt_ = C.plan_wing_keys_sampled(samples, g["ticks"], row, fit_cm=5.0, fit_deg=1.0, tol_cm=0.5, tol_deg=0.05)
+    check("A15- a coarse fit (5 cm) fails the 0.5 cm gate (the gate is measured, not assumed)",
+          any(x.startswith("SAMPLED_GATE") for x in kt_["problems"]), kt_["problems"])
+    ch2 = cubic_channels(label, tangent_scale=1.3)
+    check("A15- a tangent-only change (same key values) changes the source hash",
+          C.source_hashes(ch2)["all"] != C.source_hashes(ch)["all"] and
+          [k[1] for k in ch2["z"]["keys"]] == [k[1] for k in ch["z"]["keys"]])
+    expect_raise("A15- pre-roll off the sample grid refused",
+                 lambda: C.sampling_grid(kt, [24000, 1], [30, 1], [25, 1], 261120 + 7), "PRE_ROLL_OFF_SAMPLE_GRID")
+
+
 # ===================================================================================================== PART A
 def part_a():
     rnd = random.Random(7)
@@ -309,8 +399,9 @@ class FrameNumber:
 
 
 class FrameRate:
-    def __init__(self, n, d=1):
-        self.numerator, self.denominator = n, d
+    def __init__(self, n=None, d=1, numerator=None, denominator=None):
+        self.numerator = numerator if numerator is not None else n
+        self.denominator = denominator if denominator is not None else d
 
 
 class FrameTime:
@@ -350,8 +441,17 @@ class World:
 
 
 class Key:
-    def __init__(self, tick, value, interp="RCIM_LINEAR"):
-        self.tick, self.value, self.interp = int(tick), value, interp
+    def __init__(self, tick, value, interp="RCIM_LINEAR", arrive=0.0, leave=0.0):
+        self.tick, self.value, self.interp, self.arrive, self.leave = int(tick), value, interp, arrive, leave
+
+    def get_arrive_tangent(self):
+        return self.arrive
+
+    def get_leave_tangent(self):
+        return self.leave
+
+    def get_tangent_weight_mode(self):
+        return Enum("RCTWM_WEIGHTED_NONE")
 
     def get_time(self, time_unit=None):
         if time_unit is None or time_unit.name != "TICK_RESOLUTION":
@@ -407,6 +507,20 @@ class Channel(Obj):
 
     def has_default(self):
         return self.default is not None
+
+    def evaluate_keys(self, rng, frame_rate):
+        """UE's EvaluateKeysInChannel [decl MovieSceneScriptingChannel.h:218-245]: step one requested-rate frame (in
+        ticks) from the range's lower tick, exclusive upper.  The fake's range object carries ticks."""
+        seq = self.sec.track.owner
+        seq = getattr(seq, "seq", seq)                   # binding track -> its sequence (UE: OwningSequence)
+        tick = seq.tick.numerator / float(seq.tick.denominator)
+        interval = tick * frame_rate.denominator / float(frame_rate.numerator)
+        rows = [[k.tick, k.value, k.interp, "RCTM_AUTO", k.arrive, k.leave] for k in self.keys]
+        out, t = [], float(rng.lo)
+        while t < rng.hi:
+            out.append(fake_eval(rows, int(math.floor(t))) if rows else (self.default or 0.0))
+            t += interval
+        return out
 
     def get_pre_infinity_extrapolation(self):
         return self.pre
@@ -709,6 +823,12 @@ class Sequence(Obj):
         self._d()
         return b
 
+    def make_range(self, start, duration):
+        tpf = self.tick.numerator * self.fps.denominator / float(self.tick.denominator * self.fps.numerator)
+        if self.U.range_trap:                            # the 60000-fps default-range trap: ~1 value
+            return NS(lo=start, hi=start + duration)
+        return NS(lo=start * tpf, hi=(start + duration) * tpf)
+
     def locate_bound_objects(self, binding, context):
         if binding.actor is not None and binding.actor in context.actors:
             return [binding.actor]
@@ -777,6 +897,9 @@ class FakeUnreal(types.ModuleType):
         U = self
         self.project, self.assets, self.dirty_content, self.dirty_maps = project, {}, set(), set()
         self.calls, self.logs, self.saved, self.pie, self.seq_open = [], [], [], False, None
+        self.range_trap = False
+        self.FrameRate = FrameRate
+        self.MovieSceneScriptingDoubleChannel = Channel
         self.world = World(self, C.WORLD)
         self.MovieSceneTimeUnit = NS(TICK_RESOLUTION=Enum("TICK_RESOLUTION"), DISPLAY_RATE=Enum("DISPLAY_RATE"))
         self.MovieSceneKeyInterpolation = NS(LINEAR=Enum("LINEAR"), AUTO=Enum("AUTO"), CONSTANT=Enum("CONSTANT"))
@@ -886,12 +1009,12 @@ def build_env(tmp):
         tr = b.add_track(U.MovieScene3DTransformTrack)
         sec = tr.add_section()
         sec.set_range(0, 4217)
-        chans = synth_channels(w["label"])
+        chans = cubic_channels(w["label"])
         for i, n in enumerate(C.CHANNELS):
-            sec.channels[i].keys = [Key(t, v, it) for t, v, it in chans[n]["keys"]]
+            sec.channels[i].keys = [Key(k[0], k[1], k[2], k[4], k[5]) for k in chans[n]["keys"]]
         for i in (6, 7, 8):
             sec.channels[i].default = 1.0
-        rest = [C.eval_channel(chans[n], 10 ** 12) for n in C.CHANNELS]
+        rest = [chans[n]["keys"][-1][1] for n in C.CHANNELS]
         her_mesh = StaticMesh(w["mesh"].split(".")[0], HER_LOCAL_BOX[w["type"]], ["Front", "Back", "Edge"])
         U.assets[her_mesh.path] = her_mesh
         a = StaticMeshActor(U, her_level, w["actor_name"], w["label"], her_mesh, rest, HER_SCALE[w["type"]])
@@ -1074,17 +1197,19 @@ def part_b():
               (zch.keys[0].tick, zch.keys[0].interp, zch.keys[0].value))
         rowL = T._core().resolve_types({}, KIT_JSON["manifest_path"], KIT_JSON["pivot_path"],
                                        KIT_JSON["rzimport_plan_path"])[0]["L"]
-        hp = [{k.tick: k.value for k in her_ch[i].keys} for i in range(6)]
-        dz = []
-        for k in zch.keys[1:]:
-            t0 = k.tick - 261120
-            her_pose = [hp[i].get(t0, her_ch[i].keys[-1].value if t0 > her_ch[i].keys[-1].tick
-                                   else her_ch[i].keys[0].value) for i in range(6)]
-            dz.append(abs(k.value - C.compose_pose(her_pose, rowL)[2]))
-        check("B5+ fall keys: her ticks + 261120, LINEAR, Z == compose(her pose at that tick) (max err %.2e)" % max(dz),
-              [k.tick for k in zch.keys[1:]] == [k.tick + 261120 for k in her_z.keys] and
-              all(k.interp == "RCIM_LINEAR" for k in zch.keys[1:]) and max(dz) < 1e-6 and
-              max(abs(a.value - b.value) for a, b in zip(zch.keys[1:], her_z.keys)) < 1.0)
+        check("B5+ fall keys: LINEAR, first at her first key tick + 261120, fewer keys than samples",
+              all(k.interp == "RCIM_LINEAR" for k in zch.keys[1:]) and zch.keys[1].tick == her_z.keys[0].tick + 261120
+              and 2 < len(zch.keys) < 2260, len(zch.keys))
+        her_rows = [[[k.tick, k.value, k.interp, "", k.arrive, k.leave] for k in her_ch[i].keys] for i in range(6)]
+        ours_rows = [[[k.tick, k.value, k.interp, "", 0, 0] for k in tch[i].keys] for i in range(6)]
+        worst = 0.0
+        for t in range(0, 24000 * 17, 960):              # every PARENT (25 fps) frame of the fall, in her time
+            her_pose = [fake_eval(her_rows[i], t) for i in range(6)]
+            want = C.compose_pose(her_pose, rowL)
+            got = [fake_eval(ours_rows[i], t + 261120) for i in range(6)]
+            worst = max(worst, math.sqrt(sum((got[i] - want[i]) ** 2 for i in range(3))))
+        check("B5+ at every 25 fps Scene frame our wing == her CUBIC wing (x) child transform within 0.5 cm (%.4f)"
+              % worst, worst <= 0.5, worst)
         her_actor = next(a for a in U.world.actors if a.label == "SM_S2_L_Wing_Shrine2" and a.pkg == C.HER_LEVEL)
         exp = C.compose_pose(her_actor.pose, T._core().resolve_types({}, KIT_JSON["manifest_path"], KIT_JSON[
             "pivot_path"], KIT_JSON["rzimport_plan_path"])[0]["L"])
@@ -1134,7 +1259,7 @@ def part_b():
         r6, ok, new, err = run(T, U, args, "RESYNC", variant="B")
         check("B8+ RESYNC with unchanged source -> NOOP, nothing saved", marker(new, "_RESYNC_NOOP|") and
               len(U.saved) == nsave, (err, new[-2:]))
-        z_before = zch.keys[11].value
+        sha_before = json.load(open(T.RECORD, encoding="utf-8"))["wings"][1]["keys_sha"]
         her_z.keys[10].value += 37.0                    # simulate a re-ingest that changed her keys (saved on disk)
         r7, ok, new, err = run(T, U, args, "VERIFY", variant="B")
         f = marker(new, "_VERIFY_FAILED|")
@@ -1143,8 +1268,8 @@ def part_b():
         r8, ok, new, err = run(T, U, args, "RESYNC", variant="B")
         check("B8+ RESYNC re-copies the changed wing only (hold key kept) and saves only the overlay",
               marker(new, "_RESYNC_OK|") and "SM_S2_L_Wing_Shrine2" in marker(new, "_RESYNC_OK|") and
-              U.saved[-1] == args["overlay_asset"] and abs(zch.keys[11].value - z_before - 37.0) < 1e-6 and
-              zch.keys[0].interp == "RCIM_CONSTANT", (err, new[-2:]))
+              U.saved[-1] == args["overlay_asset"] and zch.keys[0].interp == "RCIM_CONSTANT" and
+              json.load(open(T.RECORD, encoding="utf-8"))["wings"][1]["keys_sha"] != sha_before, (err, new[-2:]))
         r9, ok, new, err = run(T, U, args, "VERIFY", variant="B")
         check("B8+ VERIFY ok after RESYNC", bool(ok) and err is None, (err, new[-3:]))
 
@@ -1201,6 +1326,22 @@ def part_b():
         check("B13- no 'Klara Levels (hookin)' section -> scene coverage refused (LEVEL_VIS_SECTION_COUNT)",
               not dj["apply_ready"] and any("LEVEL_VIS_SECTION_COUNT" in x for x in dj["refusals"]), dj["refusals"][:3])
 
+        U, args, T = fresh("9")
+        U.range_trap = True
+        r, ok, new, err = run(T, U, args, "DRY")
+        dj = json.load(open(os.path.join(T.HERE, "s2v3_overlay_dry_%s.json" % r), encoding="utf-8"))
+        check("B15- default-range trap (~1 value per channel) -> SAMPLE_COUNT refusal for every wing, no keys",
+              not dj["apply_ready"] and sum(x.split("|")[1].startswith("SAMPLE_COUNT") for x in dj["refusals"]) == 15,
+              dj["refusals"][:2])
+        U.range_trap = False
+        r, ok, new, err = run(T, U, args, "DRY")
+        dj = json.load(open(os.path.join(T.HERE, "s2v3_overlay_dry_%s.json" % r), encoding="utf-8"))
+        smp = [w["sampling"] for w in dj["wings"]]
+        check("B15+ DRY reports per-wing sampling: 150 fps, alignment 0 at every key, gate within 0.5 cm",
+              dj["apply_ready"] and all(s_["rate"] == [150, 1] and s_["alignment"]["max_err"] < 1e-6 and
+                                        s_["max_dev_cm"] <= 0.5 for s_ in smp),
+              [(s_["keys"], s_["samples"], s_["max_dev_cm"]) for s_ in smp[:3]])
+
         U, args, T = fresh("8")
         a8 = dict(args, coverage="cinematic", expected_coverage=None)
         r, ok, new, err = run(T, U, a8, "DRY")
@@ -1213,7 +1354,7 @@ def part_b():
         z0 = [t for t in lw.tracks if t._cls_name == "MovieScene3DTransformTrack"][0].sections[0].channels[2] if lw else None
         check("B14+ coverage=cinematic: section [376, 3891), playback = the copy's, no hold key (first key = sky)",
               bool(ok) and [sec[0].sections[0].start, sec[0].sections[0].end] == [376, 3891] and ov.pb == [0, 4217]
-              and z0.keys[0].interp == "RCIM_LINEAR" and z0.keys[0].value > 6000, (err, new[-2:]))
+              and z0.keys[0].interp == "RCIM_LINEAR" and z0.keys[0].value > 4000, (err, new[-2:]))
         r3, ok, new, err = run(T, U, a8, "VERIFY")
         check("B14+ VERIFY ok (cinematic)", bool(ok) and err is None, (err, new[-2:]))
     except Exception:  # noqa: BLE001
@@ -1267,7 +1408,7 @@ def part_c():
 
 
 def main():
-    for part in (part_a, part_b, part_c):
+    for part in (part_a, part_a15, part_b, part_c):
         try:
             part()
         except Exception:  # noqa: BLE001

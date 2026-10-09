@@ -31,6 +31,16 @@ MECHANISM (conductor rules, 8 Oct)
     A/B material maps from the manifest's klara_s2.front_variants (Timber/Edge 'unchanged' = mesh default).
     Her X/Y/roll/pitch are NOT constant (x +-5..34 cm, y down 131 cm, roll to 3.3 deg [meas her_seq_decode.json]), so
     the default copies all six channels ('copy_channels': 'all'); 'z_only' holds the rest values instead.
+  * SAMPLED, not copied (live DRY S2V3OV-20261008-212010: the copy's x/y/z/roll/pitch keys are RCIM_CUBIC for all 15
+    wings; whether that is her authoring or the re-key is not assumed).  Each channel is EVALUATED BY UE
+    (evaluate_keys on a make_range(start, duration) built in DISPLAY frames; the value count is asserted -- a default
+    SequencerScriptingRange is 60000 fps and returns ~1 value, conductor 8 Oct) at every 160 ticks (150 fps = gcd of
+    the copy's 30 fps and the Scene's 25 fps frames, so every renderable tick is a sample)
+    [decl MovieSceneScriptingChannel.h:218-245: EvaluateKeysInChannel steps one requested-rate frame from the range's
+    lower tick].  Proof the samples sit on the right ticks: at every key tick the evaluated value equals the key value.
+    Each sample is composed with the child transform; LINEAR keys are fitted (0.1 cm / 0.01 deg) and GATED: at every
+    sample our keys must match her composed pose within 0.5 cm / 0.05 deg.  Source key hashes (values, interpolation
+    and tangents) stay, for re-ingest detection.
 
 MODES (args.mode; confirm '<MODE> S2V3OVERLAY'; decided_by for writes)
   DRY      read-only: her 15 actors (live), the copy's 15 transform channels (+ source key hashes), the plan, box
@@ -187,8 +197,32 @@ def _tick_rows(ch):
     return sorted(rows, key=lambda r: r[0])
 
 
+def _src_rows(ch):
+    """Her keys with tangents (for the source hash only; evaluation is UE's)."""
+    rows = []
+    for k in ch.get_keys():
+        ft = k.get_time(time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION)
+        if abs(float(ft.sub_frame)) > 1e-6:
+            raise RuntimeError("SUBTICK_KEY|%s+%s" % (ft.frame_number.value, ft.sub_frame))
+        rows.append([int(ft.frame_number.value), float(k.get_value()), _enum(k.get_interpolation_mode()),
+                     _enum(k.get_tangent_mode()), float(k.get_arrive_tangent()), float(k.get_leave_tangent()),
+                     _enum(k.get_tangent_weight_mode())])
+    return sorted(rows, key=lambda r: r[0])
+
+
+def _sample(C, seq, ch, grid):
+    """UE-evaluated values of one channel at grid['ticks'] (count asserted)."""
+    rng = seq.make_range(int(grid["start_frame"]), int(grid["duration"]))           # DISPLAY rate [decl :137-145]
+    vals = [float(v) for v in ch.evaluate_keys(rng, unreal.FrameRate(numerator=int(grid["rate"][0]),
+                                                                     denominator=int(grid["rate"][1])))]
+    if len(vals) != grid["expected_count"]:
+        raise C.PlanError("SAMPLE_COUNT|got %d want %d (range must be make_range in display frames)"
+                          % (len(vals), grid["expected_count"]))
+    return vals
+
+
 def _src_channel(ch):
-    return {"keys": _tick_rows(ch), "default": float(ch.get_default()) if ch.has_default() else None,
+    return {"keys": _src_rows(ch), "default": float(ch.get_default()) if ch.has_default() else None,
             "pre": _enum(ch.get_pre_infinity_extrapolation()), "post": _enum(ch.get_post_infinity_extrapolation())}
 
 
@@ -421,17 +455,19 @@ def _copy_sources(C, copy, wings, actors):
             problems.append("COPY_BLEND|%s|%s" % (w["label"], blend))
             continue
         cm = _chan_map(secs[0])
-        chans, names_seen = {}, {}
+        chans, names_seen, handles = {}, {}, {}
         for n in C.CHANNELS:
             ue = C.UE_CHANNEL[n]
             if ue not in cm:
                 problems.append("COPY_CHANNEL_MISSING|%s|%s" % (w["label"], ue))
                 break
             chans[n] = _src_channel(cm[ue])
+            handles[n] = cm[ue]
             names_seen[n] = str(cm[ue].channel_name) if hasattr(cm[ue], "channel_name") else str(cm[ue].get_name())
         else:
             out[w["label"]] = {"guid": _guid(b), "binding_name": str(b.get_display_name()), "chans": chans,
-                               "channel_names": names_seen, "her_actor": a.get_path_name() if a else None}
+                               "handles": handles, "channel_names": names_seen,
+                               "her_actor": a.get_path_name() if a else None}
     return out, problems
 
 
@@ -490,6 +526,13 @@ def _api_table():
     probe("MovieSceneSectionExtensions.get_parent_sequence_frame", "prec klara_hookin.py:1903",
           lambda: hasattr(u.MovieSceneSectionExtensions, "get_parent_sequence_frame"))
     probe("ComponentMobility.MOVABLE", "prec curtain_sleight.py:2029", lambda: repr(u.ComponentMobility.MOVABLE))
+    probe("MovieSceneScriptingDoubleChannel.evaluate_keys (the sampled source)",
+          "decl MovieSceneScriptingDouble.h:296; MovieSceneScriptingChannel.h:218-245",
+          lambda: hasattr(u.MovieSceneScriptingDoubleChannel, "evaluate_keys"))
+    probe("LevelSequence.make_range (DISPLAY-rate range)", "decl MovieSceneSequenceExtensions.h:145",
+          lambda: hasattr(u.LevelSequence, "make_range"))
+    probe("FrameRate(numerator=150, denominator=1)", "inf (struct ctor)",
+          lambda: repr(u.FrameRate(numerator=150, denominator=1)))
     probe("MovieSceneKeyInterpolation.CONSTANT (the wide-shot hold key)", "inf (enum name)",
           lambda: repr(u.MovieSceneKeyInterpolation.CONSTANT))
     probe("MovieSceneLevelVisibilitySection.get_level_names", "prec klara_hookin.py:1693",
@@ -583,14 +626,30 @@ def _plan(C, args, world, run):
         pw["copy_binding"] = {"guid": src["guid"], "name": src["binding_name"], "channels": src["channel_names"]}
         pw["source_hashes"] = C.source_hashes(src["chans"])
         pw["source_key_counts"] = {n: len(src["chans"][n]["keys"]) for n in C.CHANNELS}
+        kp = {"keys": [], "problems": []}
         try:
-            kp = C.plan_wing_keys(src["chans"], row, C.opt(args, "copy_channels"), tol_cm, tol_deg)
+            sp_ = C.source_problems(src["chans"], linear_only=False)
+            if sp_:
+                raise C.PlanError(" ".join(sp_))
+            key_ticks = [k[0] for n in C.CHANNELS for k in src["chans"][n]["keys"]]
+            grid = C.sampling_grid(key_ticks, copy_rates["tick"], copy_rates["fps"], _rate(scene.get_display_rate()),
+                                   cov["pre_ticks"])
+            samples = {n: _sample(C, copy, src["handles"][n], grid) for n in C.CHANNELS}
+            align = C.key_alignment(src["chans"], grid["ticks"], samples)
+            kp = C.plan_wing_keys_sampled(samples, grid["ticks"], row, C.opt(args, "copy_channels"), tol_cm, tol_deg,
+                                          float(C.opt(args, "fit_tol_cm")), float(C.opt(args, "fit_tol_deg")))
+            kp["problems"] = align["problems"] + kp["problems"]
+            pw["sampling"] = {k: grid[k] for k in ("start_frame", "duration", "rate", "interval", "expected_count")}
+            pw["sampling"].update(alignment=align, samples=kp["samples"], keys=kp["n"], max_dev_cm=kp["max_dev_cm"],
+                                  max_dev_deg=kp["max_dev_deg"])
+            her_first = [samples[n][0] for n in C.CHANNELS]
+            her_rest = [samples[n][-1] for n in C.CHANNELS]
         except C.PlanError as exc:
             kp = {"keys": [], "problems": [str(exc)]}
+            her_first = [C.eval_channel(src["chans"][n], -10 ** 12) for n in C.CHANNELS]   # first/last key values
+            her_rest = [C.eval_channel(src["chans"][n], 10 ** 12) for n in C.CHANNELS]
         refusals += ["%s|%s" % (w["label"], x) for x in kp["problems"]]
         live = _pose(a)
-        her_first = [C.eval_channel(src["chans"][n], -10 ** 12) for n in C.CHANNELS]
-        her_rest = [C.eval_channel(src["chans"][n], 10 ** 12) for n in C.CHANNELS]
         cls = C.classify_pre_pose(live, her_first, her_rest, float(C.opt(args, "rest_vs_actor_tol_cm")))
         pw.update(her_live_pose=live, her_first_from_keys=her_first, her_rest_from_keys=her_rest,
                   pre_pose_measured=cls,
@@ -607,8 +666,8 @@ def _plan(C, args, world, run):
             hold = (kp["rest"] if pre == "rest" else kp["first"])[1:]
             keys, interps = C.with_hold(kp["keys"], cov["pre_ticks"], hold)
             pw.update(keys=keys, interps=interps, keys_sha=C.keys_sha(keys, interps), n=len(keys),
-                      fall_first=kp["first"], rest=kp["rest"], midpoint_dev_cm=kp["midpoint_dev_cm"],
-                      midpoint_dev_deg=kp["midpoint_dev_deg"])
+                      fall_first=kp["first"], rest=kp["rest"], max_dev_cm=kp["max_dev_cm"],
+                      max_dev_deg=kp["max_dev_deg"])
         sc = a.get_actor_scale3d()
         pw["her_scale"] = [float(sc.x), float(sc.y), float(sc.z)]
         her_info = _mesh_info(str(w["mesh"]).split(".")[0])

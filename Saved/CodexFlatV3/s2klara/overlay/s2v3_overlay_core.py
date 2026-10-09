@@ -51,6 +51,7 @@ KIT = {"manifest_path": "DerivedAssets/FlatV3/KlaraS2/IMPORT_MANIFEST_KlaraS2.js
        "rzimport_plan_path": "DerivedAssets/FlatV3/KlaraS2/rzimport_plan_offline_KlaraS2.json"}
 PIVOT_FRAMES = ("her_local_world_cm", "our_local_cm")
 DEFAULTS = {"align_tol_cm": 25.0, "align_refuse": True, "midpoint_tol_cm": 0.5, "midpoint_tol_deg": 0.05,
+            "fit_tol_cm": 0.1, "fit_tol_deg": 0.01,
             "copy_channels": "all", "variant": "A", "rest_vs_actor_tol_cm": 2.0, "coverage": "scene",
             "pre_section_pose": "auto"}
 
@@ -424,8 +425,9 @@ def eval_channel(ch, t):
     return float(v0) + (float(v1) - float(v0)) * (t - t0) / float(t1 - t0)
 
 
-def source_problems(chans):
-    """chans: {name: {"keys", "default", "pre", "post"}} -> refusals."""
+def source_problems(chans, linear_only=True):
+    """chans: {name: {"keys", "default", "pre", "post"}} -> refusals.  linear_only=False (the SAMPLED path, live DRY
+    S2V3OV-20261008-212010: the hookin copy's keys are RCIM_CUBIC) accepts any interpolation, because UE evaluates them."""
     out = []
     for n in CHANNELS:
         c = chans.get(n)
@@ -433,7 +435,7 @@ def source_problems(chans):
             out.append("MISSING_CHANNEL:%s" % n)
             continue
         bad = sorted({k[2] for k in c["keys"][:-1] if k[2] not in INTERP_OK})
-        if bad:
+        if bad and linear_only:
             out.append("NONLINEAR_SOURCE:%s:%s" % (n, bad))
         for side in ("pre", "post"):
             if c["keys"] and c.get(side) not in EXTRAP_OK:
@@ -445,7 +447,10 @@ def source_problems(chans):
 
 
 def canonical_rows(c):
-    return [[int(k[0]), round(float(k[1]), 4), str(k[2])] for k in c["keys"]]
+    """[tick, value, interp] plus, when read live, tangent mode / arrive / leave / weight mode: a re-ingest that only
+    changes a tangent still changes the hash (cubic keys, live DRY 8 Oct)."""
+    return [[int(k[0]), round(float(k[1]), 4), str(k[2])] +
+            [round(float(x), 4) if isinstance(x, (int, float)) else str(x) for x in k[3:]] for k in c["keys"]]
 
 
 def channel_sha(c):
@@ -527,6 +532,134 @@ def keys_equal(a, b, tol_cm=0.01, tol_deg=0.001):
         if any(angle_diff(ka[i], kb[i]) > tol_deg for i in (4, 5, 6)):
             return False
     return True
+
+
+# ===================================================================================================== sampled source
+def sampling_grid(key_ticks, tick_res, child_fps, parent_fps, pre_ticks=0):
+    """Where to sample her channels.  UE's EvaluateKeys steps one frame of the REQUESTED rate (in ticks) from the range's
+    inclusive lower tick to its exclusive upper tick and evaluates at each snapped tick
+    [decl MovieSceneScriptingChannel.h:218-245].  The interval is chosen as gcd(child frame, parent frame) in ticks, so the
+    samples include EVERY tick the show can render at: each child display frame (30 fps = 800 ticks) and each parent
+    frame mapped into the child (25 fps = 960 ticks; the pre-roll 261120 is a multiple too) -> 160 ticks = 150 fps.
+    The range is built with make_range(start, duration) in DISPLAY frames (memory/coordinator: a default
+    SequencerScriptingRange is 60000 fps and returns ~1 value).  -> {"start_frame", "duration", "rate", "interval",
+    "ticks", "expected_count"}."""
+    req(key_ticks, "NO_SOURCE_KEYS")
+    tr = float(tick_res[0]) / float(tick_res[1])
+    tpc = tr * child_fps[1] / float(child_fps[0])
+    tpp = tr * parent_fps[1] / float(parent_fps[0])
+    req(abs(tpc - round(tpc)) < 1e-9 and abs(tpp - round(tpp)) < 1e-9, "FRAME_NOT_ON_TICK_GRID|%s|%s" % (tpc, tpp))
+    interval = math.gcd(int(round(tpc)), int(round(tpp)))
+    req(pre_ticks % interval == 0, "PRE_ROLL_OFF_SAMPLE_GRID|%s|%s" % (pre_ticks, interval))
+    rate = tr / interval
+    req(abs(rate - round(rate)) < 1e-9, "SAMPLE_RATE_NOT_INTEGER|%s" % rate)
+    start = int(math.floor(min(key_ticks) / tpc))
+    end = int(math.floor(max(key_ticks) / tpc)) + 2               # one display frame past the last key: proves the hold
+    duration = end - start
+    per = int(round(tpc)) // interval
+    ticks = [int(round(start * tpc)) + i * interval for i in range(duration * per)]
+    return {"start_frame": start, "duration": duration, "rate": [int(round(rate)), 1], "interval": interval,
+            "ticks": ticks, "expected_count": duration * per, "ticks_per_child_frame": int(round(tpc)),
+            "ticks_per_parent_frame": int(round(tpp))}
+
+
+def lerp_pose(a, b, t):
+    """Pose at tick t between keys a=[tick, 6 values], b=[...] (linear per channel, as Sequencer's LINEAR keys)."""
+    f = (t - a[0]) / float(b[0] - a[0])
+    return [a[i] + (b[i] - a[i]) * f for i in range(1, 7)]
+
+
+def _within(p, q, tol_cm, tol_deg):
+    return (math.sqrt(sum((p[i] - q[i]) ** 2 for i in range(3))) <= tol_cm and
+            all(abs(p[i] - q[i]) <= tol_deg for i in (3, 4, 5)))
+
+
+def decimate(samples, fit_cm, fit_deg):
+    """Greedy: keep the fewest sample points such that LINEAR interpolation between kept points reproduces every sample
+    within (fit_cm, fit_deg).  samples = [[tick, x, y, z, roll, pitch, yaw]] (angles already unwrapped)."""
+    keep, i, n = [0], 0, len(samples)
+    while i < n - 1:
+        j = i + 1
+        while j + 1 < n:
+            cand, ok = j + 1, True
+            for k in range(i + 1, cand):
+                if not _within(lerp_pose(samples[i], samples[cand], samples[k][0]), samples[k][1:], fit_cm, fit_deg):
+                    ok = False
+                    break
+            if not ok:
+                break
+            j = cand
+        keep.append(j)
+        i = j
+    return [samples[k] for k in keep]
+
+
+def eval_linear_keys(keys, t):
+    if t <= keys[0][0]:
+        return list(keys[0][1:])
+    if t >= keys[-1][0]:
+        return list(keys[-1][1:])
+    lo, hi = 0, len(keys) - 1
+    while hi - lo > 1:
+        mid = (lo + hi) // 2
+        if keys[mid][0] <= t:
+            lo = mid
+        else:
+            hi = mid
+    return lerp_pose(keys[lo], keys[hi], t)
+
+
+def plan_wing_keys_sampled(samples, ticks, row, copy_channels="all", tol_cm=0.5, tol_deg=0.05, fit_cm=0.1,
+                           fit_deg=0.01):
+    """samples = {channel: [UE-evaluated values at `ticks`]} of HER binding (any interpolation: cubic, linear, constant).
+    Compose each sample with the child transform, decimate to LINEAR keys, then GATE: our keys evaluated at EVERY sample
+    tick (= every renderable tick) vs her composed pose: max <= tol_cm / tol_deg, else refused."""
+    req(all(len(samples[n]) == len(ticks) for n in CHANNELS), "SAMPLE_LENGTHS_DIFFER")
+    src = {n: list(samples[n]) for n in CHANNELS}
+    if copy_channels == "z_only":
+        for n in CHANNELS:
+            if n != "z":
+                src[n] = [src[n][-1]] * len(ticks)
+    truth, prev = [], None
+    for i, t in enumerate(ticks):
+        p = compose_pose([src[n][i] for n in CHANNELS], row)
+        if prev is not None:
+            for a in (3, 4, 5):
+                p[a] = unwrap_near(p[a], prev[a])
+        truth.append([t] + p)
+        prev = p
+    keys = decimate(truth, fit_cm, fit_deg)
+    dev_cm = dev_deg = 0.0
+    for tr in truth:
+        q = eval_linear_keys(keys, tr[0])
+        dev_cm = max(dev_cm, math.sqrt(sum((q[i] - tr[1 + i]) ** 2 for i in range(3))))
+        dev_deg = max(dev_deg, max(angle_diff(q[i], tr[1 + i]) for i in (3, 4, 5)))
+    problems = []
+    if dev_cm > tol_cm or dev_deg > tol_deg:
+        problems.append("SAMPLED_GATE|%.4f cm|%.5f deg (tol %s cm / %s deg)" % (dev_cm, dev_deg, tol_cm, tol_deg))
+    return {"keys": keys, "first": keys[0], "rest": keys[-1], "n": len(keys), "samples": len(truth),
+            "max_dev_cm": round(dev_cm, 5), "max_dev_deg": round(dev_deg, 6), "problems": problems}
+
+
+def key_alignment(chans, ticks, samples, tol=1e-3):
+    """Proof that sample i really is tick ticks[i]: at every key tick on the grid, UE's evaluated value must equal the
+    key's own value.  -> {"checked", "on_grid", "max_err", "problems"}."""
+    idx = {t: i for i, t in enumerate(ticks)}
+    checked, err, total = 0, 0.0, 0
+    for n in CHANNELS:
+        for k in chans[n]["keys"]:
+            total += 1
+            i = idx.get(int(k[0]))
+            if i is None:
+                continue
+            checked += 1
+            err = max(err, abs(float(samples[n][i]) - float(k[1])))
+    probs = []
+    if total and checked < 0.9 * total:
+        probs.append("KEYS_OFF_SAMPLE_GRID|%d of %d keys on the grid" % (checked, total))
+    if err > tol:
+        probs.append("SAMPLE_ALIGNMENT|max |eval - key| = %.6f at key ticks (samples shifted or wrong range)" % err)
+    return {"checked": checked, "keys": total, "max_err": round(err, 7), "problems": probs}
 
 
 # ===================================================================================================== box check
