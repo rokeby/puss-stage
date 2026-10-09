@@ -1,0 +1,35 @@
+{
+  "job": 74,
+  "evidence": "measured",
+  "import_run_id": "ragged_proscenium_p02_held",
+  "dry_marker": "PUSS_SOFTGOODS_BAKE_IMPORT_SUCCESS|DRY RUN|ragged_proscenium_p02_held->/Game/Scenes/Curtain/Baked/GC_CurtainDrop_RaggedProscenium_P02Held|frames=450..1080|mi={'PatternWidthM': 37.629, 'DropM': 10.0, 'SeamWidthM': 1.37}|place=None",
+  "apply_marker": "PUSS_SOFTGOODS_BAKE_IMPORT_SUCCESS|ragged_proscenium_p02_held->/Game/Scenes/Curtain/Baked/GC_CurtainDrop_RaggedProscenium_P02Held",
+  "geometry_cache_import_calls": 1,
+  "asset": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_RaggedProscenium_P02Held",
+  "support_assets": [
+    "/Game/Scenes/Curtain/Baked/SM_CurtainRaggedP02Held_Hanging",
+    "/Game/Scenes/Curtain/Baked/SM_CurtainRaggedP02Held_Pile",
+    "/Game/Scenes/Curtain/Baked/MI_CurtainVelvet_DeepRed_Drop"
+  ],
+  "read_back": {
+    "frame_range": [450, 1080],
+    "sample_count": 631,
+    "fps": 30,
+    "actor": null,
+    "hang_frame": 479,
+    "hang_bounds_cm": {"x": [-40.4, 39.7], "y": [-940.0, 940.0], "z": [21.3, 1020.0]},
+    "last_frame": 1080,
+    "last_bounds_cm": {"x": [-355.3, 530.3], "y": [-1104.0, 964.1], "z": [-19.8, 81.9]},
+    "axis_check_failures": []
+  },
+  "gc_run_id": "Q16-J74-20261009-1223",
+  "gc_marker": "Q16_GC_SUCCESS|run=Q16-J74-20261009-1223|content=[]|maps=[]|pie=False",
+  "census_run_id": "CI-20261007-END",
+  "census_before": "CI_CENSUS run=CI-20261007-END content=[] maps=[] pie=False",
+  "census_after": "CI_CENSUS run=CI-20261007-END content=[] maps=[] pie=False",
+  "pie_started_or_ended": false,
+  "editor_quit_or_restarted": false,
+  "save_all_used": false,
+  "placed_or_hooked": false,
+  "git_used": false
+}
