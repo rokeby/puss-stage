@@ -9,7 +9,10 @@
 #include "InfinityStageShowRoot.h"
 #include "InfinityStageTransportController.h"
 #include "Styling/CoreStyle.h"
+#include "Framework/MultiBox/MultiBoxBuilder.h"
 #include "Widgets/Input/SButton.h"
+#include "Widgets/Input/SComboButton.h"
+#include "Widgets/Input/SSlider.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Text/STextBlock.h"
@@ -84,6 +87,9 @@ bool Gather(UWorld* World, FInfinityRehearsalState& Out)
     }
     Out.bHasShow = true;
     Out.CueSeconds = HudState.SegmentSeconds;
+    Out.CueFraction = HudState.SegmentLengthSeconds > 0.0
+        ? static_cast<float>(FMath::Clamp(HudState.SegmentSeconds / HudState.SegmentLengthSeconds, 0.0, 1.0))
+        : 0.0f;
     Out.CueLengthSeconds = HudState.SegmentLengthSeconds;
     Out.ShowSeconds = HudState.MasterSeconds;
     Out.bPlaying = HudState.bPlaying;
@@ -137,6 +143,56 @@ bool Gather(UWorld* World, FInfinityRehearsalState& Out)
     Out.Cue = FString::Printf(TEXT("%d/%d  %s%s"), HudState.SegmentIndex + 1, HudState.SegmentCount, *HudState.SegmentLabel,
         SheetCue.IsEmpty() ? TEXT("") : *FString::Printf(TEXT("   [sheet cue %s]"), *SheetCue));
     return true;
+}
+
+FFrameNumber FrameAtFraction(const FFrameNumber Start, const FFrameNumber End, const float Fraction)
+{
+    const int32 Length = FMath::Max(1, (End - Start).Value);
+    return Start + FFrameNumber(FMath::Clamp(FMath::RoundToInt32(FMath::Clamp(Fraction, 0.0f, 1.0f) * Length), 0, Length - 1));
+}
+
+void ScrubCurrentSegment(UWorld* World, const float Fraction)
+{
+    UInfinityStageTransportController* Transport = UInfinityStageTransportController::FindForWorld(World);
+    if (!Transport || Transport->Segments.IsEmpty())
+    {
+        return;
+    }
+    const FFrameNumber Now = Transport->GetCurrentMasterFrame();
+    int32 Current = 0;
+    for (int32 Index = 0; Index < Transport->Segments.Num(); ++Index)
+    {
+        if (Transport->Segments[Index].StartFrame <= Now)
+        {
+            Current = Index;
+        }
+    }
+    const FInfinityTransportSegment& Segment = Transport->Segments[Current];
+    // Same path as the Cue Desk scrub: pauses and evaluates that frame (Scenes included,
+    // since the Master evaluates the nested Scene sequence: one clock).
+    Transport->ScrubToMasterFrame(FrameAtFraction(Segment.StartFrame, Segment.EndFrame, Fraction));
+}
+
+void JumpToSegmentStart(UWorld* World, const int32 Index)
+{
+    UInfinityStageTransportController* Transport = UInfinityStageTransportController::FindForWorld(World);
+    if (Transport && Transport->Segments.IsValidIndex(Index))
+    {
+        Transport->ScrubToMasterFrame(Transport->Segments[Index].StartFrame);
+    }
+}
+
+TArray<FString> SegmentLabels(UWorld* World)
+{
+    TArray<FString> Labels;
+    if (UInfinityStageTransportController* Transport = UInfinityStageTransportController::FindForWorld(World))
+    {
+        for (int32 Index = 0; Index < Transport->Segments.Num(); ++Index)
+        {
+            Labels.Add(FString::Printf(TEXT("%d  %s"), Index + 1, *Transport->Segments[Index].Label.ToString()));
+        }
+    }
+    return Labels;
 }
 
 void Command(UWorld* World, const ECommand Which)
@@ -261,6 +317,41 @@ void SInfinityStageRehearsalBar::Construct(const FArguments& InArgs)
                 ]
                 + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("PrevLine", "< line"), LOCTEXT("PrevLineTip", "Script cursor back (PageUp)"), ECommand::PreviousLine) ]
                 + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("NextLine", "line >"), LOCTEXT("NextLineTip", "Script cursor on (PageDown)"), ECommand::NextLine) ]
+            ]
+            + SVerticalBox::Slot().AutoHeight().Padding(0.0f, 3.0f, 0.0f, 0.0f)
+            [
+                SNew(SHorizontalBox)
+                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)
+                [
+                    SNew(SComboButton)
+                    .IsFocusable(false)
+                    .ToolTipText(LOCTEXT("JumpTip", "Jump to the start of any Passage, Scene or Interaction (pauses there)"))
+                    .ButtonContent()[ SNew(STextBlock).Text(LOCTEXT("Jump", "Jump to...")) ]
+                    .OnGetMenuContent_Lambda([this]()
+                    {
+                        FMenuBuilder Menu(true, nullptr);
+                        const TArray<FString> Labels = SegmentLabels(GetWorldFn ? GetWorldFn() : nullptr);
+                        for (int32 Index = 0; Index < Labels.Num(); ++Index)
+                        {
+                            Menu.AddMenuEntry(FText::FromString(Labels[Index]), FText::GetEmpty(), FSlateIcon(),
+                                FUIAction(FExecuteAction::CreateLambda([this, Index]()
+                                {
+                                    JumpToSegmentStart(GetWorldFn ? GetWorldFn() : nullptr, Index);
+                                })));
+                        }
+                        return Menu.MakeWidget();
+                    })
+                ]
+                + SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center).Padding(8.0f, 0.0f)
+                [
+                    // Scrub through the current Passage or Scene. One clock: the Master evaluates the Scene.
+                    SNew(SSlider)
+                    .IsFocusable(false)
+                    .ToolTipText(LOCTEXT("ScrubTip", "Scrub through the current Passage / Scene (pauses). Hold the Scene 3 lock off with Rehearsal Transport."))
+                    .IsEnabled_Lambda([this]() { return State().bHasShow; })
+                    .Value_Lambda([this]() { return State().CueFraction; })
+                    .OnValueChanged_Lambda([this](const float Value) { ScrubCurrentSegment(GetWorldFn ? GetWorldFn() : nullptr, Value); })
+                ]
             ]
             + SVerticalBox::Slot().AutoHeight().Padding(0.0f, 3.0f, 0.0f, 0.0f)
             [

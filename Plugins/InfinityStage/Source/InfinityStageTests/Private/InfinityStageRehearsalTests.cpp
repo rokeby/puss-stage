@@ -86,4 +86,48 @@ bool FInfinityStageShowTrimsTest::RunTest(const FString& Parameters)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageRehearsalScrubTest,
+    "InfinityStage.CueDirector.ScrubFractionStaysInsideTheSegment",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageRehearsalScrubTest::RunTest(const FString& Parameters)
+{
+    using InfinityStageRehearsal::FrameAtFraction;
+    TestEqual(TEXT("0 is the segment start"), FrameAtFraction(1000, 2000, 0.0f), FFrameNumber(1000));
+    TestEqual(TEXT("Half way"), FrameAtFraction(1000, 2000, 0.5f), FFrameNumber(1500));
+    TestEqual(TEXT("1 stays one frame inside (never the next segment)"), FrameAtFraction(1000, 2000, 1.0f), FFrameNumber(1999));
+    TestEqual(TEXT("Control: out-of-range fractions clamp"), FrameAtFraction(1000, 2000, 7.0f), FFrameNumber(1999));
+    TestEqual(TEXT("Control: negative clamps to the start"), FrameAtFraction(1000, 2000, -1.0f), FFrameNumber(1000));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageFastForwardSkimTest,
+    "InfinityStage.CueDirector.FastForwardSkimPassesKeptHolds",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+// Gary (8 Oct): fast-forward should skim the show without stopping. The transport sets
+// bPassAll and empties KeepNumbers while RIGHT is held; this is the hold state's side of it.
+bool FInfinityStageFastForwardSkimTest::RunTest(const FString& Parameters)
+{
+    TArray<FInfinityGoCue> Cues;
+    FInfinityGoCue& Cue = Cues.AddDefaulted_GetRef();
+    Cue.Frame = 100;
+    Cue.bHold = true;
+    Cue.Number = TEXT("10");
+
+    FInfinityGoHoldState Skim;
+    Skim.bPassAll = true;          // fast-forward
+    Skim.Tick(50, true, Cues);
+    TestEqual(TEXT("A skim passes even a kept GO"), Skim.Tick(150, true, Cues), int32(INDEX_NONE));
+
+    FInfinityGoHoldState Kept;
+    Kept.bPassAll = true;          // run-through at 1x
+    Kept.KeepNumbers.Add(TEXT("10"));
+    Kept.Tick(50, true, Cues);
+    TestEqual(TEXT("Control: at 1x run-through the kept GO holds"), Kept.Tick(150, true, Cues), 0);
+    return true;
+}
+
 #endif

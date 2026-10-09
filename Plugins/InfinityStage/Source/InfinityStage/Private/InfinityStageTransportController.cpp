@@ -2643,7 +2643,8 @@ void UInfinityStageTransportController::RefreshSelectedSegment()
 bool UInfinityStageTransportController::HandleVampPlayback(const FFrameNumber CurrentFrame)
 {
     FFrameNumber LoopFrame = CurrentFrame;
-    VampPlaybackState.bPlayOnce = bRunThrough;
+    // Run-through, and fast-forward (a skim): a vamp plays once instead of looping.
+    VampPlaybackState.bPlayOnce = bRunThrough || bFastForwardActive;
     const EInfinityVampPlaybackAction Action = VampPlaybackState.Tick(
         CurrentFrame,
         Player && Player->IsPlaying(),
@@ -2709,7 +2710,10 @@ bool UInfinityStageTransportController::HandleGoHold(const FFrameNumber CurrentF
     {
         return false;
     }
-    GoHoldState.bPassAll = bRunThrough;
+    // Run-through passes unkept holds; a fast-forward skim passes every hold, kept ones too,
+    // and the kept ones hold again once RIGHT is released.
+    GoHoldState.bPassAll = bRunThrough || bFastForwardActive;
+    GoHoldState.KeepNumbers = bFastForwardActive ? TSet<FString>() : TSet<FString>(RunThroughHoldGoNumbers);
     const int32 Hit = GoHoldState.Tick(
         CurrentFrame,
         Player->IsPlaying() && !Player->IsReversed(),

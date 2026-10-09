@@ -3155,6 +3155,33 @@ TSharedRef<SWidget> SInfinityStageCueDesk::BuildViewMenu()
     AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowCueDetailsPanel", "Show Cue Details"), &bCueDetailsVisible);
     AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowInspectorPanel", "Show Passage / Music Inspector (right column)"), &bInspectorVisible);
     AddPanelToggle(NSLOCTEXT("InfinityStage", "ShowRehearsalBar", "Show Rehearsal Bar (bottom; follows PIE)"), &bRehearsalBarVisible);
+    // Rehearsal: one row per Passage, no wing bays (Gary, 8 Oct). Needs the nested list mode.
+    MenuBuilder.AddMenuEntry(
+        NSLOCTEXT("InfinityStage", "CollapseAllPassages", "Collapse All Passages (rehearsal: no wing rows)"),
+        NSLOCTEXT("InfinityStage", "CollapseAllPassagesTip", "Show each Passage as one row; wing bays stay hidden until expanded."),
+        FSlateIcon(),
+        FUIAction(FExecuteAction::CreateLambda([this]()
+        {
+            if (!ShowAsset.IsValid())
+            {
+                return;
+            }
+            SetNestedCueMode(true);
+            for (const FInfinityPassageSettings& Passage : ShowAsset->PassageSettings)
+            {
+                CollapsedPassages.Add(Passage.PassageGuid);
+            }
+            RefreshFromAsset(true);
+        })));
+    MenuBuilder.AddMenuEntry(
+        NSLOCTEXT("InfinityStage", "ExpandAllPassages", "Expand All Passages (wing rows)"),
+        FText::GetEmpty(),
+        FSlateIcon(),
+        FUIAction(FExecuteAction::CreateLambda([this]()
+        {
+            CollapsedPassages.Reset();
+            RefreshFromAsset(true);
+        })));
     MenuBuilder.AddMenuEntry(
         NSLOCTEXT("InfinityStage", "ShowMusicWorkspace", "Show Music Timeline Workspace"),
         NSLOCTEXT(
