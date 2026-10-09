@@ -280,6 +280,62 @@ def relative_key_carry_and_float_tolerances():
 
 
 @test
+def logged_p05_p06_rebuild_rounding_regression():
+    """P33-20261009-092149: old raw-boundary control fails; corrected gates accept only logged round-off."""
+    spans = [
+        (2312640, 4624705, -547585), (12649345, 13789825, -48000),
+        (19662145, 20675905, -48000), (29064385, 30273985, -48000),
+        (36731905, 41204632, -3463767), (44144152, 47168179, -369627),
+    ]
+    p05 = "3B27C331B54325A469AE8A818B9049F9"
+    p06 = "9BFC29C45D47911FF7836BB8537230D2"
+    before = {
+        p05: {"start": 36731906, "channels": {"Camera.HeightOffsetCm": [
+            [36731905, 0.0], [36767905, -90.0], [41168632, -90.0], [41204632, 0.0]]},
+              "pins_rel": [], "wing_pins": []},
+        p06: {"start": 44144153, "channels": {"Camera.SpeedMultiplier": [[35087952, 1.0]]},
+              "pins_rel": [], "wing_pins": []},
+    }
+    after = {
+        p05: {"start": 36040321, "channels": {"Camera.HeightOffsetCm": [
+            [36040320, 0.0], [36076320, -90.0], [37041160, -90.0], [37049280, 0.0]]},
+              "pins_rel": [], "wing_pins": []},
+        p06: {"start": 39988799, "channels": {"Camera.SpeedMultiplier": [[30932600, 1.0]]},
+              "pins_rel": [], "wing_pins": []},
+    }
+    # Reproduce the old code's unsnapped shift decision: both +1 starts look
+    # strictly inside their shortened Passages, so shift_at returns None.
+    old_control = [guid for guid in (p05, p06) if tool.base.shift_at(before[guid]["start"], spans) is None]
+    check(old_control == [p05, p06], "negative old control reproduces both PASSAGE_SECTION_START_WRONG failures")
+    move_plan = {"passageKeys": [
+        {"guid": p05, "channel": "Camera.HeightOffsetCm", "ordinal": 2},
+        {"guid": p05, "channel": "Camera.HeightOffsetCm", "ordinal": 3}], "choreoSections": []}
+    check(tool._relative_gate_with_moves(before, after, spans, move_plan) == [],
+          "positive logged P05/P06 section starts and local keys pass after boundary snap")
+    bad_start = copy.deepcopy(after)
+    bad_start[p06]["start"] = 39988800 + tool.SECTION_READ_TOL_TICKS + 1
+    check(any("PASSAGE_SECTION_START_WRONG" in row for row in
+              tool._relative_gate_with_moves(before, bad_start, spans, move_plan)),
+          "negative Master section start beyond tolerance still refuses")
+
+    expected = {"passageKeys": [
+        {"group": "P05:passage_channel:Camera.HeightOffsetCm", "local": 1000839, "value": -90.0},
+        {"group": "P05:passage_channel:Camera.HeightOffsetCm", "local": 1008959, "value": 0.0}],
+        "choreoSections": [{"group": "P06:choreoSections", "start": 0, "end": 2654376}]}
+    logged = copy.deepcopy(expected)
+    logged["choreoSections"][0]["end"] = 2654377
+    check(logged != expected, "negative old raw-equality control reproduces MOVE_INSIDE_READBACK_FAILED")
+    check(tool.move_state_gate(logged, expected) == [],
+          "positive logged one-tick Choreo seconds round-trip passes established section tolerance")
+    key_drift = copy.deepcopy(logged)
+    key_drift["passageKeys"][0]["local"] += 1
+    check(tool.move_state_gate(key_drift, expected), "negative MOVE_INSIDE key tick drift remains exact and refuses")
+    too_far = copy.deepcopy(logged)
+    too_far["choreoSections"][0]["end"] = 2654376 + tool.SECTION_READ_TOL_TICKS + 1
+    check(tool.move_state_gate(too_far, expected), "negative Choreo drift beyond tolerance still refuses")
+
+
+@test
 def downstream_shift_is_proven():
     segments = [{"label": row[0], "start": row[1], "end": row[2]} for row in SNAPSHOT["segments"]]
     deltas = {}

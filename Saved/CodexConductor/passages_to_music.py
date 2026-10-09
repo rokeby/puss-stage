@@ -173,6 +173,17 @@ def _values_equal(channel, before, after):
     return before == after
 
 
+SECTION_READ_TOL_TICKS = getattr(base, "SECTION_READ_TOL_TICKS", 8)
+
+
+def _snapped_section_start(start, spans):
+    """Return the compiled boundary represented by a float-seconds section start."""
+    start = int(start)
+    candidates = [int(edge) for span in spans for edge in span[:2]
+                  if abs(start - int(edge)) <= SECTION_READ_TOL_TICKS]
+    return min(candidates, key=lambda edge: (abs(start - edge), edge)) if candidates else start
+
+
 def relative_key_carry_gate(before, after, spans):
     """Prove local key ticks and float values survive; never hash rounded values."""
     failures = []
@@ -180,8 +191,14 @@ def relative_key_carry_gate(before, after, spans):
         return ["PASSAGE_SECTION_SET_CHANGED: %r -> %r" % (sorted(before), sorted(after))]
     for guid in sorted(before):
         old, new = before[guid], after[guid]
-        shift = base.shift_at(old["start"], spans)
-        if shift is None or int(new["start"]) != int(old["start"]) + int(shift):
+        # Master section ranges are exposed through float seconds and can read a
+        # few ticks either side of the compiled Passage boundary.  Snap only
+        # for deciding which cumulative rebuild shift applies, then apply the
+        # established section-range tolerance to the rebuilt boundary.
+        old_origin = _snapped_section_start(old["start"], spans)
+        shift = base.shift_at(old_origin, spans)
+        new_origin = None if shift is None else int(old_origin) + int(shift)
+        if new_origin is None or abs(int(new["start"]) - new_origin) > SECTION_READ_TOL_TICKS:
             failures.append("PASSAGE_SECTION_START_WRONG: %s" % guid)
             continue
         if sorted(old.get("channels") or {}) != sorted(new.get("channels") or {}):
@@ -194,8 +211,8 @@ def relative_key_carry_gate(before, after, spans):
                 failures.append("PASSAGE_KEY_COUNT_CHANGED: %s %s" % (guid, channel))
                 continue
             for index, (left, right) in enumerate(zip(a, b)):
-                old_local = int(left[0]) - int(old["start"])
-                new_local = int(right[0]) - int(new["start"])
+                old_local = int(left[0]) - int(old_origin)
+                new_local = int(right[0]) - int(new_origin)
                 if old_local != new_local:
                     failures.append("PASSAGE_KEY_LOCAL_TICK_CHANGED: %s %s #%d %d->%d" % (
                         guid, channel, index, old_local, new_local))
@@ -589,6 +606,33 @@ def _expected_move_state(move_plan, prefix):
                            for item in move_plan.get("choreoSections") or []]}
 
 
+def move_state_gate(actual, expected):
+    """MOVE_INSIDE read-back: keys stay exact; seconds-based section bounds use the established tolerance."""
+    failures = []
+    actual_keys = actual.get("passageKeys") or []
+    expected_keys = expected.get("passageKeys") or []
+    if len(actual_keys) != len(expected_keys):
+        failures.append("PASSAGE_KEY_COUNT %d != %d" % (len(actual_keys), len(expected_keys)))
+    for index, (got, want) in enumerate(zip(actual_keys, expected_keys)):
+        if got.get("group") != want.get("group") or int(got.get("local", -1)) != int(want.get("local", -1)):
+            failures.append("PASSAGE_KEY_%d %r != %r" % (index, got, want))
+        elif not _values_equal(got.get("group"), got.get("value"), want.get("value")):
+            failures.append("PASSAGE_KEY_VALUE_%d %r != %r" % (index, got.get("value"), want.get("value")))
+    actual_sections = actual.get("choreoSections") or []
+    expected_sections = expected.get("choreoSections") or []
+    if len(actual_sections) != len(expected_sections):
+        failures.append("CHOREO_SECTION_COUNT %d != %d" % (len(actual_sections), len(expected_sections)))
+    for index, (got, want) in enumerate(zip(actual_sections, expected_sections)):
+        if got.get("group") != want.get("group"):
+            failures.append("CHOREO_SECTION_GROUP_%d %r != %r" % (index, got.get("group"), want.get("group")))
+            continue
+        for edge in ("start", "end"):
+            if abs(int(got.get(edge, -1)) - int(want.get(edge, -1))) > SECTION_READ_TOL_TICKS:
+                failures.append("CHOREO_SECTION_%s_%d %r != %r tol=%d" % (
+                    edge.upper(), index, got.get(edge), want.get(edge), SECTION_READ_TOL_TICKS))
+    return failures
+
+
 def _apply_move_plan(master, move_plan, forward):
     tick = base._rate(master.get_tick_resolution())
     source, target = ("old", "new") if forward else ("new", "old")
@@ -765,12 +809,22 @@ def run_dry(args, run):
 
 
 def _relative_gate_with_moves(before_keys, after_keys, spans, move_plan):
+    # Moved keys have a separate exact section-local read-back gate. Remove
+    # those reviewed ordinals here so this gate proves every untouched key was
+    # carried relative to the compiled Passage boundary by the rebuild.
     expected = copy.deepcopy(before_keys)
+    actual = copy.deepcopy(after_keys)
+    removals = {}
     for item in move_plan.get("passageKeys") or []:
-        row = expected[item["guid"]]
-        channel = row["channels"][item["channel"]]
-        channel[item["ordinal"]][0] = int(row["start"]) + int(item["newLocal"])
-    return relative_key_carry_gate(expected, after_keys, spans)
+        removals.setdefault((item["guid"], item["channel"]), []).append(int(item["ordinal"]))
+    for (guid, channel), ordinals in removals.items():
+        for rows in (expected, actual):
+            keys = rows[guid]["channels"][channel]
+            for ordinal in sorted(ordinals, reverse=True):
+                if ordinal >= len(keys):
+                    return ["MOVE_INSIDE_KEY_ORDINAL: %s %s #%d" % (guid, channel, ordinal)]
+                del keys[ordinal]
+    return relative_key_carry_gate(expected, actual, spans)
 
 
 def _post_gates(report, before, after, show, master):
@@ -791,7 +845,8 @@ def _post_gates(report, before, after, show, master):
         stale, text = base._handoffs(show)
         failures += ["HANDOFF_CHECK_FAILED_AFTER: %s" % text] if stale is None else base.handoff_gate(
             report["handoffStaleBefore"], stale)
-    if _move_state(master, report["moveInsidePlan"]) != _expected_move_state(report["moveInsidePlan"], "new"):
+    if move_state_gate(_move_state(master, report["moveInsidePlan"]),
+                       _expected_move_state(report["moveInsidePlan"], "new")):
         failures.append("MOVE_INSIDE_READBACK_FAILED")
     return failures
 
@@ -851,7 +906,7 @@ def run_apply(args, run):
     final = base._snapshot(unreal.load_asset(SHOW_PATH), unreal.load_asset(MASTER_PATH), list(VALID_KEYS))
     readback = ["POST_SAVE_%s_DIFFERS" % field for field in ("timing", "segments", "managed", "keys")
                 if _plain(final)[field] != record["after"][field]]
-    if _move_state(master, move_plan) != record["afterMoveState"]:
+    if move_state_gate(_move_state(master, move_plan), record["afterMoveState"]):
         readback.append("POST_SAVE_MOVE_INSIDE_DIFFERS")
     readback += exact_census_gate(base._census(), [])
     if readback:
@@ -880,7 +935,7 @@ def run_revert(args, run):
         drift.append("STATE_DRIFTED_SINCE_APPLY: keys")
     if base.protected_view(show) != record.get("protectedView"):
         drift.append("STATE_DRIFTED_SINCE_APPLY: protected Show fields")
-    if _move_state(master, move_plan) != record.get("afterMoveState"):
+    if move_state_gate(_move_state(master, move_plan), record.get("afterMoveState") or {}):
         drift.append("STATE_DRIFTED_SINCE_APPLY: MOVE_INSIDE items")
     if drift:
         _stop(run, "STATE_DRIFTED|%r|original_backup=%s" % (drift, record["backup"]))
@@ -910,7 +965,7 @@ def run_revert(args, run):
     if not failures:
         restored = _plain(base._snapshot(show, master, list(VALID_KEYS)))
         failures += base.revert_exact_gate(restored, record)
-        if _move_state(master, move_plan) != record.get("beforeMoveState"):
+        if move_state_gate(_move_state(master, move_plan), record.get("beforeMoveState") or {}):
             failures.append("MOVE_INSIDE_REVERT_NOT_EXACT")
         attempt["afterRevert"] = restored
     if attempt["rebuildCount"] != 1:
@@ -925,7 +980,7 @@ def run_revert(args, run):
             _stop(run, "REVERT_SAVE_FAILED|%s|backup=%s" % (asset, backup))
     final = _plain(base._snapshot(unreal.load_asset(SHOW_PATH), unreal.load_asset(MASTER_PATH), list(VALID_KEYS)))
     failures = base.revert_exact_gate(final, record) + exact_census_gate(base._census(), [])
-    if _move_state(master, move_plan) != record.get("beforeMoveState"):
+    if move_state_gate(_move_state(master, move_plan), record.get("beforeMoveState") or {}):
         failures.append("MOVE_INSIDE_POST_SAVE_REVERT_NOT_EXACT")
     if failures:
         attempt["postSaveReadbackFailed"] = failures
