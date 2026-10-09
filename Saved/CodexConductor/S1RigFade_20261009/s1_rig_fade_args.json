@@ -4,6 +4,9 @@
   "run_id": "S1RIGFADE-SET-UNIQUE-ID",
   "params": {
     "review_time_seconds": 224.0,
+    "master_sequence": "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master",
+    "expected_master_section_start_seconds": 192.69604166666667,
+    "expected_target_scene_frame": 783,
     "scene_local_switch_frame": 282,
     "search_radius_frames": 20,
     "fade_seconds": 1.52,

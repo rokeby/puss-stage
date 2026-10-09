@@ -310,7 +310,18 @@ def expect_error(function, text):
 def test_defaults():
     mod = load_tool()
     p = mod.merged_params({})
-    assert p["fade_frames"] == 38 and p["scene_local_switch_frame"] == 282
+    assert (p["fade_frames"], p["scene_local_switch_frame"], p["expected_target_scene_frame"]) == (38, 282, 783)
+
+
+def test_master_clock_mapping():
+    mod = load_tool()
+    row = mod.map_master_time(224.0, 4624705.0 / 24000.0, 25.0, 10553665.0 / 24000.0)
+    assert row["scene_frame"] == 783 and abs(row["scene_frame_exact"] - 782.5989583333334) < 1.0e-9
+
+
+def test_master_clock_outside_refuses():
+    mod = load_tool()
+    expect_error(lambda: mod.map_master_time(190.0, 192.0, 25.0, 300.0), "OUTSIDE_MASTER_SECTION")
 
 
 def test_short_fade():
@@ -337,8 +348,9 @@ def test_plan_positive():
     p = mod.merged_params({})
     plan = mod.make_plan([candidate(switch=269), candidate(label="S1 Lattice Bulb 1-1", switch=282,
                                                            mechanism="visibility_paired_glow")], p)
-    assert [r["switch_frame"] for r in plan["targets"]] == [269, 282]
-    assert [r["fade_start_frame"] for r in plan["targets"]] == [231, 244]
+    assert [r["source_switch_frame"] for r in plan["targets"]] == [269, 282]
+    assert [r["switch_frame"] for r in plan["targets"]] == [783, 783]
+    assert [r["fade_start_frame"] for r in plan["targets"]] == [745, 745]
 
 
 def test_plan_filters_outside():
@@ -418,13 +430,51 @@ def test_retime_step():
     binding = Binding(env, "B1", "Light")
     track = Track(env, prop="Intensity", path="Intensity")
     section = Section(env, Channel(env, [Key(268, 3.0), Key(269, 0.0)]))
-    section.set_range(0, 500)
+    section.set_range(0, 1000)
     track.sections.append(section)
     binding.tracks.append(track)
-    plan = dict(candidate(mechanism="intensity_step"), fade_start_frame=231, key_index=0,
-                original_key=env.mod._key_row(section.channel.keys[0]), target_binding_guid="B1")
+    plan = dict(candidate(mechanism="intensity_step", switch=783), fade_start_frame=745, key_index=0,
+                end_key_index=1, original_key=env.mod._key_row(section.channel.keys[0]),
+                original_end_key=env.mod._key_row(section.channel.keys[1]), target_binding_guid="B1")
     env.mod._retime_step(env.seq, binding, plan, "HARNESS")
-    assert section.channel.keys[0].frame == 231 and section.channel.keys[0].interp == "RCIM_LINEAR"
+    assert section.channel.keys[0].frame == 745 and section.channel.keys[0].interp == "RCIM_LINEAR"
+    assert section.channel.keys[1].frame == 783
+
+
+def test_retime_visibility():
+    env = Env()
+    binding = Binding(env, "VIS", "S1 Lattice Bulb 1-1")
+    track = Track(env, cls="MovieSceneVisibilityTrack", prop="bHidden", path="bHidden")
+    section = Section(env, Channel(env, [Key(282, 0.0)], default=1.0))
+    section.set_range(282, 6001)
+    track.sections.append(section)
+    binding.tracks.append(track)
+    changed, index, before, after = env.mod._retime_visibility(
+        env.seq, binding, {"source_switch_frame": 282, "switch_frame": 783,
+                           "light_label": binding.name}, "HARNESS")
+    assert changed is track and index == 0 and before == [282, 6001] and after == [783, 6001]
+
+
+def test_restore_step_after_key_reordering():
+    env = Env()
+    binding = Binding(env, "B1", "Light")
+    track = Track(env, prop="Intensity", path="Intensity")
+    section = Section(env, Channel(env, [Key(268, 3.0), Key(269, 0.0), Key(400, 5.0), Key(500, 4.0)]))
+    section.set_range(0, 1000)
+    track.sections.append(section)
+    binding.tracks.append(track)
+    original = env.mod._key_row(section.channel.keys[0])
+    original_end = env.mod._key_row(section.channel.keys[1])
+    plan = dict(candidate(mechanism="intensity_step", switch=783), fade_start_frame=745, key_index=0,
+                end_key_index=1, original_key=original, original_end_key=original_end,
+                target_binding_guid="B1")
+    env.mod._retime_step(env.seq, binding, plan, "HARNESS")
+    op = {"property": "Intensity", "original_key": original, "original_end_key": original_end,
+          "retimed_start_frame": 745, "retimed_end_frame": 783}
+    env.mod._restore_key(track, op, "HARNESS")
+    rows = sorted((key.frame, key.value, key.interp) for key in section.channel.keys)
+    assert rows == [(268, 3.0, "RCIM_CONSTANT"), (269, 0.0, "RCIM_CONSTANT"),
+                    (400, 5.0, "RCIM_CONSTANT"), (500, 4.0, "RCIM_CONSTANT")]
 
 
 def snapshots_for_scope(mod):
@@ -473,6 +523,8 @@ def test_import_without_unreal():
 
 def main():
     case("+ defaults give a 38-frame fade", test_defaults)
+    case("+ Master 3:44 maps to S1-local frame 783", test_master_clock_mapping)
+    case("- Master time outside S1 refuses", test_master_clock_outside_refuses)
     case("- fade below Gary's 1 s bound refuses", test_short_fade)
     case("- fade above Gary's 2 s bound refuses", test_long_fade)
     case("- negative search radius refuses", test_negative_radius)
@@ -488,6 +540,8 @@ def main():
     case("+ existing component binding is reused unchanged", test_bind_existing_lookup)
     case("+ add_possessable returned-existing is not renamed", test_add_returns_existing)
     case("+ fake Unreal retimes one-frame intensity step", test_retime_step)
+    case("+ fake Unreal retargets bHidden section", test_retime_visibility)
+    case("+ REVERT finds retimed keys after ordering changes", test_restore_step_after_key_reordering)
     case("+ scoped-change proof accepts only recorded track", test_scope_positive)
     case("- seeded marker mutation refuses", test_scope_seeded_unrelated)
     case("- seeded extra track mutation refuses", test_scope_seeded_extra_track)

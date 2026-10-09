@@ -5,10 +5,10 @@ Modes and confirmations:
   APPLY / ``APPLY S1RIGFADE``
   REVERT / ``REVERT S1RIGFADE``
 
-The tool audits LS_DevScene_01 around its local frames 269/282.  Visibility-off
-steps receive a linear property ramp ending at the existing switch frame, so
-the existing visibility section hides only after light output reaches zero.
-Existing one-frame Intensity/FogDensity drops are retimed into the same ramp.
+The tool audits LS_DevScene_01 around its existing local frames 269/282, reads
+the live Master section table, and maps Gary's Master-clock 3:44 to S1-local
+frame 783. Visibility-off sections and one-frame Intensity/FogDensity drops are
+retargeted there; their light output receives a linear 1-2 second ramp first.
 
 Evidence boundary:
   declaration-proven: the target and safety contract are in
@@ -24,12 +24,13 @@ Evidence boundary:
 import datetime
 import hashlib
 import json
+import math
 import os
 import shutil
 
 
 TOOL = "S1_RIG_FADE"
-TOOL_VERSION = "2026-10-09a"
+TOOL_VERSION = "2026-10-09b-p44"
 FOLDER = "S1RigFade_20261009"
 SEQ_PATH = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01"
 EXPECTED_FPS = 25.0
@@ -43,6 +44,9 @@ CONFIRMS = {
 }
 DEFAULTS = {
     "review_time_seconds": 224.0,
+    "master_sequence": "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master",
+    "expected_master_section_start_seconds": 192.69604166666667,
+    "expected_target_scene_frame": 783,
     "scene_local_switch_frame": 282,
     "search_radius_frames": 20,
     "fade_seconds": 1.52,
@@ -57,6 +61,8 @@ CLAIMS = [
      "cite": "Docs/Conductor/codex_briefs/p29_s1_rig_fade.md:1-8"},
     {"tier": "measured", "claim": "The upstream S1 record places Ours Off at 269 and bulb hiding at 282.",
      "cite": "Saved/CodexConductor/KlaraIngest/klara_reveal_record_S1.json:10760-10790,10906-10910"},
+    {"tier": "measured", "claim": "The saved Master snapshot starts S1 at 192.696041667 seconds, mapping 3:44 to local frame 782.598958 (rounded 783).",
+     "cite": "Saved/CodexConductor/S1Snap/LS_Master_sem.json:1212-1229"},
     {"tier": "declaration-proven", "claim": "Lattice Bulbs are emissive meshes with paired Lattice Glow lights.",
      "cite": "Saved/CodexStructure/hangar_build.py:132-140"},
     {"tier": "inferred", "claim": "The paired-light ramp removes the perceived snap of the emissive bulb mesh.",
@@ -80,10 +86,10 @@ def _ue():
 def merged_params(raw):
     p = dict(DEFAULTS)
     p.update(raw or {})
-    for key in ("review_time_seconds", "fade_seconds", "min_fade_seconds", "max_fade_seconds",
-                "value_tolerance"):
+    for key in ("review_time_seconds", "expected_master_section_start_seconds", "fade_seconds",
+                "min_fade_seconds", "max_fade_seconds", "value_tolerance"):
         p[key] = float(p[key])
-    for key in ("scene_local_switch_frame", "search_radius_frames"):
+    for key in ("expected_target_scene_frame", "scene_local_switch_frame", "search_radius_frames"):
         p[key] = int(p[key])
     if p["search_radius_frames"] < 0:
         raise PlanError("SEARCH_RADIUS_NEGATIVE")
@@ -96,6 +102,24 @@ def merged_params(raw):
     if p["fade_frames"] < 1:
         raise PlanError("FADE_FRAMES_ZERO")
     return p
+
+
+def map_master_time(review_seconds, section_start_seconds, scene_fps, section_end_seconds=None):
+    """Map a Master clock time to an integer child display frame (nearest frame)."""
+    review = float(review_seconds)
+    start = float(section_start_seconds)
+    fps = float(scene_fps)
+    if fps <= 0.0:
+        raise PlanError("SCENE_FPS_NONPOSITIVE")
+    if review < start or (section_end_seconds is not None and review >= float(section_end_seconds)):
+        raise PlanError("REVIEW_TIME_OUTSIDE_MASTER_SECTION|review=%.6f|section=%.6f..%s" %
+                        (review, start, "?" if section_end_seconds is None else "%.6f" % float(section_end_seconds)))
+    exact = (review - start) * fps
+    rounded = int(math.floor(exact + 0.5))
+    return {"review_seconds": review, "section_start_seconds": start,
+            "section_end_seconds": None if section_end_seconds is None else float(section_end_seconds),
+            "scene_fps": fps, "scene_frame_exact": exact, "scene_frame": rounded,
+            "rounding": "nearest_display_frame_half_up"}
 
 
 def digest(value):
@@ -117,11 +141,11 @@ def make_plan(candidates, params):
     targets, unsupported = [], []
     seen = set()
     for row in candidates:
-        switch = int(row["switch_frame"])
-        if not lo <= switch <= hi:
+        source_switch = int(row["switch_frame"])
+        if not lo <= source_switch <= hi:
             continue
         identity = (row["mechanism"], row.get("visibility_binding_guid"), row.get("target_object_path"),
-                    row.get("property"), switch)
+                    row.get("property"), source_switch)
         if identity in seen:
             raise PlanError("DUPLICATE_TARGET|%r" % (identity,))
         seen.add(identity)
@@ -129,8 +153,10 @@ def make_plan(candidates, params):
             unsupported.append(dict(row))
             continue
         out = dict(row)
+        out["source_switch_frame"] = source_switch
+        out["switch_frame"] = int(params["expected_target_scene_frame"])
         out["fade_frames"] = params["fade_frames"]
-        out["fade_start_frame"] = switch - params["fade_frames"]
+        out["fade_start_frame"] = out["switch_frame"] - params["fade_frames"]
         if out["fade_start_frame"] < 0:
             raise PlanError("FADE_BEFORE_PLAYBACK|%s" % row.get("light_label"))
         targets.append(out)
@@ -141,7 +167,9 @@ def make_plan(candidates, params):
                         ",".join(r.get("light_label", "?") for r in unsupported))
     if not targets:
         raise PlanError("NO_RIG_LIGHT_SWITCHES_IN_WINDOW|%d..%d" % (lo, hi))
-    return {"search_window": [lo, hi], "fade_seconds": params["fade_seconds"],
+    return {"source_search_window": [lo, hi],
+            "target_switch_frame": int(params["expected_target_scene_frame"]),
+            "fade_seconds": params["fade_seconds"],
             "fade_frames": params["fade_frames"], "targets": targets, "unsupported": unsupported}
 
 
@@ -271,6 +299,49 @@ def _load_sequence(run):
     if abs(_rate(seq.get_tick_resolution()) - EXPECTED_TICK) > 1e-9:
         _stop(run, "TICK_RESOLUTION|live=%s|expected=%s" % (_rate(seq.get_tick_resolution()), EXPECTED_TICK))
     return seq
+
+
+def _asset_path(value):
+    if value is None:
+        return ""
+    try:
+        path = str(value.get_path_name())
+    except Exception:  # noqa: BLE001
+        path = str(value)
+    return path.split(".", 1)[0]
+
+
+def _master_clock(params, run):
+    """Read the live Master section table and map Gary's 3:44 to S1 local time."""
+    master = _ue().load_asset(params["master_sequence"])
+    if master is None:
+        _stop(run, "MASTER_LOAD_FAILED|%s" % params["master_sequence"])
+    hits = []
+    for track in master.get_tracks():
+        for section in track.get_sections():
+            try:
+                child = section.get_sequence()
+            except Exception:  # noqa: BLE001
+                continue
+            if _asset_path(child) == SEQ_PATH:
+                hits.append(section)
+    if len(hits) != 1:
+        _stop(run, "MASTER_S1_SECTION_COUNT|%d" % len(hits))
+    section = hits[0]
+    try:
+        start = float(section.get_start_frame_seconds())
+        end = float(section.get_end_frame_seconds())
+    except Exception as error:  # noqa: BLE001
+        _stop(run, "MASTER_SECTION_SECONDS_UNAVAILABLE|%s" % error)
+    mapping = map_master_time(params["review_time_seconds"], start, EXPECTED_FPS, end)
+    if abs(start - params["expected_master_section_start_seconds"]) > (0.51 / EXPECTED_TICK):
+        _stop(run, "MASTER_SECTION_START_DRIFT|live=%.9f|expected=%.9f" %
+              (start, params["expected_master_section_start_seconds"]))
+    if mapping["scene_frame"] != params["expected_target_scene_frame"]:
+        _stop(run, "MASTER_CLOCK_TARGET_DRIFT|live=%d|expected=%d|exact=%.6f" %
+              (mapping["scene_frame"], params["expected_target_scene_frame"], mapping["scene_frame_exact"]))
+    mapping.update({"master_sequence": params["master_sequence"], "scene_sequence": SEQ_PATH})
+    return mapping
 
 
 def _section_range(section, seq):
@@ -516,7 +587,9 @@ def _discover(seq, world, params, run):
                                        "property": prop, "base_value": float(prev["value"]),
                                        "target_object_path": object_path, "target_actor_label": "",
                                        "target_binding_guid": _guid(binding.get_id()),
-                                       "key_index": index - 1, "original_key": prev, "unsupported": False})
+                                       "key_index": index - 1, "end_key_index": index,
+                                       "original_key": prev, "original_end_key": current,
+                                       "unsupported": False})
     return make_plan(candidates, params)
 
 
@@ -593,6 +666,28 @@ def _write_ramp(seq, binding, plan, run):
     return track
 
 
+def _retime_visibility(seq, binding, plan, run):
+    """Move the existing visible=False section from its old snap to the mapped 3:44 frame."""
+    tracks = [track for track in binding.get_tracks()
+              if track.get_class().get_name() == "MovieSceneVisibilityTrack"
+              and _track_property(track) == ("bHidden", "bHidden")]
+    matches = []
+    for track in tracks:
+        for section_index, section in enumerate(track.get_sections()):
+            if _section_range(section, seq)[0] == int(plan["source_switch_frame"]):
+                matches.append((track, section_index, section))
+    if len(matches) != 1:
+        _stop(run, "VISIBILITY_SOURCE_COUNT|%s|frame=%d|count=%d" %
+              (plan["light_label"], plan["source_switch_frame"], len(matches)))
+    track, section_index, section = matches[0]
+    before_range = _section_range(section, seq)
+    section.set_range(int(plan["switch_frame"]), int(before_range[1]))
+    after_range = _section_range(section, seq)
+    if after_range != [int(plan["switch_frame"]), int(before_range[1])]:
+        _stop(run, "VISIBILITY_RETIME_READBACK|%s|got=%r" % (plan["light_label"], after_range))
+    return track, section_index, before_range, after_range
+
+
 def _retime_step(seq, binding, plan, run):
     ue = _ue()
     tracks = [track for track in binding.get_tracks() if track.get_class().get_name() == "MovieSceneFloatTrack"
@@ -605,11 +700,16 @@ def _retime_step(seq, binding, plan, run):
     channel = list(sections[0].get_all_channels())[0]
     keys = list(channel.get_keys())
     index = int(plan["key_index"])
-    if index >= len(keys) or _key_row(keys[index]) != plan["original_key"]:
+    end_index = int(plan["end_key_index"])
+    if (index >= len(keys) or end_index >= len(keys)
+            or _key_row(keys[index]) != plan["original_key"]
+            or _key_row(keys[end_index]) != plan["original_end_key"]):
         _stop(run, "STEP_KEY_DRIFT|%s" % plan["light_label"])
     keys[index].set_time(ue.FrameNumber(int(plan["fade_start_frame"])), 0.0,
                          ue.MovieSceneTimeUnit.DISPLAY_RATE)
     keys[index].set_interpolation_mode(ue.RichCurveInterpMode.RCIM_LINEAR)
+    keys[end_index].set_time(ue.FrameNumber(int(plan["switch_frame"])), 0.0,
+                             ue.MovieSceneTimeUnit.DISPLAY_RATE)
     start = _evaluate(seq, channel, plan["fade_start_frame"], run, plan["light_label"])
     end = _evaluate(seq, channel, plan["switch_frame"], run, plan["light_label"])
     if abs(start - float(plan["base_value"])) > 0.0001 or abs(end) > 0.0001:
@@ -631,8 +731,9 @@ def _save(run):
 
 def _print_targets(run, plan):
     for row in plan["targets"]:
-        _log("%s_TARGET|run=%s|light=%s|switch_frame=%d|mechanism=%s|property=%s|fade=%d..%d|proxy=%s" %
-             (TOOL, run, row["light_label"], row["switch_frame"], row["mechanism"], row["property"],
+        _log("%s_TARGET|run=%s|light=%s|source_switch=%d|target_switch=%d|mechanism=%s|property=%s|fade=%d..%d|proxy=%s" %
+             (TOOL, run, row["light_label"], row["source_switch_frame"], row["switch_frame"],
+              row["mechanism"], row["property"],
               row["fade_start_frame"], row["switch_frame"], row.get("proxy_light_label") or "-"))
 
 
@@ -679,9 +780,11 @@ def _assert_scoped_change(before, after, operations):
 
 def _report(seq, world, params, run):
     before = _snapshot(seq)
+    clock = _master_clock(params, run)
     plan = _discover(seq, world, params, run)
     return {"schema_version": 1, "tool_version": TOOL_VERSION, "tool": TOOL, "run": run, "mode": "DRY",
-            "sequence": SEQ_PATH, "params": params, "plan": plan, "plan_digest": digest(plan),
+            "sequence": SEQ_PATH, "params": params, "master_clock": clock,
+            "plan": plan, "plan_digest": digest({"plan": plan, "master_clock": clock}),
             "snapshot": before, "snapshot_digest": digest(before), "census": _census(), "claims": CLAIMS,
             "apply_ready": True}
 
@@ -696,9 +799,9 @@ def run_dry(run, params, confirm):
     if _census() != {"content": [], "maps": []}:
         _stop(run, "DRY_DIRTIED|%s" % json.dumps(_census(), sort_keys=True))
     _print_targets(run, report["plan"])
-    _log("%s_DRY_OK|run=%s|mutated=0|apply_ready=1|targets=%d|frames=%s|fade_frames=%d|report=%s" %
-         (TOOL, run, len(report["plan"]["targets"]), report["plan"]["search_window"],
-          report["plan"]["fade_frames"], path))
+    _log("%s_DRY_OK|run=%s|mutated=0|apply_ready=1|targets=%d|source_frames=%s|target_frame=%d|fade_frames=%d|report=%s" %
+         (TOOL, run, len(report["plan"]["targets"]), report["plan"]["source_search_window"],
+          report["plan"]["target_switch_frame"], report["plan"]["fade_frames"], path))
     return report
 
 
@@ -737,9 +840,31 @@ def run_apply(run, params, confirm):
             record["operations"].append({"kind": "retime", "binding_guid": row["target_binding_guid"],
                                          "property": row["property"], "track_before": track_before,
                                          "track_after": _track_row(track, seq),
-                                         "original_key": row["original_key"], "key_index": row["key_index"]})
+                                         "original_key": row["original_key"], "key_index": row["key_index"],
+                                         "original_end_key": row["original_end_key"],
+                                         "end_key_index": row["end_key_index"],
+                                         "retimed_start_frame": row["fade_start_frame"],
+                                         "retimed_end_frame": row["switch_frame"]})
             _json_write(transaction, record)
             continue
+        visibility_binding = bindings.get(row["visibility_binding_guid"])
+        if visibility_binding is None:
+            _stop(run, "VISIBILITY_BINDING_GONE|%s" % row["light_label"])
+        visibility_before = [track for track in visibility_binding.get_tracks()
+                             if track.get_class().get_name() == "MovieSceneVisibilityTrack"
+                             and _track_property(track) == ("bHidden", "bHidden")]
+        if len(visibility_before) != 1:
+            _stop(run, "VISIBILITY_TRACK_COUNT|%s|%d" % (row["light_label"], len(visibility_before)))
+        visibility_track_before = _track_row(visibility_before[0], seq)
+        visibility_track, section_index, before_range, after_range = _retime_visibility(
+            seq, visibility_binding, row, run)
+        record["operations"].append({"kind": "retime_visibility",
+                                     "binding_guid": row["visibility_binding_guid"],
+                                     "property": "bHidden", "track_before": visibility_track_before,
+                                     "track_after": _track_row(visibility_track, seq),
+                                     "section_index": section_index,
+                                     "range_before": before_range, "range_after": after_range})
+        _json_write(transaction, record)
         component = _component_for_plan(row, actors, run)
         binding, created, returned_existing = _bind_component(
             seq, component, row["target_actor_binding_guid"], world, run)
@@ -783,14 +908,24 @@ def _restore_key(track, op, run):
     sections = list(track.get_sections())
     channel = list(sections[0].get_all_channels())[0]
     keys = list(channel.get_keys())
-    index = int(op["key_index"])
     original = op["original_key"]
-    if index >= len(keys):
-        _stop(run, "REVERT_KEY_INDEX|%s" % op["property"])
-    keys[index].set_time(ue.FrameNumber(int(original["frame"])), float(original.get("sub_frame", 0.0)),
-                         ue.MovieSceneTimeUnit.DISPLAY_RATE)
+    original_end = op["original_end_key"]
+    start_hits = [key for key in keys if _key_row(key)["frame"] == int(op["retimed_start_frame"])
+                  and abs(float(_key_row(key)["value"]) - float(original["value"])) <= 0.0001]
+    end_hits = [key for key in keys if _key_row(key)["frame"] == int(op["retimed_end_frame"])
+                and abs(float(_key_row(key)["value"]) - float(original_end["value"])) <= 0.0001]
+    if len(start_hits) != 1 or len(end_hits) != 1 or start_hits[0] is end_hits[0]:
+        _stop(run, "REVERT_RETIMED_KEY_COUNT|%s|start=%d|end=%d" %
+              (op["property"], len(start_hits), len(end_hits)))
+    start_key, end_key = start_hits[0], end_hits[0]
+    start_key.set_time(ue.FrameNumber(int(original["frame"])), float(original.get("sub_frame", 0.0)),
+                       ue.MovieSceneTimeUnit.DISPLAY_RATE)
     if original.get("interp"):
-        keys[index].set_interpolation_mode(getattr(ue.RichCurveInterpMode, original["interp"]))
+        start_key.set_interpolation_mode(getattr(ue.RichCurveInterpMode, original["interp"]))
+    end_key.set_time(ue.FrameNumber(int(original_end["frame"])), float(original_end.get("sub_frame", 0.0)),
+                     ue.MovieSceneTimeUnit.DISPLAY_RATE)
+    if original_end.get("interp"):
+        end_key.set_interpolation_mode(getattr(ue.RichCurveInterpMode, original_end["interp"]))
 
 
 def run_revert(run, params, confirm):
@@ -816,6 +951,12 @@ def run_revert(run, params, confirm):
         track = _find_track(binding, op["track_after"], seq, run)
         if op["kind"] == "retime":
             _restore_key(track, op, run)
+        elif op["kind"] == "retime_visibility":
+            sections = list(track.get_sections())
+            index = int(op["section_index"])
+            if index >= len(sections) or _section_range(sections[index], seq) != op["range_after"]:
+                _stop(run, "REVERT_VISIBILITY_RANGE_DRIFT|%s" % op["binding_guid"])
+            sections[index].set_range(int(op["range_before"][0]), int(op["range_before"][1]))
         else:
             binding.remove_track(track)  # return is unreliable; exact snapshot below is authority
             if op["binding_created"]:

@@ -165,9 +165,12 @@ check("F2 every API row has accepted tier", all(row[1] in {"declaration-proven",
 with open(os.path.join(HERE, "interaction_shadow_transition_args.json"), "r", encoding="utf-8") as handle:
     args = json.load(handle)
 check("F3 args contain exactly I1..I5", set(args["interactions"]) == {"I1", "I2", "I3", "I4", "I5"})
-check("F4 args default reference I4", args["reference_interaction"] == 4)
-check("F5 args put Gary's fade in each Interaction", all(row["fade_seconds"] == 4.0 for row in args["interactions"].values()))
-check("F6 source imports without Unreal", tool.unreal is None)
+check("F4 P44 args use applied I2 pattern as reference", args["reference_interaction"] == 2)
+check("F5 P44 stand-ins name the current BoyPussRub gobo", all(
+    args["interactions"][key]["light_function_material"] ==
+    "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyPussRub" for key in ("I1", "I3", "I4", "I5")))
+check("F6 args put Gary's fade in each Interaction", all(row["fade_seconds"] == 4.0 for row in args["interactions"].values()))
+check("F7 source imports without Unreal", tool.unreal is None)
 
 passed = sum(1 for _, ok, _ in RESULTS if ok)
 failed = [(name, detail) for name, ok, detail in RESULTS if not ok]

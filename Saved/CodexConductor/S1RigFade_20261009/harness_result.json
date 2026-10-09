@@ -1,10 +1,18 @@
 {
-  "passed": 20,
+  "passed": 24,
   "failed": 0,
-  "total": 20,
+  "total": 24,
   "results": [
     {
       "name": "+ defaults give a 38-frame fade",
+      "status": "PASS"
+    },
+    {
+      "name": "+ Master 3:44 maps to S1-local frame 783",
+      "status": "PASS"
+    },
+    {
+      "name": "- Master time outside S1 refuses",
       "status": "PASS"
     },
     {
@@ -65,6 +73,14 @@
     },
     {
       "name": "+ fake Unreal retimes one-frame intensity step",
+      "status": "PASS"
+    },
+    {
+      "name": "+ fake Unreal retargets bHidden section",
+      "status": "PASS"
+    },
+    {
+      "name": "+ REVERT finds retimed keys after ordering changes",
       "status": "PASS"
     },
     {

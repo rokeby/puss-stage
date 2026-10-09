@@ -7,9 +7,11 @@ the sequence asset.
 
 ## What the evidence says
 
-- **measured (upstream saved record)** — `klara_reveal_record_S1.json` records
+- **measured (upstream saved records)** — `klara_reveal_record_S1.json` records
   the environment “Ours Off” start at S1-local frame 269 and 24 lattice-bulb
-  hide sections starting at frame 282.
+  hide sections starting at frame 282. `S1Snap/LS_Master_sem.json` records S1's
+  Master start at tick 4,624,705 / 24,000 = 192.696041667 s. Therefore Master
+  3:44 maps to S1-local frame 782.598958, rounded to frame 783.
 - **declaration-proven** — `hangar_build.py:132-140` defines the Lattice Bulbs
   as emissive mesh actors and creates paired `Lattice Glow` lights. For those
   24 visibility targets the tool ramps the paired point-light `Intensity` to
@@ -33,14 +35,14 @@ timing values are in `s1_rig_fade_args.json`; the default fade is 1.52 seconds
    `confirm: "DRY S1RIGFADE"`. Send `s1_rig_fade_request.json` through guarded
    `ExecuteProjectPythonFile`. Require `S1_RIG_FADE_DRY_OK`, `apply_ready=1`, a
    clean census, and one `S1_RIG_FADE_TARGET` line per planned light. Inspect
-   the DRY JSON; frame 269 and frame 282 mechanisms must be explicit.
+   the DRY JSON; source frames 269/282 and target frame 783 must be explicit.
 3. Without intervening sequence changes, change only mode/confirm/run id to
    `APPLY`, `APPLY S1RIGFADE`, and a fresh unique id. Require
    `S1_RIG_FADE_APPLY_OK`, the `Backups/PreS1RigFade-<run>` path, exact named
    save `/Game/InfinityStage/Dev/Sequences/LS_DevScene_01`, clean census, and
    saved read-back digest.
 4. Run `InfinityStage.Editor.SavedMasterMatchesShow` and the relevant sequence
-   binding-resolution test. Then render/review S1 across the overall 3:44 cue,
+   binding-resolution test. Then render/review S1 across Master 3:44,
    including at least two seconds before and after the change. Gary owns the
    final fade duration and visual acceptance.
 

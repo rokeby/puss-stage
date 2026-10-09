@@ -1,0 +1,36 @@
+{
+  "reference_interaction": 2,
+  "interactions": {
+    "I1": {
+      "fade_seconds": 4.0,
+      "fade_out_seconds": 1.0,
+      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyPussRub",
+      "spawn_lead_frames": 25
+    },
+    "I2": {
+      "fade_seconds": 4.0,
+      "fade_out_seconds": 1.0,
+      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyPussRub",
+      "spawn_lead_frames": 25
+    },
+    "I3": {
+      "fade_seconds": 4.0,
+      "fade_out_seconds": 1.0,
+      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyPussRub",
+      "spawn_lead_frames": 25
+    },
+    "I4": {
+      "fade_seconds": 4.0,
+      "fade_out_seconds": 1.0,
+      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyPussRub",
+      "spawn_lead_frames": 25
+    },
+    "I5": {
+      "fade_seconds": 4.0,
+      "fade_out_seconds": 1.0,
+      "light_function_material": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_BoyPussRub",
+      "spawn_lead_frames": 25
+    }
+  },
+  "p44_note": "I2 is the pose/photometry reference and receives gobo run 007 separately. I1/I3/I4/I5 use the same current-best BoyPussRub material as a reversible stand-in; Gary owns final content and fade values."
+}
