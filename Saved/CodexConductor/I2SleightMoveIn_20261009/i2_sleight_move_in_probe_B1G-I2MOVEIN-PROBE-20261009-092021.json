@@ -1,0 +1,1406 @@
+{
+  "all_bindings": [
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F15A0) {}>",
+      "name": "I2 Order Dark: S2 Practical R4 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_324"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_324"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F19F0) {}>",
+      "name": "I2 Order Dark: S2 Practical R2 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_322"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_322"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F1FB0) {}>",
+      "name": "Interaction 2 — Stalls Camera",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_22"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_22"
+      ],
+      "parent": "",
+      "tracks": []
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F2140) {}>",
+      "name": "S2 Ghost Light",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_75"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_75"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F42E0) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 3-2",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_68"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_68"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F4930) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 3-8",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_74"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_74"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F4AF0) {}>",
+      "name": "I2 Hangar Hold Camera",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_40"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_40"
+      ],
+      "parent": "",
+      "tracks": []
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F4CA0) {}>",
+      "name": "I2 Order Exposure: PostProcessVolume",
+      "objects_parent_context": [
+        "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.PostProcessVolume_0"
+      ],
+      "objects_world_context": [
+        "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.PostProcessVolume_0"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneFloatTrack",
+          "name": "I2Order Exposure (Conductor)",
+          "property": "BlendWeight"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F4D00) {}>",
+      "name": "S2 Ghost Light/LightComponent",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_75.LightComponent0"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_75.LightComponent0"
+      ],
+      "parent": "<STRUCT 'GUID' (0X0000017FCB9FB210) {}>",
+      "tracks": [
+        {
+          "class": "MovieSceneFloatTrack",
+          "name": "CurtainSleight (Conductor)",
+          "property": "Intensity"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F51A0) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 1-1",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_51"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_51"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F5550) {}>",
+      "name": "I2 Order Dark: S2 Practical L4",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_42"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_42"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F55B0) {}>",
+      "name": "I2 Order Dark: S2 Practical L1",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_39"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_39"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F60D0) {}>",
+      "name": "Transition Drape (baked)",
+      "objects_parent_context": [],
+      "objects_world_context": [],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneSpawnTrack",
+          "name": "Spawned",
+          "property": ""
+        },
+        {
+          "class": "MovieSceneGeometryCacheTrack",
+          "name": "Geometry Cache",
+          "property": ""
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F6260) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 3-5",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_71"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_71"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F62F0) {}>",
+      "name": "Curtain Rig - Fire Safety Curtain",
+      "objects_parent_context": [],
+      "objects_world_context": [],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneSpawnTrack",
+          "name": "Spawned",
+          "property": ""
+        },
+        {
+          "class": "MovieSceneFloatTrack",
+          "name": "CurtainProgress",
+          "property": "CurtainProgress"
+        },
+        {
+          "class": "MovieSceneBoolTrack",
+          "name": "bCurtainActive",
+          "property": "bCurtainActive"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F62F0) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 2-2",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_60"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_60"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F6310) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 2-1",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_59"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_59"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F69D0) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 1-7",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_57"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_57"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F6E90) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 3-7",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_73"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_73"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F8260) {}>",
+      "name": "S2 Sleight Hangar Camera",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_28"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_28"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieScene3DTransformTrack",
+          "name": "CurtainSleight (Conductor)",
+          "property": "Transform"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F82D0) {}>",
+      "name": "I2 Order Dark: S2 Practical L3 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_316"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_316"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F8550) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 1-4",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_54"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_54"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F8610) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 1-2",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_52"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_52"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F88D0) {}>",
+      "name": "I2 Order Dark: S2 Practical L2",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_40"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_40"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F8A00) {}>",
+      "name": "I2 Order Dark: S2 Practical R5",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_50"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_50"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F8B00) {}>",
+      "name": "Shadow Play Spot (Mouth)",
+      "objects_parent_context": [],
+      "objects_world_context": [],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneSpawnTrack",
+          "name": "Spawned",
+          "property": ""
+        },
+        {
+          "class": "MovieScene3DTransformTrack",
+          "name": "ShadowPlaySpot (Conductor)",
+          "property": "Transform"
+        },
+        {
+          "class": "MovieSceneFloatTrack",
+          "name": "ShadowPlaySpot (Conductor)",
+          "property": "Intensity"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F8FD0) {}>",
+      "name": "I2 Order Dark: S2 Practical R1",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_46"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_46"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F90E0) {}>",
+      "name": "S2 Sleight Twin Lantern",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_241"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_241"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F92E0) {}>",
+      "name": "I2 Order Dark: S2 Practical R1 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_321"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_321"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F9560) {}>",
+      "name": "I2 Order Dark: S2 Uplight 3",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_55"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_55"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F9880) {}>",
+      "name": "S2 Sleight Hangar Camera/CameraComponent",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_28.CameraComponent"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_28.CameraComponent"
+      ],
+      "parent": "<STRUCT 'GUID' (0X0000017FCB9F8330) {}>",
+      "tracks": [
+        {
+          "class": "MovieSceneFloatTrack",
+          "name": "CurtainSleight (Conductor)",
+          "property": "CurrentFocalLength"
+        },
+        {
+          "class": "MovieSceneFloatTrack",
+          "name": "CurtainSleight (Conductor)",
+          "property": "ManualFocusDistance"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9F9CE0) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 1-6",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_56"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_56"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FAEE0) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 2-6",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_64"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_64"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FB6D0) {}>",
+      "name": "I2 Order Dark: S2 Practical L7 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_320"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_320"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FB6D0) {}>",
+      "name": "Sleight Mouth Shadow Card",
+      "objects_parent_context": [],
+      "objects_world_context": [],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneSpawnTrack",
+          "name": "Spawned",
+          "property": ""
+        },
+        {
+          "class": "MovieScene3DTransformTrack",
+          "name": "CurtainSleight (Conductor)",
+          "property": "Transform"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FB7F0) {}>",
+      "name": "I2 Order Dark: S2 Practical L6 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_319"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_319"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FB7F0) {}>",
+      "name": "I2 Order Dark: S2 Uplight 2",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_54"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_54"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FB7F0) {}>",
+      "name": "I2 Order Exposure: S2 Hangar Pinned Exposure",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PostProcessVolume_3"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PostProcessVolume_3"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneFloatTrack",
+          "name": "I2Order Exposure (Conductor)",
+          "property": "BlendWeight"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FB810) {}>",
+      "name": "I2 Order Dark: S2 Practical L6",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_44"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_44"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FB8C0) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 1-8",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_58"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_58"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FB900) {}>",
+      "name": "I2 Order Dark: S2 Practical R7 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_327"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_327"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FB950) {}>",
+      "name": "I2 Order Dark: S2 Practical R3 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_323"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_323"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FB9A0) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 2-5",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_63"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_63"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FB9E0) {}>",
+      "name": "I2 Order Dark: S2 Uplight 1",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_53"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_53"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FBD50) {}>",
+      "name": "I2 Order Dark: S2 Practical L1 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_314"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_314"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FBF50) {}>",
+      "name": "I2 Order Dark: S2 Practical R7",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_52"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_52"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FBFA0) {}>",
+      "name": "I2 Sleight Mouth Camera",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_29"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_29"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieScene3DTransformTrack",
+          "name": "CurtainSleight (Conductor)",
+          "property": "Transform"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FC090) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 3-1",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_67"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_67"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FC0E0) {}>",
+      "name": "I2 Sleight Mouth Camera/CameraComponent",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_29.CameraComponent"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_29.CameraComponent"
+      ],
+      "parent": "<STRUCT 'GUID' (0X0000017FCB9F8720) {}>",
+      "tracks": [
+        {
+          "class": "MovieSceneFloatTrack",
+          "name": "CurtainSleight (Conductor)",
+          "property": "CurrentFocalLength"
+        },
+        {
+          "class": "MovieSceneFloatTrack",
+          "name": "CurtainSleight (Conductor)",
+          "property": "ManualFocusDistance"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FC210) {}>",
+      "name": "Sleight Hangar Shadow Card",
+      "objects_parent_context": [],
+      "objects_world_context": [],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneSpawnTrack",
+          "name": "Spawned",
+          "property": ""
+        },
+        {
+          "class": "MovieScene3DTransformTrack",
+          "name": "CurtainSleight (Conductor)",
+          "property": "Transform"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FC440) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 3-6",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_72"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_72"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FC4C0) {}>",
+      "name": "I2 Order Dark: S2 Practical R6",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_51"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_51"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FC560) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 3-3",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_69"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_69"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FC5C0) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 1-3",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_53"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_53"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FC840) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 2-3",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_61"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_61"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FC940) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 2-7",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_65"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_65"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FCC00) {}>",
+      "name": "Shadow Play Spot (Hangar)",
+      "objects_parent_context": [],
+      "objects_world_context": [],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneSpawnTrack",
+          "name": "Spawned",
+          "property": ""
+        },
+        {
+          "class": "MovieScene3DTransformTrack",
+          "name": "ShadowPlaySpot (Conductor)",
+          "property": "Transform"
+        },
+        {
+          "class": "MovieSceneFloatTrack",
+          "name": "ShadowPlaySpot (Conductor)",
+          "property": "Intensity"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FCD30) {}>",
+      "name": "I2 Order Dark: S2 Practical L3",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_41"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_41"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FCD70) {}>",
+      "name": "I2 Order Dark: S2 Practical L2 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_315"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_315"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FCFD0) {}>",
+      "name": "I2 Order Dark: S2 Practical L4 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_317"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_317"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FD9C0) {}>",
+      "name": "I2 Order Dark: S2 Practical R4",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_49"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_49"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FDB00) {}>",
+      "name": "I2 Order Dark: S2 Practical R5 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_325"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_325"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FDEA0) {}>",
+      "name": "I2 Order Dark: S2 Practical L5",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_43"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_43"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FE230) {}>",
+      "name": "Sleight Hangar Drape",
+      "objects_parent_context": [],
+      "objects_world_context": [],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneSpawnTrack",
+          "name": "Spawned",
+          "property": ""
+        },
+        {
+          "class": "MovieSceneGeometryCacheTrack",
+          "name": "Geometry Cache",
+          "property": ""
+        },
+        {
+          "class": "MovieScene3DTransformTrack",
+          "name": "CurtainSleight (Conductor)",
+          "property": "Transform"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FE2B0) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 3-4",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_70"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_70"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FE310) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 2-4",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_62"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_62"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FE330) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 2-8",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_66"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_66"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FF100) {}>",
+      "name": "I2 Order Dark: S2 Lattice Glow 1-5",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_55"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_55"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FF320) {}>",
+      "name": "I2 Order Dark: S2 Ghost Light Bulb",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_313"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_313"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FF340) {}>",
+      "name": "I2 Order Dark: S2 Practical R6 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_326"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_326"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FF340) {}>",
+      "name": "S2 Sleight Twin Lantern/LightComponent",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_241.LightComponent0"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_241.LightComponent0"
+      ],
+      "parent": "<STRUCT 'GUID' (0X0000017FCB9FCA10) {}>",
+      "tracks": [
+        {
+          "class": "MovieSceneFloatTrack",
+          "name": "CurtainSleight (Conductor)",
+          "property": "Intensity"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FF430) {}>",
+      "name": "I2 Order Dark: S2 Practical R2",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_47"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_47"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FF460) {}>",
+      "name": "I2 Order Dark: S2 Practical L7",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_45"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_45"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FF7F0) {}>",
+      "name": "I2 Order Dark: S2 Practical R3",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_48"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_48"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    },
+    {
+      "guid": "<STRUCT 'GUID' (0X0000017FCB9FF910) {}>",
+      "name": "I2 Order Dark: S2 Practical L5 Body",
+      "objects_parent_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_318"
+      ],
+      "objects_world_context": [
+        "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_318"
+      ],
+      "parent": "",
+      "tracks": [
+        {
+          "class": "MovieSceneVisibilityTrack",
+          "name": "Visibility",
+          "property": "bHidden"
+        }
+      ]
+    }
+  ],
+  "census": {
+    "content": [],
+    "maps": []
+  },
+  "children": [],
+  "claims": [
+    {
+      "cite": "Docs/Conductor/codex_briefs/p60b_i2_move_in_probe_children_empty.md:12-21",
+      "claim": "Children are selected from all sequence bindings by get_parent GUID, not a child-only API.",
+      "tier": "declaration-proven"
+    },
+    {
+      "cite": "Saved/CodexConductor/I2SleightMoveIn_20261009/i2_sleight_move_in.py:953-956",
+      "claim": "all_bindings is the live read-only binding inventory for this run.",
+      "tier": "measured"
+    }
+  ],
+  "expected_component_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_29.CameraComponent",
+  "mode": "PROBE",
+  "parent_guid": "E6CF63464549232FD6CEA88D81178F0D",
+  "proof": "measured read-only; no Unreal package mutation",
+  "run": "B1G-I2MOVEIN-PROBE-20261009-092021",
+  "schema_version": 1,
+  "selected_binds_expected_component": false,
+  "selected_by_tracks": [],
+  "sequence": "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips",
+  "tool_version": "2026-10-09c"
+}

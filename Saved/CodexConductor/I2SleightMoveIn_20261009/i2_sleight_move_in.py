@@ -359,6 +359,10 @@ def _assert_live_baseline(live, evidence, params):
     component_guid = live.get("mouth_component_guid")
     create_component = component_guid is None
     if create_component:
+        # Batch 1g audit: the mouth CameraComponent child A4162B8C EXISTS; "missing" only ever came from the FGuid
+        # stringify bug.  Never create one (a duplicate would split the lens/focus tracks).
+        raise PlanError("MOUTH_COMPONENT_NOT_RESOLVED|refusing to create; check GUID conversion / PROBE all_bindings")
+    if create_component:
         children = [row for row in snapshot.get("bindings", []) if row.get("parent") == MOUTH_GUID]
         if children:
             raise PlanError("MOUTH_COMPONENT_MISSING_WITH_FOREIGN_CHILDREN|%s" %
@@ -839,7 +843,9 @@ class UnrealBackend(object):
         return str(value)
 
     def _guid(self, value):
-        return str(value).replace("-", "").upper()
+        # str(FGuid) is an address-like struct repr in UE 5.8 Python (measured, batch 1g B1G-I2MOVEIN-PROBE-20261009-092021):
+        # use the engine's own conversion, as I2HangarCam_20261009/i2_hangar_cam.py:208-209 does.
+        return str(self.ue.GuidLibrary.conv_guid_to_string(value)).replace("-", "").upper()
 
     def _rate(self, value):
         return float(value.numerator) / float(value.denominator)

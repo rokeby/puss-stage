@@ -1,7 +1,7 @@
 {
-  "mode": "PROBE",
-  "run_id": "B1E-I2MOVEIN-PROBE-20261009-085508",
-  "confirm": "PROBE I2MOVEIN",
+  "mode": "DRY",
+  "run_id": "B1G-I2MOVEIN-DRY-20261009-092131",
+  "confirm": "DRY I2MOVEIN",
   "params": {
     "cut_frame": "LIVE",
     "move_start": 1150,

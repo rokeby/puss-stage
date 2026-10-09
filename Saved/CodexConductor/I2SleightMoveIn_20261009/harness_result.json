@@ -11,7 +11,7 @@
       "status": "PASS"
     },
     {
-      "name": "+ missing mouth child is created and REVERT removes only that child",
+      "name": "- unresolved mouth child is never created (refuses)",
       "status": "PASS"
     },
     {

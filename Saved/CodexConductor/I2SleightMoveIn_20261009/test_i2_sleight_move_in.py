@@ -254,7 +254,19 @@ def positive_round_trip():
     assert any("I2_MOVE_IN_REVERT_OK" in row for row in env.logs)
 
 
-def positive_missing_child_create_round_trip():
+def negative_missing_child_never_created():
+    # Batch 1g: the child always exists live; an unresolved child means a GUID/lookup bug, so refuse (no duplicate).
+    root, env, params = fresh_case()
+    env.snapshot_value["bindings"] = [row for row in env.snapshot_value["bindings"]
+                                      if row.get("guid") != SHIFTED_MOUTH_COMPONENT_GUID]
+    env.original = copy.deepcopy(env.snapshot_value)
+    before = copy.deepcopy(env.snapshot_value)
+    expect_stop(lambda: TOOL.main(args("DRY", params, "MISSING-DRY"), backend=env, tool_root=root),
+                "MOUTH_COMPONENT_NOT_RESOLVED")
+    assert env.snapshot_value == before
+
+
+def _retired_positive_missing_child_create_round_trip():
     root, env, params = fresh_case()
     env.snapshot_value["bindings"] = [row for row in env.snapshot_value["bindings"]
                                       if row.get("guid") != SHIFTED_MOUTH_COMPONENT_GUID]
@@ -400,7 +412,7 @@ def positive_import_offline():
 CASES = [
     ("+ LIVE cut, shifted child GUID, shrunk sequence produce matched cut", positive_plan_math),
     ("+ fake Unreal APPLY->REVERT is exact", positive_round_trip),
-    ("+ missing mouth child is created and REVERT removes only that child", positive_missing_child_create_round_trip),
+    ("- unresolved mouth child is never created (refuses)", negative_missing_child_never_created),
     ("+ missing-child PROBE emits the complete binding inventory", positive_missing_child_probe_lists_all_bindings),
     ("- explicit stale cut arg refuses", negative_moved_cut),
     ("- rebound hangar camera refuses", negative_rebound_camera),

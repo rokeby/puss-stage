@@ -111,3 +111,10 @@ With a clean editor and no intervening I2 change, use a fresh run id plus
 the named sequence, and archives the apply record. If APPLY created the missing
 mouth component binding, REVERT validates its name and parent then removes only
 that recorded binding; an adopted pre-existing child is retained and restored.
+
+## 9 Oct, batch 1g fix (Claude, reviewed)
+- Live FGuids stringified as address-like structs (measured B1G-I2MOVEIN-PROBE-20261009-092021), so no GUID matched and
+  60/60b concluded the mouth CameraComponent child was missing. `_guid` now uses `GuidLibrary.conv_guid_to_string`
+  (as `I2HangarCam_20261009/i2_hangar_cam.py:208-209`, which works live).
+- Batch 1g audit: all 75 historical bindings exist, including child A4162B8C. Creating a mouth component is now
+  FORBIDDEN: an unresolved child refuses with MOUTH_COMPONENT_NOT_RESOLVED (no duplicate can be made).
