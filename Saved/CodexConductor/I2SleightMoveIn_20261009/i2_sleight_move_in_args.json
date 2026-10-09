@@ -1,0 +1,22 @@
+{
+  "mode": "DRY",
+  "run_id": "I2MOVEIN-DRY-1",
+  "confirm": "DRY I2MOVEIN",
+  "params": {
+    "move_start": 1150,
+    "close_distance_cm": 600.0,
+    "mouth_after": "EASE_OUT",
+    "ease_out_s": 6.0,
+    "horizontal_fov_deg": 50.0,
+    "output_aspect": 1.7777777777777777,
+    "edge_guard_cm": 0.0,
+    "location_tolerance_cm": 0.01,
+    "rotation_tolerance_deg": 0.001,
+    "lens_tolerance_mm": 0.001,
+    "evidence": {
+      "hangar_record": "E:/PussStage/Saved/CodexConductor/I2HangarCam_20261009/i2_hangar_cam_record.json",
+      "order_record": "E:/PussStage/Saved/CodexConductor/I2Order_20261008/i2_order_record.json",
+      "drape_probe": "E:/PussStage/Saved/CodexConductor/I2Order_20261008/i2_drape_probe_I2PROBE-222723.json"
+    }
+  }
+}
