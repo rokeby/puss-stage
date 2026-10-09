@@ -1,4 +1,4 @@
-# P37 — Mechanism SLOTS where moving wings/waves pass through floors and walls (Codex, offline PLAN only)
+# P41 — Mechanism SLOTS where moving wings/waves pass through floors and walls (Codex, offline PLAN only)
 
 Read `_house_rules.md` first; every rule applies. **This is a plan/design job: no tool is required, no C++ edits,
 no Content writes.** Low priority ("deeply a nice to have", Gary 9 Oct).
@@ -48,7 +48,7 @@ For each option, cover:
 - REVERT.
 
 ## Deliverable
-`Docs/Conductor/P37_MECHANISM_SLOTS_PLAN.md`:
+`Docs/Conductor/P41_MECHANISM_SLOTS_PLAN.md`:
 - findings with proof tiers;
 - the footprint maths;
 - the recommended option and its later tool contract (DRY/APPLY/REVERT, tagged ownership, census, read-back);
