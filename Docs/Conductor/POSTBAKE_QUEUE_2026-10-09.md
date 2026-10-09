@@ -24,6 +24,8 @@ Order (dependencies first; Gary's decisions 9 Oct in `memory/tonight-queue-9-oct
 | 12 | S1 rig fade at 3:44 (F5) | Codex job 29 S1RigFade | Verify the switch-off frames (found ~11 s, not 3:44). |
 | 13 | S3 lid (F20) + 0:04 spoiler | Codex job 38 | |
 | 14 | S3 figures: Shore05 (+variants), cloth settle, underwear colour | Codex job 40 | |
+| 14b | S3 clam chain (existing tools, no new Codex) | `s3_pearl_fade.py` (S3-1 alpha fade + halo), `s3_shots_fix.py` (S3-2 new clam, B06 re-aim), `ClamSlime_20261008` (slime/ligament), then S3-3 grazes onto prints | Re-DRY each: tools are from 8 Oct, S3 has changed since. |
+| 14c | S3 dunes x2 (set D, existing tools) | `S3Shore/s3_shore_blender_build.py --set D` (headless Blender, ONE at a time, after the bake) → `s3_shore_ground_ue.py` import/APPLY | Set D generated 8 Oct (s3_shore_dunes_x2_record.json) but never imported [inferred]. Re-run feet/crowd z after. |
 | 15 | S3 +50 % handprints, camera wall | Codex job 38 | Still before save. |
 | 16 | Gobo 007 as stand-in | gobo session args 007 | Gary reviews content later. |
 | 17 | Infrastructure for Gary's review | job 35 uplights P02–P06; parcans (job 43, one model SM_Lantern_ParCan, bay-1 refused); P02 P01-style lighting = W&T Q7 `p02lighting/` (perf gate; 415 vs 414 reconcile first; job 43 GPU-loss runbook); S2 seam + dark shots (job 43 `s2_lighting_seam.py`) | Stills after. |
