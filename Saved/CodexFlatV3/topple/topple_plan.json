@@ -1,7 +1,7 @@
 {
  "tool": "make_keys.py",
- "made": "2026-10-09T10:45:31",
- "dry_run_id": "TOPPLE-20261009-103833",
+ "made": "2026-10-09T12:08:49",
+ "dry_run_id": "TOPPLE-20261009-120832",
  "parts": [
   "still",
   "chain"
@@ -9,7 +9,7 @@
  "inputs": {
   "passage_guid": "9BFC29C45D47911FF7836BB8537230D2",
   "tick": 24000.0,
-  "keeper": "6DB7C86FE7463FB8ED5143833DF28400",
+  "keeper": "3F1CEC91DE4164DCF2F0698A885CBD14",
   "all_rows": [
    [
     "DFD138DA78440386500FEC8E57AE3BA9",
@@ -85,47 +85,47 @@
    ],
    [
     "4927CDF2454CE3EC567E4C8BBB58AFB0",
-    "a71f5d07a07c4d6e490b7f746af8fcac8dfe7474b4f6ae422e4365bb795150ea"
+    "95346b8424285288021e047ed234b92ac255656ec8b09c05cc53973ec22ad031"
    ],
    [
     "88A3B6EF6F43524F0A057A84271187B7",
-    "b4a7fe1711e63bb18524154f7fb49939999b528fdbaa7e966c0c2a6f9e07eac5"
+    "7dae493ffa43ad91991452dbba882708fb3454a02ec9f44110d9645e0099e9e2"
    ],
    [
     "6C060F41144F94D9214DF3BF039C7E99",
-    "6fa231ec1e0b317f16595745ea6bce8ed55bdb449ddd1dfe4c8e9d15fd14c276"
+    "fa05022bf1d73b0080ba6ec894553ddfd454c8ee8b5a9d65b62b6644f92ce9a7"
    ],
    [
     "11F403689E45D226B3298AAF16790170",
-    "bae4f0183f4bebf993ff7d99c43cbfbe60a731ebe11ffbb2c134157ef5963b7b"
+    "047f5b89e64ead684c0f2e6159c5765d7f334f6dc252f4e615af741998f305aa"
    ],
    [
     "4AA16A12224559F4375C89AF372F0857",
-    "bfbf95b30da21e958a0a3fce143e564c2364608e5edd5a676361f733b28a3863"
+    "949b356a05d8c3be36c9a987289320a0c52a0d1edfd974d2df750d0dfe72e89f"
    ],
    [
     "821E817A714533C8BFDB38B63581F33F",
-    "275f5281e82b149d92e1b6012d8858c7e5074e3c832a4e3372838de3530d716a"
+    "ded9d22e2a413d5fb109399200a82cf634ca1b3c0685150fd404a1cfcaa62b69"
    ],
    [
     "CC3403E5418809B2A1D9328EFC64C048",
-    "004397bae26d0c0f55d84bd4d775b1f9091d31c75a33c8f3c4c8d2f0f6d06571"
+    "52234e9c102538a662d22c900f566bf22f0012ed5b10ec67576b55a58e87b52d"
    ],
    [
     "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
-    "b03f2b448c00f08ce82551461845a24756b02bcd017ae5e4198ae4737728c172"
+    "abe47d47f9c6721c7d1076246fb6f03d5604733a489fb96a798331be7c178580"
    ],
    [
     "AF6EB4EB57431F88F4BFC0957DA0E395",
-    "a3cfb1dab8515dafcd67b238907a8d68316dbf1a354a0b8a2106b3d42f889e82"
+    "c43176c1c2b0679c8de2c1dffbbd8c32d91874e014aa5199630678e4edae8e0d"
    ],
    [
     "30450225EE4DB0B28CEF8FA67FD430D4",
-    "41d7902aa063842afed75f32c5c59e32fd86d4f66843177f33534551b7d5411a"
+    "244a16ee2f1d2129081ad51ad9078bb005e26de0af90b31f8cea208ad413fc73"
    ],
    [
     "07E24048F24647AA7D5992AB6A8A0770",
-    "ed95d6aafc45eb60eb6ec88c74f1ae736eb6046097b3929835857ad54c5d5ba2"
+    "be71c0026d9eae31d0150fcff1b0492cfe39f7d75612ce905407c6a844724680"
    ]
   ],
   "law_points": [
@@ -380,28 +380,28 @@
    "CC3403E5418809B2A1D9328EFC64C048"
   ]
  },
- "inputs_hash": "14ad882570c70cc963b55994ca29b3f6c14bdf4b06c62dd7664bb8a240afaaa8",
- "confirm_token": "P06 still+chain L 884761C0..AA62A3AC #14ad8825",
+ "inputs_hash": "c0dd2693c9537cffb7e179b0bf3e6cd8d53de0c3f8ba4129b09a860f76ed5ab2",
+ "confirm_token": "P06 still+chain L 884761C0..AA62A3AC #c0dd2693",
  "keeper": {
-  "cue_guid": "6DB7C86FE7463FB8ED5143833DF28400",
-  "label": "P06 Wing 007",
-  "ordinal": 15,
-  "pass_s": 45.47,
-  "station_cm": 12950.0,
+  "cue_guid": "3F1CEC91DE4164DCF2F0698A885CBD14",
+  "label": "P06 Wing 045",
+  "ordinal": 17,
+  "pass_s": 48.98,
+  "station_cm": 13950.0,
   "mechanism": {
    "kind": "<InfinityMechanismKind.SLIDE: 0>",
    "playback_mode": "<InfinityMotionPlaybackMode.CONTINUOUS_LOOP: 2>",
    "phase_origin": "<InfinityMotionPhaseOrigin.PASSAGE_START: 0>",
    "cycle_rate_hz": 0.18,
-   "phase_offset_cycles": 2.0,
+   "phase_offset_cycles": 14.666667,
    "max_angle_deg": 90.0,
    "inward_travel_cm": 75.0,
    "top_follows_mechanism": true,
    "top_curve_flat": false
   },
   "meshes": [
-   "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j",
-   "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_10_building_under_construct_R_t5j"
+   "/Game/Scenes/Wings/StageOpeningV2/StaticMeshes/SM_CoveredBiomechCeramic_01_L_exposed_rococo_painterly",
+   "/Game/Scenes/Wings/StageOpeningV2/StaticMeshes/SM_SteelScaffold_01_R"
   ]
  },
  "still": [
@@ -528,7 +528,12 @@
   {
    "cue_guid": "6DB7C86FE7463FB8ED5143833DF28400",
    "label": "P06 Wing 007",
-   "action": "keep"
+   "action": "still",
+   "show_index": 232,
+   "set": {
+    "playback_mode": "STATIC",
+    "phase_offset_cycles": 0.0
+   }
   },
   {
    "cue_guid": "1D2D86BCE74A910A13CC588B0D451795",
@@ -543,12 +548,7 @@
   {
    "cue_guid": "3F1CEC91DE4164DCF2F0698A885CBD14",
    "label": "P06 Wing 045",
-   "action": "still",
-   "show_index": 234,
-   "set": {
-    "playback_mode": "STATIC",
-    "phase_offset_cycles": 0.0
-   }
+   "action": "keep"
   },
   {
    "cue_guid": "4927CDF2454CE3EC567E4C8BBB58AFB0",
