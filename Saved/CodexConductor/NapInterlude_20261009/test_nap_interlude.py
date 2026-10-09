@@ -11,6 +11,7 @@ import nap_interlude as n
 S4 = "11111111111111111111111111111111"
 I4 = "44444444444444444444444444444444"
 P05 = "55555555555555555555555555555555"
+MINTED_NAP = "79797979797979797979797979797979"
 
 
 def fixture():
@@ -48,6 +49,7 @@ class FakeBackend(object):
         self.dirty = {"content": [], "maps": []}
         self.logs = []
         self.args = None
+        self.cues = []
 
     def log(self, text):
         self.logs.append(text)
@@ -80,7 +82,16 @@ class FakeBackend(object):
         return {"root": "%s-%s" % (prefix, run), "files": list(packages)}
 
     def apply(self, plan, params):
-        self.state["segments"] = copy.deepcopy(plan["segments_expected_after"])
+        cue = FakeInfinityShowCue(MINTED_NAP)
+        cue.set_editor_property("type", "Sequence")
+        cue.set_editor_property("label", n.MASTER_CUE_LABEL)
+        cue.set_editor_property("enabled", True)
+        self.cues.insert(plan["nap"]["show_index"], cue)
+        minted = cue.get_editor_property("cue_guid")
+        nap = dict(plan["nap"], guid=minted)
+        self.state["segments"] = n.expected_segments(
+            plan["segments_before"], plan["anchors"]["interaction4_segment_index"],
+            nap, plan["delta_ticks"])
         shifted = copy.deepcopy(plan["passage_keys_before"])
         for row in shifted.values():
             if row["section_start_tick"] >= plan["downstream_threshold_tick"]:
@@ -95,17 +106,42 @@ class FakeBackend(object):
                            "asset_exists": True, "actor_labels": copy.deepcopy(plan["actor_labels"])})
         self.dirty = {"content": sorted([x for x in plan["named_packages"] if x != params["level_package"]]),
                       "maps": [params["level_package"]]}
+        return {"minted_nap_cue_guid": minted, "nap_label": cue.get_editor_property("label")}
 
     def save(self, packages):
         self.dirty = {"content": [], "maps": []}
         return list(packages)
 
     def revert(self, record, params):
+        wanted = record["plan"]["nap"]
+        exact = [cue for cue in self.cues
+                 if cue.get_editor_property("cue_guid") == wanted["guid"] and
+                 cue.get_editor_property("label") == n.MASTER_CUE_LABEL]
+        related = [cue for cue in self.cues
+                   if cue.get_editor_property("cue_guid") == wanted["guid"] or
+                   cue.get_editor_property("label") == n.MASTER_CUE_LABEL]
+        if len(exact) != 1 or len(related) != 1:
+            raise n.PlanError("REVERT_NAP_IDENTITY_DRIFT")
+        self.cues = [cue for cue in self.cues if cue not in exact]
         self.state = copy.deepcopy(self.original)
         archive = "/Game/InfinityStage/Dev/Sequences/_Reverted/LS_Nap_BatteryChange_%s" % record["run_id"]
         self.dirty = {"content": sorted([params["show_package"], params["master_package"], archive]),
                       "maps": [params["level_package"]]}
         return {"archived_sequence": archive}
+
+
+class FakeInfinityShowCue(object):
+    """UE 5.8-shaped cue: construction mints GUID and callers cannot set it."""
+    def __init__(self, minted_guid):
+        self._values = {"cue_guid": minted_guid}
+
+    def get_editor_property(self, name):
+        return self._values[name]
+
+    def set_editor_property(self, name, value):
+        if name == "cue_guid":
+            raise n.PlanError("FAKE_CUE_GUID_READ_ONLY")
+        self._values[name] = value
 
 
 class Counts(object):
@@ -152,8 +188,9 @@ def main():
     c.check(sum(1 for unused_frame, label in plan["markers"] if n.parse_go_marker(label)) == 1,
             "single GO marker")
     c.check(not n.seam_failures(plan["breathing_z_keys"], plan["loop_frames"]), "seam")
-    c.check(not n.downstream_timing_failures(plan["segments_before"], plan["segments_expected_after"], 2,
-                                             plan["nap"]["guid"], plan["delta_ticks"]), "timing")
+    c.check(plan["nap"]["guid"] is None, "DRY has no invented Nap GUID")
+    c.check(plan["fallback_job"]["segment_identity"] ==
+            {"label": n.MASTER_CUE_LABEL, "guid": None}, "DRY fallback identity awaits mint")
     c.positive()
 
     with tempfile.TemporaryDirectory() as root:
@@ -164,8 +201,30 @@ def main():
         apply_raw = {"mode": "APPLY", "run_id": "NAP-APPLY", "confirm": "APPLY NAP NAP-APPLY", "params": args(True)}
         rec = n.main(apply_raw, backend, root)
         c.check(rec["status"] == "saved_readback_verified", "apply status")
+        c.check(rec["minted_nap_cue_guid"] == MINTED_NAP, "minted GUID recorded")
+        persisted = n.read_json(os.path.join(root, "nap_interlude_record_NAP-APPLY.json"))
+        c.check(persisted["minted_nap_cue_guid"] == MINTED_NAP, "minted GUID persisted")
+        c.check(rec["plan"]["nap"] == {"guid": MINTED_NAP, "label": n.MASTER_CUE_LABEL,
+                                       "show_index": 42}, "minted identity in plan")
+        c.check(rec["plan"]["fallback_job"]["segment_identity"] ==
+                {"label": n.MASTER_CUE_LABEL, "guid": MINTED_NAP}, "fallback uses minted identity")
+        fallback = n.read_json(rec["fallback_job"])
+        c.check(fallback["segment_identity"] ==
+                {"label": n.MASTER_CUE_LABEL, "guid": MINTED_NAP}, "fallback persisted minted identity")
         c.check(any(x.startswith("P79_NAP_APPLY_OK") for x in backend.logs), "apply marker")
         c.check(not n.verify_after(rec["plan"], backend.inspect(backend.args, rec["plan"])), "apply readback")
+
+        nap_row = next(row for row in backend.state["segments"] if row["guid"] == MINTED_NAP)
+        nap_row["label"] = "Nap - battery change"
+        refused(lambda: n.main({"mode": "REVERT", "run_id": "NAP-REVERT-LABEL",
+                                "source_run_id": "NAP-APPLY", "confirm": "REVERT NAP NAP-APPLY",
+                                "params": args(True)}, backend, root), "APPLIED_STATE_DRIFT", c)
+        nap_row["label"] = n.MASTER_CUE_LABEL
+        nap_row["guid"] = "89898989898989898989898989898989"
+        refused(lambda: n.main({"mode": "REVERT", "run_id": "NAP-REVERT-GUID",
+                                "source_run_id": "NAP-APPLY", "confirm": "REVERT NAP NAP-APPLY",
+                                "params": args(True)}, backend, root), "APPLIED_STATE_DRIFT", c)
+        nap_row["guid"] = MINTED_NAP
         revert_raw = {"mode": "REVERT", "run_id": "NAP-REVERT", "source_run_id": "NAP-APPLY",
                       "confirm": "REVERT NAP NAP-APPLY", "params": args(True)}
         n.main(revert_raw, backend, root)
@@ -190,9 +249,11 @@ def main():
     c.check(any(x.startswith("MARKER|") for x in n.verify_after(plan, facts)), "negative marker control")
     c.negative()
 
+    n.record_minted_nap_guid(plan, MINTED_NAP)
     shifted = copy.deepcopy(plan["segments_expected_after"]); shifted[-1]["start"] += 1
     c.check(any(x.startswith("SHIFT|") for x in n.downstream_timing_failures(
-        plan["segments_before"], shifted, 2, plan["nap"]["guid"], plan["delta_ticks"])), "negative timing control")
+        plan["segments_before"], shifted, 2, plan["nap"]["guid"], plan["nap"]["label"],
+        plan["delta_ticks"])), "negative timing control")
     c.negative()
 
     refused(lambda: n.build_plan(fixture(), dict(args(), expected_interaction4_guid="99999999999999999999999999999999")),
@@ -208,19 +269,32 @@ def main():
             "PLACEMENT_BETWEEN_S4_I4_REFUSED", c)
     refused(lambda: n.build_plan(fixture(), dict(args(), nap_label="Nap - battery change")),
             "CUE_LABEL_MISMATCH", c)
+    snap = fixture()
+    snap["segments"].append({"guid": "98989898989898989898989898989898",
+                             "label": n.MASTER_CUE_LABEL, "type": "Sequence",
+                             "start": 4100, "end": 4200, "first_show_index": 71})
+    refused(lambda: n.build_plan(snap, args()), "NAP_ALREADY_COMPILED", c)
+
+    fake_cue = FakeInfinityShowCue(MINTED_NAP)
+    try:
+        fake_cue.set_editor_property("cue_guid", "00000000000000000000000000000000")
+    except n.PlanError as exc:
+        c.check("FAKE_CUE_GUID_READ_ONLY" in str(exc), "fake cue GUID is read-only")
+    else:
+        raise AssertionError("fake cue accepted cue_guid write")
 
     backend = FakeBackend()
     refused(lambda: n.main({"mode": "DRY", "run_id": "BAD", "confirm": "wrong", "params": args()},
                            backend, tempfile.mkdtemp()), "CONFIRM_MISMATCH", c)
 
     c.check(c.pos == 3, "positive count")
-    c.check(c.neg == 11, "negative count")
+    c.check(c.neg == 14, "negative count")
     result = {"tool": n.TOOL, "positive": {"passed": c.pos, "total": 3},
-              "negative": {"passed": c.neg, "total": 11}, "checks": c.checks, "status": "passed"}
+              "negative": {"passed": c.neg, "total": 14}, "checks": c.checks, "status": "passed"}
     out = os.path.join(os.path.dirname(__file__), "harness_result.json")
     with open(out, "w", encoding="utf-8") as handle:
         json.dump(result, handle, indent=2, sort_keys=True); handle.write("\n")
-    print("P79_NAP_HARNESS_OK|positive=%d/3|negative=%d/11|checks=%d" % (c.pos, c.neg, c.checks))
+    print("P79_NAP_HARNESS_OK|positive=%d/3|negative=%d/14|checks=%d" % (c.pos, c.neg, c.checks))
 
 
 if __name__ == "__main__":

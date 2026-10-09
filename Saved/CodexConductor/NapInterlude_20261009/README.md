@@ -20,6 +20,13 @@ defaults are all in `nap_interlude_args.json`. Puss uses the catalogue's
 `A_Cat_Rest_Sleep_to` at an explicit held pose; the authored Z keys supply the
 seamless breathing loop. New light shadow casting is off by default.
 
+UE 5.8 mints the Nap cue GUID when `InfinityShowCue` is constructed. The tool
+never writes `cue_guid`: after insertion it reads the minted value through
+`GuidLibrary.conv_guid_to_string`, immediately persists it in the APPLY record,
+and thereafter requires the exact `Nap — battery change` label/GUID pair for
+read-back, fallback-job identity, idempotence, and REVERT. REVERT refuses before
+mutation if either half of that recorded identity has drifted.
+
 ## Ordered live slot
 
 1. Start from the canonical Puss editor and vertical-slice world, with PIE/SIE
@@ -78,4 +85,4 @@ Offline harness:
 python Saved/CodexConductor/NapInterlude_20261009/test_nap_interlude.py
 ```
 
-Expected: `P79_NAP_HARNESS_OK|positive=3/3|negative=11/11|checks=30`.
+Expected: `P79_NAP_HARNESS_OK|positive=3/3|negative=14/14|checks=40`.

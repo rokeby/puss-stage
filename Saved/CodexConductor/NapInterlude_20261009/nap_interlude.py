@@ -26,7 +26,7 @@ import zlib
 
 
 TOOL = "P79_NAP"
-VERSION = "2026-10-09b"
+VERSION = "2026-10-09c"
 SHOW = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 MASTER = "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master"
 LEVEL = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
@@ -36,7 +36,6 @@ MARK_VAMP_START = "InfinityStage.VampStart"
 MARK_VAMP_END = "InfinityStage.VampEnd"
 MASTER_CUE_LABEL = "Nap — battery change"
 OWNER_TAG = "P79_NAP_OWNED"
-DEFAULT_GUID = "79579A60416749D3B77E0F58A87C986B"
 REQUIRED_TESTS = (
     "InfinityStage.Editor.SavedMasterMatchesShow",
     "InfinityStage.Editor.SceneCutBindingsResolve",
@@ -121,7 +120,6 @@ def normalise_args(raw):
     p.setdefault("master_package", MASTER)
     p.setdefault("level_package", LEVEL)
     p.setdefault("sequence_package", NAP_SEQUENCE)
-    p.setdefault("nap_cue_guid", DEFAULT_GUID)
     p.setdefault("nap_label", MASTER_CUE_LABEL)
     p.setdefault("scene4_label", "Scene 4")
     p.setdefault("interaction4_label", "Interaction 4")
@@ -160,7 +158,9 @@ def normalise_args(raw):
     p["breath_period_seconds"] = float(p["breath_period_seconds"])
     p["sleep_pose_fraction"] = float(p["sleep_pose_fraction"])
     p["camera_focal_length_mm"] = float(p["camera_focal_length_mm"])
-    p["nap_cue_guid"] = norm_guid(p["nap_cue_guid"])
+    # UE 5.8 mints FInfinityShowCue.CueGuid in the struct constructor.  A stale
+    # caller-supplied value must never become an authoring input.
+    p.pop("nap_cue_guid", None)
     p["expected_interaction4_guid"] = norm_guid(p["expected_interaction4_guid"])
     p["expected_passage5_guid"] = norm_guid(p["expected_passage5_guid"])
     if p["nap_label"] != MASTER_CUE_LABEL:
@@ -175,8 +175,6 @@ def normalise_args(raw):
         raise PlanError("BREATH_ARGUMENT_INVALID")
     if not 0.0 <= p["sleep_pose_fraction"] <= 1.0:
         raise PlanError("SLEEP_POSE_FRACTION")
-    if len(p["nap_cue_guid"]) != 32:
-        raise PlanError("NAP_GUID_INVALID")
     if len(p["lights"]) > 2:
         raise PlanError("LIGHT_COUNT_GT_2")
     labels = [p["cat_label"], p["camera_label"]] + [x["label"] for x in p["lights"]]
@@ -239,12 +237,24 @@ def expected_segments(before, insert_after_index, nap, delta_ticks):
     return output
 
 
-def downstream_timing_failures(before, after, insert_after_index, nap_guid, delta_ticks):
+def downstream_timing_failures(before, after, insert_after_index, nap_guid, nap_label, delta_ticks):
     failures = []
-    nap_rows = [row for row in after if norm_guid(row.get("guid")) == norm_guid(nap_guid)]
+    wanted_guid = norm_guid(nap_guid)
+    if len(wanted_guid) != 32 or nap_label != MASTER_CUE_LABEL:
+        return ["NAP_RECORDED_IDENTITY_INVALID"]
+    guid_rows = [row for row in after if norm_guid(row.get("guid")) == wanted_guid]
+    label_rows = [row for row in after if row.get("label") == nap_label]
+    nap_rows = [row for row in after
+                if norm_guid(row.get("guid")) == wanted_guid and row.get("label") == nap_label]
+    if len(guid_rows) != 1:
+        failures.append("NAP_GUID_COUNT|%d" % len(guid_rows))
+    if len(label_rows) != 1:
+        failures.append("NAP_LABEL_COUNT|%d" % len(label_rows))
     if len(nap_rows) != 1:
-        return ["NAP_SEGMENT_COUNT|%d" % len(nap_rows)]
-    stripped = [row for row in after if norm_guid(row.get("guid")) != norm_guid(nap_guid)]
+        failures.append("NAP_IDENTITY_COUNT|%d" % len(nap_rows))
+        return failures
+    stripped = [row for row in after if not (
+        norm_guid(row.get("guid")) == wanted_guid and row.get("label") == nap_label)]
     if len(stripped) != len(before):
         return ["SEGMENT_COUNT_EXCLUDING_NAP"]
     for index, (old, now) in enumerate(zip(before, stripped)):
@@ -322,7 +332,9 @@ def build_plan(snapshot, raw_args):
     if int(s4["end"]) != int(i4["start"]) or int(i4["end"]) != int(p05["start"]):
         raise PlanError("PLACEMENT_BOUNDARY_DRIFT|s4_end=%s|i4_start=%s|i4_end=%s|p05_start=%s" %
                         (s4["end"], i4["start"], i4["end"], p05["start"]))
-    if any(norm_guid(row.get("guid")) == p["nap_cue_guid"] or row.get("label") == p["nap_label"] for row in segments):
+    # No Nap GUID exists during DRY: construction owns it.  The exact immutable
+    # label is therefore the pre-insertion idempotence/collision guard.
+    if any(row.get("label") == MASTER_CUE_LABEL for row in segments):
         raise PlanError("NAP_ALREADY_COMPILED")
     if snapshot["asset_exists"]:
         raise PlanError("NAP_SEQUENCE_ASSET_EXISTS")
@@ -348,7 +360,7 @@ def build_plan(snapshot, raw_args):
     delta_ticks = int(round(delta_ticks_f))
     if abs(delta_ticks_f - delta_ticks) > 1.0e-7:
         raise PlanError("DURATION_NOT_SHOW_TICK_REPRESENTABLE")
-    nap = {"guid": p["nap_cue_guid"], "label": p["nap_label"], "show_index": int(i4["first_show_index"]) + 1}
+    nap = {"guid": None, "label": MASTER_CUE_LABEL, "show_index": int(i4["first_show_index"]) + 1}
     after_segments = expected_segments(segments, i4_index, nap, delta_ticks)
     wake_marker = "GO %s PASS %s" % (p["go_number"], p["nap_label"])
     parsed_wake = parse_go_marker(wake_marker)
@@ -376,7 +388,9 @@ def build_plan(snapshot, raw_args):
         "downstream_threshold_tick": int(i4["end"]),
         "named_packages": p["named_packages"],
         "backup_packages": [p["show_package"], p["master_package"], p["level_package"]],
-        "fallback_job": {"kind": "sequence_segment_loop", "segment_guid": p["nap_cue_guid"],
+        "fallback_job": {"kind": "sequence_segment_loop", "segment_guid": None,
+                         "segment_label": MASTER_CUE_LABEL,
+                         "segment_identity": {"label": MASTER_CUE_LABEL, "guid": None},
                          "master_range_relative_ticks": [0, int(round(loop_frames * tick / fps))],
                          "frames": loop_frames, "fps": fps, "output": p["fallback_output"],
                          "registry_gate": "Cue Desk currently accepts Scene ordinals only"},
@@ -389,6 +403,23 @@ def build_plan(snapshot, raw_args):
     }
 
 
+def record_minted_nap_guid(plan, value):
+    """Bind UE's post-construction GUID into every persisted Nap identity."""
+    minted = norm_guid(value)
+    if len(minted) != 32:
+        raise PlanError("MINTED_NAP_GUID_INVALID|%s" % value)
+    if plan["nap"]["label"] != MASTER_CUE_LABEL:
+        raise PlanError("MINTED_NAP_LABEL_INVALID|%s" % plan["nap"]["label"])
+    plan["nap"]["guid"] = minted
+    plan["segments_expected_after"] = expected_segments(
+        plan["segments_before"], plan["anchors"]["interaction4_segment_index"],
+        plan["nap"], plan["delta_ticks"])
+    plan["fallback_job"]["segment_guid"] = minted
+    plan["fallback_job"]["segment_label"] = MASTER_CUE_LABEL
+    plan["fallback_job"]["segment_identity"] = {"label": MASTER_CUE_LABEL, "guid": minted}
+    return minted
+
+
 def verify_after(plan, facts):
     failures = []
     failures += seam_failures(facts.get("breathing_z_keys", []), plan["loop_frames"])
@@ -398,7 +429,8 @@ def verify_after(plan, facts):
             failures.append("MARKER|%s" % label)
     failures += downstream_timing_failures(plan["segments_before"], facts.get("segments", []),
                                            plan["anchors"]["interaction4_segment_index"],
-                                           plan["nap"]["guid"], plan["delta_ticks"])
+                                           plan["nap"]["guid"], plan["nap"]["label"],
+                                           plan["delta_ticks"])
     failures += passage_key_failures(plan["passage_keys_before"], facts.get("passage_keys", {}),
                                      plan["downstream_threshold_tick"], plan["delta_ticks"])
     if sorted(facts.get("owned_actor_labels", [])) != sorted(plan["actor_labels"]):
@@ -576,13 +608,6 @@ class UnrealBackend(object):
         write_json(os.path.join(root, "manifest.json"), {"run": run, "files": files}, exclusive=True)
         return {"root": root, "files": files}
 
-    def _parse_guid(self, text):
-        result = self.ue.GuidLibrary.parse_string_to_guid(text)
-        guid, ok = result if isinstance(result, tuple) else (result, True)
-        if not ok or self._guid(guid) != norm_guid(text):
-            raise PlanError("GUID_PARSE|%s" % text)
-        return guid
-
     def _spawn_content(self, seq, plan):
         ue, p = self.ue, plan["params"]
         eas = ue.get_editor_subsystem(ue.EditorActorSubsystem)
@@ -695,16 +720,22 @@ class UnrealBackend(object):
         self._spawn_content(seq, plan)
         show, master = ue.load_asset(args["show_package"]), ue.load_asset(args["master_package"])
         cues = list(show.get_editor_property("cues"))
-        cue = ue.InfinityShowCue(); cue.set_editor_property("cue_guid", self._parse_guid(plan["nap"]["guid"]))
+        cue = ue.InfinityShowCue()
         cue.set_editor_property("type", ue.InfinityCueType.SEQUENCE); cue.set_editor_property("label", plan["nap"]["label"])
         cue.set_editor_property("enabled", True)
         scene = cue.get_editor_property("scene"); scene.set_editor_property("sequence", seq)
         scene.set_editor_property("use_sequence_length", True); scene.set_editor_property("camera_owner", ue.InfinityCameraOwner.TIMELINE)
         cue.set_editor_property("scene", scene)
         cues.insert(plan["nap"]["show_index"], cue); show.set_editor_property("cues", cues)
+        inserted = list(show.get_editor_property("cues"))[plan["nap"]["show_index"]]
+        inserted_label = str(inserted.get_editor_property("label"))
+        minted_guid = self._guid(inserted.get_editor_property("cue_guid"))
+        if inserted_label != MASTER_CUE_LABEL or len(minted_guid) != 32:
+            raise PlanError("INSERTED_NAP_IDENTITY|label=%s|guid=%s" % (inserted_label, minted_guid))
         if not ue.InfinityStageSequenceBuilderLibrary.rebuild_managed_master(show, master):
             raise PlanError("REBUILD_MANAGED_MASTER_FAILED")
-        return {"affected_passages_materialized": [], "reason": "no Passage authoring data changed"}
+        return {"minted_nap_cue_guid": minted_guid, "nap_label": inserted_label,
+                "affected_passages_materialized": [], "reason": "no Passage authoring data changed"}
 
     def save(self, packages):
         dirty = sorted(set(self.census()["content"] + self.census()["maps"]))
@@ -724,9 +755,15 @@ class UnrealBackend(object):
         ue, plan = self.ue, record["plan"]
         show, master = ue.load_asset(args["show_package"]), ue.load_asset(args["master_package"])
         cues = list(show.get_editor_property("cues"))
-        kept = [c for c in cues if self._guid(c.get_editor_property("cue_guid")) != plan["nap"]["guid"]]
-        if len(cues) - len(kept) != 1:
-            raise PlanError("REVERT_NAP_CUE_COUNT")
+        exact = [c for c in cues if self._guid(c.get_editor_property("cue_guid")) == plan["nap"]["guid"] and
+                 str(c.get_editor_property("label")) == MASTER_CUE_LABEL]
+        related = [c for c in cues if self._guid(c.get_editor_property("cue_guid")) == plan["nap"]["guid"] or
+                   str(c.get_editor_property("label")) == MASTER_CUE_LABEL]
+        if len(exact) != 1 or len(related) != 1:
+            raise PlanError("REVERT_NAP_IDENTITY_DRIFT|exact=%d|related=%d" % (len(exact), len(related)))
+        kept = [c for c in cues if not (
+            self._guid(c.get_editor_property("cue_guid")) == plan["nap"]["guid"] and
+            str(c.get_editor_property("label")) == MASTER_CUE_LABEL)]
         show.set_editor_property("cues", kept)
         eas = ue.get_editor_subsystem(ue.EditorActorSubsystem)
         owned = [a for a in eas.get_all_level_actors() if OWNER_TAG in [str(x) for x in a.get_editor_property("tags")]]
@@ -791,7 +828,15 @@ def run_apply(run, args, backend, root):
     record = {"schema_version": 1, "tool": TOOL, "run_id": run, "status": "prepared",
               "args": args, "plan": plan, "snapshot_before": snapshot, "backup": backup}
     write_json(record_path, record, exclusive=True)
-    backend.apply(plan, args)
+    mutation = backend.apply(plan, args)
+    minted_guid = record_minted_nap_guid(plan, mutation.get("minted_nap_cue_guid"))
+    if mutation.get("nap_label") != MASTER_CUE_LABEL:
+        _stop(backend, run, "MINTED_IDENTITY_LABEL|%s" % mutation.get("nap_label"))
+    # Persist the engine-minted identity before any verification or save so a
+    # failed later phase still leaves an exact recovery identity.
+    record.update({"status": "mutated_guid_recorded", "plan": plan,
+                   "minted_nap_cue_guid": minted_guid, "mutation": mutation})
+    write_json(record_path, record)
     facts = backend.inspect(args, plan)
     failures = verify_after(plan, facts)
     expected_dirty = sorted(plan["named_packages"])
@@ -808,8 +853,9 @@ def run_apply(run, args, backend, root):
     record.update({"status": "saved_readback_verified", "snapshot_after": facts, "saved": saved,
                    "fallback_job": fallback_path})
     write_json(record_path, record)
-    backend.log("P79_NAP_APPLY_OK|run=%s|saved=%s|backup=%s|record=%s|fallback_job=%s|tests_required_singly=%s" %
-                (run, ",".join(saved), backup["root"], record_path, fallback_path, ",".join(REQUIRED_TESTS)))
+    backend.log("P79_NAP_APPLY_OK|run=%s|nap_guid=%s|saved=%s|backup=%s|record=%s|fallback_job=%s|tests_required_singly=%s" %
+                (run, minted_guid, ",".join(saved), backup["root"], record_path, fallback_path,
+                 ",".join(REQUIRED_TESTS)))
     return record
 
 
