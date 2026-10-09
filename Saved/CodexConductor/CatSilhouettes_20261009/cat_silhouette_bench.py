@@ -100,7 +100,7 @@ def main():
         cc = cap.capture_component2d
         rt = u.RenderingLibrary.create_render_target2d(world, RES[0], RES[1], u.TextureRenderTargetFormat.RTF_RGBA8)
         cc.set_editor_property("texture_target", rt)
-        cc.set_editor_property("primitive_render_mode", u.SceneCapturePrimitiveRenderMode.PRIM_RENDER_MODE_USE_SHOW_ONLY_LIST)
+        cc.set_editor_property("primitive_render_mode", u.SceneCapturePrimitiveRenderMode.PRM_USE_SHOW_ONLY_LIST)
         cc.set_editor_property("capture_source", u.SceneCaptureSource.SCS_SCENE_COLOR_HDR)
         cc.set_editor_property("capture_every_frame", False)
         cc.set_editor_property("capture_on_movement", False)

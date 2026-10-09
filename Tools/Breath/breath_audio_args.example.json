@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "mode": "DRY",
+  "run_id": "BAUDIO-P36-REHEARSAL-01",
+  "project_root": ".",
+  "input_wav": "Saved/CodexBreath/source_music.wav",
+  "output_wav": "Saved/CodexBreath/BAUDIO-P36-REHEARSAL-01/breath_music.wav",
+  "waveform_preview_png": "Saved/CodexBreath/BAUDIO-P36-REHEARSAL-01/breath_waveform.png",
+  "spectrogram_preview_png": "Saved/CodexBreath/BAUDIO-P36-REHEARSAL-01/breath_spectrogram.png",
+  "record_json": "Saved/CodexBreath/BAUDIO-P36-REHEARSAL-01/apply_record.json",
+  "breath_time_seconds": 30.0,
+  "wind_down_seconds": 2.5,
+  "silence_seconds": 5.0,
+  "wind_up_seconds": 0.0,
+  "curve_shape": 4.5,
+  "fade_ms": 8.0,
+  "join_search_ms": 25.0,
+  "expected_sample_rate_hz": 48000,
+  "expected_channels": 2,
+  "output_subtype": "PCM_24"
+}
