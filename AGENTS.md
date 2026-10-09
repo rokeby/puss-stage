@@ -1,6 +1,6 @@
 # PussStage Agent Notes
 
-**Start here:** [`README.md`](README.md), then
+**Start here (9 Oct handover):** [`Docs/Conductor/HANDOVER_2026-10-09_NEXT_AGENT.md`](Docs/Conductor/HANDOVER_2026-10-09_NEXT_AGENT.md), then [`README.md`](README.md), then
 [`Docs/Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md`](Docs/Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md)
 — the container-world build runs several sessions in parallel, each owning
 different files; read your stream's brief before editing anything. Then
