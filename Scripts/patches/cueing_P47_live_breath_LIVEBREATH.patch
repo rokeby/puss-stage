@@ -1,5 +1,5 @@
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp
-index 3008087..322a804 100644
+index 30080876..322a8048 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp
 @@ -293,6 +293,7 @@ void FInfinityScriptCursor::SyncToSegment(const FInfinityCueSheet& Sheet, const
@@ -41,7 +41,7 @@ index 3008087..322a804 100644
  }
  
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
-index 720266e..7a68027 100644
+index 720266ea..7a68027e 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
 @@ -32,6 +32,7 @@
@@ -173,7 +173,7 @@ index 720266e..7a68027 100644
  
  void AInfinityStagePassageActor::PreloadMechanismSounds(const FInfinityCompiledPassage& Passage)
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
-index a0b2ae8..3300c78 100644
+index a0b2ae80..3300c782 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
 @@ -38,10 +38,11 @@ namespace InfinityStageShowKeys
@@ -234,7 +234,7 @@ index a0b2ae8..3300c78 100644
      {
          // A GO at a hold, or a vamp release, is the whole RIGHT gesture. Its key-up must not also
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowTrims.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowTrims.cpp
-index 9953c47..e8256fd 100644
+index 9953c47f..e8256fda 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowTrims.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowTrims.cpp
 @@ -90,6 +90,16 @@ FInfinityShowTrimValues AInfinityStageShowTrims::GetValues() const
@@ -291,7 +291,7 @@ index 9953c47..e8256fd 100644
      Super::EndPlay(EndPlayReason);
  }
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
-index 77109c2..d38a8e2 100644
+index 77109c2e..9bbf7088 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
 @@ -8,6 +8,7 @@
@@ -342,19 +342,26 @@ index 77109c2..d38a8e2 100644
      }
  }
  
-@@ -701,6 +720,11 @@ bool ParseMarkerLabel(const FString& Text, FString& OutNumber, FString& OutLabel
+@@ -701,6 +720,18 @@ bool ParseMarkerLabel(const FString& Text, FString& OutNumber, FString& OutLabel
          OutMode = 0;
          LabelStart = 3;
      }
-+    else if (Words.IsValidIndex(2) && Words[2].Equals(TEXT("BREATH"), ESearchCase::CaseSensitive))
++    else if (Words.IsValidIndex(2) && Words[2].Equals(TEXT("LIVEBREATH"), ESearchCase::CaseSensitive))
 +    {
++        // A LIVE breath (P47): crossing it pauses the Passage until GO.
 +        OutMode = 2;
 +        LabelStart = 3;
++    }
++    else if (Words.IsValidIndex(2) && Words[2].Equals(TEXT("BREATH"), ESearchCase::CaseSensitive))
++    {
++        // "GO <n> BREATH" documents an AUTHORED breath (finishing touches P36/P45): never a GO of any kind.
++        OutNumber.Reset();
++        return false;
 +    }
      for (int32 Index = LabelStart; Index < Words.Num(); ++Index)
      {
          OutLabel += (OutLabel.IsEmpty() ? TEXT("") : TEXT(" ")) + Words[Index];
-@@ -709,6 +733,54 @@ bool ParseMarkerLabel(const FString& Text, FString& OutNumber, FString& OutLabel
+@@ -709,6 +740,54 @@ bool ParseMarkerLabel(const FString& Text, FString& OutNumber, FString& OutLabel
  }
  }
  
@@ -409,7 +416,7 @@ index 77109c2..d38a8e2 100644
  void FInfinityGoHoldState::Reset()
  {
      ActiveIndex = INDEX_NONE;
-@@ -830,6 +902,8 @@ bool UInfinityStageTransportController::StepJumpResettle(
+@@ -830,6 +909,8 @@ bool UInfinityStageTransportController::StepJumpResettle(
  
  void UInfinityStageTransportController::EndPlay(const EEndPlayReason::Type EndPlayReason)
  {
@@ -418,7 +425,7 @@ index 77109c2..d38a8e2 100644
      bVideoAudioMuted = false;
      SetManagedMasterAudioMuted(false);
      UnregisterForWorld();
-@@ -842,6 +916,8 @@ void UInfinityStageTransportController::EndPlay(const EEndPlayReason::Type EndPl
+@@ -842,6 +923,8 @@ void UInfinityStageTransportController::EndPlay(const EEndPlayReason::Type EndPl
  
  void UInfinityStageTransportController::BeginDestroy()
  {
@@ -427,7 +434,7 @@ index 77109c2..d38a8e2 100644
      bVideoAudioMuted = false;
      SetManagedMasterAudioMuted(false);
      UnregisterForWorld();
-@@ -861,6 +937,7 @@ void UInfinityStageTransportController::TickComponent(
+@@ -861,6 +944,7 @@ void UInfinityStageTransportController::TickComponent(
      }
      const FFrameNumber CurrentFrame = GetCurrentMasterFrame();
      const int32 FrameSegment = FindSegmentAtFrame(CurrentFrame);
@@ -435,7 +442,7 @@ index 77109c2..d38a8e2 100644
      if (SeamDiagOn())
      {
          TickSeamDiag(CurrentFrame, DeltaTime);
-@@ -888,6 +965,16 @@ void UInfinityStageTransportController::TickComponent(
+@@ -888,6 +972,16 @@ void UInfinityStageTransportController::TickComponent(
              TEXT("INFINITY_REWIND_INTERLOCK frame=%d segment=%d"),
              CurrentFrame.Value, FrameSegment);
      }
@@ -452,7 +459,7 @@ index 77109c2..d38a8e2 100644
      if (HandleGoHold(CurrentFrame))
      {
          return;
-@@ -959,6 +1046,8 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
+@@ -959,6 +1053,8 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
      VampPlaybackState.Reset();
      GoCues.Reset();
      GoHoldState.Reset();
@@ -461,7 +468,7 @@ index 77109c2..d38a8e2 100644
      ClearTransportRests();
      if (InShowAsset && InShowAsset->DisplayRate.IsValid() && InShowAsset->TickResolution.IsValid())
      {
-@@ -1128,6 +1217,7 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
+@@ -1128,6 +1224,7 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
  
  bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer* InPlayer, UInfinityStageShowAsset* InShowAsset)
  {
@@ -469,7 +476,7 @@ index 77109c2..d38a8e2 100644
      SetManagedMasterAudioMuted(false);
      Player = InPlayer;
      bFastForwardActive = false;
-@@ -1169,6 +1259,7 @@ bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer
+@@ -1169,6 +1266,7 @@ bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer
      }
      VampPlaybackState.OnNavigation(GetCurrentMasterFrame());
      GoHoldState.OnNavigation(GetCurrentMasterFrame());
@@ -477,7 +484,7 @@ index 77109c2..d38a8e2 100644
      return true;
  }
  
-@@ -1250,9 +1341,11 @@ int32 UInfinityStageTransportController::RunThroughStopIndex(
+@@ -1250,9 +1348,11 @@ int32 UInfinityStageTransportController::RunThroughStopIndex(
  void UInfinityStageTransportController::ApplyCueDirector(
      const bool bInRunThrough,
      const TArray<FGuid>& StopAfter,
@@ -490,7 +497,7 @@ index 77109c2..d38a8e2 100644
      RunThroughStopAfter = StopAfter;
      RunThroughHoldGoNumbers = HoldGoNumbers;
      GoHoldState.KeepNumbers = TSet<FString>(HoldGoNumbers);
-@@ -1262,8 +1355,8 @@ void UInfinityStageTransportController::ApplyCueDirector(
+@@ -1262,8 +1362,8 @@ void UInfinityStageTransportController::ApplyCueDirector(
          Matched += StopAfter.Contains(Segment.SegmentGuid) ? 1 : 0;
      }
      UE_LOG(LogInfinityStageTransport, Log,
@@ -501,7 +508,7 @@ index 77109c2..d38a8e2 100644
      if (Matched != StopAfter.Num())
      {
          UE_LOG(LogInfinityStageTransport, Warning,
-@@ -1433,6 +1526,7 @@ EInfinityTransportResult UInfinityStageTransportController::StepShotForward()
+@@ -1433,6 +1533,7 @@ EInfinityTransportResult UInfinityStageTransportController::StepShotForward()
  
  EInfinityTransportResult UInfinityStageTransportController::BeginFastForward()
  {
@@ -509,7 +516,7 @@ index 77109c2..d38a8e2 100644
      if (!Player)
      {
          return LastResult = EInfinityTransportResult::NoPlayer;
-@@ -1510,6 +1604,7 @@ FFrameNumber UInfinityStageTransportController::ResolveRewindTargetFrame(
+@@ -1510,6 +1611,7 @@ FFrameNumber UInfinityStageTransportController::ResolveRewindTargetFrame(
  
  EInfinityTransportResult UInfinityStageTransportController::BeginRewind()
  {
@@ -517,7 +524,7 @@ index 77109c2..d38a8e2 100644
      if (!Player)
      {
          return LastResult = EInfinityTransportResult::NoPlayer;
-@@ -1693,6 +1788,126 @@ EInfinityTransportResult UInfinityStageTransportController::PauseTransport()
+@@ -1693,6 +1795,126 @@ EInfinityTransportResult UInfinityStageTransportController::PauseTransport()
      return LastResult;
  }
  
@@ -644,7 +651,7 @@ index 77109c2..d38a8e2 100644
  EInfinityTransportResult UInfinityStageTransportController::ResumeForward()
  {
      if (!Player)
-@@ -1740,6 +1955,7 @@ EInfinityTransportResult UInfinityStageTransportController::Shuttle(const float
+@@ -1740,6 +1962,7 @@ EInfinityTransportResult UInfinityStageTransportController::Shuttle(const float
  
  EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(const FFrameNumber TargetFrame)
  {
@@ -652,7 +659,7 @@ index 77109c2..d38a8e2 100644
      if (!Player)
      {
          return LastResult = EInfinityTransportResult::NoPlayer;
-@@ -1766,6 +1982,7 @@ EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(c
+@@ -1766,6 +1989,7 @@ EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(c
      ClearTransportRests();
      VampPlaybackState.OnNavigation(TargetFrame);
      GoHoldState.OnNavigation(TargetFrame);
@@ -660,7 +667,7 @@ index 77109c2..d38a8e2 100644
      JumpResettleState = {true, TargetFrame, 0.0f, 0};
      SelectedSegmentIndex = TargetIndex;
      bCoveredHandoffActive = IsCoveredHandoffActive(TargetIndex, TargetFrame);
-@@ -1854,6 +2071,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToMasterFrame(
+@@ -1854,6 +2078,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToMasterFrame(
      const FFrameNumber TargetFrame,
      const bool bKeepPlaying)
  {
@@ -668,7 +675,7 @@ index 77109c2..d38a8e2 100644
      if (!Player)
      {
          return LastResult = EInfinityTransportResult::NoPlayer;
-@@ -1880,6 +2098,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToMasterFrame(
+@@ -1880,6 +2105,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToMasterFrame(
      ClearTransportRests();
      VampPlaybackState.OnNavigation(TargetFrame);
      GoHoldState.OnNavigation(TargetFrame);
@@ -676,7 +683,7 @@ index 77109c2..d38a8e2 100644
      SelectedSegmentIndex = SegmentIndex;
      bCoveredHandoffActive = IsCoveredHandoffActive(SegmentIndex, TargetFrame);
      if (bKeepPlaying)
-@@ -2728,6 +2947,28 @@ bool UInfinityStageTransportController::HandleVampPlayback(const FFrameNumber Cu
+@@ -2728,6 +2954,28 @@ bool UInfinityStageTransportController::HandleVampPlayback(const FFrameNumber Cu
      return true;
  }
  
@@ -705,7 +712,7 @@ index 77109c2..d38a8e2 100644
  bool UInfinityStageTransportController::HandleGoHold(const FFrameNumber CurrentFrame)
  {
      if (GoCues.IsEmpty() || !Player)
-@@ -2805,14 +3046,71 @@ void UInfinityStageTransportController::SetVideoAudioMuted(const bool bMuted)
+@@ -2805,14 +3053,71 @@ void UInfinityStageTransportController::SetVideoAudioMuted(const bool bMuted)
      SetManagedMasterAudioMuted(bFastForwardActive || bRewindActive);
  }
  
@@ -779,7 +786,7 @@ index 77109c2..d38a8e2 100644
      {
          for (const TPair<TWeakObjectPtr<UMovieSceneTrack>, bool>& Entry : NestedAudioMutedForFastForward)
          {
-@@ -2828,7 +3126,7 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bR
+@@ -2828,7 +3133,7 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bR
          }
          NestedAudioMutedForFastForward.Reset();
      }
@@ -788,7 +795,7 @@ index 77109c2..d38a8e2 100644
      {
          return;
      }
-@@ -2837,7 +3135,7 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bR
+@@ -2837,7 +3142,7 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bR
      // Every other audio track in the Master and its nested sequences (Scene and
      // Choreography sound) is muted with it, through the same transient local flag,
      // and each is restored to exactly its own prior state when 1x resumes.
@@ -797,7 +804,7 @@ index 77109c2..d38a8e2 100644
      {
          NestedAudioMutedForFastForward.Reset();
          TSet<const UMovieSceneSequence*> Visited;
-@@ -2861,16 +3159,21 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bR
+@@ -2861,16 +3166,21 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bR
          }
      }
  
@@ -821,7 +828,7 @@ index 77109c2..d38a8e2 100644
      {
  #if WITH_EDITOR
          bMasterAudioWasEvalDisabled = MusicTrack->IsLocalEvalDisabled();
-@@ -2894,7 +3197,7 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bR
+@@ -2894,7 +3204,7 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bR
      // section stops or resumes on the next evaluation.
      MusicTrack->MarkAsChanged();
      MovieScene->MarkAsChanged();
@@ -831,7 +838,7 @@ index 77109c2..d38a8e2 100644
  
  void UInfinityStageTransportController::StopFastForwardPlayback()
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h
-index c56e910..a12f2b6 100644
+index c56e910c..a12f2b63 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h
 @@ -96,6 +96,8 @@ struct INFINITYSTAGE_API FInfinityScriptCursor
@@ -844,7 +851,7 @@ index c56e910..a12f2b6 100644
      TArray<FString> HoldGoNumbers;
      /** Scenes ("S3") that play their pre-rendered video instead of the live Scene. */
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
-index 4b654a9..8e11326 100644
+index 4b654a9e..8e11326c 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
 @@ -208,6 +208,9 @@ private:
@@ -858,7 +865,7 @@ index 4b654a9..8e11326 100644
      TArray<FName> FiredMechanismSoundsForTests;
  
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
-index 23dc7d6..1c9cd97 100644
+index 23dc7d6e..1c9cd97e 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
 @@ -12,12 +12,14 @@ namespace InfinityStageShowKeys
@@ -886,7 +893,7 @@ index 23dc7d6..1c9cd97 100644
  protected:
      virtual void SetupInputComponent() override;
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowTrims.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowTrims.h
-index bcc310c..f2d0b75 100644
+index bcc310c3..f2d0b75b 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowTrims.h
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowTrims.h
 @@ -96,6 +96,9 @@ public:
@@ -910,7 +917,7 @@ index bcc310c..f2d0b75 100644
      bool bMixPushed = false;
  };
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
-index 43735dc..a1dbcd8 100644
+index 43735dc4..a1dbcd84 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
 @@ -27,7 +27,74 @@ enum class EInfinityTransportResult : uint8
@@ -1108,46 +1115,12 @@ index 43735dc..a1dbcd8 100644
      void SetManagedMasterAudioMuted(bool bMuted);
      void StopFastForwardPlayback();
  
-diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCueSheetTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCueSheetTests.cpp
-index e98a0a8..ff87045 100644
---- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCueSheetTests.cpp
-+++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCueSheetTests.cpp
-@@ -149,6 +149,7 @@ bool FInfinityStageCueDirectorSettingsTest::RunTest(const FString& Parameters)
- {
-     FInfinityCueDirectorSettings Settings;
-     Settings.bRunThrough = true;
-+    Settings.bAllowBreathInPerformance = false;
-     const FGuid SceneOne = FGuid::NewGuid();
-     const FGuid SceneTwo = FGuid::NewGuid();
-     Settings.StopAfterSegments = {SceneOne, SceneTwo};
-@@ -161,6 +162,7 @@ bool FInfinityStageCueDirectorSettingsTest::RunTest(const FString& Parameters)
-     Read.Parse(Text, Warnings);
-     TestEqual(TEXT("No warnings on our own output"), Warnings.Num(), 0);
-     TestTrue(TEXT("Run-through survives"), Read.bRunThrough);
-+    TestFalse(TEXT("Performance breath setting survives"), Read.bAllowBreathInPerformance);
-     TestTrue(TEXT("Stops survive, in order"), Read.StopAfterSegments == Settings.StopAfterSegments);
-     TestTrue(TEXT("Held GO numbers survive"), Read.HoldGoNumbers == Settings.HoldGoNumbers);
- 
-@@ -226,11 +228,13 @@ bool FInfinityStageScriptKeysTest::RunTest(const FString& Parameters)
- {
-     TestTrue(TEXT("Back is the comma key"), InfinityStageShowKeys::ScriptPreviousName() == FName(TEXT("Comma")));
-     TestTrue(TEXT("On is the full-stop key"), InfinityStageShowKeys::ScriptNextName() == FName(TEXT("Period")));
-+    TestTrue(TEXT("Passage breath is P"), InfinityStageShowKeys::BreathName() == FName(TEXT("P")));
-     // Compared by name: this test module does not link InputCore (EKeys, FKey::GetFName).
-     const TArray<FName> Bound = InfinityStageShowKeys::AllBoundNames();
-     TestFalse(TEXT("PageUp is not bound"), Bound.Contains(FName(TEXT("PageUp"))));
-     TestFalse(TEXT("PageDown is not bound"), Bound.Contains(FName(TEXT("PageDown"))));
-     TestTrue(TEXT("The script keys are in the bound set"), Bound.Contains(FName(TEXT("Comma"))) && Bound.Contains(FName(TEXT("Period"))));
-+    TestTrue(TEXT("The breath key is in the bound set"), Bound.Contains(FName(TEXT("P"))));
-     // Control: no key does two jobs (a clash would make one of them silently win).
-     TSet<FName> Unique(Bound);
-     TestEqual(TEXT("Control: every bound key is distinct"), Unique.Num(), Bound.Num());
 diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBreathTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBreathTests.cpp
 new file mode 100644
-index 0000000..d037b7a
+index 00000000..e2509729
 --- /dev/null
 +++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBreathTests.cpp
-@@ -0,0 +1,126 @@
+@@ -0,0 +1,129 @@
 +#include "InfinityStageTransportController.h"
 +#include "Misc/AutomationTest.h"
 +
@@ -1248,15 +1221,18 @@ index 0000000..d037b7a
 +    FString Number;
 +    FString Label;
 +    int32 Mode = -1;
-+    TestTrue(TEXT("BREATH marker parses"), InfinityStageGoCues::ParseMarkerLabel(
-+        TEXT("GO 12.5 BREATH listen to the room"), Number, Label, Mode));
++    TestTrue(TEXT("LIVEBREATH marker parses"), InfinityStageGoCues::ParseMarkerLabel(
++        TEXT("GO 12.5 LIVEBREATH listen to the room"), Number, Label, Mode));
 +    TestEqual(TEXT("BREATH mode"), Mode, 2);
 +    TestEqual(TEXT("BREATH number"), Number, FString(TEXT("12.5")));
 +    TestEqual(TEXT("BREATH label"), Label, FString(TEXT("listen to the room")));
 +    TestFalse(TEXT("Negative: prose is not a marker"), InfinityStageGoCues::ParseMarkerLabel(
 +        TEXT("please GO BREATH now"), Number, Label, Mode));
 +    TestFalse(TEXT("Negative: BREATH still requires an upper-case GO"), InfinityStageGoCues::ParseMarkerLabel(
-+        TEXT("go 12 BREATH"), Number, Label, Mode));
++        TEXT("go 12 LIVEBREATH"), Number, Label, Mode));
++    // An authored-breath note (plain BREATH) is documentation only: never a GO, never a live breath.
++    TestFalse(TEXT("Plain BREATH is an annotation, not a GO"), InfinityStageGoCues::ParseMarkerLabel(
++        TEXT("GO 22 BREATH sit with the rain"), Number, Label, Mode));
 +
 +    TArray<FInfinityGoCue> Cues;
 +    FInfinityGoCue& Breath = Cues.AddDefaulted_GetRef();
@@ -1274,3 +1250,37 @@ index 0000000..d037b7a
 +}
 +
 +#endif
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCueSheetTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCueSheetTests.cpp
+index e98a0a8b..ff87045f 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCueSheetTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCueSheetTests.cpp
+@@ -149,6 +149,7 @@ bool FInfinityStageCueDirectorSettingsTest::RunTest(const FString& Parameters)
+ {
+     FInfinityCueDirectorSettings Settings;
+     Settings.bRunThrough = true;
++    Settings.bAllowBreathInPerformance = false;
+     const FGuid SceneOne = FGuid::NewGuid();
+     const FGuid SceneTwo = FGuid::NewGuid();
+     Settings.StopAfterSegments = {SceneOne, SceneTwo};
+@@ -161,6 +162,7 @@ bool FInfinityStageCueDirectorSettingsTest::RunTest(const FString& Parameters)
+     Read.Parse(Text, Warnings);
+     TestEqual(TEXT("No warnings on our own output"), Warnings.Num(), 0);
+     TestTrue(TEXT("Run-through survives"), Read.bRunThrough);
++    TestFalse(TEXT("Performance breath setting survives"), Read.bAllowBreathInPerformance);
+     TestTrue(TEXT("Stops survive, in order"), Read.StopAfterSegments == Settings.StopAfterSegments);
+     TestTrue(TEXT("Held GO numbers survive"), Read.HoldGoNumbers == Settings.HoldGoNumbers);
+ 
+@@ -226,11 +228,13 @@ bool FInfinityStageScriptKeysTest::RunTest(const FString& Parameters)
+ {
+     TestTrue(TEXT("Back is the comma key"), InfinityStageShowKeys::ScriptPreviousName() == FName(TEXT("Comma")));
+     TestTrue(TEXT("On is the full-stop key"), InfinityStageShowKeys::ScriptNextName() == FName(TEXT("Period")));
++    TestTrue(TEXT("Passage breath is P"), InfinityStageShowKeys::BreathName() == FName(TEXT("P")));
+     // Compared by name: this test module does not link InputCore (EKeys, FKey::GetFName).
+     const TArray<FName> Bound = InfinityStageShowKeys::AllBoundNames();
+     TestFalse(TEXT("PageUp is not bound"), Bound.Contains(FName(TEXT("PageUp"))));
+     TestFalse(TEXT("PageDown is not bound"), Bound.Contains(FName(TEXT("PageDown"))));
+     TestTrue(TEXT("The script keys are in the bound set"), Bound.Contains(FName(TEXT("Comma"))) && Bound.Contains(FName(TEXT("Period"))));
++    TestTrue(TEXT("The breath key is in the bound set"), Bound.Contains(FName(TEXT("P"))));
+     // Control: no key does two jobs (a clash would make one of them silently win).
+     TSet<FName> Unique(Bound);
+     TestEqual(TEXT("Control: every bound key is distinct"), Unique.Num(), Bound.Num());

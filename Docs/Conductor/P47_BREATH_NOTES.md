@@ -23,6 +23,9 @@ Offline evidence at delivery: `git apply --check --whitespace=nowarn` passed in 
 4. In PIE enter a Passage, press P, and verify: Master frame/camera distance stay fixed; wings, underway gusts, squeaks, movers and bulb flicker continue; no later gust triggers; world ambience continues. Press RIGHT and verify playback resumes from the same Master frame and the mix rises over the configured ramp. [inferred: designed by `Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp:1330-1545,1885-1926`; live verification requires the prohibited build/PIE step]
 5. Negative controls: P in a Scene and Interaction must report `BreathNotAllowed`; fast-forward, scrub, Next/Previous, and direct segment jumps must clear breath before moving. [declaration-proven: `Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp:1524,1602,1789-1814,1953-1984,2069-2103`; inferred: live behavior remains unmeasured]
 
-> **HELD (Cueing, 9 Oct):** Gary chose the AUTHORED breath (finishing touches P36/P45), not this live transport
-> BREATH. Out of every build unless Gary explicitly asks for a live breath. Conflicts with
-> Scripts/patches/cueing_GO_BREATH_annotation.patch (both edit ParseMarkerLabel).
+
+> **APPROVED (Gary, 9 Oct ~14:05, via Conductor 5): "if it can work we go for it."** Build from
+> `Scripts/patches/cueing_P47_live_breath_LIVEBREATH.patch` (supersedes the first P47 file and
+> `cueing_GO_BREATH_annotation.patch`). Marker words: `GO <n> LIVEBREATH ...` starts a live breath when crossed in a
+> Passage; plain `GO <n> BREATH ...` is the authored-breath annotation (finishing touches P36/P45, breath_shift.py)
+> and is never a GO. The P key and GO behave as described above. Uncompiled.
