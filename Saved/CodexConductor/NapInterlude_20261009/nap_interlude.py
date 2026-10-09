@@ -1,11 +1,11 @@
-"""P79 guarded authoring tool for the post-S4 Nap interlude.
+"""P79 guarded authoring tool for the post-I4 Nap interlude.
 
 The pure planner imports no Unreal module.  The live backend is isolated behind
 an injectable interface so ``test_nap_interlude.py`` can exercise DRY, APPLY and
 REVERT without opening Unreal.  This file was authored offline and has not been
 run in an editor.
 
-The tool inserts one Sequence cue immediately after S4, builds a self-contained
+The tool inserts one Sequence cue immediately after I4 and before P05, builds a self-contained
 sleeping-cat sequence, rebuilds the managed Master, verifies the exact downstream
 shift (including Passage keys carried by patch-K source behaviour), and emits a
 one-loop MRQ capture specification.  Creative values are arguments with defaults.
@@ -26,7 +26,7 @@ import zlib
 
 
 TOOL = "P79_NAP"
-VERSION = "2026-10-09a"
+VERSION = "2026-10-09b"
 SHOW = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 MASTER = "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master"
 LEVEL = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
@@ -34,6 +34,7 @@ NAP_SEQUENCE = "/Game/InfinityStage/Dev/Sequences/LS_Nap_BatteryChange"
 PLAN_NAME = "nap_interlude_plan.json"
 MARK_VAMP_START = "InfinityStage.VampStart"
 MARK_VAMP_END = "InfinityStage.VampEnd"
+MASTER_CUE_LABEL = "Nap — battery change"
 OWNER_TAG = "P79_NAP_OWNED"
 DEFAULT_GUID = "79579A60416749D3B77E0F58A87C986B"
 REQUIRED_TESTS = (
@@ -84,6 +85,24 @@ def identity_label(value):
     return re.sub(r"\b0+([1-9][0-9]*)\b", r"\1", text)
 
 
+def parse_go_marker(text):
+    """Pure-Python mirror of InfinityStageGoCues::ParseMarkerLabel."""
+    words = str(text).strip().split()
+    if len(words) < 2 or words[0] != "GO":
+        return None
+    candidate = words[1]
+    if not any(char.isdigit() for char in candidate) or any(
+            not (char.isdigit() or char == ".") for char in candidate):
+        return None
+    mode = -1
+    label_start = 2
+    if len(words) > 2 and words[2] == "HOLD":
+        mode, label_start = 1, 3
+    elif len(words) > 2 and words[2] == "PASS":
+        mode, label_start = 0, 3
+    return candidate, " ".join(words[label_start:]), mode
+
+
 def _int(value, name):
     if isinstance(value, bool):
         raise PlanError("%s_NOT_INTEGER" % name)
@@ -103,10 +122,12 @@ def normalise_args(raw):
     p.setdefault("level_package", LEVEL)
     p.setdefault("sequence_package", NAP_SEQUENCE)
     p.setdefault("nap_cue_guid", DEFAULT_GUID)
-    p.setdefault("nap_label", "Nap — battery change")
+    p.setdefault("nap_label", MASTER_CUE_LABEL)
     p.setdefault("scene4_label", "Scene 4")
+    p.setdefault("interaction4_label", "Interaction 4")
     p.setdefault("passage5_label", "Passage 5")
-    p.setdefault("expected_scene4_guid", "")
+    p.setdefault("placement_after_label", "Interaction 4")
+    p.setdefault("expected_interaction4_guid", "")
     p.setdefault("expected_passage5_guid", "")
     p.setdefault("display_rate", 25)
     p.setdefault("loop_seconds", 20.0)
@@ -114,7 +135,7 @@ def normalise_args(raw):
     p.setdefault("breath_amplitude_cm", 1.5)
     p.setdefault("breath_period_seconds", 4.0)
     p.setdefault("sleep_pose_fraction", 0.85)
-    p.setdefault("go_number", "79")
+    p.setdefault("go_number", "45")
     p.setdefault("cat_mesh", "/Game/CharacterPacks/AnimX/Cats/Realistic/Mesh/SK_Cat_R")
     p.setdefault("sleep_animation", "/Game/CharacterPacks/AnimX/_Common/CatMannequin/Anim/Rest/A_Cat_Rest_Sleep_to")
     p.setdefault("cat_label", "P79_Nap_Puss")
@@ -140,8 +161,14 @@ def normalise_args(raw):
     p["sleep_pose_fraction"] = float(p["sleep_pose_fraction"])
     p["camera_focal_length_mm"] = float(p["camera_focal_length_mm"])
     p["nap_cue_guid"] = norm_guid(p["nap_cue_guid"])
-    p["expected_scene4_guid"] = norm_guid(p["expected_scene4_guid"])
+    p["expected_interaction4_guid"] = norm_guid(p["expected_interaction4_guid"])
     p["expected_passage5_guid"] = norm_guid(p["expected_passage5_guid"])
+    if p["nap_label"] != MASTER_CUE_LABEL:
+        raise PlanError("CUE_LABEL_MISMATCH|expected=%s|got=%s" % (MASTER_CUE_LABEL, p["nap_label"]))
+    if identity_label(p["placement_after_label"]) == identity_label(p["scene4_label"]):
+        raise PlanError("PLACEMENT_BETWEEN_S4_I4_REFUSED")
+    if identity_label(p["placement_after_label"]) != identity_label(p["interaction4_label"]):
+        raise PlanError("PLACEMENT_ANCHOR_NOT_I4|%s" % p["placement_after_label"])
     if p["display_rate"] <= 0 or p["loop_seconds"] <= 0 or p["wake_tail_seconds"] <= 0:
         raise PlanError("TIME_ARGUMENT_NONPOSITIVE")
     if p["breath_period_seconds"] <= 0 or p["breath_amplitude_cm"] < 0:
@@ -277,19 +304,24 @@ def build_plan(snapshot, raw_args):
         raise PlanError("SNAPSHOT_MISSING|%s" % ",".join(missing))
     segments = copy.deepcopy(snapshot["segments"])
     s4 = _unique_segment(segments, p["scene4_label"])
+    i4 = _unique_segment(segments, p["interaction4_label"])
     p05 = _unique_segment(segments, p["passage5_label"])
-    s4_guid, p05_guid = norm_guid(s4["guid"]), norm_guid(p05["guid"])
-    if p["expected_scene4_guid"] and p["expected_scene4_guid"] != s4_guid:
-        raise PlanError("S4_GUID_DRIFT|expected=%s|got=%s" % (p["expected_scene4_guid"], s4_guid))
+    i4_guid, p05_guid = norm_guid(i4["guid"]), norm_guid(p05["guid"])
+    if p["expected_interaction4_guid"] and p["expected_interaction4_guid"] != i4_guid:
+        raise PlanError("I4_GUID_DRIFT|expected=%s|got=%s" % (p["expected_interaction4_guid"], i4_guid))
     if p["expected_passage5_guid"] and p["expected_passage5_guid"] != p05_guid:
         raise PlanError("P05_GUID_DRIFT|expected=%s|got=%s" % (p["expected_passage5_guid"], p05_guid))
     # Canonicalise discovery into the plan so DRY-with-empty-identities and an
     # APPLY that pins the discovered identities have the same plan digest.
-    p["expected_scene4_guid"] = s4_guid
+    p["expected_interaction4_guid"] = i4_guid
     p["expected_passage5_guid"] = p05_guid
-    s4_index, p05_index = segments.index(s4), segments.index(p05)
-    if p05_index <= s4_index:
-        raise PlanError("P05_NOT_AFTER_S4")
+    s4_index, i4_index, p05_index = segments.index(s4), segments.index(i4), segments.index(p05)
+    if i4_index != s4_index + 1 or p05_index != i4_index + 1:
+        raise PlanError("PLACEMENT_ORDER_DRIFT|expected=S4,I4,P05|got=%d,%d,%d" %
+                        (s4_index, i4_index, p05_index))
+    if int(s4["end"]) != int(i4["start"]) or int(i4["end"]) != int(p05["start"]):
+        raise PlanError("PLACEMENT_BOUNDARY_DRIFT|s4_end=%s|i4_start=%s|i4_end=%s|p05_start=%s" %
+                        (s4["end"], i4["start"], i4["end"], p05["start"]))
     if any(norm_guid(row.get("guid")) == p["nap_cue_guid"] or row.get("label") == p["nap_label"] for row in segments):
         raise PlanError("NAP_ALREADY_COMPILED")
     if snapshot["asset_exists"]:
@@ -316,14 +348,19 @@ def build_plan(snapshot, raw_args):
     delta_ticks = int(round(delta_ticks_f))
     if abs(delta_ticks_f - delta_ticks) > 1.0e-7:
         raise PlanError("DURATION_NOT_SHOW_TICK_REPRESENTABLE")
-    nap = {"guid": p["nap_cue_guid"], "label": p["nap_label"], "show_index": int(s4["first_show_index"]) + 1}
-    after_segments = expected_segments(segments, s4_index, nap, delta_ticks)
+    nap = {"guid": p["nap_cue_guid"], "label": p["nap_label"], "show_index": int(i4["first_show_index"]) + 1}
+    after_segments = expected_segments(segments, i4_index, nap, delta_ticks)
+    wake_marker = "GO %s PASS %s" % (p["go_number"], p["nap_label"])
+    parsed_wake = parse_go_marker(wake_marker)
+    if parsed_wake != (str(p["go_number"]), p["nap_label"], 0):
+        raise PlanError("WAKE_MARKER_PARSE|%s|%s" % (wake_marker, parsed_wake))
     markers = [[0, MARK_VAMP_START], [loop_frames, MARK_VAMP_END],
-               [total_frames, "GO %s HOLD Wake Puss" % p["go_number"]]]
+               [loop_frames, wake_marker]]
     return {
         "schema_version": 1, "tool": TOOL, "tool_version": VERSION,
-        "anchors": {"scene4_guid": s4_guid, "passage5_guid": p05_guid,
-                    "scene4_segment_index": s4_index, "passage5_segment_index": p05_index,
+        "anchors": {"interaction4_guid": i4_guid, "passage5_guid": p05_guid,
+                    "interaction4_segment_index": i4_index, "passage5_segment_index": p05_index,
+                    "interaction4_end_tick": int(i4["end"]), "passage5_start_tick": int(p05["start"]),
                     "insert_show_index": nap["show_index"]},
         "nap": nap, "fps": fps, "loop_frames": loop_frames, "wake_tail_frames": tail_frames,
         "total_frames": total_frames, "delta_ticks": delta_ticks, "markers": markers,
@@ -336,7 +373,7 @@ def build_plan(snapshot, raw_args):
         "actor_labels": [p["cat_label"], p["camera_label"]] + [x["label"] for x in p["lights"]],
         "segments_before": segments, "segments_expected_after": after_segments,
         "passage_keys_before": copy.deepcopy(snapshot["passage_keys"]),
-        "downstream_threshold_tick": int(s4["end"]),
+        "downstream_threshold_tick": int(i4["end"]),
         "named_packages": p["named_packages"],
         "backup_packages": [p["show_package"], p["master_package"], p["level_package"]],
         "fallback_job": {"kind": "sequence_segment_loop", "segment_guid": p["nap_cue_guid"],
@@ -360,7 +397,7 @@ def verify_after(plan, facts):
         if labels.get(label) != frame:
             failures.append("MARKER|%s" % label)
     failures += downstream_timing_failures(plan["segments_before"], facts.get("segments", []),
-                                           plan["anchors"]["scene4_segment_index"],
+                                           plan["anchors"]["interaction4_segment_index"],
                                            plan["nap"]["guid"], plan["delta_ticks"])
     failures += passage_key_failures(plan["passage_keys_before"], facts.get("passage_keys", {}),
                                      plan["downstream_threshold_tick"], plan["delta_ticks"])
@@ -733,8 +770,8 @@ def run_dry(run, args, backend, root):
                         "dirty_package_census": backend.census(), "preview": preview})
     write_json(os.path.join(root, PLAN_NAME), {"run_id": run, "snapshot_digest": digest(snapshot),
                                                "plan_digest": digest(plan), "plan": plan, "report": report})
-    backend.log("P79_NAP_DRY_OK|run=%s|s4=%s|p05=%s|loop_frames=%d|writes=0|report=%s|preview=%s" %
-                (run, plan["anchors"]["scene4_guid"], plan["anchors"]["passage5_guid"],
+    backend.log("P79_NAP_DRY_OK|run=%s|i4=%s|p05=%s|loop_frames=%d|writes=0|report=%s|preview=%s" %
+                (run, plan["anchors"]["interaction4_guid"], plan["anchors"]["passage5_guid"],
                  plan["loop_frames"], report, preview))
     return plan
 
@@ -746,7 +783,7 @@ def run_apply(run, args, backend, root):
     dry = read_json(os.path.join(root, PLAN_NAME))
     if dry.get("snapshot_digest") != digest(snapshot) or dry.get("plan_digest") != digest(plan):
         _stop(backend, run, "CHANGED_SINCE_DRY")
-    if args.get("expected_scene4_guid") != plan["anchors"]["scene4_guid"] or \
+    if args.get("expected_interaction4_guid") != plan["anchors"]["interaction4_guid"] or \
             args.get("expected_passage5_guid") != plan["anchors"]["passage5_guid"]:
         _stop(backend, run, "EXPECTED_GUIDS_REQUIRED_FROM_DRY")
     backup = backend.backup(run, plan["backup_packages"])

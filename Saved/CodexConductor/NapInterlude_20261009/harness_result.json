@@ -1,8 +1,8 @@
 {
-  "checks": 25,
+  "checks": 30,
   "negative": {
-    "passed": 9,
-    "total": 9
+    "passed": 11,
+    "total": 11
   },
   "positive": {
     "passed": 3,

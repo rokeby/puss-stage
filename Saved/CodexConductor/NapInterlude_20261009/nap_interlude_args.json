@@ -4,7 +4,7 @@
   "confirm": "DRY NAP NAP-SET-ME",
   "source_run_id": "",
   "params": {
-    "expected_scene4_guid": "",
+    "expected_interaction4_guid": "",
     "expected_passage5_guid": "",
     "loop_seconds": 20.0,
     "wake_tail_seconds": 1.0,

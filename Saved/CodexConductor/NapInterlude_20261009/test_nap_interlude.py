@@ -9,6 +9,7 @@ import nap_interlude as n
 
 
 S4 = "11111111111111111111111111111111"
+I4 = "44444444444444444444444444444444"
 P05 = "55555555555555555555555555555555"
 
 
@@ -18,7 +19,7 @@ def fixture():
          "start": 0, "end": 1000, "first_show_index": 0},
         {"guid": S4, "label": "Scene 4", "type": "Scene",
          "start": 1000, "end": 2000, "first_show_index": 40},
-        {"guid": "44444444444444444444444444444444", "label": "Interaction 4", "type": "Sequence",
+        {"guid": I4, "label": "Interaction 4", "type": "Sequence",
          "start": 2000, "end": 2400, "first_show_index": 41},
         {"guid": P05, "label": "Passage 05", "type": "WingPair",
          "start": 2400, "end": 3400, "first_show_index": 42},
@@ -34,7 +35,7 @@ def fixture():
 
 
 def args(expected=True):
-    return {"expected_scene4_guid": S4 if expected else "",
+    return {"expected_interaction4_guid": I4 if expected else "",
             "expected_passage5_guid": P05 if expected else "",
             "loop_seconds": 20.0, "wake_tail_seconds": 1.0,
             "breath_period_seconds": 4.0, "breath_amplitude_cm": 1.5}
@@ -136,13 +137,22 @@ def refused(fn, token, counts):
 def main():
     c = Counts()
     plan = n.build_plan(fixture(), args())
-    c.check(plan["anchors"]["scene4_guid"] == S4, "S4 anchor")
+    c.check(plan["anchors"]["interaction4_guid"] == I4, "I4 anchor")
     c.check(plan["anchors"]["passage5_guid"] == P05, "P05 anchor")
+    c.check(plan["anchors"]["interaction4_end_tick"] == plan["anchors"]["passage5_start_tick"] == 2400,
+            "I4 end / P05 start boundary")
+    c.check([row["label"] for row in plan["segments_expected_after"]] ==
+            ["Passage 4", "Scene 4", "Interaction 4", n.MASTER_CUE_LABEL, "Passage 05", "Scene 5"],
+            "S4 I4 Nap P05 placement")
     c.check(plan["loop_frames"] == 500 and plan["wake_tail_frames"] == 25, "length")
     c.check(plan["markers"][0][1] == n.MARK_VAMP_START and plan["markers"][1][1] == n.MARK_VAMP_END, "vamp markers")
-    c.check(" HOLD " in plan["markers"][2][1] and plan["markers"][2][0] > plan["markers"][1][0], "wake outside vamp")
+    wake = n.parse_go_marker(plan["markers"][2][1])
+    c.check(plan["markers"][2][0] == plan["loop_frames"] and wake == ("45", n.MASTER_CUE_LABEL, 0),
+            "single GO 45 PASS at vamp end with exact label")
+    c.check(sum(1 for unused_frame, label in plan["markers"] if n.parse_go_marker(label)) == 1,
+            "single GO marker")
     c.check(not n.seam_failures(plan["breathing_z_keys"], plan["loop_frames"]), "seam")
-    c.check(not n.downstream_timing_failures(plan["segments_before"], plan["segments_expected_after"], 1,
+    c.check(not n.downstream_timing_failures(plan["segments_before"], plan["segments_expected_after"], 2,
                                              plan["nap"]["guid"], plan["delta_ticks"]), "timing")
     c.positive()
 
@@ -182,11 +192,11 @@ def main():
 
     shifted = copy.deepcopy(plan["segments_expected_after"]); shifted[-1]["start"] += 1
     c.check(any(x.startswith("SHIFT|") for x in n.downstream_timing_failures(
-        plan["segments_before"], shifted, 1, plan["nap"]["guid"], plan["delta_ticks"])), "negative timing control")
+        plan["segments_before"], shifted, 2, plan["nap"]["guid"], plan["delta_ticks"])), "negative timing control")
     c.negative()
 
-    refused(lambda: n.build_plan(fixture(), dict(args(), expected_scene4_guid="99999999999999999999999999999999")),
-            "S4_GUID_DRIFT", c)
+    refused(lambda: n.build_plan(fixture(), dict(args(), expected_interaction4_guid="99999999999999999999999999999999")),
+            "I4_GUID_DRIFT", c)
     refused(lambda: n.build_plan(fixture(), dict(args(), expected_passage5_guid="99999999999999999999999999999999")),
             "P05_GUID_DRIFT", c)
     snap = fixture(); snap["asset_exists"] = True
@@ -194,19 +204,23 @@ def main():
     snap = fixture(); snap["actor_labels"].append("P79_Nap_Puss")
     refused(lambda: n.build_plan(snap, args()), "ACTOR_LABEL_COLLISION", c)
     refused(lambda: n.build_plan(fixture(), dict(args(), breath_period_seconds=4.8)), "LOOP_NOT_WHOLE", c)
+    refused(lambda: n.build_plan(fixture(), dict(args(), placement_after_label="Scene 4")),
+            "PLACEMENT_BETWEEN_S4_I4_REFUSED", c)
+    refused(lambda: n.build_plan(fixture(), dict(args(), nap_label="Nap - battery change")),
+            "CUE_LABEL_MISMATCH", c)
 
     backend = FakeBackend()
     refused(lambda: n.main({"mode": "DRY", "run_id": "BAD", "confirm": "wrong", "params": args()},
                            backend, tempfile.mkdtemp()), "CONFIRM_MISMATCH", c)
 
     c.check(c.pos == 3, "positive count")
-    c.check(c.neg == 9, "negative count")
+    c.check(c.neg == 11, "negative count")
     result = {"tool": n.TOOL, "positive": {"passed": c.pos, "total": 3},
-              "negative": {"passed": c.neg, "total": 9}, "checks": c.checks, "status": "passed"}
+              "negative": {"passed": c.neg, "total": 11}, "checks": c.checks, "status": "passed"}
     out = os.path.join(os.path.dirname(__file__), "harness_result.json")
     with open(out, "w", encoding="utf-8") as handle:
         json.dump(result, handle, indent=2, sort_keys=True); handle.write("\n")
-    print("P79_NAP_HARNESS_OK|positive=%d/3|negative=%d/9|checks=%d" % (c.pos, c.neg, c.checks))
+    print("P79_NAP_HARNESS_OK|positive=%d/3|negative=%d/11|checks=%d" % (c.pos, c.neg, c.checks))
 
 
 if __name__ == "__main__":
