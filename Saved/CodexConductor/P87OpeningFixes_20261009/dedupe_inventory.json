@@ -1,0 +1,28 @@
+{
+  "measured_offline_2026-10-09": {
+    "p31_camera": {
+      "brief": "Docs/Conductor/codex_briefs/p31_prelude_camera.md",
+      "commit": "5ab1b93a",
+      "tool_found": false,
+      "decision": "P87 supplies the camera tool and preserves the live end pose"
+    },
+    "opening_curtain": {
+      "sequence": "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked",
+      "q17_tool": "Saved/CodexSoftGoods/q17/ragged_opening_swap.py",
+      "decision": "P87 does not change the curtain asset or material; it changes section timing only"
+    },
+    "opening_lighting": {
+      "tool": "Saved/CodexConductor/opening_lighting_p13.py",
+      "decision": "P87 reuses its _gc, _set_gc, _mint and attachment helpers"
+    },
+    "uplights": {
+      "tool": "Saved/CodexConductor/P01FloorPracticals_20261008/p01_floor.py",
+      "scope": "P02-P06 wing-foot infrastructure",
+      "decision": "P87 adds a distinct six-light stage-front subset for the Opening"
+    },
+    "p01_floor_practicals": {
+      "folder": "Saved/CodexConductor/P01FloorPracticals_20261008",
+      "decision": "P87 transforms existing P01 bulb rows; it creates no duplicate bulb rows"
+    }
+  }
+}

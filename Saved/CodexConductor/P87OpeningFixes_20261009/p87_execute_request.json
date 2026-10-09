@@ -1,0 +1,7 @@
+{
+  "toolset": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+  "tool": "ExecuteProjectPythonFile",
+  "arguments": {
+    "ProjectRelativeFilePath": "Saved/CodexConductor/P87OpeningFixes_20261009/p87_opening_run.py"
+  }
+}

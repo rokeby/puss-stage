@@ -1,0 +1,34 @@
+{
+ "errors": 0,
+ "failed": 0,
+ "negative_passed": [
+  "test_negative_apply_args_drift",
+  "test_negative_bad_bounds",
+  "test_negative_bad_margin_high",
+  "test_negative_bad_margin_low",
+  "test_negative_fix_outside_i1_refused",
+  "test_negative_hold_outside_playback",
+  "test_negative_unknown_mode",
+  "test_negative_visibility_float_refused",
+  "test_negative_wrong_confirm"
+ ],
+ "passed": 24,
+ "positive_passed": [
+  "test_positive_channel_numeric_suffix",
+  "test_positive_channel_type_suffix",
+  "test_positive_defaults_do_not_enable_look_fix",
+  "test_positive_enum_normalises_angle_repr",
+  "test_positive_enum_normalises_plain_repr",
+  "test_positive_fit_centres_and_pulls_back",
+  "test_positive_fit_horizontal_governs_i1",
+  "test_positive_fit_rotates_behind_drape",
+  "test_positive_guid_converter_stable",
+  "test_positive_hold_removes_terminal_ramp",
+  "test_positive_job89_timing_is_out_of_scope",
+  "test_positive_main_apply_checks_matching_dry",
+  "test_positive_main_dry_writes_plan",
+  "test_positive_main_revert",
+  "test_positive_visibility_bool_accepted"
+ ],
+ "total": 24
+}

@@ -1,0 +1,6 @@
+{
+  "mode": "DRY",
+  "confirm": "DRY P87",
+  "run_id": "P87-DRY-REPLACE-ME",
+  "args_file": "p87_opening_args.json"
+}

@@ -1,0 +1,11 @@
+{
+  "mode": "DRY",
+  "interaction": "ALL",
+  "confirm": "DRY P89",
+  "run_id": "P89-DRY-SET-UNIQUE-ID",
+  "params": {
+    "margin_seconds": 0.5,
+    "hung_tolerance_cm": 1.0,
+    "intensity_epsilon": 0.0001
+  }
+}

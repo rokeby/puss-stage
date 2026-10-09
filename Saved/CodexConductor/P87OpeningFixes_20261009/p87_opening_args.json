@@ -1,0 +1,22 @@
+{
+  "parts": ["CURTAIN", "CAMERA", "UPLIGHTS", "BULBS"],
+  "ack_records": [],
+  "first_flurry_frame": null,
+  "first_flurry_clock": "UNRESOLVED: Gary 00:37:50; live DRY must print Master and Opening-local clocks",
+  "wide_pose": {
+    "location": [-2400.0, 0.0, 150.0],
+    "rotation": [9.0, 0.0, 0.0],
+    "focal_mm": 15.0,
+    "focus_cm": 100000.0
+  },
+  "uplight_count": 6,
+  "uplight_lumens": 350.0,
+  "uplight_kelvin": 3200.0,
+  "uplight_cast_shadows": false,
+  "bulb_seed": "P87-GARY-20261009",
+  "bulb_front_min_cm": 70.0,
+  "bulb_front_max_cm": 190.0,
+  "bulb_side_jitter_cm": 55.0,
+  "bulb_yaw_deg": 28.0,
+  "bulb_tilt_deg": 18.0
+}
