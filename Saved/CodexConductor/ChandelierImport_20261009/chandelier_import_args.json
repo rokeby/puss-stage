@@ -1,0 +1,9 @@
+{
+  "mode": "DRY",
+  "dust_strength": 1.0,
+  "soot_strength": 1.0,
+  "peel_strength": 1.0,
+  "metallic": 0.85,
+  "specular": 0.5,
+  "use_clean": false
+}

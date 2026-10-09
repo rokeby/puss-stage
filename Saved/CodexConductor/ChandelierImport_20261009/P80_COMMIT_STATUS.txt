@@ -1,0 +1,1 @@
+MEASURED 2026-10-09: commit unavailable in this session. `git add` failed with `Unable to create 'E:/PussStage/.git/worktrees/PussStage15/index.lock': Permission denied`; the worktree files are complete but uncommitted.
