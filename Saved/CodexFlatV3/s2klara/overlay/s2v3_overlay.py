@@ -332,8 +332,8 @@ def _section_fp(s):
     return row
 
 
-def _track_fp(C, fp, prefix, ti, t):
-    tp = C.track_path(prefix, ti, _cls(t), str(t.get_display_name()))
+def _track_fp(C, fp, prefix, occurrence, t):
+    tp = C.track_path(prefix, occurrence, _cls(t), str(t.get_display_name()))
     try:
         prop = str(t.get_property_name())
     except Exception:  # noqa: BLE001
@@ -347,12 +347,21 @@ def _track_fp(C, fp, prefix, ti, t):
             fp["%s/S%d/C%d:%s" % (tp, si, ci, _chan_base(c))] = _channel_fp(C, c)
 
 
+def _tracks_fp(C, fp, prefix, tracks):
+    """Ignore reordering across distinct identities; order same-identity duplicates by occurrence."""
+    occurrences = {}
+    for t in tracks:
+        identity = (_cls(t), str(t.get_display_name()))
+        occurrence = occurrences.get(identity, 0)
+        occurrences[identity] = occurrence + 1
+        _track_fp(C, fp, prefix, occurrence, t)
+
+
 def _fingerprint(C, seq):
     fp = {}
     fp["SEQ"] = {"struct": "sequence", "fps": _rate(seq.get_display_rate()), "tick": _rate(seq.get_tick_resolution()),
                  "playback": [int(seq.get_playback_start()), int(seq.get_playback_end())]}
-    for ti, t in enumerate(seq.get_tracks()):
-        _track_fp(C, fp, "M", ti, t)
+    _tracks_fp(C, fp, "M", seq.get_tracks())
     for g, b in sorted(_all_bindings(seq).items()):
         parent = None
         try:
@@ -363,8 +372,7 @@ def _fingerprint(C, seq):
         tracks = list(b.get_tracks())
         fp["B:%s" % g] = {"struct": "binding", "name": str(b.get_display_name()), "parent": parent,
                           "tracks": len(tracks)}
-        for ti, t in enumerate(tracks):
-            _track_fp(C, fp, "B:%s" % g, ti, t)
+        _tracks_fp(C, fp, "B:%s" % g, tracks)
     return fp
 
 
@@ -1032,7 +1040,7 @@ def run_apply(C, args, run, world):
     viol = C.fingerprint_diff(fp_before, fp_after, ours[0])
     if viol:
         raise RuntimeError("FINGERPRINT_VIOLATIONS|%d|%s|NOTHING SAVED; Don't-Save restart"
-                           % (len(viol), json.dumps(viol[:3], default=str)[:600]))
+                           % (len(viol), json.dumps(viol, default=str, separators=(",", ":"))))
     _save(C, [plan["overlay_asset"], C.SCENE_SEQ], [plan["overlay_asset"], C.SCENE_SEQ])  # overlay first
     rec["saved"] = [plan["overlay_asset"], C.SCENE_SEQ]
     _write(RECORD, rec)

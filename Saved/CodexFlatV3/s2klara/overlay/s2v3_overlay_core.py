@@ -751,8 +751,9 @@ def value_sha(rows):
     return hashlib.sha256(json.dumps(canon, sort_keys=True).encode("utf-8")).hexdigest()
 
 
-def track_path(prefix, ti, cls, name):
-    return "%s/T%d:%s:%s" % (prefix, ti, cls, name)
+def track_path(prefix, occurrence, cls, name):
+    """Stable track identity: class + display name + occurrence among tracks with that same identity."""
+    return "%s/T%d:%s:%s" % (prefix, occurrence, cls, name)
 
 
 def fingerprint_diff(before, after, new_prefix=None):

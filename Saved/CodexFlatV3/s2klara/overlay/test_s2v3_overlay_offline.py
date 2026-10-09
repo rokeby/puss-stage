@@ -7,8 +7,9 @@ Part B  the editor tool end-to-end against a FAKE `unreal` module (sequences, bi
         offsets, rzimport plan -- read only): DRY -> APPLY (scene coverage [104, 3891), hold key + shifted keys) ->
         VERIFY -> VARIANT B (refused while B's MIs are missing, then ok) -> VERIFY -> RESYNC (noop) -> re-ingest -> VERIFY
         (stale) -> RESYNC -> VERIFY -> REVERT (scene fingerprint == pre-APPLY), plus negative controls (foreign edit
-        during APPLY, Klara level dirtied, wrong binding resolution, PIE, Sequencer open, stale DRY, wrong pivot,
-        unclear pre-section pose, missing level-visibility section, missing kit file) and a 'cinematic' coverage run.
+        during APPLY, Camera Cuts removal/section edit, Klara level dirtied, wrong binding resolution, PIE, Sequencer
+        open, stale DRY, wrong pivot, unclear pre-section pose, missing level-visibility section, missing kit file),
+        stable duplicate-track occurrence keys and foreign-track reorder, and a 'cinematic' coverage run.
 Part C  static checks of the tool source (no forbidden calls, no module-level unreal objects) with a +/- control.
 
 The fake is MY model of the UE API (names taken from precedent scripts); it proves the tool's logic and guards, not
@@ -820,7 +821,13 @@ class Sequence(Obj):
 
     def add_track(self, cls):
         t = track_cls(cls.__name__)(self, cls.__name__)
-        self.tracks.append(t)
+        if cls.__name__ == "MovieSceneSubTrack":
+            # Model the reported LS_DevScene_02 failure: a new subtrack sorts before the existing Camera Cuts track.
+            at = next((i for i, old in enumerate(self.tracks)
+                       if old._cls_name == "MovieSceneCameraCutTrack"), len(self.tracks))
+            self.tracks.insert(at, t)
+        else:
+            self.tracks.append(t)
         self._d()
         return t
 
@@ -933,8 +940,8 @@ class FakeUnreal(types.ModuleType):
         self.LevelSequence, self.MovieSceneBindingProxy = Sequence, Binding
         self.MovieSceneSection, self.StaticMeshActor, self.MaterialInterface = Section, StaticMeshActor, MaterialInterface
         for n in ("MovieSceneSubTrack", "MovieSceneVisibilityTrack", "MovieScene3DTransformTrack",
-                  "MovieSceneSpawnTrack", "MovieSceneCinematicShotTrack", "MovieSceneAudioTrack",
-                  "MovieSceneLevelVisibilityTrack"):
+                   "MovieSceneSpawnTrack", "MovieSceneCinematicShotTrack", "MovieSceneAudioTrack",
+                   "MovieSceneLevelVisibilityTrack", "MovieSceneCameraCutTrack"):
             setattr(self, n, track_cls(n))
         self.UnrealEditorSubsystem = object
         self.get_editor_subsystem = lambda cls: NS(get_game_world=lambda: object() if U.pie else None,
@@ -1059,6 +1066,10 @@ def build_env(tmp):
     lvs = lvt.add_section()
     lvs.set_range(104, 3891)
     lvs.level_names = ["Japanese_Alley"]
+    cuts = scene.add_track(U.MovieSceneCameraCutTrack)
+    cuts.name = "Camera Cuts"
+    cuts.add_section().set_range(0, 2000)
+    cuts.add_section().set_range(2000, 3891)
     os.makedirs(os.path.join(tmp, "Content", "InfinityStage", "Dev", "Sequences"), exist_ok=True)
     open(os.path.join(tmp, "Content", "InfinityStage", "Dev", "Sequences", "LS_DevScene_02.uasset"), "w").write("x")
     U.dirty_content.clear()
@@ -1115,6 +1126,26 @@ def part_b():
         return U, args, tool_for(U, d)
 
     try:
+        U, args, T = fresh("track_keys")
+        scene = U.assets[C.SCENE_SEQ]
+        cuts2 = scene.add_track(U.MovieSceneCameraCutTrack)
+        cuts2.name = "Camera Cuts"
+        cuts2.add_section().set_range(0, 3891)
+        U.dirty_content.clear()
+        fp_dupes = T._fingerprint(T._core(), scene)
+        cut_paths = sorted(k for k, row in fp_dupes.items()
+                           if row.get("struct") == "track" and ":MovieSceneCameraCutTrack:Camera Cuts" in k)
+        check("B0+ same class+name master tracks have distinct occurrence keys",
+              cut_paths == ["M/T0:MovieSceneCameraCutTrack:Camera Cuts",
+                            "M/T1:MovieSceneCameraCutTrack:Camera Cuts"], cut_paths)
+        audio = next(t for t in scene.tracks if t._cls_name == "MovieSceneAudioTrack")
+        scene.tracks.remove(audio)
+        scene.tracks.insert(0, audio)
+        fp_reordered = T._fingerprint(T._core(), scene)
+        check("B0+ reordering foreign tracks with distinct identities is fingerprint-neutral",
+              T._core().fingerprint_diff(fp_dupes, fp_reordered) == [],
+              T._core().fingerprint_diff(fp_dupes, fp_reordered))
+
         U, args, T = fresh("1")
         scene = U.assets[C.SCENE_SEQ]
         fp_orig = T._fingerprint(T._core(), scene)
@@ -1165,6 +1196,46 @@ def part_b():
         check("B3- foreign edit during APPLY -> FINGERPRINT_VIOLATIONS, nothing saved, record -> .failed",
               err and "FINGERPRINT_VIOLATIONS" in str(err) and not U.saved and not os.path.exists(T.RECORD) and
               os.path.exists(T.RECORD + ".failed-" + r2), err)
+
+        U, args, T = fresh("camera_removed")
+        scene = U.assets[C.SCENE_SEQ]
+        r, ok, new, err = run(T, U, args, "DRY")
+        dry_name = "s2v3_overlay_dry_%s.json" % r
+        orig_add_hide = T._add_hide
+
+        def remove_camera_cuts(Cm, ov, actor, rng):
+            cuts = next((t for t in scene.tracks if t._cls_name == "MovieSceneCameraCutTrack"), None)
+            if cuts is not None:
+                scene.remove_track(cuts)
+            return orig_add_hide(Cm, ov, actor, rng)
+        T._add_hide = remove_camera_cuts
+        r2, ok, new, err = run(T, U, args, "APPLY", dry_report=dry_name)
+        T._add_hide = orig_add_hide
+        err_text = str(err)
+        check("B3- Camera Cuts really removed -> 5 REMOVED violations, ALL printed compactly, nothing saved",
+              "FINGERPRINT_VIOLATIONS|5|" in err_text and err_text.count('"why":"REMOVED"') == 5 and
+              "MovieSceneCameraCutTrack:Camera Cuts" in err_text and not U.saved, err_text)
+
+        U, args, T = fresh("camera_section_edit")
+        scene = U.assets[C.SCENE_SEQ]
+        r, ok, new, err = run(T, U, args, "DRY")
+        dry_name = "s2v3_overlay_dry_%s.json" % r
+        orig_add_hide = T._add_hide
+        edited = [False]
+
+        def edit_camera_cut_section(Cm, ov, actor, rng):
+            if not edited[0]:
+                cuts = next(t for t in scene.tracks if t._cls_name == "MovieSceneCameraCutTrack")
+                cuts.sections[0].set_range(1, 2000)
+                edited[0] = True
+            return orig_add_hide(Cm, ov, actor, rng)
+        T._add_hide = edit_camera_cut_section
+        r2, ok, new, err = run(T, U, args, "APPLY", dry_report=dry_name)
+        T._add_hide = orig_add_hide
+        check("B3- Camera Cuts section edited -> fingerprint failure, nothing saved",
+              err and "FINGERPRINT_VIOLATIONS|1|" in str(err) and
+              "MovieSceneCameraCutTrack:Camera Cuts/S0" in str(err) and '"why":"CHANGED"' in str(err) and
+              not U.saved, err)
 
         U, args, T = fresh("2")
         r, ok, new, err = run(T, U, args, "DRY")
@@ -1248,6 +1319,15 @@ def part_b():
         fp_now = T._fingerprint(T._core(), scene)
         check("B5+ LS_DevScene_02: every pre-existing row unchanged", T._core().fingerprint_diff(
             fp_orig, fp_now, T._core().our_track_prefix(fp_now)[0]) == [])
+        camera_before = [k for k, row in fp_orig.items() if row.get("struct") == "track" and
+                         ":MovieSceneCameraCutTrack:Camera Cuts" in k]
+        camera_after = [k for k, row in fp_now.items() if row.get("struct") == "track" and
+                        ":MovieSceneCameraCutTrack:Camera Cuts" in k]
+        overlay_index = next(i for i, t in enumerate(scene.tracks) if t.name == C.OVERLAY_TRACK)
+        camera_index = next(i for i, t in enumerate(scene.tracks) if t.name == "Camera Cuts")
+        check("B5+ APPLY inserts overlay before Camera Cuts without re-keying Camera Cuts",
+              bool(ok) and overlay_index < camera_index and camera_before == camera_after,
+              (overlay_index, camera_index, camera_before, camera_after))
 
         r3, ok, new, err = run(T, U, args, "VERIFY")
         check("B6+ VERIFY ok after APPLY (a later call)", bool(ok) and err is None, (err, new[-2:]))
