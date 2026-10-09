@@ -19,6 +19,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import shutil
 import sys
 import traceback
@@ -38,6 +39,9 @@ RECORD = os.path.join(HERE, "p40_apply_record.json")
 DRY_OUT = os.path.join(HERE, "p40_dry_latest.json")
 VERIFY_OUT = os.path.join(HERE, "p40_verify_latest.json")
 TAG = "P40.ShoreFigure"
+TRANSFORM_CHANNELS = ("Location.X", "Location.Y", "Location.Z",
+                      "Rotation.X", "Rotation.Y", "Rotation.Z",
+                      "Scale.X", "Scale.Y", "Scale.Z")
 OUTFIT_DIR = "/Game/Metahuman/ShoreCast_20260910/OutfitHessian"
 MAP_FILE = "Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap"
 CLAMS_FILE = "Content/Scenes/LS_Clams.uasset"
@@ -221,7 +225,70 @@ def actor_inventory(actors):
 
 
 def channel_name(channel):
-    return str(channel.get_name()).split(" (", 1)[0]
+    """Return the stable Sequencer channel name, never its proxy suffix.
+
+    UE 5.8 scripting proxies are renumbered between reads (for example
+    Location.X_183).  The suffix is not part of the channel identity.
+    """
+    raw = str(channel.get_name()).split(" (", 1)[0]
+    return re.sub(r"_\d+$", "", raw)
+
+
+def transform_channels(section, token):
+    """Read back one transform section and enforce its exact 9-channel schema."""
+    raw = list(section.get_all_channels())
+    names = [channel_name(channel) for channel in raw]
+    require(len(raw) == len(TRANSFORM_CHANNELS),
+            "%s_COUNT|got=%d|names=%r" % (token, len(raw), names))
+    require(tuple(names) == TRANSFORM_CHANNELS,
+            "%s_ORDER|got=%r" % (token, names))
+    require(len(set(names)) == len(names), "%s_DUPLICATE|got=%r" % (token, names))
+    return dict(zip(names, raw))
+
+
+def guid_text(value):
+    """Serialize an FGuid by value; str(FGuid) is a changing wrapper address."""
+    if unreal is not None and hasattr(unreal, "GuidLibrary"):
+        converter = getattr(unreal.GuidLibrary, "conv_guid_to_string", None)
+        if converter is not None:
+            return converter(value)
+    if hasattr(value, "export_text"):
+        return value.export_text()
+    raise Stop("GUID_SERIALIZATION")
+
+
+def track_class(track):
+    return str(track.get_class().get_name())
+
+
+def add_possessable_readback(sequence, obj, token):
+    """Add a binding, ignore the unreliable return, and resolve it by GUID diff."""
+    before = {guid_text(binding.get_id()) for binding in sequence.get_bindings()}
+    sequence.add_possessable(obj)
+    created = [binding for binding in sequence.get_bindings()
+               if guid_text(binding.get_id()) not in before]
+    require(len(created) == 1, "%s_READBACK|new=%d" % (token, len(created)))
+    return created[0]
+
+
+def add_track_readback(binding, cls, class_name, token):
+    before = [track for track in binding.get_tracks() if track_class(track) == class_name]
+    require(not before, "%s_PREEXISTING|count=%d" % (token, len(before)))
+    binding.add_track(cls)
+    after = [track for track in binding.get_tracks() if track_class(track) == class_name]
+    require(len(after) == 1, "%s_READBACK|count=%d" % (token, len(after)))
+    return after[0]
+
+
+def add_section_readback(track, token):
+    before = {str(section.get_name()) for section in track.get_sections()}
+    track.add_section()
+    sections = list(track.get_sections())
+    created = [section for section in sections if str(section.get_name()) not in before]
+    require(len(created) == 1 and len(sections) == len(before) + 1,
+            "%s_READBACK|before=%d|after=%d|new=%d" %
+            (token, len(before), len(sections), len(created)))
+    return created[0]
 
 
 def channel_key_frames(channel):
@@ -313,7 +380,7 @@ def camera_samples(sequence):
             active = [s for s in transform_tracks[0].get_sections() if s.is_active()]
             require(active, "CAMERA_TRANSFORM_ACTIVE_SECTIONS|%s|0" % label)
             for section in active:
-                channels = {channel_name(c): c for c in section.get_all_channels()}
+                channels = transform_channels(section, "CAMERA_TRANSFORM_CHANNELS|%s" % label)
                 section_rows.append((section, channels))
         frames = sorted(set([0] + [f for _section, channels in section_rows
                                    for key in ("Location.X", "Location.Y", "Rotation.Z")
@@ -471,6 +538,111 @@ def outfit_template_state(figure, cfg, cloth_row):
             "target_colour_linear": cloth_row["underwear_colour_linear"]}
 
 
+def blueprint_component_rows(figure):
+    """Read the generated component templates that a future spawn will inherit."""
+    bp = unreal.load_asset(core.BP_PATHS[figure])
+    require(bp is not None, "BP_MISSING|" + core.BP_PATHS[figure])
+    subsystem = unreal.get_engine_subsystem(unreal.SubobjectDataSubsystem)
+    rows = []
+    for handle in subsystem.k2_gather_subobject_data_for_blueprint(bp):
+        obj = unreal.SubobjectDataBlueprintFunctionLibrary.get_object(
+            unreal.SubobjectDataBlueprintFunctionLibrary.get_data(handle))
+        if obj is not None:
+            rows.append({"name": str(obj.get_name()), "class": str(obj.get_class().get_name()),
+                         "path": full_path(obj)})
+    return rows
+
+
+def actor_outfit_preflight(actor):
+    component = actor_outfit_component(actor)
+    resolved = [path_of(component.get_material(i)) for i in range(component.get_num_materials())]
+    slots = [i for i, path in enumerate(resolved) if classify_material(path) == "short"]
+    require(slots, "NO_SHORT_SLOTS|" + str(actor.get_actor_label()))
+    return {"label": str(actor.get_actor_label()), "actor_path": full_path(actor),
+            "component": full_path(component), "short_slots": slots, "resolved": resolved}
+
+
+def transform_schema_preflight(sequence):
+    """Prove the UE 5.8 transform section channel count/order without editing."""
+    inspected = []
+    valid = []
+    for binding in sequence.get_bindings():
+        for track in binding.get_tracks():
+            if track_class(track) != "MovieScene3DTransformTrack":
+                continue
+            for section in track.get_sections():
+                raw = list(section.get_all_channels())
+                names = [channel_name(channel) for channel in raw]
+                row = {"binding": str(binding.get_display_name()), "count": len(raw), "order": names}
+                inspected.append(row)
+                if len(raw) == len(TRANSFORM_CHANNELS) and tuple(names) == TRANSFORM_CHANNELS:
+                    valid.append(row)
+    require(valid, "PREFLIGHT_TRANSFORM_SCHEMA|inspected=%r" % inspected)
+    return {"expected_count": len(TRANSFORM_CHANNELS), "expected_order": list(TRANSFORM_CHANNELS),
+            "representative": valid[0], "sections_inspected": len(inspected)}
+
+
+def apply_preflight(world, actors, clams, placement, cloth_rows, outfit_rows, cfg):
+    """Run every non-mutating APPLY refusal while still in the DRY phase."""
+    problems = []
+    blueprint_rows = []
+    animations = {}
+    try:
+        transform_schema = transform_schema_preflight(clams)
+    except Exception as exc:  # recorded as a DRY refusal, never discovered after mutation
+        transform_schema = None
+        problems.append("PREFLIGHT_TRANSFORM_SCHEMA|%s" % exc)
+    by_figure = {row["figure"]: row for row in outfit_rows}
+    for row in placement["placements"]:
+        figure = row["source"]
+        try:
+            cls = unreal.EditorAssetLibrary.load_blueprint_class(row["blueprint"])
+            require(cls is not None, "BLUEPRINT_CLASS|" + row["blueprint"])
+            components = blueprint_component_rows(figure)
+            bodies = [item for item in components
+                      if item["class"] == "SkeletalMeshComponent" and item["name"] in ("Body", "Body_GEN_VARIABLE")]
+            cloth = [item for item in components if item["class"] == "ChaosClothComponent"]
+            require(len(bodies) == 1, "PREFLIGHT_BODY_COMPONENT|%s|%d" % (figure, len(bodies)))
+            require(len(cloth) == 1, "PREFLIGHT_CLOTH_COMPONENT|%s|%d" % (figure, len(cloth)))
+            require(figure in by_figure and "short" in by_figure[figure]["roles"],
+                    "PREFLIGHT_OUTFIT_TEMPLATE|" + figure)
+            blueprint_rows.append({"figure": figure, "blueprint": row["blueprint"],
+                                   "body": bodies[0], "cloth": cloth[0]})
+            if row["animation_name"] not in animations:
+                animation = find_animation(row["animation_name"])
+                animations[row["animation_name"]] = {"path": path_of(animation),
+                                                       "length_seconds": float(animation.get_play_length())}
+        except Exception as exc:
+            problems.append("PREFLIGHT_PLACEMENT|%s|%s" % (row["label"], exc))
+    outfit_actors = []
+    if cfg["outfit"]["enabled"]:
+        for row in outfit_rows:
+            if unreal.EditorAssetLibrary.does_asset_exist(row["child"]):
+                problems.append("OUTFIT_CHILD_EXISTS|" + row["child"])
+        for actor in actors:
+            if shore_id_from_class(actor) in core.FIGURES:
+                try:
+                    outfit_actors.append(actor_outfit_preflight(actor))
+                except Exception as exc:
+                    problems.append("PREFLIGHT_OUTFIT_ACTOR|%s|%s" %
+                                    (str(actor.get_actor_label()), exc))
+    backup_packages = [core.WORLD, core.CLAMS]
+    if cfg["cloth_reset"]["enabled"]:
+        backup_packages += sorted(core.BP_PATHS.values())
+    backup_files = []
+    for package in backup_packages:
+        extension = ".umap" if package == core.WORLD else ".uasset"
+        filename = package_file(package, extension)
+        if not os.path.isfile(filename):
+            problems.append("BACKUP_SOURCE_MISSING|" + filename)
+        else:
+            backup_files.append({"package": package, "file": filename, "bytes": os.path.getsize(filename)})
+    return {"ready": not problems, "problems": problems, "transform_schema": transform_schema,
+            "blueprints": blueprint_rows, "animations": animations,
+            "existing_outfit_actors": outfit_actors, "backup_files": backup_files,
+            "world": path_of(world), "cloth_templates": len(cloth_rows)}
+
+
 def current_facts(cfg, require_clean=False):
     world, actors = clean_context(require_clean)
     scene = unreal.load_asset(core.SCENE)
@@ -486,6 +658,7 @@ def current_facts(cfg, require_clean=False):
         _, _, row = cloth_state(figure)
         cloth.append(row)
         outfit.append(outfit_template_state(figure, cfg, row))
+    preflight = apply_preflight(world, actors, clams, placement, cloth, outfit, cfg)
     shore05 = [row for row in inventory if row["label"] == "Shore05_M53 Clam"]
     problems = []
     if shore05:
@@ -495,11 +668,12 @@ def current_facts(cfg, require_clean=False):
     if cfg["outfit"]["enabled"]:
         problems += ["OUTFIT_PARAMETER|%s|%s" % (row["figure"], row["parameter_problem"])
                      for row in outfit if row["parameter_problem"]]
+    problems += preflight["problems"]
     problems += ["CLOTH_PIN_UNVERIFIED|%s|%s" % (row["figure"], row["asset"])
                  for row in cloth if not row["pin_ready_v3_name"]]
     return {"world": world, "actors": actors, "scene": scene, "clams": clams,
             "inventory": inventory, "placement": placement, "cloth": cloth, "outfit": outfit,
-            "problems": problems, "census": census()}
+            "apply_preflight": preflight, "problems": problems, "census": census()}
 
 
 def dry(run, cfg):
@@ -512,6 +686,7 @@ def dry(run, cfg):
               "apply_ready": not hard and before == {"content": [], "maps": []},
               "problems": facts["problems"], "placement": facts["placement"],
               "cloth_templates": facts["cloth"], "outfit": facts["outfit"],
+              "apply_preflight": facts["apply_preflight"],
               "actor_inventory": facts["inventory"], "stills_plan": core.stills_plan(),
               "weave_texture": {"path": "ShroudHessian_20261008/T_Shroud_Weave_BC.png",
                                 "pixels": 4194304, "srgb_mean": core.WEAVE_MEAN_SRGB,
@@ -556,7 +731,7 @@ def weight_channel(section):
 
 
 def add_animation(track, sequence, animation, row):
-    section = track.add_section()
+    section = add_section_readback(track, "ANIMATION_SECTION")
     params = section.get_editor_property("params")
     params.set_editor_property("animation", animation)
     tick = sequence.get_tick_resolution(); tick_rate = float(tick.numerator) / float(tick.denominator)
@@ -584,23 +759,24 @@ def add_animation(track, sequence, animation, row):
 
 
 def add_transform(binding, actor):
-    track = binding.add_track(unreal.MovieScene3DTransformTrack)
-    section = track.add_section(); section.set_range(*core.PLAYBACK)
+    track = add_track_readback(binding, unreal.MovieScene3DTransformTrack,
+                               "MovieScene3DTransformTrack", "TRANSFORM_TRACK")
+    section = add_section_readback(track, "TRANSFORM_SECTION"); section.set_range(*core.PLAYBACK)
     loc, rot, scale = actor.get_actor_location(), actor.get_actor_rotation(), actor.get_actor_scale3d()
     wanted = {"Location.X": loc.x, "Location.Y": loc.y, "Location.Z": loc.z,
               "Rotation.X": rot.roll, "Rotation.Y": rot.pitch, "Rotation.Z": rot.yaw,
               "Scale.X": scale.x, "Scale.Y": scale.y, "Scale.Z": scale.z}
-    channels = {channel_name(c): c for c in section.get_all_channels()}
-    require(set(wanted) <= set(channels), "TRANSFORM_CHANNELS")
+    channels = transform_channels(section, "TRANSFORM_CHANNELS")
     for name, value in wanted.items():
         channels[name].set_default(float(value))
     return str(track.get_name())
 
 
 def add_visibility(binding):
-    track = binding.add_track(unreal.MovieSceneVisibilityTrack)
+    track = add_track_readback(binding, unreal.MovieSceneVisibilityTrack,
+                               "MovieSceneVisibilityTrack", "VISIBILITY_TRACK")
     track.set_property_name_and_path("bHidden", "bHidden")
-    section = track.add_section(); section.set_range(*core.PLAYBACK)
+    section = add_section_readback(track, "VISIBILITY_SECTION"); section.set_range(*core.PLAYBACK)
     channels = list(section.get_all_channels())
     require(len(channels) == 1, "VISIBILITY_CHANNELS")
     # UE visibility bool channels store VISIBLE, despite binding AActor::bHidden.
@@ -610,12 +786,11 @@ def add_visibility(binding):
     return str(track.get_name())
 
 
-def spawn_placements(world, clams, plan, run):
+def spawn_placements(world, clams, plan, run, inputs):
     subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     created = []
     for row in plan["placements"]:
-        cls = unreal.EditorAssetLibrary.load_blueprint_class(row["blueprint"])
-        require(cls is not None, "BLUEPRINT_CLASS|" + row["blueprint"])
+        cls = inputs["classes"][row["label"]]
         xyz = row["world_xyz_cm"]
         actor = subsystem.spawn_actor_from_class(cls, unreal.Vector(*xyz),
                                                  unreal.Rotator(roll=0.0, pitch=0.0, yaw=float(row["yaw_deg"])))
@@ -623,24 +798,27 @@ def spawn_placements(world, clams, plan, run):
         actor.set_actor_label(row["label"])
         actor.set_editor_property("tags", list(prop(actor, "tags", [])) +
                                   [unreal.Name(TAG), unreal.Name("P40.Source." + row["source"])])
-        actor_binding = clams.add_possessable(actor); actor_binding.set_display_name(row["label"])
+        actor_binding = add_possessable_readback(clams, actor, "ACTOR_BINDING|" + row["label"])
+        actor_binding.set_display_name(row["label"])
         transform_track = add_transform(actor_binding, actor)
         visibility_track = add_visibility(actor_binding)
         bodies = [c for c in actor.get_components_by_class(unreal.SkeletalMeshComponent)
                   if str(c.get_name()) == "Body"]
         require(len(bodies) == 1, "BODY_COMPONENT|%s|%d" % (row["label"], len(bodies)))
-        body_binding = clams.add_possessable(bodies[0]); body_binding.set_display_name(row["label"] + "/Body")
+        body_binding = add_possessable_readback(clams, bodies[0], "BODY_BINDING|" + row["label"])
+        body_binding.set_display_name(row["label"] + "/Body")
         body_binding.set_parent(actor_binding)
-        animation_track = body_binding.add_track(unreal.MovieSceneSkeletalAnimationTrack)
+        animation_track = add_track_readback(body_binding, unreal.MovieSceneSkeletalAnimationTrack,
+                                             "MovieSceneSkeletalAnimationTrack", "ANIMATION_TRACK")
         animation_track.set_display_name("P40 Forward Loops " + run)
-        animation = find_animation(row["animation_name"])
+        animation = inputs["animations"][row["animation_name"]]
         sections = [add_animation(animation_track, clams, animation, item) for item in row["motion"]]
         cloth = [c for c in actor.get_components_by_class(unreal.ActorComponent)
                  if str(c.get_class().get_name()) == "ChaosClothComponent"]
         require(len(cloth) == 1, "CLOTH_COMPONENT|%s|%d" % (row["label"], len(cloth)))
         created.append({"label": row["label"], "source": row["source"], "actor_path": full_path(actor),
-                        "actor_binding": actor_binding.get_id().export_text(),
-                        "body_binding": body_binding.get_id().export_text(),
+                        "actor_binding": guid_text(actor_binding.get_id()),
+                        "body_binding": guid_text(body_binding.get_id()),
                         "transform_track": transform_track, "visibility_track": visibility_track,
                         "animation_track": str(animation_track.get_name()), "sections": sections,
                         "cloth_material": path_of(cloth[0].get_material(0)), "world_xyz_cm": xyz})
@@ -666,7 +844,7 @@ def cloth_apply(cfg):
     return rows
 
 
-def create_outfit_children(cfg, outfit_rows):
+def create_outfit_children(cfg, outfit_rows, inputs):
     tools = unreal.AssetToolsHelpers.get_asset_tools(); mel = unreal.MaterialEditingLibrary
     created = []
     for row in outfit_rows:
@@ -675,8 +853,7 @@ def create_outfit_children(cfg, outfit_rows):
         mi = tools.create_asset(name, folder, unreal.MaterialInstanceConstant,
                                 unreal.MaterialInstanceConstantFactoryNew())
         require(mi is not None, "OUTFIT_CHILD_CREATE|" + row["child"])
-        parent = unreal.load_asset(row["short_parent"])
-        require(parent is not None, "OUTFIT_PARENT_LOAD|" + row["short_parent"])
+        parent = inputs["outfit_parents"][row["figure"]]
         mel.set_material_instance_parent(mi, parent)
         c = row["target_colour_linear"]
         mel.set_material_instance_vector_parameter_value(mi, row["colour_parameter"], unreal.LinearColor(*c))
@@ -744,22 +921,46 @@ def save_exact(content_packages, world):
     require(census() == {"content": [], "maps": []}, "POST_SAVE_DIRTY|%s" % json.dumps(census()))
 
 
+def prepare_mutation_inputs(facts, cfg):
+    """Resolve every loadable dependency before the first Unreal mutation."""
+    classes = {}
+    animations = {}
+    parents = {}
+    for row in facts["placement"]["placements"]:
+        cls = unreal.EditorAssetLibrary.load_blueprint_class(row["blueprint"])
+        require(cls is not None, "BLUEPRINT_CLASS|" + row["blueprint"])
+        classes[row["label"]] = cls
+        if row["animation_name"] not in animations:
+            animations[row["animation_name"]] = find_animation(row["animation_name"])
+    if cfg["outfit"]["enabled"]:
+        for row in facts["outfit"]:
+            require(not unreal.EditorAssetLibrary.does_asset_exist(row["child"]),
+                    "OUTFIT_CHILD_EXISTS|" + row["child"])
+            parent = unreal.load_asset(row["short_parent"])
+            require(parent is not None, "OUTFIT_PARENT_LOAD|" + row["short_parent"])
+            parents[row["figure"]] = parent
+    return {"classes": classes, "animations": animations, "outfit_parents": parents}
+
+
 def apply(run, cfg):
     facts = current_facts(cfg, require_clean=True)
     hard = [x for x in facts["problems"] if not x.startswith("CLOTH_PIN_UNVERIFIED")]
     require(not hard, "DRY_PROBLEMS|" + " || ".join(hard))
+    require(facts["apply_preflight"]["ready"], "APPLY_PREFLIGHT")
+    inputs = prepare_mutation_inputs(facts, cfg)
     bp_packages = sorted(core.BP_PATHS.values()) if cfg["cloth_reset"]["enabled"] else []
     backup_row = backup(run, bp_packages)
     record = {"schema": core.SCHEMA, "run_id": run, "state": "applying", "config": cfg,
-              "backup": backup_row, "placement_plan": facts["placement"], "cloth": [],
+              "backup": backup_row, "placement_plan": facts["placement"],
+              "apply_preflight": facts["apply_preflight"], "cloth": [],
               "outfit_children": [], "outfit_assignments": [], "created": [], "saved": False}
     write_json(RECORD, record, exclusive=True)
     world, clams = facts["world"], facts["clams"]
-    record["created"] = spawn_placements(world, clams, facts["placement"], run)
+    record["created"] = spawn_placements(world, clams, facts["placement"], run, inputs)
     if cfg["cloth_reset"]["enabled"]:
         record["cloth"] = cloth_apply(cfg)
     if cfg["outfit"]["enabled"]:
-        record["outfit_children"] = create_outfit_children(cfg, facts["outfit"])
+        record["outfit_children"] = create_outfit_children(cfg, facts["outfit"], inputs)
         # Include newly spawned actors in the assignment pass.
         live_actors = list(unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor))
         record["outfit_assignments"] = apply_outfits(live_actors, record["outfit_children"])
@@ -777,7 +978,7 @@ def apply(run, cfg):
 
 
 def binding_by_guid(sequence, guid):
-    hits = [b for b in sequence.get_bindings() if b.get_id().export_text() == guid]
+    hits = [b for b in sequence.get_bindings() if guid_text(b.get_id()) == guid]
     return hits[0] if len(hits) == 1 else None
 
 

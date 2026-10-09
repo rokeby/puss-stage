@@ -112,6 +112,16 @@
       "passed": true
     },
     {
+      "control": "REGRESSION",
+      "name": "logged_transform_suffix_failure_reproduced_and_fixed",
+      "passed": true
+    },
+    {
+      "control": "REGRESSION",
+      "name": "guid_wrapper_and_add_possessable_return_lies_are_ignored",
+      "passed": true
+    },
+    {
       "control": "POSITIVE",
       "name": "placement_mandatory_shore05",
       "passed": true
@@ -207,13 +217,13 @@
       "passed": true
     }
   ],
-  "negative_passed": 27,
-  "negative_total": 27,
-  "passed": 41,
+  "negative_passed": 29,
+  "negative_total": 29,
+  "passed": 43,
   "positive_passed": 14,
   "positive_total": 14,
   "result": "PASS",
   "schema": "p40_shore05_settle/1",
-  "total": 41,
+  "total": 43,
   "unreal_started": false
 }

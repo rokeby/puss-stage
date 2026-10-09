@@ -184,6 +184,140 @@ case("shore05_exact_neutral_weave_fallback", "REGRESSION", shore05_exact_neutral
 case("shore05_neutral_weave_drift_not_selected", "NEGATIVE", shore05_neutral_weave_drift_not_selected)
 
 
+class FakeChannel(object):
+    def __init__(self, name):
+        self.name = name
+
+    def get_name(self):
+        return self.name
+
+
+class FakeSection(object):
+    def __init__(self, name, channels=()):
+        self.name = name
+        self.channels = list(channels)
+
+    def get_name(self):
+        return self.name
+
+    def get_all_channels(self):
+        return list(self.channels)
+
+
+def transform_suffix_regression():
+    raw = [name + "_%d" % (183 + index) for index, name in enumerate(E.TRANSFORM_CHANNELS)]
+    # The failed 101527 implementation only stripped a display annotation, so
+    # every suffixed channel appeared missing after the actor was already spawned.
+    old_names = [name.split(" (", 1)[0] for name in raw]
+    assert not set(E.TRANSFORM_CHANNELS) <= set(old_names)
+    section = FakeSection("MovieScene3DTransformSection_0", [FakeChannel(name) for name in raw])
+    got = E.transform_channels(section, "TRANSFORM_CHANNELS")
+    assert tuple(got) == E.TRANSFORM_CHANNELS
+    bad = FakeSection("bad", [FakeChannel(name) for name in reversed(raw)])
+    raises("TRANSFORM_CHANNELS_ORDER", lambda: E.transform_channels(bad, "TRANSFORM_CHANNELS"))
+
+
+case("logged_transform_suffix_failure_reproduced_and_fixed", "REGRESSION", transform_suffix_regression)
+
+
+class FakeGuid(object):
+    def __init__(self, value):
+        self.value = value
+        self.calls = 0
+
+    def __str__(self):
+        self.calls += 1
+        return "<Guid wrapper at 0x%d>" % self.calls
+
+    def export_text(self):
+        return self.value
+
+
+class FakeBinding(object):
+    def __init__(self, value):
+        self.guid = FakeGuid(value)
+
+    def get_id(self):
+        return self.guid
+
+
+class FakeSequence(object):
+    def __init__(self):
+        self.bindings = [FakeBinding("OLD")]
+
+    def get_bindings(self):
+        return list(self.bindings)
+
+    def add_possessable(self, _obj):
+        self.bindings.append(FakeBinding("NEW"))
+        return self.bindings[0]  # UE add_* return-value lie reproduced.
+
+
+class FakeClass(object):
+    def __init__(self, name):
+        self.name = name
+
+    def get_name(self):
+        return self.name
+
+
+class FakeTrack(object):
+    def __init__(self, name="MovieScene3DTransformTrack"):
+        self.class_name = name
+        self.sections = []
+
+    def get_class(self):
+        return FakeClass(self.class_name)
+
+    def get_sections(self):
+        return list(self.sections)
+
+    def add_section(self):
+        created = FakeSection("Section_%d" % len(self.sections))
+        self.sections.append(created)
+        return object()  # deliberately not the created section
+
+
+class FakeTrackBinding(object):
+    def __init__(self):
+        self.tracks = []
+
+    def get_tracks(self):
+        return list(self.tracks)
+
+    def add_track(self, _cls):
+        created = FakeTrack()
+        self.tracks.append(created)
+        return object()  # deliberately not the created track
+
+
+def guid_and_add_return_regression():
+    old_unreal = E.unreal
+    E.unreal = type("U", (), {"GuidLibrary": type("G", (), {
+        "conv_guid_to_string": staticmethod(lambda value: value.value)})})
+    try:
+        seq = FakeSequence()
+        returned = seq.add_possessable(object())
+        assert E.guid_text(returned.get_id()) == "OLD"
+        seq = FakeSequence()
+        binding = E.add_possessable_readback(seq, object(), "ACTOR_BINDING")
+        assert E.guid_text(binding.get_id()) == "NEW"
+        track_binding = FakeTrackBinding()
+        track = E.add_track_readback(track_binding, object(), "MovieScene3DTransformTrack", "TRACK")
+        assert track is track_binding.tracks[0]
+        section = E.add_section_readback(track, "SECTION")
+        assert section is track.sections[0]
+        guid = FakeGuid("STABLE")
+        assert str(guid) != str(guid)  # known trap is actually present in the fake
+        assert E.guid_text(guid) == E.guid_text(guid) == "STABLE"
+    finally:
+        E.unreal = old_unreal
+
+
+case("guid_wrapper_and_add_possessable_return_lies_are_ignored", "REGRESSION",
+     guid_and_add_return_regression)
+
+
 def placement_zero_extra():
     cfg = C.validate_args(args())
     plan = C.build_placement_plan(cfg, [], cameras())
@@ -290,7 +424,15 @@ def static_editor_guards():
     assert "sequence.get_spawnables()" in source
     assert "sequence.make_range(int(frame), 1)" in source
     apply_source = source[source.index("def apply("):source.index("def verify(")]
+    preflight_source = source[source.index("def apply_preflight("):source.index("def current_facts(")]
+    assert all(token not in preflight_source for token in
+               ("spawn_actor_from_class", ".add_possessable(", ".add_track(", ".add_section(",
+                "create_asset(", ".set_material(", ".modify()", "save_asset(", "save_map("))
+    assert apply_source.index("current_facts(") < apply_source.index("prepare_mutation_inputs(")
+    assert apply_source.index("prepare_mutation_inputs(") < apply_source.index("backup_row = backup")
     assert apply_source.index("backup_row = backup") < apply_source.index("spawn_placements(")
+    assert "get_id().export_text()" not in source
+    assert "conv_guid_to_string" in source
     assert "DIRTY_CENSUS" in source and "POST_SAVE_DIRTY" in source
     assert "P40SHORE_APPLY_OK" in source and "P40SHORE_REVERT_OK" in source
 
