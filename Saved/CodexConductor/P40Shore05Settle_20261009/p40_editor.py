@@ -46,6 +46,27 @@ OUTFIT_DIR = "/Game/Metahuman/ShoreCast_20260910/OutfitHessian"
 MAP_FILE = "Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap"
 CLAMS_FILE = "Content/Scenes/LS_Clams.uasset"
 
+# Final count-gate self-check.  This is emitted in every DRY report so a future
+# edit cannot quietly reintroduce raw SubobjectData rows as object identity.
+# "full_object_path" gates collapse repeated handles for the same UObject and
+# still refuse zero or more than one genuinely distinct object.
+COUNT_GATE_INVENTORY = (
+    {"gate": "EXTRA_COUNT", "subject": "requested optional placements", "identity": "integer range 0..5"},
+    {"gate": "CANDIDATE_COUNT", "subject": "seeded planner candidates", "identity": "positive integer"},
+    {"gate": "CAMERA_TRANSFORM_CHANNELS_COUNT", "subject": "Sequencer channels", "identity": "ordered canonical channel name"},
+    {"gate": "TRANSFORM_CHANNELS_COUNT", "subject": "new transform-track channels", "identity": "ordered canonical channel name"},
+    {"gate": "CAMERA_BASE_SECTION_COUNT", "subject": "active absolute/relative camera sections", "identity": "section row"},
+    {"gate": "TEMPLATE_COUNT", "subject": "named Blueprint component template", "identity": "full_object_path"},
+    {"gate": "OUTFIT_TEMPLATE_COUNT", "subject": "Blueprint outfit component template", "identity": "full_object_path"},
+    {"gate": "SHORT_PARENT_COUNT", "subject": "resolved shorts parent materials", "identity": "asset_path"},
+    {"gate": "PREFLIGHT_BODY_COMPONENT", "subject": "Blueprint Body component template", "identity": "full_object_path"},
+    {"gate": "PREFLIGHT_CLOTH_COMPONENT", "subject": "Blueprint Chaos cloth component template", "identity": "full_object_path"},
+    {"gate": "BODY_COMPONENT", "subject": "spawned actor Body component", "identity": "full_object_path"},
+    {"gate": "CLOTH_COMPONENT", "subject": "spawned actor Chaos cloth component", "identity": "full_object_path"},
+    {"gate": "ACTOR_OUTFIT_COMPONENT", "subject": "placed actor outfit component", "identity": "full_object_path"},
+    {"gate": "ACTOR_COUNT", "subject": "verification actor label matches", "identity": "actor row"},
+)
+
 # Live DRY B1K found that Shore02's outfit component resolves two short-role
 # slots: the shared body-shape material and a character-specific MI.  Preserve
 # the character-specific material as the child MI parent, but only when the
@@ -134,6 +155,20 @@ def unique_template_candidate(objects, token):
     return obj, {"raw_hit_count": len(objects), "unique_candidate_count": len(unique),
                  "candidate_paths": sorted(unique),
                  "duplicate_handles_collapsed": len(objects) - len(unique),
+                 "selected_path": path}
+
+
+def unique_component_row(rows, token):
+    """Collapse repeated component census rows by their full UObject path."""
+    paths = [row.get("path") for row in rows]
+    unique = {path: row for path, row in zip(paths, rows)}
+    require(None not in unique, "%s_PATH_NONE" % token)
+    require(len(unique) == 1, "%s|raw=%d|unique=%d|paths=%s" % (
+        token, len(rows), len(unique), sorted(unique)))
+    path, row = next(iter(unique.items()))
+    return row, {"raw_hit_count": len(rows), "unique_candidate_count": len(unique),
+                 "candidate_paths": sorted(unique),
+                 "duplicate_handles_collapsed": len(rows) - len(unique),
                  "selected_path": path}
 
 
@@ -602,12 +637,15 @@ def apply_preflight(world, actors, clams, placement, cloth_rows, outfit_rows, cf
             bodies = [item for item in components
                       if item["class"] == "SkeletalMeshComponent" and item["name"] in ("Body", "Body_GEN_VARIABLE")]
             cloth = [item for item in components if item["class"] == "ChaosClothComponent"]
-            require(len(bodies) == 1, "PREFLIGHT_BODY_COMPONENT|%s|%d" % (figure, len(bodies)))
-            require(len(cloth) == 1, "PREFLIGHT_CLOTH_COMPONENT|%s|%d" % (figure, len(cloth)))
+            body, body_discovery = unique_component_row(
+                bodies, "PREFLIGHT_BODY_COMPONENT|%s" % figure)
+            cloth_component, cloth_discovery = unique_component_row(
+                cloth, "PREFLIGHT_CLOTH_COMPONENT|%s" % figure)
             require(figure in by_figure and "short" in by_figure[figure]["roles"],
                     "PREFLIGHT_OUTFIT_TEMPLATE|" + figure)
             blueprint_rows.append({"figure": figure, "blueprint": row["blueprint"],
-                                   "body": bodies[0], "cloth": cloth[0]})
+                                   "body": body, "body_discovery": body_discovery,
+                                   "cloth": cloth_component, "cloth_discovery": cloth_discovery})
             if row["animation_name"] not in animations:
                 animation = find_animation(row["animation_name"])
                 animations[row["animation_name"]] = {"path": path_of(animation),
@@ -640,7 +678,8 @@ def apply_preflight(world, actors, clams, placement, cloth_rows, outfit_rows, cf
     return {"ready": not problems, "problems": problems, "transform_schema": transform_schema,
             "blueprints": blueprint_rows, "animations": animations,
             "existing_outfit_actors": outfit_actors, "backup_files": backup_files,
-            "world": path_of(world), "cloth_templates": len(cloth_rows)}
+            "world": path_of(world), "cloth_templates": len(cloth_rows),
+            "count_gate_inventory": list(COUNT_GATE_INVENTORY)}
 
 
 def current_facts(cfg, require_clean=False):
@@ -804,8 +843,9 @@ def spawn_placements(world, clams, plan, run, inputs):
         visibility_track = add_visibility(actor_binding)
         bodies = [c for c in actor.get_components_by_class(unreal.SkeletalMeshComponent)
                   if str(c.get_name()) == "Body"]
-        require(len(bodies) == 1, "BODY_COMPONENT|%s|%d" % (row["label"], len(bodies)))
-        body_binding = add_possessable_readback(clams, bodies[0], "BODY_BINDING|" + row["label"])
+        body, body_discovery = unique_template_candidate(
+            bodies, "BODY_COMPONENT|%s" % row["label"])
+        body_binding = add_possessable_readback(clams, body, "BODY_BINDING|" + row["label"])
         body_binding.set_display_name(row["label"] + "/Body")
         body_binding.set_parent(actor_binding)
         animation_track = add_track_readback(body_binding, unreal.MovieSceneSkeletalAnimationTrack,
@@ -815,13 +855,15 @@ def spawn_placements(world, clams, plan, run, inputs):
         sections = [add_animation(animation_track, clams, animation, item) for item in row["motion"]]
         cloth = [c for c in actor.get_components_by_class(unreal.ActorComponent)
                  if str(c.get_class().get_name()) == "ChaosClothComponent"]
-        require(len(cloth) == 1, "CLOTH_COMPONENT|%s|%d" % (row["label"], len(cloth)))
+        cloth_component, cloth_discovery = unique_template_candidate(
+            cloth, "CLOTH_COMPONENT|%s" % row["label"])
         created.append({"label": row["label"], "source": row["source"], "actor_path": full_path(actor),
                         "actor_binding": guid_text(actor_binding.get_id()),
                         "body_binding": guid_text(body_binding.get_id()),
                         "transform_track": transform_track, "visibility_track": visibility_track,
                         "animation_track": str(animation_track.get_name()), "sections": sections,
-                        "cloth_material": path_of(cloth[0].get_material(0)), "world_xyz_cm": xyz})
+                        "body_discovery": body_discovery, "cloth_discovery": cloth_discovery,
+                        "cloth_material": path_of(cloth_component.get_material(0)), "world_xyz_cm": xyz})
     return created
 
 
@@ -873,8 +915,9 @@ def actor_outfit_component(actor):
         mesh = component.get_skeletal_mesh_asset()
         if mesh is not None and "_outfits" in path_of(mesh).lower():
             hits.append(component)
-    require(len(hits) == 1, "ACTOR_OUTFIT_COMPONENT|%s|%d" % (actor.get_actor_label(), len(hits)))
-    return hits[0]
+    component, _audit = unique_template_candidate(
+        hits, "ACTOR_OUTFIT_COMPONENT|%s" % actor.get_actor_label())
+    return component
 
 
 def raw_overrides(component):

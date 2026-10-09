@@ -88,6 +88,16 @@
     },
     {
       "control": "REGRESSION",
+      "name": "body_logged_duplicate_path_passes_two_distinct_bodies_refuse",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "remaining_count_gates_are_listed_and_component_gates_use_path_identity",
+      "passed": true
+    },
+    {
+      "control": "REGRESSION",
       "name": "exact_short_parent_rules_select_character_mis",
       "passed": true
     },
@@ -217,13 +227,85 @@
       "passed": true
     }
   ],
-  "negative_passed": 29,
-  "negative_total": 29,
-  "passed": 43,
-  "positive_passed": 14,
-  "positive_total": 14,
+  "negative_passed": 30,
+  "negative_total": 30,
+  "passed": 45,
+  "positive_passed": 15,
+  "positive_total": 15,
+  "remaining_count_gates": [
+    {
+      "gate": "EXTRA_COUNT",
+      "identity": "integer range 0..5",
+      "subject": "requested optional placements"
+    },
+    {
+      "gate": "CANDIDATE_COUNT",
+      "identity": "positive integer",
+      "subject": "seeded planner candidates"
+    },
+    {
+      "gate": "CAMERA_TRANSFORM_CHANNELS_COUNT",
+      "identity": "ordered canonical channel name",
+      "subject": "Sequencer channels"
+    },
+    {
+      "gate": "TRANSFORM_CHANNELS_COUNT",
+      "identity": "ordered canonical channel name",
+      "subject": "new transform-track channels"
+    },
+    {
+      "gate": "CAMERA_BASE_SECTION_COUNT",
+      "identity": "section row",
+      "subject": "active absolute/relative camera sections"
+    },
+    {
+      "gate": "TEMPLATE_COUNT",
+      "identity": "full_object_path",
+      "subject": "named Blueprint component template"
+    },
+    {
+      "gate": "OUTFIT_TEMPLATE_COUNT",
+      "identity": "full_object_path",
+      "subject": "Blueprint outfit component template"
+    },
+    {
+      "gate": "SHORT_PARENT_COUNT",
+      "identity": "asset_path",
+      "subject": "resolved shorts parent materials"
+    },
+    {
+      "gate": "PREFLIGHT_BODY_COMPONENT",
+      "identity": "full_object_path",
+      "subject": "Blueprint Body component template"
+    },
+    {
+      "gate": "PREFLIGHT_CLOTH_COMPONENT",
+      "identity": "full_object_path",
+      "subject": "Blueprint Chaos cloth component template"
+    },
+    {
+      "gate": "BODY_COMPONENT",
+      "identity": "full_object_path",
+      "subject": "spawned actor Body component"
+    },
+    {
+      "gate": "CLOTH_COMPONENT",
+      "identity": "full_object_path",
+      "subject": "spawned actor Chaos cloth component"
+    },
+    {
+      "gate": "ACTOR_OUTFIT_COMPONENT",
+      "identity": "full_object_path",
+      "subject": "placed actor outfit component"
+    },
+    {
+      "gate": "ACTOR_COUNT",
+      "identity": "actor row",
+      "subject": "verification actor label matches"
+    }
+  ],
   "result": "PASS",
   "schema": "p40_shore05_settle/1",
-  "total": 43,
+  "total": 45,
   "unreal_started": false
 }

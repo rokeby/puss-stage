@@ -136,6 +136,48 @@ case("outfit_logged_duplicate_path_passes_genuine_ambiguity_refuses", "REGRESSIO
      outfit_duplicate_handle_regression)
 
 
+def body_component_duplicate_handle_regression():
+    # P40SHORE-20261009-105632 logged two SubobjectData rows for the same Body
+    # UObject.  The old raw-row count refused; path identity passes that listing
+    # while two real Body templates remain a hard ambiguity.
+    path = "/Game/Shore05.BP_Shore05_C:Body_GEN_VARIABLE"
+    rows = [{"name": "Body_GEN_VARIABLE", "class": "SkeletalMeshComponent", "path": path},
+            {"name": "Body_GEN_VARIABLE", "class": "SkeletalMeshComponent", "path": path}]
+    raises("PREFLIGHT_BODY_COMPONENT|Shore05_M53|2", lambda: E.require(
+        len(rows) == 1, "PREFLIGHT_BODY_COMPONENT|Shore05_M53|%d" % len(rows)))
+    row, audit = E.unique_component_row(rows, "PREFLIGHT_BODY_COMPONENT|Shore05_M53")
+    assert row["path"] == path
+    assert audit["raw_hit_count"] == 2 and audit["unique_candidate_count"] == 1
+    assert audit["duplicate_handles_collapsed"] == 1
+    raises("unique=2", lambda: E.unique_component_row(
+        rows + [{"name": "Body_GEN_VARIABLE", "class": "SkeletalMeshComponent",
+                 "path": path + "_DISTINCT"}],
+        "PREFLIGHT_BODY_COMPONENT|Shore05_M53"))
+
+
+case("body_logged_duplicate_path_passes_two_distinct_bodies_refuse", "REGRESSION",
+     body_component_duplicate_handle_regression)
+
+
+def count_gate_inventory_complete():
+    expected = {
+        "EXTRA_COUNT", "CANDIDATE_COUNT", "CAMERA_TRANSFORM_CHANNELS_COUNT", "TRANSFORM_CHANNELS_COUNT",
+        "CAMERA_BASE_SECTION_COUNT", "TEMPLATE_COUNT", "OUTFIT_TEMPLATE_COUNT",
+        "SHORT_PARENT_COUNT", "PREFLIGHT_BODY_COMPONENT", "PREFLIGHT_CLOTH_COMPONENT",
+        "BODY_COMPONENT", "CLOTH_COMPONENT", "ACTOR_OUTFIT_COMPONENT", "ACTOR_COUNT",
+    }
+    rows = list(E.COUNT_GATE_INVENTORY)
+    assert {row["gate"] for row in rows} == expected
+    component_gates = {"TEMPLATE_COUNT", "OUTFIT_TEMPLATE_COUNT", "PREFLIGHT_BODY_COMPONENT",
+                       "PREFLIGHT_CLOTH_COMPONENT", "BODY_COMPONENT", "CLOTH_COMPONENT",
+                       "ACTOR_OUTFIT_COMPONENT"}
+    assert {row["gate"] for row in rows if row["identity"] == "full_object_path"} == component_gates
+
+
+case("remaining_count_gates_are_listed_and_component_gates_use_path_identity", "POSITIVE",
+     count_gate_inventory_complete)
+
+
 def exact_short_parent_rules():
     assert set(E.SHORT_PARENT_SELECTION_RULES) == {"Shore02_F52", "Shore04_F55", "Shore06_F25"}
     for figure, rule in E.SHORT_PARENT_SELECTION_RULES.items():
@@ -435,6 +477,10 @@ def static_editor_guards():
     assert "conv_guid_to_string" in source
     assert "DIRTY_CENSUS" in source and "POST_SAVE_DIRTY" in source
     assert "P40SHORE_APPLY_OK" in source and "P40SHORE_REVERT_OK" in source
+    for raw_count in ("require(len(bodies) == 1", "require(len(cloth) == 1",
+                      "require(len(hits) == 1, \"ACTOR_OUTFIT_COMPONENT"):
+        assert raw_count not in source
+    assert '"count_gate_inventory": list(COUNT_GATE_INVENTORY)' in source
 
 
 case("editor_static_safety_guards", "POSITIVE", static_editor_guards)
@@ -446,7 +492,8 @@ report = {"schema": C.SCHEMA, "result": "PASS" if passed == len(RESULTS) else "F
           "passed": passed, "total": len(RESULTS),
           "positive_passed": sum(1 for row in positive if row["passed"]), "positive_total": len(positive),
           "negative_passed": sum(1 for row in negative if row["passed"]), "negative_total": len(negative),
-          "unreal_started": False, "blender_started": False, "cases": RESULTS}
+          "unreal_started": False, "blender_started": False,
+          "remaining_count_gates": list(E.COUNT_GATE_INVENTORY), "cases": RESULTS}
 with open(os.path.join(HERE, "p40_harness_report.json"), "w", encoding="utf-8", newline="\n") as handle:
     json.dump(report, handle, indent=2, sort_keys=True)
     handle.write("\n")

@@ -1,6 +1,5 @@
 {
-  "mode": "APPLY",
-  "confirm": "APPLY P40SHORE",
+  "mode": "DRY",
   "extra_count": 2,
   "seed": 4005,
   "candidate_count": 256,
