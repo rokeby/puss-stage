@@ -3,9 +3,12 @@
 #include "HAL/IConsoleManager.h"
 #include "InfinityStageTransportController.h"
 #include "InfinityStageRehearsalBar.h"
+#include "InfinityStageShowAsset.h"
+#include "InfinityStageShowRoot.h"
 #include "InfinityStageVideoFallback.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 #include "Widgets/SBoxPanel.h"
 #include "Misc/FileHelper.h"
@@ -33,7 +36,7 @@ FString Clean(const FString& Cell)
     return Out;
 }
 
-enum class ERole : uint8 { None, Number, Light, SoundTech, Action, SoundCue, VideoCue, Speaker, Beat, Notes,
+enum class ERole : uint8 { None, Number, Light, SoundTech, Action, SoundCue, VideoCue, Speaker, Beat, Notes, At,
     DogAction, DogMode, Treadmill };
 
 ERole RoleOf(const FString& Header, const int32 Column)
@@ -47,10 +50,67 @@ ERole RoleOf(const FString& Header, const int32 Column)
     if (H.StartsWith(TEXT("speaker"))) { return ERole::Speaker; }
     if (H.StartsWith(TEXT("beat"))) { return ERole::Beat; }
     if (H.StartsWith(TEXT("note"))) { return ERole::Notes; }
+    if (H == TEXT("at")) { return ERole::At; }
     if (H == TEXT("dog action")) { return ERole::DogAction; }
     if (H == TEXT("dog mode")) { return ERole::DogMode; }
     if (H == TEXT("treadmill")) { return ERole::Treadmill; }
     return Column == 0 ? ERole::Number : ERole::None;
+}
+
+bool ParseP86CueTime(const FString& Text, double& OutSeconds)
+{
+    TArray<FString> Fields;
+    Text.TrimStartAndEnd().ParseIntoArray(Fields, TEXT(":"), false);
+    if (Fields.Num() < 1 || Fields.Num() > 4)
+    {
+        return false;
+    }
+    TArray<double> Values;
+    for (const FString& Field : Fields)
+    {
+        FString Trimmed = Field.TrimStartAndEnd();
+        if (Trimmed.StartsWith(TEXT("+")))
+        {
+            Trimmed.RightChopInline(1);
+        }
+        bool bSawDigit = false;
+        bool bSawDot = false;
+        for (const TCHAR Char : Trimmed)
+        {
+            if (FChar::IsDigit(Char))
+            {
+                bSawDigit = true;
+            }
+            else if (Char == TEXT('.') && !bSawDot)
+            {
+                bSawDot = true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        double Value = 0.0;
+        if (!bSawDigit || !LexTryParseString(Value, *Trimmed))
+        {
+            return false;
+        }
+        Values.Add(Value);
+    }
+    switch (Values.Num())
+    {
+    case 1: OutSeconds = Values[0]; break;
+    case 2: OutSeconds = Values[0] * 60.0 + Values[1]; break;
+    case 3: OutSeconds = Values[0] * 3600.0 + Values[1] * 60.0 + Values[2]; break;
+    default:
+        if (Values[3] >= 25.0)
+        {
+            return false;
+        }
+        OutSeconds = Values[0] * 3600.0 + Values[1] * 60.0 + Values[2] + Values[3] / 25.0;
+        break;
+    }
+    return FMath::IsFinite(OutSeconds);
 }
 }
 
@@ -63,7 +123,7 @@ bool FInfinityCueSheetRow::HasContent() const
 {
     return !Light.IsEmpty() || !SoundTech.IsEmpty() || !Action.IsEmpty() || !SoundCue.IsEmpty()
         || !Beat.IsEmpty() || !Notes.IsEmpty() || !Lines.IsEmpty() || !VideoCue.IsEmpty()
-        || !DogAction.IsEmpty() || !DogMode.IsEmpty() || !Treadmill.IsEmpty();
+        || !DogAction.IsEmpty() || !DogMode.IsEmpty() || !Treadmill.IsEmpty() || bHasAtTime;
 }
 
 void FInfinityCueSheet::ParseCsv(const FString& Text, TArray<TArray<FString>>& OutTable)
@@ -215,6 +275,16 @@ bool FInfinityCueSheet::LoadFromCsvText(const FString& Text)
             case ERole::VideoCue: Row.VideoCue = Value; break;
             case ERole::Beat: Row.Beat = Value; break;
             case ERole::Notes: Row.Notes = Value; break;
+            case ERole::At:
+                if (ParseP86CueTime(Value, Row.AtSeconds))
+                {
+                    Row.bHasAtTime = true;
+                }
+                else
+                {
+                    Warnings.Add(FString::Printf(TEXT("row %d: At \"%s\" is not a time; timing ignored"), Row.SourceRow, *Value));
+                }
+                break;
             case ERole::Speaker: Row.Lines.Add({SpeakerOfColumn[C], Value}); break;
             case ERole::DogAction: Row.DogAction = Value; break;
             case ERole::DogMode: Row.DogMode = Value; break;
@@ -631,13 +701,32 @@ bool UInfinityStageCueDirectorSubsystem::Reload()
 
 void UInfinityStageCueDirectorSubsystem::StepLine(const int32 Delta)
 {
-    for (int32 Step = 0; Step < FMath::Abs(Delta); ++Step)
+    UInfinityStageTransportController* Transport = UInfinityStageTransportController::FindForWorld(GetWorld());
+    double TicksPerSecond = 0.0;
+    if (Transport)
     {
-        if (!(Delta > 0 ? Cursor.Next(Sheet) : Cursor.Prev(Sheet)))
+        for (TActorIterator<AInfinityStageShowRoot> It(GetWorld()); It; ++It)
         {
-            break;
+            if (It->Transport == Transport && It->ShowAsset && It->ShowAsset->TickResolution.IsValid())
+            {
+                TicksPerSecond = It->ShowAsset->TickResolution.AsDecimal();
+                break;
+            }
         }
     }
-    UE_LOG(LogInfinityStageCueSheet, Log, TEXT("INFINITY_CUESHEET_CURSOR row=%d sheet_row=%d"),
-        Cursor.Row, Sheet.Rows.IsValidIndex(Cursor.Row) ? Sheet.Rows[Cursor.Row].SourceRow : -1);
+    const TArray<FInfinityTransportSegment> EmptySegments;
+    const TArray<FInfinityTransportSegment>& Segments = Transport ? Transport->Segments : EmptySegments;
+    const InfinityStageRehearsal::FScriptStepPlan Plan = InfinityStageRehearsal::PlanScriptStep(
+        Cursor, Sheet, Delta, Segments, TicksPerSecond);
+    EInfinityTransportResult ScrubResult = EInfinityTransportResult::Succeeded;
+    if (Transport && Plan.ScrubFrame.IsSet())
+    {
+        ScrubResult = Transport->ScrubToMasterFrame(Plan.ScrubFrame.GetValue());
+    }
+    UE_LOG(LogInfinityStageCueSheet, Log, TEXT("INFINITY_CUESHEET_CURSOR row=%d sheet_row=%d timed=%d frame=%d scrub_result=%d"),
+        Cursor.Row,
+        Sheet.Rows.IsValidIndex(Cursor.Row) ? Sheet.Rows[Cursor.Row].SourceRow : -1,
+        Plan.ScrubFrame.IsSet() ? 1 : 0,
+        Plan.ScrubFrame.IsSet() ? Plan.ScrubFrame.GetValue().Value : -1,
+        static_cast<int32>(ScrubResult));
 }

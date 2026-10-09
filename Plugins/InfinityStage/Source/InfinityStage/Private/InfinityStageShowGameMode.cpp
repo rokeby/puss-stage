@@ -146,7 +146,8 @@ void AInfinityStageShowPlayerController::PlayerTick(const float DeltaTime)
     Super::PlayerTick(DeltaTime);
     UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
     const float Threshold = Transport ? Transport->HoldThresholdSeconds : 0.30f;
-    ApplyHoldRightAction(HoldRightState.Tick(DeltaTime, Threshold));
+    const float LongHold = Transport ? Transport->LongHoldSeconds : 5.0f;
+    ApplyHoldRightAction(HoldRightState.Tick(DeltaTime, Threshold, LongHold));
     ApplyHoldLeftAction(HoldLeftState.Tick(DeltaTime, Threshold));
 }
 
@@ -234,6 +235,13 @@ void AInfinityStageShowPlayerController::ApplyHoldRightAction(const EInfinityHol
             : EInfinityTransportResult::NoPlayer;
         HoldRightState.ResolveFastForwardStart(Result);
         ReportTransportResult(this, Result);
+        return;
+    }
+    if (Action == EInfinityHoldRightAction::BeginLongHoldFastForward)
+    {
+        ReportTransportResult(this, Transport
+            ? Transport->BeginLongHoldFastForward()
+            : EInfinityTransportResult::NoPlayer);
         return;
     }
 

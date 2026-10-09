@@ -103,6 +103,7 @@ enum class EInfinityHoldRightAction : uint8
     None,
     Advance,
     BeginFastForward,
+    BeginLongHoldFastForward,
     EndFastForwardPlaying,
     EndFastForwardHeld
 };
@@ -117,11 +118,12 @@ struct INFINITYSTAGE_API FInfinityHoldRightState
     bool bPressed = false;
     bool bThresholdReached = false;
     bool bFastForwardActive = false;
+    bool bLongHoldReached = false;
     bool bWasPlaying = false;
     float HeldSeconds = 0.0f;
 
     void Press(bool bInWasPlaying);
-    EInfinityHoldRightAction Tick(float DeltaSeconds, float HoldThresholdSeconds);
+    EInfinityHoldRightAction Tick(float DeltaSeconds, float HoldThresholdSeconds, float LongHoldSeconds = TNumericLimits<float>::Max());
     void ResolveFastForwardStart(EInfinityTransportResult Result);
     EInfinityHoldRightAction Release();
     void Reset();
@@ -611,6 +613,16 @@ public:
         meta = (ClampMin = "1.0", UIMax = "8.0"))
     float FastForwardRate = 4.0f;
 
+    /** Right Arrow rate after it has remained down for LongHoldSeconds. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
+        meta = (ClampMin = "1.0", UIMax = "16.0"))
+    float LongHoldFastForwardRate = 8.0f;
+
+    /** Continuous Right Arrow hold duration, measured from key-down, before the faster rate. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
+        meta = (ClampMin = "0.0", Units = "s"))
+    float LongHoldSeconds = 5.0f;
+
     /** Continuous reverse Master playback rate while Left Arrow is held past the
      * threshold (Gary, 6 Oct: "Left button hold should take us backwards the same
      * way right takes us fastforward"). A shorter Left press keeps Previous. */
@@ -775,6 +787,9 @@ public:
     /** Plays continuously to the end of the Master at FastForwardRate. */
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     EInfinityTransportResult BeginFastForward();
+
+    /** While a successful fast-forward hold is active, changes it to LongHoldFastForwardRate. */
+    EInfinityTransportResult BeginLongHoldFastForward();
 
     /** Restores 1x and either resumes or holds according to the pre-hold state. */
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")

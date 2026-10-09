@@ -1,5 +1,7 @@
 #include "InfinityStageRehearsalBar.h"
+#include "InfinityStageCueSheet.h"
 #include "InfinityStageShowTrims.h"
+#include "InfinityStageSurtitles.h"
 #include "InfinityStageTransportController.h"
 #include "Misc/AutomationTest.h"
 
@@ -165,6 +167,145 @@ bool FInfinityStageSurtitleButtonsTest::RunTest(const FString& Parameters)
     // Negative control: without a game world nothing is called and the bar says why.
     TestTrue(TEXT("Control: no world -> refused, with a reason"), SurtitleAction(nullptr, ESurtitleAction::Next).StartsWith(TEXT("Not done")));
     TestTrue(TEXT("Control: no world -> nothing to describe"), DescribeSurtitle(nullptr).IsEmpty());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageP86AtParsingTest,
+    "InfinityStage.Rehearsal.P86.AtParsing",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageP86AtParsingTest::RunTest(const FString& Parameters)
+{
+    const FString TimedCsv =
+        TEXT(",Light,Video Cue,Speaker,At\n")
+        TEXT(",,,Klara,\n")
+        TEXT(",up,Passage 1,,1:02.5\n")
+        TEXT(",,,,00:00:03:12\n")
+        TEXT(",,,bad row,1e3\n");
+    FInfinityCueSheet Timed;
+    TestTrue(TEXT("At sheet loads"), Timed.LoadFromCsvText(TimedCsv));
+    TestEqual(TEXT("valid m:ss time is retained"), Timed.Rows[0].AtSeconds, 62.5);
+    TestTrue(TEXT("valid time is marked present"), Timed.Rows[0].bHasAtTime);
+    TestTrue(TEXT("At-only rows are retained for stepping and ticks"), Timed.Rows[1].bHasAtTime);
+    TestTrue(TEXT("25 fps timecode matches Cue Book validation"), FMath::IsNearlyEqual(Timed.Rows[1].AtSeconds, 3.48));
+    TestFalse(TEXT("bad At is ignored"), Timed.Rows[2].bHasAtTime);
+    TestEqual(TEXT("bad At produces exactly one warning"), Timed.Warnings.Num(), 1);
+
+    FInfinityCueSheet NoAt;
+    TestTrue(TEXT("control: a sheet with no At column still loads"),
+        NoAt.LoadFromCsvText(TEXT(",Light,Speaker\n,,Klara\n,up,line\n")));
+    TestEqual(TEXT("control: absent At column produces no warning"), NoAt.Warnings.Num(), 0);
+    TestFalse(TEXT("control: absent At leaves the row untimed"), NoAt.Rows[0].bHasAtTime);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageP86ScriptStepTest,
+    "InfinityStage.Rehearsal.P86.ScriptStepScrubsTimedRows",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageP86ScriptStepTest::RunTest(const FString& Parameters)
+{
+    FInfinityCueSheet Sheet;
+    Sheet.Rows.SetNum(3);
+    for (FInfinityCueSheetRow& Row : Sheet.Rows)
+    {
+        Row.Action = TEXT("step");
+        Row.SegmentOrdinal = 0;
+    }
+    Sheet.Rows[1].bHasAtTime = true;
+    Sheet.Rows[1].AtSeconds = 2.5;
+    FInfinityScriptCursor Cursor;
+    TArray<FInfinityTransportSegment> Segments = FourSegments();
+    Segments[0].StartFrame = 1000;
+    Segments[0].EndFrame = 2000;
+
+    InfinityStageRehearsal::FScriptStepPlan Plan = InfinityStageRehearsal::PlanScriptStep(Cursor, Sheet, 1, Segments, 100.0);
+    TestTrue(TEXT("timed row moves the cursor"), Plan.bMoved && Cursor.Row == 1);
+    TestTrue(TEXT("timed row requests a scrub"), Plan.ScrubFrame.IsSet());
+    TestEqual(TEXT("At is relative to segment start"), Plan.ScrubFrame.Get(FFrameNumber(-1)), FFrameNumber(1250));
+
+    Plan = InfinityStageRehearsal::PlanScriptStep(Cursor, Sheet, 1, Segments, 100.0);
+    TestTrue(TEXT("untimed row still moves the pointer"), Plan.bMoved && Cursor.Row == 2);
+    TestFalse(TEXT("untimed row leaves the playhead alone"), Plan.ScrubFrame.IsSet());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageP86DragMappingTest,
+    "InfinityStage.Rehearsal.P86.DragMapsFractionToFrame",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageP86DragMappingTest::RunTest(const FString& Parameters)
+{
+    using InfinityStageRehearsal::FrameAtFraction;
+    TestEqual(TEXT("drag at start"), FrameAtFraction(1000, 2000, 0.0f), FFrameNumber(1000));
+    TestEqual(TEXT("drag in middle"), FrameAtFraction(1000, 2000, 0.25f), FFrameNumber(1250));
+    TestEqual(TEXT("negative control: end cannot spill into next segment"), FrameAtFraction(1000, 2000, 1.0f), FFrameNumber(1999));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageP86MarkerLayoutTest,
+    "InfinityStage.Rehearsal.P86.MarkerLayout",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageP86MarkerLayoutTest::RunTest(const FString& Parameters)
+{
+    TArray<FInfinityTransportSegment> Segments = FourSegments();
+    Segments[0].StartFrame = 1000;
+    Segments[0].EndFrame = 2000;
+    FInfinityCueSheet Sheet;
+    FInfinityCueSheetRow& Row = Sheet.Rows.AddDefaulted_GetRef();
+    Row.bHasAtTime = true;
+    Row.AtSeconds = 2.5;
+    Row.SegmentOrdinal = 0;
+    FInfinitySurtitleScript Surtitles;
+    FInfinitySurtitleLine& Line = Surtitles.Lines.AddDefaulted_GetRef();
+    Line.Segment = TEXT("Seg0");
+    Line.InSeconds = 2.0;
+    Line.OutSeconds = 4.0;
+    TArray<FInfinityGoCue> Gos;
+    Gos.AddDefaulted_GetRef().Frame = 1500;
+
+    const TArray<FInfinityRehearsalMarker> Marks = InfinityStageRehearsal::LayoutMarkers(
+        Sheet, Surtitles, Segments, Gos, 0, 100.0);
+    TestEqual(TEXT("script, surtitle and GO are all laid out"), Marks.Num(), 3);
+    const FInfinityRehearsalMarker* Script = Marks.FindByPredicate([](const FInfinityRehearsalMarker& Mark) { return Mark.Kind == EInfinityRehearsalMarkerKind::Script; });
+    const FInfinityRehearsalMarker* Surtitle = Marks.FindByPredicate([](const FInfinityRehearsalMarker& Mark) { return Mark.Kind == EInfinityRehearsalMarkerKind::Surtitle; });
+    const FInfinityRehearsalMarker* Go = Marks.FindByPredicate([](const FInfinityRehearsalMarker& Mark) { return Mark.Kind == EInfinityRehearsalMarkerKind::Go; });
+    TestTrue(TEXT("script tick is at 25%"), Script && FMath::IsNearlyEqual(Script->StartFraction, 0.25f));
+    TestTrue(TEXT("surtitle is a 20%-40% span"), Surtitle && FMath::IsNearlyEqual(Surtitle->StartFraction, 0.2f)
+        && FMath::IsNearlyEqual(Surtitle->EndFraction, 0.4f));
+    TestTrue(TEXT("GO tick is at 50%"), Go && FMath::IsNearlyEqual(Go->StartFraction, 0.5f));
+    TestTrue(TEXT("negative control: invalid segment yields no markers"),
+        InfinityStageRehearsal::LayoutMarkers(Sheet, Surtitles, Segments, Gos, 99, 100.0).IsEmpty());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageP86LongHoldFastForwardTest,
+    "InfinityStage.Rehearsal.P86.LongHoldFastForward",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageP86LongHoldFastForwardTest::RunTest(const FString& Parameters)
+{
+    FInfinityHoldRightState Hold;
+    Hold.Press(false);
+    TestEqual(TEXT("4x begins at the ordinary threshold"), Hold.Tick(0.30f, 0.30f, 5.0f), EInfinityHoldRightAction::BeginFastForward);
+    Hold.ResolveFastForwardStart(EInfinityTransportResult::Succeeded);
+    TestEqual(TEXT("still 4x before five seconds"), Hold.Tick(4.69f, 0.30f, 5.0f), EInfinityHoldRightAction::None);
+    TestEqual(TEXT("8x begins after five continuous seconds"), Hold.Tick(0.02f, 0.30f, 5.0f), EInfinityHoldRightAction::BeginLongHoldFastForward);
+    TestEqual(TEXT("release uses today's held-release path"), Hold.Release(), EInfinityHoldRightAction::EndFastForwardHeld);
+    TestEqual(TEXT("release resets the machine"), Hold.Tick(10.0f, 0.30f, 5.0f), EInfinityHoldRightAction::None);
+
+    FInfinityHoldRightState Refused;
+    Refused.Press(true);
+    TestEqual(TEXT("negative control reaches the ordinary hold"), Refused.Tick(0.30f, 0.30f, 5.0f), EInfinityHoldRightAction::BeginFastForward);
+    Refused.ResolveFastForwardStart(EInfinityTransportResult::UnsafeExternalClock);
+    TestEqual(TEXT("negative control: refused 4x never escalates"), Refused.Tick(10.0f, 0.30f, 5.0f), EInfinityHoldRightAction::None);
+    TestEqual(TEXT("refused hold stays consumed on release"), Refused.Release(), EInfinityHoldRightAction::None);
     return true;
 }
 

@@ -611,19 +611,30 @@ void FInfinityHoldRightState::Press(const bool bInWasPlaying)
 
 EInfinityHoldRightAction FInfinityHoldRightState::Tick(
     const float DeltaSeconds,
-    const float HoldThresholdSeconds)
+    const float HoldThresholdSeconds,
+    const float LongHoldSeconds)
 {
-    if (!bPressed || bThresholdReached)
+    if (!bPressed)
     {
         return EInfinityHoldRightAction::None;
     }
     HeldSeconds += FMath::Max(0.0f, DeltaSeconds);
-    if (HeldSeconds < FMath::Max(0.0f, HoldThresholdSeconds))
+    if (!bThresholdReached)
     {
-        return EInfinityHoldRightAction::None;
+        if (HeldSeconds < FMath::Max(0.0f, HoldThresholdSeconds))
+        {
+            return EInfinityHoldRightAction::None;
+        }
+        bThresholdReached = true;
+        return EInfinityHoldRightAction::BeginFastForward;
     }
-    bThresholdReached = true;
-    return EInfinityHoldRightAction::BeginFastForward;
+    if (bFastForwardActive && !bLongHoldReached
+        && HeldSeconds >= FMath::Max(HoldThresholdSeconds, LongHoldSeconds))
+    {
+        bLongHoldReached = true;
+        return EInfinityHoldRightAction::BeginLongHoldFastForward;
+    }
+    return EInfinityHoldRightAction::None;
 }
 
 void FInfinityHoldRightState::ResolveFastForwardStart(const EInfinityTransportResult Result)
@@ -661,6 +672,7 @@ void FInfinityHoldRightState::Reset()
     bPressed = false;
     bThresholdReached = false;
     bFastForwardActive = false;
+    bLongHoldReached = false;
     bWasPlaying = false;
     HeldSeconds = 0.0f;
 }
@@ -1557,6 +1569,18 @@ EInfinityTransportResult UInfinityStageTransportController::BeginFastForward()
     // PlayTo the Master's final frame: unlike Advance, this never jumps across
     // authored time, and TickComponent still claims every camera at every seam.
     return PlayForwardThroughBoundaries();
+}
+
+EInfinityTransportResult UInfinityStageTransportController::BeginLongHoldFastForward()
+{
+    if (!Player || !bFastForwardActive)
+    {
+        return LastResult = EInfinityTransportResult::NoPlayer;
+    }
+    const float Rate = FMath::Max(1.0f, LongHoldFastForwardRate);
+    SetManagedMasterAudioMuted(!FMath::IsNearlyEqual(Rate, 1.0f));
+    Player->SetPlayRate(Rate);
+    return LastResult = EInfinityTransportResult::Succeeded;
 }
 
 EInfinityTransportResult UInfinityStageTransportController::EndFastForward(const bool bWasPlaying)

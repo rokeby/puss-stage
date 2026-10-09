@@ -9,13 +9,16 @@
 #include "InfinityStageShowRoot.h"
 #include "InfinityStageSurtitles.h"
 #include "InfinityStageTransportController.h"
+#include "InputCoreTypes.h"
+#include "Rendering/DrawElements.h"
 #include "Styling/CoreStyle.h"
 #include "Framework/MultiBox/MultiBoxBuilder.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SComboButton.h"
-#include "Widgets/Input/SSlider.h"
 #include "Widgets/Layout/SBorder.h"
+#include "Widgets/Layout/SBox.h"
 #include "Widgets/SBoxPanel.h"
+#include "Widgets/SLeafWidget.h"
 #include "Widgets/Text/STextBlock.h"
 
 #define LOCTEXT_NAMESPACE "InfinityStageRehearsalBar"
@@ -68,6 +71,110 @@ FInfinityNextStop NextStop(
     return Stop;
 }
 
+FScriptStepPlan PlanScriptStep(
+    FInfinityScriptCursor& Cursor,
+    const FInfinityCueSheet& Sheet,
+    const int32 Delta,
+    const TArray<FInfinityTransportSegment>& Segments,
+    const double TicksPerSecond)
+{
+    FScriptStepPlan Plan;
+    for (int32 Step = 0; Step < FMath::Abs(Delta); ++Step)
+    {
+        if (!(Delta > 0 ? Cursor.Next(Sheet) : Cursor.Prev(Sheet)))
+        {
+            break;
+        }
+        Plan.bMoved = true;
+    }
+    if (!Plan.bMoved || !Sheet.Rows.IsValidIndex(Cursor.Row))
+    {
+        return Plan;
+    }
+    const FInfinityCueSheetRow& Row = Sheet.Rows[Cursor.Row];
+    int32 SegmentIndex = InfinityStageSurtitles::ResolveSegment(Row.Segment, Segments);
+    if (SegmentIndex == INDEX_NONE && Segments.IsValidIndex(Row.SegmentOrdinal))
+    {
+        SegmentIndex = Row.SegmentOrdinal;
+    }
+    if (!Row.bHasAtTime || !Segments.IsValidIndex(SegmentIndex) || TicksPerSecond <= 0.0)
+    {
+        return Plan;
+    }
+    const FInfinityTransportSegment& Segment = Segments[SegmentIndex];
+    const int32 Length = FMath::Max(1, (Segment.EndFrame - Segment.StartFrame).Value);
+    const int32 Offset = FMath::Clamp(FMath::RoundToInt32(Row.AtSeconds * TicksPerSecond), 0, Length - 1);
+    Plan.ScrubFrame = Segment.StartFrame + FFrameNumber(Offset);
+    return Plan;
+}
+
+TArray<FInfinityRehearsalMarker> LayoutMarkers(
+    const FInfinityCueSheet& Sheet,
+    const FInfinitySurtitleScript& Surtitles,
+    const TArray<FInfinityTransportSegment>& Segments,
+    const TArray<FInfinityGoCue>& GoCues,
+    const int32 SegmentIndex,
+    const double TicksPerSecond)
+{
+    TArray<FInfinityRehearsalMarker> Markers;
+    if (!Segments.IsValidIndex(SegmentIndex) || TicksPerSecond <= 0.0)
+    {
+        return Markers;
+    }
+    const FInfinityTransportSegment& Segment = Segments[SegmentIndex];
+    const int32 LengthFrames = FMath::Max(1, (Segment.EndFrame - Segment.StartFrame).Value);
+    const double LengthSeconds = LengthFrames / TicksPerSecond;
+    const auto FractionFromSeconds = [LengthSeconds](const double Seconds)
+    {
+        return static_cast<float>(FMath::Clamp(Seconds / LengthSeconds, 0.0, 1.0));
+    };
+    const auto FractionFromFrame = [&Segment, LengthFrames](const FFrameNumber Frame)
+    {
+        return FMath::Clamp(static_cast<float>((Frame - Segment.StartFrame).Value) / LengthFrames, 0.0f, 1.0f);
+    };
+
+    for (const FInfinityCueSheetRow& Row : Sheet.Rows)
+    {
+        int32 RowSegment = InfinityStageSurtitles::ResolveSegment(Row.Segment, Segments);
+        if (RowSegment == INDEX_NONE && Segments.IsValidIndex(Row.SegmentOrdinal))
+        {
+            RowSegment = Row.SegmentOrdinal;
+        }
+        if (Row.bHasAtTime && RowSegment == SegmentIndex)
+        {
+            const float At = FractionFromSeconds(Row.AtSeconds);
+            Markers.Add({EInfinityRehearsalMarkerKind::Script, At, At});
+        }
+    }
+    for (int32 LineIndex = 0; LineIndex < Surtitles.Lines.Num(); ++LineIndex)
+    {
+        const FInfinitySurtitleLine& Line = Surtitles.Lines[LineIndex];
+        if (!InfinityStageSurtitles::LineMatchesSegment(Line, Segments, SegmentIndex))
+        {
+            continue;
+        }
+        const float Start = FractionFromSeconds(Line.InSeconds);
+        const float End = FractionFromSeconds(InfinityStageSurtitles::EffectiveOut(
+            Surtitles, LineIndex, Segments, SegmentIndex, TicksPerSecond));
+        Markers.Add({EInfinityRehearsalMarkerKind::Surtitle, Start, FMath::Max(Start, End)});
+    }
+    for (const FInfinityGoCue& Cue : GoCues)
+    {
+        if (Cue.Frame >= Segment.StartFrame && Cue.Frame < Segment.EndFrame)
+        {
+            const float At = FractionFromFrame(Cue.Frame);
+            Markers.Add({EInfinityRehearsalMarkerKind::Go, At, At});
+        }
+    }
+    Markers.Sort([](const FInfinityRehearsalMarker& A, const FInfinityRehearsalMarker& B)
+    {
+        return A.StartFraction == B.StartFraction
+            ? static_cast<uint8>(A.Kind) < static_cast<uint8>(B.Kind)
+            : A.StartFraction < B.StartFraction;
+    });
+    return Markers;
+}
+
 bool Gather(UWorld* World, FInfinityRehearsalState& Out)
 {
     Out = FInfinityRehearsalState();
@@ -117,6 +224,17 @@ bool Gather(UWorld* World, FInfinityRehearsalState& Out)
             Out.NextStop = FString::Printf(TEXT("%s in %s"), *Stop.Label,
                 *Clock(FMath::Max(0.0, (Stop.Frame - Now).Value / TicksPerSecond)));
         }
+        const FInfinityCueSheet EmptySheet;
+        const FInfinitySurtitleScript EmptySurtitles;
+        const UInfinityStageCueDirectorSubsystem* CueDirector = World->GetSubsystem<UInfinityStageCueDirectorSubsystem>();
+        const UInfinityStageSurtitleSubsystem* Surtitles = World->GetSubsystem<UInfinityStageSurtitleSubsystem>();
+        Out.Markers = LayoutMarkers(
+            CueDirector ? CueDirector->GetSheet() : EmptySheet,
+            Surtitles ? Surtitles->GetScript() : EmptySurtitles,
+            Transport->Segments,
+            Transport->GoCues,
+            HudState.SegmentIndex,
+            TicksPerSecond);
     }
 
     FString SheetCue;
@@ -290,6 +408,120 @@ FString DescribeSurtitle(UWorld* World)
 }
 }
 
+namespace
+{
+DECLARE_DELEGATE_OneParam(FP86OnTimelineScrub, float);
+
+/** P86's compact sequencer-like strip. It owns no clock; every drag calls the existing Master scrub path. */
+class SP86InfinityStageTimelineStrip final : public SLeafWidget
+{
+public:
+    SLATE_BEGIN_ARGS(SP86InfinityStageTimelineStrip) {}
+        SLATE_ATTRIBUTE(float, Fraction)
+        SLATE_ATTRIBUTE(TArray<FInfinityRehearsalMarker>, Markers)
+        SLATE_EVENT(FP86OnTimelineScrub, OnScrub)
+    SLATE_END_ARGS()
+
+    void Construct(const FArguments& InArgs)
+    {
+        Fraction = InArgs._Fraction;
+        Markers = InArgs._Markers;
+        OnScrub = InArgs._OnScrub;
+    }
+
+    virtual FVector2D ComputeDesiredSize(float) const override { return FVector2D(640.0f, 54.0f); }
+
+    virtual int32 OnPaint(
+        const FPaintArgs& Args,
+        const FGeometry& AllottedGeometry,
+        const FSlateRect& CullingRect,
+        FSlateWindowElementList& OutDrawElements,
+        int32 LayerId,
+        const FWidgetStyle& WidgetStyle,
+        bool bParentEnabled) const override
+    {
+        const FVector2D Size = AllottedGeometry.GetLocalSize();
+        const FSlateBrush* White = FCoreStyle::Get().GetBrush("GenericWhiteBox");
+        const ESlateDrawEffect Effects = ESlateDrawEffect::None;
+        FSlateDrawElement::MakeBox(OutDrawElements, LayerId,
+            AllottedGeometry.ToPaintGeometry(Size, FSlateLayoutTransform()), White, Effects,
+            FLinearColor(0.055f, 0.065f, 0.085f, 1.0f));
+
+        const TArray<FInfinityRehearsalMarker> CurrentMarkers = Markers.Get();
+        for (const FInfinityRehearsalMarker& Marker : CurrentMarkers)
+        {
+            const float X = FMath::Clamp(Marker.StartFraction, 0.0f, 1.0f) * Size.X;
+            FVector2D MarkSize(2.0f, 15.0f);
+            FVector2D MarkPos(X - 1.0f, 3.0f);
+            FLinearColor Colour(1.0f, 0.72f, 0.20f, 0.95f); // script At
+            if (Marker.Kind == EInfinityRehearsalMarkerKind::Surtitle)
+            {
+                MarkPos = FVector2D(X, Size.Y - 13.0f);
+                MarkSize = FVector2D(FMath::Max(2.0f,
+                    (FMath::Clamp(Marker.EndFraction, Marker.StartFraction, 1.0f) - Marker.StartFraction) * Size.X), 8.0f);
+                Colour = FLinearColor(0.25f, 0.72f, 1.0f, 0.80f);
+            }
+            else if (Marker.Kind == EInfinityRehearsalMarkerKind::Go)
+            {
+                MarkPos = FVector2D(X - 1.5f, 20.0f);
+                MarkSize = FVector2D(3.0f, 18.0f);
+                Colour = FLinearColor(0.35f, 1.0f, 0.48f, 0.95f);
+            }
+            FSlateDrawElement::MakeBox(OutDrawElements, LayerId + 1,
+                AllottedGeometry.ToPaintGeometry(MarkSize, FSlateLayoutTransform(MarkPos)), White, Effects, Colour);
+        }
+
+        const float PlayheadX = FMath::Clamp(Fraction.Get(0.0f), 0.0f, 1.0f) * Size.X;
+        FSlateDrawElement::MakeBox(OutDrawElements, LayerId + 2,
+            AllottedGeometry.ToPaintGeometry(FVector2D(6.0f, Size.Y),
+                FSlateLayoutTransform(FVector2D(PlayheadX - 3.0f, 0.0f))),
+            White, Effects, FLinearColor(1.0f, 0.25f, 0.18f, 1.0f));
+        return LayerId + 2;
+    }
+
+    virtual FReply OnMouseButtonDown(const FGeometry& Geometry, const FPointerEvent& Event) override
+    {
+        if (Event.GetEffectingButton() != EKeys::LeftMouseButton)
+        {
+            return FReply::Unhandled();
+        }
+        Scrub(Geometry, Event);
+        return FReply::Handled().CaptureMouse(SharedThis(this));
+    }
+
+    virtual FReply OnMouseMove(const FGeometry& Geometry, const FPointerEvent& Event) override
+    {
+        if (!HasMouseCapture())
+        {
+            return FReply::Unhandled();
+        }
+        Scrub(Geometry, Event);
+        return FReply::Handled();
+    }
+
+    virtual FReply OnMouseButtonUp(const FGeometry& Geometry, const FPointerEvent& Event) override
+    {
+        if (!HasMouseCapture() || Event.GetEffectingButton() != EKeys::LeftMouseButton)
+        {
+            return FReply::Unhandled();
+        }
+        Scrub(Geometry, Event);
+        return FReply::Handled().ReleaseMouseCapture();
+    }
+
+private:
+    void Scrub(const FGeometry& Geometry, const FPointerEvent& Event) const
+    {
+        const float Width = FMath::Max(1.0f, Geometry.GetLocalSize().X);
+        OnScrub.ExecuteIfBound(FMath::Clamp(Geometry.AbsoluteToLocal(Event.GetScreenSpacePosition()).X / Width, 0.0f, 1.0f));
+    }
+
+    TAttribute<float> Fraction;
+    TAttribute<TArray<FInfinityRehearsalMarker>> Markers;
+    FP86OnTimelineScrub OnScrub;
+};
+}
+
 const FInfinityRehearsalState& SInfinityStageRehearsalBar::State() const
 {
     // Gathered once per engine frame however many text bindings ask.
@@ -345,15 +577,6 @@ void SInfinityStageRehearsalBar::Construct(const FArguments& InArgs)
             [
                 SNew(SHorizontalBox)
                 + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("Back", "< Back"), LOCTEXT("BackTip", "Previous segment / shot (LEFT)"), ECommand::Back) ]
-                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)
-                [
-                    SNew(SButton)
-                    .IsFocusable(false)
-                    .Text_Lambda([this]() { return State().bPlaying ? LOCTEXT("Pause", "|| Pause") : LOCTEXT("Play", "> Play"); })
-                    .ToolTipText(LOCTEXT("PlayTip", "Play / pause (Space)"))
-                    .IsEnabled_Lambda([this]() { return State().bHasShow; })
-                    .OnClicked_Lambda([this]() { Command(GetWorldFn ? GetWorldFn() : nullptr, ECommand::PlayPause); return FReply::Handled(); })
-                ]
                 + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("Go", "GO >"), LOCTEXT("GoTip", "GO: release a hold, else advance (RIGHT)"), ECommand::Go) ]
                 + SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center).Padding(12.0f, 0.0f)
                 [
@@ -409,13 +632,28 @@ void SInfinityStageRehearsalBar::Construct(const FArguments& InArgs)
                 ]
                 + SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center).Padding(8.0f, 0.0f)
                 [
-                    // Scrub through the current Passage or Scene. One clock: the Master evaluates the Scene.
-                    SNew(SSlider)
-                    .IsFocusable(false)
-                    .ToolTipText(LOCTEXT("ScrubTip", "Scrub through the current Passage / Scene (pauses). Hold the Scene 3 lock off with Rehearsal Transport."))
+                    // One clock: this strip drags the Master, which evaluates nested Scenes. Scene 3's lock still applies.
+                    SNew(SP86InfinityStageTimelineStrip)
+                    .ToolTipText(LOCTEXT("ScrubTip", "Drag the playhead through this Passage / Scene (pauses). Hold the Scene 3 lock off with Rehearsal Transport."))
                     .IsEnabled_Lambda([this]() { return State().bHasShow; })
-                    .Value_Lambda([this]() { return State().CueFraction; })
-                    .OnValueChanged_Lambda([this](const float Value) { ScrubCurrentSegment(GetWorldFn ? GetWorldFn() : nullptr, Value); })
+                    .Fraction_Lambda([this]() { return State().CueFraction; })
+                    .Markers_Lambda([this]() { return State().Markers; })
+                    .OnScrub(FP86OnTimelineScrub::CreateLambda([this](const float Value)
+                    {
+                        ScrubCurrentSegment(GetWorldFn ? GetWorldFn() : nullptr, Value);
+                    }))
+                ]
+                + SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Fill).Padding(4.0f, 0.0f)
+                [
+                    SNew(SBox).WidthOverride(130.0f).MinDesiredHeight(54.0f)
+                    [
+                        SNew(SButton)
+                        .IsFocusable(false)
+                        .Text_Lambda([this]() { return State().bPlaying ? LOCTEXT("Pause", "||  PAUSE") : LOCTEXT("Play", ">  PLAY"); })
+                        .ToolTipText(LOCTEXT("PlayTip", "Play / pause (Space)"))
+                        .IsEnabled_Lambda([this]() { return State().bHasShow; })
+                        .OnClicked_Lambda([this]() { Command(GetWorldFn ? GetWorldFn() : nullptr, ECommand::PlayPause); return FReply::Handled(); })
+                    ]
                 ]
             ]
             + SVerticalBox::Slot().AutoHeight().Padding(0.0f, 3.0f, 0.0f, 0.0f)

@@ -37,6 +37,9 @@ struct INFINITYSTAGE_API FInfinityCueSheetRow
     FString VideoCue;
     FString Beat;
     FString Notes;
+    /** Cue Book `At`, in seconds from this row's segment start. False when blank/absent/invalid. */
+    bool bHasAtTime = false;
+    double AtSeconds = 0.0;
     /** Cue-specific physical direction; mode/treadmill are operator directions, never telemetry. */
     FString DogAction;
     FString DogMode;

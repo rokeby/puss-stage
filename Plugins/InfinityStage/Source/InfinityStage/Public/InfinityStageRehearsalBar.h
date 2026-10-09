@@ -6,6 +6,25 @@
 class UWorld;
 struct FInfinityTransportSegment;
 struct FInfinityGoCue;
+struct FInfinityCueSheet;
+struct FInfinityScriptCursor;
+struct FInfinitySurtitleScript;
+
+enum class EInfinityRehearsalMarkerKind : uint8
+{
+    Script,
+    Surtitle,
+    Go
+};
+
+/** One normalized mark on the current-segment rehearsal strip. */
+struct INFINITYSTAGE_API FInfinityRehearsalMarker
+{
+    EInfinityRehearsalMarkerKind Kind = EInfinityRehearsalMarkerKind::Script;
+    float StartFraction = 0.0f;
+    /** Same as StartFraction for an instant; greater for a surtitle span. */
+    float EndFraction = 0.0f;
+};
 
 /**
  * Rehearsal bar (Gary, 8 Oct): "clarity around what cue we are on, cue timing and show timing,
@@ -31,6 +50,7 @@ struct INFINITYSTAGE_API FInfinityRehearsalState
     bool bRunThrough = false;
     /** 0..1 position in the current segment (the scrub slider). */
     float CueFraction = 0.0f;
+    TArray<FInfinityRehearsalMarker> Markers;
 };
 
 struct INFINITYSTAGE_API FInfinityNextStop
@@ -43,6 +63,29 @@ struct INFINITYSTAGE_API FInfinityNextStop
 
 namespace InfinityStageRehearsal
 {
+struct INFINITYSTAGE_API FScriptStepPlan
+{
+    bool bMoved = false;
+    TOptional<FFrameNumber> ScrubFrame;
+};
+
+/** Pure: advances the script cursor and, for a timed row, returns its absolute Master frame. */
+INFINITYSTAGE_API FScriptStepPlan PlanScriptStep(
+    FInfinityScriptCursor& Cursor,
+    const FInfinityCueSheet& Sheet,
+    int32 Delta,
+    const TArray<FInfinityTransportSegment>& Segments,
+    double TicksPerSecond);
+
+/** Pure marker layout for the current segment. All output fractions are clamped to 0..1. */
+INFINITYSTAGE_API TArray<FInfinityRehearsalMarker> LayoutMarkers(
+    const FInfinityCueSheet& Sheet,
+    const FInfinitySurtitleScript& Surtitles,
+    const TArray<FInfinityTransportSegment>& Segments,
+    const TArray<FInfinityGoCue>& GoCues,
+    int32 SegmentIndex,
+    double TicksPerSecond);
+
 /**
  * Pure: where the show will next wait for GO from Now. Run-through: the next ticked "stop after"
  * segment's end, or a kept GO hold, whichever comes first (the show end otherwise). Without
