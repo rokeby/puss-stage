@@ -7,3 +7,9 @@
 6. Mark every claim: declaration-proven / binary-proven / measured / inferred, with file:line. Unmarked reports are rejected.
 7. Look/creative values are Gary's: put them in args with defaults; produce preview images; apply nothing.
 8. Final message: what you built (paths, commit hash in your worktree), how to run it (ordered), harness results, open questions. Under 700 words.
+9. NEW TRAPS (8-9 Oct, all measured live; respect them in every tool):
+   - Visibility tracks: bind AActor::bHidden ("bHidden","bHidden"); the bool channel stores VISIBLE (True = shown). Tracks bound to "bHiddenInGame" are INERT on actors (MovieScenePropertyTrack.h:53-56; PIE probe PIES2VIS-185717).
+   - seq.add_possessable(actor) on an actor ALREADY bound in that sequence returns the EXISTING binding; set_display_name then renames it. Look up existing bindings first and add tracks to them.
+   - channel.evaluate_keys(range, rate): build the range with sequence.make_range(start, duration) (display rate). A default SequencerScriptingRange() is 60000 fps and returns ~1 value for ~2000 frames. Assert the count.
+   - Channel values are float32 in practice: read back numerically (0.01 cm / 0.001 deg), never by hashing rounded values.
+   - New visibility/property tracks get UE default names ("Visibility"), not your display name; match by class + property.
