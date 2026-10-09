@@ -16,13 +16,24 @@ GREEN = {"vectors": {"PaletteA": (0.72, 0.74, 0.48), "PaletteB": (-0.22, 0.10, 0
                      "PaletteD": (0.0, 0.0, 0.0), "SubsurfaceBase": (0.92, 0.91, 0.87), "GlowColor": (1.0, 0.97, 0.92)},
          "scalars": {"IridStrength": 0.45, "SubsurfaceIrid": 0.45, "FresnelExponent": 2.0, "Glow": 0.03, "GlowIrid": 0.0}}
 GREEN_STRONG = {"vectors": GREEN["vectors"], "scalars": dict(GREEN["scalars"], IridStrength=0.8, SubsurfaceIrid=0.7)}
-VARIANTS = [  # name, solid_visible, solid_mi, twin_visible, twin_mi, twin_overrides, glow ("off" | None = as keyed)
-    ("a_v3_pink_lightoff", True, DIR + "MI_PearlClam_Pearl_v3", False, None, None, "off"),
-    ("b_green_orange_lightoff", True, DIR + "MI_PearlClam_Pearl_v3_GreenOrange", False, None, None, "off"),
-    ("f_green_strong_lightoff", True, DIR + "MI_PearlClam_Pearl_v3_GreenOrange", False, None, GREEN_STRONG, "off"),
-    ("c_green_twinfade_1_lightoff", False, None, True, DIR + "MI_PearlClam_Pearl_Fade", dict(GREEN, fade=1.0), "off"),
-    ("g_green_twinstrong_1_lightoff", False, None, True, DIR + "MI_PearlClam_Pearl_Fade", dict(GREEN_STRONG, fade=1.0), "off"),
+
+
+def gs(**kw):
+    return {"vectors": GREEN["vectors"], "scalars": dict(GREEN_STRONG["scalars"], **kw)}
+
+
+GO = DIR + "MI_PearlClam_Pearl_v3_GreenOrange"
+VARIANTS = [  # name, solid_visible, solid_mi, twin_visible, twin_mi, overrides, glow light ("off" | None = as keyed)
+    ("f0_green_strong_ref", True, GO, False, None, gs(), "off"),
+    ("f1_glow006", True, GO, False, None, gs(Glow=0.06, GlowIrid=0.6, GlowFalloff=2.0), "off"),
+    ("f2_glow012", True, GO, False, None, gs(Glow=0.12, GlowIrid=0.6, GlowFalloff=2.0), "off"),
+    ("f3_glow020", True, GO, False, None, gs(Glow=0.20, GlowIrid=0.6, GlowFalloff=2.0), "off"),
+    ("f4_glow012_broadsheen", True, GO, False, None, gs(Glow=0.12, GlowIrid=0.6, FresnelExponent=1.2, IridScale=1.6), "off"),
 ]
+# PVSHOT_SET="AS_AUTHORED": one variant that overrides NOTHING (materials, twin, glow light all as saved/keyed) -
+# the post-APPLY proof shots (9 Oct PearlF4 + glow x0.15)
+if globals().get("PVSHOT_SET") == "AS_AUTHORED":
+    VARIANTS = [("as_authored", None, None, None, None, None, None)]
 SHOTS = (("near", 200.0, 18.0, 75.0),)   # yaw from +X, elev, cm
 RES = (1600, 900)
 SETTLE_TICKS = 25
@@ -65,6 +76,8 @@ def main():
 
     def apply_variant(v):
         name, sv, smi, tv, tmi, tov, gcd = v
+        if sv is None:   # AS_AUTHORED: touch nothing
+            return
         pearl.set_actor_hidden_in_game(not sv)
         twin.set_actor_hidden_in_game(not tv)
         if sv:
@@ -73,6 +86,8 @@ def main():
                 m2 = pc.create_dynamic_material_instance(0, u.load_asset(smi))
                 for k, x in tov["scalars"].items():
                     m2.set_scalar_parameter_value(k, float(x))
+                for k, c in tov.get("vectors", {}).items():
+                    m2.set_vector_parameter_value(k, u.LinearColor(c[0], c[1], c[2], 1.0))
         if tv:
             mid = tc.create_dynamic_material_instance(0, u.load_asset(tmi))
             for k, c in tov["vectors"].items():

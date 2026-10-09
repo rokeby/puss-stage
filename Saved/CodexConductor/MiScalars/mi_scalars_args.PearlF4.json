@@ -1,0 +1,122 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "label": "PearlF4",
+ "_note": "Gary 9 Oct: variant #5 = f4_glow012_broadsheen (pearl_variant_shots.py) + twin sync (Fade, Dither); option B light ~15% is pearl_glow_scale.py",
+ "targets": [
+  {
+   "mi": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/MI_PearlClam_Pearl_v3_GreenOrange",
+   "parent": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/M_PearlClam_Pearl_v3",
+   "scalars": {
+    "IridStrength": 0.8,
+    "SubsurfaceIrid": 0.7,
+    "Glow": 0.12,
+    "GlowIrid": 0.6,
+    "FresnelExponent": 1.2,
+    "IridScale": 1.6
+   },
+   "ranges": {
+    "IridStrength": [
+     0,
+     1
+    ],
+    "SubsurfaceIrid": [
+     0,
+     1
+    ],
+    "Glow": [
+     0,
+     0.2
+    ],
+    "GlowIrid": [
+     0,
+     1
+    ],
+    "FresnelExponent": [
+     0.5,
+     4
+    ],
+    "IridScale": [
+     0.5,
+     3
+    ]
+   }
+  },
+  {
+   "mi": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/MI_PearlClam_Pearl_Fade",
+   "parent": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/M_PearlClam_Pearl_Fade",
+   "scalars": {
+    "IridStrength": 0.8,
+    "SubsurfaceIrid": 0.7,
+    "Glow": 0.12,
+    "GlowIrid": 0.6,
+    "FresnelExponent": 1.2,
+    "IridScale": 1.6
+   },
+   "ranges": {
+    "IridStrength": [
+     0,
+     1
+    ],
+    "SubsurfaceIrid": [
+     0,
+     1
+    ],
+    "Glow": [
+     0,
+     0.2
+    ],
+    "GlowIrid": [
+     0,
+     1
+    ],
+    "FresnelExponent": [
+     0.5,
+     4
+    ],
+    "IridScale": [
+     0.5,
+     3
+    ]
+   }
+  },
+  {
+   "mi": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/MI_PearlClam_Pearl_Dither",
+   "parent": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/M_PearlClam_Pearl_Dither",
+   "scalars": {
+    "IridStrength": 0.8,
+    "SubsurfaceIrid": 0.7,
+    "Glow": 0.12,
+    "GlowIrid": 0.6,
+    "FresnelExponent": 1.2,
+    "IridScale": 1.6
+   },
+   "ranges": {
+    "IridStrength": [
+     0,
+     1
+    ],
+    "SubsurfaceIrid": [
+     0,
+     1
+    ],
+    "Glow": [
+     0,
+     0.2
+    ],
+    "GlowIrid": [
+     0,
+     1
+    ],
+    "FresnelExponent": [
+     0.5,
+     4
+    ],
+    "IridScale": [
+     0.5,
+     3
+    ]
+   }
+  }
+ ]
+}
