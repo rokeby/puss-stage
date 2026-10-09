@@ -1,0 +1,20 @@
+{
+ "note": "root z = dune surface (grid h - 5) + (hero root - hero surface for the source figure) - 2 cm; hero offsets {\"F55\": -1.9, \"F25\": -15.4, \"M59\": -0.9, \"F52\": -5.5}",
+ "root_z": {
+  "S3 Crowd 01 (from Shore04_F55)": 90.9,
+  "S3 Crowd 02 (from Shore06_F25)": 63.8,
+  "S3 Crowd 03 (from Shore04_F55)": 104.3,
+  "S3 Crowd 04 (from Shore06_F25)": 66.2,
+  "S3 Crowd 05 (from Shore06_F25)": 82.0,
+  "S3 Crowd 06 (from Shore06_F25)": 110.7,
+  "S3 Crowd 07 (from Shore04_F55)": 149.6,
+  "S3 Crowd 08 (from Shore06_F25)": -9.1,
+  "S3 Crowd 09 (from Shore03_M59)": 5.6,
+  "S3 Crowd 10 (from Shore06_F25)": -8.2,
+  "S3 Crowd 11 (from Shore06_F25)": 6.3,
+  "S3 Crowd 12 (from Shore04_F55)": 39.6,
+  "S3 Crowd 13 (from Shore06_F25)": -3.0,
+  "S3 Crowd 14 (from Shore06_F25)": 38.7,
+  "S3 Crowd 15 (from Shore04_F55)": 66.6
+ }
+}

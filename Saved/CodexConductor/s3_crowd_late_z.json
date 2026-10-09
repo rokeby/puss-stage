@@ -1,0 +1,14 @@
+{
+ "note": "ocean spots; dune grid surface + source hero offset - 2 cm (as s3_crowd_regather_z.json)",
+ "root_z": {
+  "S3 Crowd 01 (from Shore04_F55)": 2.2,
+  "S3 Crowd 03 (from Shore04_F55)": 15.9,
+  "S3 Crowd 05 (from Shore06_F25)": 26.6,
+  "S3 Crowd 07 (from Shore04_F55)": 0.5,
+  "S3 Crowd 08 (from Shore06_F25)": -22.4,
+  "S3 Crowd 10 (from Shore06_F25)": -15.5,
+  "S3 Crowd 12 (from Shore04_F55)": -8.9,
+  "S3 Crowd 13 (from Shore06_F25)": -11.7,
+  "S3 Crowd 15 (from Shore04_F55)": -8.9
+ }
+}

@@ -35,8 +35,9 @@ def main():
                     if pelvis is None and c.does_socket_exist("pelvis"):
                         sl, sr = c.get_socket_location("pelvis"), c.get_socket_rotation("pelvis")
                         hl = c.get_socket_location("head") if c.does_socket_exist("head") else None
+                        feet = [round(c.get_socket_location(b).z, 1) for b in ("foot_l", "foot_r", "ball_l", "ball_r") if c.does_socket_exist(b)]
                         pelvis = {"comp": c.get_name(), "loc": [round(sl.x), round(sl.y), round(sl.z)], "rot": [round(sr.roll, 1), round(sr.pitch, 1), round(sr.yaw, 1)],
-                                  "head": [round(hl.x), round(hl.y), round(hl.z)] if hl else None}
+                                  "head": [round(hl.x), round(hl.y), round(hl.z)] if hl else None, "feet_z": feet}
                 rc = a.root_component
                 rows.append({"label": l, "root": [round(p.x, 1), round(p.y, 1), round(p.z, 1)], "yaw": round(r.yaw, 2),
                              "root_comp": rc.get_name() if rc else None, "skel": comps, "pelvis": pelvis})

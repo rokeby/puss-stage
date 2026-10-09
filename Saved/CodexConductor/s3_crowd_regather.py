@@ -17,9 +17,11 @@ REC = HERE + "s3_crowd_regather_record.json"
 MAP = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 UMAP = "E:/PussStage/Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap"
 CLUSTERS = {"S3 Fire B": ["S3 Crowd %02d" % i for i in range(1, 8)], "S3 Fire C": ["S3 Crowd %02d" % i for i in range(8, 16)]}
-ARC_DEG = 290.0
-R_BY_N = {7: 135.0, 8: 150.0}
-JIT_R, JIT_A = 12.0, 6.0
+ARC_DEG = 300.0
+R_BY_N = {7: 140.0, 8: 155.0}
+JIT_R, JIT_A = 30.0, 12.0     # loose huddle, not a ring (Gary 8 Oct: "loosely facing it rather than standing in lines")
+JIT_YAW = 25.0
+SINK_CM = 2.0                    # Gary: feet "should intersect with the dune by about 2cm"
 WALLS_Y = (159001.0, 160999.0)          # marble inner faces [meas grease placement]
 
 
@@ -44,6 +46,13 @@ def main():
         by_prefix.setdefault(l[:12], []).append(x)                         # 'S3 Crowd 01' -> 'S3 Crowd 01 (from ...)'
     acts = {str(x.get_actor_label()): x for x in all_acts}
     ignore = [x for x in all_acts if str(x.get_actor_label()).startswith(("S3 Crowd", "Shore0", "S3 Fire", "S3 Ghost"))]
+    # The dune (tag RigAtmos.S3ShoreGround) is NO_COLLISION (s3_shore_ground_ue.py:1374-1376), so a trace passes
+    # through it (DRY-2: F52 feet 168.5 vs trace 13.7).  Collision is switched to QUERY_ONLY for the traces only and
+    # restored before anything else; no modify(), and the census decides whether that dirtied anything.
+    dune = [c for x in all_acts if "RigAtmos.S3ShoreGround" in [str(t) for t in x.tags]
+            for c in x.get_components_by_class(unreal.StaticMeshComponent)]
+    dune_prev = [c.get_collision_enabled() for c in dune]
+    for c in dune: c.set_collision_enabled(unreal.CollisionEnabled.QUERY_ONLY)
     plan = {"figures": [], "lights": []}
     for fire, members in CLUSTERS.items():
         f = acts.get(fire)
@@ -64,18 +73,40 @@ def main():
                                                          unreal.TraceTypeQuery.TRACE_TYPE_QUERY1, False, ignore,
                                                          unreal.DrawDebugTrace.NONE, True)
             tup = hit.to_tuple() if hit else None
-            pz = float(tup[4].z) if tup and tup[0] else cur.z
-            yaw = math.degrees(math.atan2(fl.y - py, fl.x - px))
+            body = [c for c in x.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Body"][0]
+            rel_z = float(body.get_editor_property("relative_location").z)          # feet = root z + Body rel z [inf]
+            floor = float(tup[4].z) if tup and tup[0] else None
+            pz = (floor - SINK_CM - rel_z) if floor is not None else cur.z
+            # The dune is NO_COLLISION, so the trace sees the hangar floor under it (DRY-3).  z comes from the offline
+            # dune grid instead: s3_crowd_regather_z.json (surface + the source hero's own root-to-surface offset - 2 cm).
+            zf = HERE + "s3_crowd_regather_z.json"
+            if os.path.exists(zf):
+                zo = json.load(open(zf))["root_z"].get(str(x.get_actor_label()))
+                if zo is not None: pz = float(zo)
+            yaw = math.degrees(math.atan2(fl.y - py, fl.x - px)) + JIT_YAW * _jit(i, 3)
             plan["figures"].append({"label": str(x.get_actor_label()), "fire": fire, "old": [cur.x, cur.y, cur.z, x.get_actor_rotation().yaw],
-                                    "new": [round(px, 1), round(py, 1), round(pz, 1), round(yaw, 2)], "floor_hit": bool(tup and tup[0])})
+                                    "new": [round(px, 1), round(py, 1), round(pz, 1), round(yaw, 2)], "floor_hit": bool(tup and tup[0]), "floor_z": floor, "rel_z": rel_z})
     for fire in ("S3 Fire A", "S3 Fire B", "S3 Fire C"):
         f, l = acts.get(fire), acts.get(fire + " Light")
         if f is None or l is None: raise RuntimeError("NO_FIRE_LIGHT|" + fire)
         fl, ll = f.get_actor_location(), l.get_actor_location()
         plan["lights"].append({"label": fire + " Light", "old": [ll.x, ll.y, ll.z], "new": [round(fl.x, 1), round(fl.y, 1), ll.z]})
+    cal = {}
+    for hero in ("Shore02_F52 Clam", "Shore03_M59 Clam"):
+        h = acts.get(hero)
+        if h is None: continue
+        hl = h.get_actor_location()
+        hb = [c for c in h.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Body"][0]
+        ht = unreal.SystemLibrary.line_trace_single(w, unreal.Vector(hl.x, hl.y, hl.z + 400.0), unreal.Vector(hl.x, hl.y, hl.z - 600.0),
+                                                    unreal.TraceTypeQuery.TRACE_TYPE_QUERY1, False, ignore, unreal.DrawDebugTrace.NONE, True).to_tuple()
+        cal[hero] = {"feet_z": round(hl.z + float(hb.get_editor_property("relative_location").z), 1),
+                     "floor_z": round(float(ht[4].z), 1) if ht[0] else None}
+    plan["calibration"] = cal
+    for c, prev in zip(dune, dune_prev): c.set_collision_enabled(prev)
+    plan["dune_components"] = len(dune)
     if mode == "DRY":
         json.dump(plan, open(HERE + "s3_crowd_regather_dry.json", "w"), indent=1)
-        unreal.log("S3REGATHER_DRY_OK|run=%s|figures=%d|no_floor=%s|fires=%s" % (run, len(plan["figures"]),
+        unreal.log("S3REGATHER_DRY_OK|run=%s|figures=%d|calibration=%s|no_floor=%s|fires=%s" % (run, len(plan["figures"]), json.dumps(cal),
                    [p["label"][:12] for p in plan["figures"] if not p["floor_hit"]],
                    {k: [round(acts[k].get_actor_location().x), round(acts[k].get_actor_location().y)] for k in ("S3 Fire A", "S3 Fire B", "S3 Fire C")}))
         return
