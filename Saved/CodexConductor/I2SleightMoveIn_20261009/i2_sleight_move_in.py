@@ -4,6 +4,7 @@ Offline-authored.  ``unreal`` is imported only by :class:`UnrealBackend` when
 the conductor runs this file through the guarded project-Python route.
 
 Modes and exact confirms:
+  PROBE / ``PROBE I2MOVEIN`` (read-only binding diagnostic)
   DRY / ``DRY I2MOVEIN``
   APPLY / ``APPLY I2MOVEIN``
   REVERT / ``REVERT I2MOVEIN``
@@ -34,13 +35,13 @@ import shutil
 
 
 TOOL = "I2_MOVE_IN"
-TOOL_VERSION = "2026-10-09a"
+TOOL_VERSION = "2026-10-09b"
 FOLDER = "I2SleightMoveIn_20261009"
 SEQ_PATH = "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips"
 MAP_PATH = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 HANGAR_GUID = "55C3CAC6436730E6463F3A8220611E72"
 MOUTH_GUID = "E6CF63464549232FD6CEA88D81178F0D"
-MOUTH_COMPONENT_GUID = "A4162B8C4B7F601B6D73BF97DB42FD91"
+RECORDED_MOUTH_COMPONENT_GUID = "A4162B8C4B7F601B6D73BF97DB42FD91"
 HANGAR_NAME = "I2 Hangar Hold Camera"
 HANGAR_TAG = "I2HangarHoldCamera"
 MOUTH_NAME = "I2 Sleight Mouth Camera"
@@ -52,17 +53,19 @@ TRANSFORM_CLASS = "MovieScene3DTransformTrack"
 FLOAT_CLASS = "MovieSceneFloatTrack"
 EXPECTED_FPS = 25.0
 EXPECTED_TICK = 24000.0
-EXPECTED_PLAYBACK = [0, 2226]
-CUT_FRAME = 1250
+RECORDED_PLAYBACK = [0, 2226]
+RECORDED_CUT_FRAME = 1250
 RECORD = "i2_sleight_move_in_record.json"
 PLAN_FILE = "i2_sleight_move_in_plan.json"
-CONFIRMS = {"DRY": "DRY I2MOVEIN", "APPLY": "APPLY I2MOVEIN", "REVERT": "REVERT I2MOVEIN"}
+CONFIRMS = {"PROBE": "PROBE I2MOVEIN", "DRY": "DRY I2MOVEIN",
+            "APPLY": "APPLY I2MOVEIN", "REVERT": "REVERT I2MOVEIN"}
 DEFAULT_EVIDENCE = {
     "hangar_record": "E:/PussStage/Saved/CodexConductor/I2HangarCam_20261009/i2_hangar_cam_record.json",
     "order_record": "E:/PussStage/Saved/CodexConductor/I2Order_20261008/i2_order_record.json",
     "drape_probe": "E:/PussStage/Saved/CodexConductor/I2Order_20261008/i2_drape_probe_I2PROBE-222723.json",
 }
 DEFAULTS = {
+    "cut_frame": "LIVE",
     "move_start": 1150,
     "close_distance_cm": 600.0,
     "mouth_after": "EASE_OUT",
@@ -138,11 +141,13 @@ def merged_params(raw):
     evidence.update(raw.get("evidence") or {})
     p["evidence"] = {key: os.path.abspath(str(value)) for key, value in evidence.items()}
     p["move_start"] = int(p["move_start"])
+    cut_value = p.get("cut_frame", "LIVE")
+    p["cut_frame"] = "LIVE" if str(cut_value).strip().upper() == "LIVE" else int(cut_value)
     for key in ("close_distance_cm", "ease_out_s", "horizontal_fov_deg", "output_aspect", "edge_guard_cm",
                 "location_tolerance_cm", "rotation_tolerance_deg", "lens_tolerance_mm"):
         p[key] = float(p[key])
     p["mouth_after"] = str(p["mouth_after"]).upper()
-    if not 0 <= p["move_start"] < CUT_FRAME - 1:
+    if p["move_start"] < 0:
         raise PlanError("MOVE_START_RANGE|%d" % p["move_start"])
     if p["close_distance_cm"] <= 1.0:
         raise PlanError("CLOSE_DISTANCE_RANGE|%s" % p["close_distance_cm"])
@@ -216,6 +221,51 @@ def _binding(snapshot, guid, expected_name=None):
     return rows[0]
 
 
+def _component_binding(snapshot, parent_guid):
+    """Resolve a camera component child by hierarchy and its two owned tracks."""
+    required = {(FLOAT_CLASS, "CurrentFocalLength"), (FLOAT_CLASS, "ManualFocusDistance")}
+    children = [row for row in snapshot.get("bindings", []) if row.get("parent") == parent_guid]
+    candidates = []
+    for row in children:
+        signature = {(track.get("class"), track.get("property")) for track in row.get("tracks", [])}
+        if required.issubset(signature):
+            candidates.append(row)
+    if len(candidates) != 1:
+        summary = [{"guid": row.get("guid"), "name": row.get("name"),
+                    "tracks": sorted([track.get("property") for track in row.get("tracks", [])])}
+                   for row in children]
+        raise PlanError("MOUTH_COMPONENT_TRACK_BINDING_COUNT|%d|children=%s" % (len(candidates), summary))
+    if candidates[0].get("name") != MOUTH_COMPONENT_NAME:
+        raise PlanError("MOUTH_COMPONENT_NAME|%s" % candidates[0].get("name"))
+    return candidates[0]
+
+
+def _live_cut_context(snapshot, requested):
+    playback = [int(value) for value in snapshot.get("playback", [])]
+    if len(playback) != 2 or playback[0] != 0 or playback[1] <= playback[0]:
+        raise PlanError("PLAYBACK|%s" % playback)
+    if int(snapshot.get("cut_track_count", 0)) != 1:
+        raise PlanError("CUT_TRACK_COUNT|%s" % snapshot.get("cut_track_count"))
+    cuts = [row for row in snapshot.get("cuts", []) if row.get("active")]
+    hangar = [row for row in cuts if row.get("binding_guid") == HANGAR_GUID]
+    mouth = [row for row in cuts if row.get("binding_guid") == MOUTH_GUID]
+    if len(hangar) != 1 or len(mouth) != 1 or len(cuts) != 2:
+        raise PlanError("HANGAR_MOUTH_CUT_COUNT|hangar=%d|mouth=%d|active=%d" %
+                        (len(hangar), len(mouth), len(cuts)))
+    hangar_range = [int(value) for value in hangar[0].get("range", [])]
+    mouth_range = [int(value) for value in mouth[0].get("range", [])]
+    if (len(hangar_range) != 2 or len(mouth_range) != 2 or
+            hangar_range[0] != playback[0] or mouth_range[1] != playback[1] or
+            hangar_range[1] != mouth_range[0]):
+        raise PlanError("HANGAR_MOUTH_CUT_BOUNDARY|hangar=%s|mouth=%s|playback=%s" %
+                        (hangar_range, mouth_range, playback))
+    cut_frame = hangar_range[1]
+    if requested != "LIVE" and int(requested) != cut_frame:
+        raise PlanError("CUT_FRAME_ARG|requested=%s|live=%d" % (requested, cut_frame))
+    return {"cut_frame": cut_frame, "playback": playback,
+            "hangar_range": hangar_range, "mouth_range": mouth_range}
+
+
 def _channel(track, name):
     sections = track.get("sections", [])
     if len(sections) != 1:
@@ -276,18 +326,21 @@ def load_evidence(params):
 
 def recorded_mouth_constant(evidence):
     snap = evidence["hangar_snapshot"]
+    if [int(value) for value in snap.get("playback", [])] != RECORDED_PLAYBACK:
+        raise PlanError("RECORDED_PLAYBACK|%s" % snap.get("playback"))
+    _live_cut_context(snap, RECORDED_CUT_FRAME)
     mouth = _binding(snap, MOUTH_GUID, MOUTH_NAME)
-    component = _binding(snap, MOUTH_COMPONENT_GUID, MOUTH_COMPONENT_NAME)
+    component = _binding(snap, RECORDED_MOUTH_COMPONENT_GUID, MOUTH_COMPONENT_NAME)
     if component.get("parent", "") != MOUTH_GUID:
         raise PlanError("MOUTH_COMPONENT_PARENT")
     transform = _track(mouth, TRANSFORM_CLASS, "Transform")
     values = {}
     for name in TRANSFORM_CHANNELS[:6]:
-        values[name] = _constant_value(_channel(transform, name), expected_keys=[0, 2226])
+        values[name] = _constant_value(_channel(transform, name), expected_keys=RECORDED_PLAYBACK)
     focal = _constant_value(_channel(_track(component, FLOAT_CLASS, "CurrentFocalLength"), "None"),
-                            expected_keys=[0, 2226])
+                            expected_keys=RECORDED_PLAYBACK)
     focus = _constant_value(_channel(_track(component, FLOAT_CLASS, "ManualFocusDistance"), "None"),
-                            expected_keys=[0, 2226])
+                            expected_keys=RECORDED_PLAYBACK)
     return {"transform": values, "focal_mm": focal, "focus_cm": focus}
 
 
@@ -297,17 +350,18 @@ def _assert_live_baseline(live, evidence, params):
         raise PlanError("DISPLAY_RATE|%s" % snapshot["display_rate"])
     if abs(float(snapshot["tick_resolution"]) - EXPECTED_TICK) > 1.0e-9:
         raise PlanError("TICK_RESOLUTION|%s" % snapshot["tick_resolution"])
-    if snapshot["playback"] != EXPECTED_PLAYBACK:
-        raise PlanError("PLAYBACK|%s" % snapshot["playback"])
+    cut_context = _live_cut_context(snapshot, params["cut_frame"])
+    cut_frame = cut_context["cut_frame"]
+    if not 0 <= params["move_start"] < cut_frame - 1:
+        raise PlanError("MOVE_START_RANGE|move=%d|cut=%d" % (params["move_start"], cut_frame))
     hangar = _binding(snapshot, HANGAR_GUID, HANGAR_NAME)
     mouth = _binding(snapshot, MOUTH_GUID, MOUTH_NAME)
-    component = _binding(snapshot, MOUTH_COMPONENT_GUID, MOUTH_COMPONENT_NAME)
+    component = _component_binding(snapshot, MOUTH_GUID)
     if component.get("parent", "") != MOUTH_GUID:
         raise PlanError("MOUTH_COMPONENT_PARENT_LIVE")
-    cuts = sorted([[row["binding_guid"], int(row["range"][0]), int(row["range"][1])]
-                   for row in snapshot.get("cuts", []) if row.get("active")], key=lambda row: row[1])
-    if cuts != [[HANGAR_GUID, 0, CUT_FRAME], [MOUTH_GUID, CUT_FRAME, EXPECTED_PLAYBACK[1]]]:
-        raise PlanError("CUT_OR_BINDING_GUARD|%s" % cuts)
+    if live.get("mouth_component_guid") != component.get("guid"):
+        raise PlanError("MOUTH_COMPONENT_OBJECT_BINDING|tracks=%s|object=%s" %
+                        (component.get("guid"), live.get("mouth_component_guid")))
     existing = [row for row in hangar.get("tracks", []) if row.get("class") == TRANSFORM_CLASS]
     if existing:
         raise PlanError("EXISTING_HANGAR_TRANSFORM_TRACK")
@@ -317,7 +371,7 @@ def _assert_live_baseline(live, evidence, params):
     expected = recorded_mouth_constant(evidence)["transform"]
     transform = _track(mouth, TRANSFORM_CLASS, "Transform")
     for name in TRANSFORM_CHANNELS[:6]:
-        got = _constant_value(_channel(transform, name), expected_keys=[0, 2226])
+        got = _constant_value(_channel(transform, name))
         if abs(got - expected[name]) > params["location_tolerance_cm"]:
             raise PlanError("MOUTH_RECORDED_CONSTANT_DRIFT|%s|%s!=%s" % (name, got, expected[name]))
     hfact, mfact = live["hangar_camera"], live["mouth_camera"]
@@ -330,6 +384,7 @@ def _assert_live_baseline(live, evidence, params):
     for name in ("pitch", "yaw", "roll"):
         if abs(float(hfact["rotation_deg"][name]) - float(recorded_actor["rotation_deg"][name])) > params["rotation_tolerance_deg"]:
             raise PlanError("HANGAR_ACTOR_ROTATION_DRIFT|%s" % name)
+    return {"cut": cut_context, "mouth_component_guid": component["guid"]}
 
 
 def coverage_for_pose(pose, drape, bounds, hfov_deg, aspect, edge_guard_cm):
@@ -373,22 +428,23 @@ def _float_spec(name, prop, path, keys, section_range, replace_from=None):
 
 def pose_at(plan, side, frame):
     frame = int(frame)
+    cut_frame = int(plan["cut_frame"])
     if side == "hangar":
         if frame <= plan["move_start"]:
             loc = plan["hangar"]["start_pose"]["loc"]
-        elif frame >= CUT_FRAME - 1:
+        elif frame >= cut_frame - 1:
             loc = plan["hangar"]["close_pose"]["loc"]
         else:
-            t = (frame - plan["move_start"]) / float((CUT_FRAME - 1) - plan["move_start"])
+            t = (frame - plan["move_start"]) / float((cut_frame - 1) - plan["move_start"])
             loc = lerp3(plan["hangar"]["start_pose"]["loc"], plan["hangar"]["close_pose"]["loc"], ease_cubic_in_out(t))
         return {"loc": list(loc), "pitch": plan["hangar"]["start_pose"]["pitch"],
                 "yaw": plan["hangar"]["start_pose"]["yaw"], "roll": plan["hangar"]["start_pose"]["roll"]}
-    if frame <= CUT_FRAME or plan["mouth_after"] == "HOLD_CLOSE":
+    if frame <= cut_frame or plan["mouth_after"] == "HOLD_CLOSE":
         return copy.deepcopy(plan["mouth"]["close_pose"])
     end = int(plan["mouth"]["ease_end_frame"])
     if frame >= end:
         return copy.deepcopy(plan["mouth"]["hold_pose"])
-    t = (frame - CUT_FRAME) / float(end - CUT_FRAME)
+    t = (frame - cut_frame) / float(end - cut_frame)
     e = ease_cubic_out(t)
     close, hold = plan["mouth"]["close_pose"], plan["mouth"]["hold_pose"]
     return {"loc": lerp3(close["loc"], hold["loc"], e),
@@ -397,7 +453,11 @@ def pose_at(plan, side, frame):
 
 
 def build_plan(live, evidence, params):
-    _assert_live_baseline(live, evidence, params)
+    context = _assert_live_baseline(live, evidence, params)
+    cut_frame = context["cut"]["cut_frame"]
+    playback = context["cut"]["playback"]
+    playback_end = playback[1]
+    mouth_component_guid = context["mouth_component_guid"]
     recorded = recorded_mouth_constant(evidence)
     hangar_fact, mouth_fact = live["hangar_camera"], live["mouth_camera"]
     hangar_drape, mouth_drape = evidence["hangar_drape"], evidence["mouth_drape"]
@@ -423,18 +483,24 @@ def build_plan(live, evidence, params):
            hfov_for_focal(mouth_fact["sensor_width_mm"], mouth_focal)) > 1.0e-7:
         raise PlanError("CUT_HFOV_MISMATCH")
     ease_frames = int(round(params["ease_out_s"] * EXPECTED_FPS))
-    ease_end = min(EXPECTED_PLAYBACK[1], CUT_FRAME + ease_frames)
-    if params["mouth_after"] == "EASE_OUT" and ease_end <= CUT_FRAME:
+    ease_end = min(playback_end, cut_frame + ease_frames)
+    if params["mouth_after"] == "EASE_OUT" and ease_end <= cut_frame:
         raise PlanError("EASE_OUT_FRAME_RANGE")
+    live_mouth = _binding(live["snapshot"], MOUTH_GUID)
+    live_component = _binding(live["snapshot"], mouth_component_guid)
+    mouth_transform_range = list(_track(live_mouth, TRANSFORM_CLASS, "Transform")["sections"][0]["range"])
+    mouth_focal_range = list(_track(live_component, FLOAT_CLASS, "CurrentFocalLength")["sections"][0]["range"])
+    mouth_focus_range = list(_track(live_component, FLOAT_CLASS, "ManualFocusDistance")["sections"][0]["range"])
     plan = {
-        "tool_version": TOOL_VERSION, "sequence": SEQ_PATH, "cut_frame": CUT_FRAME,
-        "move_start": params["move_start"], "hangar_close_frame": CUT_FRAME - 1,
+        "tool_version": TOOL_VERSION, "sequence": SEQ_PATH, "cut_frame": cut_frame,
+        "playback": playback, "cut_source": params["cut_frame"],
+        "move_start": params["move_start"], "hangar_close_frame": cut_frame - 1,
         "close_distance_cm": params["close_distance_cm"],
         "mouth_after": params["mouth_after"], "ease_out_s": params["ease_out_s"],
         "hfov_deg": params["horizontal_fov_deg"], "output_aspect": params["output_aspect"],
         "edge_guard_cm": params["edge_guard_cm"], "drape_bounds": evidence["drape_bounds"],
         "hangar_drape": hangar_drape, "mouth_drape": mouth_drape,
-        "guids": {"hangar": HANGAR_GUID, "mouth": MOUTH_GUID, "mouth_component": MOUTH_COMPONENT_GUID},
+        "guids": {"hangar": HANGAR_GUID, "mouth": MOUTH_GUID, "mouth_component": mouth_component_guid},
         "hangar": {"start_pose": hstart, "close_pose": hclose, "sensor_width_mm": hangar_fact["sensor_width_mm"],
                    "sensor_height_mm": hangar_fact["sensor_height_mm"], "focal_mm": hangar_focal,
                    "start_focus_cm": -hlocal[0]},
@@ -444,18 +510,19 @@ def build_plan(live, evidence, params):
                   "ease_end_frame": ease_end},
     }
     coverage = {}
+    coverage_frames = sorted(set(PREVIEW_FRAMES + [cut_frame - 1, cut_frame]))
     for side, drape in (("hangar", hangar_drape), ("mouth", mouth_drape)):
         coverage[side] = {}
-        for frame in PREVIEW_FRAMES:
+        for frame in coverage_frames:
             coverage[side][str(frame)] = coverage_for_pose(pose_at(plan, side, frame), drape,
                                                            evidence["drape_bounds"], plan["hfov_deg"],
                                                            plan["output_aspect"], plan["edge_guard_cm"])
     plan["coverage"] = coverage
-    if not coverage["hangar"][str(CUT_FRAME)]["fills_frame"] or not coverage["mouth"][str(CUT_FRAME)]["fills_frame"]:
+    if not coverage["hangar"][str(cut_frame)]["fills_frame"] or not coverage["mouth"][str(cut_frame)]["fills_frame"]:
         raise PlanError("EDGE_IN_FRAME_AT_CUT|hangar=%s|mouth=%s" %
-                        (coverage["hangar"][str(CUT_FRAME)]["margins_cm"],
-                         coverage["mouth"][str(CUT_FRAME)]["margins_cm"]))
-    hframes = list(range(params["move_start"], CUT_FRAME + 1))
+                        (coverage["hangar"][str(cut_frame)]["margins_cm"],
+                         coverage["mouth"][str(cut_frame)]["margins_cm"]))
+    hframes = list(range(params["move_start"], cut_frame + 1))
     hposes = [pose_at(plan, "hangar", frame) for frame in hframes]
     hkeys = {}
     for index, name in enumerate(("Location.X", "Location.Y", "Location.Z")):
@@ -463,37 +530,37 @@ def build_plan(live, evidence, params):
         hkeys[name] = [[0, hstart["loc"][index]]] + _key_rows(hframes, values)
     for name, value in (("Rotation.X", hstart["roll"]), ("Rotation.Y", hstart["pitch"]),
                         ("Rotation.Z", hstart["yaw"])):
-        hkeys[name] = [[0, value], [CUT_FRAME, value]]
-    htransform = _transform_spec(TRACK_NAME, hkeys, [0, CUT_FRAME + 1])
+        hkeys[name] = [[0, value], [cut_frame, value]]
+    htransform = _transform_spec(TRACK_NAME, hkeys, [playback[0], cut_frame + 1])
     hfocus = _key_rows(hframes, [-local_from_frame(hangar_drape, pose["loc"])[0] for pose in hposes])
     hfocus = [[0, -hlocal[0]]] + hfocus
-    hfocal = [[0, hangar_focal], [CUT_FRAME, hangar_focal]]
+    hfocal = [[playback[0], hangar_focal], [cut_frame, hangar_focal]]
     if params["mouth_after"] == "EASE_OUT":
-        mframes = list(range(CUT_FRAME, ease_end + 1))
-        if ease_end < EXPECTED_PLAYBACK[1]:
-            mframes.append(EXPECTED_PLAYBACK[1])
+        mframes = list(range(cut_frame, ease_end + 1))
+        if ease_end < playback_end:
+            mframes.append(playback_end)
     else:
-        mframes = [CUT_FRAME, EXPECTED_PLAYBACK[1]]
+        mframes = [cut_frame, playback_end]
     mposes = [pose_at(plan, "mouth", frame) for frame in mframes]
     mkeys = {}
     for index, name in enumerate(("Location.X", "Location.Y", "Location.Z")):
         mkeys[name] = _key_rows(mframes, [pose["loc"][index] for pose in mposes])
     for name, field in (("Rotation.X", "roll"), ("Rotation.Y", "pitch"), ("Rotation.Z", "yaw")):
         mkeys[name] = _key_rows(mframes, [pose[field] for pose in mposes])
-    mtransform = _transform_spec(ORIGINAL_TRACK_NAME, mkeys, [0, EXPECTED_PLAYBACK[1] + 1], CUT_FRAME)
+    mtransform = _transform_spec(ORIGINAL_TRACK_NAME, mkeys, mouth_transform_range, cut_frame)
     mfocus = _key_rows(mframes, [-local_from_frame(mouth_drape, pose["loc"])[0] for pose in mposes])
     plan["writes"] = {
         "hangar_transform": htransform,
         "hangar_focal": _float_spec(TRACK_NAME, "CurrentFocalLength", "CurrentFocalLength", hfocal,
-                                    [0, CUT_FRAME + 1]),
+                                    [playback[0], cut_frame + 1]),
         "hangar_focus": _float_spec(TRACK_NAME, "ManualFocusDistance", "FocusSettings.ManualFocusDistance", hfocus,
-                                    [0, CUT_FRAME + 1]),
+                                    [playback[0], cut_frame + 1]),
         "mouth_transform": mtransform,
         "mouth_focal": _float_spec(ORIGINAL_TRACK_NAME, "CurrentFocalLength", "CurrentFocalLength",
-                                   [[CUT_FRAME, mouth_focal], [EXPECTED_PLAYBACK[1], mouth_focal]],
-                                   [0, EXPECTED_PLAYBACK[1] + 1], CUT_FRAME),
+                                   [[cut_frame, mouth_focal], [playback_end, mouth_focal]],
+                                   mouth_focal_range, cut_frame),
         "mouth_focus": _float_spec(ORIGINAL_TRACK_NAME, "ManualFocusDistance", "FocusSettings.ManualFocusDistance",
-                                   mfocus, [0, EXPECTED_PLAYBACK[1] + 1], CUT_FRAME),
+                                   mfocus, mouth_focus_range, cut_frame),
     }
     plan["cut_match"] = {
         "hangar_distance_cm": -local_from_frame(hangar_drape, hclose["loc"])[0],
@@ -517,11 +584,12 @@ def write_previews(plan, folder):
     plan_path = os.path.join(folder, "preview_plan.svg")
     cards_path = os.path.join(folder, "preview_coverage.svg")
     points = []
+    cut_frame = int(plan["cut_frame"])
     for side, drape in (("hangar", plan["hangar_drape"]), ("mouth", plan["mouth_drape"])):
-        frames = (list(range(plan["move_start"], CUT_FRAME + 1, 5)) if side == "hangar" else
-                  list(range(CUT_FRAME, int(plan["mouth"]["ease_end_frame"]) + 1, 5)))
+        frames = (list(range(plan["move_start"], cut_frame + 1, 5)) if side == "hangar" else
+                  list(range(cut_frame, int(plan["mouth"]["ease_end_frame"]) + 1, 5)))
         if not frames:
-            frames = [CUT_FRAME]
+            frames = [cut_frame]
         points.append((side, [local_from_frame(drape, pose_at(plan, side, frame)["loc"]) for frame in frames]))
     def project(side, local):
         centre_y = 220.0 if side == "hangar" else 390.0
@@ -542,7 +610,7 @@ def write_previews(plan, folder):
         svg.append('<text x="75" y="%.1f" fill="%s" font-family="sans-serif" font-size="16">%s path in its drape-local plan</text>' %
                    ((185 if side == "hangar" else 355), color, side))
     svg.append('<text x="40" y="535" fill="#aeb8c5" font-family="monospace" font-size="13">move_start=%d  cut=%d  close=%.1f cm  mouth=%s  ease=%.2f s  HFOV=%.2f°</text>' %
-               (plan["move_start"], CUT_FRAME, plan["close_distance_cm"], plan["mouth_after"], plan["ease_out_s"], plan["hfov_deg"]))
+               (plan["move_start"], cut_frame, plan["close_distance_cm"], plan["mouth_after"], plan["ease_out_s"], plan["hfov_deg"]))
     svg.append('</svg>')
     with open(plan_path, "w", encoding="utf-8") as handle:
         handle.write("\n".join(svg) + "\n")
@@ -572,7 +640,7 @@ def write_previews(plan, folder):
             local = cov["camera_local_cm"]
             svg.append('<text x="%d" y="%d" fill="#aeb8c5" font-family="monospace" font-size="11">local [%.1f, %.1f, %.1f]</text>' %
                        (x + 12, y + 122, local[0], local[1], local[2]))
-            note = "live" if (side == "hangar" and frame < CUT_FRAME) or (side == "mouth" and frame >= CUT_FRAME) else "comparison / not live"
+            note = "live" if (side == "hangar" and frame < cut_frame) or (side == "mouth" and frame >= cut_frame) else "comparison / not live"
             svg.append('<text x="%d" y="%d" fill="#aeb8c5" font-family="sans-serif" font-size="12">%s</text>' %
                        (x + 12, y + 147, _svg_escape(note)))
     svg.append('</svg>')
@@ -599,7 +667,7 @@ def _expected_track(before_track, spec):
 
 def expected_owned_tracks(before, plan):
     mouth = _binding(before, MOUTH_GUID)
-    component = _binding(before, MOUTH_COMPONENT_GUID)
+    component = _binding(before, plan["guids"]["mouth_component"])
     return {
         "hangar_transform": _expected_track(None, plan["writes"]["hangar_transform"]),
         "hangar_focal": _expected_track(None, plan["writes"]["hangar_focal"]),
@@ -658,7 +726,8 @@ def validate_apply(before, after, plan, mutation, params):
     expected = expected_owned_tracks(before, plan)
     hangar = _binding(after, HANGAR_GUID)
     mouth = _binding(after, MOUTH_GUID)
-    mouth_comp = _binding(after, MOUTH_COMPONENT_GUID)
+    mouth_component_guid = plan["guids"]["mouth_component"]
+    mouth_comp = _binding(after, mouth_component_guid)
     new_comp = _binding(after, mutation["hangar_component_guid"], HANGAR_COMPONENT_NAME)
     if new_comp.get("parent") != HANGAR_GUID:
         problems.append("HANGAR_COMPONENT_PARENT")
@@ -673,8 +742,8 @@ def validate_apply(before, after, plan, mutation, params):
     nh = _binding(normalized, HANGAR_GUID)
     nh["tracks"] = [row for row in nh["tracks"] if not (row.get("class") == TRANSFORM_CLASS and row.get("property") == "Transform")]
     for guid, cls, prop in ((MOUTH_GUID, TRANSFORM_CLASS, "Transform"),
-                            (MOUTH_COMPONENT_GUID, FLOAT_CLASS, "CurrentFocalLength"),
-                            (MOUTH_COMPONENT_GUID, FLOAT_CLASS, "ManualFocusDistance")):
+                            (mouth_component_guid, FLOAT_CLASS, "CurrentFocalLength"),
+                            (mouth_component_guid, FLOAT_CLASS, "ManualFocusDistance")):
         nb, bb = _binding(normalized, guid), _binding(before, guid)
         nb["tracks"] = [row for row in nb["tracks"] if not (row.get("class") == cls and row.get("property") == prop)]
         nb["tracks"].append(copy.deepcopy(_track(bb, cls, prop)))
@@ -831,23 +900,72 @@ class UnrealBackend(object):
             raise PlanError("CINE_CAMERA_COMPONENT_MISSING|%s" % actor.get_actor_label())
         return component
 
-    def _binding_object_guid(self, obj):
-        path = str(obj.get_path_name())
-        bindings = [binding for binding in self.seq.get_bindings()
-                    if any(str(bound.get_path_name()) == path
-                           for bound in self.seq.locate_bound_objects(binding, self.world))]
-        if len(bindings) > 1:
-            raise PlanError("OBJECT_MULTIBOUND|%s|%d" % (path, len(bindings)))
-        return self._guid(bindings[0].get_id()) if bindings else ""
+    def _binding_parent_guid(self, binding):
+        parent = binding.get_parent()
+        return self._guid(parent.get_id()) if parent is not None and parent.is_valid() else ""
+
+    def _bound_object_paths(self, binding, context):
+        try:
+            return sorted(str(obj.get_path_name()) for obj in self.seq.locate_bound_objects(binding, context))
+        except Exception as error:
+            return ["<resolve-error:%s>" % error]
+
+    def _mouth_child_diagnostics(self):
+        rows = []
+        for binding in self.seq.get_bindings():
+            if self._binding_parent_guid(binding) != MOUTH_GUID:
+                continue
+            tracks = []
+            for track in binding.get_tracks():
+                try:
+                    prop = str(track.get_property_name())
+                except Exception:
+                    prop = ""
+                tracks.append({"class": track.get_class().get_name(), "property": prop,
+                               "name": str(track.get_display_name())})
+            rows.append({"name": str(binding.get_display_name()), "guid": self._guid(binding.get_id()),
+                         "parent": self._binding_parent_guid(binding), "tracks": tracks,
+                         "objects_parent_context": self._bound_object_paths(binding, self._mouth_actor),
+                         "objects_world_context": self._bound_object_paths(binding, self.world)})
+        return rows
+
+    def _mouth_component_binding(self):
+        required = {(FLOAT_CLASS, "CurrentFocalLength"), (FLOAT_CLASS, "ManualFocusDistance")}
+        candidates = []
+        for binding in self.seq.get_bindings():
+            if self._binding_parent_guid(binding) != MOUTH_GUID:
+                continue
+            signature = set()
+            for track in binding.get_tracks():
+                try:
+                    prop = str(track.get_property_name())
+                except Exception:
+                    prop = ""
+                signature.add((track.get_class().get_name(), prop))
+            if required.issubset(signature):
+                candidates.append(binding)
+        if len(candidates) != 1:
+            raise PlanError("MOUTH_COMPONENT_TRACK_BINDING_COUNT|%d|diag=%s" %
+                            (len(candidates), self._mouth_child_diagnostics()))
+        binding = candidates[0]
+        expected_path = str(self._mouth_component.get_path_name())
+        paths = self._bound_object_paths(binding, self._mouth_actor)
+        if paths != [expected_path]:
+            raise PlanError("MOUTH_COMPONENT_BOUND_OBJECT|want=%s|got=%s|diag=%s" %
+                            (expected_path, paths, self._mouth_child_diagnostics()))
+        return binding
 
     def _camera_fact(self, actor, expected_guid):
         component = self._camera_component(actor)
         filmback = component.get_editor_property("filmback")
         loc, rot = actor.get_actor_location(), actor.get_actor_rotation()
-        guid = self._binding_object_guid(actor)
-        if guid != expected_guid:
-            raise PlanError("BOUND_OBJECT_GUID|%s|%s!=%s" % (actor.get_actor_label(), guid, expected_guid))
-        return {"label": str(actor.get_actor_label()), "binding_guid": guid,
+        binding = self._binding_live(expected_guid)
+        actor_path = str(actor.get_path_name())
+        bound_paths = self._bound_object_paths(binding, self.world)
+        if bound_paths != [actor_path]:
+            raise PlanError("BOUND_ACTOR_OBJECT|%s|guid=%s|want=%s|got=%s" %
+                            (actor.get_actor_label(), expected_guid, actor_path, bound_paths))
+        return {"label": str(actor.get_actor_label()), "binding_guid": expected_guid,
                 "location_cm": [float(loc.x), float(loc.y), float(loc.z)],
                 "rotation_deg": {"pitch": float(rot.pitch), "yaw": float(rot.yaw), "roll": float(rot.roll)},
                 "sensor_width_mm": float(filmback.get_editor_property("sensor_width")),
@@ -864,11 +982,33 @@ class UnrealBackend(object):
             raise PlanError("CAMERA_ACTOR_COUNT|hangar=%d|mouth=%d" % (len(by_tag), len(by_label.get(MOUTH_NAME, []))))
         self._hangar_actor, self._mouth_actor = by_tag[0], by_label[MOUTH_NAME][0]
         self._hangar_component, self._mouth_component = self._camera_component(self._hangar_actor), self._camera_component(self._mouth_actor)
-        if self._binding_object_guid(self._mouth_component) != MOUTH_COMPONENT_GUID:
-            raise PlanError("MOUTH_COMPONENT_OBJECT_GUID")
+        mouth_component_binding = self._mouth_component_binding()
         return {"snapshot": self.snapshot(),
+                "mouth_component_guid": self._guid(mouth_component_binding.get_id()),
                 "hangar_camera": self._camera_fact(self._hangar_actor, HANGAR_GUID),
                 "mouth_camera": self._camera_fact(self._mouth_actor, MOUTH_GUID)}
+
+    def probe(self):
+        by_label = {}
+        for actor in self._actors():
+            by_label.setdefault(str(actor.get_actor_label()), []).append(actor)
+        if len(by_label.get(MOUTH_NAME, [])) != 1:
+            raise PlanError("PROBE_MOUTH_CAMERA_COUNT|%d" % len(by_label.get(MOUTH_NAME, [])))
+        self._mouth_actor = by_label[MOUTH_NAME][0]
+        self._mouth_component = self._camera_component(self._mouth_actor)
+        expected_path = str(self._mouth_component.get_path_name())
+        children = self._mouth_child_diagnostics()
+        required = {(FLOAT_CLASS, "CurrentFocalLength"), (FLOAT_CLASS, "ManualFocusDistance")}
+        selected = []
+        for row in children:
+            signature = {(track.get("class"), track.get("property")) for track in row["tracks"]}
+            if required.issubset(signature):
+                selected.append(row["guid"])
+        return {"sequence": SEQ_PATH, "parent_guid": MOUTH_GUID,
+                "expected_component_path": expected_path, "selected_by_tracks": selected,
+                "selected_binds_expected_component": len(selected) == 1 and
+                    [row["objects_parent_context"] for row in children if row["guid"] == selected[0]] == [[expected_path]],
+                "children": children, "census": self.census()}
 
     def _binding_live(self, guid):
         rows = [binding for binding in self.seq.get_bindings() if self._guid(binding.get_id()) == guid]
@@ -942,7 +1082,7 @@ class UnrealBackend(object):
         self.seq.modify()
         hangar = self._binding_live(HANGAR_GUID)
         mouth = self._binding_live(MOUTH_GUID)
-        mouth_component = self._binding_live(MOUTH_COMPONENT_GUID)
+        mouth_component = self._binding_live(plan["guids"]["mouth_component"])
         before_guids = {self._guid(binding.get_id()) for binding in self.seq.get_bindings()}
         child = self.seq.add_possessable(self._hangar_component)
         if child is None or not child.is_valid() or self._guid(child.get_id()) in before_guids:
@@ -989,29 +1129,32 @@ class UnrealBackend(object):
             raise PlanError("REFUSE_REMOVE_FOREIGN_CHILD")
         child.remove()
         before = record["snapshot_before"]
+        mouth_component_guid = record["plan"]["guids"]["mouth_component"]
         for guid, cls, prop in ((MOUTH_GUID, TRANSFORM_CLASS, "Transform"),
-                                (MOUTH_COMPONENT_GUID, FLOAT_CLASS, "CurrentFocalLength"),
-                                (MOUTH_COMPONENT_GUID, FLOAT_CLASS, "ManualFocusDistance")):
+                                (mouth_component_guid, FLOAT_CLASS, "CurrentFocalLength"),
+                                (mouth_component_guid, FLOAT_CLASS, "ManualFocusDistance")):
             self._restore_track(self._binding_live(guid), _track(_binding(before, guid), cls, prop))
 
     def verify_evaluation(self, plan):
         """Assert count and pre-cut holds using display-rate ranges (rule 9)."""
         problems = []
+        cut_frame = int(plan["cut_frame"])
+        mouth_component_guid = plan["guids"]["mouth_component"]
         targets = ((MOUTH_GUID, TRANSFORM_CLASS, "Transform"),
-                   (MOUTH_COMPONENT_GUID, FLOAT_CLASS, "CurrentFocalLength"),
-                   (MOUTH_COMPONENT_GUID, FLOAT_CLASS, "ManualFocusDistance"))
+                   (mouth_component_guid, FLOAT_CLASS, "CurrentFocalLength"),
+                   (mouth_component_guid, FLOAT_CLASS, "ManualFocusDistance"))
         before_values = {}
         for guid, cls, prop in targets:
             track = self._track_live(self._binding_live(guid), cls, prop)
             section = list(track.get_sections())[0]
-            rng = self.seq.make_range(0, CUT_FRAME)
+            rng = self.seq.make_range(0, cut_frame)
             rate = self.seq.get_display_rate()
             for channel in section.get_all_channels():
                 name = str(getattr(channel, "channel_name", ""))
                 if name.startswith("Scale"):
                     continue
                 values = list(channel.evaluate_keys(rng, rate))
-                if len(values) != CUT_FRAME:
+                if len(values) != cut_frame:
                     problems.append("EVALUATE_COUNT|%s|%s|%d" % (prop, name, len(values)))
                     continue
                 if values and max(float(value) for value in values) - min(float(value) for value in values) > 1.0e-4:
@@ -1062,13 +1205,29 @@ def _report(live, evidence, params, run):
             "plan": plan, "plan_digest": plan["digest"], "inputs_digest": digest(inputs),
             "snapshot_digest": digest(live["snapshot"]), "snapshot": live["snapshot"], "apply_ready": True,
             "claims": [
-                {"tier": "declaration-proven", "claim": "Only LS_Interaction_02_Turnips may be saved.",
-                 "cite": "Docs/Conductor/codex_briefs/p34_i2_sleight_move_in.md:34-43"},
+                 {"tier": "declaration-proven", "claim": "Only LS_Interaction_02_Turnips may be saved.",
+                  "cite": "Docs/Conductor/codex_briefs/p34_i2_sleight_move_in.md:34-43"},
+                 {"tier": "measured", "claim": "The live cut frame and shortened playback end are read from the camera-cut track.",
+                  "cite": "Docs/Conductor/codex_briefs/p60_i2_move_in_mouth_guid_fix.md:12-18"},
                 {"tier": "measured-upstream", "claim": "The named main-tree records provide the camera and drape baseline.",
                  "cite": "Docs/Conductor/codex_briefs/p34_i2_sleight_move_in.md:18-20"},
                 {"tier": "inferred", "claim": "Analytical bounds predict whether a drape edge enters frame; rendered acceptance remains open.",
                  "cite": "Docs/Conductor/codex_briefs/p34_i2_sleight_move_in.md:31-32"},
             ]}
+
+
+def run_probe(run, params, backend, root):
+    backend.preflight("PROBE")
+    report = backend.probe()
+    report.update({"schema_version": 1, "tool_version": TOOL_VERSION, "run": run, "mode": "PROBE",
+                   "proof": "measured read-only; no Unreal package mutation"})
+    report_path = os.path.join(root, "i2_sleight_move_in_probe_%s.json" % run)
+    json_write(report_path, report)
+    if backend.census() != {"content": [], "maps": []}:
+        _stop(backend, run, "PROBE_DIRTIED|%s" % backend.census())
+    backend.log("%s_PROBE_OK|run=%s|parent=%s|children=%d|mutated=0|report=%s" %
+                (TOOL, run, MOUTH_GUID, len(report["children"]), report_path))
+    return report
 
 
 def run_dry(run, params, backend, root):
@@ -1087,7 +1246,7 @@ def run_dry(run, params, backend, root):
     if backend.census() != {"content": [], "maps": []}:
         _stop(backend, run, "DRY_DIRTIED|%s" % backend.census())
     backend.log("%s_DRY_OK|run=%s|mutated=0|cut=%d|move_start=%d|close_cm=%.3f|mouth_after=%s|plan=%s|previews=%s" %
-                (TOOL, run, CUT_FRAME, report["plan"]["move_start"], report["plan"]["close_distance_cm"],
+                (TOOL, run, report["plan"]["cut_frame"], report["plan"]["move_start"], report["plan"]["close_distance_cm"],
                  report["plan"]["mouth_after"], report_path, ",".join(previews)))
     return report
 
@@ -1141,7 +1300,7 @@ def run_apply(run, params, backend, root):
                    "snapshot_after_digest": digest(after2), "saves": saves, "census_after": backend.census()})
     json_write(record_path, record)
     backend.log("%s_APPLY_OK|run=%s|cut=%d|move=[%d,%d]|close_cm=%.3f|mouth_after=%s|keys_read_back=all|saved=%s|backup=%s|record=%s" %
-                (TOOL, run, CUT_FRAME, report["plan"]["move_start"], CUT_FRAME - 1,
+                (TOOL, run, report["plan"]["cut_frame"], report["plan"]["move_start"], report["plan"]["cut_frame"] - 1,
                  report["plan"]["close_distance_cm"], report["plan"]["mouth_after"], ",".join(saves),
                  backup["root"], record_path))
     return record
@@ -1196,7 +1355,7 @@ def main(args, backend=None, tool_root=None):
         if str(args.get("confirm", "")).strip() != CONFIRMS.get(mode):
             _stop(backend, run, "CONFIRM_MISMATCH|want=%r|got=%r" % (CONFIRMS.get(mode), args.get("confirm")))
         params = merged_params(args.get("params") or {})
-        function = {"DRY": run_dry, "APPLY": run_apply, "REVERT": run_revert}.get(mode)
+        function = {"PROBE": run_probe, "DRY": run_dry, "APPLY": run_apply, "REVERT": run_revert}.get(mode)
         if function is None:
             _stop(backend, run, "MODE|%s" % mode)
         return function(run, params, backend, root)

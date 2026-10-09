@@ -1,8 +1,9 @@
 {
   "mode": "DRY",
-  "run_id": "51C-I2MOVEIN-DRY2-20261009-0533",
+  "run_id": "I2MOVEIN-DRY-1",
   "confirm": "DRY I2MOVEIN",
   "params": {
+    "cut_frame": "LIVE",
     "move_start": 1150,
     "close_distance_cm": 600.0,
     "mouth_after": "EASE_OUT",

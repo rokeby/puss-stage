@@ -31,11 +31,12 @@ def write_pngs(plan):
     draw.text((40, 24), "I2 sleight move-in - analytical plan view", fill="#f1eadf", font=title)
     draw.text((40, 58), "Not a scene render. Gary judges the later rendered slot.", fill="#aeb8c5", font=small)
     rows_by_side = {}
+    cut_frame = int(plan["cut_frame"])
     for side, drape in (("hangar", plan["hangar_drape"]), ("mouth", plan["mouth_drape"])):
-        frames = (list(range(plan["move_start"], TOOL.CUT_FRAME + 1, 5)) if side == "hangar" else
-                  list(range(TOOL.CUT_FRAME, int(plan["mouth"]["ease_end_frame"]) + 1, 5)))
+        frames = (list(range(plan["move_start"], cut_frame + 1, 5)) if side == "hangar" else
+                  list(range(cut_frame, int(plan["mouth"]["ease_end_frame"]) + 1, 5)))
         rows_by_side[side] = [TOOL.local_from_frame(drape, TOOL.pose_at(plan, side, frame)["loc"])
-                              for frame in (frames or [TOOL.CUT_FRAME])]
+                              for frame in (frames or [cut_frame])]
     def project(side, row):
         return 820 + row[0] * 0.28, (220 if side == "hangar" else 390) - row[1] * 0.12
     draw.line((820, 125, 820, 465), fill="#8c2635", width=12)
@@ -51,7 +52,7 @@ def write_pngs(plan):
         draw.text((75, 170 if side == "hangar" else 340), "%s path in its drape-local plan" % side,
                   fill=color, font=font)
     draw.text((40, 530), "move_start=%d  cut=%d  close=%.1f cm  mouth=%s  ease=%.2f s  HFOV=%.2f deg" %
-              (plan["move_start"], TOOL.CUT_FRAME, plan["close_distance_cm"], plan["mouth_after"],
+              (plan["move_start"], cut_frame, plan["close_distance_cm"], plan["mouth_after"],
                plan["ease_out_s"], plan["hfov_deg"]), fill="#aeb8c5", font=small)
     path = os.path.join(HERE, "preview_plan.png")
     image.save(path)
@@ -77,8 +78,8 @@ def write_pngs(plan):
                       fill="#7ff0bd" if cov["fills_frame"] else "#ff9b91", font=font)
             local = cov["camera_local_cm"]
             draw.text((x + 12, y + 119), "local [%.1f, %.1f, %.1f]" % tuple(local), fill="#aeb8c5", font=small)
-            note = "live" if ((side == "hangar" and frame < TOOL.CUT_FRAME) or
-                              (side == "mouth" and frame >= TOOL.CUT_FRAME)) else "comparison / not live"
+            note = "live" if ((side == "hangar" and frame < cut_frame) or
+                              (side == "mouth" and frame >= cut_frame)) else "comparison / not live"
             draw.text((x + 12, y + 145), note, fill="#aeb8c5", font=small)
     path = os.path.join(HERE, "preview_coverage.png")
     image.save(path)
@@ -97,6 +98,7 @@ def main():
     actor = evidence["hangar_actor"]
     live = {
         "snapshot": evidence["hangar_snapshot"],
+        "mouth_component_guid": TOOL._component_binding(evidence["hangar_snapshot"], TOOL.MOUTH_GUID)["guid"],
         "hangar_camera": {
             "binding_guid": TOOL.HANGAR_GUID,
             "location_cm": actor["location_cm"],

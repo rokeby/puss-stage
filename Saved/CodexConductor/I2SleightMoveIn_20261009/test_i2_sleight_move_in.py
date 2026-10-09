@@ -13,7 +13,10 @@ TOOL = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(TOOL)
 
 
-def section(channels, end=2227):
+SHIFTED_MOUTH_COMPONENT_GUID = "D5173C9D4C80612C7E84CFA8EC530EA2"
+
+
+def section(channels, end=1950):
     return {"range": [0, end], "active": True, "completion": "PROJECT_DEFAULT", "channels": channels}
 
 
@@ -21,7 +24,7 @@ def channel(name, default, keys):
     return {"name": name, "default": default, "keys": copy.deepcopy(keys)}
 
 
-def track(cls, name, prop, path, channels, end=2227):
+def track(cls, name, prop, path, channels, end=1950):
     return {"class": cls, "display_name": name, "property": prop, "path": path,
             "sections": [section(channels, end)]}
 
@@ -34,12 +37,12 @@ def fixture_snapshot():
     channels = [channel(name, 0.0, [[0, value], [2226, value]]) for name, value in transform_values.items()]
     channels += [channel(name, 1.0, []) for name in ("Scale.X", "Scale.Y", "Scale.Z")]
     snapshot = {
-        "display_rate": 25.0, "tick_resolution": 24000.0, "playback": [0, 2226],
+        "display_rate": 25.0, "tick_resolution": 24000.0, "playback": [0, 1950],
         "bindings": [
             {"guid": TOOL.HANGAR_GUID, "name": TOOL.HANGAR_NAME, "parent": "", "tracks": []},
             {"guid": TOOL.MOUTH_GUID, "name": TOOL.MOUTH_NAME, "parent": "",
              "tracks": [track(TOOL.TRANSFORM_CLASS, TOOL.ORIGINAL_TRACK_NAME, "Transform", "Transform", channels)]},
-            {"guid": TOOL.MOUTH_COMPONENT_GUID, "name": TOOL.MOUTH_COMPONENT_NAME, "parent": TOOL.MOUTH_GUID,
+            {"guid": SHIFTED_MOUTH_COMPONENT_GUID, "name": TOOL.MOUTH_COMPONENT_NAME, "parent": TOOL.MOUTH_GUID,
              "tracks": [
                  track(TOOL.FLOAT_CLASS, TOOL.ORIGINAL_TRACK_NAME, "CurrentFocalLength", "CurrentFocalLength",
                        [channel("None", None, [[0, 33.49193572998047], [2226, 33.49193572998047]])]),
@@ -50,7 +53,7 @@ def fixture_snapshot():
         ],
         "cuts": [
             {"track_index": 0, "section_index": 0, "range": [0, 1250], "active": True, "binding_guid": TOOL.HANGAR_GUID},
-            {"track_index": 0, "section_index": 1, "range": [1250, 2226], "active": True, "binding_guid": TOOL.MOUTH_GUID},
+            {"track_index": 0, "section_index": 1, "range": [1250, 1950], "active": True, "binding_guid": TOOL.MOUTH_GUID},
         ],
         "markers": [["CST sleight", 1250]], "root_tracks": [], "cut_track_count": 1,
     }
@@ -65,10 +68,18 @@ def write_fixture_evidence(root, snapshot):
     actor = {"location_cm": [13393.0, 78777.0, 510.0],
              "rotation_deg": {"pitch": 0.0, "yaw": -43.57, "roll": 0.0},
              "sensor_width_mm": 36.0, "sensor_height_mm": 20.25}
+    recorded_snapshot = copy.deepcopy(snapshot)
+    TOOL._binding(recorded_snapshot, SHIFTED_MOUTH_COMPONENT_GUID)["guid"] = TOOL.RECORDED_MOUTH_COMPONENT_GUID
+    recorded_snapshot["playback"] = [0, 2226]
+    recorded_snapshot["cuts"][1]["range"] = [1250, 2226]
+    for binding in recorded_snapshot["bindings"]:
+        for item in binding.get("tracks", []):
+            item["sections"][0]["range"] = [0, 2227]
+    recorded_snapshot["bindings"].sort(key=lambda row: (row["guid"], row["name"]))
     TOOL.json_write(hangar_path, {"applied": True, "sequence": TOOL.SEQ_PATH, "actor_after": actor,
                                   "plan": {"actor": {"focus_point_world_cm": [15161.661337041618, 77094.49843646525, 510.0]}},
-                                  "snapshot_after": snapshot})
-    TOOL.json_write(order_path, {"applied": True, "sequence": TOOL.SEQ_PATH, "snapshot_after": snapshot,
+                                  "snapshot_after": recorded_snapshot})
+    TOOL.json_write(order_path, {"applied": True, "sequence": TOOL.SEQ_PATH, "snapshot_after": recorded_snapshot,
                                  "plan": {"coverage": {"twin": {"tan_h": 0.35471225701076686}},
                                           "lens": {"focal_mm": 33.49193572998047}}})
     TOOL.json_write(probe_path, {"drapes": [
@@ -112,8 +123,16 @@ class FakeUnreal(object):
         if self.dirty != {"content": [], "maps": []}:
             raise TOOL.PlanError("DIRTY_CENSUS|%s" % self.dirty)
 
+    def probe(self):
+        return {"sequence": TOOL.SEQ_PATH, "parent_guid": TOOL.MOUTH_GUID,
+                "expected_component_path": "/Fake/CameraComponent",
+                "selected_by_tracks": [SHIFTED_MOUTH_COMPONENT_GUID],
+                "selected_binds_expected_component": True,
+                "children": [{"guid": SHIFTED_MOUTH_COMPONENT_GUID}], "census": self.census()}
+
     def inspect(self):
-        return {"snapshot": copy.deepcopy(self.snapshot_value),
+        component = TOOL._component_binding(self.snapshot_value, TOOL.MOUTH_GUID)
+        return {"snapshot": copy.deepcopy(self.snapshot_value), "mouth_component_guid": component["guid"],
                 "hangar_camera": copy.deepcopy(self.hangar_camera), "mouth_camera": copy.deepcopy(self.mouth_camera)}
 
     def backup(self, run):
@@ -128,7 +147,7 @@ class FakeUnreal(object):
         expected = TOOL.expected_owned_tracks(self.snapshot_value, plan)
         hangar = TOOL._binding(self.snapshot_value, TOOL.HANGAR_GUID)
         mouth = TOOL._binding(self.snapshot_value, TOOL.MOUTH_GUID)
-        mouth_comp = TOOL._binding(self.snapshot_value, TOOL.MOUTH_COMPONENT_GUID)
+        mouth_comp = TOOL._binding(self.snapshot_value, plan["guids"]["mouth_component"])
         hangar["tracks"].append(copy.deepcopy(expected["hangar_transform"]))
         child_guid = "B4162B8C4B7F601B6D73BF97DB42FD92"
         self.snapshot_value["bindings"].append({"guid": child_guid, "name": TOOL.HANGAR_COMPONENT_NAME,
@@ -196,6 +215,8 @@ def positive_plan_math():
                                       plan["drape_bounds"], plan["hfov_deg"], plan["output_aspect"],
                                       plan["edge_guard_cm"])["distance_to_plane_cm"] - 600.0) < 1.0e-6
     assert plan["mouth"]["ease_end_frame"] == 1400
+    assert plan["playback"] == [0, 1950]
+    assert plan["guids"]["mouth_component"] == SHIFTED_MOUTH_COMPONENT_GUID
 
 
 def positive_round_trip():
@@ -215,13 +236,34 @@ def positive_round_trip():
 def negative_moved_cut():
     root, env, params = fresh_case()
     env.snapshot_value["cuts"][0]["range"] = [0, 1249]
-    expect_stop(lambda: TOOL.main(args("DRY", params, "NEG-CUT"), backend=env, tool_root=root), "CUT_OR_BINDING_GUARD")
+    params["cut_frame"] = 1250
+    env.snapshot_value["cuts"][1]["range"] = [1249, 1950]
+    expect_stop(lambda: TOOL.main(args("DRY", params, "NEG-CUT"), backend=env, tool_root=root), "CUT_FRAME_ARG")
 
 
 def negative_rebound_camera():
     root, env, params = fresh_case()
     env.snapshot_value["cuts"][0]["binding_guid"] = "79E6AD814115D22A888C409AA2F57A77"
-    expect_stop(lambda: TOOL.main(args("DRY", params, "NEG-GUID"), backend=env, tool_root=root), "CUT_OR_BINDING_GUARD")
+    expect_stop(lambda: TOOL.main(args("DRY", params, "NEG-GUID"), backend=env, tool_root=root), "HANGAR_MOUTH_CUT_COUNT")
+
+
+def negative_duplicate_cut_boundary():
+    root, env, params = fresh_case()
+    duplicate = copy.deepcopy(env.snapshot_value["cuts"][1])
+    duplicate["section_index"] = 2
+    env.snapshot_value["cuts"].append(duplicate)
+    expect_stop(lambda: TOOL.main(args("DRY", params, "NEG-DUP-CUT"), backend=env, tool_root=root),
+                "HANGAR_MOUTH_CUT_COUNT")
+
+
+def negative_ambiguous_mouth_component():
+    root, env, params = fresh_case()
+    duplicate = copy.deepcopy(TOOL._binding(env.snapshot_value, SHIFTED_MOUTH_COMPONENT_GUID))
+    duplicate["guid"] = "E6284DAE5D91723D8F95D0B9FD641FB3"
+    duplicate["name"] = "Foreign CameraComponent"
+    env.snapshot_value["bindings"].append(duplicate)
+    expect_stop(lambda: TOOL.main(args("DRY", params, "NEG-DUP-COMP"), backend=env, tool_root=root),
+                "MOUTH_COMPONENT_TRACK_BINDING_COUNT")
 
 
 def negative_edge_in_frame():
@@ -282,15 +324,29 @@ def positive_preview_files():
         assert os.path.getsize(path) > 500
 
 
+def positive_probe_is_read_only():
+    root, env, params = fresh_case()
+    before = copy.deepcopy(env.snapshot_value)
+    result = TOOL.main(args("PROBE", params, "PROBE"), backend=env, tool_root=root)
+    assert result["children"][0]["guid"] == SHIFTED_MOUTH_COMPONENT_GUID
+    assert result["selected_by_tracks"] == [SHIFTED_MOUTH_COMPONENT_GUID]
+    assert result["selected_binds_expected_component"] is True
+    assert env.snapshot_value == before
+    assert env.events == []
+    assert any("I2_MOVE_IN_PROBE_OK" in row for row in env.logs)
+
+
 def positive_import_offline():
     assert TOOL.UnrealBackend.__name__ == "UnrealBackend"
 
 
 CASES = [
-    ("+ defaults produce matched cut and 150-frame ease", positive_plan_math),
+    ("+ LIVE cut, shifted child GUID, shrunk sequence produce matched cut", positive_plan_math),
     ("+ fake Unreal APPLY->REVERT is exact", positive_round_trip),
-    ("- moved cut refuses", negative_moved_cut),
+    ("- explicit stale cut arg refuses", negative_moved_cut),
     ("- rebound hangar camera refuses", negative_rebound_camera),
+    ("- duplicate hangar/mouth boundary refuses", negative_duplicate_cut_boundary),
+    ("- ambiguous mouth component child refuses", negative_ambiguous_mouth_component),
     ("- edge-in-frame close distance refuses", negative_edge_in_frame),
     ("- PIE running refuses", negative_pie_running),
     ("- dirty census refuses", negative_dirty_census),
@@ -299,6 +355,7 @@ CASES = [
     ("- mouth recorded constant drift refuses", negative_mouth_constant),
     ("- wrong confirm refuses", negative_confirm),
     ("+ analytical preview files are emitted", positive_preview_files),
+    ("+ PROBE inventories the shifted child without mutation", positive_probe_is_read_only),
     ("+ module imports without Unreal", positive_import_offline),
 ]
 

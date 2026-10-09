@@ -1,9 +1,9 @@
 {
   "failed": 0,
-  "passed": 13,
+  "passed": 16,
   "results": [
     {
-      "name": "+ defaults produce matched cut and 150-frame ease",
+      "name": "+ LIVE cut, shifted child GUID, shrunk sequence produce matched cut",
       "status": "PASS"
     },
     {
@@ -11,11 +11,19 @@
       "status": "PASS"
     },
     {
-      "name": "- moved cut refuses",
+      "name": "- explicit stale cut arg refuses",
       "status": "PASS"
     },
     {
       "name": "- rebound hangar camera refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- duplicate hangar/mouth boundary refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- ambiguous mouth component child refuses",
       "status": "PASS"
     },
     {
@@ -51,9 +59,13 @@
       "status": "PASS"
     },
     {
+      "name": "+ PROBE inventories the shifted child without mutation",
+      "status": "PASS"
+    },
+    {
       "name": "+ module imports without Unreal",
       "status": "PASS"
     }
   ],
-  "total": 13
+  "total": 16
 }
