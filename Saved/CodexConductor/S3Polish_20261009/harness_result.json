@@ -1,0 +1,304 @@
+{
+  "checks": [
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P01.defaults",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P02.partial_stylish_merge",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P03.parts",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": "B11_DIM_RANGE",
+      "name": "N01.bad_factor",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": "FIRE_TIMING_RANGE",
+      "name": "N02.bad_fire_ramp",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": "PARTS|['b11_dim', 'b11_dim']",
+      "name": "N03.duplicate_parts",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": "PARTS|['not_a_part']",
+      "name": "N04.unknown_part",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": "B11_DIM_LABEL_NOT_CANDIDATE",
+      "name": "N05.bad_candidate",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P04.fire_delta",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P05.fire_baseline_untouched",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P06.fire_ignite_shift",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P07.fire_first_flicker_envelope",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P08.fire_envelope_full",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P09.fire_every_move_recorded",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P10.fire_c_delta",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": "FIRE_IGNITION_KEY_MISSING|260",
+      "name": "N06.fire_missing_ignite",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": "DUPLICATE_KEY_FRAME|[[260, 0.0], [260, 1.0]]",
+      "name": "N07.duplicate_key",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P11.visibility_visible_polarity",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P12.visibility_move_record",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": "VISIBILITY_IGNITION_KEYS|got=[290, 300]|want=[290]",
+      "name": "N08.visibility_multiple_shows",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P13.b11_start_insert",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P14.b11_full_factor",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P15.b11_inside_dim",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P16.b11_end_restores",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P17.b11_pre_cut_untouched",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": "B11_RAMP_OUTSIDE_CUT",
+      "name": "N09.b11_ramp_outside",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P18.rank_left",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P19.second_left",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P20.explicit_override",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": "B11_SECOND_LEFT_UNRESOLVED|left=['R']",
+      "name": "N10.second_left_missing",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": "B11_EXPLICIT_SELECTION_EMPTY",
+      "name": "N11.explicit_empty",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P21.transform_yaw",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P22.identity_matrix",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P23.float_tolerance",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": null,
+      "name": "N12.float_drift",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": null,
+      "name": "N13.key_frame_drift",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": null,
+      "name": "N14.seeded_value_mutation",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P24.fake_float_channel",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P25.fake_visibility_channel",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P26.packages_seq",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P27.packages_map",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P28.packages_both",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P29.stylish_dry_no_package",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P30.semantic_readback",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": null,
+      "name": "N15.semantic_key_mutation",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": null,
+      "name": "N16.semantic_dune_mutation",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "detail": null,
+      "name": "P31.semantic_stylish_readback",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": null,
+      "name": "N17.semantic_old_emitter_reenabled",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "detail": null,
+      "name": "N18.semantic_stylish_transform",
+      "ok": true
+    }
+  ],
+  "failed": 0,
+  "negative": 18,
+  "passed": 49,
+  "positive": 31,
+  "tool": "S3_POLISH",
+  "tool_version": "2026-10-09a"
+}

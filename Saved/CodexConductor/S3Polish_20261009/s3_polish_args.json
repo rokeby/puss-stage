@@ -1,0 +1,34 @@
+{
+  "mode": "DRY",
+  "confirm": "DRY S3POLISH",
+  "run_id": "S3POLISH-DRY-1",
+  "parts": [
+    "fires_together",
+    "b11_dim",
+    "dune_shadow",
+    "stylish_fire"
+  ],
+  "params": {
+    "common_ignite_frame": 230,
+    "fire_ramp_frames": 72,
+    "b11_factor": 0.25,
+    "b11_ramp_frames": 24,
+    "b11_candidate_labels": [
+      "S3 WaveV3 Ground Row 2",
+      "S3 WaveV3 Ground Row 3",
+      "S3 WaveV3 Ground Row 4"
+    ],
+    "b11_dim_labels": [],
+    "b11_selection": "second_left",
+    "stylish_apply": false,
+    "stylish_systems": {
+      "S3 Ghost Light Flame": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1",
+      "S3 Fire A": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_2",
+      "S3 Fire B": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_3",
+      "S3 Fire C": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_4"
+    },
+    "float_tolerance": 0.0001,
+    "location_tolerance_cm": 0.01,
+    "rotation_tolerance_deg": 0.001
+  }
+}
