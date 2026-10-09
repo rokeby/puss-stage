@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">P37 S3 wave slot wall elevation design study</title>
+  <desc id="desc">Six measured wave crossings on one S3 side wall, shown with illustrative blackened steel trim.</desc>
+  <defs>
+    <linearGradient id="marble" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d5d0c7"/><stop offset=".5" stop-color="#aaa59d"/><stop offset="1" stop-color="#e0dbd2"/>
+    </linearGradient>
+    <pattern id="vein" width="180" height="110" patternUnits="userSpaceOnUse">
+      <rect width="180" height="110" fill="url(#marble)"/>
+      <path d="M-10 85C40 48 84 73 122 29S192 18 210 -8" fill="none" stroke="#777b80" stroke-width="3" opacity=".32"/>
+      <path d="M18 116C58 72 100 90 160 42" fill="none" stroke="#f4f1ea" stroke-width="5" opacity=".35"/>
+    </pattern>
+    <style>.label{font:18px 'Segoe UI',sans-serif;fill:#eee9df}.small{font:14px 'Segoe UI',sans-serif;fill:#c9c3b8}.tiny{font:12px 'Segoe UI',sans-serif;fill:#a9a39a}.id{font:12px 'Segoe UI',sans-serif;fill:#17191c;font-weight:700}</style>
+  </defs>
+  <rect width="1200" height="760" fill="#17191c"/>
+  <text x="54" y="52" class="label" font-weight="700">P37 — S3 wave side-wall elevation (one wall)</text>
+  <text x="54" y="79" class="small">Six measured WaveV3 crossings; trim/backer appearance is illustrative and has not been applied.</text>
+
+  <rect x="76" y="120" width="1048" height="500" fill="url(#vein)" stroke="#f0ece4" stroke-width="2"/>
+  <line x1="76" y1="592" x2="1124" y2="592" stroke="#564330" stroke-width="10"/>
+  <text x="89" y="581" class="tiny">floor top, root-local z=115 cm</text>
+
+  <!-- x groups preserve the measured pattern: two close slots, a gap, two, a gap, two. -->
+  <g>
+    <rect x="251" y="405" width="26" height="187" rx="3" fill="#08090a" stroke="#64727e" stroke-width="7"/><text x="252" y="393" class="id">L1</text>
+    <rect x="286" y="389" width="26" height="203" rx="3" fill="#08090a" stroke="#64727e" stroke-width="7"/><text x="287" y="377" class="id">L2</text>
+    <rect x="596" y="354" width="26" height="238" rx="3" fill="#08090a" stroke="#64727e" stroke-width="7"/><text x="597" y="342" class="id">L3</text>
+    <rect x="631" y="340" width="26" height="252" rx="3" fill="#08090a" stroke="#64727e" stroke-width="7"/><text x="632" y="328" class="id">L4</text>
+    <rect x="941" y="247" width="26" height="345" rx="3" fill="#08090a" stroke="#64727e" stroke-width="7"/><text x="942" y="235" class="id">L5</text>
+    <rect x="976" y="198" width="26" height="394" rx="3" fill="#08090a" stroke="#64727e" stroke-width="7"/><text x="977" y="186" class="id">L6</text>
+  </g>
+
+  <path d="M264 585C238 545 239 506 264 469C288 505 291 546 264 585Z" fill="#a9d7e8" opacity=".72"/>
+  <path d="M609 585C582 528 584 466 610 412C635 466 636 531 609 585Z" fill="#7bb9d0" opacity=".72"/>
+  <path d="M989 585C958 503 960 404 989 317C1022 405 1021 510 989 585Z" fill="#d7f0f8" opacity=".76"/>
+
+  <line x1="251" y1="654" x2="277" y2="654" stroke="#f2c14e" stroke-width="2"/>
+  <path d="M251 648L251 660M277 648L277 660" stroke="#f2c14e" stroke-width="2"/>
+  <text x="188" y="683" class="small">14.7–14.9 cm proposed outside width</text>
+  <text x="188" y="705" class="tiny">12.69–12.85 cm measured mesh depth + 2 cm total margin</text>
+
+  <text x="465" y="667" class="small">blackened steel lip + recessed dark backer</text>
+  <text x="465" y="690" class="tiny">visual trim only; wall and marble liner remain unmodified</text>
+  <text x="835" y="667" class="small">slot height = evaluated swept wall section</text>
+  <text x="835" y="690" class="tiny">not merely the mesh AABB shown in this study</text>
+</svg>

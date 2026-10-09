@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">P37 Passage 01 mechanism slot, top-down design study</title>
+  <desc id="desc">A measured Passage 01 station envelope with an illustrative mechanism-aware slot treatment.</desc>
+  <defs>
+    <pattern id="boards" width="44" height="14" patternUnits="userSpaceOnUse">
+      <rect width="44" height="14" fill="#9a6d42"/>
+      <path d="M0 13.3H44 M43.3 0V14" stroke="#30241a" stroke-width="1" opacity=".65"/>
+      <path d="M4 4C14 1 23 7 39 3" fill="none" stroke="#bd9060" stroke-width="1" opacity=".6"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10Z" fill="#f2c14e"/>
+    </marker>
+    <style>
+      .label{font:18px 'Segoe UI',sans-serif;fill:#eee9df}.small{font:14px 'Segoe UI',sans-serif;fill:#c9c3b8}.tiny{font:12px 'Segoe UI',sans-serif;fill:#a9a39a}.measure{stroke:#f2c14e;stroke-width:2;marker-start:url(#arrow);marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1200" height="760" fill="#17191c"/>
+  <text x="54" y="52" class="label" font-weight="700">P37 — Passage 01 floor slot study (top-down, one station crop)</text>
+  <text x="54" y="79" class="small">Measured envelope and station data; proposed slot dimensions are a design preview, not applied state.</text>
+
+  <!-- Floor: across-stage y mapped horizontally; route x mapped vertically. -->
+  <rect x="85" y="125" width="1030" height="500" rx="4" fill="url(#boards)" stroke="#d0b184" stroke-width="2"/>
+  <line x1="600" y1="125" x2="600" y2="625" stroke="#eee9df" stroke-width="2" stroke-dasharray="12 10" opacity=".6"/>
+  <text x="614" y="150" class="small">route centre y=0</text>
+  <path d="M600 585V225" stroke="#eee9df" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="616" y="588" class="small">route +X</text>
+
+  <!-- Proposed slots at the actual asymmetric P01 wing lines. -->
+  <rect x="85" y="348" width="197" height="34" rx="4" fill="#08090a" stroke="#71808d" stroke-width="7"/>
+  <rect x="786" y="348" width="329" height="34" rx="4" fill="#08090a" stroke="#71808d" stroke-width="7"/>
+  <rect x="193" y="340" width="18" height="50" fill="#d7d0c5" stroke="#433f39" stroke-width="2"/>
+  <rect x="858" y="340" width="18" height="50" fill="#d7d0c5" stroke="#433f39" stroke-width="2"/>
+  <path d="M204 365H241" class="measure"/>
+  <path d="M866 365H827" class="measure"/>
+  <text x="117" y="431" class="small">-Y / left wing line: 750 cm</text>
+  <text x="780" y="431" class="small">+Y / right wing line: 500 cm</text>
+  <text x="290" y="355" class="small">current outward chariot run ∪ swept mechanism footprint</text>
+  <text x="290" y="378" class="tiny">75 cm P01 Slide travel remains inside the existing 150 cm inboard reach</text>
+  <text x="884" y="355" class="small">side-specific</text>
+  <text x="884" y="378" class="tiny">curve envelope</text>
+
+  <!-- Width dimension: exaggerated graphically. -->
+  <line x1="171" y1="348" x2="171" y2="382" class="measure"/>
+  <text x="112" y="308" class="small">14 cm illustrative</text>
+  <text x="112" y="329" class="small">route-depth width</text>
+  <text x="112" y="465" class="tiny">12 cm max V3 profile + 2 cm total margin</text>
+
+  <!-- Overall measured floor span. -->
+  <line x1="85" y1="654" x2="1115" y2="654" class="measure"/>
+  <text x="454" y="685" class="small">P01 recorded floor half-span 970 cm (1,940 cm total)</text>
+
+  <g transform="translate(54 706)">
+    <rect x="0" y="-13" width="22" height="12" fill="#08090a" stroke="#71808d" stroke-width="3"/>
+    <text x="32" y="-2" class="tiny">dark understage + steel channel</text>
+    <rect x="267" y="-13" width="22" height="12" fill="#d7d0c5"/>
+    <text x="299" y="-2" class="tiny">moving flat/pole profile</text>
+    <text x="555" y="-2" class="tiny">Diagram scale is approximate; station spacing is intentionally omitted.</text>
+  </g>
+</svg>
