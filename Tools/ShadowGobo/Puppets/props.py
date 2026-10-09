@@ -55,7 +55,10 @@ LOOK = {
              "page_font": None, "page_text_width": 0.85, "page_text_bold": 0.003,
              "page_text_angle_deg": -18.0, "page_text_diagonal_fill": 0.85,
              "page_text_seed": 1709, "page_wedge_down": 0.066, "page_wedge_thin": 0.038},
-    "turnip": {"attach": "boy_near_hand", "size_boy_height": 0.12, "bite_seconds": 0.24},
+    "turnip": {"attach": "boy_near_hand", "size_boy_height": 0.12, "bite_seconds": 0.24,
+               # Gary 9 Oct: rotund upper bulb, but longer than wide with a fine, curved tap-root.
+               "bulb_width": 1.24, "total_height_ratio": 1.34,
+               "tail_curve": 0.10, "leaf_height": 0.42},
     "pearl": {"attach_from": "puss_mouth", "attach_to": "boy_near_hand", "size_boy_height": 0.10},
     "crown": {"attach": "boy_head_top", "size_boy_height": 0.18, "restitution": 0.25},
     "boots": {"attach": "world", "size_vs_puss_height": 0.31, "restitution": 0.34, "spacing_widths": 1.22},
@@ -106,25 +109,35 @@ def _tapered_crescent(cx, cy, radius, width, start_deg=205, end_deg=305, n=22):
 
 
 def _turnip(bites=0):
+    look = LOOK["turnip"]
+    half_width = look["bulb_width"] * .5
+    bulb_top = .04
+    tail_y = bulb_top + look["bulb_width"] * look["total_height_ratio"]
+    curve = look["tail_curve"]
+    leaf = look["leaf_height"]
     leaves_and_left = [
-        (-.68, .08), (-.55, -.02), (-.42, -.34), (-.25, -.13),
-        (-.14, -.42), (-.03, -.12), (.12, -.38), (.20, -.10),
-        (.42, -.31), (.34, -.04), (.59, .06),
+        (-half_width * .84, .09), (-half_width * .69, -.01), (-.36, -leaf * .81), (-.22, -.13),
+        (-.12, -leaf), (-.02, -.12), (.13, -leaf * .90), (.20, -.10),
+        (.36, -leaf * .76), (.32, -.02), (half_width * .81, .08),
     ]
-    right_edge = [(0.72, .19), (0.69, .38), (0.56, .57), (0.34, .68)]
+    right_edge = [(half_width * .95, .16), (half_width, .31), (half_width * .96, .47),
+                  (half_width * .86, .63), (half_width * .71, .76), (half_width * .55, .85)]
     notches = [
-        ((.72, .16), (.55, .20), (.49, .27), (.58, .34), (.68, .37)),
-        ((.54, .31), (.34, .35), (.27, .44), (.39, .52), (.52, .56)),
-        ((.44, .52), (.21, .53), (.14, .62), (.25, .69), (.36, .70)),
+        ((half_width * .95, .16), (.49, .18), (.43, .24), (.48, .31), (half_width * .96, .35)),
+        ((half_width * .96, .35), (.45, .37), (.38, .44), (.43, .52), (half_width * .88, .57)),
+        ((half_width * .88, .57), (.40, .60), (.33, .67), (.38, .74), (half_width * .71, .78)),
     ]
     if bites:
-        right_edge = list(notches[0])
+        right_edge = list(notches[0]) + [(half_width * .86, .63), (half_width * .71, .76), (half_width * .55, .85)]
         if bites >= 2:
-            right_edge += list(notches[1][1:])
+            right_edge = list(notches[0]) + list(notches[1][1:]) + [(half_width * .71, .76), (half_width * .55, .85)]
         if bites >= 3:
-            right_edge += list(notches[2][1:])
-    lower = [(0.16, .72), (.07, .74), (.025, .84), (0, .91), (-.035, .84),
-             (-.09, .74), (-.28, .70), (-.48, .61), (-.63, .45), (-.72, .23)]
+            right_edge = list(notches[0]) + list(notches[1][1:]) + list(notches[2][1:]) + [(half_width * .55, .85)]
+    lower = [(.24, .96), (.15 + curve * .20, 1.16), (.10 + curve * .45, 1.36),
+             (.06 + curve * .75, tail_y - .16), (curve, tail_y),
+             (.01 + curve * .55, tail_y - .14), (-.05 + curve * .25, 1.38),
+             (-.10, 1.18), (-.17, .99), (-.30, .84), (-.44, .74),
+             (-.55, .60), (-half_width * .97, .43), (-half_width, .25), (-half_width * .95, .14)]
     return _poly(leaves_and_left + right_edge + lower)
 
 
@@ -143,8 +156,8 @@ def library():
                  _tapered_crescent(.53,.50,.105,.035,-60,120,18)),
                 (0,0), .28, "boy_near_hand", .035)
     turnip = Prop("turnip", _turnip(0),
-                  (_tapered_crescent(-.12,.30,.40,.055,205,302,18),
-                   _tapered_crescent(-.05,.49,.29,.045,205,300,16)),
+                  (_tapered_crescent(-.10,.31,.38,.052,205,302,18),
+                   _tapered_crescent(-.05,.53,.27,.043,205,300,16)),
                   (0,.18), .12, "boy_near_hand", .055)
     pearl = Prop("pearl", _circle(0,0,.50),
                  (_tapered_crescent(0, 0, .355, .105, 195, 292),),
@@ -573,14 +586,15 @@ def ensure_sdf_source_scale(frame_dir, atlas_px=ATLAS_PX, gutter_px=GUTTER_PX):
 def save_templates(root):
     root.mkdir(parents=True, exist_ok=True); lib=library(); thumbs=[]
     for name,prop in lib.items():
-        im=Image.new("L",(1000,1000),255); draw_prop(im,prop,(500,500),360,state=0)
+        template_centre,template_size=((500,420),280) if name=="turnip" else ((500,500),360)
+        im=Image.new("L",(1000,1000),255); draw_prop(im,prop,template_centre,template_size,state=0)
         if name=="page":
             draw_page_text(ImageDraw.Draw(im),(500,500),360)
             closeup=Image.new("L",(2000,2000),255);draw_prop(closeup,prop,(1000,1000),720,state=0)
             draw_page_text(ImageDraw.Draw(closeup),(1000,1000),720)
             closeup.save(root/"page_flat_closeup.png")
         im.save(root/(name+"_template.png")); thumbs.append((name,im.resize((280,280))))
-        def d(poly): return "M"+" L".join("%.2f,%.2f"%(x,y) for x,y in transform(poly,(500,500),360))+" Z"
+        def d(poly): return "M"+" L".join("%.2f,%.2f"%(x,y) for x,y in transform(poly,template_centre,template_size))+" Z"
         outline=_turnip(0) if name=="turnip" else prop.outline
         path=d(outline)+" "+" ".join(d(c) for c in prop.cuts)
         text_svg=""

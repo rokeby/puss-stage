@@ -114,13 +114,17 @@
     "filter": "Bilinear",
     "address": "Clamp"
   },
-  "sha256": "b97f65789e604425ab25727588a413e570cbd911e0ba5496aa8e8faf7103a360",
+  "sha256": "169b9d0509ccc24cab37fcd9a38d92c993444271ef5b0489d9f835319b9590ef",
   "prop_demo": {
     "name": "turnip",
     "look": {
       "attach": "boy_near_hand",
       "size_boy_height": 0.12,
-      "bite_seconds": 0.24
+      "bite_seconds": 0.24,
+      "bulb_width": 1.24,
+      "total_height_ratio": 1.34,
+      "tail_curve": 0.1,
+      "leaf_height": 0.42
     },
     "attach_modes": [
       "world",
@@ -138,12 +142,12 @@
       {
         "tier": "measured",
         "claim": "Frames were rendered, SDF-packed and read back offline.",
-        "evidence": "Tools/ShadowGobo/Puppets/props.py:544"
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:606"
       },
       {
         "tier": "inferred",
         "claim": "The proposed scale and staging need Gary's visual approval.",
-        "evidence": "Tools/ShadowGobo/Puppets/props.py:293"
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:53"
       }
     ]
   }

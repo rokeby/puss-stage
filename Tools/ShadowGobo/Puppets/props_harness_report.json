@@ -1,15 +1,15 @@
 {
   "positive": {
-    "passed": 35,
-    "total": 35
+    "passed": 36,
+    "total": 36
   },
   "negative": {
-    "passed": 9,
-    "total": 9
+    "passed": 10,
+    "total": 10
   },
   "total": {
-    "passed": 44,
-    "total": 44
+    "passed": 46,
+    "total": 46
   },
   "results": [
     {
@@ -115,21 +115,47 @@
     },
     {
       "kind": "positive",
-      "label": "turnip_bulb_width_height_over_1_25",
+      "label": "turnip_height_width_ratio",
       "passed": true,
       "detail": {
-        "width": 1.44,
-        "height": 0.55,
-        "ratio": 2.6181818181818177
+        "bulb_width": 1.24,
+        "height_no_leaves": 1.6616000000000002,
+        "ratio": 1.34,
+        "limits": [
+          1.25,
+          1.45
+        ]
       }
     },
     {
       "kind": "positive",
-      "label": "turnip_has_short_tail_and_small_spiky_leaves",
+      "label": "turnip_tail_ends_in_fine_point",
       "passed": true,
       "detail": {
-        "tail_y": 0.91,
-        "leaf_tips": 4
+        "last_ten_percent_width": 0.07,
+        "limit": 0.186,
+        "bulb_width": 1.24
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "turnip_keeps_small_spiky_leaves",
+      "passed": true,
+      "detail": {
+        "leaf_tips": 4,
+        "leaf_height": 0.42
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "legacy_wide_turnip_fails_ratio_gate",
+      "passed": true,
+      "detail": {
+        "legacy_ratio": 0.6180555555555556,
+        "limits": [
+          1.25,
+          1.45
+        ]
       }
     },
     {
@@ -264,10 +290,10 @@
       "passed": true,
       "detail": {
         "areas": [
-          31846,
-          29936,
-          29051,
-          28255
+          37392,
+          36574,
+          35649,
+          35078
         ]
       }
     },
@@ -294,11 +320,11 @@
       "passed": true,
       "detail": {
         "new_black_pixels": [
-          441,
-          428,
-          398,
-          381,
-          383
+          576,
+          565,
+          549,
+          535,
+          541
         ]
       }
     },
@@ -307,7 +333,7 @@
       "label": "black_on_black_turnip_fails",
       "passed": true,
       "detail": {
-        "new_black_pixels": 9
+        "new_black_pixels": 12
       }
     },
     {

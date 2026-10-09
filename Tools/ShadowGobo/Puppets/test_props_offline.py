@@ -31,10 +31,14 @@ def run(report=None):
     add(rows,"positive","pearl_disc_stays_round",float(np.ptp(pearl_radii))<1e-9,{"radius_range":float(np.ptp(pearl_radii))})
     crescent=lib["pearl"].cuts[0]
     add(rows,"positive","pearl_crescent_is_smooth_and_tapered",len(crescent)>=40 and np.linalg.norm(np.asarray(crescent[0])-np.asarray(crescent[-1]))<1e-9,{"vertices":len(crescent)})
-    turnip=np.asarray(lib["turnip"].outline);bulb=turnip[(turnip[:,1]>=.02)&(turnip[:,1]<=.62)]
-    bulb_width=float(np.ptp(bulb[:,0]));bulb_height=float(np.ptp(bulb[:,1]))
-    add(rows,"positive","turnip_bulb_width_height_over_1_25",bulb_width/bulb_height>1.25,{"width":bulb_width,"height":bulb_height,"ratio":bulb_width/bulb_height})
-    add(rows,"positive","turnip_has_short_tail_and_small_spiky_leaves",float(turnip[:,1].max())<.95 and 3<=int(np.sum(turnip[:,1]<-.28))<=5,{"tail_y":float(turnip[:,1].max()),"leaf_tips":int(np.sum(turnip[:,1]<-.28))})
+    turnip=np.asarray(lib["turnip"].outline);bulb_top=.04;bulb_width=float(np.ptp(turnip[turnip[:,1]>=bulb_top,0]));total_height=float(turnip[:,1].max()-bulb_top);turnip_ratio=total_height/bulb_width
+    add(rows,"positive","turnip_height_width_ratio",1.25<=turnip_ratio<=1.45,{"bulb_width":bulb_width,"height_no_leaves":total_height,"ratio":turnip_ratio,"limits":[1.25,1.45]})
+    tail_start=bulb_top+.90*total_height;tail_width=float(np.ptp(turnip[turnip[:,1]>=tail_start,0]));tail_limit=.15*bulb_width
+    add(rows,"positive","turnip_tail_ends_in_fine_point",tail_width<tail_limit,{"last_ten_percent_width":tail_width,"limit":tail_limit,"bulb_width":bulb_width})
+    leaf_tips=int(np.sum(turnip[:,1]<-.28))
+    add(rows,"positive","turnip_keeps_small_spiky_leaves",3<=leaf_tips<=5,{"leaf_tips":leaf_tips,"leaf_height":props.LOOK["turnip"]["leaf_height"]})
+    legacy_ratio=(.91-.02)/(.72-(-.72))
+    add(rows,"negative","legacy_wide_turnip_fails_ratio_gate",not (1.25<=legacy_ratio<=1.45),{"legacy_ratio":legacy_ratio,"limits":[1.25,1.45]})
     boot=np.asarray(lib["boot"].outline)
     add(rows,"positive","boot_is_round_baby_bootie",float(boot[:,0].max())>.65 and float(boot[:,1].max())>.68 and len(lib["boot"].cuts)>=4,{"toe_x":float(boot[:,0].max()),"sole_y":float(boot[:,1].max()),"detail_cuts":len(lib["boot"].cuts)})
     page=Image.new("L",(600,600),255);props.draw_prop(page,lib["page"],(300,300),220);before=np.asarray(page).copy();props.draw_page_text(ImageDraw.Draw(page),(300,300),220)
