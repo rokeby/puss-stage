@@ -1,0 +1,55 @@
+{
+  "run_id": "P57-20261009-03",
+  "mode": "APPLY",
+  "material_coordinate": "/Game/Scenes/Wings/PaintedSurface/Industrial/M_Wing_IndustrialTiling_Master",
+  "config": {
+    "width_m": 3.36,
+    "height_m": 3.02676,
+    "diamond_m": 0.25,
+    "wire_diameter_m": 0.008,
+    "tube_sides": 4,
+    "samples_per_half_diamond": 2,
+    "seed": 5709,
+    "bend_m": 0.008,
+    "lean_m": 0.015,
+    "weave_depth_m": 0.011,
+    "slack_probability": 0.1,
+    "broken_probability": 0.15,
+    "triangle_budget": 20000
+  },
+  "triangles": {
+    "lod0": 5448,
+    "lod1": 1120,
+    "lod2": 2
+  },
+  "pickets": 13,
+  "slack": 1,
+  "broken": 1,
+  "random_scalar_draws": 402,
+  "digest": "0d1f26686fcf352feeaa1ac74763c102c203b96ba6a1b96af5abf929ea99922a",
+  "interlocks": {
+    "ok": true,
+    "knuckle_count": 150,
+    "minimum_required_depth_m": 0.014400000000000001,
+    "minimum_measured_depth_m": 0.022,
+    "bad_knuckles": 0,
+    "non_knuckle_intersections": 0
+  },
+  "dirty_packages": [],
+  "named_saves": [
+    "previews\\chainlink_topdown.png",
+    "previews\\chainlink_raking_shadow.png",
+    "chainlink_weave_record.json"
+  ],
+  "backup": "Backups\\PreProceduralChainlink-P57-20261009-03",
+  "readback": {
+    "chainlink_topdown.png": {
+      "bytes": 20363,
+      "sha256": "ef0806bd24804dbea5dffdef55b1f05b3130031cdd3902341f886380f64410fe"
+    },
+    "chainlink_raking_shadow.png": {
+      "bytes": 185970,
+      "sha256": "df801abb0975ddaa678bef369e1be37fc3a596dcb7d2f5e1400f6d0c0fa8e809"
+    }
+  }
+}
