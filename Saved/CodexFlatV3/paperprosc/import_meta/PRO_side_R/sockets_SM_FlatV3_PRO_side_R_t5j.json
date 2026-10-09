@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "asset": "SM_FlatV3_PRO_side_R_t5j",
+  "coordinate_space": "Unreal static-mesh local",
+  "location_units": "cm",
+  "rotation_units": "degrees",
+  "rotation_order": "roll-pitch-yaw",
+  "fbx_interchange_conversion": "X=X, Y=-Y, Z=Z",
+  "contract": {
+    "ue_rotator_order": "roll-pitch-yaw",
+    "hinge_local_x_axis": "base-edge Y; either sign is the same hinge line",
+    "pivot_local_x_axis": "+Z",
+    "fbx_interchange_y_reflected": true
+  },
+  "sockets": [
+    {
+      "name": "SOCKET_Hinge",
+      "relative_location_cm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "relative_rotation_deg": {
+        "roll": 0.0,
+        "pitch": 0.0,
+        "yaw": -90.0
+      }
+    },
+    {
+      "name": "SOCKET_Pivot",
+      "relative_location_cm": [
+        0.0,
+        -161.55204709660157,
+        540.0
+      ],
+      "relative_rotation_deg": {
+        "roll": 0.0,
+        "pitch": 90.0,
+        "yaw": 0.0
+      }
+    },
+    {
+      "name": "SOCKET_Pole_1",
+      "relative_location_cm": [
+        0.0,
+        -81.32528001834933,
+        0.0
+      ],
+      "relative_rotation_deg": {
+        "roll": 0.0,
+        "pitch": 0.0,
+        "yaw": 0.0
+      }
+    }
+  ],
+  "baked_pole_geometry": {
+    "extension_below_panel_cm": 100.0,
+    "bottom_z_cm": -100.0,
+    "top_above_panel_cm": 20.0
+  },
+  "source_asset": "SM_FlatV3_PaperProsc_Side_R"
+}

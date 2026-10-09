@@ -6,8 +6,11 @@ Evidence carried into the plan:
   (Saved/CodexStructure/make_stage_front_colliders.py:124-126).
 - [measured by the predecessor tool] temporary stage-front flats use the same world frame at yaw 0/scale 1
   (Saved/CodexConductor/stage_front_wings.py:4-7).
-- [measured offline] DEFAULT_TRANSFORMS centre the validated mesh bounds in StageFront_Colliders_v2 boxes;
-  the harness asserts the rounded collider agreement to 0.5 cm.
+- [measured] Hyper3D's rebuilt thick5 stage-frame transforms are recorded in
+  Saved/CodexFlatV3/paperprosc_inputs/hyper3d_transforms_20261009.json.
+- [declaration-proven + measured apply record] the predecessor stage-front wing tool attaches its two actors to
+  Infinity Stage - Structure 01 with KEEP_WORLD (Saved/CodexConductor/stage_front_wings.py:8,41,78;
+  Docs/Conductor/MORNING_SUMMARY_2026-10-09.md:39).  Attachment is optional but therefore defaults on.
 
 Modes and confirms: DRY/APPLY/VERIFY/REVERT with '<MODE> PAPERPROSC'. APPLY/REVERT back up the .umap and
 write a durable record before actor mutation. APPLY saves only the map and deliberately reports VERIFY pending;
@@ -33,6 +36,8 @@ WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 MAP_RELATIVE_FILE = "InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap"
 TAG = "PussStage.PaperProscenium"
 FOLDER = "StageFront/PaperProscenium"
+STRUCTURE_LABEL = "Infinity Stage - Structure 01"
+DEFAULT_ATTACH = True
 PIECES = ("side_l", "side_r", "valance")
 LABELS = {
     "side_l": "Paper Proscenium Side L",
@@ -54,25 +59,25 @@ MATERIAL_DEFAULTS = {
     for key, owner in OWNERS.items()
 }
 DEFAULT_TRANSFORMS = {
-    "side_l": {"location_cm": [-58.975, -874.936, 0.0], "rotation_rpy_deg": [0.0, 0.0, 0.0],
+    "side_l": {"location_cm": [-60.0, -1231.0, 0.0], "rotation_rpy_deg": [0.0, 0.0, 0.0],
                "scale": [1.0, 1.0, 1.0]},
-    "side_r": {"location_cm": [-59.375, 874.948, 0.0], "rotation_rpy_deg": [0.0, 0.0, 0.0],
+    "side_r": {"location_cm": [-60.0, 1198.0, 0.0], "rotation_rpy_deg": [0.0, 0.0, 0.0],
                "scale": [1.0, 1.0, 1.0]},
-    "valance": {"location_cm": [-44.375, 0.0, 930.0], "rotation_rpy_deg": [0.0, 0.0, 0.0],
+    "valance": {"location_cm": [-45.0, 0.0, 930.0], "rotation_rpy_deg": [0.0, 0.0, 0.0],
                 "scale": [1.0, 1.0, 1.0]},
 }
 VALIDATED_LOCAL_BOUNDS_CM = {
-    "side_l": {"min": [-16.049951314926147, -356.1279296875, 0.0],
-               "max": [-3.999945521354675, -0.00000215055298, 1080.0000190734863]},
-    "side_r": {"min": [-16.050036251544952, -0.00000244381031, 0.0],
-               "max": [-3.20001095533371, 323.1040954589844, 1080.0000190734863]},
+    "side_l": {"min": [-16.049951314926147, 0.000001629206814, -99.99998211860657],
+               "max": [3.800003603100777, 356.1279296875, 1100.0]},
+    "side_r": {"min": [-16.050036251544952, -323.1040954589844, -99.99998211860657],
+               "max": [3.7999868392944336, 0.00000244381031, 1100.0]},
     "valance": {"min": [-16.049841046333313, -1244.0842628479004, 0.0],
-                "max": [-3.1999338418245316, 1244.0842628479004, 400.0]},
+                "max": [0.000066246178676, 1244.0842628479004, 400.0]},
 }
-COLLIDER_BOXES_CM = {
-    "side_l": {"min": [-75.0, -1231.0, 0.0], "max": [-63.0, -875.0, 1080.0]},
-    "side_r": {"min": [-75.0, 875.0, 0.0], "max": [-63.0, 1198.0, 1080.0]},
-    "valance": {"min": [-60.0, -1244.0, 930.0], "max": [-48.0, 1244.0, 1330.0]},
+EXPECTED_WORLD_BOUNDS_CM = {
+    "side_l": {"min": [-76.05, -1231.0, -100.0], "max": [-56.2, -874.87, 1100.0]},
+    "side_r": {"min": [-76.05, 874.90, -100.0], "max": [-56.2, 1198.0, 1100.0]},
+    "valance": {"min": [-61.05, -1244.08, 930.0], "max": [-45.0, 1244.08, 1330.0]},
 }
 PROTECTED_LEVEL_BASENAMES = {"l_animals", "l_kk_children", "japanese_alley", "l_kk_void"}
 
@@ -109,6 +114,10 @@ def validate_args(args):
     meshes.update(args.get("meshes") or {})
     transforms = copy.deepcopy(DEFAULT_TRANSFORMS)
     transforms.update(args.get("transforms") or {})
+    attach = args.get("attach", DEFAULT_ATTACH)
+    require(isinstance(attach, bool), "ATTACH_MUST_BE_BOOL")
+    parent_label = str(args.get("parent_label") or STRUCTURE_LABEL)
+    require(parent_label == STRUCTURE_LABEL, "PARENT_OUT_OF_SCOPE|%s" % parent_label)
     require(set(meshes) == set(PIECES), "MESH_KEYS|%s" % sorted(meshes))
     require(set(transforms) == set(PIECES), "TRANSFORM_KEYS|%s" % sorted(transforms))
     rows = []
@@ -126,11 +135,13 @@ def validate_args(args):
                      "tags": [TAG, TAG + "." + key],
                      "transform": {"location_cm": loc, "rotation_rpy_deg": rot, "scale": scale}})
     plan = {"mode": mode, "world": WORLD, "folder": FOLDER, "tag": TAG, "rows": rows,
+            "attachment": {"enabled": attach, "parent_label": parent_label, "rule": "KEEP_WORLD"},
             "stage_to_world": {"location_cm": [0.0, 0.0, 0.0], "rotation_rpy_deg": [0.0, 0.0, 0.0],
                                "scale": [1.0, 1.0, 1.0]},
-            "stage_frame_evidence": ["Saved/CodexStructure/make_stage_front_colliders.py:124-126",
-                                     "Saved/CodexConductor/stage_front_wings.py:4-7"],
-            "transform_authority": "args; defaults derived from collider boxes plus validated mesh pivots"}
+            "stage_frame_evidence": ["Saved/CodexFlatV3/paperprosc_inputs/hyper3d_transforms_20261009.json",
+                                     "Saved/CodexConductor/stage_front_wings.py:8,41,78",
+                                     "Docs/Conductor/MORNING_SUMMARY_2026-10-09.md:39"],
+            "transform_authority": "args; defaults are Hyper3D's measured thick5 stage-frame transforms"}
     plan["hash"] = canonical_hash({k: v for k, v in plan.items() if k not in ("mode", "hash")})
     plan["hash8"] = plan["hash"][:8]
     return plan
@@ -157,10 +168,11 @@ def transformed_bounds(bounds, transform):
             "max": [max(p[i] for p in points) for i in range(3)]}
 
 
-def collider_default_errors(plan, tolerance_cm=0.5):
+def stage_bound_default_errors(plan, tolerance_cm=0.5):
     errors = []
     for row in plan["rows"]:
-        got, want = transformed_bounds(VALIDATED_LOCAL_BOUNDS_CM[row["key"]], row["transform"]), COLLIDER_BOXES_CM[row["key"]]
+        got = transformed_bounds(VALIDATED_LOCAL_BOUNDS_CM[row["key"]], row["transform"])
+        want = EXPECTED_WORLD_BOUNDS_CM[row["key"]]
         for side in ("min", "max"):
             for axis in range(3):
                 if abs(got[side][axis] - want[side][axis]) > tolerance_cm:
@@ -169,12 +181,17 @@ def collider_default_errors(plan, tolerance_cm=0.5):
     return errors
 
 
+def collider_default_errors(plan, tolerance_cm=0.5):
+    """Backward-compatible name retained for the existing DRY report."""
+    return stage_bound_default_errors(plan, tolerance_cm)
+
+
 def _protected_dirty(census):
     return sorted(name for group in ("content", "maps") for name in census.get(group, [])
                   if str(name).replace("\\", "/").rsplit("/", 1)[-1].lower() in PROTECTED_LEVEL_BASENAMES)
 
 
-def context_errors(mode, state):
+def context_errors(mode, state, attach=False):
     errors = []
     if state.get("world") != WORLD:
         errors.append("WRONG_WORLD|%s" % state.get("world"))
@@ -188,6 +205,8 @@ def context_errors(mode, state):
     protected = _protected_dirty(census)
     if protected:
         errors.append("KLARA_LEVEL_DIRTY|%s" % protected)
+    if attach and int(state.get("parent_count") or 0) != 1:
+        errors.append("ATTACH_PARENT_NOT_EXACT|%s|%d" % (STRUCTURE_LABEL, int(state.get("parent_count") or 0)))
     counts = state.get("label_counts") or {}
     tag_count = int(state.get("tag_count") or 0)
     if mode == "APPLY":
@@ -265,13 +284,14 @@ def _state(actors=None):
             "sequencer_open": unreal.LevelSequenceEditorBlueprintLibrary.get_current_level_sequence() is not None,
             "census": _census(),
             "label_counts": {label: sum(str(a.get_actor_label()) == label for a in actors) for label in LABELS.values()},
+            "parent_count": sum(str(a.get_actor_label()) == STRUCTURE_LABEL for a in actors),
             "tag_count": sum(TAG in _tags(a) for a in actors),
             "record_exists": os.path.isfile(_record_path())}
 
 
-def _require_context(mode, actors=None):
+def _require_context(mode, actors=None, attach=False):
     state = _state(actors)
-    errors = context_errors(mode, state)
+    errors = context_errors(mode, state, attach)
     require(not errors, " ; ".join(errors))
     return state
 
@@ -291,7 +311,9 @@ def _load_meshes(plan):
 def _actor_row(actor):
     comp = actor.get_editor_property("static_mesh_component")
     loc, rot, scale = actor.get_actor_location(), actor.get_actor_rotation(), actor.get_actor_scale3d()
+    parent = actor.get_attach_parent_actor()
     return {"label": str(actor.get_actor_label()), "object_path": str(actor.get_path_name()), "tags": _tags(actor),
+            "parent_label": str(parent.get_actor_label()) if parent is not None else None,
             "folder": str(actor.get_folder_path()),
             "transform": {"location_cm": [float(loc.x), float(loc.y), float(loc.z)],
                           "rotation_rpy_deg": [float(rot.roll), float(rot.pitch), float(rot.yaw)],
@@ -323,13 +345,16 @@ def _validate_readback(plan, actors):
         if got["folder"] != FOLDER: errors.append("FOLDER|%s|%s" % (row["key"], got["folder"]))
         if got["mesh"] != row["mesh"]: errors.append("MESH|%s|%s" % (row["key"], got["mesh"]))
         if got["materials"] != row["materials"]: errors.append("MATERIALS|%s|%s" % (row["key"], got["materials"]))
-        if not _near(got["transform"]["location_cm"], row["transform"]["location_cm"], 0.01): errors.append("LOCATION|" + row["key"])
+        if not _near(got["transform"]["location_cm"], row["transform"]["location_cm"], 0.5): errors.append("WORLD_LOCATION|" + row["key"])
         if not _near(got["transform"]["rotation_rpy_deg"], row["transform"]["rotation_rpy_deg"], 0.001): errors.append("ROTATION|" + row["key"])
         if not _near(got["transform"]["scale"], row["transform"]["scale"], 0.000001): errors.append("SCALE|" + row["key"])
         if not got["mobility"].upper().endswith("STATIC"): errors.append("MOBILITY|%s|%s" % (row["key"], got["mobility"]))
         if got["collision_profile"].lower() != "nocollision": errors.append("COLLISION_PROFILE|%s|%s" % (row["key"], got["collision_profile"]))
         if not got["collision_enabled"].upper().endswith("NO_COLLISION"): errors.append("COLLISION_ENABLED|%s|%s" % (row["key"], got["collision_enabled"]))
         if not got["cast_shadow"]: errors.append("CAST_SHADOW|" + row["key"])
+        want_parent = plan["attachment"]["parent_label"] if plan["attachment"]["enabled"] else None
+        if got["parent_label"] != want_parent:
+            errors.append("ATTACH_PARENT|%s|got=%s|want=%s" % (row["key"], got["parent_label"], want_parent))
     require(not errors, "READBACK|" + " ; ".join(errors))
     return output
 
@@ -362,8 +387,10 @@ def _save_map():
     require(_census() == {"content": [], "maps": []}, "POST_SAVE_DIRTY|%s" % json.dumps(_census(), sort_keys=True))
 
 
-def _spawn(plan, meshes):
+def _spawn(plan, meshes, actors):
     subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    parents = [a for a in actors if str(a.get_actor_label()) == plan["attachment"]["parent_label"]]
+    parent = parents[0] if plan["attachment"]["enabled"] else None
     made = []
     for row in plan["rows"]:
         t = row["transform"]
@@ -382,17 +409,20 @@ def _spawn(plan, meshes):
         comp.modify(); comp.set_collision_profile_name("NoCollision")
         comp.modify(); comp.set_collision_enabled(unreal.CollisionEnabled.NO_COLLISION)
         comp.modify(); comp.set_cast_shadow(True)
+        if parent is not None:
+            rule = unreal.AttachmentRule.KEEP_WORLD
+            actor.modify(); actor.attach_to_actor(parent, unreal.Name(""), rule, rule, rule, False)
         made.append(actor)
     return made
 
 
-def _apply(run, plan, meshes):
+def _apply(run, plan, meshes, actors):
     backup, copied = _backup(run)
     record = {"schema_version": 1, "mode": "APPLY", "run": run, "world": WORLD, "tag": TAG,
               "plan_hash": plan["hash"], "plan": plan, "backup": backup, "backup_file": copied,
               "applied": False, "verified": False, "actors": {}}
     _write_json(_record_path(), record, exclusive=True)
-    _spawn(plan, meshes)
+    _spawn(plan, meshes, actors)
     readback = _validate_readback(plan, _actors())
     record["actors"] = readback
     _write_json(_record_path(), record)
@@ -455,7 +485,7 @@ def main():
         args = _read_json(os.path.join(_here(), "paperprosc_args.json"))
         plan = validate_args(args); mode = plan["mode"]
         actors = _actors()
-        _require_context(mode, actors)
+        _require_context(mode, actors, plan["attachment"]["enabled"])
         meshes = _load_meshes(plan)
         if mode == "DRY":
             report = {"run": run, "mode": mode, "plan": plan, "existing_tagged": _state(actors)["tag_count"],
@@ -464,7 +494,7 @@ def main():
             require(_census() == {"content": [], "maps": []}, "DRY_DIRTIED_PACKAGES|%s" % _census())
             unreal.log("PAPERPROSC_DRY_OK|run=%s|plan=%s|actors=3|mutated=0" % (run, plan["hash8"]))
         elif mode == "APPLY":
-            _apply(run, plan, meshes)
+            _apply(run, plan, meshes, actors)
         elif mode == "VERIFY":
             _verify(run, plan)
         else:

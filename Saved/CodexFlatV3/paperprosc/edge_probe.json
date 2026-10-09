@@ -1,0 +1,209 @@
+[
+ {
+  "fbx": "E:\\PussStage\\DerivedAssets\\StageFront_PaperProscenium\\Build\\PaperProsc_Side_L\\SM_FlatV3_PaperProsc_Side_L.fbx",
+  "objects": {
+   "SM_FlatV3_PaperProsc_Side_L_LOD0": {
+    "slot_order": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "slots": {
+     "Front": {
+      "x_min": -15.0,
+      "x_max": -15.0,
+      "polys": 334,
+      "x_facing": 334
+     },
+     "Timber": {
+      "x_min": -10.0,
+      "x_max": 3.8,
+      "polys": 1198,
+      "x_facing": 770
+     },
+     "Edge": {
+      "x_min": -15.0,
+      "x_max": -10.0,
+      "polys": 662,
+      "x_facing": 0
+     },
+     "Flap": {
+      "x_min": -16.05,
+      "x_max": -15.1,
+      "polys": 69,
+      "x_facing": 69
+     }
+    },
+    "edge_inward_area_fraction": 0.0
+   },
+   "SM_FlatV3_PaperProsc_Side_L_LOD1": {
+    "slot_order": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "slots": {
+     "Front": {
+      "x_min": -15.0,
+      "x_max": -15.0,
+      "polys": 334,
+      "x_facing": 334
+     },
+     "Timber": {
+      "x_min": -10.0,
+      "x_max": 3.8,
+      "polys": 970,
+      "x_facing": 694
+     },
+     "Edge": {
+      "x_min": -15.0,
+      "x_max": -10.0,
+      "polys": 662,
+      "x_facing": 0
+     }
+    },
+    "edge_inward_area_fraction": 0.0
+   }
+  }
+ },
+ {
+  "fbx": "E:\\PussStage\\DerivedAssets\\StageFront_PaperProscenium\\Build\\PaperProsc_Side_R\\SM_FlatV3_PaperProsc_Side_R.fbx",
+  "objects": {
+   "SM_FlatV3_PaperProsc_Side_R_LOD0": {
+    "slot_order": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "slots": {
+     "Front": {
+      "x_min": -15.0,
+      "x_max": -15.0,
+      "polys": 322,
+      "x_facing": 322
+     },
+     "Timber": {
+      "x_min": -10.0,
+      "x_max": 3.8,
+      "polys": 1234,
+      "x_facing": 770
+     },
+     "Edge": {
+      "x_min": -15.0,
+      "x_max": -10.0,
+      "polys": 636,
+      "x_facing": 0
+     },
+     "Flap": {
+      "x_min": -16.05,
+      "x_max": -15.1,
+      "polys": 66,
+      "x_facing": 66
+     }
+    },
+    "edge_inward_area_fraction": 0.0
+   },
+   "SM_FlatV3_PaperProsc_Side_R_LOD1": {
+    "slot_order": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "slots": {
+     "Front": {
+      "x_min": -15.0,
+      "x_max": -15.0,
+      "polys": 322,
+      "x_facing": 322
+     },
+     "Timber": {
+      "x_min": -10.0,
+      "x_max": 3.8,
+      "polys": 958,
+      "x_facing": 682
+     },
+     "Edge": {
+      "x_min": -15.0,
+      "x_max": -10.0,
+      "polys": 636,
+      "x_facing": 0
+     }
+    },
+    "edge_inward_area_fraction": 0.0
+   }
+  }
+ },
+ {
+  "fbx": "E:\\PussStage\\DerivedAssets\\StageFront_PaperProscenium\\Build\\PaperProsc_Valance_C\\SM_FlatV3_PaperProsc_Valance_C.fbx",
+  "objects": {
+   "SM_FlatV3_PaperProsc_Valance_C_LOD0": {
+    "slot_order": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "slots": {
+     "Front": {
+      "x_min": -15.0,
+      "x_max": -15.0,
+      "polys": 2949,
+      "x_facing": 2949
+     },
+     "Timber": {
+      "x_min": -10.0,
+      "x_max": 0.0,
+      "polys": 3153,
+      "x_facing": 3015
+     },
+     "Edge": {
+      "x_min": -15.0,
+      "x_max": -10.0,
+      "polys": 6026,
+      "x_facing": 0
+     },
+     "Flap": {
+      "x_min": -16.05,
+      "x_max": -15.1,
+      "polys": 350,
+      "x_facing": 350
+     }
+    },
+    "edge_inward_area_fraction": 0.0
+   },
+   "SM_FlatV3_PaperProsc_Valance_C_LOD1": {
+    "slot_order": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "slots": {
+     "Front": {
+      "x_min": -15.0,
+      "x_max": -15.0,
+      "polys": 2949,
+      "x_facing": 2949
+     },
+     "Timber": {
+      "x_min": -10.0,
+      "x_max": -10.0,
+      "polys": 2949,
+      "x_facing": 2949
+     },
+     "Edge": {
+      "x_min": -15.0,
+      "x_max": -10.0,
+      "polys": 6026,
+      "x_facing": 0
+     }
+    },
+    "edge_inward_area_fraction": 0.0
+   }
+  }
+ }
+]

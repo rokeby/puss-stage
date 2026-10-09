@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "mode": "APPLY",
+  "run": "PPMAN-20261009-EDGE-APPLY",
+  "plan_hash": "0c7aee26ce9684287f9241067e77a0ae0693dccab8a84d7593bc35e2f17b44d8",
+  "plan": {
+    "mark": "PAPERPROSC_MANIFEST",
+    "source_root": "E:\\PussStage",
+    "output_root": "C:\\Users\\Administrator\\.codex\\worktrees\\56a2\\PussStage",
+    "probe": "Saved/CodexFlatV3/paperprosc/edge_probe.json",
+    "outputs": {
+      "DerivedAssets/StageFront_PaperProscenium/IMPORT_MANIFEST_PaperProsc.json": "f5b43b7102351d49b0ee5d73c2da928a0eaf2d2e6f990443dbc3c7db4232580d",
+      "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/RZ_BUILD_REPORT.json": "33ead4a51c52f386d33a5015944dd16080baa0460a137ef41098606f39bd6d0f",
+      "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/sockets_SM_FlatV3_PRO_side_L_t5j.json": "364c97c4815bf9d89361a768a1537c88f281d8cc03ab986bb65e6a1f227f1205",
+      "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/stage1/PRO_side_L/skin_v3/PRO_side_L_mi_params.json": "fa675814516b78e37661c0c2138cd838a85418fb0bce813f275d8c1b7a1e7b68",
+      "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/RZ_BUILD_REPORT.json": "5a57d5b220e27d7c85b8857e078333025f751c9ce144ae81a4b02b65cc49ebe1",
+      "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/sockets_SM_FlatV3_PRO_side_R_t5j.json": "5922667f08c8cf4eeb9cb86e2e74abd1e3ccd07f524066e79aae4105ab97e47f",
+      "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/stage1/PRO_side_R/skin_v3/PRO_side_R_mi_params.json": "bc21361384683f0c137024ca0b2a06e392d6bf578574be546dba679378d5aaa8",
+      "Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/RZ_BUILD_REPORT.json": "457c6c0c99d087e5dcbf68046c75928aaa0d2b7ee951d257b0611d1f32b46e93",
+      "Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/sockets_SM_FlatV3_PRO_valance_C_t5j.json": "b5be67bb405013d3d4e72c27f3812780f9449c12e026bbbc05d63ad2871e961a",
+      "Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/stage1/PRO_valance_C/skin_v3/PRO_valance_C_mi_params.json": "f99c32ef143444360f9bb564c4f67953ae35193be86d353e9e58c7584b3f263b"
+    },
+    "gates_ok": true,
+    "failures": [],
+    "hash": "0c7aee26ce9684287f9241067e77a0ae0693dccab8a84d7593bc35e2f17b44d8",
+    "hash8": "0c7aee26"
+  },
+  "backup": "C:\\Users\\Administrator\\.codex\\worktrees\\56a2\\PussStage\\Backups\\PrePaperProscManifest-PPMAN-20261009-EDGE-APPLY",
+  "originals": {
+    "DerivedAssets/StageFront_PaperProscenium/IMPORT_MANIFEST_PaperProsc.json": {
+      "existed": false,
+      "sha256": null
+    },
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/RZ_BUILD_REPORT.json": {
+      "existed": false,
+      "sha256": null
+    },
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/sockets_SM_FlatV3_PRO_side_L_t5j.json": {
+      "existed": false,
+      "sha256": null
+    },
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/stage1/PRO_side_L/skin_v3/PRO_side_L_mi_params.json": {
+      "existed": false,
+      "sha256": null
+    },
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/RZ_BUILD_REPORT.json": {
+      "existed": false,
+      "sha256": null
+    },
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/sockets_SM_FlatV3_PRO_side_R_t5j.json": {
+      "existed": false,
+      "sha256": null
+    },
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/stage1/PRO_side_R/skin_v3/PRO_side_R_mi_params.json": {
+      "existed": false,
+      "sha256": null
+    },
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/RZ_BUILD_REPORT.json": {
+      "existed": false,
+      "sha256": null
+    },
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/sockets_SM_FlatV3_PRO_valance_C_t5j.json": {
+      "existed": false,
+      "sha256": null
+    },
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/stage1/PRO_valance_C/skin_v3/PRO_valance_C_mi_params.json": {
+      "existed": false,
+      "sha256": null
+    }
+  },
+  "applied": true,
+  "dirty_package_census": {
+    "content": [],
+    "maps": [],
+    "basis": "offline generator; Unreal not imported"
+  },
+  "readback": {
+    "DerivedAssets/StageFront_PaperProscenium/IMPORT_MANIFEST_PaperProsc.json": "f5b43b7102351d49b0ee5d73c2da928a0eaf2d2e6f990443dbc3c7db4232580d",
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/RZ_BUILD_REPORT.json": "33ead4a51c52f386d33a5015944dd16080baa0460a137ef41098606f39bd6d0f",
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/sockets_SM_FlatV3_PRO_side_L_t5j.json": "364c97c4815bf9d89361a768a1537c88f281d8cc03ab986bb65e6a1f227f1205",
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/stage1/PRO_side_L/skin_v3/PRO_side_L_mi_params.json": "fa675814516b78e37661c0c2138cd838a85418fb0bce813f275d8c1b7a1e7b68",
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/RZ_BUILD_REPORT.json": "5a57d5b220e27d7c85b8857e078333025f751c9ce144ae81a4b02b65cc49ebe1",
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/sockets_SM_FlatV3_PRO_side_R_t5j.json": "5922667f08c8cf4eeb9cb86e2e74abd1e3ccd07f524066e79aae4105ab97e47f",
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/stage1/PRO_side_R/skin_v3/PRO_side_R_mi_params.json": "bc21361384683f0c137024ca0b2a06e392d6bf578574be546dba679378d5aaa8",
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/RZ_BUILD_REPORT.json": "457c6c0c99d087e5dcbf68046c75928aaa0d2b7ee951d257b0611d1f32b46e93",
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/sockets_SM_FlatV3_PRO_valance_C_t5j.json": "b5be67bb405013d3d4e72c27f3812780f9449c12e026bbbc05d63ad2871e961a",
+    "Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/stage1/PRO_valance_C/skin_v3/PRO_valance_C_mi_params.json": "f99c32ef143444360f9bb564c4f67953ae35193be86d353e9e58c7584b3f263b"
+  }
+}

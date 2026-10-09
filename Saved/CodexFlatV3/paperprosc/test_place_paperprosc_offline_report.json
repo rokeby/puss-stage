@@ -1,0 +1,168 @@
+{
+ "checks": [
+  {
+   "kind": "POS",
+   "name": "default plan has the exact three owned actors",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "POS",
+   "name": "Hyper3D defaults reproduce measured thick5 stage bounds within 0.5 cm",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "kind": "POS",
+   "name": "attach defaults on from measured stage-front precedent and uses KEEP_WORLD",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "POS",
+   "name": "default component policy is four exact materials per actor",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "POS",
+   "name": "plan hash is deterministic",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "POS",
+   "name": "transform args are load-bearing",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "POS",
+   "name": "clean DRY context with one attach parent passes",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "POS",
+   "name": "exact owned state passes later VERIFY and REVERT guards",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "NEG",
+   "name": "confirm mismatch refuses",
+   "pass": true,
+   "detail": "CONFIRM_MISMATCH|got='APPLY PAPERPROSC'|want='DRY PAPERPROSC'"
+  },
+  {
+   "kind": "NEG",
+   "name": "unknown mode refuses",
+   "pass": true,
+   "detail": "MODE_INVALID|'BUILD'"
+  },
+  {
+   "kind": "NEG",
+   "name": "non-finite transform refuses",
+   "pass": true,
+   "detail": "side_l_LOCATION_NONFINITE"
+  },
+  {
+   "kind": "NEG",
+   "name": "mesh outside owned import root refuses",
+   "pass": true,
+   "detail": "MESH_OUT_OF_SCOPE|side_l|/Game/Someone/Else"
+  },
+  {
+   "kind": "NEG",
+   "name": "attach refuses a missing Structure 01 parent",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "NEG",
+   "name": "wrong world refuses",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "NEG",
+   "name": "PIE/SIE refuses",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "NEG",
+   "name": "dirty start refuses",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "NEG",
+   "name": "Klara protected level dirt is named and refused",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "NEG",
+   "name": "APPLY refuses a label collision",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "NEG",
+   "name": "APPLY refuses an ownership-tag collision",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "NEG",
+   "name": "APPLY refuses an extant record",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "NEG",
+   "name": "REVERT refuses missing actors and record",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "STATIC",
+   "name": "tool parses as Python 3.11",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "STATIC",
+   "name": "tool contains no Save All, level reload, or broad asset deletion",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "STATIC",
+   "name": "NoCollision uses both required calls",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "STATIC",
+   "name": "runner purges Saved module cache before the tool",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "STATIC",
+   "name": "request uses guarded project-Python MCP route and runner",
+   "pass": true,
+   "detail": ""
+  }
+ ],
+ "passed": 26,
+ "failed": 0,
+ "by_kind": {
+  "POS": 8,
+  "NEG": 13,
+  "STATIC": 5
+ },
+ "plan_hash": "e7a47264666d183d1b2ad60d7892e82b148c619908d9b0df719f3878289428ac"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "asset": "SM_FlatV3_PRO_valance_C_t5j",
+  "coordinate_space": "Unreal static-mesh local",
+  "location_units": "cm",
+  "rotation_units": "degrees",
+  "rotation_order": "roll-pitch-yaw",
+  "fbx_interchange_conversion": "X=X, Y=-Y, Z=Z",
+  "contract": {
+    "ue_rotator_order": "roll-pitch-yaw",
+    "hinge_local_x_axis": "base-edge Y; either sign is the same hinge line",
+    "pivot_local_x_axis": "+Z",
+    "fbx_interchange_y_reflected": true
+  },
+  "sockets": [],
+  "source_asset": "SM_FlatV3_PaperProsc_Valance_C"
+}

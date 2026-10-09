@@ -1,0 +1,3 @@
+E:\PussStage\DerivedAssets\StageFront_PaperProscenium\Build\PaperProsc_Side_L\SM_FlatV3_PaperProsc_Side_L.fbx
+E:\PussStage\DerivedAssets\StageFront_PaperProscenium\Build\PaperProsc_Side_R\SM_FlatV3_PaperProsc_Side_R.fbx
+E:\PussStage\DerivedAssets\StageFront_PaperProscenium\Build\PaperProsc_Valance_C\SM_FlatV3_PaperProsc_Valance_C.fbx

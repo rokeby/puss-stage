@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "asset": "PRO_side_L",
+  "parents": {
+    "Front": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+    "Flap": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap"
+  },
+  "texture_parameters": {
+    "SkinColor": "T_PaperProsc_Side_L_SkinColor.png",
+    "SkinMask": "T_PaperProsc_Side_L_SkinMask.png",
+    "SkinNormal": "T_PaperProsc_Side_L_SkinNormal.png"
+  },
+  "scalar_parameters": {
+    "SheetWidthM": 1.0,
+    "SheetHeightM": 1.5,
+    "SheetOverlapM": 0.025,
+    "RowOffset": 0.5
+  },
+  "uv_contract": "UV1 metres; Front/Flap U from mesh Y and V from mesh Z",
+  "source_asset": "PaperProsc_Side_L"
+}

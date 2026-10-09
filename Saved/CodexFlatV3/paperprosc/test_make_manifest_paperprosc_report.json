@@ -1,0 +1,96 @@
+{
+ "checks": [
+  {
+   "kind": "POS",
+   "name": "real rebuilt source produces exactly three manifest entries",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "POS",
+   "name": "all real source gates pass",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "kind": "POS",
+   "name": "all entries are proof-pass thick5",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "POS",
+   "name": "generator is byte-deterministic",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "POS",
+   "name": "three socket, MI and build-report adapters are emitted",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "POS",
+   "name": "edge gate records x -15..-10 and zero inward area",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "NEG",
+   "name": "legacy 1.8 cm edge profile is refused",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "NEG",
+   "name": "inward edge walls are refused",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "NEG",
+   "name": "x-facing polygons in Edge slot are refused",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "NEG",
+   "name": "failed requirements stop deterministically",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "STATIC",
+   "name": "generator parses as Python 3.11",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "STATIC",
+   "name": "generator exposes DRY APPLY REVERT and exact confirms",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "STATIC",
+   "name": "generator has no Unreal or Blender imports",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "kind": "STATIC",
+   "name": "revert preserves displaced outputs instead of deleting them",
+   "pass": true,
+   "detail": ""
+  }
+ ],
+ "passed": 14,
+ "failed": 0,
+ "by_kind": {
+  "POS": 6,
+  "NEG": 4,
+  "STATIC": 4
+ },
+ "plan_hash": "0c7aee26ce9684287f9241067e77a0ae0693dccab8a84d7593bc35e2f17b44d8"
+}

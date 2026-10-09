@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "status": "PASS",
+  "owner": "PRO_side_L",
+  "fbx": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/SM_FlatV3_PaperProsc_Side_L.fbx",
+  "fbx_sha256": "681aa6e0cd1eb88e4d4ee75a16f36ad39fa1d99412cdadd4658ba1662e4f94ff",
+  "source_build_report": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/PaperProsc_Side_L_L_build.json",
+  "source_validation": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/validation.json",
+  "edge_gate": {
+    "pass": true,
+    "probe": "Saved/CodexFlatV3/paperprosc/edge_probe.json",
+    "expected": "Front x=-15 cm; Edge x=-15..-10 cm; no x-facing Edge polygons; inward area fraction 0",
+    "measured": {
+      "SM_FlatV3_PaperProsc_Side_L_LOD0": {
+        "edge_x_cm": [
+          -15.0,
+          -10.0
+        ],
+        "front_x_cm": [
+          -15.0,
+          -15.0
+        ],
+        "edge_x_facing_polygons": 0,
+        "edge_inward_area_fraction": 0.0
+      },
+      "SM_FlatV3_PaperProsc_Side_L_LOD1": {
+        "edge_x_cm": [
+          -15.0,
+          -10.0
+        ],
+        "front_x_cm": [
+          -15.0,
+          -15.0
+        ],
+        "edge_x_facing_polygons": 0,
+        "edge_inward_area_fraction": 0.0
+      }
+    }
+  },
+  "gate_errors": []
+}

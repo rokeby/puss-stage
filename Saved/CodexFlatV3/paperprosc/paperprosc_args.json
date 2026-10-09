@@ -1,0 +1,16 @@
+{
+  "mode": "DRY",
+  "confirm": "DRY PAPERPROSC",
+  "attach": true,
+  "parent_label": "Infinity Stage - Structure 01",
+  "meshes": {
+    "side_l": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_L_t5j",
+    "side_r": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_R_t5j",
+    "valance": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_valance_C_t5j"
+  },
+  "transforms": {
+    "side_l": {"location_cm": [-60.0, -1231.0, 0.0], "rotation_rpy_deg": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0]},
+    "side_r": {"location_cm": [-60.0, 1198.0, 0.0], "rotation_rpy_deg": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0]},
+    "valance": {"location_cm": [-45.0, 0.0, 930.0], "rotation_rpy_deg": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0]}
+  }
+}

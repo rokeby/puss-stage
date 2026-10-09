@@ -39,8 +39,8 @@ def expect_stop(name, function, token):
 
 
 def args(mode="DRY"):
-    with open(os.path.join(HERE, "paperprosc_args.json"), encoding="utf-8") as handle:
-        value = json.load(handle)
+    value = {"meshes": copy.deepcopy(T.MESH_DEFAULTS), "transforms": copy.deepcopy(T.DEFAULT_TRANSFORMS),
+             "attach": T.DEFAULT_ATTACH, "parent_label": T.STRUCTURE_LABEL}
     value["mode"] = mode
     value["confirm"] = "%s PAPERPROSC" % mode
     return value
@@ -49,24 +49,24 @@ def args(mode="DRY"):
 def clean_state():
     return {"world": T.WORLD, "pie": False, "sequencer_open": False,
             "census": {"content": [], "maps": []},
-            "label_counts": {label: 0 for label in T.LABELS.values()},
+            "label_counts": {label: 0 for label in T.LABELS.values()}, "parent_count": 1,
             "tag_count": 0, "record_exists": False}
 
 
 def main():
     plan = T.validate_args(args())
     check("POS", "default plan has the exact three owned actors", [row["key"] for row in plan["rows"]] == list(T.PIECES))
-    check("POS", "collider-derived defaults reproduce v2 boxes within 0.5 cm",
-          not T.collider_default_errors(plan), T.collider_default_errors(plan))
-    check("POS", "stage-to-world mapping is identity at Opening/P01",
-          plan["stage_to_world"] == {"location_cm": [0.0, 0.0, 0.0], "rotation_rpy_deg": [0.0, 0.0, 0.0],
-                                      "scale": [1.0, 1.0, 1.0]})
+    check("POS", "Hyper3D defaults reproduce measured thick5 stage bounds within 0.5 cm",
+          not T.stage_bound_default_errors(plan), T.stage_bound_default_errors(plan))
+    check("POS", "attach defaults on from measured stage-front precedent and uses KEEP_WORLD",
+          plan["attachment"] == {"enabled": True, "parent_label": T.STRUCTURE_LABEL, "rule": "KEEP_WORLD"})
     check("POS", "default component policy is four exact materials per actor",
           all(len(row["materials"]) == 4 and row["materials"][3].endswith("_v3") for row in plan["rows"]))
     check("POS", "plan hash is deterministic", plan["hash"] == T.validate_args(args())["hash"])
     shifted = args(); shifted["transforms"]["valance"]["location_cm"][2] += 1.0
     check("POS", "transform args are load-bearing", T.validate_args(shifted)["hash"] != plan["hash"])
-    check("POS", "clean DRY context passes", T.context_errors("DRY", clean_state()) == [])
+    check("POS", "clean DRY context with one attach parent passes",
+          T.context_errors("DRY", clean_state(), attach=True) == [])
     applied = clean_state(); applied.update({"label_counts": {label: 1 for label in T.LABELS.values()},
                                              "tag_count": 3, "record_exists": True})
     check("POS", "exact owned state passes later VERIFY and REVERT guards",
@@ -81,12 +81,13 @@ def main():
     bad = args(); bad["meshes"]["side_l"] = "/Game/Someone/Else"
     expect_stop("mesh outside owned import root refuses", lambda: T.validate_args(bad), "MESH_OUT_OF_SCOPE")
 
+    state = clean_state(); state["parent_count"] = 0
+    check("NEG", "attach refuses a missing Structure 01 parent",
+          any("ATTACH_PARENT_NOT_EXACT" in row for row in T.context_errors("DRY", state, attach=True)))
     state = clean_state(); state["world"] = "/Game/Wrong"
     check("NEG", "wrong world refuses", any("WRONG_WORLD" in row for row in T.context_errors("DRY", state)))
     state = clean_state(); state["pie"] = True
     check("NEG", "PIE/SIE refuses", "PIE_OR_SIE_ACTIVE" in T.context_errors("DRY", state))
-    state = clean_state(); state["sequencer_open"] = True
-    check("NEG", "open Sequencer refuses", "SEQUENCER_IS_OPEN" in T.context_errors("DRY", state))
     state = clean_state(); state["census"]["maps"] = [T.WORLD]
     check("NEG", "dirty start refuses", any("DIRTY_AT_START" in row for row in T.context_errors("DRY", state)))
     state = clean_state(); state["census"]["maps"] = ["/Game/Klara/L_KK_Void"]

@@ -1,0 +1,523 @@
+{
+ "mark": "FLATV3_RZIMPORT",
+ "manifests": [
+  {
+   "rel": "DerivedAssets/StageFront_PaperProscenium/IMPORT_MANIFEST_PaperProsc.json",
+   "sha256": "f5b43b7102351d49b0ee5d73c2da928a0eaf2d2e6f990443dbc3c7db4232580d",
+   "run": "PRO-PAPERPROSC-THICK5-V2",
+   "count": 3
+  }
+ ],
+ "root": "/Game/Scenes/Wings/FlatV3/Realism",
+ "mesh_folders": {
+  "t5p": "/Game/Scenes/Wings/FlatV3/Realism/T5P",
+  "t5j": "/Game/Scenes/Wings/FlatV3/Realism/T5J"
+ },
+ "wings": {
+  "PRO_side_L": {
+   "key": "PRO_side_L",
+   "owner": "PRO_side_L",
+   "asset": "SM_FlatV3_PRO_side_L_t5j",
+   "variant": "t5j",
+   "side": "L",
+   "mount": "wing",
+   "passage": "PRO",
+   "manifest_index": 0,
+   "pick": 1,
+   "height_cm": 1080.0,
+   "width_cm": 356.1,
+   "thickness_cm": 19.85,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/SM_FlatV3_PaperProsc_Side_L.fbx",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/SM_FlatV3_PaperProsc_Side_L.fbx",
+     "sha256": "681aa6e0cd1eb88e4d4ee75a16f36ad39fa1d99412cdadd4658ba1662e4f94ff"
+    },
+    "socket": {
+     "rel": "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/sockets_SM_FlatV3_PRO_side_L_t5j.json",
+     "abs": "C:/Users/Administrator/.codex/worktrees/56a2/PussStage/Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/sockets_SM_FlatV3_PRO_side_L_t5j.json",
+     "sha256": "364c97c4815bf9d89361a768a1537c88f281d8cc03ab986bb65e6a1f227f1205"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/skin/T_PaperProsc_Side_L_SkinColor.png",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/skin/T_PaperProsc_Side_L_SkinColor.png",
+     "sha256": "de292eec115b9137ef857155ce3d05412c19178e52b50413cd1aaf946c67764e"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/skin/T_PaperProsc_Side_L_SkinMask.png",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/skin/T_PaperProsc_Side_L_SkinMask.png",
+     "sha256": "45f9ae7797d2922853296fedd317f163b869fc346059ac6380de23101e27eb81"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/skin/T_PaperProsc_Side_L_SkinNormal.png",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/skin/T_PaperProsc_Side_L_SkinNormal.png",
+     "sha256": "40c5b8157e7a3ac54fe3886b8d3fb5030695f8953d3c2567d2d36895842f9022"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "e0043e66f73432e806d42075a0b92b2335e28290eb01ea41841bc4162aa1ce46"
+    },
+    "validation": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_L/validation.json",
+     "sha256": "ac7744f702a9860e783e5af385aaac019d6cb578c55cad55f76f20e9bb348466"
+    },
+    "mi_params": {
+     "rel": "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/stage1/PRO_side_L/skin_v3/PRO_side_L_mi_params.json",
+     "abs": "C:/Users/Administrator/.codex/worktrees/56a2/PussStage/Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/stage1/PRO_side_L/skin_v3/PRO_side_L_mi_params.json",
+     "sha256": "fa675814516b78e37661c0c2138cd838a85418fb0bce813f275d8c1b7a1e7b68"
+    },
+    "edge_probe": {
+     "rel": "Saved/CodexFlatV3/paperprosc/edge_probe.json",
+     "abs": "C:/Users/Administrator/.codex/worktrees/56a2/PussStage/Saved/CodexFlatV3/paperprosc/edge_probe.json",
+     "sha256": "0ab67a7c3ec1f5b1d9a02bc483e93463dd5589e90eecbf7b65264f0c8a6a8aa8"
+    },
+    "build_report": {
+     "rel": "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/RZ_BUILD_REPORT.json",
+     "abs": "C:/Users/Administrator/.codex/worktrees/56a2/PussStage/Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_L/RZ_BUILD_REPORT.json",
+     "sha256": "33ead4a51c52f386d33a5015944dd16080baa0460a137ef41098606f39bd6d0f"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_L_t5j",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinColor",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinMask",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinNormal",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_L/T_PRO_side_L_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_L/T_PRO_side_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinColor",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinMask",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinNormal"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -16.049951314926147,
+      1.6292068139023286e-06,
+      -99.99998211860657
+     ],
+     "max": [
+      3.8000036031007767,
+      356.1279296875,
+      1100.0
+     ]
+    },
+    "triangles": {
+     "lod0": 2263,
+     "lod1": 1966
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "PRO_side_R": {
+   "key": "PRO_side_R",
+   "owner": "PRO_side_R",
+   "asset": "SM_FlatV3_PRO_side_R_t5j",
+   "variant": "t5j",
+   "side": "R",
+   "mount": "wing",
+   "passage": "PRO",
+   "manifest_index": 0,
+   "pick": 2,
+   "height_cm": 1080.0,
+   "width_cm": 323.1,
+   "thickness_cm": 19.85,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_R/SM_FlatV3_PaperProsc_Side_R.fbx",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_R/SM_FlatV3_PaperProsc_Side_R.fbx",
+     "sha256": "b169d5c0d82d1cbe6627fdf7d7c62141de8ab59fc90f6608ce51ea767b351c6f"
+    },
+    "socket": {
+     "rel": "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/sockets_SM_FlatV3_PRO_side_R_t5j.json",
+     "abs": "C:/Users/Administrator/.codex/worktrees/56a2/PussStage/Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/sockets_SM_FlatV3_PRO_side_R_t5j.json",
+     "sha256": "5922667f08c8cf4eeb9cb86e2e74abd1e3ccd07f524066e79aae4105ab97e47f"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_R/skin/T_PaperProsc_Side_R_SkinColor.png",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_R/skin/T_PaperProsc_Side_R_SkinColor.png",
+     "sha256": "2571b83b589082da9504c7b4998bbca4f0dd680e7b35061c2b5e5b3640c681fe"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_R/skin/T_PaperProsc_Side_R_SkinMask.png",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_R/skin/T_PaperProsc_Side_R_SkinMask.png",
+     "sha256": "c754238cc680300d999a59340688d17eaa754b7f645a42ca97e53e4d3d3b731c"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_R/skin/T_PaperProsc_Side_R_SkinNormal.png",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_R/skin/T_PaperProsc_Side_R_SkinNormal.png",
+     "sha256": "c074db50f6f74f9d4fa1da341357a6afa6d81412624dba14835f0949b751ee08"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_R/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_R/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "68dedd74df74cee4fbe4870aef5f4ea90ca63789788fc29a2f7092d4a720bc0f"
+    },
+    "validation": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_R/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Side_R/validation.json",
+     "sha256": "0f5706f098c5402f005ff972f25e1114f0292f2c976403589aeb3367f0de538c"
+    },
+    "mi_params": {
+     "rel": "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/stage1/PRO_side_R/skin_v3/PRO_side_R_mi_params.json",
+     "abs": "C:/Users/Administrator/.codex/worktrees/56a2/PussStage/Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/stage1/PRO_side_R/skin_v3/PRO_side_R_mi_params.json",
+     "sha256": "bc21361384683f0c137024ca0b2a06e392d6bf578574be546dba679378d5aaa8"
+    },
+    "edge_probe": {
+     "rel": "Saved/CodexFlatV3/paperprosc/edge_probe.json",
+     "abs": "C:/Users/Administrator/.codex/worktrees/56a2/PussStage/Saved/CodexFlatV3/paperprosc/edge_probe.json",
+     "sha256": "0ab67a7c3ec1f5b1d9a02bc483e93463dd5589e90eecbf7b65264f0c8a6a8aa8"
+    },
+    "build_report": {
+     "rel": "Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/RZ_BUILD_REPORT.json",
+     "abs": "C:/Users/Administrator/.codex/worktrees/56a2/PussStage/Saved/CodexFlatV3/paperprosc/import_meta/PRO_side_R/RZ_BUILD_REPORT.json",
+     "sha256": "5a57d5b220e27d7c85b8857e078333025f751c9ce144ae81a4b02b65cc49ebe1"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_R_t5j",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinColor",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinMask",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinNormal",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_R/T_PRO_side_R_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_R_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_R/T_PRO_side_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinColor",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinMask",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinNormal"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -16.050036251544952,
+      -323.1040954589844,
+      -99.99998211860657
+     ],
+     "max": [
+      3.7999868392944336,
+      2.443810309671335e-06,
+      1100.0
+     ]
+    },
+    "triangles": {
+     "lod0": 2258,
+     "lod1": 1916
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "PRO_valance_C": {
+   "key": "PRO_valance_C",
+   "owner": "PRO_valance_C",
+   "asset": "SM_FlatV3_PRO_valance_C_t5j",
+   "variant": "t5j",
+   "side": "L",
+   "mount": "top-border",
+   "passage": "PRO",
+   "manifest_index": 0,
+   "pick": 3,
+   "height_cm": 400.0,
+   "width_cm": 2488.2,
+   "thickness_cm": 16.05,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Valance_C/SM_FlatV3_PaperProsc_Valance_C.fbx",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Valance_C/SM_FlatV3_PaperProsc_Valance_C.fbx",
+     "sha256": "3f8b87808bd25bff1b8dbc94aff6e49a2be9a9347295f9e64485b3e1d08ac853"
+    },
+    "socket": {
+     "rel": "Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/sockets_SM_FlatV3_PRO_valance_C_t5j.json",
+     "abs": "C:/Users/Administrator/.codex/worktrees/56a2/PussStage/Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/sockets_SM_FlatV3_PRO_valance_C_t5j.json",
+     "sha256": "b5be67bb405013d3d4e72c27f3812780f9449c12e026bbbc05d63ad2871e961a"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Valance_C/skin/T_PaperProsc_Valance_C_SkinColor.png",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Valance_C/skin/T_PaperProsc_Valance_C_SkinColor.png",
+     "sha256": "cc6dcc281cb5586ab91204676985ce5b09f4748a44dd1f95a7e015b88e77a73e"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Valance_C/skin/T_PaperProsc_Valance_C_SkinMask.png",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Valance_C/skin/T_PaperProsc_Valance_C_SkinMask.png",
+     "sha256": "cad57af695784ac5f1c3823907a9398b84dc38a631b319471a13320757c2d397"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Valance_C/skin/T_PaperProsc_Valance_C_SkinNormal.png",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Valance_C/skin/T_PaperProsc_Valance_C_SkinNormal.png",
+     "sha256": "c0de641779d114049ef933defeb93ffeb4f5b01358512d0d2e30d582c9193eaf"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Valance_C/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Valance_C/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "ce1ff9be51e9e260ecdc5992199652baf280a0f59e7653fb56ac7629a023f7fb"
+    },
+    "validation": {
+     "rel": "DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Valance_C/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/StageFront_PaperProscenium/Build/PaperProsc_Valance_C/validation.json",
+     "sha256": "3afd40b6344fbcfee787d65e5dffc3017727bfc2a6d021e58d5d5493959cee0e"
+    },
+    "mi_params": {
+     "rel": "Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/stage1/PRO_valance_C/skin_v3/PRO_valance_C_mi_params.json",
+     "abs": "C:/Users/Administrator/.codex/worktrees/56a2/PussStage/Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/stage1/PRO_valance_C/skin_v3/PRO_valance_C_mi_params.json",
+     "sha256": "f99c32ef143444360f9bb564c4f67953ae35193be86d353e9e58c7584b3f263b"
+    },
+    "edge_probe": {
+     "rel": "Saved/CodexFlatV3/paperprosc/edge_probe.json",
+     "abs": "C:/Users/Administrator/.codex/worktrees/56a2/PussStage/Saved/CodexFlatV3/paperprosc/edge_probe.json",
+     "sha256": "0ab67a7c3ec1f5b1d9a02bc483e93463dd5589e90eecbf7b65264f0c8a6a8aa8"
+    },
+    "build_report": {
+     "rel": "Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/RZ_BUILD_REPORT.json",
+     "abs": "C:/Users/Administrator/.codex/worktrees/56a2/PussStage/Saved/CodexFlatV3/paperprosc/import_meta/PRO_valance_C/RZ_BUILD_REPORT.json",
+     "sha256": "457c6c0c99d087e5dcbf68046c75928aaa0d2b7ee951d257b0611d1f32b46e93"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_valance_C_t5j",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinColor",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinMask",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinNormal",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_valance_C/T_PRO_valance_C_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_valance_C_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_valance_C/T_PRO_valance_C_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinColor",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinMask",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinNormal"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -16.049841046333313,
+      -1244.0842628479004,
+      0.0
+     ],
+     "max": [
+      6.624617867601046e-05,
+      1244.0842628479004,
+      400.0
+     ]
+    },
+    "triangles": {
+     "lod0": 12478,
+     "lod1": 11924
+    },
+    "sockets": [],
+    "pole": null,
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  }
+ },
+ "batches": [
+  {
+   "batch": 1,
+   "owners": [
+    "PRO_side_L",
+    "PRO_side_R",
+    "PRO_valance_C"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_R_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_valance_C_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_L/T_PRO_side_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_R/T_PRO_side_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_valance_C/T_PRO_valance_C_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinColor",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinMask",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinNormal",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinColor",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinMask",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinNormal",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinColor",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinMask",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinNormal"
+   ],
+   "passages": [
+    "PRO"
+   ]
+  }
+ ],
+ "package_count": 21,
+ "refusals": [],
+ "mounts": [
+  "top-border",
+  "wing"
+ ],
+ "passages": [
+  "PRO"
+ ],
+ "aged_common": {
+  "root": "/Game/Scenes/Wings/FlatV3/Passage06/Textures/Aged/Common",
+  "names": [
+   "T_FlatV3_AgedSoftwood_Color",
+   "T_FlatV3_AgedSoftwood_Roughness",
+   "T_FlatV3_AgedSoftwood_NormalDX",
+   "T_FlatV3_AgedPlywood_Roughness",
+   "T_FlatV3_AgedPlywood_NormalDX",
+   "T_FlatV3_AgedSteel_Color"
+  ],
+  "strategy": "REUSE_EXISTING"
+ },
+ "inputs_hash": "18a2a46af1e7b2fa6bcbc275b31d5a43f07c209f997ff2e04fef31326de6068b",
+ "hash8": "18a2a46a",
+ "gates_ok": true,
+ "source_overlay": {
+  "generated_metadata": "C:\\Users\\Administrator\\.codex\\worktrees\\56a2\\PussStage",
+  "rebuilt_inputs": "E:\\PussStage",
+  "resolution": "worktree first, then read-only active tree"
+ },
+ "undo_list_if_all_applied": {
+  "mode": "UNDO_LIST",
+  "auto_delete": false,
+  "plan": "18a2a46a",
+  "how": [
+   "1 Nothing may reference these meshes: REVERT every rzswap APPLY that placed them first.",
+   "2 In the Content Browser select a batch's assets (MIs, then the mesh, then textures) and Delete; the reference check must report NO referencers.  Never Force Delete.",
+   "3 Save nothing else; VERIFY then reports the batch as missing.",
+   "Never Save All; never delete Passage06 assets (the reused aged Common set belongs to P06)."
+  ],
+  "batches": [
+   {
+    "batch": 1,
+    "owners": [
+     "PRO_side_L",
+     "PRO_side_R",
+     "PRO_valance_C"
+    ],
+    "delete_in_order": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_L_t5j",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_R_t5j",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_valance_C_t5j",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_L/T_PRO_side_L_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_R/T_PRO_side_R_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_valance_C/T_PRO_valance_C_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinColor",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinMask",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinNormal",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinColor",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinMask",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinNormal",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinColor",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinMask",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinNormal"
+    ],
+    "files": [
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_L_t5j.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_R_t5j.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_valance_C_t5j.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_L/T_PRO_side_L_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_R/T_PRO_side_R_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_valance_C/T_PRO_valance_C_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinColor.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinMask.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinNormal.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinColor.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinMask.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinNormal.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinColor.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinMask.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinNormal.uasset"
+    ]
+   }
+  ]
+ },
+ "apply_confirms": {
+  "1": "APPLY RZIMPORT BATCH 1 #18a2a46a"
+ }
+}
