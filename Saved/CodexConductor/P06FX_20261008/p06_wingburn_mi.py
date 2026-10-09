@@ -102,11 +102,32 @@ def _slot_rows(mesh, panel):
     return rows, [C.asset_id(x) for x in overrides]
 
 
-def _measure_uv(mesh):
+def _slot_vertex_instances(desc, mesh, slots):
+    """Vertex-instance ids of the polygon groups whose material slot is in `slots`.
+    [meas W&T Q3 9 Oct] Wing 044 L Front/Flap UV0 are planar (residual <=3.3e-8); only Timber is tiled
+    (3.807/8.502) -- pooling every section made the old probe refuse with a false UV_NOT_PLANAR."""
+    names = [str(m.get_editor_property("material_slot_name")) for m in mesh.get_editor_property("static_materials")]
+    ids = []
+    for g in range(desc.get_polygon_group_count()):
+        gid = unreal.PolygonGroupID(); gid.set_editor_property("id_value", g)
+        try:
+            slot = str(desc.get_polygon_group_material_slot_name(gid))
+        except Exception:  # noqa: BLE001 - API name unverified in 5.8 Python; group index == slot index fallback [inferred]
+            slot = names[g] if g < len(names) else ""
+        if slot not in slots:
+            continue
+        for poly in desc.get_polygon_group_polygons(gid):
+            for vi in desc.get_polygon_vertex_instances(poly):
+                ids.append(int(vi.get_editor_property("id_value")))
+    C.require(ids, "UV_SLOT_GROUPS_EMPTY|%s" % (list(slots),))
+    return sorted(set(ids))
+
+
+def _measure_uv(mesh, slots=("Front", "Flap")):
     desc = mesh.get_static_mesh_description(0)
     C.require(desc is not None, "MESH_DESCRIPTION")
     ys, zs, us, vs = [], [], [], []
-    for i in range(desc.get_vertex_instance_count()):
+    for i in _slot_vertex_instances(desc, mesh, set(slots)):
         vi = unreal.VertexInstanceID()
         vi.set_editor_property("id_value", i)
         pos = desc.get_vertex_position(desc.get_vertex_instance_vertex(vi))
