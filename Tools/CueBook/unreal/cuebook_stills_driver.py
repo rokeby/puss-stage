@@ -9,7 +9,8 @@ Arguments: ``Saved/CodexCueing/cuebook_stills_args.json``::
 
   {"mode":"DRY"}
   {"mode":"APPLY", "confirm":"APPLY_CUEBOOK_STILLS", "fraction":0.5,
-   "transition_fraction":0.3, "max_cue_stills":60}
+   "transition_fraction":0.3, "max_cue_stills":60,
+   "drift_tolerance_by_segment":{"S3":4.0}, "accept_motion_drift":true}
   {"mode":"REVERT", "confirm":"REVERT_CUEBOOK_STILLS",
    "revert_run":"CBSTILLS-20261009-120000"}
 
@@ -243,6 +244,32 @@ def _write(scene_api, path, data):
     return json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
 
 
+def capture_params_for_item(args, item):
+    params = dict(args.get("capture_params", {}) or {})
+    accept = args.get("accept_motion_drift", True)
+    if not isinstance(accept, bool):
+        raise CueBookStillsRefused("CUEBOOK_STILLS_BAD_ARG|accept_motion_drift=%r" % accept)
+    params["accept_motion_drift"] = accept
+    default = args.get("drift_tolerance")
+    if default is not None:
+        params["drift_tolerance"] = _number(default, "drift_tolerance", 0.0, 255.0)
+    overrides = args.get("drift_tolerance_by_segment", {}) or {}
+    if not isinstance(overrides, dict):
+        raise CueBookStillsRefused("CUEBOOK_STILLS_BAD_ARG|drift_tolerance_by_segment")
+    key = item["segment_key"]
+    if key in overrides:
+        params["drift_tolerance"] = _number(overrides[key], "drift_tolerance_by_segment.%s" % key,
+                                             0.0, 255.0)
+    return params
+
+
+def child_failure_reason(saved):
+    reasons = list(saved.get("gate_failures", []) or []) + list(saved.get("problems", []) or [])
+    if saved.get("error_reason"):
+        reasons.insert(0, str(saved["error_reason"]))
+    return "; ".join(str(reason) for reason in reasons) or "child_failed"
+
+
 def revert_capture_run(unreal, scene_api, adapter, project_root, args):
     if args.get("confirm") != REVERT_CONFIRM:
         raise CueBookStillsRefused("CUEBOOK_STILLS_REVERT_REFUSED|reason=confirm")
@@ -322,7 +349,7 @@ def start_driver(unreal, project_root, args):
     run_dir.mkdir(parents=True, exist_ok=False)
     run = dict(pre_record)
     run.update(status="planned" if mode == "DRY" else "capturing", plan=plan,
-               captures=[], errors=[], backup=backup.as_posix())
+               captures=[], skipped=[], errors=[], backup=backup.as_posix())
     manifest = run_dir / MANIFEST_NAME
     _write(scene_api, manifest, run)
     unreal.log("CUEBOOK_STILLS_START|run=%s|mode=%s|segments=%d|cues=%d|unmapped=%d" % (
@@ -342,32 +369,52 @@ def start_driver(unreal, project_root, args):
     state = {"index": 0, "child": None, "inside": False, "finished": False, "handle": None}
     run["_state"] = state
 
-    def finish(ok, reason=""):
+    def finish(reason=""):
         if state["finished"]:
             return
-        after = adapter.census()
-        final_frame = int(adapter.transport_frame()) if adapter.world_kind() == "game" else None
+        state["finished"] = True
         problems = []
-        if after != before:
-            problems.append("census_changed")
-        if final_frame != original_frame:
-            problems.append("frame_not_restored")
         if reason:
             problems.append(reason)
-        run.update(census_after=after, final_frame=final_frame, problems=problems,
-                   finished_utc=utc_iso(), status="passed" if ok and not problems else "failed")
-        _write(scene_api, manifest, _public_run(run))
-        if state["handle"] is not None:
-            unreal.unregister_slate_post_tick_callback(state["handle"])
-        if hasattr(builtins, DRIVER_HANDLE):
-            delattr(builtins, DRIVER_HANDLE)
-        state["finished"] = True
+        try:
+            if adapter.world_kind() != "game":
+                raise CueBookStillsRefused("PIE_not_available_for_restore")
+            result = adapter.transport_scrub(original_frame)
+            landed = int(adapter.transport_frame())
+            run["restore_scrub"] = {"frame": original_frame, "result": str(result), "landed": landed}
+            if not scene_api.scrub_ok(result) or landed != original_frame:
+                problems.append("frame_restore_failed")
+        except Exception:
+            run["restore_scrub"] = {"frame": original_frame, "error": traceback.format_exc()}
+            problems.append("frame_restore_failed")
+        try:
+            after = adapter.census()
+            run["census_after"] = after
+            if after != before:
+                problems.append("census_changed")
+        except Exception:
+            run["census_after"] = None
+            problems.append("census_failed")
+        try:
+            if state["handle"] is not None:
+                unreal.unregister_slate_post_tick_callback(state["handle"])
+            if hasattr(builtins, DRIVER_HANDLE):
+                delattr(builtins, DRIVER_HANDLE)
+        finally:
+            skipped_ids = [row["segment"] for row in run["skipped"]]
+            status = "failed" if problems else ("partial" if skipped_ids else "passed")
+            run.update(final_frame=(run.get("restore_scrub") or {}).get("landed"), problems=problems,
+                       finished_utc=utc_iso(), status=status)
+            _write(scene_api, manifest, _public_run(run))
         if run["status"] == "passed":
             unreal.log("CUEBOOK_STILLS_OK|run=%s|segments=%d|cues=%d|dir=%s" %
                        (run_id, plan["segment_count"], plan["cue_count"], run_dir.as_posix()))
+        elif run["status"] == "partial":
+            unreal.log("CUEBOOK_STILLS_PARTIAL|run=%s|skipped=%s|dir=%s" %
+                       (run_id, ",".join(skipped_ids), run_dir.as_posix()))
         else:
             unreal.log_error("CUEBOOK_STILLS_FAILED|run=%s|reason=%s|manifest=%s" %
-                             (run_id, ";".join(problems) or "capture_failed", manifest.as_posix()))
+                             (run_id, ";".join(problems), manifest.as_posix()))
 
     def collect_child(child, item):
         child_manifest = pathlib.Path(child["run_dir"]) / scene_api.MANIFEST_NAME
@@ -381,19 +428,26 @@ def start_driver(unreal, project_root, args):
         row = dict(item)
         row.update(path=still["path"], captured=saved.get("finished_utc"),
                    master_frame=int(still["master_frame_at_capture"]), child_manifest=child_manifest.as_posix())
+        if "motion_drift" in still:
+            row["motion_drift"] = still["motion_drift"]
         run["captures"].append(row)
+        _write(scene_api, manifest, _public_run(run))
+
+    def skip_item(item, reason):
+        run["skipped"].append({"segment": item["segment_key"], "status": "skipped", "reason": str(reason),
+                               "kind": item["kind"], "id": item["id"]})
         _write(scene_api, manifest, _public_run(run))
 
     def arm_next():
         if state["index"] >= len(plan["items"]):
-            finish(True)
+            finish()
             return
         item = plan["items"][state["index"]]
         forced = ForcedSpanAdapter(adapter, (item["arm_start"], item["arm_end"]))
         passage_arg = item["segment_key"] if item["segment_key"] != "Closing" else "Opening"
         child = scene_api.arm(
             forced, passage_arg, [item["arm_fraction"]], label=item["id"],
-            params=dict(args.get("capture_params", {}) or {}), out_root=run_dir / "captures",
+            params=capture_params_for_item(args, item), out_root=run_dir / "captures",
             owner_path=pathlib.Path(project_root) / "Saved" / "CodexConductor" / "pie_recording_owner.json",
             register=unreal.register_slate_post_tick_callback,
             unregister=unreal.unregister_slate_post_tick_callback, store=builtins)
@@ -406,19 +460,31 @@ def start_driver(unreal, project_root, args):
         try:
             child = state["child"]
             if child is None:
-                arm_next()
+                try:
+                    arm_next()
+                except Exception as exc:
+                    item = plan["items"][state["index"]]
+                    run["errors"].append(traceback.format_exc())
+                    skip_item(item, getattr(exc, "reason", type(exc).__name__))
+                    state["index"] += 1
+                    state["child"] = None
             elif child.get("finished"):
                 item = plan["items"][state["index"]]
                 if child.get("status") != "passed":
-                    finish(False, "child_failed_%s" % item["id"])
+                    child_manifest = pathlib.Path(child["run_dir"]) / scene_api.MANIFEST_NAME
+                    saved = json.loads(child_manifest.read_text(encoding="utf-8"))
+                    skip_item(item, child_failure_reason(saved))
                 else:
-                    collect_child(child, item)
-                    state["index"] += 1
-                    state["child"] = None
-                    arm_next()
+                    try:
+                        collect_child(child, item)
+                    except Exception as exc:
+                        run["errors"].append(traceback.format_exc())
+                        skip_item(item, getattr(exc, "reason", type(exc).__name__))
+                state["index"] += 1
+                state["child"] = None
         except Exception as exc:
             run["errors"].append(traceback.format_exc())
-            finish(False, getattr(exc, "reason", type(exc).__name__))
+            finish(getattr(exc, "reason", type(exc).__name__))
         finally:
             state["inside"] = False
 

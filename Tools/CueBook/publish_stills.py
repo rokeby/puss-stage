@@ -70,7 +70,7 @@ def build_publish_plan(run_dir, site_dir):
     if not source_manifest.is_file():
         raise PublishRefused("CUEBOOK_STILLS_PUBLISH_NO_MANIFEST|%s" % source_manifest)
     run = json.loads(source_manifest.read_text(encoding="utf-8"))
-    if run.get("status") != "passed":
+    if run.get("status") not in ("passed", "partial"):
         raise PublishRefused("CUEBOOK_STILLS_PUBLISH_RUN_NOT_PASSED|%s" % run.get("status"))
     run_id = str(run.get("run_id", ""))
     if re.fullmatch(r"CBSTILLS-[A-Za-z0-9_-]+", run_id) is None:
@@ -79,7 +79,11 @@ def build_publish_plan(run_dir, site_dir):
     if not isinstance(captures, list):
         raise PublishRefused("CUEBOOK_STILLS_PUBLISH_BAD_CAPTURES")
     jobs, seen = [], set()
-    out = {"schema_version": 1, "run_id": run_id, "published": None, "segments": {}, "cues": {}}
+    skipped = run.get("skipped", []) or []
+    if not isinstance(skipped, list) or any(not isinstance(row, dict) for row in skipped):
+        raise PublishRefused("CUEBOOK_STILLS_PUBLISH_BAD_SKIPPED")
+    out = {"schema_version": 1, "run_id": run_id, "published": None, "segments": {}, "cues": {},
+           "skipped": skipped}
     for capture in captures:
         kind = capture.get("kind")
         key = str(capture.get("segment_key") if kind == "segment" else capture.get("cue_key", ""))

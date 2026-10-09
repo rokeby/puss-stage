@@ -81,6 +81,8 @@ DEFAULTS = {
     "settle_tol_abs": 2.0,
     "settle_tol_rel": 0.03,
     "frame_tol_ticks": 1,            # fx_stills_pie_driver.py:135 allows 1 tick
+    "drift_tolerance": None,          # None preserves the established abs/relative luma tolerance
+    "accept_motion_drift": False,     # Cue Book opts in per capture; other callers stay strict
     "file_min_bytes": 1000,          # drivers' undersize threshold
     "file_stable_ticks": 4,
     "file_timeout_s": 45.0,
@@ -256,6 +258,21 @@ def luma_tol(p, ref):
     return max(float(p["settle_tol_abs"]), float(p["settle_tol_rel"]) * float(ref))
 
 
+def camera_pose_same(before, after, tolerance=1e-4):
+    """Numerically compare the live camera fields recorded by make_pie_adapter."""
+    if not isinstance(before, dict) or not isinstance(after, dict):
+        return False
+    try:
+        left = list(before["loc"]) + [before["rot"][axis] for axis in ("yaw", "pitch", "roll")]
+        right = list(after["loc"]) + [after["rot"][axis] for axis in ("yaw", "pitch", "roll")]
+        left.extend([before["fov_deg"], before["aspect"]])
+        right.extend([after["fov_deg"], after["aspect"]])
+        return len(left) == len(right) and all(abs(float(a) - float(b)) <= tolerance
+                                                for a, b in zip(left, right))
+    except (KeyError, TypeError, ValueError):
+        return False
+
+
 def scrub_ok(result):
     return "SUCCEEDED" in str(result).upper()
 
@@ -422,8 +439,26 @@ class StillsMachine:
                 self._fail("post_probe i=%d: probe never readable" % still["i"])
             else:
                 still["luma_after_capture"] = round(got, 3)
-                if ref is not None and abs(got - ref) > luma_tol(p, ref):
-                    self._fail("post_capture_drift i=%d: %.1f vs settled %.1f" % (still["i"], got, ref))
+                drift = abs(got - ref) if ref is not None else 0.0
+                established_tolerance = luma_tol(p, ref) if ref is not None else None
+                allowed_tolerance = (established_tolerance if p.get("drift_tolerance") is None
+                                     else float(p["drift_tolerance"])) if ref is not None else None
+                if ref is not None and drift > established_tolerance:
+                    if p.get("accept_motion_drift") and drift <= allowed_tolerance:
+                        still["master_frame_after_probe"] = int(a.transport_frame())
+                        still["pose_after_capture"] = a.camera_pose(
+                            float(p["resolution"][0]) / float(p["resolution"][1]), p["fov_fallback_deg"])
+                        frame_on_target = abs(still["master_frame_after_probe"] - still["target_frame"]) <= int(
+                            p["frame_tol_ticks"])
+                        camera_unchanged = camera_pose_same(still.get("pose"), still["pose_after_capture"])
+                        if frame_on_target and camera_unchanged:
+                            still["motion_drift"] = round(drift, 3)
+                        else:
+                            self._fail("post_capture_drift i=%d: %.1f vs settled %.1f; frame_on_target=%s; camera_unchanged=%s" %
+                                       (still["i"], got, ref, frame_on_target, camera_unchanged))
+                    else:
+                        self._fail("post_capture_drift i=%d: %.1f vs settled %.1f; tolerance=%.1f" %
+                                   (still["i"], got, ref, allowed_tolerance))
             still["luma"] = ref
             if still["master_frame_after_file"] != still["master_frame_at_capture"]:
                 self._fail("frame_moved i=%d: %d -> %d" % (still["i"], still["master_frame_at_capture"],
