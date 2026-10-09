@@ -615,7 +615,7 @@ class UnrealBackend(object):
             actor.set_actor_label(light["label"])
             lc = actor.get_editor_property("rect_light_component")
             lc.set_editor_property("intensity", float(light["intensity"]))
-            lc.set_light_color(ue.Color(*[int(x) for x in light["color"]]))
+            lc.set_light_color(ue.LinearColor(*[float(x) / 255.0 for x in light["color"]], 1.0))  # [meas APPLY3] 5.8 wants LinearColor
             lc.set_editor_property("cast_shadows", bool(p["allow_new_shadow_casters"]))
             actors.append(actor)
         for actor in actors:
