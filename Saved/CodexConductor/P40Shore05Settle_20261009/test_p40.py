@@ -11,6 +11,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 import p40_core as C  # noqa: E402
+import p40_editor as E  # noqa: E402
 
 RESULTS = []
 
@@ -71,6 +72,17 @@ def deterministic_candidates():
 case("candidate_seed_deterministic_five_draws", "POSITIVE", deterministic_candidates)
 case("candidate_seed_changes", "NEGATIVE_CONTROL", lambda: C.candidate_rows(1, 4) != C.candidate_rows(2, 4) or (_ for _ in ()).throw(AssertionError()))
 case("candidate_empty_refused", "NEGATIVE", lambda: raises("CANDIDATE_COUNT", lambda: C.candidate_rows(1, 0)))
+
+
+def camera_multisection_regression():
+    layers = [("ABSOLUTE", [100.0, 200.0, 30.0]), ("ADDITIVE", [0.25, -0.5, 1.0])]
+    assert len(layers) != 1  # old run-51c guard refused the logged B06 state
+    assert E.compose_camera_layers(layers, "B06|frame=3200") == [100.25, 199.5, 31.0]
+    raises("CAMERA_ABSOLUTE_SECTION_COUNT", lambda: E.compose_camera_layers(
+        [("ABSOLUTE", [0, 0, 0]), ("ABSOLUTE", [1, 1, 1])], "B06|frame=3200"))
+
+
+case("camera_two_sections_old_refuses_new_composes_real_drift_refuses", "REGRESSION", camera_multisection_regression)
 
 
 def placement_zero_extra():

@@ -453,27 +453,69 @@ def sequence_binding(seq, display_name):
     return rows[0]
 
 
-def transform_channel(binding, index):
+def transform_sections(binding):
     tracks = [t for t in binding.get_tracks() if t.get_class().get_name() == "MovieScene3DTransformTrack"]
     require(len(tracks) == 1, "TRANSFORM_TRACK_COUNT|%s|%d" % (binding.get_display_name(), len(tracks)))
-    sections = list(tracks[0].get_sections())
-    require(len(sections) == 1, "TRANSFORM_SECTION_COUNT|%s|%d" % (binding.get_display_name(), len(sections)))
-    channels = list(sections[0].get_all_channels())
-    require(len(channels) > index, "TRANSFORM_CHANNEL_COUNT|%d" % len(channels))
-    return channels[index]
+    sections = [s for s in tracks[0].get_sections() if s.is_active()]
+    require(sections, "TRANSFORM_ACTIVE_SECTIONS|%s|0" % binding.get_display_name())
+    return sections
 
 
 def key_rows(channel):
     return [(int(k.get_time().frame_number.value), float(k.get_value())) for k in channel.get_keys()]
 
 
+def section_range(section):
+    return [int(section.get_start_frame()) if section.has_start_frame() else None,
+            int(section.get_end_frame()) if section.has_end_frame() else None]
+
+
+def section_covers(section, frame):
+    start, end = section_range(section)
+    return (start is None or start <= frame) and (end is None or frame < end)
+
+
+def blend_name(section):
+    raw = str(section.get_blend_type()).upper()
+    if "ADDITIVE" in raw:
+        return "ADDITIVE"
+    if "ABSOLUTE" in raw or raw in ("NONE", ""):
+        return "ABSOLUTE"
+    raise Stop("CAMERA_BLEND_UNSUPPORTED|%s" % raw)
+
+
+def compose_camera_layers(layers, label):
+    """Compose one absolute pose plus any additive camera-shake layers."""
+    absolute = [row for row in layers if row[0] == "ABSOLUTE"]
+    additive = [row for row in layers if row[0] == "ADDITIVE"]
+    require(len(absolute) == 1, "CAMERA_ABSOLUTE_SECTION_COUNT|%s|%d" % (label, len(absolute)))
+    require(len(absolute) + len(additive) == len(layers), "CAMERA_BLEND_SET|%s" % label)
+    return [absolute[0][1][i] + sum(row[1][i] for row in additive) for i in range(3)]
+
+
+def value_at(seq, channel, frame):
+    values = list(channel.evaluate_keys(seq.make_range(int(frame), 1), seq.get_display_rate()))
+    require(len(values) == 1, "CAMERA_CHANNEL_EVALUATION|frame=%d|count=%d" % (frame, len(values)))
+    return float(values[0])
+
+
 def camera_points(seq, label):
     binding = sequence_binding(seq, label)
-    channels = [transform_channel(binding, i) for i in range(3)]
-    rows = [key_rows(c) for c in channels]
-    require(all(rows) and len({len(r) for r in rows}) == 1, "CAMERA_TRANSLATION_KEYS_MISMATCH")
-    require(all([t for t, _ in r] == [t for t, _ in rows[0]] for r in rows[1:]), "CAMERA_KEY_TIMES_MISMATCH")
-    return [[rows[0][i][1], rows[1][i][1], rows[2][i][1]] for i in range(len(rows[0]))]
+    sections = transform_sections(binding)
+    channels = []
+    frames = set()
+    for section in sections:
+        row = list(section.get_all_channels())
+        require(len(row) >= 3, "TRANSFORM_CHANNEL_COUNT|%s|%d" % (label, len(row)))
+        channels.append((section, row[:3]))
+        frames.update(f for channel in row[:3] for f, _ in key_rows(channel))
+    require(frames, "CAMERA_TRANSLATION_KEYS_EMPTY|%s" % label)
+    points = []
+    for frame in sorted(frames):
+        layers = [(blend_name(section), [value_at(seq, channel, frame) for channel in row])
+                  for section, row in channels if section_covers(section, frame)]
+        points.append(compose_camera_layers(layers, "%s|frame=%d" % (label, frame)))
+    return points
 
 
 def wall_tangent(points):

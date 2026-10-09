@@ -160,10 +160,16 @@ except sps.PlanError as exc:
     check("B15 -control missing CST sleight marker refused", "BEATS_MISSING" in str(exc), str(exc))
 marks = [m if m[0] != "GO 10 curtain" else ["GO 10 PASS curtain", m[1]] for m in INP["markers"]]
 try:
-    sps.beats_from_markers(marks)
-    check("B16 -control GO at the drop is PASS: refused", False)
+    _beats, go = sps.beats_from_markers(marks)
+    check("B16 GOREL PASS curtain form accepted", go == ["GO 10 PASS curtain", 1675], go)
 except sps.PlanError as exc:
-    check("B16 -control GO at the drop is PASS: refused", "GO_IS_PASS" in str(exc), str(exc))
+    check("B16 GOREL PASS curtain form accepted", False, str(exc))
+drift = [m if m[0] != "GO 10 curtain" else ["GO 10 PASS trapdoor", m[1]] for m in INP["markers"]]
+try:
+    sps.beats_from_markers(drift)
+    check("B16b -control unapproved PASS label refused", False)
+except sps.PlanError as exc:
+    check("B16b -control unapproved PASS label refused", "GO_PASS_LABEL" in str(exc), str(exc))
 dr = copy.deepcopy(INP)
 dr["beats"] = dict(dr["beats"], sleight=1251)
 check("B17 -control live beats drifted from the record: BEATS_DRIFTED", has(sps.compare_live(INP, dr), "BEATS_DRIFTED"))

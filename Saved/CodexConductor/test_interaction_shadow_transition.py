@@ -172,6 +172,24 @@ check("F5 P44 stand-ins name the current BoyPussRub gobo", all(
 check("F6 args put Gary's fade in each Interaction", all(row["fade_seconds"] == 4.0 for row in args["interactions"].values()))
 check("F7 source imports without Unreal", tool.unreal is None)
 
+# G. run-51c GO-label regression: old gate rejects the logged state, the
+# approved PASS-curtain form passes, and an unrelated PASS label still refuses.
+gorel = [["CST play start", 175], ["CST sleight", 1250], ["CST hangar strike", 1300],
+         ["CST drop", 1675], ["GO 10 PASS curtain", 1675]]
+old_refuses = tool.CS["parse_go_label"]("GO 10 PASS curtain")[2] == 0
+check("G1 old GO gate refuses logged GOREL state", old_refuses)
+try:
+    _beats, go = tool.SPS["beats_from_markers"](gorel)
+    check("G2 approved PASS curtain form passes", go == ["GO 10 PASS curtain", 1675], go)
+except tool.PlanError as exc:
+    check("G2 approved PASS curtain form passes", False, str(exc))
+try:
+    tool.SPS["beats_from_markers"]([row if not row[0].startswith("GO ") else
+                                    ["GO 10 PASS trapdoor", row[1]] for row in gorel])
+    check("G3 -control real PASS-label drift refuses", False)
+except Exception as exc:
+    check("G3 -control real PASS-label drift refuses", "GO_PASS_LABEL" in str(exc), str(exc))
+
 passed = sum(1 for _, ok, _ in RESULTS if ok)
 failed = [(name, detail) for name, ok, detail in RESULTS if not ok]
 for name, detail in failed:

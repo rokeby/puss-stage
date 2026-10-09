@@ -101,6 +101,18 @@ def test_handprints():
     refuses("handprints","empty selected wall",lambda:core.plan_handprint_additions(hp_rows(5,"L"),"R",0.5,7),"SOURCE_EMPTY")
     source=EDITOR.read_text(encoding="utf-8")
     check("handprints","positive","def write_topdown_png" in source and "zlib.compress" in source,"DRY PNG writer")
+    # Run-51c regression: the old section-count guard rejects B06's base +
+    # additive camera-shake sections; the composed pose passes; real drift
+    # with two absolute owners at one time still refuses.
+    old_logic_refuses = len([("ABSOLUTE", [10, 20, 30]), ("ADDITIVE", [1, -2, 0.5])]) != 1
+    check("handprints", "negative", old_logic_refuses, "old one-section guard refuses logged state")
+    got = __import__("p38_editor").compose_camera_layers(
+        [("ABSOLUTE", [10, 20, 30]), ("ADDITIVE", [1, -2, 0.5])], "B06|frame=3200")
+    check("handprints", "positive", got == [11, 18, 30.5], "base plus additive camera pose")
+    refuses("handprints", "two absolute camera sections",
+            lambda: __import__("p38_editor").compose_camera_layers(
+                [("ABSOLUTE", [0, 0, 0]), ("ABSOLUTE", [1, 1, 1])], "B06|frame=3200"),
+            "CAMERA_ABSOLUTE_SECTION_COUNT")
 
 
 def test_lid():

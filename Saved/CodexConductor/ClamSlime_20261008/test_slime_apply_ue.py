@@ -652,8 +652,20 @@ def flow_checks(tmp):
     reset()
     setup_paths(tmp)
     m = run("DRY")
-    check("dry_apply_ready", m.startswith("CLAMSLIME_DRY_OK") and "apply_ready=1" in m, m)
+    check("dry_apply_ready", m.startswith("CLAMSLIME_DRY_OK") and "apply_ready=1" in m and "next=APPLY" in m, m)
     check("dry_wrote_nothing", not E.dirty_content and not E.dirty_maps)
+    # Run-51c prerequisite regression: without the import record/assets the old
+    # marker only said apply_ready=0; the new marker names IMPORT, while APPLY
+    # still refuses NOT_IMPORTED.
+    os.remove(T.IMPORT_RECORD)
+    for path in T.created_assets():
+        E.assets.pop(path, None)
+    m = run("DRY", run="TEST-DRY-NOIMPORT")
+    check("dry_missing_assets_names_import_prerequisite", "apply_ready=0" in m and "next=IMPORT" in m, m)
+    m = run("APPLY", run="TEST-APPLY-NOIMPORT")
+    check("apply_without_import_still_refuses(-)", "NOT_IMPORTED" in m, m)
+    reset()
+    setup_paths(tmp)
     # --- APPLY ok
     m = run("APPLY")
     check("apply_ok", m.startswith("CLAMSLIME_APPLY_OK"), m)

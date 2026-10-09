@@ -735,19 +735,23 @@ def run_dry(ue, a, run):
         plan_err = str(exc)
     rec = os.path.exists(APPLY_RECORD)
     c1 = _census(ue)
+    prerequisite = None if imported else {"next_mode": "IMPORT", "confirm": "IMPORT CLAMSLIME",
+                                           "reason": "generated slime assets and slime_import_record.json are absent"}
     out = {"run": run, "args": a, "fps": g["fps"], "playback_end": g["playback_end"], "root": g["root_row"],
            "twin": g["twin"], "lid_binding": g["lid_snap"], "assets": assets, "source_problems": sp,
            "anim_vs_live_lid": lid_p, "plan": plan, "plan_error": plan_err, "apply_record_exists": rec,
            "existing_actor": g["ours"], "existing_binding": g["our_bindings"], "census_after": c1,
+           "missing_prerequisite": prerequisite,
            "fbx_sha256": {p: sha256_file(p) for p in (FBX_MESH, FBX_ANIM) if os.path.exists(p)}}
     with open(HERE + "slime_dry_%s.json" % run, "w", encoding="utf-8") as h:
         json.dump(out, h, indent=1, default=str)
     _req(c1 == {"content": [], "maps": []}, "DRY_DIRTIED|%s" % json.dumps(c1))
     ready = imported and not sp and not lid_p and plan is not None and not rec and not g["ours"] and \
         not g["our_bindings"]
-    return "CLAMSLIME_DRY_OK|run=%s|apply_ready=%d|imported=%d|sources=%s|lid=%s|plan=%s|record=%d|actor=%d|binding=%d" % (
-        run, int(ready), int(imported), "OK" if not sp else sp[:2], "OK" if not lid_p else lid_p[:2],
-        "OK" if plan else plan_err, int(rec), len(g["ours"]), len(g["our_bindings"]))
+    return "CLAMSLIME_DRY_OK|run=%s|apply_ready=%d|imported=%d|next=%s|sources=%s|lid=%s|plan=%s|record=%d|actor=%d|binding=%d" % (
+        run, int(ready), int(imported), "APPLY" if ready else ("IMPORT" if not imported else "BLOCKED"),
+        "OK" if not sp else sp[:2], "OK" if not lid_p else lid_p[:2], "OK" if plan else plan_err,
+        int(rec), len(g["ours"]), len(g["our_bindings"]))
 
 
 # --------------------------------------------------------------------------------------------- IMPORT

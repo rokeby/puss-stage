@@ -208,8 +208,12 @@ def beats_from_markers(markers):
     at_release = [g for g in gos if g[1] == beats["release"]]
     if len(at_release) != 1:
         raise PlanError("GO_MISSING_AT_DROP: GO markers %r, drop at %d" % (gos, beats["release"]))
-    if CS["parse_go_label"](at_release[0][0])[2] == 0:
-        raise PlanError("GO_IS_PASS: %r would not hold" % at_release[0][0])
+    parsed = CS["parse_go_label"](at_release[0][0])
+    # GOREL-ALL5-APPLY-1 deliberately made the release cues explicit PASS cues.
+    # Gary approved exactly ``GO <number> PASS curtain``.  Keep the semantic
+    # guard narrow: another PASS label at the drop is still drift and refuses.
+    if parsed[2] == 0 and parsed[1] != "curtain":
+        raise PlanError("GO_PASS_LABEL: %r expected 'curtain'" % at_release[0][0])
     return beats, at_release[0]
 
 

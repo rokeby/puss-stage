@@ -177,6 +177,34 @@ def value_at(sequence, channel, frame, fallback):
     return float(values[0])
 
 
+def section_range(section):
+    return [int(section.get_start_frame()) if section.has_start_frame() else None,
+            int(section.get_end_frame()) if section.has_end_frame() else None]
+
+
+def section_covers(section, frame):
+    start, end = section_range(section)
+    return (start is None or start <= frame) and (end is None or frame < end)
+
+
+def blend_name(section):
+    raw = str(section.get_blend_type()).upper()
+    if "ADDITIVE" in raw:
+        return "ADDITIVE"
+    if "ABSOLUTE" in raw or raw in ("NONE", ""):
+        return "ABSOLUTE"
+    raise Stop("CAMERA_BLEND_UNSUPPORTED|%s" % raw)
+
+
+def compose_camera_layers(layers, label):
+    """Compose [X,Y,Yaw] from one absolute section and additive shake sections."""
+    absolute = [row for row in layers if row[0] == "ABSOLUTE"]
+    additive = [row for row in layers if row[0] == "ADDITIVE"]
+    require(len(absolute) == 1, "CAMERA_ABSOLUTE_SECTION_COUNT|%s|%d" % (label, len(absolute)))
+    require(len(absolute) + len(additive) == len(layers), "CAMERA_BLEND_SET|%s" % label)
+    return [absolute[0][1][i] + sum(row[1][i] for row in additive) for i in range(3)]
+
+
 def camera_samples(sequence):
     """Read all B-shot spawnable templates and every keyed transform time."""
     rows = []
@@ -197,20 +225,36 @@ def camera_samples(sequence):
                             if str(t.get_class().get_name()) == "MovieScene3DTransformTrack"]
         if len(transform_tracks) > 1:
             raise Stop("CAMERA_TRANSFORM_TRACKS|%s|%d" % (label, len(transform_tracks)))
-        channels = {}
+        section_rows = []
         if transform_tracks:
             active = [s for s in transform_tracks[0].get_sections() if s.is_active()]
-            require(len(active) == 1, "CAMERA_TRANSFORM_SECTIONS|%s|%d" % (label, len(active)))
-            channels = {channel_name(c): c for c in active[0].get_all_channels()}
-        frames = sorted(set([0] + [f for key in ("Location.X", "Location.Y", "Rotation.Z")
+            require(active, "CAMERA_TRANSFORM_ACTIVE_SECTIONS|%s|0" % label)
+            for section in active:
+                channels = {channel_name(c): c for c in section.get_all_channels()}
+                section_rows.append((section, channels))
+        frames = sorted(set([0] + [f for _section, channels in section_rows
+                                   for key in ("Location.X", "Location.Y", "Rotation.Z")
                                    if key in channels for f in channel_key_frames(channels[key])]))
         for frame in frames:
+            if section_rows:
+                layers = []
+                for section, channels in section_rows:
+                    if not section_covers(section, frame):
+                        continue
+                    fallback = [base["Location.X"], base["Location.Y"], base["Rotation.Z"]] \
+                        if blend_name(section) == "ABSOLUTE" else [0.0, 0.0, 0.0]
+                    values = [value_at(sequence, channels.get(key), frame, fallback[i])
+                              for i, key in enumerate(("Location.X", "Location.Y", "Rotation.Z"))]
+                    layers.append((blend_name(section), values))
+                pose = compose_camera_layers(layers, "%s|frame=%d" % (label, frame))
+            else:
+                pose = [base["Location.X"], base["Location.Y"], base["Rotation.Z"]]
             rows.append({"label": label, "frame": frame,
-                         "xy": [value_at(sequence, channels.get("Location.X"), frame, base["Location.X"]),
-                                value_at(sequence, channels.get("Location.Y"), frame, base["Location.Y"])],
-                         "yaw_deg": value_at(sequence, channels.get("Rotation.Z"), frame, base["Rotation.Z"]),
+                         "xy": pose[:2], "yaw_deg": pose[2],
                          "source": "spawnable_sequence_transform" if transform_tracks else "spawnable_template_transform",
-                         "key_counts": {k: len(channel_key_frames(v)) for k, v in channels.items() if k in base}})
+                         "active_transform_sections": len(section_rows),
+                         "key_counts": [{k: len(channel_key_frames(v)) for k, v in channels.items() if k in base}
+                                        for _section, channels in section_rows]})
     expected = ["S3 Shot B%02d" % number for number in range(2, 13)]
     require(sorted(labels) == expected, "B_SHOT_CAMERA_CENSUS|%r" % sorted(labels))
     return rows
