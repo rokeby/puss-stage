@@ -17,3 +17,4 @@
 | E13 | Passage end → Scene start | detectable rig-position jump even with dog view at default (also: free dog view should ease back to default over a few seconds before) | Codex 95 (see memory puss-gait-bob-biased) |
 | E14 | Cue Desk | rehearsal bar timeline (job 86) ready for a 20–30 min build window | after PIE |
 | E15 | Interlude | Unreal Nap label → "Interlude: Puss Sleep/Wet Tennis Ball/Battery" | small rename, after diag |
+| E16 | I3 | curtain drop + camera move land in the right place, but I3 must BEGIN at the end of the last scene in TOTAL DARKNESS, get into position (like I2), THEN light the shadow; big lighting pop at 0:50.0 (sleight cut) | Codex 90b |
