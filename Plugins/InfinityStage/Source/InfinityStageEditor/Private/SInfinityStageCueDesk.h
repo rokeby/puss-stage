@@ -252,6 +252,8 @@ private:
     bool bCueListVisible = true;
     bool bCueDetailsVisible = true;
     bool bInspectorVisible = true;
+    /** Rehearsal bar along the bottom (follows PIE). */
+    bool bRehearsalBarVisible = true;
     /** Cue list columns hidden from the header's right-click menu; persisted. */
     TArray<FName> HiddenCueColumns;
     TSharedPtr<class SHeaderRow> CueHeaderRow;

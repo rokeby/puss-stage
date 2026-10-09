@@ -31,6 +31,8 @@ public:
     void NextScriptLine();
     void PreviousScriptLine();
     void ReloadCueSheet();
+    /** B: the rehearsal bar along the bottom of the viewport. */
+    void ToggleRehearsalBar();
 
 protected:
     virtual void SetupInputComponent() override;

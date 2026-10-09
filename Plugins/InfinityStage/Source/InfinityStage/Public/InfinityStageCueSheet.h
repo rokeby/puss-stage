@@ -145,6 +145,11 @@ public:
 
     const FInfinityCueDirectorSettings& GetSettings() const { return Settings; }
 
+    /** B in the show viewport: the rehearsal bar along the bottom (with a mouse cursor for its buttons). */
+    void ToggleRehearsalBar();
+    bool IsRehearsalBarShown() const { return RehearsalBarWidget.IsValid(); }
+    virtual void Deinitialize() override;
+
     void StepLine(int32 Delta);
     void SyncToSegment(int32 SegmentOrdinal) { Cursor.SyncToSegment(Sheet, SegmentOrdinal); }
 
@@ -159,4 +164,5 @@ private:
     FInfinityScriptCursor Cursor;
     FInfinityCueDirectorSettings Settings;
     bool bSettingsApplied = false;
+    TSharedPtr<class SWidget> RehearsalBarWidget;
 };
