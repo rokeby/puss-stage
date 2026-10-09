@@ -1,5 +1,6 @@
 #include "InfinityStageCueSheet.h"
 #include "InfinityStageDirectorHud.h"
+#include "InfinityStageShowGameMode.h"
 #include "InfinityStageTransportController.h"
 #include "Misc/AutomationTest.h"
 
@@ -212,6 +213,27 @@ bool FInfinityStageRunThroughStopsTest::RunTest(const FString& Parameters)
     PassAll.bPassAll = true;
     PassAll.Tick(50, true, Cues);
     TestEqual(TEXT("Control: run-through with nothing kept passes everything (as built)"), PassAll.Tick(250, true, Cues), int32(INDEX_NONE));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageScriptKeysTest,
+    "InfinityStage.CueDirector.ScriptKeysAreCommaAndFullStop",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+// Gary, 9 Oct: the script cursor must not need PageUp/PageDown (some keyboards lack them).
+bool FInfinityStageScriptKeysTest::RunTest(const FString& Parameters)
+{
+    TestTrue(TEXT("Back is the comma key"), InfinityStageShowKeys::ScriptPreviousName() == FName(TEXT("Comma")));
+    TestTrue(TEXT("On is the full-stop key"), InfinityStageShowKeys::ScriptNextName() == FName(TEXT("Period")));
+    // Compared by name: this test module does not link InputCore (EKeys, FKey::GetFName).
+    const TArray<FName> Bound = InfinityStageShowKeys::AllBoundNames();
+    TestFalse(TEXT("PageUp is not bound"), Bound.Contains(FName(TEXT("PageUp"))));
+    TestFalse(TEXT("PageDown is not bound"), Bound.Contains(FName(TEXT("PageDown"))));
+    TestTrue(TEXT("The script keys are in the bound set"), Bound.Contains(FName(TEXT("Comma"))) && Bound.Contains(FName(TEXT("Period"))));
+    // Control: no key does two jobs (a clash would make one of them silently win).
+    TSet<FName> Unique(Bound);
+    TestEqual(TEXT("Control: every bound key is distinct"), Unique.Num(), Bound.Num());
     return true;
 }
 

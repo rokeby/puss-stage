@@ -315,8 +315,8 @@ void SInfinityStageRehearsalBar::Construct(const FArguments& InArgs)
                             : FText::GetEmpty();
                     })
                 ]
-                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("PrevLine", "< line"), LOCTEXT("PrevLineTip", "Script cursor back (PageUp)"), ECommand::PreviousLine) ]
-                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("NextLine", "line >"), LOCTEXT("NextLineTip", "Script cursor on (PageDown)"), ECommand::NextLine) ]
+                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("PrevLine", "< line"), LOCTEXT("PrevLineTip", "Script cursor back (comma key)"), ECommand::PreviousLine) ]
+                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ Button(LOCTEXT("NextLine", "line >"), LOCTEXT("NextLineTip", "Script cursor on (full-stop key)"), ECommand::NextLine) ]
             ]
             + SVerticalBox::Slot().AutoHeight().Padding(0.0f, 3.0f, 0.0f, 0.0f)
             [

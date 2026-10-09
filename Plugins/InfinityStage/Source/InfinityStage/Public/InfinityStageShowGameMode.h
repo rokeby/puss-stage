@@ -6,6 +6,20 @@
 #include "InfinityStageTransportController.h"
 #include "InfinityStageShowGameMode.generated.h"
 
+/** The show's keys in one place, so a test can prove they are what Gary asked for and never clash. */
+namespace InfinityStageShowKeys
+{
+/** Script cursor (Cue Director). Gary, 9 Oct: not PageUp/PageDown, which some keyboards lack. */
+INFINITYSTAGE_API FKey ScriptPrevious();   // ","
+INFINITYSTAGE_API FKey ScriptNext();       // "."
+/** Every key the show controller binds (Right/Left appear once each though they bind press and release). */
+INFINITYSTAGE_API TArray<FKey> AllBound();
+/** The same as key names ("Comma", "Period", ...), for code that does not link InputCore (the tests). */
+INFINITYSTAGE_API TArray<FName> AllBoundNames();
+INFINITYSTAGE_API FName ScriptPreviousName();
+INFINITYSTAGE_API FName ScriptNextName();
+}
+
 /** Keyboard transport for the focused game viewport, using the one Show player. */
 UCLASS()
 class INFINITYSTAGE_API AInfinityStageShowPlayerController : public APlayerController

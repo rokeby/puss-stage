@@ -34,6 +34,28 @@ void ReportTransportResult(APlayerController* Controller, EInfinityTransportResu
 }
 }
 
+namespace InfinityStageShowKeys
+{
+FKey ScriptPrevious() { return EKeys::Comma; }
+FKey ScriptNext() { return EKeys::Period; }
+TArray<FKey> AllBound()
+{
+    // Keep in step with SetupInputComponent below.
+    return { EKeys::Right, EKeys::Left, EKeys::SpaceBar, EKeys::H, ScriptNext(), ScriptPrevious(), EKeys::F5, EKeys::B };
+}
+TArray<FName> AllBoundNames()
+{
+    TArray<FName> Names;
+    for (const FKey& Key : AllBound())
+    {
+        Names.Add(Key.GetFName());
+    }
+    return Names;
+}
+FName ScriptPreviousName() { return ScriptPrevious().GetFName(); }
+FName ScriptNextName() { return ScriptNext().GetFName(); }
+}
+
 AInfinityStageShowPlayerController::AInfinityStageShowPlayerController()
 {
     // Possessing a spectator must not replace the camera claimed by the Show.
@@ -51,9 +73,9 @@ void AInfinityStageShowPlayerController::SetupInputComponent()
     InputComponent->BindKey(EKeys::Left, IE_Released, this, &AInfinityStageShowPlayerController::EndLeftInput);
     InputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleShowPlayback);
     InputComponent->BindKey(EKeys::H, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleDirectorHud);
-    // Script cursor (Cue Director): a presentation clicker sends PageDown / PageUp.
-    InputComponent->BindKey(EKeys::PageDown, IE_Pressed, this, &AInfinityStageShowPlayerController::NextScriptLine);
-    InputComponent->BindKey(EKeys::PageUp, IE_Pressed, this, &AInfinityStageShowPlayerController::PreviousScriptLine);
+    // Script cursor (Cue Director): "," back, "." on (Gary, 9 Oct: no PageUp/PageDown, some keyboards lack them).
+    InputComponent->BindKey(InfinityStageShowKeys::ScriptNext(), IE_Pressed, this, &AInfinityStageShowPlayerController::NextScriptLine);
+    InputComponent->BindKey(InfinityStageShowKeys::ScriptPrevious(), IE_Pressed, this, &AInfinityStageShowPlayerController::PreviousScriptLine);
     InputComponent->BindKey(EKeys::F5, IE_Pressed, this, &AInfinityStageShowPlayerController::ReloadCueSheet);
     InputComponent->BindKey(EKeys::B, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleRehearsalBar);
 }

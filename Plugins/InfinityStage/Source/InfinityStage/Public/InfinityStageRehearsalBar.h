@@ -59,7 +59,7 @@ INFINITYSTAGE_API bool Gather(UWorld* World, FInfinityRehearsalState& Out);
 
 enum class ECommand : uint8 { Back, PlayPause, Go, PreviousLine, NextLine };
 
-/** Same as the keys: Back = LEFT, PlayPause = Space, Go = RIGHT (GO at a hold), lines = PageUp/Down. */
+/** Same as the keys: Back = LEFT, PlayPause = Space, Go = RIGHT (GO at a hold), lines = "," and ".". */
 INFINITYSTAGE_API void Command(UWorld* World, ECommand Command);
 
 /** "m:ss.s". */
