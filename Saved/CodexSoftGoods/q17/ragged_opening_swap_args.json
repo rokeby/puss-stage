@@ -1,0 +1,12 @@
+{
+  "mode": "DRY",
+  "confirm": "DRY_RAGGED_OPENING_ONLY",
+  "run_id": "Q17-REVIEW-DRY",
+  "decided_by": "Gary 9 Oct: the held ragged curtain can be in the Opening; job 76 is offline preparation only",
+  "howto": [
+    "DRY: mode=DRY, confirm=DRY_RAGGED_OPENING_ONLY",
+    "APPLY after review: mode=APPLY, confirm=APPLY_RAGGED_OPENING_ONLY, unique run_id and decided_by",
+    "REVERT after an applied record: mode=REVERT, confirm=REVERT_RAGGED_OPENING_ONLY, unique run_id and decided_by",
+    "Execute Saved/CodexSoftGoods/q17/ragged_opening_swap.py through ExecuteProjectPythonFile; never Save All"
+  ]
+}
