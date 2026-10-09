@@ -124,6 +124,18 @@ class PolishTests(unittest.TestCase):
     def test_positive_digest_order_independent(self):
         self.assertEqual(TOOL.digest({"a": 1, "b": 2}), TOOL.digest({"b": 2, "a": 1}))
 
+    def test_positive_logged_master_i2_custom_track_regression(self):
+        # B1E-I2POLISH-DRY-20261009-0858: the rebuilt Master uses the
+        # plugin's managed scene track, which the former exact-name filter skipped.
+        rows = [{"track_class": "MovieSceneInfinitySceneTrack",
+                 "track": "Infinity Stage Scenes", "section_index": 7,
+                 "sequence": TOOL.I2_PATH, "active": True,
+                 "start": 16929600, "end": 18801600}]
+        legacy = ("MovieSceneSubTrack", "MovieSceneCinematicShotTrack")
+        with self.assertRaisesRegex(TOOL.PlanError, r"MASTER_I2_SECTION_COUNT\|0"):
+            TOOL.master_i2_start_from_rows(rows, track_classes=legacy)
+        self.assertEqual(16929600, TOOL.master_i2_start_from_rows(rows))
+
     def test_positive_main_dry(self):
         with tempfile.TemporaryDirectory() as root:
             backend = FakeBackend(root)
@@ -195,6 +207,13 @@ class PolishTests(unittest.TestCase):
         with self.assertRaises(TOOL.PlanError):
             TOOL.merged_params({"boundary_extend_frames": 0})
 
+    def test_negative_master_i2_genuinely_missing_still_refused(self):
+        rows = [{"track_class": "MovieSceneInfinitySceneTrack",
+                 "sequence": "/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName",
+                 "active": True, "start": 10}]
+        with self.assertRaisesRegex(TOOL.PlanError, r"MASTER_I2_SECTION_COUNT\|0"):
+            TOOL.master_i2_start_from_rows(rows)
+
     def test_negative_wrong_confirm_refused(self):
         with tempfile.TemporaryDirectory() as root:
             with self.assertRaises(TOOL.Stop):
@@ -232,6 +251,6 @@ if __name__ == "__main__":
         json.dump(payload, handle, indent=1, sort_keys=True)
         handle.write("\n")
     print("HARNESS_RESULT|positive=%d/%d|negative=%d/%d|total=%d/%d" % (
-        len(positive), 14, len(negative), 15, len(result.passed), suite.countTestCases()))
-    print("HARNESS_STATUS|%s" % ("PASS" if result.wasSuccessful() and len(positive) == 14 and len(negative) == 15 else "FAIL"))
+        len(positive), 15, len(negative), 16, len(result.passed), suite.countTestCases()))
+    print("HARNESS_STATUS|%s" % ("PASS" if result.wasSuccessful() and len(positive) == 15 and len(negative) == 16 else "FAIL"))
     raise SystemExit(0 if result.wasSuccessful() else 1)

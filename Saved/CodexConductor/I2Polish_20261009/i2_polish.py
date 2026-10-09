@@ -23,13 +23,18 @@ import shutil
 
 
 TOOL = "I2_POLISH"
-TOOL_VERSION = "2026-10-09a"
+TOOL_VERSION = "2026-10-09b"
 FOLDER = "I2Polish_20261009"
 MAP_PATH = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SHOW_PATH = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 MASTER_PATH = "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master"
 I2_PATH = "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips"
 I2_LABEL_PREFIX = "Interaction 2"
+MASTER_SEQUENCE_TRACK_CLASSES = (
+    "MovieSceneSubTrack",
+    "MovieSceneCinematicShotTrack",
+    "MovieSceneInfinitySceneTrack",
+)
 EXPECTED_I2_END = 1950
 SLEIGHT_FRAME = 1250
 FALL_RELEASE_FRAME = 1675
@@ -69,6 +74,18 @@ class Stop(RuntimeError):
 
 class PlanError(ValueError):
     pass
+
+
+def master_i2_start_from_rows(rows, sequence_path=I2_PATH,
+                              track_classes=MASTER_SEQUENCE_TRACK_CLASSES):
+    """Return the unique active I2 section start from a Master inventory."""
+    hits = [row for row in rows
+            if row.get("track_class") in track_classes
+            and row.get("sequence") == sequence_path
+            and row.get("active")]
+    if len(hits) != 1:
+        raise PlanError("MASTER_I2_SECTION_COUNT|%d" % len(hits))
+    return int(hits[0]["start"])
 
 
 def digest(value):
@@ -521,17 +538,29 @@ class UnrealBackend(object):
         return rows[0]
 
     def _master_i2_start(self, master):
-        hits = []
+        rows = []
         for track in master.get_tracks():
-            if track.get_class().get_name() not in ("MovieSceneSubTrack", "MovieSceneCinematicShotTrack"):
+            track_class = track.get_class().get_name()
+            if track_class not in MASTER_SEQUENCE_TRACK_CLASSES:
                 continue
-            for section in track.get_sections():
+            for section_index, section in enumerate(track.get_sections()):
                 sub = section.get_sequence()
-                if sub and sub.get_path_name().split(".")[0] == I2_PATH and section.is_active():
-                    hits.append(self._section_range(section, master)[0])
-        if len(hits) != 1:
-            self.fail("MASTER_I2_SECTION_COUNT|%d" % len(hits))
-        return hits[0]
+                section_range = self._section_range(section, master)
+                try:
+                    block_guid = _guid(section.get_editor_property("block_guid"))
+                except Exception:
+                    block_guid = None
+                rows.append({"track_class": track_class,
+                             "track": str(track.get_display_name()),
+                             "section_index": section_index,
+                             "sequence": sub.get_path_name().split(".")[0] if sub else None,
+                             "active": bool(section.is_active()),
+                             "start": section_range[0], "end": section_range[1],
+                             "block_guid": block_guid})
+        try:
+            return master_i2_start_from_rows(rows)
+        except PlanError as exc:
+            self.fail(str(exc))
 
     def _load_i2_order(self):
         path = os.path.normpath(os.path.join(self.root, "..", "I2Order_20261008", "i2_order.py"))
