@@ -98,7 +98,10 @@ echo "final message -> $LAST" >&2
 # Only --unreal may reach the editor. The project .codex/config.toml registers unreal-mcp (port 8010), and codex.exe
 # connects at startup even on offline briefs (gobo session, 9 Oct: "fail to delete session ... 127.0.0.1:8010") -> each
 # request is a 40-80 ms editor hitch. Disable it for every other mode.
-[ "$LABEL" != "unreal" ] && EXTRA+=(-c mcp_servers.unreal-mcp.enabled=false)
+# The url is restated so the entry is complete even where the project config is not loaded: in --worktree mode
+# "enabled=false" alone made a url-less server entry and codex refused to start ("invalid transport in
+# mcp_servers.unreal-mcp", Cueing cb1 launch 9 Oct 23:19; read-only runs were unaffected).
+[ "$LABEL" != "unreal" ] && EXTRA+=(-c 'mcp_servers.unreal-mcp.url="http://127.0.0.1:8010/mcp"' -c mcp_servers.unreal-mcp.enabled=false)
 T0=$(date +%s)
 set +e
 "$EXE" exec -C "$REPO" ${SANDBOX:+-s "$SANDBOX"} ${MODE:+$MODE} \
