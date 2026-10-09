@@ -608,6 +608,11 @@ void UInfinityStageDirectorHudSubsystem::DrawScriptPanel(
             Row.SourceRow, Row.Number.IsEmpty() ? TEXT("") : *FString::Printf(TEXT("  [cue %s]"), *Row.Number),
             *SheetLabel, *StageLabel, bAgree ? TEXT("") : TEXT("   (script and stage differ)")),
             bAgree ? Dim : Amber);
+        const FString Dog = InfinityStageCueSheet::DescribeDogDirection(Row);
+        if (!Dog.IsEmpty())
+        {
+            Add(TEXT("> ") + Dog, Cyan);
+        }
         const FString Actions = InfinityStageCueSheet::DescribeActions(Row);
         if (!Actions.IsEmpty())
         {
@@ -616,6 +621,11 @@ void UInfinityStageDirectorHudSubsystem::DrawScriptPanel(
         for (const FString& Spoken : InfinityStageCueSheet::DescribeLines(Row))
         {
             Add(TEXT("> ") + Spoken, White);
+        }
+        const int32 NextDogRow = InfinityStageCueSheet::NextDogDirectionRow(Sheet, Current);
+        if (Sheet.Rows.IsValidIndex(NextDogRow))
+        {
+            Add(TEXT("  next ") + InfinityStageCueSheet::DescribeDogDirection(Sheet.Rows[NextDogRow]), Dim);
         }
         int32 Shown = 0;
         for (int32 R = Current + 1; R < Sheet.Rows.Num() && Shown < 2; ++R)

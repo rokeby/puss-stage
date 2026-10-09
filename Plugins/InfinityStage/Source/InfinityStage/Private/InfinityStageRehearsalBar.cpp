@@ -139,6 +139,12 @@ bool Gather(UWorld* World, FInfinityRehearsalState& Out)
             Out.Notes = InfinityStageCueSheet::DescribeActions(Current);
             const TArray<FString> Lines = InfinityStageCueSheet::DescribeLines(Current);
             Out.Script = Lines.IsEmpty() ? FString() : Lines[0];
+            Out.Dog = InfinityStageCueSheet::DescribeDogDirection(Current);
+            const int32 NextDogRow = InfinityStageCueSheet::NextDogDirectionRow(Sheet, Row);
+            if (Sheet.Rows.IsValidIndex(NextDogRow))
+            {
+                Out.NextDog = InfinityStageCueSheet::DescribeDogDirection(Sheet.Rows[NextDogRow]);
+            }
         }
     }
     Out.Cue = FString::Printf(TEXT("%d/%d  %s%s"), HudState.SegmentIndex + 1, HudState.SegmentCount, *HudState.SegmentLabel,
@@ -423,6 +429,14 @@ void SInfinityStageRehearsalBar::Construct(const FArguments& InArgs)
                         return FText::GetEmpty();
                     }
                     FString Line = FString::Printf(TEXT("NEXT STOP: %s%s"), *S.NextStop, S.bRunThrough ? TEXT("  (run-through)") : TEXT(""));
+                    if (!S.Dog.IsEmpty())
+                    {
+                        Line += TEXT("      ") + S.Dog;
+                    }
+                    if (!S.NextDog.IsEmpty())
+                    {
+                        Line += TEXT("      NEXT ") + S.NextDog;
+                    }
                     if (!S.Notes.IsEmpty())
                     {
                         Line += TEXT("      CUE: ") + S.Notes;

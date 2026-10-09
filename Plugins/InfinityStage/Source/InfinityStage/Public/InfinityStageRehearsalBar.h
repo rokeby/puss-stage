@@ -24,6 +24,8 @@ struct INFINITYSTAGE_API FInfinityRehearsalState
     FString NextStop;       // "GO at end of Scene 1 in 0:45.2" or "runs to show end"
     FString Notes;          // the cue sheet row's notes and department actions
     FString Script;         // the current script line
+    FString Dog;            // current dog direction, including carried state
+    FString NextDog;        // next row that changes the dog direction
     bool bPlaying = false;
     bool bHold = false;
     bool bRunThrough = false;

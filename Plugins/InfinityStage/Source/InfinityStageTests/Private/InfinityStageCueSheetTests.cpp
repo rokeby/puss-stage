@@ -141,6 +141,36 @@ bool FInfinityStageDirectorHudCycleTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageDogDirectionTest,
+    "InfinityStage.CueDirector.DogDirectionsCarryForward",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageDogDirectionTest::RunTest(const FString& Parameters)
+{
+    FInfinityCueSheet Sheet;
+    const FString Csv =
+        TEXT(",Light,Video Cue,Dog action,Dog mode,Treadmill\n")
+        TEXT(",,,,,\n")
+        TEXT("1,,Passage 1,trotting,walk_trot,on\n")
+        TEXT("2,,,,,\n")
+        TEXT("3,,,still,,off\n");
+    TestTrue(TEXT("Dog cue sheet loads"), Sheet.LoadFromCsvText(Csv));
+    TestEqual(TEXT("Three non-blank dog rows"), Sheet.Rows.Num(), 3);
+    if (Sheet.Rows.Num() == 3)
+    {
+        TestEqual(TEXT("Direct direction is compact"), InfinityStageCueSheet::DescribeDogDirection(Sheet.Rows[0]),
+            FString(TEXT("DOG: trotting | Walk / trot | treadmill on")));
+        TestEqual(TEXT("Mode and treadmill carry to the next row"), InfinityStageCueSheet::DescribeDogDirection(Sheet.Rows[1]),
+            FString(TEXT("DOG: Walk / trot | treadmill on")));
+        TestEqual(TEXT("Action does not carry; treadmill change does"), InfinityStageCueSheet::DescribeDogDirection(Sheet.Rows[2]),
+            FString(TEXT("DOG: still | Walk / trot | treadmill off")));
+        TestEqual(TEXT("Next dog direction skips an unstated row"), InfinityStageCueSheet::NextDogDirectionRow(Sheet, 0), 2);
+        TestEqual(TEXT("Negative control: no later dog direction"), InfinityStageCueSheet::NextDogDirectionRow(Sheet, 2), int32(INDEX_NONE));
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FInfinityStageCueDirectorSettingsTest,
     "InfinityStage.CueDirector.SettingsRoundTrip",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

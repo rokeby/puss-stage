@@ -33,7 +33,8 @@ FString Clean(const FString& Cell)
     return Out;
 }
 
-enum class ERole : uint8 { None, Number, Light, SoundTech, Action, SoundCue, VideoCue, Speaker, Beat, Notes };
+enum class ERole : uint8 { None, Number, Light, SoundTech, Action, SoundCue, VideoCue, Speaker, Beat, Notes,
+    DogAction, DogMode, Treadmill };
 
 ERole RoleOf(const FString& Header, const int32 Column)
 {
@@ -46,6 +47,9 @@ ERole RoleOf(const FString& Header, const int32 Column)
     if (H.StartsWith(TEXT("speaker"))) { return ERole::Speaker; }
     if (H.StartsWith(TEXT("beat"))) { return ERole::Beat; }
     if (H.StartsWith(TEXT("note"))) { return ERole::Notes; }
+    if (H == TEXT("dog action")) { return ERole::DogAction; }
+    if (H == TEXT("dog mode")) { return ERole::DogMode; }
+    if (H == TEXT("treadmill")) { return ERole::Treadmill; }
     return Column == 0 ? ERole::Number : ERole::None;
 }
 }
@@ -58,7 +62,8 @@ bool FInfinityCueSheetRow::IsBlank() const
 bool FInfinityCueSheetRow::HasContent() const
 {
     return !Light.IsEmpty() || !SoundTech.IsEmpty() || !Action.IsEmpty() || !SoundCue.IsEmpty()
-        || !Beat.IsEmpty() || !Notes.IsEmpty() || !Lines.IsEmpty() || !VideoCue.IsEmpty();
+        || !Beat.IsEmpty() || !Notes.IsEmpty() || !Lines.IsEmpty() || !VideoCue.IsEmpty()
+        || !DogAction.IsEmpty() || !DogMode.IsEmpty() || !Treadmill.IsEmpty();
 }
 
 void FInfinityCueSheet::ParseCsv(const FString& Text, TArray<TArray<FString>>& OutTable)
@@ -185,6 +190,8 @@ bool FInfinityCueSheet::LoadFromCsvText(const FString& Text)
     }
 
     FString CurrentSegment;
+    FString CurrentDogMode;
+    FString CurrentTreadmill;
     int32 CurrentOrdinal = INDEX_NONE;
     for (int32 R = FirstDataRow; R < Table.Num(); ++R)
     {
@@ -209,6 +216,9 @@ bool FInfinityCueSheet::LoadFromCsvText(const FString& Text)
             case ERole::Beat: Row.Beat = Value; break;
             case ERole::Notes: Row.Notes = Value; break;
             case ERole::Speaker: Row.Lines.Add({SpeakerOfColumn[C], Value}); break;
+            case ERole::DogAction: Row.DogAction = Value; break;
+            case ERole::DogMode: Row.DogMode = Value; break;
+            case ERole::Treadmill: Row.Treadmill = Value; break;
             default: break;
             }
         }
@@ -218,6 +228,10 @@ bool FInfinityCueSheet::LoadFromCsvText(const FString& Text)
             CurrentOrdinal = SegmentLabels.Add(Row.VideoCue);
             SegmentStartRows.Add(Rows.Num());
         }
+        if (!Row.DogMode.IsEmpty()) { CurrentDogMode = Row.DogMode; }
+        if (!Row.Treadmill.IsEmpty()) { CurrentTreadmill = Row.Treadmill; }
+        Row.EffectiveDogMode = CurrentDogMode;
+        Row.EffectiveTreadmill = CurrentTreadmill;
         Row.Segment = CurrentSegment;
         Row.SegmentOrdinal = CurrentOrdinal;
         if (!Row.IsBlank())
@@ -439,6 +453,39 @@ FString DescribeActions(const FInfinityCueSheetRow& Row)
     Add(TEXT("BEAT"), Row.Beat);
     Add(TEXT("NOTE"), Row.Notes);
     return FString::Join(Parts, TEXT("  |  "));
+}
+
+FString DescribeDogDirection(const FInfinityCueSheetRow& Row)
+{
+    TArray<FString> Parts;
+    if (!Row.DogAction.IsEmpty()) { Parts.Add(Row.DogAction); }
+    const TMap<FString, FString> Labels = {
+        {TEXT("lying"), TEXT("Lying down (damped)")}, {TEXT("standing"), TEXT("Standing")},
+        {TEXT("walk_trot"), TEXT("Walk / trot")}, {TEXT("run"), TEXT("Run")},
+        {TEXT("stairs_climb"), TEXT("Stairs / climb")}
+    };
+    if (!Row.EffectiveDogMode.IsEmpty())
+    {
+        Parts.Add(Labels.FindRef(Row.EffectiveDogMode).IsEmpty() ? Row.EffectiveDogMode : Labels.FindRef(Row.EffectiveDogMode));
+    }
+    if (!Row.EffectiveTreadmill.IsEmpty())
+    {
+        Parts.Add(TEXT("treadmill ") + Row.EffectiveTreadmill);
+    }
+    return Parts.IsEmpty() ? FString() : TEXT("DOG: ") + FString::Join(Parts, TEXT(" | "));
+}
+
+int32 NextDogDirectionRow(const FInfinityCueSheet& Sheet, const int32 From)
+{
+    for (int32 R = From + 1; R < Sheet.Rows.Num(); ++R)
+    {
+        const FInfinityCueSheetRow& Row = Sheet.Rows[R];
+        if (!Row.DogAction.IsEmpty() || !Row.DogMode.IsEmpty() || !Row.Treadmill.IsEmpty())
+        {
+            return R;
+        }
+    }
+    return INDEX_NONE;
 }
 
 int32 NextStandbyRow(const FInfinityCueSheet& Sheet, const int32 From)

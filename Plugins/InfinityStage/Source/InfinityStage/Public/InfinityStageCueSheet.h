@@ -37,6 +37,13 @@ struct INFINITYSTAGE_API FInfinityCueSheetRow
     FString VideoCue;
     FString Beat;
     FString Notes;
+    /** Cue-specific physical direction; mode/treadmill are operator directions, never telemetry. */
+    FString DogAction;
+    FString DogMode;
+    FString Treadmill;
+    /** Last stated mode/treadmill at this row. */
+    FString EffectiveDogMode;
+    FString EffectiveTreadmill;
     TArray<FInfinityCueSheetLine> Lines;
     /** The Video Cue in force at this row (carried down), and its 0-based order. -1 before the first. */
     FString Segment;
@@ -124,6 +131,12 @@ INFINITYSTAGE_API TArray<FString> DescribeLines(const FInfinityCueSheetRow& Row)
 
 /** "LX: ... | SND: ... | DO: ... | CUE: ... | NOTE: ..." for a row; empty parts left out. */
 INFINITYSTAGE_API FString DescribeActions(const FInfinityCueSheetRow& Row);
+
+/** "DOG: trotting | Walk / trot | treadmill on", using carried mode/treadmill. */
+INFINITYSTAGE_API FString DescribeDogDirection(const FInfinityCueSheetRow& Row);
+
+/** Next row after From that directly states a dog action, mode or treadmill change. */
+INFINITYSTAGE_API int32 NextDogDirectionRow(const FInfinityCueSheet& Sheet, int32 From);
 
 /** The next row after From that is a "standby" moment: a cue number, a Video Cue or a beat. */
 INFINITYSTAGE_API int32 NextStandbyRow(const FInfinityCueSheet& Sheet, int32 From);
