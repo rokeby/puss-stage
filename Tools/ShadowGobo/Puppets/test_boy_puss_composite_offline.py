@@ -89,9 +89,12 @@ def run(manifest_path, report_path=None):
           boy["knee_cell_y"] > build.VISIBLE_BAND["bottom"],
           {"band": build.VISIBLE_BAND, "head_y": boy["head_top_cell_y"],
            "knee_y": boy["knee_cell_y"]})
-    check(results, "positive", "puss_head_not_above_boy_halfway",
-          puss["head_top_cell_y"] >= puss["boy_halfway_cell_y"],
-          {"puss_head_y": puss["head_top_cell_y"], "boy_halfway_y": puss["boy_halfway_cell_y"]})
+    limit_y = build.VISIBLE_BAND["bottom"] - build.PUSS_LIMIT_RATIO * boy["visible_height_cell"]
+    check(results, "positive", "puss_head_below_limit_line",
+          puss["head_top_cell_y"] >= limit_y - 1e-9,
+          {"puss_head_y": puss["head_top_cell_y"], "limit_y": limit_y, "ratio": puss["visible_height_ratio_to_boy"]})
+    check(results, "positive", "puss_is_25pct_bigger_than_v1",
+          abs(puss["visible_height_ratio_to_boy"] - 0.5625) < 0.01, puss["visible_height_ratio_to_boy"])
 
     too_large = dict(build.PUSS_PLACEMENT, scale=build.PUSS_PLACEMENT["scale"] * 1.45)
     pose = cat_rig.make_pose("sit_look_up")
@@ -99,8 +102,8 @@ def run(manifest_path, report_path=None):
     head = np.concatenate([np.asarray(outline) for name, outline, _cuts, _z in parts if name == "head"])
     bad_top = float(build.map_point((0.0, head[:, 1].min()), too_large)[1])
     check(results, "negative", "mis_scaled_puss_fails_halfway_limit",
-          bad_top < puss["boy_halfway_cell_y"],
-          {"bad_head_y": bad_top, "boy_halfway_y": puss["boy_halfway_cell_y"], "scale_multiplier": 1.45})
+          bad_top < limit_y,
+          {"bad_head_y": bad_top, "limit_y": limit_y, "scale_multiplier": 1.45})
 
     stretch = stretch_metrics()
     check(results, "positive", "stretch_is_one_connected_silhouette",

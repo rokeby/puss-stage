@@ -97,11 +97,11 @@
           0.75,
           0.7659574468085106
         ],
-        "scale": 0.0002358556647707479
+        "scale": 0.0002948195809634349
       },
-      "head_top_cell_y": 0.5457446808505642,
+      "head_top_cell_y": 0.4906914893610774,
       "boy_halfway_cell_y": 0.5212765957446809,
-      "visible_height_ratio_to_boy": 0.4500000000010211,
+      "visible_height_ratio_to_boy": 0.5625000000012765,
       "centre_cell_x": 0.75
     },
     "claims": [
@@ -175,5 +175,5 @@
       0.35
     ]
   },
-  "harness_stdout": "BOY_PUSS_HARNESS|positive=7/7|negative=2/2|total=9/9"
+  "harness_stdout": "BOY_PUSS_HARNESS|positive=8/8|negative=2/2|total=10/10"
 }

@@ -694,7 +694,7 @@
     "filter": "Bilinear",
     "address": "Clamp"
   },
-  "sha256": "c9ce4978fd079ef3fd97e4e2f5ea269c839247a9d68dc5b6b08504d3334aa820",
+  "sha256": "ff182ce2035799691ca667b1f0ac3c04aeb84bde11f980be2ee63af0e5adc09a",
   "composite_clip": {
     "display_fps": 25.0,
     "length_s": 9.0,
@@ -777,7 +777,7 @@
           0.75,
           0.7659574468085106
         ],
-        "scale": 0.0002358556647707479
+        "scale": 0.0002948195809634349
       }
     }
   },
@@ -818,11 +818,11 @@
           0.75,
           0.7659574468085106
         ],
-        "scale": 0.0002358556647707479
+        "scale": 0.0002948195809634349
       },
-      "head_top_cell_y": 0.5457446808505642,
+      "head_top_cell_y": 0.4906914893610774,
       "boy_halfway_cell_y": 0.5212765957446809,
-      "visible_height_ratio_to_boy": 0.4500000000010211,
+      "visible_height_ratio_to_boy": 0.5625000000012765,
       "centre_cell_x": 0.75
     },
     "claims": [

@@ -60,7 +60,9 @@ BOY_PLACEMENT = {
 
 PUSS_SIT_TOP_Y = 96.31408575
 PUSS_SIT_BOTTOM_Y = 1029.99005309
-PUSS_VISIBLE_HEIGHT = 0.45 * (VISIBLE_BAND["bottom"] - BOY_HEAD_TARGET_Y)
+PUSS_HEIGHT_RATIO = 0.5625  # Gary 9 Oct: "puss could be about 25% bigger" (was 0.45 = "at most halfway")
+PUSS_LIMIT_RATIO = 0.60    # harness ceiling for the Puss head, as a fraction of the visible boy
+PUSS_VISIBLE_HEIGHT = PUSS_HEIGHT_RATIO * (VISIBLE_BAND["bottom"] - BOY_HEAD_TARGET_Y)
 PUSS_SCALE = PUSS_VISIBLE_HEIGHT / (PUSS_SIT_BOTTOM_Y - PUSS_SIT_TOP_Y)
 PUSS_PLACEMENT = {
     "anchor_world": (500.0, PUSS_SIT_BOTTOM_Y),
