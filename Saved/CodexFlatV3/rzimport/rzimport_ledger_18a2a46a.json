@@ -1,0 +1,37 @@
+{
+ "batches": {
+  "1": {
+   "owners": [
+    "PRO_side_L",
+    "PRO_side_R",
+    "PRO_valance_C"
+   ],
+   "run_id": "RZIMP-20261009-002059",
+   "saved": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_R_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_valance_C_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_L/T_PRO_side_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_R/T_PRO_side_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_valance_C/T_PRO_valance_C_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinColor",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinMask",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinNormal",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinColor",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinMask",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinNormal",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinColor",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinMask",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinNormal"
+   ],
+   "status": "SAVED"
+  }
+ },
+ "plan": "18a2a46af1e7b2fa6bcbc275b31d5a43f07c209f997ff2e04fef31326de6068b"
+}

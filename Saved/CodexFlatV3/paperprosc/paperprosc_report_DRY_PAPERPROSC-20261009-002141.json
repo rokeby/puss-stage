@@ -1,0 +1,147 @@
+{
+ "collider_default_errors": [],
+ "existing_tagged": 0,
+ "mode": "DRY",
+ "mutated": false,
+ "plan": {
+  "attachment": {
+   "enabled": true,
+   "parent_label": "Infinity Stage - Structure 01",
+   "rule": "KEEP_WORLD"
+  },
+  "folder": "StageFront/PaperProscenium",
+  "hash": "e7a47264666d183d1b2ad60d7892e82b148c619908d9b0df719f3878289428ac",
+  "hash8": "e7a47264",
+  "mode": "DRY",
+  "rows": [
+   {
+    "folder": "StageFront/PaperProscenium",
+    "key": "side_l",
+    "label": "Paper Proscenium Side L",
+    "materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ],
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_L_t5j",
+    "owner": "PRO_side_L",
+    "tags": [
+     "PussStage.PaperProscenium",
+     "PussStage.PaperProscenium.side_l"
+    ],
+    "transform": {
+     "location_cm": [
+      -60.0,
+      -1231.0,
+      0.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    }
+   },
+   {
+    "folder": "StageFront/PaperProscenium",
+    "key": "side_r",
+    "label": "Paper Proscenium Side R",
+    "materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ],
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_R_t5j",
+    "owner": "PRO_side_R",
+    "tags": [
+     "PussStage.PaperProscenium",
+     "PussStage.PaperProscenium.side_r"
+    ],
+    "transform": {
+     "location_cm": [
+      -60.0,
+      1198.0,
+      0.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    }
+   },
+   {
+    "folder": "StageFront/PaperProscenium",
+    "key": "valance",
+    "label": "Paper Proscenium Valance",
+    "materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ],
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_valance_C_t5j",
+    "owner": "PRO_valance_C",
+    "tags": [
+     "PussStage.PaperProscenium",
+     "PussStage.PaperProscenium.valance"
+    ],
+    "transform": {
+     "location_cm": [
+      -45.0,
+      0.0,
+      930.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    }
+   }
+  ],
+  "stage_frame_evidence": [
+   "Saved/CodexFlatV3/paperprosc_inputs/hyper3d_transforms_20261009.json",
+   "Saved/CodexConductor/stage_front_wings.py:8,41,78",
+   "Docs/Conductor/MORNING_SUMMARY_2026-10-09.md:39"
+  ],
+  "stage_to_world": {
+   "location_cm": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "rotation_rpy_deg": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "tag": "PussStage.PaperProscenium",
+  "transform_authority": "args; defaults are Hyper3D's measured thick5 stage-frame transforms",
+  "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+ },
+ "run": "PAPERPROSC-20261009-002141"
+}

@@ -1,0 +1,37 @@
+{
+ "batches": {
+  "1": {
+   "owners": [
+    "S2K_ceiling_C",
+    "S2K_shrine_L",
+    "S2K_shrine_R"
+   ],
+   "run_id": "RZIMP-20261008-211923",
+   "saved": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_S2K_ceiling_C_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/S2K_ceiling_C/T_S2K_ceiling_C_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/S2K_shrine_L/T_S2K_shrine_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/S2K_shrine_R/T_S2K_shrine_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/S2K_ceiling_C/T_S2K_ceiling_C_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/S2K_ceiling_C/T_S2K_ceiling_C_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/S2K_ceiling_C/T_S2K_ceiling_C_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/S2K_shrine_L/T_S2K_shrine_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/S2K_shrine_L/T_S2K_shrine_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/S2K_shrine_L/T_S2K_shrine_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/S2K_shrine_R/T_S2K_shrine_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/S2K_shrine_R/T_S2K_shrine_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/S2K_shrine_R/T_S2K_shrine_R_SkinNormal_o2"
+   ],
+   "status": "SAVED"
+  }
+ },
+ "plan": "108927fa0c2e14b6f143859e12eab6183b0acf815ca478e188d663c8a8b04a88"
+}

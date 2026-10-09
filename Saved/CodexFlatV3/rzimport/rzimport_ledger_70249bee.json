@@ -1,0 +1,165 @@
+{
+ "batches": {
+  "1": {
+   "owners": [
+    "P06_rf_1_stone_building_under_L",
+    "P06_rf_2_pink_silk_structure_R",
+    "P06_rf_3_orange_sail_structure_L"
+   ],
+   "run_id": "RZIMP-20261007-113633",
+   "saved": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_1_stone_building_under_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinColor_o2p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinNormal_o2"
+   ],
+   "status": "SAVED"
+  },
+  "2": {
+   "owners": [
+    "P06_rf_6_rock_formation_sculpture_L",
+    "P06_rf_7_draped_marble_statue_L",
+    "P06_rf_8_rock_formation_sculpture_R"
+   ],
+   "run_id": "RZIMP-20261007-113700",
+   "saved": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinNormal_o2"
+   ],
+   "status": "SAVED"
+  },
+  "3": {
+   "owners": [
+    "P06_rf_9_draped_column_statue_R",
+    "P06_rf_10_building_under_construct_R",
+    "P06_rf_25_concrete_wall_with_L"
+   ],
+   "run_id": "RZIMP-20261007-113728",
+   "saved": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_10_building_under_construct_R_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinNormal_o2"
+   ],
+   "status": "SAVED"
+  },
+  "4": {
+   "owners": [
+    "P06_rf_26_concrete_panel_wood_L",
+    "P06_rf_30_rusty_metal_door_L",
+    "P06_rf_33_burnt_furniture_ruin_L"
+   ],
+   "run_id": "RZIMP-20261007-113756",
+   "saved": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinNormal_o2"
+   ],
+   "status": "SAVED"
+  },
+  "5": {
+   "owners": [
+    "P06_rf_35_metal_frame_door_L",
+    "P06_rf_38_burnt_wood_concrete_L",
+    "P06_rf_39_burnt_metal_door_L"
+   ],
+   "run_id": "RZIMP-20261007-113820",
+   "saved": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinNormal_o2"
+   ],
+   "status": "SAVED"
+  }
+ },
+ "plan": "70249bee91627972462323e9806da97e18897e8197073c9f2f882cff50d01a5d"
+}

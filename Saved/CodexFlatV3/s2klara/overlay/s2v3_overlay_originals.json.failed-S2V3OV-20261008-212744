@@ -1,0 +1,3326 @@
+{
+ "fp_before": {
+  "B:03CC6323472BE5B56D3D3BAA37292A93": {
+   "name": "S2 Arrival Strike: SpotLight4",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:03CC6323472BE5B56D3D3BAA37292A93/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:03CC6323472BE5B56D3D3BAA37292A93/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 245,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:03CC6323472BE5B56D3D3BAA37292A93/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:0442F4CE4B47469D2BE1458BACDB170A": {
+   "name": "S2 Arrival Strike: RectLight_Merged",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:0442F4CE4B47469D2BE1458BACDB170A/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:0442F4CE4B47469D2BE1458BACDB170A/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 175,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:0442F4CE4B47469D2BE1458BACDB170A/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:06B5CEA7462A0CF5C105A78275BA24B5": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 2-1",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:06B5CEA7462A0CF5C105A78275BA24B5/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:06B5CEA7462A0CF5C105A78275BA24B5/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:06B5CEA7462A0CF5C105A78275BA24B5/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:073A56B54D139BAE47C2B490A6EA42A2": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L1",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:073A56B54D139BAE47C2B490A6EA42A2/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:073A56B54D139BAE47C2B490A6EA42A2/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:073A56B54D139BAE47C2B490A6EA42A2/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:083F2FCD4AB47BCD33BEB1833AD9226A": {
+   "name": "S2 Arrival Strike: SpotLight2",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:083F2FCD4AB47BCD33BEB1833AD9226A/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:083F2FCD4AB47BCD33BEB1833AD9226A/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 145,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:083F2FCD4AB47BCD33BEB1833AD9226A/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:0979AED244ECDD375E4A6B961ED86211": {
+   "name": "S2 Arrival Strike: RectLight_Merged3",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:0979AED244ECDD375E4A6B961ED86211/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:0979AED244ECDD375E4A6B961ED86211/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 270,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:0979AED244ECDD375E4A6B961ED86211/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:0E5ADFB64CFF7C74DA998E8475DAC8FD": {
+   "name": "S2 Arrival Strike: SpotLight24",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:0E5ADFB64CFF7C74DA998E8475DAC8FD/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:0E5ADFB64CFF7C74DA998E8475DAC8FD/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 235,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:0E5ADFB64CFF7C74DA998E8475DAC8FD/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:0FFD155E495FC2B3A07535A8DDE20C4D": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 3-4",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:0FFD155E495FC2B3A07535A8DDE20C4D/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:0FFD155E495FC2B3A07535A8DDE20C4D/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:0FFD155E495FC2B3A07535A8DDE20C4D/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:11111A63417D0BC7FBB69B8A5F720AD6": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L2",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:11111A63417D0BC7FBB69B8A5F720AD6/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:11111A63417D0BC7FBB69B8A5F720AD6/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:11111A63417D0BC7FBB69B8A5F720AD6/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:14EBF0237E4B4D9D05AC75994C1DA433": {
+   "name": "Scene 2 \u2014 External Sound \u2014 Exit Handoff Camera",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 0
+  },
+  "B:16D6341A453F243939CF50A2ACF5981C": {
+   "name": "S2 Arrival Strike: RectLight_Merged7",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:16D6341A453F243939CF50A2ACF5981C/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:16D6341A453F243939CF50A2ACF5981C/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 270,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:16D6341A453F243939CF50A2ACF5981C/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:16EE08FF4262F37EEACF9C8D89DF61C0": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L4",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:16EE08FF4262F37EEACF9C8D89DF61C0/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:16EE08FF4262F37EEACF9C8D89DF61C0/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:16EE08FF4262F37EEACF9C8D89DF61C0/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:173C3DDA4F04F3967F87CBB854BDFED0": {
+   "name": "S2 Arrival Ours Dark: S2 Uplight 3",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:173C3DDA4F04F3967F87CBB854BDFED0/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:173C3DDA4F04F3967F87CBB854BDFED0/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:173C3DDA4F04F3967F87CBB854BDFED0/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:1A94B0354DE4DD49F45D27BB4063A95B": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 1-1",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:1A94B0354DE4DD49F45D27BB4063A95B/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:1A94B0354DE4DD49F45D27BB4063A95B/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:1A94B0354DE4DD49F45D27BB4063A95B/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:2028F2904A205B2214A86496886C929D": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R2 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:2028F2904A205B2214A86496886C929D/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:2028F2904A205B2214A86496886C929D/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:2028F2904A205B2214A86496886C929D/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:26FAD458485ED6C76A0E869D34EF875E": {
+   "name": "S2 Arrival Strike: P_Fire2",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:26FAD458485ED6C76A0E869D34EF875E/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:26FAD458485ED6C76A0E869D34EF875E/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 330,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:26FAD458485ED6C76A0E869D34EF875E/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:2771800C48543A2914B4F69162DC1490": {
+   "name": "S2 Arrival Strike: RectLight_Merged8",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:2771800C48543A2914B4F69162DC1490/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:2771800C48543A2914B4F69162DC1490/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 270,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:2771800C48543A2914B4F69162DC1490/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:293698FF4BF67AC6B28B419F6FBD6427": {
+   "name": "S2 Arrival Ours Dark: S2 Uplight 1",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:293698FF4BF67AC6B28B419F6FBD6427/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:293698FF4BF67AC6B28B419F6FBD6427/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:293698FF4BF67AC6B28B419F6FBD6427/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:2950EEDFC94FFD5B76BD8BA22B8579A0": {
+   "name": "Scene 02 \u2014 Establishing / Exit Camera",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 0
+  },
+  "B:2F4B922A4B9837ACDC9EB99358055BC7": {
+   "name": "S2 Arrival Strike: RectLight_Merged5",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:2F4B922A4B9837ACDC9EB99358055BC7/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:2F4B922A4B9837ACDC9EB99358055BC7/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 270,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:2F4B922A4B9837ACDC9EB99358055BC7/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:3975662C4FF9C77C93BAF1A763017977": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 1-6",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:3975662C4FF9C77C93BAF1A763017977/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:3975662C4FF9C77C93BAF1A763017977/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:3975662C4FF9C77C93BAF1A763017977/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:398FFD514724DF74C09F93A19AA3B3CF": {
+   "name": "S2 Arrival Strike: SpotLight3",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:398FFD514724DF74C09F93A19AA3B3CF/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:398FFD514724DF74C09F93A19AA3B3CF/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 130,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:398FFD514724DF74C09F93A19AA3B3CF/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:3A7B350B488AD7A27BA2D29A0E7FA08E": {
+   "name": "S2 Arrival Strike: SpotLight5",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:3A7B350B488AD7A27BA2D29A0E7FA08E/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:3A7B350B488AD7A27BA2D29A0E7FA08E/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 305,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:3A7B350B488AD7A27BA2D29A0E7FA08E/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:3AEF84EF4EEC5E72358D80A5F7DA48FB": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 2-6",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:3AEF84EF4EEC5E72358D80A5F7DA48FB/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:3AEF84EF4EEC5E72358D80A5F7DA48FB/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:3AEF84EF4EEC5E72358D80A5F7DA48FB/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:3B4CB58D4F1A58A48BA22DB5B09713B1": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L2 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:3B4CB58D4F1A58A48BA22DB5B09713B1/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:3B4CB58D4F1A58A48BA22DB5B09713B1/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:3B4CB58D4F1A58A48BA22DB5B09713B1/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:3CCABC3B4B53A8891C1EED875453905E": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R1 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:3CCABC3B4B53A8891C1EED875453905E/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:3CCABC3B4B53A8891C1EED875453905E/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:3CCABC3B4B53A8891C1EED875453905E/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:3CDE60BD4C73FE77D45C7EBFB27DD691": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L3 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:3CDE60BD4C73FE77D45C7EBFB27DD691/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:3CDE60BD4C73FE77D45C7EBFB27DD691/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:3CDE60BD4C73FE77D45C7EBFB27DD691/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:3EC9AD5A40E0013AE665F0BF100BFBCA": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R7 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:3EC9AD5A40E0013AE665F0BF100BFBCA/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:3EC9AD5A40E0013AE665F0BF100BFBCA/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:3EC9AD5A40E0013AE665F0BF100BFBCA/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:439B83834A8492CE8EE91FAD420FCE11": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 3-6",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:439B83834A8492CE8EE91FAD420FCE11/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:439B83834A8492CE8EE91FAD420FCE11/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:439B83834A8492CE8EE91FAD420FCE11/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:4A104CF1D94E9297A377329768D629D6": {
+   "name": "Scene 02 \u2014 Establishing / Exit Camera",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 0
+  },
+  "B:5302CE3447CA1FF0D6D1528D44298B50": {
+   "name": "Klara Hookin - Hers Dark: SkyLight2",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:5302CE3447CA1FF0D6D1528D44298B50/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:5302CE3447CA1FF0D6D1528D44298B50/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 376,
+   "has_end": true,
+   "has_start": true,
+   "start": 104,
+   "struct": "section"
+  },
+  "B:5302CE3447CA1FF0D6D1528D44298B50/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:56B58B544D219E615DE48B8ECBB75202": {
+   "name": "S2 Arrival Strike: P_Fire",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:56B58B544D219E615DE48B8ECBB75202/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:56B58B544D219E615DE48B8ECBB75202/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 330,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:56B58B544D219E615DE48B8ECBB75202/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:593FE9994EB8E72B0EAD54A5410768B3": {
+   "name": "Klara Hookin - Hers Dark: ExponentialHeightFog",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:593FE9994EB8E72B0EAD54A5410768B3/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:593FE9994EB8E72B0EAD54A5410768B3/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 376,
+   "has_end": true,
+   "has_start": true,
+   "start": 104,
+   "struct": "section"
+  },
+  "B:593FE9994EB8E72B0EAD54A5410768B3/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:594E42AD49A666CD44689B97CBB2C751": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L4 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:594E42AD49A666CD44689B97CBB2C751/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:594E42AD49A666CD44689B97CBB2C751/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:594E42AD49A666CD44689B97CBB2C751/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:59600E134B83A699FBCCCAB81AAD63D5": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R5",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:59600E134B83A699FBCCCAB81AAD63D5/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:59600E134B83A699FBCCCAB81AAD63D5/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:59600E134B83A699FBCCCAB81AAD63D5/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:5B6DBED8421170C4DFDFE99EDD2FD6C0": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L5 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:5B6DBED8421170C4DFDFE99EDD2FD6C0/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:5B6DBED8421170C4DFDFE99EDD2FD6C0/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:5B6DBED8421170C4DFDFE99EDD2FD6C0/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:61951E8340F2FE5C49792D891A415BE1": {
+   "name": "S2 Arrival Ours Dark: S2 Ghost Light Bulb",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:61951E8340F2FE5C49792D891A415BE1/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:61951E8340F2FE5C49792D891A415BE1/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:61951E8340F2FE5C49792D891A415BE1/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:6793499B4E3746C7FEC963A7BA043920": {
+   "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Height Fog",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:6793499B4E3746C7FEC963A7BA043920/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:6793499B4E3746C7FEC963A7BA043920/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:6793499B4E3746C7FEC963A7BA043920/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:699AD39348BC6C78550A0B9ABADD6907": {
+   "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Skylight",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:699AD39348BC6C78550A0B9ABADD6907/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:699AD39348BC6C78550A0B9ABADD6907/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:699AD39348BC6C78550A0B9ABADD6907/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:6A9229BD4FC09D504D22839F7A3D3E59": {
+   "name": "S2 Arrival Strike: SpotLight23",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:6A9229BD4FC09D504D22839F7A3D3E59/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:6A9229BD4FC09D504D22839F7A3D3E59/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 255,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:6A9229BD4FC09D504D22839F7A3D3E59/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:6AF7D1FF474964DF20754F832BA14383": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L6 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:6AF7D1FF474964DF20754F832BA14383/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:6AF7D1FF474964DF20754F832BA14383/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:6AF7D1FF474964DF20754F832BA14383/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:6C95F2C647B017580C6418994B8C2C10": {
+   "name": "S2 Arrival Strike: Spot_shrine",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:6C95F2C647B017580C6418994B8C2C10/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:6C95F2C647B017580C6418994B8C2C10/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 330,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:6C95F2C647B017580C6418994B8C2C10/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:72D760704F91356F98C4FF93A0A7853B": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 1-4",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:72D760704F91356F98C4FF93A0A7853B/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:72D760704F91356F98C4FF93A0A7853B/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:72D760704F91356F98C4FF93A0A7853B/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:7706BEE340CAAA635A74728A67B6132D": {
+   "name": "S2 Arrival Strike: P_Fire5",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:7706BEE340CAAA635A74728A67B6132D/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:7706BEE340CAAA635A74728A67B6132D/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 330,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:7706BEE340CAAA635A74728A67B6132D/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:77B05EDA46BE589EC031C58C4B8F7250": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 3-5",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:77B05EDA46BE589EC031C58C4B8F7250/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:77B05EDA46BE589EC031C58C4B8F7250/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:77B05EDA46BE589EC031C58C4B8F7250/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:77B78CBB41A95A6EE834AA832910C857": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 1-5",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:77B78CBB41A95A6EE834AA832910C857/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:77B78CBB41A95A6EE834AA832910C857/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:77B78CBB41A95A6EE834AA832910C857/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:7D733BE20C49525A3C607FB5F81D701A": {
+   "name": "Scene 2 \u2014 External Sound \u2014 Entry Handoff Camera",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 0
+  },
+  "B:7D8436AF400081C316B9278B22BBDCAF": {
+   "name": "S2 Arrival Strike: RectLight_Merged10",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:7D8436AF400081C316B9278B22BBDCAF/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:7D8436AF400081C316B9278B22BBDCAF/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 205,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:7D8436AF400081C316B9278B22BBDCAF/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:7DA384654FB9DA05704D7386302371BD": {
+   "name": "S2 Arrival Strike: SpotLight17",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:7DA384654FB9DA05704D7386302371BD/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:7DA384654FB9DA05704D7386302371BD/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 220,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:7DA384654FB9DA05704D7386302371BD/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:7DA83FE948F2A2C1FBF72F9D2789E49E": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R5 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:7DA83FE948F2A2C1FBF72F9D2789E49E/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:7DA83FE948F2A2C1FBF72F9D2789E49E/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:7DA83FE948F2A2C1FBF72F9D2789E49E/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:7F21B404483D5D273F091EBB46F674F5": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L3",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:7F21B404483D5D273F091EBB46F674F5/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:7F21B404483D5D273F091EBB46F674F5/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:7F21B404483D5D273F091EBB46F674F5/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:7F5747B741A85717DD168BBB4ADE5152": {
+   "name": "S2 Arrival Ours Dark: S2 Ghost Light",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:7F5747B741A85717DD168BBB4ADE5152/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:7F5747B741A85717DD168BBB4ADE5152/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:7F5747B741A85717DD168BBB4ADE5152/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:817EDE8546850869B947EBB6315983E6": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R1",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:817EDE8546850869B947EBB6315983E6/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:817EDE8546850869B947EBB6315983E6/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:817EDE8546850869B947EBB6315983E6/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:84BCF6C8437BFAC0F96CE3BEE63E56F4": {
+   "name": "S2 Arrival Strike: K_shrine_spot_3",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:84BCF6C8437BFAC0F96CE3BEE63E56F4/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:84BCF6C8437BFAC0F96CE3BEE63E56F4/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 160,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:84BCF6C8437BFAC0F96CE3BEE63E56F4/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:88D493134711FA4C357C9C94BF6CF57F": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 1-8",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:88D493134711FA4C357C9C94BF6CF57F/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:88D493134711FA4C357C9C94BF6CF57F/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:88D493134711FA4C357C9C94BF6CF57F/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:898206AB4F8BD756687CCCBBCBEC169E": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 2-7",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:898206AB4F8BD756687CCCBBCBEC169E/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:898206AB4F8BD756687CCCBBCBEC169E/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:898206AB4F8BD756687CCCBBCBEC169E/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:8AC8358946E0C902DD9C22B70BE72484": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R2",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:8AC8358946E0C902DD9C22B70BE72484/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:8AC8358946E0C902DD9C22B70BE72484/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:8AC8358946E0C902DD9C22B70BE72484/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:8C806698452DBF1BD6B02CB6A3524D12": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 2-4",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:8C806698452DBF1BD6B02CB6A3524D12/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:8C806698452DBF1BD6B02CB6A3524D12/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:8C806698452DBF1BD6B02CB6A3524D12/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:8CEDEEE6124592AE387D328E657FCF16": {
+   "name": "Scene 02 \u2014 Establishing / Exit Camera",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 0
+  },
+  "B:8E48898D4BE7A9E1B8E8258508F686A8": {
+   "name": "S2 Arrival Strike: RectLight_Merged13",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:8E48898D4BE7A9E1B8E8258508F686A8/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:8E48898D4BE7A9E1B8E8258508F686A8/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 290,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:8E48898D4BE7A9E1B8E8258508F686A8/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:8F49E5CA4AC61A3A92AEC4BBABC5DBE7": {
+   "name": "S2 Hangar Hold: S2 Hangar Lattice Fly",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:8F49E5CA4AC61A3A92AEC4BBABC5DBE7/T0:MovieScene3DTransformTrack:S2 Hangar Hold": {
+   "property": "Transform",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:8F49E5CA4AC61A3A92AEC4BBABC5DBE7/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0": {
+   "active": true,
+   "channels": 9,
+   "class": "MovieScene3DTransformSection",
+   "completion": "KEEP_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 775,
+   "struct": "section"
+  },
+  "B:8F49E5CA4AC61A3A92AEC4BBABC5DBE7/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C0:Location.X": {
+   "default": 2999.9999999999955,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:8F49E5CA4AC61A3A92AEC4BBABC5DBE7/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C1:Location.Y": {
+   "default": 4.774847184307873e-12,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:8F49E5CA4AC61A3A92AEC4BBABC5DBE7/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C2:Location.Z": {
+   "default": 1200.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:8F49E5CA4AC61A3A92AEC4BBABC5DBE7/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C3:Rotation.X": {
+   "default": 0.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:8F49E5CA4AC61A3A92AEC4BBABC5DBE7/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C4:Rotation.Y": {
+   "default": 0.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:8F49E5CA4AC61A3A92AEC4BBABC5DBE7/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C5:Rotation.Z": {
+   "default": 0.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:8F49E5CA4AC61A3A92AEC4BBABC5DBE7/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C6:Scale.X": {
+   "default": 1.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:8F49E5CA4AC61A3A92AEC4BBABC5DBE7/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C7:Scale.Y": {
+   "default": 1.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:8F49E5CA4AC61A3A92AEC4BBABC5DBE7/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C8:Scale.Z": {
+   "default": 1.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:90A531D64E695CCF678D3F9945DDB59F": {
+   "name": "S2 Arrival Strike: Humo_Par4",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:90A531D64E695CCF678D3F9945DDB59F/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:90A531D64E695CCF678D3F9945DDB59F/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 376,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:90A531D64E695CCF678D3F9945DDB59F/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:932705BD4F0DF130581EA2952F77F7CE": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R7",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:932705BD4F0DF130581EA2952F77F7CE/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:932705BD4F0DF130581EA2952F77F7CE/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:932705BD4F0DF130581EA2952F77F7CE/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:93D2DA644044657ACF37D1B488EE25A8": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L5",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:93D2DA644044657ACF37D1B488EE25A8/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:93D2DA644044657ACF37D1B488EE25A8/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:93D2DA644044657ACF37D1B488EE25A8/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:94FBBAA140878F4C1CDD2A92730F09F8": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 1-2",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:94FBBAA140878F4C1CDD2A92730F09F8/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:94FBBAA140878F4C1CDD2A92730F09F8/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:94FBBAA140878F4C1CDD2A92730F09F8/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:99F5AEE8465A5536DD3A129F8BC5462B": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R4 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:99F5AEE8465A5536DD3A129F8BC5462B/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:99F5AEE8465A5536DD3A129F8BC5462B/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:99F5AEE8465A5536DD3A129F8BC5462B/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9B93454B4CE13AF51AB723AA5F7FA455": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 3-2",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:9B93454B4CE13AF51AB723AA5F7FA455/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:9B93454B4CE13AF51AB723AA5F7FA455/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:9B93454B4CE13AF51AB723AA5F7FA455/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9C82D984487F8084207CC1864EDA76B4": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 3-7",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:9C82D984487F8084207CC1864EDA76B4/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:9C82D984487F8084207CC1864EDA76B4/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:9C82D984487F8084207CC1864EDA76B4/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9D9C22A8470CE42E809152A8939D6965": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 3-3",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:9D9C22A8470CE42E809152A8939D6965/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:9D9C22A8470CE42E809152A8939D6965/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:9D9C22A8470CE42E809152A8939D6965/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9DEC6B0B475E5A0146A6B8B9D6938E0A": {
+   "name": "S2 Hangar Hold: S2 Hangar Root",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:9DEC6B0B475E5A0146A6B8B9D6938E0A/T0:MovieScene3DTransformTrack:S2 Hangar Hold": {
+   "property": "Transform",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:9DEC6B0B475E5A0146A6B8B9D6938E0A/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0": {
+   "active": true,
+   "channels": 9,
+   "class": "MovieScene3DTransformSection",
+   "completion": "KEEP_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 775,
+   "struct": "section"
+  },
+  "B:9DEC6B0B475E5A0146A6B8B9D6938E0A/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C0:Location.X": {
+   "default": 11104.483469893386,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9DEC6B0B475E5A0146A6B8B9D6938E0A/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C1:Location.Y": {
+   "default": 80954.38804069262,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9DEC6B0B475E5A0146A6B8B9D6938E0A/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C2:Location.Z": {
+   "default": 0.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9DEC6B0B475E5A0146A6B8B9D6938E0A/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C3:Rotation.X": {
+   "default": 0.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9DEC6B0B475E5A0146A6B8B9D6938E0A/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C4:Rotation.Y": {
+   "default": 0.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9DEC6B0B475E5A0146A6B8B9D6938E0A/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C5:Rotation.Z": {
+   "default": -43.57251940082824,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9DEC6B0B475E5A0146A6B8B9D6938E0A/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C6:Scale.X": {
+   "default": 1.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9DEC6B0B475E5A0146A6B8B9D6938E0A/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C7:Scale.Y": {
+   "default": 1.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9DEC6B0B475E5A0146A6B8B9D6938E0A/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C8:Scale.Z": {
+   "default": 1.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9E304ADF45DFB1E2DEA5EB9BF3485C4B": {
+   "name": "S2 Arrival Strike: SpotLight",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:9E304ADF45DFB1E2DEA5EB9BF3485C4B/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:9E304ADF45DFB1E2DEA5EB9BF3485C4B/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 305,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:9E304ADF45DFB1E2DEA5EB9BF3485C4B/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:9E9BE80048290A7B9545BE9C40FD8A37": {
+   "name": "S2 Arrival Ours Dark: S2 Uplight 2",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:9E9BE80048290A7B9545BE9C40FD8A37/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:9E9BE80048290A7B9545BE9C40FD8A37/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:9E9BE80048290A7B9545BE9C40FD8A37/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:A28811AC4781151BE8D2159303382F9E": {
+   "name": "S2 Arrival Strike: SpotLight7",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:A28811AC4781151BE8D2159303382F9E/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:A28811AC4781151BE8D2159303382F9E/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 305,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:A28811AC4781151BE8D2159303382F9E/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:A3492C96435FD9D6ECE4F98B11B0931C": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 2-8",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:A3492C96435FD9D6ECE4F98B11B0931C/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:A3492C96435FD9D6ECE4F98B11B0931C/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:A3492C96435FD9D6ECE4F98B11B0931C/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:A44B370848FC95CE57AEC5A45317EE16": {
+   "name": "S2 Arrival Strike: RectLight_Merged12",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:A44B370848FC95CE57AEC5A45317EE16/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:A44B370848FC95CE57AEC5A45317EE16/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 290,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:A44B370848FC95CE57AEC5A45317EE16/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:AB14297C42614D1FD7F9FB8DEFD7F412": {
+   "name": "S2 Arrival Strike: RectLight_Merged6",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:AB14297C42614D1FD7F9FB8DEFD7F412/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:AB14297C42614D1FD7F9FB8DEFD7F412/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 175,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:AB14297C42614D1FD7F9FB8DEFD7F412/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:AB944B134A3373925F8F9DA0FE922700": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 1-3",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:AB944B134A3373925F8F9DA0FE922700/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:AB944B134A3373925F8F9DA0FE922700/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:AB944B134A3373925F8F9DA0FE922700/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:B0DF057D46C5AA54588D3AB34A6F7E4C": {
+   "name": "Klara Hookin - Ours Off: Infinity Stage - Moon",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:B0DF057D46C5AA54588D3AB34A6F7E4C/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:B0DF057D46C5AA54588D3AB34A6F7E4C/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:B0DF057D46C5AA54588D3AB34A6F7E4C/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:B300261B4E82538F10AFA59049457C71": {
+   "name": "S2 Arrival Strike: RectLight_Merged2",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:B300261B4E82538F10AFA59049457C71/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:B300261B4E82538F10AFA59049457C71/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 205,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:B300261B4E82538F10AFA59049457C71/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:B5546A2945C0C08BBFD62292EABFB2D6": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 3-8",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:B5546A2945C0C08BBFD62292EABFB2D6/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:B5546A2945C0C08BBFD62292EABFB2D6/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:B5546A2945C0C08BBFD62292EABFB2D6/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:B6A329C644A26D727E9A49B1C7D7FF93": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 1-7",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:B6A329C644A26D727E9A49B1C7D7FF93/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:B6A329C644A26D727E9A49B1C7D7FF93/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:B6A329C644A26D727E9A49B1C7D7FF93/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:B7535F78455E1389F1B91DA53CBCE3B2": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L7 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:B7535F78455E1389F1B91DA53CBCE3B2/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:B7535F78455E1389F1B91DA53CBCE3B2/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:B7535F78455E1389F1B91DA53CBCE3B2/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:B8334B2A42C4A027C1A0C2BCAF9F3CA9": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 2-5",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:B8334B2A42C4A027C1A0C2BCAF9F3CA9/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:B8334B2A42C4A027C1A0C2BCAF9F3CA9/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:B8334B2A42C4A027C1A0C2BCAF9F3CA9/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:B99E0CE94046F745A73D27854B173667": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L7",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:B99E0CE94046F745A73D27854B173667/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:B99E0CE94046F745A73D27854B173667/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:B99E0CE94046F745A73D27854B173667/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:BD88FDAB4E3CC3177F44DF96633BF384": {
+   "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Sun",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:BD88FDAB4E3CC3177F44DF96633BF384/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:BD88FDAB4E3CC3177F44DF96633BF384/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:BD88FDAB4E3CC3177F44DF96633BF384/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:BF25C32B4C0000ECD4C7ACBB6E8ACE9B": {
+   "name": "S2 Hangar Hold: S2 Hangar Roof Hinge",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:BF25C32B4C0000ECD4C7ACBB6E8ACE9B/T0:MovieScene3DTransformTrack:S2 Hangar Hold": {
+   "property": "Transform",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:BF25C32B4C0000ECD4C7ACBB6E8ACE9B/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0": {
+   "active": true,
+   "channels": 9,
+   "class": "MovieScene3DTransformSection",
+   "completion": "KEEP_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 775,
+   "struct": "section"
+  },
+  "B:BF25C32B4C0000ECD4C7ACBB6E8ACE9B/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C0:Location.X": {
+   "default": 0.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:BF25C32B4C0000ECD4C7ACBB6E8ACE9B/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C1:Location.Y": {
+   "default": 0.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:BF25C32B4C0000ECD4C7ACBB6E8ACE9B/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C2:Location.Z": {
+   "default": 3000.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:BF25C32B4C0000ECD4C7ACBB6E8ACE9B/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C3:Rotation.X": {
+   "default": 0.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:BF25C32B4C0000ECD4C7ACBB6E8ACE9B/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C4:Rotation.Y": {
+   "default": 0.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:BF25C32B4C0000ECD4C7ACBB6E8ACE9B/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C5:Rotation.Z": {
+   "default": 0.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:BF25C32B4C0000ECD4C7ACBB6E8ACE9B/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C6:Scale.X": {
+   "default": 1.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:BF25C32B4C0000ECD4C7ACBB6E8ACE9B/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C7:Scale.Y": {
+   "default": 1.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:BF25C32B4C0000ECD4C7ACBB6E8ACE9B/T0:MovieScene3DTransformTrack:S2 Hangar Hold/S0/C8:Scale.Z": {
+   "default": 1.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:C088AA7349DC85330E2F369D18EF26A7": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R4",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:C088AA7349DC85330E2F369D18EF26A7/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:C088AA7349DC85330E2F369D18EF26A7/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:C088AA7349DC85330E2F369D18EF26A7/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:C98137064035A8941DE551B6027D9DD9": {
+   "name": "S2 Arrival Strike: RectLight_Merged9",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:C98137064035A8941DE551B6027D9DD9/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:C98137064035A8941DE551B6027D9DD9/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 205,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:C98137064035A8941DE551B6027D9DD9/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:CC9B7DC9498E4C379AD71DA90344B7AF": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L1 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:CC9B7DC9498E4C379AD71DA90344B7AF/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:CC9B7DC9498E4C379AD71DA90344B7AF/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:CC9B7DC9498E4C379AD71DA90344B7AF/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:DB93C8E0440D7E7617BE3CB0F50D1F89": {
+   "name": "S2 Arrival Strike: RectLight_Merged11",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:DB93C8E0440D7E7617BE3CB0F50D1F89/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:DB93C8E0440D7E7617BE3CB0F50D1F89/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 270,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:DB93C8E0440D7E7617BE3CB0F50D1F89/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:DC83DF0D47370C045846BF93DB562FF2": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R6",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:DC83DF0D47370C045846BF93DB562FF2/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:DC83DF0D47370C045846BF93DB562FF2/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:DC83DF0D47370C045846BF93DB562FF2/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:DCA62F224086A462ECB2FF899A05AB09": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 2-2",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:DCA62F224086A462ECB2FF899A05AB09/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:DCA62F224086A462ECB2FF899A05AB09/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:DCA62F224086A462ECB2FF899A05AB09/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:E209FAD749112780EB4D73A049D1A00D": {
+   "name": "S2 Arrival Strike: P_Fire4",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:E209FAD749112780EB4D73A049D1A00D/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:E209FAD749112780EB4D73A049D1A00D/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 330,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:E209FAD749112780EB4D73A049D1A00D/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:E3EF62DA41C95976D80D5796B7DF14A9": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R3",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:E3EF62DA41C95976D80D5796B7DF14A9/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:E3EF62DA41C95976D80D5796B7DF14A9/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:E3EF62DA41C95976D80D5796B7DF14A9/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:E7C0EC914AAA0877B7B9B8BFC9235CAE": {
+   "name": "S2 Arrival Strike: RectLight_Merged4",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:E7C0EC914AAA0877B7B9B8BFC9235CAE/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:E7C0EC914AAA0877B7B9B8BFC9235CAE/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 270,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:E7C0EC914AAA0877B7B9B8BFC9235CAE/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:EB19E4814C6E5AF73A706395F7877495": {
+   "name": "Klara Hookin - Hers Dark: PostProcessVolume",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:EB19E4814C6E5AF73A706395F7877495/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:EB19E4814C6E5AF73A706395F7877495/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 376,
+   "has_end": true,
+   "has_start": true,
+   "start": 104,
+   "struct": "section"
+  },
+  "B:EB19E4814C6E5AF73A706395F7877495/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:ECF1E16B4E653E6D6D6FD79E831BA714": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 2-3",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:ECF1E16B4E653E6D6D6FD79E831BA714/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:ECF1E16B4E653E6D6D6FD79E831BA714/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:ECF1E16B4E653E6D6D6FD79E831BA714/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:ECF288194C0B569DFF0777A01D79C414": {
+   "name": "S2 Arrival Strike: SpotLight6",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:ECF288194C0B569DFF0777A01D79C414/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:ECF288194C0B569DFF0777A01D79C414/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 190,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:ECF288194C0B569DFF0777A01D79C414/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:EEADEB8D4E8204FBEF3F27880A49FF4E": {
+   "name": "S2 Arrival Ours Dark: S2 Practical L6",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:EEADEB8D4E8204FBEF3F27880A49FF4E/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:EEADEB8D4E8204FBEF3F27880A49FF4E/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:EEADEB8D4E8204FBEF3F27880A49FF4E/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:F0DAE0DC47EA739072B2959DF4831555": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R6 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:F0DAE0DC47EA739072B2959DF4831555/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:F0DAE0DC47EA739072B2959DF4831555/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:F0DAE0DC47EA739072B2959DF4831555/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:F0F8515541E571A5082FE8921661CF16": {
+   "name": "S2 Arrival Strike: P_Fire6",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:F0F8515541E571A5082FE8921661CF16/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:F0F8515541E571A5082FE8921661CF16/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 330,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:F0F8515541E571A5082FE8921661CF16/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:F2A88B7A464764B4A5CB61807D5A2245": {
+   "name": "S2 Arrival Strike: P_Fire3",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:F2A88B7A464764B4A5CB61807D5A2245/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:F2A88B7A464764B4A5CB61807D5A2245/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 330,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:F2A88B7A464764B4A5CB61807D5A2245/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:F56A4E884BC44AC456A19B9B1CD3AD65": {
+   "name": "Klara Hookin - Hers Dark: DirectionalLight",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:F56A4E884BC44AC456A19B9B1CD3AD65/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:F56A4E884BC44AC456A19B9B1CD3AD65/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 376,
+   "has_end": true,
+   "has_start": true,
+   "start": 104,
+   "struct": "section"
+  },
+  "B:F56A4E884BC44AC456A19B9B1CD3AD65/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:F801F8E624498FA3E7B2489DC6B5C4B8": {
+   "name": "Scene 02 \u2014 Establishing / Exit Camera",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 0
+  },
+  "B:FBBF5FCD4F37C9FE595C7A88CD27A131": {
+   "name": "S2 Arrival Ours Dark: S2 Lattice Glow 3-1",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:FBBF5FCD4F37C9FE595C7A88CD27A131/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:FBBF5FCD4F37C9FE595C7A88CD27A131/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:FBBF5FCD4F37C9FE595C7A88CD27A131/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "B:FE2C12DE4C9426C5093EE78527A7EED5": {
+   "name": "S2 Arrival Ours Dark: S2 Practical R3 Body",
+   "parent": null,
+   "struct": "binding",
+   "tracks": 1
+  },
+  "B:FE2C12DE4C9426C5093EE78527A7EED5/T0:MovieSceneVisibilityTrack:Visibility": {
+   "property": "bHidden",
+   "sections": 1,
+   "struct": "track"
+  },
+  "B:FE2C12DE4C9426C5093EE78527A7EED5/T0:MovieSceneVisibilityTrack:Visibility/S0": {
+   "active": true,
+   "channels": 1,
+   "class": "MovieSceneVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "B:FE2C12DE4C9426C5093EE78527A7EED5/T0:MovieSceneVisibilityTrack:Visibility/S0/C0:None": {
+   "default": false,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "M/T0:MovieSceneCinematicShotTrack:Shots": {
+   "property": null,
+   "sections": 1,
+   "struct": "track"
+  },
+  "M/T0:MovieSceneCinematicShotTrack:Shots/S0": {
+   "active": false,
+   "channels": 0,
+   "class": "MovieSceneCinematicShotSection",
+   "completion": "KEEP_STATE",
+   "end": 375,
+   "has_end": true,
+   "has_start": true,
+   "params": "(StartFrameOffset=(Value=0),bCanLoop=False,EndFrameOffset=(Value=0),FirstLoopStartFrameOffset=(Value=0),TimeScale=EMovieSceneTimeWarpType::FixedPlayRate(PlayRate=1.000000),HierarchicalBias=100,Flags=None)",
+   "sequence": "/Game/Scenes/LS_Shrine",
+   "start": 0,
+   "struct": "section"
+  },
+  "M/T1:MovieSceneSubTrack:Hangar Fold": {
+   "property": null,
+   "sections": 1,
+   "struct": "track"
+  },
+  "M/T1:MovieSceneSubTrack:Hangar Fold/S0": {
+   "active": true,
+   "channels": 0,
+   "class": "MovieSceneSubSection",
+   "completion": "KEEP_STATE",
+   "end": 775,
+   "has_end": true,
+   "has_start": true,
+   "params": "(StartFrameOffset=(Value=0),bCanLoop=False,EndFrameOffset=(Value=0),FirstLoopStartFrameOffset=(Value=0),TimeScale=EMovieSceneTimeWarpType::FixedPlayRate(PlayRate=1.000000),HierarchicalBias=100,Flags=None)",
+   "sequence": "/Game/InfinityStage/RigAtmos/LS_S2_HangarRise",
+   "start": 0,
+   "struct": "section"
+  },
+  "M/T2:MovieSceneAudioTrack:Narration (stand-in)": {
+   "property": null,
+   "sections": 1,
+   "struct": "track"
+  },
+  "M/T2:MovieSceneAudioTrack:Narration (stand-in)/S0": {
+   "active": false,
+   "channels": 3,
+   "class": "MovieSceneAudioSection",
+   "completion": "PROJECT_DEFAULT",
+   "end": 1973,
+   "has_end": true,
+   "has_start": true,
+   "start": 104,
+   "struct": "section"
+  },
+  "M/T2:MovieSceneAudioTrack:Narration (stand-in)/S0/C0:Volume": {
+   "default": 1.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "M/T2:MovieSceneAudioTrack:Narration (stand-in)/S0/C1:Pitch": {
+   "default": 1.0,
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "M/T2:MovieSceneAudioTrack:Narration (stand-in)/S0/C2:AttachActor": {
+   "default": "T:(Guid=00000000000000000000000000000000,SequenceID=0,ResolveParentIndex=-1)",
+   "interp": null,
+   "n": 0,
+   "sha": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "M/T3:MovieSceneSubTrack:Klara Hookin - Replacement Shot": {
+   "property": null,
+   "sections": 1,
+   "struct": "track"
+  },
+  "M/T3:MovieSceneSubTrack:Klara Hookin - Replacement Shot/S0": {
+   "active": true,
+   "channels": 0,
+   "class": "MovieSceneSubSection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "params": "(StartFrameOffset=(Value=0),bCanLoop=False,EndFrameOffset=(Value=0),FirstLoopStartFrameOffset=(Value=0),TimeScale=EMovieSceneTimeWarpType::FixedPlayRate(PlayRate=1.000000),HierarchicalBias=100,Flags=None)",
+   "sequence": "/Game/InfinityStage/KlaraHookin/LS_NEW_SHRINE_S2Hangar",
+   "start": 376,
+   "struct": "section"
+  },
+  "M/T4:MovieSceneLevelVisibilityTrack:Klara Levels (hookin)": {
+   "property": null,
+   "sections": 1,
+   "struct": "track"
+  },
+  "M/T4:MovieSceneLevelVisibilityTrack:Klara Levels (hookin)/S0": {
+   "active": true,
+   "channels": 0,
+   "class": "MovieSceneLevelVisibilitySection",
+   "completion": "RESTORE_STATE",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 104,
+   "struct": "section"
+  },
+  "M/T5:MovieSceneCameraCutTrack:Camera Cuts": {
+   "property": null,
+   "sections": 2,
+   "struct": "track"
+  },
+  "M/T5:MovieSceneCameraCutTrack:Camera Cuts/S0": {
+   "active": true,
+   "channels": 0,
+   "class": "MovieSceneCameraCutSection",
+   "completion": "PROJECT_DEFAULT",
+   "end": 3866,
+   "has_end": true,
+   "has_start": true,
+   "start": 0,
+   "struct": "section"
+  },
+  "M/T5:MovieSceneCameraCutTrack:Camera Cuts/S1": {
+   "active": true,
+   "channels": 0,
+   "class": "MovieSceneCameraCutSection",
+   "completion": "PROJECT_DEFAULT",
+   "end": 3891,
+   "has_end": true,
+   "has_start": true,
+   "start": 3866,
+   "struct": "section"
+  },
+  "SEQ": {
+   "fps": [
+    25,
+    1
+   ],
+   "playback": [
+    0,
+    3891
+   ],
+   "struct": "sequence",
+   "tick": [
+    24000,
+    1
+   ]
+  }
+ },
+ "her_actors": {
+  "SM_S2_L_Wing_Shrine": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_5",
+   "pose": [
+    15439.393215289125,
+    78829.55870807111,
+    -1.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_L_Wing_Shrine2": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_10",
+   "pose": [
+    13203.225531368957,
+    77451.13421330923,
+    -1.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_L_Wing_Shrine3": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_20",
+   "pose": [
+    14316.414101778073,
+    79897.93032388127,
+    -1.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_L_Wing_Shrine4": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_31",
+   "pose": [
+    11877.38567427317,
+    78712.50199208599,
+    -1.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_L_Wing_Shrine5": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_36",
+   "pose": [
+    12881.898846559681,
+    81262.68890419712,
+    -1.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_R_Wing_Shrine": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_3",
+   "pose": [
+    13723.345638955174,
+    77032.1231218126,
+    0.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_R_Wing_Shrine2": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_9",
+   "pose": [
+    14931.424167285493,
+    79361.03837744839,
+    0.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_R_Wing_Shrine3": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_13",
+   "pose": [
+    12600.366525025393,
+    78100.49473740226,
+    0.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_R_Wing_Shrine4": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_29",
+   "pose": [
+    13605.584310189706,
+    80622.40615622516,
+    0.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_R_Wing_Shrine5": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_37",
+   "pose": [
+    11165.851269807,
+    79465.2533177181,
+    0.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_ceiling_wing": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_21",
+   "pose": [
+    14617.910072100058,
+    77996.90093957375,
+    1640.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_ceiling_wing2": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_11",
+   "pose": [
+    14067.288054945524,
+    78520.74766737175,
+    1640.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_ceiling_wing3": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_27",
+   "pose": [
+    13494.93095816647,
+    79065.27255547757,
+    1640.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_ceiling_wing4": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_33",
+   "pose": [
+    12741.448197849737,
+    79782.11544614851,
+    1640.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  },
+  "SM_S2_ceiling_wing5": {
+   "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_38",
+   "pose": [
+    12060.415702948076,
+    80430.0311357934,
+    1640.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ]
+  }
+ },
+ "overlay_existed": false,
+ "run": "S2V3OV-20261008-212744",
+ "scene": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_02",
+ "scene_tracks": [
+  [
+   "MovieSceneCinematicShotTrack",
+   "Shots"
+  ],
+  [
+   "MovieSceneSubTrack",
+   "Hangar Fold"
+  ],
+  [
+   "MovieSceneAudioTrack",
+   "Narration (stand-in)"
+  ],
+  [
+   "MovieSceneSubTrack",
+   "Klara Hookin - Replacement Shot"
+  ],
+  [
+   "MovieSceneLevelVisibilityTrack",
+   "Klara Levels (hookin)"
+  ],
+  [
+   "MovieSceneCameraCutTrack",
+   "Camera Cuts"
+  ]
+ ]
+}

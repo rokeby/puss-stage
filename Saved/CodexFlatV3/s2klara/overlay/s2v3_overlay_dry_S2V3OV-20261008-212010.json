@@ -1,0 +1,2111 @@
+{
+ "api_table": [
+  {
+   "api": "LevelSequence.add_spawnable_from_class",
+   "ok": true,
+   "result": "True",
+   "tier": "prec curtain_sleight.py:1897 (applied I1/I2 5 Oct)"
+  },
+  {
+   "api": "MovieSceneBindingProxy.get_object_template",
+   "ok": true,
+   "result": "True",
+   "tier": "prec curtain_sleight.py:1900"
+  },
+  {
+   "api": "LevelSequence.add_possessable",
+   "ok": true,
+   "result": "True",
+   "tier": "prec klara_hookin.py:1860"
+  },
+  {
+   "api": "LevelSequence.locate_bound_objects (VERIFY resolution)",
+   "ok": true,
+   "result": "True",
+   "tier": "inf (s3waves_t5o uses it; never get_bound_objects)"
+  },
+  {
+   "api": "MovieSceneVisibilityTrack + set_property_name_and_path",
+   "ok": true,
+   "result": "True",
+   "tier": "prec s2_vis_fix.py:68"
+  },
+  {
+   "api": "LevelSequence set_tick_resolution / set_display_rate",
+   "ok": true,
+   "result": "[True, True]",
+   "tier": "prec p06_bee_glints.py:850-851 (applied 7 Oct)"
+  },
+  {
+   "api": "MovieSceneTimeUnit.TICK_RESOLUTION",
+   "ok": true,
+   "result": "'<MovieSceneTimeUnit.TICK_RESOLUTION: 1>'",
+   "tier": "inf (enum name)"
+  },
+  {
+   "api": "MovieSceneSection.get_completion_mode",
+   "ok": true,
+   "result": "True",
+   "tier": "inf"
+  },
+  {
+   "api": "MovieSceneSectionExtensions.get_parent_sequence_frame",
+   "ok": true,
+   "result": "True",
+   "tier": "prec klara_hookin.py:1903"
+  },
+  {
+   "api": "ComponentMobility.MOVABLE",
+   "ok": true,
+   "result": "'<ComponentMobility.MOVABLE: 2>'",
+   "tier": "prec curtain_sleight.py:2029"
+  },
+  {
+   "api": "MovieSceneKeyInterpolation.CONSTANT (the wide-shot hold key)",
+   "ok": true,
+   "result": "'<MovieSceneKeyInterpolation.CONSTANT: 4>'",
+   "tier": "inf (enum name)"
+  },
+  {
+   "api": "MovieSceneLevelVisibilitySection.get_level_names",
+   "ok": true,
+   "result": "True",
+   "tier": "prec klara_hookin.py:1693"
+  }
+ ],
+ "apply_ready": false,
+ "census": {
+  "content": [],
+  "maps": []
+ },
+ "copy": "/Game/InfinityStage/KlaraHookin/LS_NEW_SHRINE_S2Hangar",
+ "copy_rates": {
+  "fps": [
+   30,
+   1
+  ],
+  "playback": [
+   0,
+   4217
+  ],
+  "tick": [
+   24000,
+   1
+  ]
+ },
+ "coverage": {
+  "mode": "scene",
+  "pre_frames": 272,
+  "pre_seconds": 10.88,
+  "pre_ticks": 261120,
+  "range": [
+   104,
+   3891
+  ]
+ },
+ "design": {
+  "hide": "possessables on her actors, MovieSceneVisibilityTrack bHidden default False",
+  "ours": "SPAWNABLES in the overlay asset (no persistent-level save)"
+ },
+ "digest": "ed28d130175e6f45ebec52614d9ff10e88c3779d66905bbe68e39d42124a01d7",
+ "fingerprint_rows": 447,
+ "foreign": {
+  "Klara Hookin - Hers Dark: ": {
+   "bindings": 4,
+   "not_bHidden": [],
+   "vis_tracks": 4
+  },
+  "Klara Hookin - Ours Off: ": {
+   "bindings": 4,
+   "not_bHidden": [],
+   "vis_tracks": 4
+  },
+  "S2 Arrival Ours Dark: ": {
+   "bindings": 57,
+   "not_bHidden": [],
+   "vis_tracks": 57
+  },
+  "S2 Arrival Strike: ": {
+   "bindings": 32,
+   "not_bHidden": [],
+   "vis_tracks": 32
+  }
+ },
+ "hookin_mapped": [
+  376,
+  3890
+ ],
+ "hookin_section": [
+  376,
+  3891
+ ],
+ "kit": {
+  "manifest_path": "DerivedAssets/FlatV3/KlaraS2/IMPORT_MANIFEST_KlaraS2.json",
+  "pivot_path": "DerivedAssets/FlatV3/KlaraS2/pivot/pivot_offsets.json",
+  "rzimport_plan_path": "DerivedAssets/FlatV3/KlaraS2/rzimport_plan_offline_KlaraS2.json"
+ },
+ "level_vis_range": [
+  104,
+  3891
+ ],
+ "meshes": {
+  "C": {
+   "box": [
+    [
+     -21.09999656677246,
+     -1737.601318359375,
+     0.8884401917457581
+    ],
+    [
+     6.649436545558274e-05,
+     1737.60107421875,
+     878.8894653320312
+    ]
+   ],
+   "path": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_S2K_ceiling_C_t5j",
+   "slots": [
+    "Front",
+    "Flap",
+    "Timber",
+    "Edge"
+   ]
+  },
+  "L": {
+   "box": [
+    [
+     -21.099937438964844,
+     3.1477768421173096,
+     -1.4999747276306152
+    ],
+    [
+     3.8000669479370117,
+     799.8203735351562,
+     2247.322998046875
+    ]
+   ],
+   "path": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_L_t5p",
+   "slots": [
+    "Front",
+    "Flap",
+    "Timber",
+    "Edge"
+   ]
+  },
+  "R": {
+   "box": [
+    [
+     -21.10004234313965,
+     -924.7218017578125,
+     -1.4999866485595703
+    ],
+    [
+     3.7999603748321533,
+     -5.057486057281494,
+     2246.103759765625
+    ]
+   ],
+   "path": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_R_t5p",
+   "slots": [
+    "Front",
+    "Flap",
+    "Timber",
+    "Edge"
+   ]
+  }
+ },
+ "overlay_asset": "/Game/Scenes/KlaraS2V3/LS_S2_V3WingsOverlay",
+ "overlay_playback": [
+  0,
+  4544
+ ],
+ "refusals": [
+  "SM_S2_L_Wing_Shrine|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine2|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine2|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine2|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine2|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine2|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine3|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine3|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine3|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine3|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine3|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine4|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine4|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine4|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine4|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine4|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine5|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine5|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine5|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine5|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_L_Wing_Shrine5|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine2|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine2|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine2|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine2|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine2|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine3|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine3|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine3|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine3|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine3|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine4|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine4|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine4|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine4|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine4|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine5|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine5|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine5|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine5|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_R_Wing_Shrine5|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing2|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing2|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing2|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing2|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing2|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing3|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing3|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing3|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing3|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing3|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing4|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing4|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing4|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing4|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing4|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing5|NONLINEAR_SOURCE:x:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing5|NONLINEAR_SOURCE:y:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing5|NONLINEAR_SOURCE:z:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing5|NONLINEAR_SOURCE:roll:['RCIM_CUBIC']",
+  "SM_S2_ceiling_wing5|NONLINEAR_SOURCE:pitch:['RCIM_CUBIC']"
+ ],
+ "run": "S2V3OV-20261008-212010",
+ "scene_rates": {
+  "fps": [
+   25,
+   1
+  ],
+  "tick": [
+   24000,
+   1
+  ]
+ },
+ "section": [
+  104,
+  3891
+ ],
+ "section_completion": "RESTORE_STATE",
+ "section_params": "(StartFrameOffset=(Value=0),bCanLoop=False,EndFrameOffset=(Value=0),FirstLoopStartFrameOffset=(Value=0),TimeScale=EMovieSceneTimeWarpType::FixedPlayRate(PlayRate=1.000000),HierarchicalBias=100,Flags=None)",
+ "tool": "s2v3_overlay",
+ "types": {
+  "C": {
+   "asset": "SM_FlatV3_S2K_ceiling_C_t5j",
+   "her_actors": [
+    "SM_S2_ceiling_wing",
+    "SM_S2_ceiling_wing2",
+    "SM_S2_ceiling_wing3",
+    "SM_S2_ceiling_wing4",
+    "SM_S2_ceiling_wing5"
+   ],
+   "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_S2K_ceiling_C_t5j",
+   "owner": "S2K_ceiling_C",
+   "pivot_frame": "her_local_world_cm",
+   "pivot_offset_cm": [
+    -12.8,
+    0.94,
+    0.0
+   ],
+   "rot_offset_deg": [
+    0.0,
+    0.0,
+    180.0
+   ],
+   "slots_manifest": [
+    "Front",
+    "Flap",
+    "Timber",
+    "Edge"
+   ],
+   "sources": {
+    "mesh": "rzimport plan destinations",
+    "pivot": "pivot_offsets.json wings.ceiling_C.child_relative_transform_ue",
+    "variants": "manifest klara_s2.front_variants"
+   },
+   "type": "C",
+   "variant_mats": {
+    "A": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Flap",
+     null,
+     null
+    ],
+    "B": [
+     null,
+     null,
+     null,
+     null
+    ]
+   },
+   "variants": {
+    "A": {
+     "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Flap",
+     "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Front"
+    },
+    "B": {
+     "Flap": "/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_ceiling_C_Flap_LacqWet",
+     "Front": "/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_ceiling_C_Front_LacqWet"
+    }
+   }
+  },
+  "L": {
+   "asset": "SM_FlatV3_S2K_shrine_L_t5p",
+   "her_actors": [
+    "SM_S2_L_Wing_Shrine",
+    "SM_S2_L_Wing_Shrine2",
+    "SM_S2_L_Wing_Shrine3",
+    "SM_S2_L_Wing_Shrine4",
+    "SM_S2_L_Wing_Shrine5"
+   ],
+   "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_L_t5p",
+   "owner": "S2K_shrine_L",
+   "pivot_frame": "her_local_world_cm",
+   "pivot_offset_cm": [
+    -10.27,
+    402.38,
+    0.0
+   ],
+   "rot_offset_deg": [
+    0.0,
+    0.0,
+    180.0
+   ],
+   "slots_manifest": [
+    "Front",
+    "Flap",
+    "Timber",
+    "Edge"
+   ],
+   "sources": {
+    "mesh": "rzimport plan destinations",
+    "pivot": "pivot_offsets.json wings.shrine_L.child_relative_transform_ue",
+    "variants": "manifest klara_s2.front_variants"
+   },
+   "type": "L",
+   "variant_mats": {
+    "A": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Flap",
+     null,
+     null
+    ],
+    "B": [
+     null,
+     null,
+     null,
+     null
+    ]
+   },
+   "variants": {
+    "A": {
+     "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Flap",
+     "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Front"
+    },
+    "B": {
+     "Flap": "/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_shrine_L_Flap_LacqWet",
+     "Front": "/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_shrine_L_Front_LacqWet"
+    }
+   }
+  },
+  "R": {
+   "asset": "SM_FlatV3_S2K_shrine_R_t5p",
+   "her_actors": [
+    "SM_S2_R_Wing_Shrine",
+    "SM_S2_R_Wing_Shrine2",
+    "SM_S2_R_Wing_Shrine3",
+    "SM_S2_R_Wing_Shrine4",
+    "SM_S2_R_Wing_Shrine5"
+   ],
+   "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_R_t5p",
+   "owner": "S2K_shrine_R",
+   "pivot_frame": "her_local_world_cm",
+   "pivot_offset_cm": [
+    -9.38,
+    -467.0,
+    0.0
+   ],
+   "rot_offset_deg": [
+    0.0,
+    0.0,
+    180.0
+   ],
+   "slots_manifest": [
+    "Front",
+    "Flap",
+    "Timber",
+    "Edge"
+   ],
+   "sources": {
+    "mesh": "rzimport plan destinations",
+    "pivot": "pivot_offsets.json wings.shrine_R.child_relative_transform_ue",
+    "variants": "manifest klara_s2.front_variants"
+   },
+   "type": "R",
+   "variant_mats": {
+    "A": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Flap",
+     null,
+     null
+    ],
+    "B": [
+     null,
+     null,
+     null,
+     null
+    ]
+   },
+   "variants": {
+    "A": {
+     "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Flap",
+     "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Front"
+    },
+    "B": {
+     "Flap": "/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_shrine_R_Flap_LacqWet",
+     "Front": "/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_shrine_R_Front_LacqWet"
+    }
+   }
+  }
+ },
+ "variant": "A",
+ "warnings": [
+  "NOT_APPLIED_VARIANT_NOT_READY|L.B|VARIANT_MATERIAL_LOAD|Front|/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_shrine_L_Front_LacqWet",
+  "NOT_APPLIED_VARIANT_NOT_READY|L.B|VARIANT_MATERIAL_LOAD|Flap|/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_shrine_L_Flap_LacqWet",
+  "NOT_APPLIED_VARIANT_NOT_READY|R.B|VARIANT_MATERIAL_LOAD|Front|/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_shrine_R_Front_LacqWet",
+  "NOT_APPLIED_VARIANT_NOT_READY|R.B|VARIANT_MATERIAL_LOAD|Flap|/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_shrine_R_Flap_LacqWet",
+  "NOT_APPLIED_VARIANT_NOT_READY|C.B|VARIANT_MATERIAL_LOAD|Front|/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_ceiling_C_Front_LacqWet",
+  "NOT_APPLIED_VARIANT_NOT_READY|C.B|VARIANT_MATERIAL_LOAD|Flap|/Game/Scenes/Wings/FlatV3/KlaraS2/Materials/MI_S2K_S2K_ceiling_C_Flap_LacqWet"
+ ],
+ "wings": [
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -9.35,
+      6.1
+     ],
+     "y": [
+      4.37,
+      -2.58
+     ],
+     "z": [
+      -1.5,
+      -7.68
+     ]
+    },
+    "hers_scaled": [
+     [
+      -4.725042702442941,
+      -401.8110032868904,
+      -1.2321147653437947e-06
+     ],
+     [
+      4.725043603665149,
+      401.8110032868904,
+      2255.0
+     ]
+    ],
+    "max_yz_cm": 7.68,
+    "ours_in_her_frame": [
+     [
+      -14.070066947937109,
+      -397.44037353515625,
+      -1.4999747276306152
+     ],
+     [
+      10.829937438964844,
+      399.2322231578827,
+      2247.322998046875
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "C393B31A4CF04BF447828A84D54BE0B3",
+    "name": "SM_S2_L_Wing_Shrine"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_5",
+   "her_first_from_keys": [
+    15439.393357169836,
+    78829.55848629244,
+    4491.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    15439.393215289125,
+    78829.55870807111,
+    -1.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    15439.393357169836,
+    78829.55848629244,
+    -1.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    1.889999957755208,
+    1.889999957755208,
+    2.255
+   ],
+   "label": "SM_S2_L_Wing_Shrine",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "e4ffe80f871b908ed0807ce2dbe898049fb187d8b9bb89bf20286cbf1f52f03d",
+    "pitch": "ec7b798564999742254fa34138c9af807d7ad817dd6c89aa55513c3b9260ea96",
+    "roll": "0e566c5c1bcaa3b5756fcddb1850148ab9fa487af10892f89f4e036c5887bcc1",
+    "x": "44eceaad4913055bf09595cff8de27762886a9c05520616050436dc9d7bf38ca",
+    "y": "2e601a8b37b3a7d5c93e62aaf461d3c8ec12f13e52b4ec99006b1e0aaacd3e77",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "27f37089a0a884f28b91566156d6074584d775d67210a6acff43999c4a7bbed8"
+   },
+   "source_key_counts": {
+    "pitch": 94,
+    "roll": 94,
+    "x": 94,
+    "y": 94,
+    "yaw": 1,
+    "z": 94
+   },
+   "type": "L"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -9.35,
+      6.1
+     ],
+     "y": [
+      4.37,
+      -2.58
+     ],
+     "z": [
+      -1.5,
+      -7.68
+     ]
+    },
+    "hers_scaled": [
+     [
+      -4.7250428080558775,
+      -401.8110122680664,
+      -1.2321147653437947e-06
+     ],
+     [
+      4.725043709278107,
+      401.8110122680664,
+      2255.0
+     ]
+    ],
+    "max_yz_cm": 7.68,
+    "ours_in_her_frame": [
+     [
+      -14.070066947937109,
+      -397.44037353515625,
+      -1.4999747276306152
+     ],
+     [
+      10.829937438964844,
+      399.2322231578827,
+      2247.322998046875
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "0DD745F04D9237BF0F040FAC036AFD01",
+    "name": "SM_S2_L_Wing_Shrine2"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_10",
+   "her_first_from_keys": [
+    13203.22540724444,
+    77451.13431556342,
+    5867.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    13203.225531368957,
+    77451.13421330923,
+    -1.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    13203.22540724444,
+    77451.13431556342,
+    -1.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    1.89,
+    1.89,
+    2.255
+   ],
+   "label": "SM_S2_L_Wing_Shrine2",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "6c2085c0743462ddb61eae747a77d158d350f8666f04073c8b9e23015ac41ba4",
+    "pitch": "00440d7de2fb6dc66c002d2f67ebeecb430a2cbb6bd62af582325d799ad37df0",
+    "roll": "979e77414214171d86e121fd7e151743a2718f119a113c7300659e974725c780",
+    "x": "624ea2ee9e34b15d9afd2bffe12be4ecc825be39a4b4fc5004c971d1cb51dba7",
+    "y": "bb8ffec80951883b99a8bcdaceb808f75d75bdb490fa26a91f657683471eafba",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "fc4a0dbaae2e7f736a4532a67a9fa851488263355a8fc8ed03a6937a4d23500a"
+   },
+   "source_key_counts": {
+    "pitch": 110,
+    "roll": 110,
+    "x": 110,
+    "y": 110,
+    "yaw": 1,
+    "z": 110
+   },
+   "type": "L"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -9.35,
+      6.1
+     ],
+     "y": [
+      4.37,
+      -2.58
+     ],
+     "z": [
+      -1.5,
+      -7.68
+     ]
+    },
+    "hers_scaled": [
+     [
+      -4.7250428080558775,
+      -401.8110122680664,
+      -1.2321147653437947e-06
+     ],
+     [
+      4.725043709278107,
+      401.8110122680664,
+      2255.0
+     ]
+    ],
+    "max_yz_cm": 7.68,
+    "ours_in_her_frame": [
+     [
+      -14.070066947937109,
+      -397.44037353515625,
+      -1.4999747276306152
+     ],
+     [
+      10.829937438964844,
+      399.2322231578827,
+      2247.322998046875
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "98DCE0E6422551BE4AC05395662720CA",
+    "name": "SM_S2_L_Wing_Shrine3"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_20",
+   "her_first_from_keys": [
+    14316.414422900065,
+    79897.93029104317,
+    4130.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    14316.414101778073,
+    79897.93032388127,
+    -1.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    14316.414422900065,
+    79897.93029104317,
+    -1.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    1.89,
+    1.89,
+    2.255
+   ],
+   "label": "SM_S2_L_Wing_Shrine3",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "c9d1603d9b3072c550c7cfce8e3c2bf63e8229bf169c0fb5860b44e59cb7a492",
+    "pitch": "8159d2432e97b18b0b6ed02e2c1b1fc4294e558c90ac3587158fce90741881c1",
+    "roll": "1c270c9350fb124045476687716f81db6db3a343c02776e1e62e4100834791a5",
+    "x": "4122fd011eab1b00fdc5a892642c657f011c6726d771dcde449270404f304bdb",
+    "y": "67bfbc083080f121561e617b2e32c7369166e856368534f433f886eabd771ee9",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "67ccb3043202121260b9ad3c20f9e36aa55ae0e344347d25df67b9f0374c6b0a"
+   },
+   "source_key_counts": {
+    "pitch": 102,
+    "roll": 102,
+    "x": 102,
+    "y": 102,
+    "yaw": 1,
+    "z": 102
+   },
+   "type": "L"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -9.35,
+      6.1
+     ],
+     "y": [
+      4.37,
+      -2.58
+     ],
+     "z": [
+      -1.5,
+      -7.68
+     ]
+    },
+    "hers_scaled": [
+     [
+      -4.7250428080558775,
+      -401.8110122680664,
+      -1.2321147653437947e-06
+     ],
+     [
+      4.725043709278107,
+      401.8110122680664,
+      2255.0
+     ]
+    ],
+    "max_yz_cm": 7.68,
+    "ours_in_her_frame": [
+     [
+      -14.070066947937109,
+      -397.44037353515625,
+      -1.4999747276306152
+     ],
+     [
+      10.829937438964844,
+      399.2322231578827,
+      2247.322998046875
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "576E94254806C051813678AAA3F830F3",
+    "name": "SM_S2_L_Wing_Shrine4"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_31",
+   "her_first_from_keys": [
+    11877.385753976598,
+    78712.50232518947,
+    3837.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    11877.38567427317,
+    78712.50199208599,
+    -1.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    11877.385753976598,
+    78712.50232518947,
+    -1.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    1.89,
+    1.89,
+    2.255
+   ],
+   "label": "SM_S2_L_Wing_Shrine4",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "bb18e1976db1c50c9947851c1c0093762d59e8ed9893c79ea566983cf5f66117",
+    "pitch": "25325517c1d43ee8445e57a6e8720b6a34dcee5be6259d6d194b2cf21e95ed7d",
+    "roll": "3370a53af3e857100c6859100c7e4c71416031311afa822cd077ca3dbb11519c",
+    "x": "2ef34a6646e6b81a332f7bd47f471e66287e8041c458ddd058cf81046edba016",
+    "y": "aab6ea94523569513022e40c3830289bef54534ed33e73670cca0df25f36e493",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "ca8356f97579d9a573419ff4f3cc9499623a6d2ef912f7c70deaad76cd5fec32"
+   },
+   "source_key_counts": {
+    "pitch": 136,
+    "roll": 136,
+    "x": 136,
+    "y": 136,
+    "yaw": 1,
+    "z": 136
+   },
+   "type": "L"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -9.35,
+      6.1
+     ],
+     "y": [
+      4.37,
+      -2.58
+     ],
+     "z": [
+      -1.5,
+      -7.68
+     ]
+    },
+    "hers_scaled": [
+     [
+      -4.7250428080558775,
+      -401.8110122680664,
+      -1.2321147653437947e-06
+     ],
+     [
+      4.725043709278107,
+      401.8110122680664,
+      2255.0
+     ]
+    ],
+    "max_yz_cm": 7.68,
+    "ours_in_her_frame": [
+     [
+      -14.070066947937109,
+      -397.44037353515625,
+      -1.4999747276306152
+     ],
+     [
+      10.829937438964844,
+      399.2322231578827,
+      2247.322998046875
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "3B3F507246755D2CFC80FBAFE1AF0097",
+    "name": "SM_S2_L_Wing_Shrine5"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_36",
+   "her_first_from_keys": [
+    12881.899397187712,
+    81262.6891125957,
+    9927.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    12881.898846559681,
+    81262.68890419712,
+    -1.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    12881.899397187712,
+    81262.6891125957,
+    -1.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    1.89,
+    1.89,
+    2.255
+   ],
+   "label": "SM_S2_L_Wing_Shrine5",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.001,
+   "source_hashes": {
+    "all": "204f280470830009bf5b10b71017685794c76e463a771c61640c546bfb11077e",
+    "pitch": "05b8dceefbea2964abd9fc534a83be2a3a7d207732cce5a386fc81f7d13df873",
+    "roll": "7094060e907c81c657411b25d5b2ce5e81acc478f0948ea9671f9e25cf8f4ff5",
+    "x": "aaa581049d1c3e9a0648d04a20bf646be7d1dfb657589144716bdc11a98f040f",
+    "y": "f7697c2900443e28afece33550622d9745d832d2e65eb1fe8030b6abca1a5642",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "7afef65a7c8408a9397ea6f4435667d556a6dd61c15ee764667bee6b1cb7a2e7"
+   },
+   "source_key_counts": {
+    "pitch": 87,
+    "roll": 87,
+    "x": 87,
+    "y": 87,
+    "yaw": 1,
+    "z": 87
+   },
+   "type": "L"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -7.54,
+      6.08
+     ],
+     "y": [
+      6.01,
+      -10.23
+     ],
+     "z": [
+      -1.5,
+      -8.9
+     ]
+    },
+    "hers_scaled": [
+     [
+      -5.63754946231842,
+      -467.95654296875,
+      -1.2321147653437947e-06
+     ],
+     [
+      5.637553225755691,
+      467.95654296875,
+      2255.0
+     ]
+    ],
+    "max_yz_cm": 10.23,
+    "ours_in_her_frame": [
+     [
+      -13.179960374832154,
+      -461.9425139427185,
+      -1.4999866485595703
+     ],
+     [
+      11.720042343139761,
+      457.7218017578125,
+      2246.103759765625
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "5B2C9F734726F61AFDC190898CF8E9F6",
+    "name": "SM_S2_R_Wing_Shrine"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_3",
+   "her_first_from_keys": [
+    13723.345449540144,
+    77032.12310573655,
+    4492.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    13723.345638955174,
+    77032.1231218126,
+    0.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    13723.345449540144,
+    77032.12310573655,
+    0.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    2.255,
+    2.255,
+    2.255
+   ],
+   "label": "SM_S2_R_Wing_Shrine",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "9c84fd4e9a9ad29adb17649d508ca49280948987e3bb4461e0db9f2b042dae8c",
+    "pitch": "ec7b798564999742254fa34138c9af807d7ad817dd6c89aa55513c3b9260ea96",
+    "roll": "0e566c5c1bcaa3b5756fcddb1850148ab9fa487af10892f89f4e036c5887bcc1",
+    "x": "0c9ae976fce88c2f63333853dfb66e37902ff2de27276ff6ec50a2c3c4cbc106",
+    "y": "5fb68cc496ee99d92c131c7f8362cd2f7497d9eaf7eb62702a1add95d753faa5",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "b987351e63e0dccc896fa6a3fe4f934367fcbd5882652a59484d1f51785df197"
+   },
+   "source_key_counts": {
+    "pitch": 94,
+    "roll": 94,
+    "x": 94,
+    "y": 94,
+    "yaw": 1,
+    "z": 94
+   },
+   "type": "R"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -7.54,
+      6.08
+     ],
+     "y": [
+      6.01,
+      -10.23
+     ],
+     "z": [
+      -1.5,
+      -8.9
+     ]
+    },
+    "hers_scaled": [
+     [
+      -5.63754946231842,
+      -467.95654296875,
+      -1.2321147653437947e-06
+     ],
+     [
+      5.637553225755691,
+      467.95654296875,
+      2255.0
+     ]
+    ],
+    "max_yz_cm": 10.23,
+    "ours_in_her_frame": [
+     [
+      -13.179960374832154,
+      -461.9425139427185,
+      -1.4999866485595703
+     ],
+     [
+      11.720042343139761,
+      457.7218017578125,
+      2246.103759765625
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "26AB94A0447868FC0F41EAB625093C3C",
+    "name": "SM_S2_R_Wing_Shrine2"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_9",
+   "her_first_from_keys": [
+    14931.424392925517,
+    79361.03822049705,
+    5868.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    14931.424167285493,
+    79361.03837744839,
+    0.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    14931.424392925517,
+    79361.03822049705,
+    0.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    2.255,
+    2.255,
+    2.255
+   ],
+   "label": "SM_S2_R_Wing_Shrine2",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "a829f3775c73e720f3caeeb791f57eaa90fc8569c8ef8101825036c0bcad82a1",
+    "pitch": "00440d7de2fb6dc66c002d2f67ebeecb430a2cbb6bd62af582325d799ad37df0",
+    "roll": "979e77414214171d86e121fd7e151743a2718f119a113c7300659e974725c780",
+    "x": "0583ab9fb57c646641b93c811ee2166dcbe6c6b93e01ff258e8eba2ee537ae03",
+    "y": "238caaba2e6f3fb3b1b49438d0b46812326e883f70d76da33fd27862bf18fd8d",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "4f233ed6602d9f618bf955c081f1b2103662fe617190369738d847b55ebf0e97"
+   },
+   "source_key_counts": {
+    "pitch": 110,
+    "roll": 110,
+    "x": 110,
+    "y": 110,
+    "yaw": 1,
+    "z": 110
+   },
+   "type": "R"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -7.54,
+      6.08
+     ],
+     "y": [
+      6.01,
+      -10.23
+     ],
+     "z": [
+      -1.5,
+      -8.9
+     ]
+    },
+    "hers_scaled": [
+     [
+      -5.63754946231842,
+      -467.95654296875,
+      -1.2321147653437947e-06
+     ],
+     [
+      5.637553225755691,
+      467.95654296875,
+      2255.0
+     ]
+    ],
+    "max_yz_cm": 10.23,
+    "ours_in_her_frame": [
+     [
+      -13.179960374832154,
+      -461.9425139427185,
+      -1.4999866485595703
+     ],
+     [
+      11.720042343139761,
+      457.7218017578125,
+      2246.103759765625
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "4CD836854F02C817CA4E329D74A3B156",
+    "name": "SM_S2_R_Wing_Shrine3"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_13",
+   "her_first_from_keys": [
+    12600.366515270372,
+    78100.49491048728,
+    4131.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    12600.366525025393,
+    78100.49473740226,
+    0.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    12600.366515270372,
+    78100.49491048728,
+    0.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    2.255,
+    2.255,
+    2.255
+   ],
+   "label": "SM_S2_R_Wing_Shrine3",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "7005286610a709d73fe0557820239bb52fcce8a3752ec73947fd4d938c35228c",
+    "pitch": "8159d2432e97b18b0b6ed02e2c1b1fc4294e558c90ac3587158fce90741881c1",
+    "roll": "1c270c9350fb124045476687716f81db6db3a343c02776e1e62e4100834791a5",
+    "x": "df3091510a32bc47a9324e77e49b9fef20984e26248b33f5f244f63ead811137",
+    "y": "09089c7a6a465289c9a1ffb3fc8feb2fb34590105ba154d7b95c4539e82a8ee3",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "cf2fcb295a484731923ac1b49a100787f4420e5c21f7d85d7cce27826a0c74e9"
+   },
+   "source_key_counts": {
+    "pitch": 102,
+    "roll": 102,
+    "x": 102,
+    "y": 102,
+    "yaw": 1,
+    "z": 102
+   },
+   "type": "R"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -7.54,
+      6.08
+     ],
+     "y": [
+      6.01,
+      -10.23
+     ],
+     "z": [
+      -1.5,
+      -8.9
+     ]
+    },
+    "hers_scaled": [
+     [
+      -5.63754946231842,
+      -467.95654296875,
+      -1.2321147653437947e-06
+     ],
+     [
+      5.637553225755691,
+      467.95654296875,
+      2255.0
+     ]
+    ],
+    "max_yz_cm": 10.23,
+    "ours_in_her_frame": [
+     [
+      -13.179960374832154,
+      -461.9425139427185,
+      -1.4999866485595703
+     ],
+     [
+      11.720042343139761,
+      457.7218017578125,
+      2246.103759765625
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "764533DA4AA5EFB5981D2C81B94C29CF",
+    "name": "SM_S2_R_Wing_Shrine4"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_29",
+   "her_first_from_keys": [
+    13605.584722384188,
+    80622.40624655662,
+    3838.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    13605.584310189706,
+    80622.40615622516,
+    0.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    13605.584722384188,
+    80622.40624655662,
+    0.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    2.255,
+    2.255,
+    2.255
+   ],
+   "label": "SM_S2_R_Wing_Shrine4",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "8a926f55ce13206d9c6d0e9d9d30af41a92a61614eacb745e43a54e2861b6427",
+    "pitch": "25325517c1d43ee8445e57a6e8720b6a34dcee5be6259d6d194b2cf21e95ed7d",
+    "roll": "3370a53af3e857100c6859100c7e4c71416031311afa822cd077ca3dbb11519c",
+    "x": "9e25f82de0d84d19a1c0f7987b224c528828b81f100fd14d7403ae2cca0c27c4",
+    "y": "451ad4c0317ab6d9e3f480cea1cd1269afa70a7fc9cb0f6ee7dffc0c48893196",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "1c7249291aa9b57baacf089da74a6d278eb5fa7865badcf291bdd4aa52d85336"
+   },
+   "source_key_counts": {
+    "pitch": 136,
+    "roll": 136,
+    "x": 136,
+    "y": 136,
+    "yaw": 1,
+    "z": 136
+   },
+   "type": "R"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -7.54,
+      6.08
+     ],
+     "y": [
+      6.01,
+      -10.23
+     ],
+     "z": [
+      -1.5,
+      -8.9
+     ]
+    },
+    "hers_scaled": [
+     [
+      -5.63754946231842,
+      -467.95654296875,
+      -1.2321147653437947e-06
+     ],
+     [
+      5.637553225755691,
+      467.95654296875,
+      2255.0
+     ]
+    ],
+    "max_yz_cm": 10.23,
+    "ours_in_her_frame": [
+     [
+      -13.179960374832154,
+      -461.9425139427185,
+      -1.4999866485595703
+     ],
+     [
+      11.720042343139761,
+      457.7218017578125,
+      2246.103759765625
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "555439FB4354CE815B1811B2FF09018A",
+    "name": "SM_S2_R_Wing_Shrine5"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_37",
+   "her_first_from_keys": [
+    11165.851533778146,
+    79465.25368996999,
+    9928.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    11165.851269807,
+    79465.2533177181,
+    0.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    11165.851533778146,
+    79465.25368996999,
+    0.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    2.255,
+    2.255,
+    2.255
+   ],
+   "label": "SM_S2_R_Wing_Shrine5",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "1ead2c6702f1d256f060dc8d48df5bd4c93cd654bc3ce94b6d96efae0f0452d7",
+    "pitch": "05b8dceefbea2964abd9fc534a83be2a3a7d207732cce5a386fc81f7d13df873",
+    "roll": "7094060e907c81c657411b25d5b2ce5e81acc478f0948ea9671f9e25cf8f4ff5",
+    "x": "8e6dcd0a6d3e147e306a849f1b77a7e10b26bbe910f94f4a95d4555198ca2e75",
+    "y": "60516bceaefe0f90a769bfc61335174ced2294ff2291478052ed03855c64fbb1",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "e53d5ae01c08b7d74f23d477ef9e2ebc4120905b1da25af61f36d034180f729e"
+   },
+   "source_key_counts": {
+    "pitch": 87,
+    "roll": 87,
+    "x": 87,
+    "y": 87,
+    "yaw": 1,
+    "z": 87
+   },
+   "type": "R"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -10.59,
+      6.09
+     ],
+     "y": [
+      7.24,
+      -5.36
+     ],
+     "z": [
+      0.89,
+      -3.61
+     ]
+    },
+    "hers_scaled": [
+     [
+      -2.2064304776542514,
+      -1743.904311301462,
+      -4.821912443955332e-07
+     ],
+     [
+      2.2064433123221243,
+      1743.904311301462,
+      882.4999802745879
+     ]
+    ],
+    "max_yz_cm": 7.24,
+    "ours_in_her_frame": [
+     [
+      -12.80006649436567,
+      -1736.66107421875,
+      0.8884401917457581
+     ],
+     [
+      8.299996566772673,
+      1738.541318359375,
+      878.8894653320312
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "6FB6264A490D8CBE96AC80906A3AE80A",
+    "name": "SM_S2_ceiling_wing"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_21",
+   "her_first_from_keys": [
+    14617.910040914614,
+    77996.90080676407,
+    6132.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    14617.910072100058,
+    77996.90093957375,
+    1640.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    14617.910040914614,
+    77996.90080676407,
+    1640.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    0.8824999802745879,
+    0.8824999802745879,
+    0.8824999802745879
+   ],
+   "label": "SM_S2_ceiling_wing",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "03b7e019cb886333a99e51d5534108830395a8abfee52b1db8570affe17f3cbb",
+    "pitch": "ec7b798564999742254fa34138c9af807d7ad817dd6c89aa55513c3b9260ea96",
+    "roll": "0e566c5c1bcaa3b5756fcddb1850148ab9fa487af10892f89f4e036c5887bcc1",
+    "x": "691c72210184b18beaea4c2ca39c27cb33b09f58332d20c1a381069ddb8efb1b",
+    "y": "a39c0ceaafc65773696ebae1f9bfefa6629289298bc76e4017240321528cae73",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "7d88ead6345d72a7c2d1c29dc720b1288309efa1a2e418654715066a34e373db"
+   },
+   "source_key_counts": {
+    "pitch": 94,
+    "roll": 94,
+    "x": 94,
+    "y": 94,
+    "yaw": 1,
+    "z": 94
+   },
+   "type": "C"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -10.59,
+      6.09
+     ],
+     "y": [
+      7.24,
+      -5.36
+     ],
+     "z": [
+      0.89,
+      -3.61
+     ]
+    },
+    "hers_scaled": [
+     [
+      -2.206430526971817,
+      -1743.9043502807617,
+      -4.821912551733476e-07
+     ],
+     [
+      2.2064433616399763,
+      1743.9043502807617,
+      882.5
+     ]
+    ],
+    "max_yz_cm": 7.24,
+    "ours_in_her_frame": [
+     [
+      -12.80006649436567,
+      -1736.66107421875,
+      0.8884401917457581
+     ],
+     [
+      8.299996566772673,
+      1738.541318359375,
+      878.8894653320312
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "7FFD237244B6604027E24A8BDB121163",
+    "name": "SM_S2_ceiling_wing2"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_11",
+   "her_first_from_keys": [
+    14067.288111853308,
+    78520.74762715797,
+    7508.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    14067.288054945524,
+    78520.74766737175,
+    1640.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    14067.288111853308,
+    78520.74762715797,
+    1640.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    0.8825,
+    0.8825,
+    0.8825
+   ],
+   "label": "SM_S2_ceiling_wing2",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "74284b3ba20399b1bfa07c134c9194ccb624e2e5bfba54aeb25fb06d3a05098a",
+    "pitch": "00440d7de2fb6dc66c002d2f67ebeecb430a2cbb6bd62af582325d799ad37df0",
+    "roll": "979e77414214171d86e121fd7e151743a2718f119a113c7300659e974725c780",
+    "x": "525f608de484bf9315f4a7e3a53590dec39e75fe81be00b91d960fbd95b7c0bf",
+    "y": "43f6b0565f47a5f3b931a6a8e619f221b5a4918ec85f5c96b187911ec30198bb",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "12bf8b555a3496e50fc1d416dfc8e2b11003594192d063c4f37a01719410ee9e"
+   },
+   "source_key_counts": {
+    "pitch": 110,
+    "roll": 110,
+    "x": 110,
+    "y": 110,
+    "yaw": 1,
+    "z": 110
+   },
+   "type": "C"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -10.59,
+      6.09
+     ],
+     "y": [
+      7.24,
+      -5.36
+     ],
+     "z": [
+      0.89,
+      -3.61
+     ]
+    },
+    "hers_scaled": [
+     [
+      -2.206430526971817,
+      -1743.9043502807617,
+      -4.821912551733476e-07
+     ],
+     [
+      2.2064433616399763,
+      1743.9043502807617,
+      882.5
+     ]
+    ],
+    "max_yz_cm": 7.24,
+    "ours_in_her_frame": [
+     [
+      -12.80006649436567,
+      -1736.66107421875,
+      0.8884401917457581
+     ],
+     [
+      8.299996566772673,
+      1738.541318359375,
+      878.8894653320312
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "8BEC6FE54304E9DF266AAAB45A86B62F",
+    "name": "SM_S2_ceiling_wing3"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_27",
+   "her_first_from_keys": [
+    13494.931106644843,
+    79065.2726115148,
+    5771.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    13494.93095816647,
+    79065.27255547757,
+    1640.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    13494.931106644843,
+    79065.2726115148,
+    1640.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    0.8825,
+    0.8825,
+    0.8825
+   ],
+   "label": "SM_S2_ceiling_wing3",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "46f7845bd5609d33cd9a60ca29a8e7d3faf919f20a80dd6d9e771b08606a75d3",
+    "pitch": "8159d2432e97b18b0b6ed02e2c1b1fc4294e558c90ac3587158fce90741881c1",
+    "roll": "1c270c9350fb124045476687716f81db6db3a343c02776e1e62e4100834791a5",
+    "x": "5635d6a3c6cafb28a0dbc048654a7c20ff8ac1259f898f0a8e73cbc513837bd2",
+    "y": "151653317b27ed1351b3cd1f966cc3893c8f75a89316e378b4c6803dbeb93820",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "11d9d05622ed9e332f0067b6aaa19c0f52d946b6037f675d83b564f3b9b48e35"
+   },
+   "source_key_counts": {
+    "pitch": 102,
+    "roll": 102,
+    "x": 102,
+    "y": 102,
+    "yaw": 1,
+    "z": 102
+   },
+   "type": "C"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -10.59,
+      6.09
+     ],
+     "y": [
+      7.24,
+      -5.36
+     ],
+     "z": [
+      0.89,
+      -3.61
+     ]
+    },
+    "hers_scaled": [
+     [
+      -2.206430526971817,
+      -1743.9043502807617,
+      -4.821912551733476e-07
+     ],
+     [
+      2.2064433616399763,
+      1743.9043502807617,
+      882.5
+     ]
+    ],
+    "max_yz_cm": 7.24,
+    "ours_in_her_frame": [
+     [
+      -12.80006649436567,
+      -1736.66107421875,
+      0.8884401917457581
+     ],
+     [
+      8.299996566772673,
+      1738.541318359375,
+      878.8894653320312
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "A7D6C9DD4832F5750F40B3BDAD38F513",
+    "name": "SM_S2_ceiling_wing4"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_33",
+   "her_first_from_keys": [
+    12741.448466876738,
+    79782.11562889593,
+    5478.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    12741.448197849737,
+    79782.11544614851,
+    1640.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    12741.448466876738,
+    79782.11562889593,
+    1640.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_scale": [
+    0.8825,
+    0.8825,
+    0.8825
+   ],
+   "label": "SM_S2_ceiling_wing4",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "9241053aabfdf8ad7388ed2ce21b9d60c59122597d6bb97ecc905eb42950e77d",
+    "pitch": "25325517c1d43ee8445e57a6e8720b6a34dcee5be6259d6d194b2cf21e95ed7d",
+    "roll": "3370a53af3e857100c6859100c7e4c71416031311afa822cd077ca3dbb11519c",
+    "x": "86a11f4c73b323ae6adfd1edebe1f8ccab34eaf395f1f9db96642596cc5d31ad",
+    "y": "17ac2c7ed7127c2b5c51f3592d4fc813f8d879e1850733131f7ddf3142bae1ee",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "168aa4cbdd68e0d78562f8307b8405585e9b3d21538b70a168dcd248048e0954"
+   },
+   "source_key_counts": {
+    "pitch": 136,
+    "roll": 136,
+    "x": 136,
+    "y": 136,
+    "yaw": 1,
+    "z": 136
+   },
+   "type": "C"
+  },
+  {
+   "box_alignment": {
+    "delta": {
+     "x": [
+      -10.59,
+      6.09
+     ],
+     "y": [
+      7.24,
+      -5.36
+     ],
+     "z": [
+      0.89,
+      -3.61
+     ]
+    },
+    "hers_scaled": [
+     [
+      -2.206430526971817,
+      -1743.9043502807617,
+      -4.821912551733476e-07
+     ],
+     [
+      2.2064433616399763,
+      1743.9043502807617,
+      882.5
+     ]
+    ],
+    "max_yz_cm": 7.24,
+    "ours_in_her_frame": [
+     [
+      -12.80006649436567,
+      -1736.66107421875,
+      0.8884401917457581
+     ],
+     [
+      8.299996566772673,
+      1738.541318359375,
+      878.8894653320312
+     ]
+    ]
+   },
+   "copy_binding": {
+    "channels": {
+     "pitch": "Rotation.Y",
+     "roll": "Rotation.X",
+     "x": "Location.X",
+     "y": "Location.Y",
+     "yaw": "Rotation.Z",
+     "z": "Location.Z"
+    },
+    "guid": "1F5D65EB481C5130D2FDB19951729D17",
+    "name": "SM_S2_ceiling_wing5"
+   },
+   "her_actor_path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_38",
+   "her_first_from_keys": [
+    12060.41608093249,
+    80430.03143306734,
+    11568.0,
+    0.0,
+    0.0,
+    316.42748059917176
+   ],
+   "her_live_pose": [
+    12060.415702948076,
+    80430.0311357934,
+    1640.0,
+    0.0,
+    0.0,
+    -43.57250976562506
+   ],
+   "her_rest_from_keys": [
+    12060.41608093249,
+    80430.03143306734,
+    1640.0,
+    -6.762956036254764e-05,
+    3.0813946068519726e-05,
+    316.42748059917176
+   ],
+   "her_scale": [
+    0.8825,
+    0.8825,
+    0.8825
+   ],
+   "label": "SM_S2_ceiling_wing5",
+   "pre_pose": "rest",
+   "pre_pose_measured": "rest",
+   "rest_vs_actor_cm": 0.0,
+   "source_hashes": {
+    "all": "a00117ce3aec497c9f6d0da93d017b202f5919b51577f5fd1e72902d2cf355ef",
+    "pitch": "05b8dceefbea2964abd9fc534a83be2a3a7d207732cce5a386fc81f7d13df873",
+    "roll": "2abe3ecb3f9dd517c0e6821801e9b7000d5133d32be880fa2f893d47cc0b67cc",
+    "x": "5b2ae5e6843f78cc204553d9ce6cc10d4c7cbc2ee175abc12c07262be744d1cb",
+    "y": "d0327c024752e1dcf071f84845d8fe55a2b7e739f1fc94dbf793eae1996b83c3",
+    "yaw": "8414b827d52982626e7d6ef1a1b241d0ab4e143909ac95925498caa6f1012f30",
+    "z": "bfbac1c92723a10ac05eee610c2f445cefa2e5c7ef7ca1b4400ef648767656e2"
+   },
+   "source_key_counts": {
+    "pitch": 87,
+    "roll": 87,
+    "x": 87,
+    "y": 87,
+    "yaw": 1,
+    "z": 87
+   },
+   "type": "C"
+  }
+ ]
+}

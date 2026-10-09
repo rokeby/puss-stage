@@ -1,7 +1,7 @@
 """Queue exactly the one Phase 2 acceptance automation test in the live editor."""
 import unreal
 
-RUN = "S3T5O-TEST-SceneCutBindingsResolve"
+RUN = "S2V3-TEST-SceneCutBindingsResolve"
 TEST = "InfinityStage.Editor.SceneCutBindingsResolve"
 
 editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)

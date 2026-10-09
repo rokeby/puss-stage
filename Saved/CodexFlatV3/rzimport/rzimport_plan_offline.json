@@ -1,0 +1,2408 @@
+{
+ "mark": "FLATV3_RZIMPORT",
+ "manifests": [
+  {
+   "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/IMPORT_MANIFEST_v3_P06.json",
+   "sha256": "bc4fa330476ad76cbceeca47561198db7048060ea542345593952c9df9831176",
+   "run": "FV3RZ-P06-20261007-02",
+   "count": 15
+  }
+ ],
+ "root": "/Game/Scenes/Wings/FlatV3/Realism",
+ "mesh_folders": {
+  "t5p": "/Game/Scenes/Wings/FlatV3/Realism/T5P",
+  "t5j": "/Game/Scenes/Wings/FlatV3/Realism/T5J"
+ },
+ "wings": {
+  "P06_rf_10_building_under_construct_R": {
+   "key": "P06_rf_10_building_under_construct_R",
+   "owner": "P06_rf_10_building_under_construct_R",
+   "asset": "SM_FlatV3_P06_rf_10_building_under_construct_R_t5j",
+   "variant": "t5j",
+   "side": "R",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 10,
+   "height_cm": 1000.0,
+   "width_cm": 689.6,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/builds_t5j/P06/P06_rf_10_building_under_construct_R_t5j/SM_FlatV3_P06_rf_10_building_under_construct_R_t5j.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/builds_t5j/P06/P06_rf_10_building_under_construct_R_t5j/SM_FlatV3_P06_rf_10_building_under_construct_R_t5j.fbx",
+     "sha256": "d60cc1ac084f6e4950e3264486cf71b96ec46c87edb198b69aa2f2863a68aa20"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/builds_t5j/P06/P06_rf_10_building_under_construct_R_t5j/sockets_SM_FlatV3_P06_rf_10_building_under_construct_R_t5j.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/builds_t5j/P06/P06_rf_10_building_under_construct_R_t5j/sockets_SM_FlatV3_P06_rf_10_building_under_construct_R_t5j.json",
+     "sha256": "38f5cca2ef9e7e023e1d091e44c4150e3fe0fa5c76c53b07fc82e0353fca6bac"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/stage1/P06_rf_10_building_under_construct_R/skin_v3/T_P06_rf_10_building_under_construct_R_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/stage1/P06_rf_10_building_under_construct_R/skin_v3/T_P06_rf_10_building_under_construct_R_SkinColor_o2.png",
+     "sha256": "9e128e6dfd1d2293208b229f9ba42d6ea8e45eba6e04efda2600a238c1e5039a"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/stage1/P06_rf_10_building_under_construct_R/skin_v3/T_P06_rf_10_building_under_construct_R_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/stage1/P06_rf_10_building_under_construct_R/skin_v3/T_P06_rf_10_building_under_construct_R_SkinMask_o2.png",
+     "sha256": "34ab7e1cfcdbdd0975bc67aa4836e951cf6a9018ee3abfdd419010aeb1371336"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/stage1/P06_rf_10_building_under_construct_R/skin_v3/T_P06_rf_10_building_under_construct_R_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/stage1/P06_rf_10_building_under_construct_R/skin_v3/T_P06_rf_10_building_under_construct_R_SkinNormal_o2.png",
+     "sha256": "d5989474d45211ad0116af13f558a3addbe3a3ce5f0e61813739c506907a9e86"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/stage1/P06_rf_10_building_under_construct_R/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/stage1/P06_rf_10_building_under_construct_R/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "3f30749108eac1b40b0d04a81815ce9ea99d50a50ac232c545665a2a6060f7ad"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/builds_t5j/P06/P06_rf_10_building_under_construct_R_t5j/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/builds_t5j/P06/P06_rf_10_building_under_construct_R_t5j/validation.json",
+     "sha256": "0121719ccd193cc76483f3b57f3f66b83c182ff1180b544a3ec21fe46b75be94"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/stage1/P06_rf_10_building_under_construct_R/skin_v3/P06_rf_10_building_under_construct_R_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/stage1/P06_rf_10_building_under_construct_R/skin_v3/P06_rf_10_building_under_construct_R_mi_params.json",
+     "sha256": "c602e58cc95fc1fe00dad1e79c7c69aacf7f3ae9b346e08c2c95bd675d7f355a"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/edge_gate/edge_probe.json",
+     "sha256": "e451bcc1412b43175fa2506205715aba68439a5c0323ac5b3cbee23814f85499"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/RZ_BUILD_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/10_building_under_construction_v3/RZ_BUILD_REPORT.json",
+     "sha256": "4d5ddf9a81ae470543ee08a8db70e2d6c4daf76aed04437e981292c4d0b09d0e"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_10_building_under_construct_R_t5j",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_10_building_under_construct_R_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinNormal_o2"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.100081503391266,
+      -690.6029224395752,
+      -99.99998211860657
+     ],
+     "max": [
+      3.79997082054615,
+      -1.0348671115934849,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 29308,
+     "lod1": 28818
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1",
+     "SOCKET_Pole_2"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_1_stone_building_under_L": {
+   "key": "P06_rf_1_stone_building_under_L",
+   "owner": "P06_rf_1_stone_building_under_L",
+   "asset": "SM_FlatV3_P06_rf_1_stone_building_under_L_t5p",
+   "variant": "t5p",
+   "side": "L",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 1,
+   "height_cm": 1000.0,
+   "width_cm": 639.4,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/hf/builds/P06_rf_1_stone_building_under_L_t5p/SM_FlatV3_P06_rf_1_stone_building_under_L_t5p.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/hf/builds/P06_rf_1_stone_building_under_L_t5p/SM_FlatV3_P06_rf_1_stone_building_under_L_t5p.fbx",
+     "sha256": "e6082e180c9e1dcea1aa7ebca1579f28795053f9b7836bb25fe673525ac45176"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/hf/builds/P06_rf_1_stone_building_under_L_t5p/sockets_SM_FlatV3_P06_rf_1_stone_building_under_L_t5p.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/hf/builds/P06_rf_1_stone_building_under_L_t5p/sockets_SM_FlatV3_P06_rf_1_stone_building_under_L_t5p.json",
+     "sha256": "ab9b5dfaff096bbd0f7182f2141f6394176ad0bc3c45218c981951d713a13cae"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/hf/skins/T_P06_rf_1_stone_building_under_L_SkinColor_o2p.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/hf/skins/T_P06_rf_1_stone_building_under_L_SkinColor_o2p.png",
+     "sha256": "998b9613b4c24b6d76638c051d4bacab9ef9cfc9cbff157c02e38e9705a7d56c"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/stage1/P06_rf_1_stone_building_under_L/skin_v3/T_P06_rf_1_stone_building_under_L_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/stage1/P06_rf_1_stone_building_under_L/skin_v3/T_P06_rf_1_stone_building_under_L_SkinMask_o2.png",
+     "sha256": "3309916e209ea5e0f1fc76e1eacee067d5886c275f8eda918d4105721b09d91e"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/stage1/P06_rf_1_stone_building_under_L/skin_v3/T_P06_rf_1_stone_building_under_L_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/stage1/P06_rf_1_stone_building_under_L/skin_v3/T_P06_rf_1_stone_building_under_L_SkinNormal_o2.png",
+     "sha256": "deda931eab30312c12168d1742c1438f859178a9df0542d69405e74d801336db"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/stage1/P06_rf_1_stone_building_under_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/stage1/P06_rf_1_stone_building_under_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "5449c8f885544fadbe4727519e73c0ab881be5a0ba9a584f3f524c169c79e363"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/hf/builds/P06_rf_1_stone_building_under_L_t5p/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/hf/builds/P06_rf_1_stone_building_under_L_t5p/validation.json",
+     "sha256": "f86a45a8c86b4a0bdb4cf27764a7e48ea85c58b667ad845beee1fabda60cbcfc"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/stage1/P06_rf_1_stone_building_under_L/skin_v3/P06_rf_1_stone_building_under_L_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/stage1/P06_rf_1_stone_building_under_L/skin_v3/P06_rf_1_stone_building_under_L_mi_params.json",
+     "sha256": "caac2aeb063304db43ee4ffba0ae5f0c32ce301c8ec51dcc2dfc128fd97390c2"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/edge_gate/edge_probe.json",
+     "sha256": "1b8c64a8244d725bffcdc7ae52a8f88c954d26730144dcaa8a8395240140dfab"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/RZ_HF_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/1_stone_building_under_v3/RZ_HF_REPORT.json",
+     "sha256": "bca6136d7799720e7fc14644553afab206a8760ce755bb7e33e14a905a1239cc"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_1_stone_building_under_L_t5p",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinColor_o2p",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_1_stone_building_under_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinColor_o2p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinNormal_o2"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.099984645843506,
+      1.282576099038124,
+      -99.99998211860657
+     ],
+     "max": [
+      3.8000505417585373,
+      640.6459331512451,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 17099,
+     "lod1": 16536
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1",
+     "SOCKET_Pole_2"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_25_concrete_wall_with_L": {
+   "key": "P06_rf_25_concrete_wall_with_L",
+   "owner": "P06_rf_25_concrete_wall_with_L",
+   "asset": "SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p",
+   "variant": "t5p",
+   "side": "L",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 25,
+   "height_cm": 1000.0,
+   "width_cm": 356.6,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/hf/builds/P06_rf_25_concrete_wall_with_L_t5p/SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/hf/builds/P06_rf_25_concrete_wall_with_L_t5p/SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p.fbx",
+     "sha256": "22c4f4df39423054c13b372b9076ce035c3a0de90272d3177f4dde754aa5562a"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/hf/builds/P06_rf_25_concrete_wall_with_L_t5p/sockets_SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/hf/builds/P06_rf_25_concrete_wall_with_L_t5p/sockets_SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p.json",
+     "sha256": "ff51e3a3eade811b5f61f6b77708ce71e1d4608757fe7409b80e31fe638885e2"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/stage1/P06_rf_25_concrete_wall_with_L/skin_v3/T_P06_rf_25_concrete_wall_with_L_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/stage1/P06_rf_25_concrete_wall_with_L/skin_v3/T_P06_rf_25_concrete_wall_with_L_SkinColor_o2.png",
+     "sha256": "842e12cb6d002a3c71413983ca90f22e866860c2e81c0e4e8c7510d091d9312b"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/stage1/P06_rf_25_concrete_wall_with_L/skin_v3/T_P06_rf_25_concrete_wall_with_L_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/stage1/P06_rf_25_concrete_wall_with_L/skin_v3/T_P06_rf_25_concrete_wall_with_L_SkinMask_o2.png",
+     "sha256": "883ecd414df7df0c9007183941a8f6e675c15d58629ee7f842f01991d2495858"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/stage1/P06_rf_25_concrete_wall_with_L/skin_v3/T_P06_rf_25_concrete_wall_with_L_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/stage1/P06_rf_25_concrete_wall_with_L/skin_v3/T_P06_rf_25_concrete_wall_with_L_SkinNormal_o2.png",
+     "sha256": "bc1f9cf7437de66bb4d733da530bad77bf4a3f941a3dd26562a7a36842d565e2"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/stage1/P06_rf_25_concrete_wall_with_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/stage1/P06_rf_25_concrete_wall_with_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "c1f80d0918419f6c15a36b56c2427664ed9e3652dc5c4f2a000393879338c6b7"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/hf/builds/P06_rf_25_concrete_wall_with_L_t5p/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/hf/builds/P06_rf_25_concrete_wall_with_L_t5p/validation.json",
+     "sha256": "ec9f3e7abdd213137749cc3c2028d759c1d59a857f04a350ec7099d810fb502a"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/stage1/P06_rf_25_concrete_wall_with_L/skin_v3/P06_rf_25_concrete_wall_with_L_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/stage1/P06_rf_25_concrete_wall_with_L/skin_v3/P06_rf_25_concrete_wall_with_L_mi_params.json",
+     "sha256": "d0d352012d2ad18dba529196ca9fdca0908199e038ac8c0f45193ecd6ef3090f"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/edge_gate/edge_probe.json",
+     "sha256": "f113cafface07b00a0382a2a56e1f16dc744ee67ddcc37f952b5e111b5f93d61"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/RZ_HF_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/25_concrete_wall_with_v3/RZ_HF_REPORT.json",
+     "sha256": "f8ea835460ea4a021d5db640d6261bbe559e307ff0383910fdc498534911f570"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinNormal_o2"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.099968254566193,
+      1.1667232029139996,
+      -99.99998211860657
+     ],
+     "max": [
+      3.800007328391075,
+      357.81450271606445,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 15121,
+     "lod1": 14666
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_26_concrete_panel_wood_L": {
+   "key": "P06_rf_26_concrete_panel_wood_L",
+   "owner": "P06_rf_26_concrete_panel_wood_L",
+   "asset": "SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p",
+   "variant": "t5p",
+   "side": "L",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 26,
+   "height_cm": 1000.0,
+   "width_cm": 326.3,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/hf/builds/P06_rf_26_concrete_panel_wood_L_t5p/SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/hf/builds/P06_rf_26_concrete_panel_wood_L_t5p/SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p.fbx",
+     "sha256": "d056ed2a8a965a769501d5644a6c6099c7cd9780b463c641923deeb8e6de6f57"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/hf/builds/P06_rf_26_concrete_panel_wood_L_t5p/sockets_SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/hf/builds/P06_rf_26_concrete_panel_wood_L_t5p/sockets_SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p.json",
+     "sha256": "c56efd94e5243eae90cbaf29bd2b5ba0c902bb261e352a637b53419476c90ea2"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/stage1/P06_rf_26_concrete_panel_wood_L/skin_v3/T_P06_rf_26_concrete_panel_wood_L_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/stage1/P06_rf_26_concrete_panel_wood_L/skin_v3/T_P06_rf_26_concrete_panel_wood_L_SkinColor_o2.png",
+     "sha256": "5f3fc61edb5cf1e981a42a4bfdc59da11c8b10dfd8ea017921c81351e2b174d4"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/stage1/P06_rf_26_concrete_panel_wood_L/skin_v3/T_P06_rf_26_concrete_panel_wood_L_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/stage1/P06_rf_26_concrete_panel_wood_L/skin_v3/T_P06_rf_26_concrete_panel_wood_L_SkinMask_o2.png",
+     "sha256": "b65000642485bcfeacc6e68f77416d5c88107865e57db595d43d86db6ed10526"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/stage1/P06_rf_26_concrete_panel_wood_L/skin_v3/T_P06_rf_26_concrete_panel_wood_L_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/stage1/P06_rf_26_concrete_panel_wood_L/skin_v3/T_P06_rf_26_concrete_panel_wood_L_SkinNormal_o2.png",
+     "sha256": "798c4f2b743a51c7bc4a460644ed7ddfcc47825b7e8ff95a9525c9e5f7512c61"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/stage1/P06_rf_26_concrete_panel_wood_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/stage1/P06_rf_26_concrete_panel_wood_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "d56734689e2f029f92c3020f14f6756a0ad6ab34fe9c2cd572e4e0bbdf959d91"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/hf/builds/P06_rf_26_concrete_panel_wood_L_t5p/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/hf/builds/P06_rf_26_concrete_panel_wood_L_t5p/validation.json",
+     "sha256": "143280578931cdc4ed79568851212e3d333f08c8e293f68808f626b928330569"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/stage1/P06_rf_26_concrete_panel_wood_L/skin_v3/P06_rf_26_concrete_panel_wood_L_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/stage1/P06_rf_26_concrete_panel_wood_L/skin_v3/P06_rf_26_concrete_panel_wood_L_mi_params.json",
+     "sha256": "fcc5f8241f3387f3eb98826a07dcd0343c688176afbd3dda2e7a89a87fbe6733"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/edge_gate/edge_probe.json",
+     "sha256": "b73075211c64a6b55bea2c784292ec697ccbcebc71e17455c62ca2eebb0c4b87"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/RZ_HF_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/26_concrete_panel_wood_v3/RZ_HF_REPORT.json",
+     "sha256": "ba2fd6fe0482366ec3f43bede79abd4f4ed2070a3622103f7a8ea61c7ac56a8c"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinNormal_o2"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.09997570514679,
+      0.6852443795651197,
+      -99.99998211860657
+     ],
+     "max": [
+      3.8000043481588364,
+      326.96361541748047,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 13426,
+     "lod1": 13148
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_2_pink_silk_structure_R": {
+   "key": "P06_rf_2_pink_silk_structure_R",
+   "owner": "P06_rf_2_pink_silk_structure_R",
+   "asset": "SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p",
+   "variant": "t5p",
+   "side": "R",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 2,
+   "height_cm": 1000.0,
+   "width_cm": 396.9,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/hf/builds/P06_rf_2_pink_silk_structure_R_t5p/SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/hf/builds/P06_rf_2_pink_silk_structure_R_t5p/SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p.fbx",
+     "sha256": "9450ae4dac492b3d60966a16aac783373be531dfe4416e9249a9d4c6d1241d84"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/hf/builds/P06_rf_2_pink_silk_structure_R_t5p/sockets_SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/hf/builds/P06_rf_2_pink_silk_structure_R_t5p/sockets_SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p.json",
+     "sha256": "ac1997868e7e58a93204b7961c3658c6bb9acc482725645ab2169d47b8668d00"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/stage1/P06_rf_2_pink_silk_structure_R/skin_v3/T_P06_rf_2_pink_silk_structure_R_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/stage1/P06_rf_2_pink_silk_structure_R/skin_v3/T_P06_rf_2_pink_silk_structure_R_SkinColor_o2.png",
+     "sha256": "b50617313985c297399a44bfb390b6cb4862c7b1ffb5e491a7687e0f69d35665"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/stage1/P06_rf_2_pink_silk_structure_R/skin_v3/T_P06_rf_2_pink_silk_structure_R_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/stage1/P06_rf_2_pink_silk_structure_R/skin_v3/T_P06_rf_2_pink_silk_structure_R_SkinMask_o2.png",
+     "sha256": "2d99a5dd1edf934ae6886653b2b158f49b4d16c123a514b734fc8b630097d1bd"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/stage1/P06_rf_2_pink_silk_structure_R/skin_v3/T_P06_rf_2_pink_silk_structure_R_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/stage1/P06_rf_2_pink_silk_structure_R/skin_v3/T_P06_rf_2_pink_silk_structure_R_SkinNormal_o2.png",
+     "sha256": "ffc5c2c379ff841942d72996caf9f10b99a5c0244ae9aea140ed8f487c963deb"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/stage1/P06_rf_2_pink_silk_structure_R/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/stage1/P06_rf_2_pink_silk_structure_R/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "2e7cc482108c91426e0385946edc913668d21cb5482dcd64bf9da969b869e124"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/hf/builds/P06_rf_2_pink_silk_structure_R_t5p/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/hf/builds/P06_rf_2_pink_silk_structure_R_t5p/validation.json",
+     "sha256": "dbc8aaca109a9b67b45f0c46f74e862d03b4d1c122a5f5aacefbafb87ba058be"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/stage1/P06_rf_2_pink_silk_structure_R/skin_v3/P06_rf_2_pink_silk_structure_R_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/stage1/P06_rf_2_pink_silk_structure_R/skin_v3/P06_rf_2_pink_silk_structure_R_mi_params.json",
+     "sha256": "8aea2e618ae1d632fbfd489e9f6965fcbc5b2ccbd54439552f4e73a004ea02b5"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/edge_gate/edge_probe.json",
+     "sha256": "d0aef65ea86e38fb48f35bbc20bc194fd011535d08429237dfb4570af6e237a5"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/RZ_HF_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/2_pink_silk_structure_v3/RZ_HF_REPORT.json",
+     "sha256": "51bd1d1e8f7cfc44fc3c09bdd374fb39f94f784d0b8647acad3615907a60144b"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinNormal_o2"
+   ],
+   "notes": [
+    "validation.socket_contract lists ['SOCKET_Hinge', 'SOCKET_Pivot', 'SOCKET_Pole_1']; sidecar + baked poles carry ['SOCKET_Hinge', 'SOCKET_Pivot', 'SOCKET_Pole_1', 'SOCKET_Pole_2'] (sidecar used)"
+   ],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.10002040863037,
+      -398.13995361328125,
+      -99.99998211860657
+     ],
+     "max": [
+      3.7999767810106277,
+      -1.2144070118665695,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 15971,
+     "lod1": 15498
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1",
+     "SOCKET_Pole_2"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_30_rusty_metal_door_L": {
+   "key": "P06_rf_30_rusty_metal_door_L",
+   "owner": "P06_rf_30_rusty_metal_door_L",
+   "asset": "SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j",
+   "variant": "t5j",
+   "side": "L",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 30,
+   "height_cm": 1000.0,
+   "width_cm": 428.0,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/builds_t5j/P06/P06_rf_30_rusty_metal_door_L_t5j/SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/builds_t5j/P06/P06_rf_30_rusty_metal_door_L_t5j/SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j.fbx",
+     "sha256": "5ae1d9fb023111d439a912d862f83b3f1931e0217f09c5a0d91ec47e98352788"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/builds_t5j/P06/P06_rf_30_rusty_metal_door_L_t5j/sockets_SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/builds_t5j/P06/P06_rf_30_rusty_metal_door_L_t5j/sockets_SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j.json",
+     "sha256": "b4e3ba3f77423ca4bca65297b38f421eab205949db19cda08b410ef406d82d84"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/stage1/P06_rf_30_rusty_metal_door_L/skin_v3/T_P06_rf_30_rusty_metal_door_L_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/stage1/P06_rf_30_rusty_metal_door_L/skin_v3/T_P06_rf_30_rusty_metal_door_L_SkinColor_o2.png",
+     "sha256": "6f5b26aae35a0f25930136072f33234b4f29dc9dddf48e1e4d3178969956915f"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/stage1/P06_rf_30_rusty_metal_door_L/skin_v3/T_P06_rf_30_rusty_metal_door_L_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/stage1/P06_rf_30_rusty_metal_door_L/skin_v3/T_P06_rf_30_rusty_metal_door_L_SkinMask_o2.png",
+     "sha256": "1a46a956557078f478240bba9c315531810946366b18d8573aad8417812abaa1"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/stage1/P06_rf_30_rusty_metal_door_L/skin_v3/T_P06_rf_30_rusty_metal_door_L_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/stage1/P06_rf_30_rusty_metal_door_L/skin_v3/T_P06_rf_30_rusty_metal_door_L_SkinNormal_o2.png",
+     "sha256": "a55f580e1100773c39e0834c14f437a5d598765f4351fdaa896758c8c1edb142"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/stage1/P06_rf_30_rusty_metal_door_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/stage1/P06_rf_30_rusty_metal_door_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "5df35991bbe01d6a98b6b16f99f496d27087e024a93857abf80bbfe7f36f082e"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/builds_t5j/P06/P06_rf_30_rusty_metal_door_L_t5j/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/builds_t5j/P06/P06_rf_30_rusty_metal_door_L_t5j/validation.json",
+     "sha256": "a8d9fedd19fe6dca0172067ce772aaf168e0b85ab201167a10d160a82317da6b"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/stage1/P06_rf_30_rusty_metal_door_L/skin_v3/P06_rf_30_rusty_metal_door_L_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/stage1/P06_rf_30_rusty_metal_door_L/skin_v3/P06_rf_30_rusty_metal_door_L_mi_params.json",
+     "sha256": "5a8d3a902cd510050623c8fbce4716d786d09249b71c3391f90037a1be35e79e"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/edge_gate/edge_probe.json",
+     "sha256": "3a01320cfdb6da97bbe9bc78055febb17d40229d3ac1c2769a37fb10e31d8772"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/RZ_BUILD_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/30_rusty_metal_door_v3/RZ_BUILD_REPORT.json",
+     "sha256": "0555494e5ab5b391e9d06325d9b1710d9911a5e610094d8d0d9242cc0be5f061"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinNormal_o2"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.099984645843506,
+      0.867358036339283,
+      -99.99998211860657
+     ],
+     "max": [
+      3.8000494241714478,
+      428.90777587890625,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 5351,
+     "lod1": 4958
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1",
+     "SOCKET_Pole_2"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_33_burnt_furniture_ruin_L": {
+   "key": "P06_rf_33_burnt_furniture_ruin_L",
+   "owner": "P06_rf_33_burnt_furniture_ruin_L",
+   "asset": "SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j",
+   "variant": "t5j",
+   "side": "L",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 33,
+   "height_cm": 1000.0,
+   "width_cm": 671.6,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/builds_t5j/P06/P06_rf_33_burnt_furniture_ruin_L_t5j/SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/builds_t5j/P06/P06_rf_33_burnt_furniture_ruin_L_t5j/SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j.fbx",
+     "sha256": "cf6a9fffc0fea76eda6bd6578bc4608a834f0976f6170038d3d1335983d76d03"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/builds_t5j/P06/P06_rf_33_burnt_furniture_ruin_L_t5j/sockets_SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/builds_t5j/P06/P06_rf_33_burnt_furniture_ruin_L_t5j/sockets_SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j.json",
+     "sha256": "608009220136398a7c2e0b56b372e779176bc3e72b29b6cda44cd7a3a7ae6a7d"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/stage1/P06_rf_33_burnt_furniture_ruin_L/skin_v3/T_P06_rf_33_burnt_furniture_ruin_L_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/stage1/P06_rf_33_burnt_furniture_ruin_L/skin_v3/T_P06_rf_33_burnt_furniture_ruin_L_SkinColor_o2.png",
+     "sha256": "88f7f3e4e2911ec7a1217383762b02aee6cf303a59fe09fbbb61b1e1339a6db5"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/stage1/P06_rf_33_burnt_furniture_ruin_L/skin_v3/T_P06_rf_33_burnt_furniture_ruin_L_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/stage1/P06_rf_33_burnt_furniture_ruin_L/skin_v3/T_P06_rf_33_burnt_furniture_ruin_L_SkinMask_o2.png",
+     "sha256": "1eff0735e5afcc2037efd60d28febe92e0fdd537205adbb280d62b05e7ead6a5"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/stage1/P06_rf_33_burnt_furniture_ruin_L/skin_v3/T_P06_rf_33_burnt_furniture_ruin_L_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/stage1/P06_rf_33_burnt_furniture_ruin_L/skin_v3/T_P06_rf_33_burnt_furniture_ruin_L_SkinNormal_o2.png",
+     "sha256": "a7a2656734ac802e481c03296231a13ebc79af4cc57fd76cca54794dc489bb53"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/stage1/P06_rf_33_burnt_furniture_ruin_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/stage1/P06_rf_33_burnt_furniture_ruin_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "c373ff072c8ebcb36737cf5b13a5f259a8348afbcc2b12f1175a5e44db8b58ae"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/builds_t5j/P06/P06_rf_33_burnt_furniture_ruin_L_t5j/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/builds_t5j/P06/P06_rf_33_burnt_furniture_ruin_L_t5j/validation.json",
+     "sha256": "ff1891e71e26bc99be89b7cb21b55b7b46e69497c4fed6020d23be995e994aa1"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/stage1/P06_rf_33_burnt_furniture_ruin_L/skin_v3/P06_rf_33_burnt_furniture_ruin_L_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/stage1/P06_rf_33_burnt_furniture_ruin_L/skin_v3/P06_rf_33_burnt_furniture_ruin_L_mi_params.json",
+     "sha256": "71755ae8d15ca22cb60bffa207479745aa921a604b29978960699f022795dddc"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/edge_gate/edge_probe.json",
+     "sha256": "9c019e01f5ffc2ba601a7db3800733a3b51041f1a5e16a7f9468dead4131cf7e"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/RZ_BUILD_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/33_burnt_furniture_ruin_v3/RZ_BUILD_REPORT.json",
+     "sha256": "dad6e437ee7d92cc6d7c6888405a57d6509fa576faf9390723da1120739f15f0"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinNormal_o2"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.09990417957306,
+      1.3458795845508575,
+      -99.99998211860657
+     ],
+     "max": [
+      3.800053149461746,
+      672.9389667510986,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 4525,
+     "lod1": 3952
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1",
+     "SOCKET_Pole_2"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_35_metal_frame_door_L": {
+   "key": "P06_rf_35_metal_frame_door_L",
+   "owner": "P06_rf_35_metal_frame_door_L",
+   "asset": "SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p",
+   "variant": "t5p",
+   "side": "L",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 35,
+   "height_cm": 1000.0,
+   "width_cm": 331.4,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/hf/builds/P06_rf_35_metal_frame_door_L_t5p/SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/hf/builds/P06_rf_35_metal_frame_door_L_t5p/SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p.fbx",
+     "sha256": "798c3442c6dd0ecf10e8f4f0943a02f58be9c25d7cc8ee790c182b53db3d0fa1"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/hf/builds/P06_rf_35_metal_frame_door_L_t5p/sockets_SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/hf/builds/P06_rf_35_metal_frame_door_L_t5p/sockets_SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p.json",
+     "sha256": "4b1fe024db12abb7c337168434b3a552eaba2c4540fcfe05a740f04307545ab9"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/stage1/P06_rf_35_metal_frame_door_L/skin_v3/T_P06_rf_35_metal_frame_door_L_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/stage1/P06_rf_35_metal_frame_door_L/skin_v3/T_P06_rf_35_metal_frame_door_L_SkinColor_o2.png",
+     "sha256": "befe16195acfe68579df1aa93f6b6de20f232d81d0726b334779527faca259ea"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/stage1/P06_rf_35_metal_frame_door_L/skin_v3/T_P06_rf_35_metal_frame_door_L_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/stage1/P06_rf_35_metal_frame_door_L/skin_v3/T_P06_rf_35_metal_frame_door_L_SkinMask_o2.png",
+     "sha256": "414ee22eb07df58da893638938d89c9795559a429a9b77bad15c19a7bab2736d"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/stage1/P06_rf_35_metal_frame_door_L/skin_v3/T_P06_rf_35_metal_frame_door_L_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/stage1/P06_rf_35_metal_frame_door_L/skin_v3/T_P06_rf_35_metal_frame_door_L_SkinNormal_o2.png",
+     "sha256": "210c2f5a26052aa8741e9bd8b29556e24e36727c4904f70c8f1fc2ab7aaa4673"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/stage1/P06_rf_35_metal_frame_door_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/stage1/P06_rf_35_metal_frame_door_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "2843165a0b0e6609f74f3680c8b59ce2358a6870cc33da7f0bb3ab46516bf21f"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/hf/builds/P06_rf_35_metal_frame_door_L_t5p/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/hf/builds/P06_rf_35_metal_frame_door_L_t5p/validation.json",
+     "sha256": "54fab55518702a3d529e0a2360fa4d3f479fd6ce3767c41e17ad15291b7f5fc3"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/stage1/P06_rf_35_metal_frame_door_L/skin_v3/P06_rf_35_metal_frame_door_L_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/stage1/P06_rf_35_metal_frame_door_L/skin_v3/P06_rf_35_metal_frame_door_L_mi_params.json",
+     "sha256": "9d5d835db1c2756fea0ce55180df059a5896edaad5509fc15c87bd3aa3e1963c"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/edge_gate/edge_probe.json",
+     "sha256": "e6a7ee836a6bc393345829bd06275d39f7e44ae0ec85fcbdc3e44a28a89ed65b"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/RZ_HF_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/35_metal_frame_door_v3/RZ_HF_REPORT.json",
+     "sha256": "549aad743ca0a04aa65b0743cdd9d555165609d85a2aed301653052dcab96869"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinNormal_o2"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.099983155727386,
+      1.104914303869009,
+      -99.99998211860657
+     ],
+     "max": [
+      3.8000043481588364,
+      332.4631452560425,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 12736,
+     "lod1": 12404
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_38_burnt_wood_concrete_L": {
+   "key": "P06_rf_38_burnt_wood_concrete_L",
+   "owner": "P06_rf_38_burnt_wood_concrete_L",
+   "asset": "SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j",
+   "variant": "t5j",
+   "side": "L",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 38,
+   "height_cm": 1000.0,
+   "width_cm": 365.1,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/builds_t5j/P06/P06_rf_38_burnt_wood_concrete_L_t5j/SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/builds_t5j/P06/P06_rf_38_burnt_wood_concrete_L_t5j/SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j.fbx",
+     "sha256": "61fe4f4624fdd2bf08fa7c3192d6f6087a65cfdff096db7450510edf903198b0"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/builds_t5j/P06/P06_rf_38_burnt_wood_concrete_L_t5j/sockets_SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/builds_t5j/P06/P06_rf_38_burnt_wood_concrete_L_t5j/sockets_SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j.json",
+     "sha256": "f121c6eee69991cb5af60caa9f18a8a41f37a025de3746a082c1d277ca4ffb97"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/stage1/P06_rf_38_burnt_wood_concrete_L/skin_v3/T_P06_rf_38_burnt_wood_concrete_L_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/stage1/P06_rf_38_burnt_wood_concrete_L/skin_v3/T_P06_rf_38_burnt_wood_concrete_L_SkinColor_o2.png",
+     "sha256": "8b11e11a20c76f588db492b549db1bb1f6b351dad1fb42d424f1d16e7386303f"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/stage1/P06_rf_38_burnt_wood_concrete_L/skin_v3/T_P06_rf_38_burnt_wood_concrete_L_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/stage1/P06_rf_38_burnt_wood_concrete_L/skin_v3/T_P06_rf_38_burnt_wood_concrete_L_SkinMask_o2.png",
+     "sha256": "7fc1e4d7b5af578da4d120061b433d98d8832f9dc224510f0d9a4db30a058163"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/stage1/P06_rf_38_burnt_wood_concrete_L/skin_v3/T_P06_rf_38_burnt_wood_concrete_L_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/stage1/P06_rf_38_burnt_wood_concrete_L/skin_v3/T_P06_rf_38_burnt_wood_concrete_L_SkinNormal_o2.png",
+     "sha256": "5f97836e80562f9c10479c8f1530a13bcbb6336fa0ca585a11cf17a1e18c0fd2"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/stage1/P06_rf_38_burnt_wood_concrete_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/stage1/P06_rf_38_burnt_wood_concrete_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "cf3a9fe3ba4e70fda66bdb1b9edcd6de0e3461ca9477f2c779f92bcb11c1260f"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/builds_t5j/P06/P06_rf_38_burnt_wood_concrete_L_t5j/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/builds_t5j/P06/P06_rf_38_burnt_wood_concrete_L_t5j/validation.json",
+     "sha256": "898a2ac7bea446ede47bb794433f6fde8cc01bc7666897d233a2a348e987613d"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/stage1/P06_rf_38_burnt_wood_concrete_L/skin_v3/P06_rf_38_burnt_wood_concrete_L_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/stage1/P06_rf_38_burnt_wood_concrete_L/skin_v3/P06_rf_38_burnt_wood_concrete_L_mi_params.json",
+     "sha256": "0840e34decbafb16d155ff8c5cd9f9dc12852895f097962c26a22697abd7d458"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/edge_gate/edge_probe.json",
+     "sha256": "826fb7ab2206ff6e19e8b80067999cd714b17465b18033bc0f6a08d737585758"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/RZ_BUILD_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/38_burnt_wood_concrete_v3/RZ_BUILD_REPORT.json",
+     "sha256": "b7d11e24f0b13c897653f21c8d0e402487d33e95175fcd698faa840005432ab3"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinNormal_o2"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.099960803985596,
+      0.5570750217884779,
+      -99.99998211860657
+     ],
+     "max": [
+      3.800007328391075,
+      365.62583446502686,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 4889,
+     "lod1": 4542
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_39_burnt_metal_door_L": {
+   "key": "P06_rf_39_burnt_metal_door_L",
+   "owner": "P06_rf_39_burnt_metal_door_L",
+   "asset": "SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j",
+   "variant": "t5j",
+   "side": "L",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 39,
+   "height_cm": 1000.0,
+   "width_cm": 428.0,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/builds_t5j/P06/P06_rf_39_burnt_metal_door_L_t5j/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/builds_t5j/P06/P06_rf_39_burnt_metal_door_L_t5j/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j.fbx",
+     "sha256": "24ada871583f463145ef78da091624425f202608cc239b7c64680c195b8d65a8"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/builds_t5j/P06/P06_rf_39_burnt_metal_door_L_t5j/sockets_SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/builds_t5j/P06/P06_rf_39_burnt_metal_door_L_t5j/sockets_SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j.json",
+     "sha256": "bcf1a85371891656e14006bf35c7a3bb6e705d158e8d14ef516f072c9bb10996"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/stage1/P06_rf_39_burnt_metal_door_L/skin_v3/T_P06_rf_39_burnt_metal_door_L_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/stage1/P06_rf_39_burnt_metal_door_L/skin_v3/T_P06_rf_39_burnt_metal_door_L_SkinColor_o2.png",
+     "sha256": "477fe25fd17147ae40ee29a61d7c481cfc817d57d35e3b23ff4efc1e65046fc5"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/stage1/P06_rf_39_burnt_metal_door_L/skin_v3/T_P06_rf_39_burnt_metal_door_L_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/stage1/P06_rf_39_burnt_metal_door_L/skin_v3/T_P06_rf_39_burnt_metal_door_L_SkinMask_o2.png",
+     "sha256": "37badba6614a31247a5959ec4ef7fe0a0e9e4c5ad4acd7f026772065fb614a48"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/stage1/P06_rf_39_burnt_metal_door_L/skin_v3/T_P06_rf_39_burnt_metal_door_L_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/stage1/P06_rf_39_burnt_metal_door_L/skin_v3/T_P06_rf_39_burnt_metal_door_L_SkinNormal_o2.png",
+     "sha256": "5e858a6115c098741f72307a7e7e60fe59cb124d16d536a297f55422e0e528c0"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/stage1/P06_rf_39_burnt_metal_door_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/stage1/P06_rf_39_burnt_metal_door_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "9d60cf06e8b8b1c55065d851711ab8efeeb9cbe5bb1d66ce8849650a7186062b"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/builds_t5j/P06/P06_rf_39_burnt_metal_door_L_t5j/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/builds_t5j/P06/P06_rf_39_burnt_metal_door_L_t5j/validation.json",
+     "sha256": "ba3c3590f85f1a11959de63b2d4a2fbd600afdab476a788d55fd22e26938188b"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/stage1/P06_rf_39_burnt_metal_door_L/skin_v3/P06_rf_39_burnt_metal_door_L_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/stage1/P06_rf_39_burnt_metal_door_L/skin_v3/P06_rf_39_burnt_metal_door_L_mi_params.json",
+     "sha256": "8615dd9219a6ae42a88b4f17650c8967db54914aa00a2834c74586d12a4f6382"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/edge_gate/edge_probe.json",
+     "sha256": "8a0981a06db17b9a4653c73b3874d49485d86f80d15f9ef7e8dc8df42a78b066"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/RZ_BUILD_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/39_burnt_metal_door_v3/RZ_BUILD_REPORT.json",
+     "sha256": "d101654f0f53104256d23aad06ef0e5de71d1c05fe753ea18bf9d427647ea263"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinNormal_o2"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.09994888305664,
+      0.6501922383904457,
+      -99.99998211860657
+     ],
+     "max": [
+      3.800038993358612,
+      428.6923408508301,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 13566,
+     "lod1": 12960
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1",
+     "SOCKET_Pole_2"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_3_orange_sail_structure_L": {
+   "key": "P06_rf_3_orange_sail_structure_L",
+   "owner": "P06_rf_3_orange_sail_structure_L",
+   "asset": "SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p",
+   "variant": "t5p",
+   "side": "L",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 3,
+   "height_cm": 1000.0,
+   "width_cm": 393.7,
+   "thickness_cm": 24.75,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/hf/builds/P06_rf_3_orange_sail_structure_L_t5p/SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/hf/builds/P06_rf_3_orange_sail_structure_L_t5p/SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p.fbx",
+     "sha256": "a3b2875c930de15a978cdac9757cbe5e8b559afa9b3b893c3537905c563c3cd8"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/hf/builds/P06_rf_3_orange_sail_structure_L_t5p/sockets_SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/hf/builds/P06_rf_3_orange_sail_structure_L_t5p/sockets_SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p.json",
+     "sha256": "70f81e34fc249315d9d1b983f877cbb8725e27c25f9980cb2d4362593cda1cf6"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/stage1/P06_rf_3_orange_sail_structure_L/skin_v3/T_P06_rf_3_orange_sail_structure_L_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/stage1/P06_rf_3_orange_sail_structure_L/skin_v3/T_P06_rf_3_orange_sail_structure_L_SkinColor_o2.png",
+     "sha256": "a2009b3b2fd530be56231b825a4375d876f41016a95f741d9516de37bfeadec3"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/stage1/P06_rf_3_orange_sail_structure_L/skin_v3/T_P06_rf_3_orange_sail_structure_L_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/stage1/P06_rf_3_orange_sail_structure_L/skin_v3/T_P06_rf_3_orange_sail_structure_L_SkinMask_o2.png",
+     "sha256": "88eaff2b8655eac407f1e84cef4f2711718e8862243416fe62363a5fbbb9f33a"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/stage1/P06_rf_3_orange_sail_structure_L/skin_v3/T_P06_rf_3_orange_sail_structure_L_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/stage1/P06_rf_3_orange_sail_structure_L/skin_v3/T_P06_rf_3_orange_sail_structure_L_SkinNormal_o2.png",
+     "sha256": "1bee758161cf84d86ee659a78b3b6edaa4294b3ff7b89181a39fe491d158ed89"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/stage1/P06_rf_3_orange_sail_structure_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/stage1/P06_rf_3_orange_sail_structure_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "1e3c91b8ecd1f1dba5ffd77311bf20927cbfebc7735c98729f17b08203e94dd2"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/hf/builds/P06_rf_3_orange_sail_structure_L_t5p/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/hf/builds/P06_rf_3_orange_sail_structure_L_t5p/validation.json",
+     "sha256": "eb9fcefbf2cc03ccf617e62cd6bb8b26d46b2397ef30b5ec0e026b45ac252e21"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/stage1/P06_rf_3_orange_sail_structure_L/skin_v3/P06_rf_3_orange_sail_structure_L_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/stage1/P06_rf_3_orange_sail_structure_L/skin_v3/P06_rf_3_orange_sail_structure_L_mi_params.json",
+     "sha256": "a08f1611250891b4af97228ae4ce706a9df10b0ce76691cf37066fc44795bb80"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/edge_gate/edge_probe.json",
+     "sha256": "dc6cb2485d5f8622c9ca7bb13a33abad4776515c77385bece925d92ee045391b"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/RZ_HF_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/3_orange_sail_structure_v3/RZ_HF_REPORT.json",
+     "sha256": "90cf7e7ca0768098e98be594742b8a51830466484b22685606e446ad4730afe4"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinNormal_o2"
+   ],
+   "notes": [
+    "validation.socket_contract lists ['SOCKET_Hinge', 'SOCKET_Pivot', 'SOCKET_Pole_1']; sidecar + baked poles carry ['SOCKET_Hinge', 'SOCKET_Pivot', 'SOCKET_Pole_1', 'SOCKET_Pole_2'] (sidecar used)"
+   ],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -20.949961245059967,
+      76.99785828590393,
+      -99.99998211860657
+     ],
+     "max": [
+      3.8000382483005524,
+      470.7249164581299,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 17755,
+     "lod1": 17308
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1",
+     "SOCKET_Pole_2"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_6_rock_formation_sculpture_L": {
+   "key": "P06_rf_6_rock_formation_sculpture_L",
+   "owner": "P06_rf_6_rock_formation_sculpture_L",
+   "asset": "SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p",
+   "variant": "t5p",
+   "side": "L",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 6,
+   "height_cm": 1000.0,
+   "width_cm": 696.3,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/hf/builds/P06_rf_6_rock_formation_sculpture_L_t5p/SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/hf/builds/P06_rf_6_rock_formation_sculpture_L_t5p/SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p.fbx",
+     "sha256": "e57edad1bb075f50acc534495fce24dc70d8d94bf5e7478a46aafeb666e5a836"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/hf/builds/P06_rf_6_rock_formation_sculpture_L_t5p/sockets_SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/hf/builds/P06_rf_6_rock_formation_sculpture_L_t5p/sockets_SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p.json",
+     "sha256": "4b4f7deaf4777b25ea376aef81af219227df47ced771b51e91f0b5be5b3e1f97"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/stage1/P06_rf_6_rock_formation_sculpture_L/skin_v3/T_P06_rf_6_rock_formation_sculpture_L_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/stage1/P06_rf_6_rock_formation_sculpture_L/skin_v3/T_P06_rf_6_rock_formation_sculpture_L_SkinColor_o2.png",
+     "sha256": "5dc82c51aba947d5dc9c419ac69a611276bff896fb336fb7697eaf705b0afb26"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/stage1/P06_rf_6_rock_formation_sculpture_L/skin_v3/T_P06_rf_6_rock_formation_sculpture_L_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/stage1/P06_rf_6_rock_formation_sculpture_L/skin_v3/T_P06_rf_6_rock_formation_sculpture_L_SkinMask_o2.png",
+     "sha256": "68dd2bc54ccfe50045cbef4b156a9419964374fab05581c5d4ecc5c190d7f5ee"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/stage1/P06_rf_6_rock_formation_sculpture_L/skin_v3/T_P06_rf_6_rock_formation_sculpture_L_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/stage1/P06_rf_6_rock_formation_sculpture_L/skin_v3/T_P06_rf_6_rock_formation_sculpture_L_SkinNormal_o2.png",
+     "sha256": "a96be564b08d89168ed740e4ed35ccecae99eec00c0a16ce976b939fae3f9e09"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/stage1/P06_rf_6_rock_formation_sculpture_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/stage1/P06_rf_6_rock_formation_sculpture_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "62e76b041be04e27a3d9918c712159beb2f4075b410424854356fe3c5d6b48e0"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/hf/builds/P06_rf_6_rock_formation_sculpture_L_t5p/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/hf/builds/P06_rf_6_rock_formation_sculpture_L_t5p/validation.json",
+     "sha256": "36cb1914eea5b4a8f5331581523a87fd66df954d744fbd41380eed5684556bd6"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/stage1/P06_rf_6_rock_formation_sculpture_L/skin_v3/P06_rf_6_rock_formation_sculpture_L_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/stage1/P06_rf_6_rock_formation_sculpture_L/skin_v3/P06_rf_6_rock_formation_sculpture_L_mi_params.json",
+     "sha256": "a656e1b2fa52402a44e435cf98d488de429d2801906d5863310a25bf82177e43"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/edge_gate/edge_probe.json",
+     "sha256": "b9ded001b3164d9289206d71dd5411915afc1bd201a757d9d9b0efe86abd04c5"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/RZ_HF_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/6_rock_formation_sculpture_v3/RZ_HF_REPORT.json",
+     "sha256": "30483332f4c66b438dd35b2ea172625001227105bbc05dc83b5f9c8bc8d43266"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinNormal_o2"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.09992802143097,
+      1.8554147332906723,
+      -99.99998211860657
+     ],
+     "max": [
+      3.8000550121068954,
+      698.1246948242188,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 18838,
+     "lod1": 18478
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1",
+     "SOCKET_Pole_2"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_7_draped_marble_statue_L": {
+   "key": "P06_rf_7_draped_marble_statue_L",
+   "owner": "P06_rf_7_draped_marble_statue_L",
+   "asset": "SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p",
+   "variant": "t5p",
+   "side": "L",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 7,
+   "height_cm": 1000.0,
+   "width_cm": 631.3,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/hf/builds/P06_rf_7_draped_marble_statue_L_t5p/SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/hf/builds/P06_rf_7_draped_marble_statue_L_t5p/SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p.fbx",
+     "sha256": "d3e129123849d3edcb5cd98a2b0034e1a6a54cd1091f26669578549bf0b8ea11"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/hf/builds/P06_rf_7_draped_marble_statue_L_t5p/sockets_SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/hf/builds/P06_rf_7_draped_marble_statue_L_t5p/sockets_SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p.json",
+     "sha256": "156a82fd45437e55a543e9cf1ef7a0fd526ef6c920251ae0703c02d387bc975e"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/stage1/P06_rf_7_draped_marble_statue_L/skin_v3/T_P06_rf_7_draped_marble_statue_L_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/stage1/P06_rf_7_draped_marble_statue_L/skin_v3/T_P06_rf_7_draped_marble_statue_L_SkinColor_o2.png",
+     "sha256": "a04e30d3f233362936c6b43ec36c5ea8b60f319d208f60bce55da564960f9c80"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/stage1/P06_rf_7_draped_marble_statue_L/skin_v3/T_P06_rf_7_draped_marble_statue_L_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/stage1/P06_rf_7_draped_marble_statue_L/skin_v3/T_P06_rf_7_draped_marble_statue_L_SkinMask_o2.png",
+     "sha256": "96de7d3065dc540235e5c55a68ed41894e40102d1c8f26d9ade0526114834dde"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/stage1/P06_rf_7_draped_marble_statue_L/skin_v3/T_P06_rf_7_draped_marble_statue_L_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/stage1/P06_rf_7_draped_marble_statue_L/skin_v3/T_P06_rf_7_draped_marble_statue_L_SkinNormal_o2.png",
+     "sha256": "8c62524d0500e90b91fae0fd630b837af7fdd1bfcb21bbf8b453b1117b2cbe2c"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/stage1/P06_rf_7_draped_marble_statue_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/stage1/P06_rf_7_draped_marble_statue_L/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "cf13c7b3bc0bd5e238c57059376572aefd4ef91e5258a7d7e03f7d44423b017e"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/hf/builds/P06_rf_7_draped_marble_statue_L_t5p/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/hf/builds/P06_rf_7_draped_marble_statue_L_t5p/validation.json",
+     "sha256": "a0ca75a7ac5d9d3dc3de87267bbbdd0863e75f0bc36465bd0a350460334eceb4"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/stage1/P06_rf_7_draped_marble_statue_L/skin_v3/P06_rf_7_draped_marble_statue_L_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/stage1/P06_rf_7_draped_marble_statue_L/skin_v3/P06_rf_7_draped_marble_statue_L_mi_params.json",
+     "sha256": "0d09595fb5380051d08bdf235ebab5d4fde1953d495d01486d4fadc8f23a9114"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/edge_gate/edge_probe.json",
+     "sha256": "ab3f483d625e4155b52b209ab0732f29a4074bd34ab5f4926f6ef6f2bf9bd050"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/RZ_HF_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/7_draped_marble_statue_v3/RZ_HF_REPORT.json",
+     "sha256": "e014d40aee926bcbcffa29d2df86b05911a6586154f0c8524fa8844a4d60f732"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinNormal_o2"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.099968254566193,
+      1.5475518070161343,
+      -99.99998211860657
+     ],
+     "max": [
+      3.8000497967004776,
+      632.8717708587646,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 18091,
+     "lod1": 17589
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1",
+     "SOCKET_Pole_2"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_8_rock_formation_sculpture_R": {
+   "key": "P06_rf_8_rock_formation_sculpture_R",
+   "owner": "P06_rf_8_rock_formation_sculpture_R",
+   "asset": "SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p",
+   "variant": "t5p",
+   "side": "R",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 8,
+   "height_cm": 1000.0,
+   "width_cm": 643.4,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/hf/builds/P06_rf_8_rock_formation_sculpture_R_t5p/SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/hf/builds/P06_rf_8_rock_formation_sculpture_R_t5p/SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p.fbx",
+     "sha256": "b55faeee0abcb4166bf0d7ff6c0c1ebd1bce76ffe013ab12b8a669c5b262c641"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/hf/builds/P06_rf_8_rock_formation_sculpture_R_t5p/sockets_SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/hf/builds/P06_rf_8_rock_formation_sculpture_R_t5p/sockets_SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p.json",
+     "sha256": "f5e4b06b5a7f6341d1fa602c36c490b8326e65089ac13414ba0a81186d9aea1c"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/stage1/P06_rf_8_rock_formation_sculpture_R/skin_v3/T_P06_rf_8_rock_formation_sculpture_R_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/stage1/P06_rf_8_rock_formation_sculpture_R/skin_v3/T_P06_rf_8_rock_formation_sculpture_R_SkinColor_o2.png",
+     "sha256": "d4333c0c02492f029d6b91f969cb0956790cff390c4017937a4508691ea9715e"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/stage1/P06_rf_8_rock_formation_sculpture_R/skin_v3/T_P06_rf_8_rock_formation_sculpture_R_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/stage1/P06_rf_8_rock_formation_sculpture_R/skin_v3/T_P06_rf_8_rock_formation_sculpture_R_SkinMask_o2.png",
+     "sha256": "a3b55afe46cd30e7cf8007f38e5ebc60bea97a7dd3ba299bf3a271bde1b72b89"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/stage1/P06_rf_8_rock_formation_sculpture_R/skin_v3/T_P06_rf_8_rock_formation_sculpture_R_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/stage1/P06_rf_8_rock_formation_sculpture_R/skin_v3/T_P06_rf_8_rock_formation_sculpture_R_SkinNormal_o2.png",
+     "sha256": "461b147bd22990896e713f30cbc45700fac75ae2389cc2ad3f706a198e0cd551"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/stage1/P06_rf_8_rock_formation_sculpture_R/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/stage1/P06_rf_8_rock_formation_sculpture_R/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "82a15295ea23610009123a86dd2101a574696b2c87d6c78bab86e45e43ed87c2"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/hf/builds/P06_rf_8_rock_formation_sculpture_R_t5p/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/hf/builds/P06_rf_8_rock_formation_sculpture_R_t5p/validation.json",
+     "sha256": "9650773d3110f930bd1687d6b3eed731b04d3d0089fc09c3700a9b9e24af5396"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/stage1/P06_rf_8_rock_formation_sculpture_R/skin_v3/P06_rf_8_rock_formation_sculpture_R_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/stage1/P06_rf_8_rock_formation_sculpture_R/skin_v3/P06_rf_8_rock_formation_sculpture_R_mi_params.json",
+     "sha256": "a3371622bdf6bc8fca0d227a77fd1a382c1fe9038e625e308c8798fda5d28f6e"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/edge_gate/edge_probe.json",
+     "sha256": "388d8bd85761b1c1184d215119f9e4aabf8a7ae3c3cc74e3755ccfa3ac2bdb29"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/RZ_HF_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/8_rock_formation_sculpture_v3/RZ_HF_REPORT.json",
+     "sha256": "3fe6ebd9b6b7f8cd2c395b958cc97133a2ed4bff672eae9c029a2d9959d7d91e"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinNormal_o2"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.10002636909485,
+      -645.0023651123047,
+      -99.99998211860657
+     ],
+     "max": [
+      3.799975663423538,
+      -1.6092199832201004,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 18711,
+     "lod1": 18335
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1",
+     "SOCKET_Pole_2"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  },
+  "P06_rf_9_draped_column_statue_R": {
+   "key": "P06_rf_9_draped_column_statue_R",
+   "owner": "P06_rf_9_draped_column_statue_R",
+   "asset": "SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p",
+   "variant": "t5p",
+   "side": "R",
+   "mount": "wing",
+   "passage": "P06",
+   "manifest_index": 0,
+   "pick": 9,
+   "height_cm": 1000.0,
+   "width_cm": 664.6,
+   "thickness_cm": 24.9,
+   "sources": {
+    "fbx": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/hf/builds/P06_rf_9_draped_column_statue_R_t5p/SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p.fbx",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/hf/builds/P06_rf_9_draped_column_statue_R_t5p/SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p.fbx",
+     "sha256": "16ea68a07db637195d5cd5d649fb944b25f5df221f61e9b3cb767184287a64a9"
+    },
+    "socket": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/hf/builds/P06_rf_9_draped_column_statue_R_t5p/sockets_SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/hf/builds/P06_rf_9_draped_column_statue_R_t5p/sockets_SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p.json",
+     "sha256": "b03d9bdc2b5db07ff4e9f0bd6cbf2d47cf8bd81d1a2caa4c6b0ff8cd5b653551"
+    },
+    "SkinColor": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/stage1/P06_rf_9_draped_column_statue_R/skin_v3/T_P06_rf_9_draped_column_statue_R_SkinColor_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/stage1/P06_rf_9_draped_column_statue_R/skin_v3/T_P06_rf_9_draped_column_statue_R_SkinColor_o2.png",
+     "sha256": "d59e478ce9b83c654a5a581e3f4b92dae67c5a302bfc432018231b751662a403"
+    },
+    "SkinMask": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/stage1/P06_rf_9_draped_column_statue_R/skin_v3/T_P06_rf_9_draped_column_statue_R_SkinMask_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/stage1/P06_rf_9_draped_column_statue_R/skin_v3/T_P06_rf_9_draped_column_statue_R_SkinMask_o2.png",
+     "sha256": "51294fd68916491d9eabbd02063b73d062561c7be39e72c648450e073fa04707"
+    },
+    "SkinNormal": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/stage1/P06_rf_9_draped_column_statue_R/skin_v3/T_P06_rf_9_draped_column_statue_R_SkinNormal_o2.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/stage1/P06_rf_9_draped_column_statue_R/skin_v3/T_P06_rf_9_draped_column_statue_R_SkinNormal_o2.png",
+     "sha256": "4ebad5973c3e31ae6c249c5adcf55d4f2deb7c25b353b074240fc7b6bd66f10f"
+    },
+    "AgedStencil": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/stage1/P06_rf_9_draped_column_statue_R/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/stage1/P06_rf_9_draped_column_statue_R/aged/T_FlatV3_AgedPlywood_Stencil_Color.png",
+     "sha256": "74fdd36248619399efd0b67d544dbbaa9c10a69a9509ffc365bc6e741f26dcd0"
+    },
+    "validation": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/hf/builds/P06_rf_9_draped_column_statue_R_t5p/validation.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/hf/builds/P06_rf_9_draped_column_statue_R_t5p/validation.json",
+     "sha256": "d922a5e1ed7a3b2e36577b02fae1e7d62a893007f364054b03f7ee3dcf7ca183"
+    },
+    "mi_params": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/stage1/P06_rf_9_draped_column_statue_R/skin_v3/P06_rf_9_draped_column_statue_R_mi_params.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/stage1/P06_rf_9_draped_column_statue_R/skin_v3/P06_rf_9_draped_column_statue_R_mi_params.json",
+     "sha256": "806f734bb37a722717192919031a459a477802ffcd7f946e48fe6f297b804b96"
+    },
+    "edge_probe": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/edge_gate/edge_probe.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/edge_gate/edge_probe.json",
+     "sha256": "5c0426d70bf737f0bfc1462f20434b072207c2255036d530835eeea116ff9963"
+    },
+    "build_report": {
+     "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/RZ_HF_REPORT.json",
+     "abs": "E:/PussStage/DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/9_draped_column_statue_v3/RZ_HF_REPORT.json",
+     "sha256": "39a6de0fca8b6ed7c42a5f33018fdbeca814375e102932c58dc7e2d5a3d8e49a"
+    }
+   },
+   "destinations": {
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinNormal_o2",
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_AgedPlywood_Stencil_Color",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Front",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Flap"
+   },
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinNormal_o2"
+   ],
+   "notes": [],
+   "expected": {
+    "bounds_cm": {
+     "min": [
+      -21.100027859210968,
+      -667.2354221343994,
+      -99.99998211860657
+     ],
+     "max": [
+      3.7999682128429413,
+      -2.6412982493638992,
+      1019.9999809265137
+     ]
+    },
+    "triangles": {
+     "lod0": 17997,
+     "lod1": 17457
+    },
+    "sockets": [
+     "SOCKET_Hinge",
+     "SOCKET_Pivot",
+     "SOCKET_Pole_1",
+     "SOCKET_Pole_2"
+    ],
+    "pole": {
+     "extension_below_panel_cm": 100.0,
+     "bottom_z_cm": -100.0,
+     "top_above_panel_cm": 20.0
+    },
+    "expect_flap": true,
+    "scalars": {
+     "SheetWidthM": 1.0,
+     "SheetHeightM": 1.5,
+     "SheetOverlapM": 0.025,
+     "RowOffset": 0.5
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   }
+  }
+ },
+ "batches": [
+  {
+   "batch": 1,
+   "owners": [
+    "P06_rf_1_stone_building_under_L",
+    "P06_rf_2_pink_silk_structure_R",
+    "P06_rf_3_orange_sail_structure_L"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_1_stone_building_under_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinColor_o2p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinNormal_o2"
+   ],
+   "passages": [
+    "P06"
+   ]
+  },
+  {
+   "batch": 2,
+   "owners": [
+    "P06_rf_6_rock_formation_sculpture_L",
+    "P06_rf_7_draped_marble_statue_L",
+    "P06_rf_8_rock_formation_sculpture_R"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinNormal_o2"
+   ],
+   "passages": [
+    "P06"
+   ]
+  },
+  {
+   "batch": 3,
+   "owners": [
+    "P06_rf_9_draped_column_statue_R",
+    "P06_rf_10_building_under_construct_R",
+    "P06_rf_25_concrete_wall_with_L"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_10_building_under_construct_R_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinNormal_o2"
+   ],
+   "passages": [
+    "P06"
+   ]
+  },
+  {
+   "batch": 4,
+   "owners": [
+    "P06_rf_26_concrete_panel_wood_L",
+    "P06_rf_30_rusty_metal_door_L",
+    "P06_rf_33_burnt_furniture_ruin_L"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinNormal_o2"
+   ],
+   "passages": [
+    "P06"
+   ]
+  },
+  {
+   "batch": 5,
+   "owners": [
+    "P06_rf_35_metal_frame_door_L",
+    "P06_rf_38_burnt_wood_concrete_L",
+    "P06_rf_39_burnt_metal_door_L"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinNormal_o2"
+   ],
+   "passages": [
+    "P06"
+   ]
+  }
+ ],
+ "package_count": 105,
+ "refusals": [],
+ "mounts": [
+  "wing"
+ ],
+ "passages": [
+  "P06"
+ ],
+ "aged_common": {
+  "root": "/Game/Scenes/Wings/FlatV3/Passage06/Textures/Aged/Common",
+  "names": [
+   "T_FlatV3_AgedSoftwood_Color",
+   "T_FlatV3_AgedSoftwood_Roughness",
+   "T_FlatV3_AgedSoftwood_NormalDX",
+   "T_FlatV3_AgedPlywood_Roughness",
+   "T_FlatV3_AgedPlywood_NormalDX",
+   "T_FlatV3_AgedSteel_Color"
+  ],
+  "strategy": "REUSE_EXISTING"
+ },
+ "inputs_hash": "70249bee91627972462323e9806da97e18897e8197073c9f2f882cff50d01a5d",
+ "hash8": "70249bee",
+ "gates_ok": true,
+ "undo_list_if_all_applied": {
+  "mode": "UNDO_LIST",
+  "auto_delete": false,
+  "plan": "70249bee",
+  "how": [
+   "1 Nothing may reference these meshes: REVERT every rzswap APPLY that placed them first.",
+   "2 In the Content Browser select a batch's assets (MIs, then the mesh, then textures) and Delete; the reference check must report NO referencers.  Never Force Delete.",
+   "3 Save nothing else; VERIFY then reports the batch as missing.",
+   "Never Save All; never delete Passage06 assets (the reused aged Common set belongs to P06)."
+  ],
+  "batches": [
+   {
+    "batch": 1,
+    "owners": [
+     "P06_rf_1_stone_building_under_L",
+     "P06_rf_2_pink_silk_structure_R",
+     "P06_rf_3_orange_sail_structure_L"
+    ],
+    "delete_in_order": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_1_stone_building_under_L_t5p",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinColor_o2p",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinNormal_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinNormal_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinNormal_o2"
+    ],
+    "files": [
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_1_stone_building_under_L_t5p.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinColor_o2p.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinNormal_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinNormal_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinNormal_o2.uasset"
+    ]
+   },
+   {
+    "batch": 2,
+    "owners": [
+     "P06_rf_6_rock_formation_sculpture_L",
+     "P06_rf_7_draped_marble_statue_L",
+     "P06_rf_8_rock_formation_sculpture_R"
+    ],
+    "delete_in_order": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinNormal_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinNormal_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinNormal_o2"
+    ],
+    "files": [
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinNormal_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinNormal_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinNormal_o2.uasset"
+    ]
+   },
+   {
+    "batch": 3,
+    "owners": [
+     "P06_rf_9_draped_column_statue_R",
+     "P06_rf_10_building_under_construct_R",
+     "P06_rf_25_concrete_wall_with_L"
+    ],
+    "delete_in_order": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_10_building_under_construct_R_t5j",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinNormal_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinNormal_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinNormal_o2"
+    ],
+    "files": [
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_10_building_under_construct_R_t5j.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinNormal_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinNormal_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinNormal_o2.uasset"
+    ]
+   },
+   {
+    "batch": 4,
+    "owners": [
+     "P06_rf_26_concrete_panel_wood_L",
+     "P06_rf_30_rusty_metal_door_L",
+     "P06_rf_33_burnt_furniture_ruin_L"
+    ],
+    "delete_in_order": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinNormal_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinNormal_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinNormal_o2"
+    ],
+    "files": [
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinNormal_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinNormal_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinNormal_o2.uasset"
+    ]
+   },
+   {
+    "batch": 5,
+    "owners": [
+     "P06_rf_35_metal_frame_door_L",
+     "P06_rf_38_burnt_wood_concrete_L",
+     "P06_rf_39_burnt_metal_door_L"
+    ],
+    "delete_in_order": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Flap",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j",
+     "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_AgedPlywood_Stencil_Color",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinNormal_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinNormal_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinColor_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinMask_o2",
+     "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinNormal_o2"
+    ],
+    "files": [
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Flap.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Front.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_AgedPlywood_Stencil_Color.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinNormal_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinNormal_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinColor_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinMask_o2.uasset",
+     "Content/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinNormal_o2.uasset"
+    ]
+   }
+  ]
+ },
+ "apply_confirms": {
+  "1": "APPLY RZIMPORT BATCH 1 #70249bee",
+  "2": "APPLY RZIMPORT BATCH 2 #70249bee",
+  "3": "APPLY RZIMPORT BATCH 3 #70249bee",
+  "4": "APPLY RZIMPORT BATCH 4 #70249bee",
+  "5": "APPLY RZIMPORT BATCH 5 #70249bee"
+ }
+}

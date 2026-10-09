@@ -1,0 +1,538 @@
+{
+ "checks": [
+  {
+   "check": "R1 POS P06 v2 manifest: destinations == the P06 kit's (same 15 owners, same 105 /Game paths)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "R1 NEG ... and it REFUSES only with DESTINATION_CLASH_WITH_P06_IMPORT (already imported 7 Oct)",
+   "pass": true,
+   "detail": "[\"DESTINATION_CLASH_WITH_P06_IMPORT 105 ['/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_10_building_under_construct_R_Flap', '/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_10_building_under_construct_R_Front', '/Game/Scenes/Wings/FlatV3/Realism/M"
+  },
+  {
+   "check": "R1 POS P06 auto-batches <= 3 and cover every owner once",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "R2 POS v1 root manifest (P02, 12 m, never imported): every file gate passes",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "check": "R2 POS ... heights come from the manifest: 1200 cm, bounds z -100..1220, pivot 600",
+   "pass": true,
+   "detail": "[(1200.0, {'min': [-16.049952805042267, 1.0214422829449177, -99.99997615814209], 'max': [3.8000497967004776, 507.65604972839355, 1219.9999809265137]}), (1200.0, {'min': [-16.049954295158386, 1.0799707844853401, -99.99997615814209], 'max': [3.8000423461198807, 537.2846603393555, 1219.9999809265137]})"
+  },
+  {
+   "check": "R2 POS ... P02 owners only, mesh folders by variant (t5p -> T5P, t5j -> T5J)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "G0 POS geometry_verdict accepts the expected measurement of every real entry (P06 x15, P02 v1 x2)",
+   "pass": true,
+   "detail": "[[], []]"
+  },
+  {
+   "check": "F1 POS fixtures P02 (2 x 12 m wings) + VAL (2 top borders): every file gate passes",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "check": "F1 POS 28 packages, all under the Realism root, 7 per entry",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "F1 POS batches never mix manifests; <= 3 each",
+   "pass": true,
+   "detail": "[['P02_real_91_synth_fern_L', 'P02_real_92_synth_hut_R'], ['VAL_real_93_synth_valance_C', 'VAL_real_94_synth_garland_C']]"
+  },
+  {
+   "check": "F1b POS PRO passage token accepts a conforming paper-proscenium wing",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "check": "F1b NEG misspelled paper-proscenium passage token is refused",
+   "pass": true,
+   "detail": "[\"PASSAGE_UNKNOWN SM_FlatV3_PR0_side_L_t5p 'PR0'\"]"
+  },
+  {
+   "check": "F2 POS top border: no sockets expected, no pole, mount top-border, centred bounds, z 0..300",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "F2 POS top border whose art stops below the image top (250 of 262.5 cm) is accepted [inf rule]",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "F3 POS 12 m wing: bounds z -100..1220, pivot expectation 600 cm",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "F4 POS real v1 P02 + fixtures together: owners distinct, gates pass, 3 batches (one per manifest)",
+   "pass": true,
+   "detail": "([], [['P02_real_19_moss_covered_driftwood_L', 'P02_real_23_moss_covered_rock_L'], ['P02_real_91_synth_fern_L', 'P02_real_92_synth_hut_R'], ['VAL_real_93_synth_valance_C', 'VAL_real_94_synth_garland_C']])"
+  },
+  {
+   "check": "F4 POS plan hash changes with the manifest set",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "N1 NEG manifest says 1200 but the build is 10 m (bounds top 1020) -> HEIGHT_VS_MANIFEST (not hard-coded)",
+   "pass": true,
+   "detail": "['HEIGHT_VS_MANIFEST z -100.00..1020.00 want -100.00..1220.00 SM_FlatV3_P02_real_95_synth_fault_L_t5p']"
+  },
+  {
+   "check": "N1 NEG manifest says 1000 but the build is 12 m -> HEIGHT_VS_MANIFEST",
+   "pass": true,
+   "detail": "['HEIGHT_VS_MANIFEST z -100.00..1220.00 want -100.00..1020.00 SM_FlatV3_P02_real_95_synth_fault_L_t5p']"
+  },
+  {
+   "check": "N2 NEG 12 m wing with its pivot at 500 (a 10 m contract) -> PIVOT_Z_VS_MANIFEST_HEIGHT",
+   "pass": true,
+   "detail": "['PIVOT_Z_VS_MANIFEST_HEIGHT SM_FlatV3_P02_real_95_synth_fault_L_t5p 500.000 vs 600.000']"
+  },
+  {
+   "check": "N3 NEG same owner in two manifests -> DUPLICATE_OWNER",
+   "pass": true,
+   "detail": "['DUPLICATE_OWNER P02_real_96_dup_L (C:/Users/Administrator/AppData/Local/Temp/rzimp_ob0i1hqd/n3a/A.json and C:/Users/Administrator/AppData/Local/Temp/rzimp_ob0i1hqd/n3b/B.json)']"
+  },
+  {
+   "check": "N4 NEG a P02 owner under intended_passage P03 -> OWNER_NOT_PASSAGE_PREFIXED",
+   "pass": true,
+   "detail": "['OWNER_NOT_PASSAGE_PREFIXED P02_real_95_synth_fault_L (intended_passage P03)']"
+  },
+  {
+   "check": "N5 NEG top border whose sidecar carries a socket -> TOP_BORDER_HAS_SOCKETS",
+   "pass": true,
+   "detail": "[\"TOP_BORDER_HAS_SOCKETS SM_FlatV3_VAL_real_97_t_C_t5p ['SOCKET_Hinge']\"]"
+  },
+  {
+   "check": "N6 NEG top border with baked poles -> TOP_BORDER_HAS_BAKED_POLES",
+   "pass": true,
+   "detail": "['TOP_BORDER_HAS_BAKED_POLES SM_FlatV3_VAL_real_97_t_C_t5p']"
+  },
+  {
+   "check": "N7 NEG top border validated as 'flat' -> TOP_BORDER_VALIDATION_KIND",
+   "pass": true,
+   "detail": "[\"TOP_BORDER_VALIDATION_KIND SM_FlatV3_VAL_real_97_t_C_t5p 'flat' (rz_build_one validates top borders as 'wave')\"]"
+  },
+  {
+   "check": "N8 NEG top border not centred on Y (50 cm off) -> TOP_NOT_CENTRED",
+   "pass": true,
+   "detail": "['TOP_NOT_CENTRED SM_FlatV3_VAL_real_97_t_C_t5p -450.0 350.0']"
+  },
+  {
+   "check": "N9 NEG top border owner without the _C suffix -> OWNER_SIDE",
+   "pass": true,
+   "detail": "['OWNER_SIDE SM_FlatV3_VAL_real_98_t_L_t5p VAL_real_98_t_L mount=top-border side=L']"
+  },
+  {
+   "check": "N10 NEG a wing whose sidecar has no sockets (top-border sidecar on a wing) -> SOCKET_SIDECAR_VS_BAKED_POLES",
+   "pass": true,
+   "detail": "[\"SOCKET_SIDECAR_VS_BAKED_POLES SM_FlatV3_P02_real_95_synth_fault_L_t5p [] vs poles ['SOCKET_Pole_1']\", 'HINGE_NOT_AT_ORIGIN SM_FlatV3_P02_real_95_synth_fault_L_t5p', 'NO_PIVOT_SOCKET SM_FlatV3_P02_real_95_synth_fault_L_t5p']"
+  },
+  {
+   "check": "N11 NEG build report FAIL -> BUILD_REPORT_DISAGREES",
+   "pass": true,
+   "detail": "['BUILD_REPORT_DISAGREES SM_FlatV3_P02_real_95_synth_fault_L_t5p (C:/Users/Administrator/AppData/Local/Temp/rzimp_ob0i1hqd/n11/P02/P02_real_95_synth_fault_L_v2/RZ_HF_REPORT.json)']"
+  },
+  {
+   "check": "N12 NEG manifest unreal_imported true -> MANIFEST_ALREADY_IMPORTED_OR_UNMARKED",
+   "pass": true,
+   "detail": "['MANIFEST_ALREADY_IMPORTED_OR_UNMARKED C:/Users/Administrator/AppData/Local/Temp/rzimp_ob0i1hqd/n12/M.json unreal_imported=True']"
+  },
+  {
+   "check": "N13 NEG FBX sha in the manifest != file -> SOURCE_HASH_MISMATCH (+ BUILD_REPORT_DISAGREES)",
+   "pass": true,
+   "detail": "['BUILD_REPORT_DISAGREES SM_FlatV3_P02_real_95_synth_fault_L_t5p (C:/Users/Administrator/AppData/Local/Temp/rzimp_ob0i1hqd/n13/P02/P02_real_95_synth_fault_L_v2/RZ_HF_REPORT.json)', 'SOURCE_HASH_MISMATCH SM_FlatV3_P02_real_95_synth_fault_L_t5p fbx']"
+  },
+  {
+   "check": "N14 NEG a 4-entry batch -> BATCH_TOO_BIG",
+   "pass": true,
+   "detail": "['BATCH_TOO_BIG (max 3 wings per MCP call)']"
+  },
+  {
+   "check": "N15 NEG an entry left out of the batches -> BATCHES_DO_NOT_COVER_OWNERS_ONCE",
+   "pass": true,
+   "detail": "['BATCHES_DO_NOT_COVER_OWNERS_ONCE']"
+  },
+  {
+   "check": "N16 NEG unknown mount -> MOUNT_UNKNOWN",
+   "pass": true,
+   "detail": "['MOUNT_UNKNOWN SM_FlatV3_P02_real_95_synth_fault_L_t5p valance-ish']"
+  },
+  {
+   "check": "N17 POS a top border with 0 Flap triangles plans expect_flap False",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "check": "G1 POS wing (12 m) expected measurement passes",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "check": "G1 POS top border expected measurement passes",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "check": "G1 POS top border without flaps passes with no Flap section",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "G2 NEG top border that came in WITH a socket -> SOCKET_NAMES_FAIL / TOP_SOCKET_FAIL",
+   "pass": true,
+   "detail": "[\"SOCKET_NAMES_FAIL|SM_FlatV3_VAL_real_93_synth_valance_C_t5p|['SOCKET_Hinge'] want []\", \"TOP_SOCKET_FAIL|SM_FlatV3_VAL_real_93_synth_valance_C_t5p|['SOCKET_Hinge']\"]"
+  },
+  {
+   "check": "G3 NEG top border shifted 30 cm on Y -> TOP_NOT_CENTRED_ON_Y",
+   "pass": true,
+   "detail": "[\"BOUNDS_MISMATCH|SM_FlatV3_VAL_real_93_synth_valance_C_t5p|[[-16.05, -420.0, 0.0], [3.8, 480.0, 300.0]]|{'min': [-16.05, -450.0, 0.0], 'max': [3.8, 450.0, 300.0]}\", 'TOP_NOT_CENTRED_ON_Y|SM_FlatV3_VAL_real_93_synth_valance_C_t5p|[-420.0, 480.0]']"
+  },
+  {
+   "check": "G4 NEG flap-less top border that grew a Flap section -> UNEXPECTED_FLAP_SECTION",
+   "pass": true,
+   "detail": "['UNEXPECTED_FLAP_SECTION|SM_FlatV3_VAL_real_90_noflap_C_t5p (validator Flap triangles = 0)']"
+  },
+  {
+   "check": "G5 NEG wing with no pole-foot vertices -> BAKED_POLE_FOOT_VERTICES_MISSING",
+   "pass": true,
+   "detail": "['BAKED_POLE_FOOT_VERTICES_MISSING|SM_FlatV3_P02_real_91_synth_fern_L_t5p|lod0']"
+  },
+  {
+   "check": "G6 NEG 12 m wing with pivot at 500 -> PIVOT_SOCKET_FAIL",
+   "pass": true,
+   "detail": "[\"PIVOT_SOCKET_FAIL|SM_FlatV3_P02_real_91_synth_fern_L_t5p|{'location_cm': [0.0, 100.0, 500.0], 'local_x_axis': [0.0, 0.0, 1.0]}\"]"
+  },
+  {
+   "check": "G7 NEG LodGroup not honoured (1 LOD) -> LOD_COUNT_FAIL",
+   "pass": true,
+   "detail": "['LOD_COUNT_FAIL|SM_FlatV3_P02_real_91_synth_fern_L_t5p|1 (FBX LodGroup not honoured?)']"
+  },
+  {
+   "check": "G8 NEG LOD1 flap survived -> LOD1_FLAP_SURVIVED",
+   "pass": true,
+   "detail": "['LOD1_FLAP_SURVIVED|SM_FlatV3_VAL_real_93_synth_valance_C_t5p']"
+  },
+  {
+   "check": "G9 NEG V runs up (dv_dZ > 0) -> FRONT_UV0_SIGN_FAIL",
+   "pass": true,
+   "detail": "[\"FRONT_UV0_SIGN_FAIL|SM_FlatV3_VAL_real_93_synth_valance_C_t5p|lod0|{'du_dY': 0.002, 'dv_dZ': 0.001, 'normal': [-1.0, 0.0, 0.0]}\"]"
+  },
+  {
+   "check": "G10 NEG triangle count off by 5 -> TRIANGLE_COUNT_FAIL",
+   "pass": true,
+   "detail": "['TRIANGLE_COUNT_FAIL|SM_FlatV3_P02_real_91_synth_fern_L_t5p|lod1|11005|11000']"
+  },
+  {
+   "check": "G11 NEG Edge section at x -15..-12.5 -> EDGE_GEOMETRY_FAIL",
+   "pass": true,
+   "detail": "['EDGE_GEOMETRY_FAIL|SM_FlatV3_VAL_real_93_synth_valance_C_t5p|LOD1_EDGE_X_-15.000_-12.500_NOT_-15_-10']"
+  },
+  {
+   "check": "G12 NEG import bounds 20 cm taller than the validator's -> BOUNDS_MISMATCH",
+   "pass": true,
+   "detail": "[\"BOUNDS_MISMATCH|SM_FlatV3_VAL_real_93_synth_valance_C_t5p|[[-16.05, -450.0, 0.0], [3.8, 450.0, 320.0]]|{'min': [-16.05, -450.0, 0.0], 'max': [3.8, 450.0, 300.0]}\", 'TOP_HEIGHT_VS_MANIFEST z 0.00..320.00 want 0..(<=300.00, >=150.00)|SM_FlatV3_VAL_real_93_synth_valance_C_t5p']"
+  },
+  {
+   "check": "G13 NEG nanite left on -> NANITE_ENABLED",
+   "pass": true,
+   "detail": "['NANITE_ENABLED|SM_FlatV3_P02_real_91_synth_fern_L_t5p']"
+  },
+  {
+   "check": "G14 NEG a top-border mesh judged by the WING rule fails (the mount switch is load-bearing)",
+   "pass": true,
+   "detail": "['HEIGHT_NO_POLE_GEOMETRY|SM_FlatV3_VAL_real_93_synth_valance_C_t5p', 'SIDE_EXTENSION_FAIL|SM_FlatV3_VAL_real_93_synth_valance_C_t5p|[-450.0, 450.0]', 'HINGE_SOCKET_FAIL|SM_FlatV3_VAL_real_93_synth_valance_C_t5p|None', 'PIVOT_SOCKET_FAIL|SM_FlatV3_VAL_real_93_synth_valance_C_t5p|None', 'BAKED_POLE_F"
+  },
+  {
+   "check": "A1 NEG DRY confirm mismatch",
+   "pass": true,
+   "detail": "CONFIRM_MISMATCH 'DRY' want 'DRY RZIMPORT'"
+  },
+  {
+   "check": "A2 NEG no manifests",
+   "pass": true,
+   "detail": "MANIFESTS_MISSING (args 'manifests')"
+  },
+  {
+   "check": "A3 NEG APPLY batch 3 of 2",
+   "pass": true,
+   "detail": "BATCH_INVALID 3"
+  },
+  {
+   "check": "A4 NEG APPLY confirm of another plan (old hash)",
+   "pass": true,
+   "detail": "CONFIRM_MISMATCH 'APPLY RZIMPORT BATCH 1 #cfc43efa' want 'APPLY RZIMPORT BATCH 1 #f3080970'"
+  },
+  {
+   "check": "A5 POS APPLY confirm carries the plan hash",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "D1 NEG dirty census at start",
+   "pass": true,
+   "detail": "DIRTY_CENSUS (another stream's unsaved work? refused) {\"content\": [\"/Game/Other\"], \"maps\": []}"
+  },
+  {
+   "check": "D2 NEG PIE running",
+   "pass": true,
+   "detail": "PIE_OR_SIE_ACTIVE (refused; this tool never ends PIE)"
+  },
+  {
+   "check": "D3 NEG DRY refuses: a target already exists -> CREATE_ONLY_TARGETS_EXIST",
+   "pass": true,
+   "detail": "DRY_REFUSED 1: [\"CREATE_ONLY_TARGETS_EXIST 1 ['/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_93_synth_valance_C_Flap']\"]"
+  },
+  {
+   "check": "D3 NEG ... DRY record written REFUSED",
+   "pass": true,
+   "detail": "REFUSED"
+  },
+  {
+   "check": "D3 NEG DRY refuses: reference Front MI moved to v4 -> REFERENCE_MI_PARENT",
+   "pass": true,
+   "detail": "DRY_REFUSED 1: ['REFERENCE_MI_PARENT /Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front_v4//Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap != configured /Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front//Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_F"
+  },
+  {
+   "check": "D3 NEG ... DRY record written REFUSED",
+   "pass": true,
+   "detail": "REFUSED"
+  },
+  {
+   "check": "D3 NEG DRY refuses: aged Common missing -> AGED_COMMON_NOT_READY",
+   "pass": true,
+   "detail": "DRY_REFUSED 1: ['AGED_COMMON_NOT_READY LOAD_FAIL|Common']"
+  },
+  {
+   "check": "D3 NEG ... DRY record written REFUSED",
+   "pass": true,
+   "detail": "REFUSED"
+  },
+  {
+   "check": "D3 NEG DRY refuses: low RAM -> LOW_RAM",
+   "pass": true,
+   "detail": "DRY_REFUSED 1: ['LOW_RAM 6.0 GB free']"
+  },
+  {
+   "check": "D3 NEG ... DRY record written REFUSED",
+   "pass": true,
+   "detail": "REFUSED"
+  },
+  {
+   "check": "D4 POS DRY marker with run id + plan hash; 2 per-batch confirms logged",
+   "pass": true,
+   "detail": "['FLATV3_RZIMPORT_DRY_OK|run=RZ-T-DRY|plan=f3080970|wings=4|packages=28|mounts=top-border,wing|ram_gb=40.0', 'FLATV3_RZIMPORT_DRY_CONFIRM|run=RZ-T-DRY|plan=f3080970|batch=1|confirm=APPLY RZIMPORT BATCH 1 #f3080970']"
+  },
+  {
+   "check": "D4 POS DRY created nothing",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "X1 NEG APPLY with no DRY",
+   "pass": true,
+   "detail": "NO_PASSING_DRY for plan f3080970 (run DRY first)"
+  },
+  {
+   "check": "X2 NEG APPLY of ANOTHER plan (manifest set changed) finds no DRY for its hash",
+   "pass": true,
+   "detail": "NO_PASSING_DRY for plan cfc43efa (run DRY first)"
+  },
+  {
+   "check": "X3 NEG DRY record hash != plan -> PLAN_STALE",
+   "pass": true,
+   "detail": "PLAN_STALE dry deadbeef now f3080970 (re-run DRY)"
+  },
+  {
+   "check": "X4 NEG low RAM before any import",
+   "pass": true,
+   "detail": "LOW_RAM 8.0 GB free (memory ue58-bulk-import-oom-crash)"
+  },
+  {
+   "check": "X4 NEG ... nothing imported",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "X5 NEG reference drift since DRY",
+   "pass": true,
+   "detail": "REFERENCE_DRIFT_SINCE_DRY"
+  },
+  {
+   "check": "X6 NEG top border imported WITH a socket (Interchange) -> IMPORT_GATE GEOMETRY_GATE, nothing saved",
+   "pass": true,
+   "detail": "IMPORT_GATE GEOMETRY_GATE|SOCKET_NAMES_FAIL|SM_FlatV3_VAL_real_94_synth_garland_C_t5p|['SOCKET_Pivot'] want [] ; TOP_SOCKET_FAIL|SM_FlatV3_VAL_real_94_synth_garland_C_t5p|['SOCKET_Pivot']"
+  },
+  {
+   "check": "X6 NEG ... no save call; failure record lists the unsaved packages + Don't Save",
+   "pass": true,
+   "detail": "FAILED_UNSAVED"
+  },
+  {
+   "check": "X6 NEG ... STOPPED marker carries run, plan and batch",
+   "pass": true,
+   "detail": "[\"FLATV3_RZIMPORT_STOPPED|run=RZ-T-B2|plan=f3080970|batch=2|reason=IMPORT_GATE GEOMETRY_GATE|SOCKET_NAMES_FAIL|SM_FlatV3_VAL_real_94_synth_garland_C_t5p|['SOCKET_Pivot'] want [] ; TOP_SOCKET_FAIL|SM_FlatV3_VAL_real_94_synth_garland_C_t5p|['SOCKET_Pivot']\"]"
+  },
+  {
+   "check": "X7 NEG foreign package dirtied during import -> DIRTY_SET_NOT_EXACT",
+   "pass": true,
+   "detail": "IMPORT_GATE DIRTY_SET_NOT_EXACT want 14 batch packages, got {'content': ['/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P02_real_91_synth_fern_L_Flap', '/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P02_real_91_synth_fern_L_Front', '/Game/Scenes/Wings/FlatV3/Reali"
+  },
+  {
+   "check": "X7 NEG ... no save call",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "X8 NEG save returns False on the 3rd package",
+   "pass": true,
+   "detail": "SAVE_OR_READBACK SAVE_FAIL /Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P02_real_92_synth_hut_R_Flap"
+  },
+  {
+   "check": "X8 NEG ... ledger (per plan hash) FAILED_AFTER_SAVE with exactly 2 saved; no OK marker",
+   "pass": true,
+   "detail": "{'batches': {'1': {'run_id': 'RZ-T-B1', 'saved': ['/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P02_real_91_synth_fern_L_Flap', '/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P02_real_91_synth_fern_L_Front'], 'status': 'FAILED_AFTER_SAVE'}}, 'plan': 'f30809706355"
+  },
+  {
+   "check": "X9 NEG read-back fails after save -> no success marker",
+   "pass": true,
+   "detail": "SAVE_OR_READBACK SLOT_MATERIAL_READBACK_FAIL|fake"
+  },
+  {
+   "check": "X9 NEG ... no APPLY_OK marker",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "Y0 POS VERIFY before APPLY -> INCOMPLETE 4 missing",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "Y1 POS batch 1 saved exactly its 14 packages",
+   "pass": true,
+   "detail": "['/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P02_real_91_synth_fern_L_Flap', '/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P02_real_91_synth_fern_L_Front', '/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P02_real_92_synth_hut_R_Flap']"
+  },
+  {
+   "check": "Y1 POS success marker AFTER the last save, the read-back and the GC",
+   "pass": true,
+   "detail": "(35, 31, 33, 34)"
+  },
+  {
+   "check": "Y1 POS marker = FLATV3_RZIMPORT_APPLY_OK|run=..|plan=..|batch=1",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "Y2 NEG same batch again -> BATCH_ALREADY_SAVED",
+   "pass": true,
+   "detail": "BATCH_ALREADY_SAVED 1 (run RZ-T-B1)"
+  },
+  {
+   "check": "U1 POS UNDO_LIST after batch 1: 14 packages, MIs first; auto_delete False; nothing deleted",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "Y3 POS both batches -> VERIFY_OK wings=4 (2 wings + 2 top borders), mesh paths listed for rzswap",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "Y3 POS VERIFY wrote rzimport_verify_<hash8>_LATEST.json",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "Y3 POS 28 packages on disk, 2 GCs",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "PT1 POS art-clip: board top 2247.3 (inset) under card 2250, poles 2226.6/2215.4 -> passes",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "PT2 NEG art-clip sidecar but the mesh still reaches card+20 (unclipped poles) -> HEIGHT_VS_MANIFEST_ARTCLIP",
+   "pass": true,
+   "detail": "HEIGHT_VS_MANIFEST_ARTCLIP z -1.50..2270.00 want -1.50..[2226.60, 2250.00]"
+  },
+  {
+   "check": "PT3 NEG a recorded pole top above the card -> ARTCLIP_POLE_TOP_ABOVE_CARD",
+   "pass": true,
+   "detail": "ARTCLIP_POLE_TOP_ABOVE_CARD 2265.00 > 2250.00"
+  },
+  {
+   "check": "PT4 NEG mesh top below the highest recorded pole top -> HEIGHT_VS_MANIFEST_ARTCLIP",
+   "pass": true,
+   "detail": "HEIGHT_VS_MANIFEST_ARTCLIP z -1.50..2200.00 want -1.50..[2226.60, 2250.00]"
+  },
+  {
+   "check": "PT5 POS legacy sidecar unchanged: card+20 passes",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "PT6 NEG legacy sidecar (no per-pole tops) with clipped geometry still refused -> HEIGHT_VS_MANIFEST",
+   "pass": true,
+   "detail": "HEIGHT_VS_MANIFEST z -1.50..2247.30 want -1.50..2270.00"
+  },
+  {
+   "check": "PT7 POS plan: art-clip wing (pole 1150 under a 1200 card, board top 1198.5) -> no refusal",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "check": "PT8 NEG plan: art-clip pole recorded above the card -> ARTCLIP_POLE_TOP_ABOVE_CARD",
+   "pass": true,
+   "detail": "['ARTCLIP_POLE_TOP_ABOVE_CARD 1215.00 > 1200.00 SM_FlatV3_P02_real_95_synth_fault_L_t5p']"
+  },
+  {
+   "check": "S1 no delete / reload / Save All anywhere in the kit",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "S2 no unreal object in a module global",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "check": "S3 runner purges the Saved module cache BEFORE running the kit",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "S4 request = guarded loopback route, our runner",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "S5 shipped args = read-only (VERIFY or DRY), never APPLY",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "S6 live files parse as Python 3.11 syntax (no 3.12+ constructs used: ast.parse with feature_version)",
+   "pass": true,
+   "detail": ""
+  }
+ ],
+ "passed": 106,
+ "failed": 0,
+ "fixture_plan_hash": "f30809706355afbdede4ba965f5a2842a97131261f377acf23cfd2bf68bedf35",
+ "v1_plan_hash": "4318eed774e8c674a223d8032e0c2ba31f3fca86af01b84672b6ad1940d7d3b8"
+}

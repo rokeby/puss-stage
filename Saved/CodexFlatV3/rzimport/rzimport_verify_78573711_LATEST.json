@@ -1,0 +1,1879 @@
+{
+ "details": {
+  "VAL_real_15_ornate_gold_red_C": {
+   "geometry": {
+    "bounds_cm": {
+     "max": [
+      -1.6303025063280074e-07,
+      398.4261169433594,
+      403.8265380859375
+     ],
+     "min": [
+      -16.05002212524414,
+      -398.4261169433594,
+      0.30647093057632446
+     ]
+    },
+    "edge_geometry": [
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.9999361038208
+      ],
+      "lod": 0
+     },
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.9999361038208
+      ],
+      "lod": 1
+     }
+    ],
+    "lods": {
+     "0": {
+      "flap": {
+       "du_dY": 0.0012278958185442744,
+       "dv_dZ": -0.002390087116671379,
+       "normal": [
+        -0.9998518554837321,
+        0.00019123693315262617,
+        -0.017211348412416037
+       ],
+       "triangles": 48,
+       "vertices": 130,
+       "z_range_cm": [
+        134.8596954345703,
+        333.6446838378906
+       ]
+      },
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.001227976302440142,
+       "dv_dZ": -0.002389860703334228,
+       "normal": [
+        -0.9999997686150093,
+        0.0,
+        0.0006802719514387818
+       ],
+       "triangles": 4263,
+       "vertices": 4413,
+       "z_range_cm": [
+        0.30647093057632446,
+        403.8265380859375
+       ]
+      },
+      "triangles": 17594
+     },
+     "1": {
+      "flap": null,
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.001227976302440142,
+       "dv_dZ": -0.002389860703334228,
+       "normal": [
+        -0.9999997686150093,
+        0.0,
+        0.0006802719514387818
+       ],
+       "triangles": 4263,
+       "vertices": 4413,
+       "z_range_cm": [
+        0.30647093057632446,
+        403.8265380859375
+       ]
+      },
+      "triangles": 17334
+     }
+    },
+    "nanite": false,
+    "num_lods": 2,
+    "slots": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "sockets": {}
+   },
+   "materials": {
+    "collision_count": 0,
+    "instances": {
+     "Flap": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_SkinNormal_o2"
+      }
+     },
+     "Front": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_SkinNormal_o2"
+      }
+     }
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_15_ornate_gold_red_C_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_15_ornate_gold_red_C_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   },
+   "textures": {
+    "AgedStencil": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinColor": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinMask": {
+     "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_MASKS: 2>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    },
+    "SkinNormal": {
+     "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD_NORMAL_MAP: 1>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    }
+   }
+  },
+  "VAL_real_16_floral_green_drapery_C": {
+   "geometry": {
+    "bounds_cm": {
+     "max": [
+      3.6949456898582866e-06,
+      399.8276672363281,
+      543.9716796875
+     ],
+     "min": [
+      -16.049936294555664,
+      -399.82763671875,
+      0.682181715965271
+     ]
+    },
+    "edge_geometry": [
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.999935150146484
+      ],
+      "lod": 0
+     },
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.999935150146484
+      ],
+      "lod": 1
+     }
+    ],
+    "lods": {
+     "0": {
+      "flap": {
+       "du_dY": 0.0012237247957386714,
+       "dv_dZ": -0.0017894078189981402,
+       "normal": [
+        0.9328296343069825,
+        0.36024307478104356,
+        -0.007334877708635952
+       ],
+       "triangles": 175,
+       "vertices": 521,
+       "z_range_cm": [
+        19.5704288482666,
+        533.9627075195312
+       ]
+      },
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.0012236718224210733,
+       "dv_dZ": -0.0017894342011044045,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 4193,
+       "vertices": 4375,
+       "z_range_cm": [
+        0.682181715965271,
+        543.9716796875
+       ]
+      },
+      "triangles": 17439
+     },
+     "1": {
+      "flap": null,
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.0012236718224210733,
+       "dv_dZ": -0.0017894342011044045,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 4193,
+       "vertices": 4375,
+       "z_range_cm": [
+        0.682181715965271,
+        543.9716796875
+       ]
+      },
+      "triangles": 17124
+     }
+    },
+    "nanite": false,
+    "num_lods": 2,
+    "slots": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "sockets": {}
+   },
+   "materials": {
+    "collision_count": 0,
+    "instances": {
+     "Flap": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_SkinNormal_o2"
+      }
+     },
+     "Front": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_SkinNormal_o2"
+      }
+     }
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_16_floral_green_drapery_C_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_16_floral_green_drapery_C_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   },
+   "textures": {
+    "AgedStencil": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinColor": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinMask": {
+     "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_MASKS: 2>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    },
+    "SkinNormal": {
+     "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD_NORMAL_MAP: 1>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    }
+   }
+  },
+  "VAL_real_4_red_velvet_curtain_C": {
+   "geometry": {
+    "bounds_cm": {
+     "max": [
+      4.4172193156555295e-05,
+      398.6071472167969,
+      363.8788757324219
+     ],
+     "min": [
+      -16.049936294555664,
+      -398.607177734375,
+      0.2771354615688324
+     ]
+    },
+    "edge_geometry": [
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.9999361038208
+      ],
+      "lod": 0
+     },
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.9999361038208
+      ],
+      "lod": 1
+     }
+    ],
+    "lods": {
+     "0": {
+      "flap": {
+       "du_dY": 0.0012274329669788768,
+       "dv_dZ": -0.002642930351349625,
+       "normal": [
+        0.5315285511070332,
+        0.8470400842055519,
+        0.000703638479310027
+       ],
+       "triangles": 90,
+       "vertices": 270,
+       "z_range_cm": [
+        17.551769256591797,
+        361.6839294433594
+       ]
+      },
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.0012274184817338064,
+       "dv_dZ": -0.002642863878282278,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 1092,
+       "vertices": 1106,
+       "z_range_cm": [
+        0.2771354615688324,
+        363.8788757324219
+       ]
+      },
+      "triangles": 4578
+     },
+     "1": {
+      "flap": null,
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.0012274184817338064,
+       "dv_dZ": -0.002642863878282278,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 1092,
+       "vertices": 1106,
+       "z_range_cm": [
+        0.2771354615688324,
+        363.8788757324219
+       ]
+      },
+      "triangles": 4384
+     }
+    },
+    "nanite": false,
+    "num_lods": 2,
+    "slots": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "sockets": {}
+   },
+   "materials": {
+    "collision_count": 0,
+    "instances": {
+     "Flap": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_SkinNormal_o2"
+      }
+     },
+     "Front": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_SkinNormal_o2"
+      }
+     }
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_4_red_velvet_curtain_C_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_4_red_velvet_curtain_C_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   },
+   "textures": {
+    "AgedStencil": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinColor": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinMask": {
+     "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_MASKS: 2>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    },
+    "SkinNormal": {
+     "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD_NORMAL_MAP: 1>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    }
+   }
+  },
+  "VAL_real_57_ornate_rose_garland_C": {
+   "geometry": {
+    "bounds_cm": {
+     "max": [
+      -0.7999404072761536,
+      398.0920715332031,
+      328.7928466796875
+     ],
+     "min": [
+      -16.050046920776367,
+      -398.092041015625,
+      0.33516091108322144
+     ]
+    },
+    "edge_geometry": [
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.9999361038208
+      ],
+      "lod": 0
+     },
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.9999361038208
+      ],
+      "lod": 1
+     }
+    ],
+    "lods": {
+     "0": {
+      "flap": {
+       "du_dY": 0.001229001594273212,
+       "dv_dZ": -0.0029137348235200302,
+       "normal": [
+        -0.9995470658607895,
+        -0.007461368656997677,
+        -0.029154606957582704
+       ],
+       "triangles": 57,
+       "vertices": 171,
+       "z_range_cm": [
+        138.75660705566406,
+        318.88177490234375
+       ]
+      },
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.0012290067140208808,
+       "dv_dZ": -0.002913720426456214,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 6296,
+       "vertices": 6565,
+       "z_range_cm": [
+        0.33516091108322144,
+        328.7928466796875
+       ]
+      },
+      "triangles": 25855
+     },
+     "1": {
+      "flap": null,
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.0012290067140208808,
+       "dv_dZ": -0.002913720426456214,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 6296,
+       "vertices": 6565,
+       "z_range_cm": [
+        0.33516091108322144,
+        328.7928466796875
+       ]
+      },
+      "triangles": 25702
+     }
+    },
+    "nanite": false,
+    "num_lods": 2,
+    "slots": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "sockets": {}
+   },
+   "materials": {
+    "collision_count": 0,
+    "instances": {
+     "Flap": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_SkinNormal_o2"
+      }
+     },
+     "Front": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_SkinNormal_o2"
+      }
+     }
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_57_ornate_rose_garland_C_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_57_ornate_rose_garland_C_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   },
+   "textures": {
+    "AgedStencil": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinColor": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinMask": {
+     "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_MASKS: 2>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    },
+    "SkinNormal": {
+     "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD_NORMAL_MAP: 1>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    }
+   }
+  },
+  "VAL_real_5_black_velvet_curtain_C": {
+   "geometry": {
+    "bounds_cm": {
+     "max": [
+      1.7633860807109158e-06,
+      398.649169921875,
+      334.49420166015625
+     ],
+     "min": [
+      -16.049968719482422,
+      -398.6491394042969,
+      0.3410595953464508
+     ]
+    },
+    "edge_geometry": [
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.9999361038208
+      ],
+      "lod": 0
+     },
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.9999361038208
+      ],
+      "lod": 1
+     }
+    ],
+    "lods": {
+     "0": {
+      "flap": {
+       "du_dY": 0.0012272773070110855,
+       "dv_dZ": -0.0028632702259741966,
+       "normal": [
+        -0.9992913137515009,
+        -0.03573589721248727,
+        -0.011824377836400253
+       ],
+       "triangles": 32,
+       "vertices": 96,
+       "z_range_cm": [
+        108.03063201904297,
+        238.14486694335938
+       ]
+      },
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.001227289252446486,
+       "dv_dZ": -0.0028633422604531856,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 1546,
+       "vertices": 1559,
+       "z_range_cm": [
+        0.3410595953464508,
+        334.49420166015625
+       ]
+      },
+      "triangles": 6366
+     },
+     "1": {
+      "flap": null,
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.001227289252446486,
+       "dv_dZ": -0.0028633422604531856,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 1546,
+       "vertices": 1559,
+       "z_range_cm": [
+        0.3410595953464508,
+        334.49420166015625
+       ]
+      },
+      "triangles": 6210
+     }
+    },
+    "nanite": false,
+    "num_lods": 2,
+    "slots": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "sockets": {}
+   },
+   "materials": {
+    "collision_count": 0,
+    "instances": {
+     "Flap": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_SkinNormal_o2"
+      }
+     },
+     "Front": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_SkinNormal_o2"
+      }
+     }
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_5_black_velvet_curtain_C_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_5_black_velvet_curtain_C_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   },
+   "textures": {
+    "AgedStencil": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinColor": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinMask": {
+     "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_MASKS: 2>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    },
+    "SkinNormal": {
+     "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD_NORMAL_MAP: 1>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    }
+   }
+  },
+  "VAL_real_60_velvet_curtain_with_C": {
+   "geometry": {
+    "bounds_cm": {
+     "max": [
+      1.7632287381275091e-06,
+      398.74114990234375,
+      335.84173583984375
+     ],
+     "min": [
+      -16.049999237060547,
+      -398.74114990234375,
+      0.25669431686401367
+     ]
+    },
+    "edge_geometry": [
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.9999361038208
+      ],
+      "lod": 0
+     },
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.9999361038208
+      ],
+      "lod": 1
+     }
+    ],
+    "lods": {
+     "0": {
+      "flap": {
+       "du_dY": 0.0012269336579058153,
+       "dv_dZ": -0.002852794894373677,
+       "normal": [
+        0.9887786475018423,
+        0.1492813103479609,
+        -0.0056459388256830225
+       ],
+       "triangles": 163,
+       "vertices": 489,
+       "z_range_cm": [
+        73.77737426757812,
+        220.7571258544922
+       ]
+      },
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.001227006040110112,
+       "dv_dZ": -0.0028532841108024815,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 1266,
+       "vertices": 1272,
+       "z_range_cm": [
+        0.25669431686401367,
+        335.84173583984375
+       ]
+      },
+      "triangles": 5379
+     },
+     "1": {
+      "flap": null,
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.001227006040110112,
+       "dv_dZ": -0.0028532841108024815,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 1266,
+       "vertices": 1272,
+       "z_range_cm": [
+        0.25669431686401367,
+        335.84173583984375
+       ]
+      },
+      "triangles": 5076
+     }
+    },
+    "nanite": false,
+    "num_lods": 2,
+    "slots": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "sockets": {}
+   },
+   "materials": {
+    "collision_count": 0,
+    "instances": {
+     "Flap": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_SkinNormal_o2"
+      }
+     },
+     "Front": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_SkinNormal_o2"
+      }
+     }
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_60_velvet_curtain_with_C_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_60_velvet_curtain_with_C_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   },
+   "textures": {
+    "AgedStencil": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinColor": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinMask": {
+     "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_MASKS: 2>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    },
+    "SkinNormal": {
+     "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD_NORMAL_MAP: 1>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    }
+   }
+  },
+  "VAL_real_62_velvet_curtain_with_C": {
+   "geometry": {
+    "bounds_cm": {
+     "max": [
+      1.7665846598902135e-06,
+      396.77557373046875,
+      347.9484558105469
+     ],
+     "min": [
+      -16.05005645751953,
+      -396.7755432128906,
+      0.2655419409275055
+     ]
+    },
+    "edge_geometry": [
+     {
+      "edge_x": [
+       -15.000064849853516,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000064849853516,
+       -14.9999361038208
+      ],
+      "lod": 0
+     },
+     {
+      "edge_x": [
+       -15.000064849853516,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000064849853516,
+       -14.9999361038208
+      ],
+      "lod": 1
+     }
+    ],
+    "lods": {
+     "0": {
+      "flap": {
+       "du_dY": 0.0012330575201290063,
+       "dv_dZ": -0.002758744002304556,
+       "normal": [
+        -0.9990473264691184,
+        -0.01940693799859814,
+        -0.0390872131575703
+       ],
+       "triangles": 39,
+       "vertices": 93,
+       "z_range_cm": [
+        97.98497772216797,
+        265.6304626464844
+       ]
+      },
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.0012330845183757917,
+       "dv_dZ": -0.002758208671062814,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 1216,
+       "vertices": 1227,
+       "z_range_cm": [
+        0.2655419409275055,
+        347.9484558105469
+       ]
+      },
+      "triangles": 5085
+     },
+     "1": {
+      "flap": null,
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.0012330845183757917,
+       "dv_dZ": -0.002758208671062814,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 1216,
+       "vertices": 1227,
+       "z_range_cm": [
+        0.2655419409275055,
+        347.9484558105469
+       ]
+      },
+      "triangles": 4886
+     }
+    },
+    "nanite": false,
+    "num_lods": 2,
+    "slots": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "sockets": {}
+   },
+   "materials": {
+    "collision_count": 0,
+    "instances": {
+     "Flap": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_SkinNormal_o2"
+      }
+     },
+     "Front": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_SkinNormal_o2"
+      }
+     }
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_62_velvet_curtain_with_C_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_62_velvet_curtain_with_C_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   },
+   "textures": {
+    "AgedStencil": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinColor": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinMask": {
+     "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_MASKS: 2>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    },
+    "SkinNormal": {
+     "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD_NORMAL_MAP: 1>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    }
+   }
+  },
+  "VAL_real_7_dark_gray_draped_C": {
+   "geometry": {
+    "bounds_cm": {
+     "max": [
+      3.2650070352246985e-05,
+      399.1872253417969,
+      400.8542175292969
+     ],
+     "min": [
+      -16.049943923950195,
+      -399.18719482421875,
+      0.507796049118042
+     ]
+    },
+    "edge_geometry": [
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.999935150146484
+      ],
+      "lod": 0
+     },
+     {
+      "edge_x": [
+       -15.000065803527832,
+       -9.999935150146484
+      ],
+      "front_x": [
+       -15.000065803527832,
+       -14.999935150146484
+      ],
+      "lod": 1
+     }
+    ],
+    "lods": {
+     "0": {
+      "flap": {
+       "du_dY": 0.0012256526138605336,
+       "dv_dZ": -0.002403797205129243,
+       "normal": [
+        -0.9979773790128246,
+        -0.017949785617002893,
+        -0.060983245034983445
+       ],
+       "triangles": 37,
+       "vertices": 109,
+       "z_range_cm": [
+        137.51116943359375,
+        261.0071716308594
+       ]
+      },
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.0012256349826046354,
+       "dv_dZ": -0.002403926178078978,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 1083,
+       "vertices": 1102,
+       "z_range_cm": [
+        0.507796049118042,
+        400.8542175292969
+       ]
+      },
+      "triangles": 4543
+     },
+     "1": {
+      "flap": null,
+      "foot_y": null,
+      "front": {
+       "du_dY": 0.0012256349826046354,
+       "dv_dZ": -0.002403926178078978,
+       "normal": [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       "triangles": 1083,
+       "vertices": 1102,
+       "z_range_cm": [
+        0.507796049118042,
+        400.8542175292969
+       ]
+      },
+      "triangles": 4370
+     }
+    },
+    "nanite": false,
+    "num_lods": 2,
+    "slots": [
+     "Front",
+     "Flap",
+     "Timber",
+     "Edge"
+    ],
+    "sockets": {}
+   },
+   "materials": {
+    "collision_count": 0,
+    "instances": {
+     "Flap": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_SkinNormal_o2"
+      }
+     },
+     "Front": {
+      "parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+      "scalars": {
+       "RowOffset": 0.5,
+       "SheetHeightM": 1.5,
+       "SheetOverlapM": 0.02500000037252903,
+       "SheetWidthM": 1.0
+      },
+      "textures": {
+       "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_SkinColor_o2",
+       "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_SkinMask_o2",
+       "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_SkinNormal_o2"
+      }
+     }
+    },
+    "slot_materials": [
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_7_dark_gray_draped_C_Front",
+     "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_7_dark_gray_draped_C_Flap",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+     "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+    ]
+   },
+   "textures": {
+    "AgedStencil": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinColor": {
+     "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "True",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      2048,
+      4096
+     ],
+     "srgb": true
+    },
+    "SkinMask": {
+     "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_MASKS: 2>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    },
+    "SkinNormal": {
+     "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+     "flip_green": false,
+     "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+     "mips": "FULL_POLICY",
+     "pot": true,
+     "props": {
+      "compression_settings": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+      "flip_green_channel": "False",
+      "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD_NORMAL_MAP: 1>",
+      "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+      "never_stream": "False",
+      "srgb": "False",
+      "virtual_texture_streaming": "False"
+     },
+     "size": [
+      1024,
+      2048
+     ],
+     "srgb": false
+    }
+   }
+  }
+ },
+ "failed": {},
+ "manifests": [
+  {
+   "count": 8,
+   "rel": "DerivedAssets/FlatV3/Realism_20261007/valances_upper_wings/IMPORT_MANIFEST_v2_VAL.json",
+   "run": "FV3RZ-VAL-20261007-02",
+   "sha256": "b882f1abd18f1a736d02a121ee631b5d9997abb215f289069bd6aad2df246cea"
+  }
+ ],
+ "mesh_paths": {
+  "VAL_real_15_ornate_gold_red_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_15_ornate_gold_red_C_t5j",
+  "VAL_real_16_floral_green_drapery_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_16_floral_green_drapery_C_t5j",
+  "VAL_real_4_red_velvet_curtain_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_4_red_velvet_curtain_C_t5j",
+  "VAL_real_57_ornate_rose_garland_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_57_ornate_rose_garland_C_t5j",
+  "VAL_real_5_black_velvet_curtain_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_5_black_velvet_curtain_C_t5j",
+  "VAL_real_60_velvet_curtain_with_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_60_velvet_curtain_with_C_t5j",
+  "VAL_real_62_velvet_curtain_with_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_62_velvet_curtain_with_C_t5j",
+  "VAL_real_7_dark_gray_draped_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_7_dark_gray_draped_C_t5j"
+ },
+ "missing": [],
+ "mode": "VERIFY",
+ "ok": [
+  "VAL_real_15_ornate_gold_red_C",
+  "VAL_real_16_floral_green_drapery_C",
+  "VAL_real_4_red_velvet_curtain_C",
+  "VAL_real_57_ornate_rose_garland_C",
+  "VAL_real_5_black_velvet_curtain_C",
+  "VAL_real_60_velvet_curtain_with_C",
+  "VAL_real_62_velvet_curtain_with_C",
+  "VAL_real_7_dark_gray_draped_C"
+ ],
+ "partial": [],
+ "plan": "78573711b16bac13025b116fe69e038f1a06f3324d1ab6b46e99cf94b0bee1c7",
+ "run_id": "RZIMP-20261007-110031",
+ "status": "PASS"
+}

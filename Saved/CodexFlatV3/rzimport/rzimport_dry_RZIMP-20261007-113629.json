@@ -1,0 +1,626 @@
+{
+ "aged_common": {
+  "T_FlatV3_AgedPlywood_NormalDX": {
+   "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    1024,
+    2048
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedPlywood_Roughness": {
+   "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    1024,
+    2048
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedSoftwood_Color": {
+   "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    4096,
+    4096
+   ],
+   "srgb": true
+  },
+  "T_FlatV3_AgedSoftwood_NormalDX": {
+   "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    4096,
+    4096
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedSoftwood_Roughness": {
+   "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    4096,
+    4096
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedSteel_Color": {
+   "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    4096,
+    4096
+   ],
+   "srgb": true
+  }
+ },
+ "apply_confirms": {
+  "1": "APPLY RZIMPORT BATCH 1 #70249bee",
+  "2": "APPLY RZIMPORT BATCH 2 #70249bee",
+  "3": "APPLY RZIMPORT BATCH 3 #70249bee",
+  "4": "APPLY RZIMPORT BATCH 4 #70249bee",
+  "5": "APPLY RZIMPORT BATCH 5 #70249bee"
+ },
+ "batches": [
+  {
+   "batch": 1,
+   "owners": [
+    "P06_rf_1_stone_building_under_L",
+    "P06_rf_2_pink_silk_structure_R",
+    "P06_rf_3_orange_sail_structure_L"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_1_stone_building_under_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinColor_o2p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinNormal_o2"
+   ],
+   "passages": [
+    "P06"
+   ]
+  },
+  {
+   "batch": 2,
+   "owners": [
+    "P06_rf_6_rock_formation_sculpture_L",
+    "P06_rf_7_draped_marble_statue_L",
+    "P06_rf_8_rock_formation_sculpture_R"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinNormal_o2"
+   ],
+   "passages": [
+    "P06"
+   ]
+  },
+  {
+   "batch": 3,
+   "owners": [
+    "P06_rf_9_draped_column_statue_R",
+    "P06_rf_10_building_under_construct_R",
+    "P06_rf_25_concrete_wall_with_L"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_10_building_under_construct_R_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinNormal_o2"
+   ],
+   "passages": [
+    "P06"
+   ]
+  },
+  {
+   "batch": 4,
+   "owners": [
+    "P06_rf_26_concrete_panel_wood_L",
+    "P06_rf_30_rusty_metal_door_L",
+    "P06_rf_33_burnt_furniture_ruin_L"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinNormal_o2"
+   ],
+   "passages": [
+    "P06"
+   ]
+  },
+  {
+   "batch": 5,
+   "owners": [
+    "P06_rf_35_metal_frame_door_L",
+    "P06_rf_38_burnt_wood_concrete_L",
+    "P06_rf_39_burnt_metal_door_L"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinNormal_o2"
+   ],
+   "passages": [
+    "P06"
+   ]
+  }
+ ],
+ "free_ram_gb": 30.45,
+ "inputs_hash": "70249bee91627972462323e9806da97e18897e8197073c9f2f882cff50d01a5d",
+ "manifests": [
+  {
+   "count": 15,
+   "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/IMPORT_MANIFEST_v3_P06.json",
+   "run": "FV3RZ-P06-20261007-02",
+   "sha256": "bc4fa330476ad76cbceeca47561198db7048060ea542345593952c9df9831176"
+  }
+ ],
+ "mode": "DRY",
+ "reference": {
+  "Flap_parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+  "Front_parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+  "collision_count": 0,
+  "edge_geometry": [
+   {
+    "edge_x": [
+     -15.0,
+     -9.999917030334473
+    ],
+    "front_x": [
+     -15.0,
+     -14.999917984008789
+    ],
+    "lod": 0
+   },
+   {
+    "edge_x": [
+     -15.0,
+     -9.999917030334473
+    ],
+    "front_x": [
+     -15.0,
+     -14.999917984008789
+    ],
+    "lod": 1
+   }
+  ],
+  "lod0_triangles": 37234,
+  "mesh_slots": [
+   [
+    "Front",
+    "/Game/Scenes/Wings/FlatV3/Passage06/Materials/Instances/MI_FlatV3_P06_bronze_tree_L_v2_Front_o2p"
+   ],
+   [
+    "Flap",
+    "/Game/Scenes/Wings/FlatV3/Passage06/Materials/Instances/MI_FlatV3_P06_bronze_tree_L_v2_Flap"
+   ],
+   [
+    "Timber",
+    "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+   ],
+   [
+    "Edge",
+    "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+   ]
+  ],
+  "num_lods": 2,
+  "parents_exist": {
+   "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap": true,
+   "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front": true,
+   "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master": true,
+   "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3": true
+  },
+  "socket_names": [],
+  "texture_kind_errors": {},
+  "textures": {
+   "AgedStencil": {
+    "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "True",
+    "virtual_texture_streaming": "False"
+   },
+   "SkinColor": {
+    "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "True",
+    "virtual_texture_streaming": "False"
+   },
+   "SkinMask": {
+    "compression_settings": "<TextureCompressionSettings.TC_MASKS: 2>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "False",
+    "virtual_texture_streaming": "False"
+   },
+   "SkinNormal": {
+    "compression_settings": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD_NORMAL_MAP: 1>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "False",
+    "virtual_texture_streaming": "False"
+   }
+  }
+ },
+ "refusals": [],
+ "run_id": "RZIMP-20261007-113629",
+ "status": "PASS",
+ "utc": "2026-10-07T15:36:30.236462Z",
+ "wings": {
+  "P06_rf_10_building_under_construct_R": {
+   "asset": "SM_FlatV3_P06_rf_10_building_under_construct_R_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_10_building_under_construct_R_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_10_building_under_construct_R/T_P06_rf_10_building_under_construct_R_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_10_building_under_construct_R_t5j"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P06_rf_10_building_under_construct_R",
+   "passage": "P06"
+  },
+  "P06_rf_1_stone_building_under_L": {
+   "asset": "SM_FlatV3_P06_rf_1_stone_building_under_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_1_stone_building_under_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinColor_o2p",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_1_stone_building_under_L/T_P06_rf_1_stone_building_under_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_1_stone_building_under_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P06_rf_1_stone_building_under_L",
+   "passage": "P06"
+  },
+  "P06_rf_25_concrete_wall_with_L": {
+   "asset": "SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_25_concrete_wall_with_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_25_concrete_wall_with_L/T_P06_rf_25_concrete_wall_with_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P06_rf_25_concrete_wall_with_L",
+   "passage": "P06"
+  },
+  "P06_rf_26_concrete_panel_wood_L": {
+   "asset": "SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_26_concrete_panel_wood_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_26_concrete_panel_wood_L/T_P06_rf_26_concrete_panel_wood_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P06_rf_26_concrete_panel_wood_L",
+   "passage": "P06"
+  },
+  "P06_rf_2_pink_silk_structure_R": {
+   "asset": "SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_2_pink_silk_structure_R_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_2_pink_silk_structure_R/T_P06_rf_2_pink_silk_structure_R_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [
+    "validation.socket_contract lists ['SOCKET_Hinge', 'SOCKET_Pivot', 'SOCKET_Pole_1']; sidecar + baked poles carry ['SOCKET_Hinge', 'SOCKET_Pivot', 'SOCKET_Pole_1', 'SOCKET_Pole_2'] (sidecar used)"
+   ],
+   "owner": "P06_rf_2_pink_silk_structure_R",
+   "passage": "P06"
+  },
+  "P06_rf_30_rusty_metal_door_L": {
+   "asset": "SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_30_rusty_metal_door_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_30_rusty_metal_door_L/T_P06_rf_30_rusty_metal_door_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P06_rf_30_rusty_metal_door_L",
+   "passage": "P06"
+  },
+  "P06_rf_33_burnt_furniture_ruin_L": {
+   "asset": "SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_33_burnt_furniture_ruin_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_33_burnt_furniture_ruin_L/T_P06_rf_33_burnt_furniture_ruin_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P06_rf_33_burnt_furniture_ruin_L",
+   "passage": "P06"
+  },
+  "P06_rf_35_metal_frame_door_L": {
+   "asset": "SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_35_metal_frame_door_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_35_metal_frame_door_L/T_P06_rf_35_metal_frame_door_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P06_rf_35_metal_frame_door_L",
+   "passage": "P06"
+  },
+  "P06_rf_38_burnt_wood_concrete_L": {
+   "asset": "SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_38_burnt_wood_concrete_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_38_burnt_wood_concrete_L/T_P06_rf_38_burnt_wood_concrete_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P06_rf_38_burnt_wood_concrete_L",
+   "passage": "P06"
+  },
+  "P06_rf_39_burnt_metal_door_L": {
+   "asset": "SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_39_burnt_metal_door_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_39_burnt_metal_door_L/T_P06_rf_39_burnt_metal_door_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P06_rf_39_burnt_metal_door_L",
+   "passage": "P06"
+  },
+  "P06_rf_3_orange_sail_structure_L": {
+   "asset": "SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_3_orange_sail_structure_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_3_orange_sail_structure_L/T_P06_rf_3_orange_sail_structure_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [
+    "validation.socket_contract lists ['SOCKET_Hinge', 'SOCKET_Pivot', 'SOCKET_Pole_1']; sidecar + baked poles carry ['SOCKET_Hinge', 'SOCKET_Pivot', 'SOCKET_Pole_1', 'SOCKET_Pole_2'] (sidecar used)"
+   ],
+   "owner": "P06_rf_3_orange_sail_structure_L",
+   "passage": "P06"
+  },
+  "P06_rf_6_rock_formation_sculpture_L": {
+   "asset": "SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_6_rock_formation_sculpture_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_6_rock_formation_sculpture_L/T_P06_rf_6_rock_formation_sculpture_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P06_rf_6_rock_formation_sculpture_L",
+   "passage": "P06"
+  },
+  "P06_rf_7_draped_marble_statue_L": {
+   "asset": "SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_7_draped_marble_statue_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_7_draped_marble_statue_L/T_P06_rf_7_draped_marble_statue_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P06_rf_7_draped_marble_statue_L",
+   "passage": "P06"
+  },
+  "P06_rf_8_rock_formation_sculpture_R": {
+   "asset": "SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_8_rock_formation_sculpture_R_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_8_rock_formation_sculpture_R/T_P06_rf_8_rock_formation_sculpture_R_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P06_rf_8_rock_formation_sculpture_R",
+   "passage": "P06"
+  },
+  "P06_rf_9_draped_column_statue_R": {
+   "asset": "SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_rf_9_draped_column_statue_R_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P06_rf_9_draped_column_statue_R/T_P06_rf_9_draped_column_statue_R_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P06_rf_9_draped_column_statue_R",
+   "passage": "P06"
+  }
+ }
+}

@@ -1,0 +1,626 @@
+"""RZIMPORT -- realism-pass import kit for ANY passage manifest: pure core (7 Oct, offline-written, NEVER RUN IN UNREAL).
+No `unreal` import.  Generalises the PROVEN P06 kit Saved/CodexFlatV3/p06import (ran live 7 Oct: DRY P06IMP-20261007-
+080459 PASS, APPLY batches 080513..080700 SAVED, VERIFY P06IMP-20261007-080736 PASS 15/15 [meas: those records]).
+
+Input: one or more IMPORT_MANIFEST_v2_<passage>.json files (schema = P06_backrooms/P06_IMPORT_MANIFEST_v2.json).
+Each manifest entry = 1 mesh (LOD0+LOD1, sockets from the sidecar) + 4 textures (SkinColor, SkinMask, SkinNormal,
+AgedPlywood_Stencil_Color) + 2 MIs (Front, Flap); slots Front/Flap/Timber/Edge, Edge = M_Wing_CanvasEdge_Master_v3.
+7 packages per entry, CREATE-ONLY, under /Game/Scenes/Wings/FlatV3/Realism/{T5P,T5J,Textures,Materials} -- exactly the
+P06 kit's folders and naming (p06_import_core.py:63-66 / :252-258) [prec, ran].
+
+Tiers per claim: [decl] read in source/header/config (cited), [prec] an in-repo tool made the same call and it RAN
+(cited with its record), [meas] measured offline here (file hash / JSON read), [inf] inferred (why).
+
+WHAT IS NEW vs the P06 kit (everything else is the P06 kit's code path, unchanged):
+  * Manifests are ARGS (any passage, several at once); entries are keyed by OWNER (the v1 manifest has no pick_n
+    [meas IMPORT_MANIFEST.json]).  Owners must start with "<intended_passage>_" (P06_real_.., P02_real_.., VAL_real_..
+    [meas RZ_FRONT_END_REPORT.json owners]) and be unique across all manifests -> destination paths cannot clash,
+    asserted (DUPLICATE_OWNER / OWNER_NOT_PASSAGE_PREFIXED / DUPLICATE_DESTINATION) and also asserted disjoint from
+    every package the P06 kit saved (p06_import_ledger.json) -> DESTINATION_CLASH_WITH_P06_IMPORT.
+  * Build-report cross-check per entry: the item's RZ_HF_REPORT.json (t5p) or RZ_BUILD_REPORT.json (t5j) must say
+    PASS, the same owner, the same FBX path and FBX sha256 as the manifest [meas: true for all 15 P06 v2 entries];
+    the P06 kit read the passage-level P06_BUILD_REPORT_v2.json instead (no such file for other passages yet).
+  * Edge probe path = the report's edge_gate.probe (rz_hf.py:201-202 -> rz_build_one.edge_gate,
+    rz_build_one.py:354-358 [decl]), fallback <item>/edge_gate/edge_probe.json (the P06 kit's path).
+  * HEIGHT FROM THE MANIFEST, never hard-coded: wings z = bottom_z_cm .. height_cm + top_above_panel_cm (P06 1000 ->
+    -100..1020 [meas]; P02's 12 m -> -100..1220 [inf until P02 v2 builds exist: same builder, socket_contract.py:97-103
+    [decl]]); pivot socket at height_cm/2 (socket_contract.py:69-75 [decl]).
+  * TOP-BORDER mount (valances): rz_build_one.py:14-16,158-167 drops --bake-poles and validates with --kind wave
+    [decl]; build_v3_flat.py:2196 makes NO sockets for pole-free mounts, :2183-2189 centres the board on Y
+    ("Origin=BottomCentre", :2161-2162) [decl]; socket_contract.make_socket_payload writes sockets [] and no
+    baked_pole_geometry for top-border (socket_contract.py:61,97-103) [decl]; slot_a_import.verify_top already gates
+    a top mesh with NO sockets and NO pole checks (slot_a_import.py:352-399) [decl; whether a top row ever RAN through
+    slot_a is not proven here].  So a top-border entry is gated: owner ends "_C" (RZ_FRONT_END_REPORT owners [meas]),
+    sidecar sockets == [] and no baked_pole_geometry, validation kind == "wave", bounds centred on Y (|minY+maxY| <=
+    2 cm; the validator's own rule is 1 cm, build_v3_flat.py:2843-2845 [decl]), z min ~ 0, z max <= manifest
+    height (+ tol) and >= half of it [inf: the board can stop short of the image top; the import bounds must still
+    equal the validator's bounds exactly as for wings]; no hinge/pivot/pole/foot checks.
+  * Flap expectation from the validator's triangle_counts_by_material.Flap (0 -> no Flap section allowed); missing
+    count -> the P06 rule (LOD0 Flap required) [meas: all 15 P06 entries carry Flap > 0].
+  * Ledger / DRY record are keyed by the plan hash (several manifest sets can be in flight; a new manifest = a new
+    plan, CREATE-ONLY still refuses anything that exists).
+
+MEMORY RULES BAKED IN (unchanged from the P06 kit): batch <= 3 wings per MCP call + collect_garbage + free-RAM floor
+(ue58-bulk-import-oom-crash); fbx_options(True) + LodGroup gate num_lods == 2 + stray diff (ue58-fbx-import-traps);
+modify() before setters; no unreal object in a module global (puss-mcp-python-crashes-the-editor); runner purges the
+Saved module cache (ue58-python-stale-module-cache); success marker only after asserted read-back
+(puss-assert-dont-print); markers carry run=<id>|batch=<k>|plan=<hash8> (puss-log-markers-run-id); a failure never
+reloads or deletes what this run made (ue58-reimport-revert-by-reload-fails).
+"""
+import hashlib
+import json
+import os
+
+MARK = "FLATV3_RZIMPORT"
+WORLD_PATH = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+
+ROOT = "/Game/Scenes/Wings/FlatV3/Realism"
+MESH_FOLDERS = {"t5p": ROOT + "/T5P", "t5j": ROOT + "/T5J"}          # = p06_import_core.MESH_FOLDERS [prec, ran]
+TEX_ROOT = ROOT + "/Textures"
+MI_ROOT = ROOT + "/Materials/Instances"
+
+BB = "/Game/Scenes/Wings/PaintedSurface/Billboard/"
+PS = "/Game/Scenes/Wings/PaintedSurface/"
+PARENTS = {"Front": BB + "MI_Billboard_Front", "Flap": BB + "MI_Billboard_Flap",
+           "Timber": PS + "M_Wing_CanvasEdge_Master", "Edge": PS + "M_Wing_CanvasEdge_Master_v3"}
+SLOTS = ("Front", "Flap", "Timber", "Edge")
+
+P06 = "/Game/Scenes/Wings/FlatV3/Passage06"
+REFERENCE = {   # the P06 kit's reference: live P06 V3 assets of FV3P06I-20261002-04 / FV3HF-20261006-P06 [prec]
+    "mesh": P06 + "/StaticMeshes/T5P/SM_FlatV3_P06_bronze_tree_L_v2_t5p",
+    "Front": P06 + "/Materials/Instances/MI_FlatV3_P06_bronze_tree_L_v2_Front_o2p",
+    "Flap": P06 + "/Materials/Instances/MI_FlatV3_P06_bronze_tree_L_v2_Flap",
+    "textures": {"SkinColor": P06 + "/Textures/P06_bronze_tree_L_v2/T_P06_bronze_tree_L_v2_SkinColor_o2",
+                 "SkinMask": P06 + "/Textures/P06_bronze_tree_L_v2/T_P06_bronze_tree_L_v2_SkinMask_o2",
+                 "SkinNormal": P06 + "/Textures/P06_bronze_tree_L_v2/T_P06_bronze_tree_L_v2_SkinNormal_o2",
+                 "AgedStencil": P06 + "/Textures/Aged/P06_bronze_tree_L_v2/T_P06_bronze_tree_L_v2_AgedPlywood_Stencil_Color"},
+}
+AGED_COMMON_ROOT = P06 + "/Textures/Aged/Common"
+COMMON_AGED = ("T_FlatV3_AgedSoftwood_Color", "T_FlatV3_AgedSoftwood_Roughness", "T_FlatV3_AgedSoftwood_NormalDX",
+               "T_FlatV3_AgedPlywood_Roughness", "T_FlatV3_AgedPlywood_NormalDX", "T_FlatV3_AgedSteel_Color")
+COMMON_AGED_RECORD_REL = "Saved/CodexFlatV3/swapkit/swapkit_p06_import_FV3P06I-20261002-04.json"
+P06_LEDGER_REL = "Saved/CodexFlatV3/p06import/p06_import_ledger.json"
+STENCIL_PNG = "T_FlatV3_AgedPlywood_Stencil_Color.png"
+
+TEXTURE_KINDS = {"SkinColor": "SkinColor", "SkinMask": "SkinMask", "SkinNormal": "SkinNormal",
+                 "AgedStencil": "AgedColor"}
+TEXTURE_CMP = ("compression_settings", "srgb", "lod_group", "mip_gen_settings", "flip_green_channel",
+               "never_stream", "virtual_texture_streaming")
+COPY_FROM_REFERENCE = TEXTURE_CMP
+
+PASSAGES = ("P01", "P02", "P03", "P04", "P05", "P06", "VAL")
+MOUNTS = ("wing", "top-border")
+MAX_PER_BATCH = 3
+MIN_FREE_RAM_GB = 12.0
+
+BOUNDS_TOL_CM = 1.5            # slot_a verify_flat_general / verify_top tolerance [prec]
+PIVOT_TOL_CM = 1.0             # slot_a PIVOT_SOCKET_FAIL tolerance [prec]
+TOP_CENTRE_TOL_CM = 2.0        # validator direction rule is 1 cm (build_v3_flat.py:2843-2845) [decl]
+FRONT_X, BACK_X, EDGE_TOL = -15.0, -10.0, 0.05   # edge_rollout_core.py:50 [prec]
+
+
+class PlanError(Exception):
+    pass
+
+
+def require(cond, reason):
+    if not cond:
+        raise PlanError(reason)
+
+
+def sha_obj(obj):
+    return hashlib.sha256(json.dumps(obj, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
+def sha_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for block in iter(lambda: fh.read(1 << 20), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def load_json(path):
+    with open(path, "r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def stem(path):
+    return os.path.splitext(str(path).replace("\\", "/").rsplit("/", 1)[-1])[0]
+
+
+def _abs(project, rel):
+    return os.path.join(project, rel).replace("\\", "/")
+
+
+# =====================================================================================================================
+# Pure geometry helpers (Unreal static-mesh frame)
+# =====================================================================================================================
+
+def expected_import_bounds(validation):
+    """slot_a_import.expected_import_bounds [prec]: Interchange reflects FBX Y; X/Z keep their sign."""
+    b = validation["bounds_m"]
+    return ([b["min"][0] * 100.0, -b["max"][1] * 100.0, b["min"][2] * 100.0],
+            [b["max"][0] * 100.0, -b["min"][1] * 100.0, b["max"][2] * 100.0])
+
+
+def side_extension_ok(side, mn, mx):
+    """slot_a verify_flat_general LEFT/RIGHT_SIDE_EXTENSION rule [prec] (wings only)."""
+    if side == "L":
+        return mn[1] >= -1.0 and mx[1] >= 100.0
+    return mx[1] <= 1.0 and mn[1] <= -100.0
+
+
+def height_gate(mount, bounds_cm, height_cm, pole):
+    """Bounds Z vs the MANIFEST height.  Returns '' or the reason.
+    wing: z = pole.bottom_z_cm .. height_cm + pole.top_above_panel_cm (sidecar baked_pole_geometry).
+    top-border: z min ~ 0 and 0.5*height_cm <= z max <= height_cm (+ tol) [inf, see module doc]."""
+    zmin, zmax = float(bounds_cm["min"][2]), float(bounds_cm["max"][2])
+    h = float(height_cm)
+    if mount == "wing":
+        if not pole:
+            return "HEIGHT_NO_POLE_GEOMETRY"
+        want_min = float(pole["bottom_z_cm"])
+        want_max = h + float(pole["top_above_panel_cm"])
+        if abs(zmin - want_min) > BOUNDS_TOL_CM or abs(zmax - want_max) > BOUNDS_TOL_CM:
+            return "HEIGHT_VS_MANIFEST z %.2f..%.2f want %.2f..%.2f" % (zmin, zmax, want_min, want_max)
+        return ""
+    if abs(zmin) > BOUNDS_TOL_CM or zmax > h + BOUNDS_TOL_CM or zmax < 0.5 * h:
+        return "TOP_HEIGHT_VS_MANIFEST z %.2f..%.2f want 0..(<=%.2f, >=%.2f)" % (zmin, zmax, h, 0.5 * h)
+    return ""
+
+
+def top_centred_ok(mn, mx):
+    return abs(float(mn[1]) + float(mx[1])) <= TOP_CENTRE_TOL_CM
+
+
+def edge_geometry_ok(geom):
+    """edge_rollout_core.geometry_ok [prec]: per LOD the Edge section spans x -15..-10, Front sits at x -15."""
+    if not geom:
+        return False, "NO_LODS"
+    for row in geom:
+        e, f = row.get("edge_x"), row.get("front_x")
+        if e is None:
+            return False, "LOD%d_NO_EDGE_SECTION" % row["lod"]
+        if abs(e[0] - FRONT_X) > EDGE_TOL or abs(e[1] - BACK_X) > EDGE_TOL:
+            return False, "LOD%d_EDGE_X_%.3f_%.3f_NOT_-15_-10" % (row["lod"], e[0], e[1])
+        if f is None or abs(f[0] - FRONT_X) > EDGE_TOL or abs(f[1] - FRONT_X) > EDGE_TOL:
+            return False, "LOD%d_FRONT_NOT_AT_X-15|%s" % (row["lod"], f)
+    return True, ""
+
+
+def census_exact(census, expected_content):
+    """The only dirty packages allowed are exactly this batch's new packages; no map."""
+    return census.get("maps") == [] and sorted(census.get("content", [])) == sorted(expected_content)
+
+
+def geometry_verdict(w, m):
+    """THE mount-aware mesh gate, pure (the Unreal entry measures, this decides; the harness drives it directly).
+    m = {slots, num_lods, bounds_cm{min,max}, sockets{name:{location_cm, local_x_axis}}, nanite,
+         lods{"0"/"1": {front:{du_dY,dv_dZ,normal}|None, flap:{..}|None, triangles, foot_y:[..]|None}}, edge_geometry}
+    Returns [] or a list of failure strings.  Wing rules = slot_a verify_flat_general + the P06 kit's two measured
+    changes (sidecar socket names, pivot at half the manifest height) [prec]; top-border = slot_a verify_top [decl]."""
+    bad = []
+    exp, asset, mount = w["expected"], w["asset"], w["mount"]
+    if list(m.get("slots") or []) != list(SLOTS):
+        bad.append("SLOT_ORDER_FAIL|%s|%s" % (asset, m.get("slots")))
+    if m.get("num_lods") != 2:
+        bad.append("LOD_COUNT_FAIL|%s|%s (FBX LodGroup not honoured?)" % (asset, m.get("num_lods")))
+    mn, mx = m["bounds_cm"]["min"], m["bounds_cm"]["max"]
+    if any(abs(a - b) > BOUNDS_TOL_CM for a, b in zip(list(mn) + list(mx),
+                                                      exp["bounds_cm"]["min"] + exp["bounds_cm"]["max"])):
+        bad.append("BOUNDS_MISMATCH|%s|%s|%s" % (asset, [mn, mx], exp["bounds_cm"]))
+    hg = height_gate(mount, m["bounds_cm"], w["height_cm"], exp.get("pole"))
+    if hg:
+        bad.append("%s|%s" % (hg, asset))
+    sockets = m.get("sockets") or {}
+    if sorted(sockets) != sorted(exp["sockets"]):
+        bad.append("SOCKET_NAMES_FAIL|%s|%s want %s" % (asset, sorted(sockets), exp["sockets"]))
+    if mount == "wing":
+        if not side_extension_ok(w["side"], mn, mx):
+            bad.append("SIDE_EXTENSION_FAIL|%s|%s" % (asset, [mn[1], mx[1]]))
+        hinge, pivot = sockets.get("SOCKET_Hinge"), sockets.get("SOCKET_Pivot")
+        if hinge is None or max(abs(v) for v in hinge["location_cm"]) > 1.0 or abs(hinge["local_x_axis"][1]) < 0.99:
+            bad.append("HINGE_SOCKET_FAIL|%s|%s" % (asset, hinge))
+        if pivot is None or abs(pivot["location_cm"][0]) > 1.0 or \
+                abs(pivot["location_cm"][2] - w["height_cm"] * 0.5) > PIVOT_TOL_CM or pivot["local_x_axis"][2] < 0.99:
+            bad.append("PIVOT_SOCKET_FAIL|%s|%s" % (asset, pivot))
+    else:
+        if not top_centred_ok(mn, mx):
+            bad.append("TOP_NOT_CENTRED_ON_Y|%s|%s" % (asset, [mn[1], mx[1]]))
+        if sockets:
+            bad.append("TOP_SOCKET_FAIL|%s|%s" % (asset, sorted(sockets)))
+    poles = sorted(n for n in sockets if n.startswith("SOCKET_Pole_"))
+    for lod in ("0", "1"):
+        L = (m.get("lods") or {}).get(lod)
+        if L is None:
+            bad.append("LOD%s_NOT_MEASURED|%s" % (lod, asset))
+            continue
+        front, flap = L.get("front"), L.get("flap")
+        if front is None or front["du_dY"] <= 0.0 or front["dv_dZ"] >= 0.0:     # V runs DOWN (ue58-fbx-import-traps)
+            bad.append("FRONT_UV0_SIGN_FAIL|%s|lod%s|%s" % (asset, lod, front))
+        elif front["normal"][0] > -0.99 or abs(front["normal"][1]) > 0.02 or abs(front["normal"][2]) > 0.02:
+            bad.append("FRONT_NORMAL_FAIL|%s|lod%s|%s" % (asset, lod, front["normal"]))
+        if lod == "0":
+            if exp["expect_flap"] and (flap is None or flap["du_dY"] <= 0.0 or flap["dv_dZ"] >= 0.0):
+                bad.append("FLAP_UV0_SIGN_FAIL|%s|%s" % (asset, flap))
+            if not exp["expect_flap"] and flap is not None:
+                bad.append("UNEXPECTED_FLAP_SECTION|%s (validator Flap triangles = 0)" % asset)
+        elif flap is not None:
+            bad.append("LOD1_FLAP_SURVIVED|%s" % asset)
+        want = int(exp["triangles"]["lod" + lod])
+        if abs(int(L.get("triangles", -10)) - want) > 1:      # slot_a's measured +-1 cross-importer variance [prec]
+            bad.append("TRIANGLE_COUNT_FAIL|%s|lod%s|%s|%d" % (asset, lod, L.get("triangles"), want))
+        if mount == "wing":
+            feet = L.get("foot_y") or []
+            if not feet:
+                bad.append("BAKED_POLE_FOOT_VERTICES_MISSING|%s|lod%s" % (asset, lod))
+            else:
+                for name in poles:
+                    y = sockets[name]["location_cm"][1]
+                    if y < min(feet) - 2.0 or y > max(feet) + 2.0:
+                        bad.append("POLE_SOCKET_OUTSIDE_FOOT_RANGE|%s|lod%s|%s|%g" % (asset, lod, name, y))
+    if m.get("nanite"):
+        bad.append("NANITE_ENABLED|%s" % asset)
+    ok, why = edge_geometry_ok(m.get("edge_geometry"))
+    if not ok:
+        bad.append("EDGE_GEOMETRY_FAIL|%s|%s" % (asset, why))
+    return bad
+
+
+# =====================================================================================================================
+# The plan (files only; the DRY adds the editor's view)
+# =====================================================================================================================
+
+def _report_for(project, entry, variant):
+    """Per-item build report: t5p = RZ_HF_REPORT.json, t5j = RZ_BUILD_REPORT.json, both in the item dir (the
+    manifest's build_report sits there) [meas P06 v2 + P02 v1 item dirs]."""
+    item_dir = os.path.dirname(str(entry.get("build_report") or "").replace("\\", "/"))
+    if not item_dir:
+        item_dir = "/".join(str(entry["fbx"]).replace("\\", "/").split("/")[:5])
+    name = "RZ_HF_REPORT.json" if variant == "t5p" else "RZ_BUILD_REPORT.json"
+    return item_dir, item_dir + "/" + name
+
+
+def _wing(project, mi, entry, record_hashes, refusals):
+    asset = str(entry.get("asset", ""))
+    tag = "%s" % asset
+    variant = asset.rsplit("_", 1)[-1]
+    side = str(entry.get("side"))
+    mount = str(entry.get("mount") or "wing")
+    passage = str(entry.get("intended_passage") or "")
+    # the v2 valance manifest writes "VAL (upper wing / valance; passage chosen at placement)": key on the token
+    if passage.split(" ", 1)[0] == "VAL":
+        passage = "VAL"
+    if mount not in MOUNTS:
+        refusals.append("MOUNT_UNKNOWN %s %s" % (tag, mount))
+        return None
+    if passage not in PASSAGES:
+        refusals.append("PASSAGE_UNKNOWN %s %r" % (tag, passage))
+        return None
+    if variant not in MESH_FOLDERS or not str(entry.get("variant", "")).startswith(variant):
+        refusals.append("VARIANT_UNKNOWN %s %s" % (tag, entry.get("variant")))
+        return None
+    if not asset.startswith("SM_FlatV3_"):
+        refusals.append("ASSET_PREFIX %s" % asset)
+        return None
+    owner = asset[len("SM_FlatV3_"):-len("_" + variant)]
+    if not owner.startswith(passage + "_"):
+        refusals.append("OWNER_NOT_PASSAGE_PREFIXED %s (intended_passage %s)" % (owner, passage))
+    want_suffix = "_C" if mount == "top-border" else "_" + side
+    if not owner.endswith(want_suffix):
+        refusals.append("OWNER_SIDE %s %s mount=%s side=%s" % (tag, owner, mount, side))
+    if mount == "wing" and side not in ("L", "R"):
+        refusals.append("WING_SIDE %s %r" % (tag, side))
+    item_dir, report_rel = _report_for(project, entry, variant)
+    rp_path = _abs(project, report_rel)
+    rp = load_json(rp_path) if os.path.isfile(rp_path) else None
+    if rp is None or rp.get("status") != "PASS" or rp.get("owner") != owner or rp.get("fbx") != entry.get("fbx") \
+            or rp.get("fbx_sha256") != entry.get("fbx_sha256"):
+        refusals.append("BUILD_REPORT_DISAGREES %s (%s)" % (tag, report_rel))
+    if not entry.get("validation_pass"):
+        refusals.append("VALIDATION_NOT_PASS %s" % tag)
+    if list(entry.get("slots") or SLOTS) != list(SLOTS):
+        refusals.append("MANIFEST_SLOTS %s %s" % (tag, entry.get("slots")))
+    stencil = [a for a in entry.get("aged_textures", []) if a["path"].endswith(STENCIL_PNG)]
+    if len(stencil) != 1:
+        refusals.append("STENCIL_COUNT %s" % tag)
+        return None
+    for a in entry["aged_textures"]:
+        n = stem(a["path"])
+        if n in COMMON_AGED and record_hashes.get(n) != [a["sha256"]]:
+            refusals.append("AGED_COMMON_HASH %s %s (not the set already in %s)" % (tag, n, AGED_COMMON_ROOT))
+    if sorted(stem(a["path"]) for a in entry["aged_textures"]) != sorted(COMMON_AGED + (stem(STENCIL_PNG),)):
+        refusals.append("AGED_SET %s" % tag)
+    probe_rel = ((rp or {}).get("edge_gate") or {}).get("probe") or (item_dir + "/edge_gate/edge_probe.json")
+    sources = {"fbx": (entry["fbx"], entry["fbx_sha256"]),
+               "socket": (entry["socket_sidecar"], entry["socket_sidecar_sha256"]),
+               "SkinColor": (entry["textures"]["SkinColor"]["path"], entry["textures"]["SkinColor"]["sha256"]),
+               "SkinMask": (entry["textures"]["SkinMask"]["path"], entry["textures"]["SkinMask"]["sha256"]),
+               "SkinNormal": (entry["textures"]["SkinNormal"]["path"], entry["textures"]["SkinNormal"]["sha256"]),
+               "AgedStencil": (stencil[0]["path"], stencil[0]["sha256"]),
+               "validation": (entry["validation"], None),
+               "mi_params": ("%s/stage1/%s/skin_v3/%s_mi_params.json" % (item_dir, owner, owner), None),
+               "edge_probe": (probe_rel, None),
+               "build_report": (report_rel, None)}
+    src = {}
+    for key, (rel, want) in sources.items():
+        p = _abs(project, rel)
+        if not os.path.isfile(p):
+            refusals.append("SOURCE_MISSING %s %s %s" % (tag, key, rel))
+            continue
+        got = sha_file(p)
+        if want is not None and got != want:
+            refusals.append("SOURCE_HASH_MISMATCH %s %s" % (tag, key))
+        src[key] = {"rel": rel, "abs": p, "sha256": got}
+    if len(src) != len(sources):
+        return None
+    validation = load_json(src["validation"]["abs"])
+    sidecar = load_json(src["socket"]["abs"])
+    mi_params = load_json(src["mi_params"]["abs"])
+    probe = load_json(src["edge_probe"]["abs"])
+    checks = validation.get("checks", {})
+    if not validation.get("pass") or checks.get("fbx_lod_group", {}).get("mechanism") != "FBX LodGroup NodeAttribute":
+        refusals.append("LODGROUP_GATE %s" % tag)
+    if checks.get("material_slots_exact", {}).get("value") != list(SLOTS):
+        refusals.append("SLOTS_IN_FBX %s" % tag)
+    sock_names = sorted(r["name"] for r in sidecar.get("sockets", []))
+    notes = []
+    pole_geom = sidecar.get("baked_pole_geometry")
+    if sidecar.get("asset") != asset:
+        refusals.append("SIDECAR_ASSET %s %s" % (tag, sidecar.get("asset")))
+    if mount == "wing":
+        poles = sorted(checks.get("baked_poles_lod0", {}).get("details", {}))
+        # Socket authority = the sidecar; it must agree with the BAKED POLE GEOMETRY the validator measured (the P06
+        # kit's rule: validation.socket_contract.details under-lists Pole_2 on some builds [meas P06 picks 2, 3]).
+        if sock_names != sorted(["SOCKET_Hinge", "SOCKET_Pivot"] + poles) or not poles or not pole_geom:
+            refusals.append("SOCKET_SIDECAR_VS_BAKED_POLES %s %s vs poles %s" % (tag, sock_names, poles))
+        contract_names = sorted(checks.get("socket_contract", {}).get("details", {}))
+        if contract_names != sock_names:
+            notes.append("validation.socket_contract lists %s; sidecar + baked poles carry %s (sidecar used)" % (
+                contract_names, sock_names))
+        by_sock = {r["name"]: r for r in sidecar.get("sockets", [])}
+        if "SOCKET_Hinge" not in by_sock or max(abs(float(v)) for v in by_sock["SOCKET_Hinge"]["relative_location_cm"]) > 1.0:
+            refusals.append("HINGE_NOT_AT_ORIGIN %s" % tag)
+        if "SOCKET_Pivot" in by_sock:
+            pz = float(by_sock["SOCKET_Pivot"]["relative_location_cm"][2])
+            if abs(pz - float(entry["height_cm"]) * 0.5) > PIVOT_TOL_CM:
+                refusals.append("PIVOT_Z_VS_MANIFEST_HEIGHT %s %.3f vs %.3f" % (tag, pz, float(entry["height_cm"]) * 0.5))
+        else:
+            refusals.append("NO_PIVOT_SOCKET %s" % tag)
+    else:
+        if sock_names:
+            refusals.append("TOP_BORDER_HAS_SOCKETS %s %s" % (tag, sock_names))
+        if pole_geom is not None:
+            refusals.append("TOP_BORDER_HAS_BAKED_POLES %s" % tag)
+        if str(validation.get("kind")) != "wave":
+            refusals.append("TOP_BORDER_VALIDATION_KIND %s %r (rz_build_one validates top borders as 'wave')" % (
+                tag, validation.get("kind")))
+    mn, mx = expected_import_bounds(validation)
+    if mount == "wing" and not side_extension_ok(side, mn, mx):
+        refusals.append("SIDE_EXTENSION %s %s %s" % (tag, mn, mx))
+    if mount == "top-border" and not top_centred_ok(mn, mx):
+        refusals.append("TOP_NOT_CENTRED %s %s %s" % (tag, mn[1], mx[1]))
+    hg = height_gate(mount, {"min": mn, "max": mx}, entry["height_cm"], pole_geom)
+    if hg:
+        refusals.append("%s %s" % (hg, tag))
+    if mi_params.get("parents") != {"Front": PARENTS["Front"], "Flap": PARENTS["Flap"]}:
+        refusals.append("MI_PARENT_MISMATCH %s %s" % (tag, mi_params.get("parents")))
+    tp = mi_params.get("texture_parameters", {})
+    col = stem(src["SkinColor"]["rel"])
+    if stem(tp.get("SkinMask", "")) != stem(src["SkinMask"]["rel"]) or \
+            stem(tp.get("SkinNormal", "")) != stem(src["SkinNormal"]["rel"]) or \
+            stem(tp.get("SkinColor", "")) not in (col, col[:-1] if col.endswith("_o2p") else col):
+        refusals.append("MI_PARAMS_TEXTURES_DISAGREE %s" % tag)
+    hit = [x for x in probe if str(x.get("fbx", "")).replace("\\", "/").endswith(str(src["fbx"]["rel"]).replace("\\", "/"))]
+    if len(hit) != 1:
+        refusals.append("EDGE_PROBE_MISSING %s" % tag)
+    else:
+        geom = [{"lod": i, "edge_x": [o["slots"]["Edge"]["x_min"], o["slots"]["Edge"]["x_max"]],
+                 "front_x": [o["slots"]["Front"]["x_min"], o["slots"]["Front"]["x_max"]]}
+                for i, (_, o) in enumerate(sorted(hit[0]["objects"].items()))]
+        ok, why = edge_geometry_ok(geom)
+        if not ok:
+            refusals.append("EDGE_PROBE %s %s" % (tag, why))
+    flap_tris = (validation.get("triangle_counts_by_material") or {}).get("Flap")
+    dest = {"mesh": "%s/%s" % (MESH_FOLDERS[variant], asset),
+            "SkinColor": "%s/%s/%s" % (TEX_ROOT, owner, col),
+            "SkinMask": "%s/%s/%s" % (TEX_ROOT, owner, stem(src["SkinMask"]["rel"])),
+            "SkinNormal": "%s/%s/%s" % (TEX_ROOT, owner, stem(src["SkinNormal"]["rel"])),
+            "AgedStencil": "%s/Aged/%s/T_%s_AgedPlywood_Stencil_Color" % (TEX_ROOT, owner, owner),
+            "Front": "%s/MI_FlatV3_%s_Front" % (MI_ROOT, owner),
+            "Flap": "%s/MI_FlatV3_%s_Flap" % (MI_ROOT, owner)}
+    return {"key": owner, "owner": owner, "asset": asset, "variant": variant, "side": side, "mount": mount,
+            "passage": passage, "manifest_index": mi, "pick": entry.get("pick_n"),
+            "height_cm": float(entry["height_cm"]), "width_cm": round(float(validation["dimensions_m"][1]) * 100.0, 1),
+            "thickness_cm": round(float(validation["dimensions_m"][0]) * 100.0, 2),
+            "sources": src, "destinations": dest, "packages": sorted(dest.values()), "notes": notes,
+            "expected": {"bounds_cm": {"min": mn, "max": mx},
+                         "triangles": {"lod0": int(validation["triangle_counts"]["lod0"]),
+                                       "lod1": int(validation["triangle_counts"]["lod1"])},
+                         "sockets": sock_names, "pole": pole_geom,
+                         "expect_flap": (flap_tris is None) or int(flap_tris) > 0,
+                         "scalars": mi_params["scalar_parameters"],
+                         "slot_materials": [dest["Front"], dest["Flap"], PARENTS["Timber"], PARENTS["Edge"]]},
+            "validation": validation}
+
+
+def auto_batches(wings):
+    """<= 3 per batch, grouped by manifest then passage, ordered by pick (else owner): deterministic."""
+    order = sorted(wings.values(), key=lambda w: (w["manifest_index"], w["passage"],
+                                                  int(w["pick"]) if w.get("pick") is not None else 10 ** 6, w["owner"]))
+    out, cur, key = [], [], None
+    for w in order:
+        k = (w["manifest_index"], w["passage"])
+        if cur and (len(cur) == MAX_PER_BATCH or k != key):
+            out.append(tuple(cur))
+            cur = []
+        cur.append(w["owner"])
+        key = k
+    if cur:
+        out.append(tuple(cur))
+    return tuple(out)
+
+
+def build_plan(project, manifest_rels, batches=None):
+    """Files-only plan.  Returns {wings, batches, refusals, inputs_hash, ...}; refusals empty = file gates pass."""
+    refusals = []
+    require(manifest_rels, "NO_MANIFESTS (args 'manifests': [<project-relative IMPORT_MANIFEST_v2_*.json>, ..])")
+    record = load_json(_abs(project, COMMON_AGED_RECORD_REL))
+    record_hashes = record.get("common_hashes", {}).get("P06", {})
+    if record.get("status") != "PASS" or sorted(record_hashes) != sorted(COMMON_AGED):
+        refusals.append("AGED_COMMON_RECORD %s" % COMMON_AGED_RECORD_REL)
+    manifests, wings, owners_seen = [], {}, {}
+    for mi, rel in enumerate(manifest_rels):
+        mpath = _abs(project, rel)
+        if not os.path.isfile(mpath):
+            refusals.append("MANIFEST_MISSING %s" % rel)
+            continue
+        m = load_json(mpath)
+        manifests.append({"rel": rel, "sha256": sha_file(mpath), "run": m.get("run"), "count": len(m.get("meshes", []))})
+        if m.get("unreal_imported") is not False:
+            refusals.append("MANIFEST_ALREADY_IMPORTED_OR_UNMARKED %s unreal_imported=%r" % (rel, m.get("unreal_imported")))
+        if not m.get("meshes"):
+            refusals.append("MANIFEST_EMPTY %s" % rel)
+        for e in m.get("meshes", []):
+            w = _wing(project, mi, e, record_hashes, refusals)
+            if w is None:
+                continue
+            if w["owner"] in owners_seen:
+                refusals.append("DUPLICATE_OWNER %s (%s and %s)" % (w["owner"], owners_seen[w["owner"]], rel))
+                continue
+            owners_seen[w["owner"]] = rel
+            wings[w["owner"]] = w
+    if batches is None:
+        batches = auto_batches(wings)
+    flat = [o for b in batches for o in b]
+    if sorted(flat) != sorted(wings) or len(flat) != len(set(flat)):
+        refusals.append("BATCHES_DO_NOT_COVER_OWNERS_ONCE")
+    if any(len(b) > MAX_PER_BATCH or not b for b in batches):
+        refusals.append("BATCH_TOO_BIG (max %d wings per MCP call)" % MAX_PER_BATCH)
+    allpk = [p for w in wings.values() for p in w["packages"]]
+    if len(allpk) != len(set(allpk)):
+        refusals.append("DUPLICATE_DESTINATION")
+    if any(not p.startswith(ROOT + "/") for p in allpk):
+        refusals.append("DESTINATION_OUTSIDE_ROOT")
+    p06_ledger = _abs(project, P06_LEDGER_REL)
+    if os.path.isfile(p06_ledger):
+        p06_saved = {p for b in load_json(p06_ledger).get("batches", {}).values() for p in b.get("saved", [])}
+        clash = sorted(set(allpk) & p06_saved)
+        if clash:
+            refusals.append("DESTINATION_CLASH_WITH_P06_IMPORT %d %s" % (len(clash), clash[:3]))
+    out_batches = []
+    for k, b in enumerate(batches, 1):
+        pk = sorted(p for o in b if o in wings for p in wings[o]["packages"])
+        out_batches.append({"batch": k, "owners": list(b), "packages": pk,
+                            "passages": sorted({wings[o]["passage"] for o in b if o in wings})})
+    inputs = {"manifests": manifests,
+              "wings": {k: {"sources": {s: v["sha256"] for s, v in w["sources"].items()},
+                            "destinations": w["destinations"], "mount": w["mount"], "height_cm": w["height_cm"]}
+                        for k, w in sorted(wings.items())},
+              "batches": [list(b) for b in batches], "parents": PARENTS, "reference": REFERENCE,
+              "aged_common_root": AGED_COMMON_ROOT, "texture_cmp": list(TEXTURE_CMP)}
+    plan = {"mark": MARK, "manifests": manifests, "root": ROOT, "mesh_folders": MESH_FOLDERS,
+            "wings": dict(sorted(wings.items())), "batches": out_batches, "package_count": len(allpk),
+            "refusals": refusals, "mounts": sorted({w["mount"] for w in wings.values()}),
+            "passages": sorted({w["passage"] for w in wings.values()}),
+            "aged_common": {"root": AGED_COMMON_ROOT, "names": list(COMMON_AGED), "strategy": "REUSE_EXISTING"},
+            "inputs_hash": sha_obj(inputs)}
+    plan["hash8"] = plan["inputs_hash"][:8]
+    plan["gates_ok"] = not refusals
+    return plan
+
+
+def mesh_paths(plan):
+    """{owner: /Game mesh path} -- for rzswap (single source of truth for realism mesh names)."""
+    return {w["owner"]: w["destinations"]["mesh"] for w in plan["wings"].values()}
+
+
+# =====================================================================================================================
+# Args, tokens, ledger, undo
+# =====================================================================================================================
+
+def ledger_name(plan):
+    return "rzimport_ledger_%s.json" % plan["hash8"]
+
+
+def dry_latest_name(plan):
+    return "rzimport_dry_%s_LATEST.json" % plan["hash8"]
+
+
+def confirm_for(mode, plan=None, batch=None):
+    if mode == "DRY":
+        return "DRY RZIMPORT"
+    if mode == "VERIFY":
+        return "VERIFY RZIMPORT"
+    if mode == "UNDO_LIST":
+        return "UNDO_LIST RZIMPORT"
+    if mode == "APPLY":
+        require(plan is not None and batch is not None, "APPLY_NEEDS_PLAN_AND_BATCH")
+        return "APPLY RZIMPORT BATCH %d #%s" % (int(batch), plan["hash8"])
+    raise PlanError("MODE_INVALID %r" % (mode,))
+
+
+def validate_args(args, plan=None):
+    mode = str(args.get("mode") or "").upper()
+    require(mode in ("DRY", "APPLY", "VERIFY", "UNDO_LIST"), "MODE_INVALID %r" % (mode,))
+    require(isinstance(args.get("manifests"), list) and args["manifests"], "MANIFESTS_MISSING (args 'manifests')")
+    batch = None
+    if mode == "APPLY":
+        try:
+            batch = int(args.get("batch"))
+        except (TypeError, ValueError):
+            raise PlanError("BATCH_INVALID %r" % (args.get("batch"),))
+        require(plan is not None and 1 <= batch <= len(plan["batches"]), "BATCH_INVALID %r" % (batch,))
+    want = confirm_for(mode, plan, batch)
+    require(args.get("confirm") == want, "CONFIRM_MISMATCH %r want %r" % (args.get("confirm"), want))
+    return mode, batch
+
+
+def undo_list(plan, ledger=None):
+    """Manual undo for a create-only import: package list in a reference-safe delete order. NOTHING here deletes."""
+    done = set()
+    if ledger:
+        done = {int(k) for k, v in ledger.get("batches", {}).items() if v.get("status") == "SAVED"}
+    rows = []
+    for b in plan["batches"]:
+        if ledger is not None and b["batch"] not in done:
+            continue
+        pk = b["packages"]
+        order = [p for p in pk if "/Materials/Instances/" in p] + [p for p in pk if "/T5P/" in p or "/T5J/" in p]
+        order += [p for p in pk if p not in order]
+        rows.append({"batch": b["batch"], "owners": b["owners"], "delete_in_order": order,
+                     "files": ["Content/%s.uasset" % p[len("/Game/"):] for p in order]})
+    return {"mode": "UNDO_LIST", "auto_delete": False, "plan": plan["hash8"],
+            "how": ["1 Nothing may reference these meshes: REVERT every rzswap APPLY that placed them first.",
+                    "2 In the Content Browser select a batch's assets (MIs, then the mesh, then textures) and Delete; "
+                    "the reference check must report NO referencers.  Never Force Delete.",
+                    "3 Save nothing else; VERIFY then reports the batch as missing.",
+                    "Never Save All; never delete Passage06 assets (the reused aged Common set belongs to P06)."],
+            "batches": rows}
+
+
+def slim(plan):
+    s = json.loads(json.dumps(plan))
+    for w in s["wings"].values():
+        w.pop("validation", None)
+    return s
+
+
+if __name__ == "__main__":   # offline: python rzimport_core.py <manifest_rel> [...] -> rzimport_plan_offline.json
+    import sys
+    here = os.path.dirname(os.path.abspath(__file__))
+    project = os.path.abspath(os.path.join(here, "..", "..", ".."))
+    rels = sys.argv[1:] or json.load(open(os.path.join(here, "rzimport_args.json"), encoding="utf-8"))["manifests"]
+    p = build_plan(project, rels)
+    s = slim(p)
+    s["undo_list_if_all_applied"] = undo_list(p)
+    s["apply_confirms"] = {str(b["batch"]): confirm_for("APPLY", p, b["batch"]) for b in p["batches"]}
+    with open(os.path.join(here, "rzimport_plan_offline.json"), "w", encoding="utf-8") as fh:
+        json.dump(s, fh, indent=1)
+    print("RZIMPORT_OFFLINE_PLAN|wings=%d|packages=%d|batches=%d|mounts=%s|gates_ok=%s|hash=%s" % (
+        len(p["wings"]), p["package_count"], len(p["batches"]), p["mounts"], p["gates_ok"], p["hash8"]))
+    for r in p["refusals"]:
+        print("  REFUSAL " + r)
+    for b in p["batches"]:
+        print("  batch %d: %s (%d packages)" % (b["batch"], ", ".join(b["owners"]), len(b["packages"])))

@@ -1,0 +1,36 @@
+{
+ "details": {},
+ "failed": {
+  "P06_real_10_building_under_construct_R": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_10_building_under_construct_R_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_1_stone_building_under_L": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_1_stone_building_under_L_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_25_concrete_wall_with_L": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_25_concrete_wall_with_L_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_26_concrete_panel_wood_L": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_26_concrete_panel_wood_L_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_2_pink_silk_structure_R": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_2_pink_silk_structure_R_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_30_rusty_metal_door_L": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_30_rusty_metal_door_L_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_33_burnt_furniture_ruin_L": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_33_burnt_furniture_ruin_L_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_35_metal_frame_door_L": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_35_metal_frame_door_L_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_38_burnt_wood_concrete_L": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_38_burnt_wood_concrete_L_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_39_burnt_metal_door_L": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_39_burnt_metal_door_L_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_3_orange_sail_structure_L": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_3_orange_sail_structure_L_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_6_rock_formation_sculpture_L": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_6_rock_formation_sculpture_L_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_7_draped_marble_statue_L": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_7_draped_marble_statue_L_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_8_rock_formation_sculpture_R": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_8_rock_formation_sculpture_R_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}",
+  "P06_real_9_draped_column_statue_R": "MI_SCALAR_READBACK_FAIL|path=/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P06_real_9_draped_column_statue_R_Flap|scalars={\"FlutterAmpCm\": 6.0, \"FlutterHz\": 0.8999999761581421, \"RowOffset\": 0.5, \"SheetHeightM\": 1.5, \"SheetOverlapM\": 0.02500000037252903, \"SheetWidthM\": 1.0}"
+ },
+ "manifests": [
+  {
+   "count": 15,
+   "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/P06_IMPORT_MANIFEST_v2.json",
+   "run": "FV3RZ-P06-20261007-02",
+   "sha256": "a443347b993a5651a70ba2ade21707f1f818e709767b2a575c4c70eaaeb7b6c5"
+  }
+ ],
+ "mesh_paths": {},
+ "missing": [],
+ "mode": "VERIFY",
+ "ok": [],
+ "partial": [],
+ "plan": "aec07f986e51da8c57cd22471ebde8804f969360ec3fdd0bf4d9945151a28a92",
+ "run_id": "RZIMP-20261007-100556",
+ "status": "INCOMPLETE"
+}

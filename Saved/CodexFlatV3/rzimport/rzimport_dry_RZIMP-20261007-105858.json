@@ -1,0 +1,425 @@
+{
+ "aged_common": {
+  "T_FlatV3_AgedPlywood_NormalDX": {
+   "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    1024,
+    2048
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedPlywood_Roughness": {
+   "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    1024,
+    2048
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedSoftwood_Color": {
+   "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    4096,
+    4096
+   ],
+   "srgb": true
+  },
+  "T_FlatV3_AgedSoftwood_NormalDX": {
+   "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    4096,
+    4096
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedSoftwood_Roughness": {
+   "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    4096,
+    4096
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedSteel_Color": {
+   "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    4096,
+    4096
+   ],
+   "srgb": true
+  }
+ },
+ "apply_confirms": {
+  "1": "APPLY RZIMPORT BATCH 1 #78573711",
+  "2": "APPLY RZIMPORT BATCH 2 #78573711",
+  "3": "APPLY RZIMPORT BATCH 3 #78573711"
+ },
+ "batches": [
+  {
+   "batch": 1,
+   "owners": [
+    "VAL_real_4_red_velvet_curtain_C",
+    "VAL_real_5_black_velvet_curtain_C",
+    "VAL_real_7_dark_gray_draped_C"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_4_red_velvet_curtain_C_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_4_red_velvet_curtain_C_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_5_black_velvet_curtain_C_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_5_black_velvet_curtain_C_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_7_dark_gray_draped_C_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_7_dark_gray_draped_C_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_4_red_velvet_curtain_C_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_5_black_velvet_curtain_C_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_7_dark_gray_draped_C_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_SkinNormal_o2"
+   ],
+   "passages": [
+    "VAL"
+   ]
+  },
+  {
+   "batch": 2,
+   "owners": [
+    "VAL_real_15_ornate_gold_red_C",
+    "VAL_real_16_floral_green_drapery_C",
+    "VAL_real_57_ornate_rose_garland_C"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_15_ornate_gold_red_C_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_15_ornate_gold_red_C_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_16_floral_green_drapery_C_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_16_floral_green_drapery_C_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_57_ornate_rose_garland_C_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_57_ornate_rose_garland_C_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_15_ornate_gold_red_C_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_16_floral_green_drapery_C_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_57_ornate_rose_garland_C_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_SkinNormal_o2"
+   ],
+   "passages": [
+    "VAL"
+   ]
+  },
+  {
+   "batch": 3,
+   "owners": [
+    "VAL_real_60_velvet_curtain_with_C",
+    "VAL_real_62_velvet_curtain_with_C"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_60_velvet_curtain_with_C_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_60_velvet_curtain_with_C_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_62_velvet_curtain_with_C_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_62_velvet_curtain_with_C_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_60_velvet_curtain_with_C_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_62_velvet_curtain_with_C_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_SkinNormal_o2"
+   ],
+   "passages": [
+    "VAL"
+   ]
+  }
+ ],
+ "free_ram_gb": 27.52,
+ "inputs_hash": "78573711b16bac13025b116fe69e038f1a06f3324d1ab6b46e99cf94b0bee1c7",
+ "manifests": [
+  {
+   "count": 8,
+   "rel": "DerivedAssets/FlatV3/Realism_20261007/valances_upper_wings/IMPORT_MANIFEST_v2_VAL.json",
+   "run": "FV3RZ-VAL-20261007-02",
+   "sha256": "b882f1abd18f1a736d02a121ee631b5d9997abb215f289069bd6aad2df246cea"
+  }
+ ],
+ "mode": "DRY",
+ "reference": {
+  "Flap_parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+  "Front_parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+  "collision_count": 0,
+  "edge_geometry": [
+   {
+    "edge_x": [
+     -15.0,
+     -9.999917030334473
+    ],
+    "front_x": [
+     -15.0,
+     -14.999917984008789
+    ],
+    "lod": 0
+   },
+   {
+    "edge_x": [
+     -15.0,
+     -9.999917030334473
+    ],
+    "front_x": [
+     -15.0,
+     -14.999917984008789
+    ],
+    "lod": 1
+   }
+  ],
+  "lod0_triangles": 37234,
+  "mesh_slots": [
+   [
+    "Front",
+    "/Game/Scenes/Wings/FlatV3/Passage06/Materials/Instances/MI_FlatV3_P06_bronze_tree_L_v2_Front_o2p"
+   ],
+   [
+    "Flap",
+    "/Game/Scenes/Wings/FlatV3/Passage06/Materials/Instances/MI_FlatV3_P06_bronze_tree_L_v2_Flap"
+   ],
+   [
+    "Timber",
+    "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+   ],
+   [
+    "Edge",
+    "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+   ]
+  ],
+  "num_lods": 2,
+  "parents_exist": {
+   "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap": true,
+   "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front": true,
+   "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master": true,
+   "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3": true
+  },
+  "socket_names": [],
+  "texture_kind_errors": {},
+  "textures": {
+   "AgedStencil": {
+    "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "True",
+    "virtual_texture_streaming": "False"
+   },
+   "SkinColor": {
+    "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "True",
+    "virtual_texture_streaming": "False"
+   },
+   "SkinMask": {
+    "compression_settings": "<TextureCompressionSettings.TC_MASKS: 2>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "False",
+    "virtual_texture_streaming": "False"
+   },
+   "SkinNormal": {
+    "compression_settings": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD_NORMAL_MAP: 1>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "False",
+    "virtual_texture_streaming": "False"
+   }
+  }
+ },
+ "refusals": [],
+ "run_id": "RZIMP-20261007-105858",
+ "status": "PASS",
+ "utc": "2026-10-07T14:58:59.488527Z",
+ "wings": {
+  "VAL_real_15_ornate_gold_red_C": {
+   "asset": "SM_FlatV3_VAL_real_15_ornate_gold_red_C_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_15_ornate_gold_red_C_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_15_ornate_gold_red_C_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_15_ornate_gold_red_C/T_VAL_real_15_ornate_gold_red_C_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_15_ornate_gold_red_C_t5j"
+   },
+   "height_cm": 404.133,
+   "mount": "top-border",
+   "notes": [],
+   "owner": "VAL_real_15_ornate_gold_red_C",
+   "passage": "VAL"
+  },
+  "VAL_real_16_floral_green_drapery_C": {
+   "asset": "SM_FlatV3_VAL_real_16_floral_green_drapery_C_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_16_floral_green_drapery_C_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_16_floral_green_drapery_C_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_16_floral_green_drapery_C/T_VAL_real_16_floral_green_drapery_C_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_16_floral_green_drapery_C_t5j"
+   },
+   "height_cm": 544.381,
+   "mount": "top-border",
+   "notes": [],
+   "owner": "VAL_real_16_floral_green_drapery_C",
+   "passage": "VAL"
+  },
+  "VAL_real_4_red_velvet_curtain_C": {
+   "asset": "SM_FlatV3_VAL_real_4_red_velvet_curtain_C_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_4_red_velvet_curtain_C_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_4_red_velvet_curtain_C_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_4_red_velvet_curtain_C/T_VAL_real_4_red_velvet_curtain_C_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_4_red_velvet_curtain_C_t5j"
+   },
+   "height_cm": 364.156,
+   "mount": "top-border",
+   "notes": [],
+   "owner": "VAL_real_4_red_velvet_curtain_C",
+   "passage": "VAL"
+  },
+  "VAL_real_57_ornate_rose_garland_C": {
+   "asset": "SM_FlatV3_VAL_real_57_ornate_rose_garland_C_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_57_ornate_rose_garland_C_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_57_ornate_rose_garland_C_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_57_ornate_rose_garland_C/T_VAL_real_57_ornate_rose_garland_C_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_57_ornate_rose_garland_C_t5j"
+   },
+   "height_cm": 329.128,
+   "mount": "top-border",
+   "notes": [],
+   "owner": "VAL_real_57_ornate_rose_garland_C",
+   "passage": "VAL"
+  },
+  "VAL_real_5_black_velvet_curtain_C": {
+   "asset": "SM_FlatV3_VAL_real_5_black_velvet_curtain_C_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_5_black_velvet_curtain_C_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_5_black_velvet_curtain_C_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_5_black_velvet_curtain_C/T_VAL_real_5_black_velvet_curtain_C_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_5_black_velvet_curtain_C_t5j"
+   },
+   "height_cm": 334.75,
+   "mount": "top-border",
+   "notes": [],
+   "owner": "VAL_real_5_black_velvet_curtain_C",
+   "passage": "VAL"
+  },
+  "VAL_real_60_velvet_curtain_with_C": {
+   "asset": "SM_FlatV3_VAL_real_60_velvet_curtain_with_C_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_60_velvet_curtain_with_C_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_60_velvet_curtain_with_C_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_60_velvet_curtain_with_C/T_VAL_real_60_velvet_curtain_with_C_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_60_velvet_curtain_with_C_t5j"
+   },
+   "height_cm": 336.184,
+   "mount": "top-border",
+   "notes": [],
+   "owner": "VAL_real_60_velvet_curtain_with_C",
+   "passage": "VAL"
+  },
+  "VAL_real_62_velvet_curtain_with_C": {
+   "asset": "SM_FlatV3_VAL_real_62_velvet_curtain_with_C_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_62_velvet_curtain_with_C_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_62_velvet_curtain_with_C_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_62_velvet_curtain_with_C/T_VAL_real_62_velvet_curtain_with_C_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_62_velvet_curtain_with_C_t5j"
+   },
+   "height_cm": 348.214,
+   "mount": "top-border",
+   "notes": [],
+   "owner": "VAL_real_62_velvet_curtain_with_C",
+   "passage": "VAL"
+  },
+  "VAL_real_7_dark_gray_draped_C": {
+   "asset": "SM_FlatV3_VAL_real_7_dark_gray_draped_C_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_7_dark_gray_draped_C_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_VAL_real_7_dark_gray_draped_C_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/VAL_real_7_dark_gray_draped_C/T_VAL_real_7_dark_gray_draped_C_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_7_dark_gray_draped_C_t5j"
+   },
+   "height_cm": 401.362,
+   "mount": "top-border",
+   "notes": [],
+   "owner": "VAL_real_7_dark_gray_draped_C",
+   "passage": "VAL"
+  }
+ }
+}

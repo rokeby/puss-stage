@@ -86,6 +86,13 @@ class PlanError(Exception):
     pass
 
 
+
+def _enum_is(text, name):
+    """UE Python enums print as '<ComponentMobility.STATIC: 0>' (9 Oct live); accept that or a bare 'STATIC'."""
+    t = str(text).upper().strip("<> ")
+    t = t.split(":")[0].strip()
+    return t == name or t.endswith("." + name)
+
 def require(condition, reason):
     if not condition:
         raise PlanError(reason)
@@ -348,9 +355,9 @@ def _validate_readback(plan, actors):
         if not _near(got["transform"]["location_cm"], row["transform"]["location_cm"], 0.5): errors.append("WORLD_LOCATION|" + row["key"])
         if not _near(got["transform"]["rotation_rpy_deg"], row["transform"]["rotation_rpy_deg"], 0.001): errors.append("ROTATION|" + row["key"])
         if not _near(got["transform"]["scale"], row["transform"]["scale"], 0.000001): errors.append("SCALE|" + row["key"])
-        if not got["mobility"].upper().endswith("STATIC"): errors.append("MOBILITY|%s|%s" % (row["key"], got["mobility"]))
+        if not _enum_is(got["mobility"], "STATIC"): errors.append("MOBILITY|%s|%s" % (row["key"], got["mobility"]))
         if got["collision_profile"].lower() != "nocollision": errors.append("COLLISION_PROFILE|%s|%s" % (row["key"], got["collision_profile"]))
-        if not got["collision_enabled"].upper().endswith("NO_COLLISION"): errors.append("COLLISION_ENABLED|%s|%s" % (row["key"], got["collision_enabled"]))
+        if not _enum_is(got["collision_enabled"], "NO_COLLISION"): errors.append("COLLISION_ENABLED|%s|%s" % (row["key"], got["collision_enabled"]))
         if not got["cast_shadow"]: errors.append("CAST_SHADOW|" + row["key"])
         want_parent = plan["attachment"]["parent_label"] if plan["attachment"]["enabled"] else None
         if got["parent_label"] != want_parent:

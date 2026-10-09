@@ -1,0 +1,18 @@
+{
+ "mode": "VERIFY",
+ "confirm": "VERIFY RZIMPORT",
+ "manifests": [
+  "DerivedAssets/StageFront_PaperProscenium/IMPORT_MANIFEST_PaperProsc.json"
+ ],
+ "min_free_ram_gb": 12.0,
+ "howto": [
+  "SHIPPED AS: a READ-ONLY VERIFY of the 15 P06 wings the proven P06 kit imported 7 Oct -- the live positive control of this kit's generalised gate (expect FLATV3_RZIMPORT_VERIFY_OK|..|wings=15). It writes no asset.",
+  "0 Editor open on L_InfinityStage_V1VerticalSlice, NO PIE, census CLEAN. Offline first: python Saved/CodexFlatV3/rzimport/rzimport_core.py <manifest> [...] -> rzimport_plan_offline.json (gates + batches + APPLY confirms).",
+  "1 DRY: set manifests to the new IMPORT_MANIFEST_v2_<passage>.json paths (project-relative; several allowed), mode DRY, confirm 'DRY RZIMPORT' -> FLATV3_RZIMPORT_DRY_OK|run=..|plan=<hash8> and one DRY_CONFIRM line per batch",
+  "2 APPLY one batch per MCP call: {mode APPLY, batch k, confirm 'APPLY RZIMPORT BATCH k #<hash8>', manifests: same list}; wait for FLATV3_RZIMPORT_APPLY_OK|run=..|plan=..|batch=k (parse by run id) before the next",
+  "3 VERIFY (read-only), same manifests -> FLATV3_RZIMPORT_VERIFY_OK|..|wings=N + rzimport_verify_<hash8>_LATEST.json (rzswap's make_swap_plan reads it)",
+  "UNDO (manual only): mode UNDO_LIST, confirm 'UNDO_LIST RZIMPORT' (or offline python rzimport.py --undo-list) -> rzimport_undo_list_<hash8>.json",
+  "Run each with: python Saved/CodexMocap/mcp_request.py tools/call --params-file Saved/CodexFlatV3/rzimport/rzimport_request.json --timeout 600",
+  "On FLATV3_RZIMPORT_STOPPED during APPLY before the save: do NOT save anything; Don't-Save editor restart; DRY again."
+ ]
+}

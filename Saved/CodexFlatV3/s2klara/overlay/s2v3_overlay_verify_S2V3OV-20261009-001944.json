@@ -1,0 +1,952 @@
+{
+ "census": {
+  "content": [],
+  "maps": []
+ },
+ "hide_resolution_editor_world": {
+  "SM_S2_L_Wing_Shrine": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_5"
+  ],
+  "SM_S2_L_Wing_Shrine2": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_10"
+  ],
+  "SM_S2_L_Wing_Shrine3": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_20"
+  ],
+  "SM_S2_L_Wing_Shrine4": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_31"
+  ],
+  "SM_S2_L_Wing_Shrine5": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_36"
+  ],
+  "SM_S2_R_Wing_Shrine": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_3"
+  ],
+  "SM_S2_R_Wing_Shrine2": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_9"
+  ],
+  "SM_S2_R_Wing_Shrine3": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_13"
+  ],
+  "SM_S2_R_Wing_Shrine4": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_29"
+  ],
+  "SM_S2_R_Wing_Shrine5": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_37"
+  ],
+  "SM_S2_ceiling_wing": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_21"
+  ],
+  "SM_S2_ceiling_wing2": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_11"
+  ],
+  "SM_S2_ceiling_wing3": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_27"
+  ],
+  "SM_S2_ceiling_wing4": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_33"
+  ],
+  "SM_S2_ceiling_wing5": [
+   "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_38"
+  ]
+ },
+ "overlay": {
+  "bindings": 30,
+  "hide": {
+   "SM_S2_L_Wing_Shrine": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "4AD106CB4E88EBE5C6A2A2B868D06F0F",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_L_Wing_Shrine2": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "C884FDF64B150ED58BE2D6B3848F3AFA",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_L_Wing_Shrine3": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "90904C454C1CB00047F13385DDCB1D28",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_L_Wing_Shrine4": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "318435594CD7DCA80823A58FFFA29B02",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_L_Wing_Shrine5": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "2B47A4ED48F34331A0854B9305E8B337",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_R_Wing_Shrine": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "2A5E9E5947FD1BF442A0D98EF708DAB7",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_R_Wing_Shrine2": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "55EF65E44C43B855002AD295F5796A25",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_R_Wing_Shrine3": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "2049BD0A4013A61E54BC2FAA3F79A116",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_R_Wing_Shrine4": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "37B0DB8B4667F55D59D87A87CC38BF0A",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_R_Wing_Shrine5": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "C212D53049A53A5E0FE7519BADB5C4F2",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_ceiling_wing": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "A338C9554479F78ED609AD84379AF105",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_ceiling_wing2": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "683184CD44DF0D1B3D4D59816EB1427F",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_ceiling_wing3": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "BDDE50BD4B58A6B20A0567AB76399D8D",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_ceiling_wing4": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "ECEC75164A3416816DEC2DA5367D071A",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   },
+   "SM_S2_ceiling_wing5": {
+    "completion": [
+     "RESTORE_STATE"
+    ],
+    "default": [
+     false
+    ],
+    "guid": "BB2E283E4D0003D369F767906BC26824",
+    "keys": 0,
+    "property": [
+     "bHidden"
+    ],
+    "range": [
+     [
+      0,
+      4544
+     ]
+    ],
+    "sections": 1,
+    "tracks": 1,
+    "vis_tracks": 1
+   }
+  },
+  "master_tracks": 0,
+  "ours": {
+   "SM_S2_L_Wing_Shrine": {
+    "guid": "47E32D8A4A5A05FD0EFA7AB3421EAFCA",
+    "keys_sha": "aa317cb3a7f5bab9740cd555a2e1815dc443de77d146ff01eb62b0dcbbe986c3",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_L_t5p",
+     "mobility": "MOVABLE",
+     "rel": [
+      15709.302036615416,
+      79128.16264242552,
+      -1.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_L_Wing_Shrine2": {
+    "guid": "EA4B35604AFEF5FEE1A2F493BF5524FA",
+    "keys_sha": "e20a89f75b0975682cc40808cc438f6249df2c819a9190c9d86c916cd83797ff",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_L_t5p",
+     "mobility": "MOVABLE",
+     "rel": [
+      13473.13408669002,
+      77749.7384716965,
+      -1.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_L_Wing_Shrine3": {
+    "guid": "CAB827AC4AD0D809BD76F9ABE6AFE920",
+    "keys_sha": "5776322102a8d020a0eb626f014694683f3e1cce1dcec299a703fe2fc1785f89",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_L_t5p",
+     "mobility": "MOVABLE",
+     "rel": [
+      14586.323102345645,
+      80196.53444717625,
+      -1.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_L_Wing_Shrine4": {
+    "guid": "7753427D4882C23AF706ADA262672DD5",
+    "keys_sha": "be3cd553ffe9bd5047a6143140a89bafacfa4765fe9db22ef80780ba994583c7",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_L_t5p",
+     "mobility": "MOVABLE",
+     "rel": [
+      12147.294433422177,
+      79011.10648132255,
+      -1.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_L_Wing_Shrine5": {
+    "guid": "CAFFE60343B3FEEBD37A528CF2BE3BF8",
+    "keys_sha": "a2fbff94fe6e7eca22b7e62fd5d5cf8bfb22e854db1fdfbcce957c8ab1274307",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_L_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_L_t5p",
+     "mobility": "MOVABLE",
+     "rel": [
+      13151.808076633291,
+      81561.29326872878,
+      -1.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_R_Wing_Shrine": {
+    "guid": "C3C1A7A84A094EE3F729FEA11B7B0043",
+    "keys_sha": "119e7819898bbff1595d55d0453a2a5374ad79acea8c7a60784a74130675519f",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_R_t5p",
+     "mobility": "MOVABLE",
+     "rel": [
+      13394.659530042052,
+      76700.24579297821,
+      0.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_R_Wing_Shrine2": {
+    "guid": "D6EACA67460F5E3E7FCDE58238C0950C",
+    "keys_sha": "1cdadbe95ee852652a323d11b220bc65b5a76ff0e6238ce15295750fb5fa464f",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_R_t5p",
+     "mobility": "MOVABLE",
+     "rel": [
+      14602.738473427426,
+      79029.16090773871,
+      0.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_R_Wing_Shrine3": {
+    "guid": "79E96B5943E0AAFB0C93F69692130CC4",
+    "keys_sha": "65850eed72374f1d1ab47a0b62b0df0efa72c3a402a77ed038b2062921d17700",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_R_t5p",
+     "mobility": "MOVABLE",
+     "rel": [
+      12271.68059577228,
+      77768.61759772894,
+      0.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_R_Wing_Shrine4": {
+    "guid": "D1F255A14120A5742246E59D90B62941",
+    "keys_sha": "1fdf04fc9f22a86fb692ac6c352fe7c7f4c1bdf2a013724ea7a338f9eb446f52",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_R_t5p",
+     "mobility": "MOVABLE",
+     "rel": [
+      13276.898802886097,
+      80290.52893379828,
+      0.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_R_Wing_Shrine5": {
+    "guid": "F69256AE42818D5655FD8BB3DBF38008",
+    "keys_sha": "5f7bc228e88679afef7183750792afb4f6e7181d0aec5485a0ebfeabe7a1c934",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_shrine_R_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_R_t5p",
+     "mobility": "MOVABLE",
+     "rel": [
+      10837.165614280055,
+      79133.37637721165,
+      0.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_ceiling_wing": {
+    "guid": "DE4141244BBA24DFE1721BA8043082AD",
+    "keys_sha": "cacd611fe994ba697a663b9e30aa2ebc33b70f5dd653dab7f2a330651e1db615",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_S2K_ceiling_C_t5j",
+     "mobility": "MOVABLE",
+     "rel": [
+      14609.284324229331,
+      78006.40452244086,
+      1640.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_ceiling_wing2": {
+    "guid": "E2ADA2DE4DD9114BFAAF0192724F5ED7",
+    "keys_sha": "fbe1eee07969da6f999ed5c29fe51a8ddfa83d3186f321cd396532224afb7744",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_S2K_ceiling_C_t5j",
+     "mobility": "MOVABLE",
+     "rel": [
+      14058.662395168025,
+      78530.25134283476,
+      1640.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_ceiling_wing3": {
+    "guid": "3D6E8A9948F7B100DBEE0CBF3941CF23",
+    "keys_sha": "37988b653fdeb1476c77dca2c0170ffb5ee2bf19143082fed46517f353afbede",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_S2K_ceiling_C_t5j",
+     "mobility": "MOVABLE",
+     "rel": [
+      13486.30538995956,
+      79074.77632719159,
+      1640.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_ceiling_wing4": {
+    "guid": "F26910E24D74F913C528ADB88AED5E78",
+    "keys_sha": "25169ca5b9ca56f02708a6c8aad8b100f6c0b1da7fc7cdcc8da6adf522e599fd",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_S2K_ceiling_C_t5j",
+     "mobility": "MOVABLE",
+     "rel": [
+      12732.822750191455,
+      79791.61934457273,
+      1640.0,
+      0.0,
+      0.0,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   },
+   "SM_S2_ceiling_wing5": {
+    "guid": "45821278434C9B372C04DA95054D5D26",
+    "keys_sha": "d78b10db44aef45e0fa9a4c13a2ddfd6219643a5efd385cd3dbfb182e882a0e1",
+    "range": [
+     0,
+     4544
+    ],
+    "sections": 1,
+    "template": {
+     "class": "StaticMeshActor",
+     "mats": [
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Front",
+      "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_S2K_ceiling_C_Flap",
+      null,
+      null
+     ],
+     "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_S2K_ceiling_C_t5j",
+     "mobility": "MOVABLE",
+     "rel": [
+      12051.790364247208,
+      80439.53514874414,
+      1639.9999942256354,
+      6.762956036254764e-05,
+      -3.0813946068519726e-05,
+      136.42747497558594
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "transform_tracks": 1
+   }
+  },
+  "rates": {
+   "fps": [
+    30,
+    1
+   ],
+   "playback": [
+    0,
+    4544
+   ],
+   "tick": [
+    24000,
+    1
+   ]
+  }
+ },
+ "problems": [],
+ "record_run": "S2V3OV-20261009-001916",
+ "run": "S2V3OV-20261009-001944",
+ "section": {
+  "coverage_now": {
+   "pre_frames": 272,
+   "pre_seconds": 10.88,
+   "pre_ticks": 261120,
+   "range": [
+    104,
+    3891
+   ]
+  },
+  "hookin": [
+   376,
+   3891
+  ],
+  "level_visible": [
+   104,
+   3891
+  ],
+  "ours": {
+   "active": true,
+   "mapped": [
+    104,
+    3890
+   ],
+   "params": "(StartFrameOffset=(Value=0),bCanLoop=False,EndFrameOffset=(Value=0),FirstLoopStartFrameOffset=(Value=0),TimeScale=EMovieSceneTimeWarpType::FixedPlayRate(PlayRate=1.000000),HierarchicalBias=100,Flags=None)",
+   "range": [
+    104,
+    3891
+   ],
+   "sequence": "/Game/Scenes/KlaraS2V3/LS_S2_V3WingsOverlay"
+  }
+ },
+ "source_stale": [],
+ "warnings": []
+}

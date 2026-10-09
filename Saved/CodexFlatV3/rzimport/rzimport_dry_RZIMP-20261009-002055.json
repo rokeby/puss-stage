@@ -1,0 +1,278 @@
+{
+ "aged_common": {
+  "T_FlatV3_AgedPlywood_NormalDX": {
+   "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    32,
+    32
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedPlywood_Roughness": {
+   "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    32,
+    32
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedSoftwood_Color": {
+   "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    32,
+    32
+   ],
+   "srgb": true
+  },
+  "T_FlatV3_AgedSoftwood_NormalDX": {
+   "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    32,
+    32
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedSoftwood_Roughness": {
+   "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    32,
+    32
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedSteel_Color": {
+   "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    32,
+    32
+   ],
+   "srgb": true
+  }
+ },
+ "apply_confirms": {
+  "1": "APPLY RZIMPORT BATCH 1 #18a2a46a"
+ },
+ "batches": [
+  {
+   "batch": 1,
+   "owners": [
+    "PRO_side_L",
+    "PRO_side_R",
+    "PRO_valance_C"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_R_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_valance_C_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_L/T_PRO_side_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_R/T_PRO_side_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_valance_C/T_PRO_valance_C_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinColor",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinMask",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinNormal",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinColor",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinMask",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinNormal",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinColor",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinMask",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinNormal"
+   ],
+   "passages": [
+    "PRO"
+   ]
+  }
+ ],
+ "free_ram_gb": 31.86,
+ "inputs_hash": "18a2a46af1e7b2fa6bcbc275b31d5a43f07c209f997ff2e04fef31326de6068b",
+ "manifests": [
+  {
+   "count": 3,
+   "rel": "DerivedAssets/StageFront_PaperProscenium/IMPORT_MANIFEST_PaperProsc.json",
+   "run": "PRO-PAPERPROSC-THICK5-V2",
+   "sha256": "f5b43b7102351d49b0ee5d73c2da928a0eaf2d2e6f990443dbc3c7db4232580d"
+  }
+ ],
+ "mode": "DRY",
+ "reference": {
+  "Flap_parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+  "Front_parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+  "collision_count": 0,
+  "edge_geometry": [
+   {
+    "edge_x": [
+     -15.0,
+     -9.999917030334473
+    ],
+    "front_x": [
+     -15.0,
+     -14.999917984008789
+    ],
+    "lod": 0
+   },
+   {
+    "edge_x": [
+     -15.0,
+     -9.999917030334473
+    ],
+    "front_x": [
+     -15.0,
+     -14.999917984008789
+    ],
+    "lod": 1
+   }
+  ],
+  "lod0_triangles": 37234,
+  "mesh_slots": [
+   [
+    "Front",
+    "/Game/Scenes/Wings/FlatV3/Passage06/Materials/Instances/MI_FlatV3_P06_bronze_tree_L_v2_Front_o2p"
+   ],
+   [
+    "Flap",
+    "/Game/Scenes/Wings/FlatV3/Passage06/Materials/Instances/MI_FlatV3_P06_bronze_tree_L_v2_Flap"
+   ],
+   [
+    "Timber",
+    "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+   ],
+   [
+    "Edge",
+    "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+   ]
+  ],
+  "num_lods": 2,
+  "parents_exist": {
+   "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap": true,
+   "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front": true,
+   "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master": true,
+   "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3": true
+  },
+  "socket_names": [],
+  "texture_kind_errors": {},
+  "textures": {
+   "AgedStencil": {
+    "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "True",
+    "virtual_texture_streaming": "False"
+   },
+   "SkinColor": {
+    "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "True",
+    "virtual_texture_streaming": "False"
+   },
+   "SkinMask": {
+    "compression_settings": "<TextureCompressionSettings.TC_MASKS: 2>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "False",
+    "virtual_texture_streaming": "False"
+   },
+   "SkinNormal": {
+    "compression_settings": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD_NORMAL_MAP: 1>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "False",
+    "virtual_texture_streaming": "False"
+   }
+  }
+ },
+ "refusals": [],
+ "run_id": "RZIMP-20261009-002055",
+ "status": "PASS",
+ "utc": "2026-10-09T04:20:55.686275Z",
+ "wings": {
+  "PRO_side_L": {
+   "asset": "SM_FlatV3_PRO_side_L_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_L/T_PRO_side_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinColor",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinMask",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_L/T_PaperProsc_Side_L_SkinNormal",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_L_t5j"
+   },
+   "height_cm": 1080.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "PRO_side_L",
+   "passage": "PRO"
+  },
+  "PRO_side_R": {
+   "asset": "SM_FlatV3_PRO_side_R_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_side_R/T_PRO_side_R_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_side_R_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinColor",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinMask",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_side_R/T_PaperProsc_Side_R_SkinNormal",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_side_R_t5j"
+   },
+   "height_cm": 1080.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "PRO_side_R",
+   "passage": "PRO"
+  },
+  "PRO_valance_C": {
+   "asset": "SM_FlatV3_PRO_valance_C_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/PRO_valance_C/T_PRO_valance_C_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_PRO_valance_C_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinColor",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinMask",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/PRO_valance_C/T_PaperProsc_Valance_C_SkinNormal",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_PRO_valance_C_t5j"
+   },
+   "height_cm": 400.0,
+   "mount": "top-border",
+   "notes": [],
+   "owner": "PRO_valance_C",
+   "passage": "PRO"
+  }
+ }
+}

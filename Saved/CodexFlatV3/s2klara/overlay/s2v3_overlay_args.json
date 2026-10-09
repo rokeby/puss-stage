@@ -1,0 +1,48 @@
+{
+ "mode": "VERIFY",
+ "confirm": "",
+ "run": "",
+ "decided_by": "Gary 8 Oct (his own answers, W&T session): full V3 rebuild of Klara's S2 wings retaining her look; ours throughout; variant A first. Conductor 5 OK (digest a81975f9, slot 9 Oct 04:17).",
+ "dry_report": "",
+ "variant": "A",
+ "copy_channels": "all",
+ "overlay_asset": "/Game/Scenes/KlaraS2V3/LS_S2_V3WingsOverlay",
+ "hookin_copy": "/Game/InfinityStage/KlaraHookin/LS_NEW_SHRINE_S2Hangar",
+ "expected_section": [
+  376,
+  3891
+ ],
+ "align_tol_cm": 25.0,
+ "align_refuse": true,
+ "midpoint_tol_cm": 0.5,
+ "midpoint_tol_deg": 0.05,
+ "rest_vs_actor_tol_cm": 2.0,
+ "types": {
+  "L": {
+   "owner": "S2K_shrine_L"
+  },
+  "R": {
+   "owner": "S2K_shrine_R"
+  },
+  "C": {
+   "owner": "S2K_ceiling_C"
+  }
+ },
+ "_modes": "DRY | APPLY (needs dry_report = s2v3_overlay_dry_<run>.json, same digest) | VARIANT (variant A|B) | RESYNC | VERIFY | REVERT; confirm '<MODE> S2V3OVERLAY'; decided_by for writes",
+ "_types_schema": "per type: owner (S2K_*); optional overrides of the kit: mesh, pivot_offset_cm, rot_offset_deg, pivot_frame, variants {A: {slot: material}, B: {...}}. Default source = kit files above.",
+ "coverage": "scene",
+ "pre_section_pose": "auto",
+ "expected_coverage": [
+  104,
+  3891
+ ],
+ "kit": {
+  "manifest_path": "DerivedAssets/FlatV3/KlaraS2/IMPORT_MANIFEST_KlaraS2.json",
+  "pivot_path": "DerivedAssets/FlatV3/KlaraS2/pivot/pivot_offsets.json",
+  "rzimport_plan_path": "DerivedAssets/FlatV3/KlaraS2/rzimport_plan_offline_KlaraS2.json"
+ },
+ "_coverage": "scene (Gary 8 Oct 'ours throughout'): [her level visible start, hookin end) read live, expected [104, 3891); our wings hold her pre-section pose (auto = measured: rest|first; unclear refuses) until 376, then her keys. cinematic = exactly the hookin section.",
+ "fit_tol_cm": 0.1,
+ "fit_tol_deg": 0.01,
+ "_tolerances": "midpoint_tol_cm/deg = the per-sample GATE (our LINEAR keys vs her UE-evaluated pose (x) child transform, every 160 ticks = every 30 and 25 fps tick); fit_tol_* = the key-fitting tolerance (must be below the gate)"
+}

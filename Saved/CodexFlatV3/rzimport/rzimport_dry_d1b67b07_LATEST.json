@@ -1,0 +1,750 @@
+{
+ "aged_common": {
+  "T_FlatV3_AgedPlywood_NormalDX": {
+   "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    32,
+    32
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedPlywood_Roughness": {
+   "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    32,
+    32
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedSoftwood_Color": {
+   "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    32,
+    32
+   ],
+   "srgb": true
+  },
+  "T_FlatV3_AgedSoftwood_NormalDX": {
+   "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    32,
+    32
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedSoftwood_Roughness": {
+   "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    32,
+    32
+   ],
+   "srgb": false
+  },
+  "T_FlatV3_AgedSteel_Color": {
+   "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+   "flip_green": false,
+   "mip_setting": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+   "mips": "FULL_POLICY",
+   "pot": true,
+   "size": [
+    32,
+    32
+   ],
+   "srgb": true
+  }
+ },
+ "apply_confirms": {
+  "1": "APPLY RZIMPORT BATCH 1 #d1b67b07",
+  "2": "APPLY RZIMPORT BATCH 2 #d1b67b07",
+  "3": "APPLY RZIMPORT BATCH 3 #d1b67b07",
+  "4": "APPLY RZIMPORT BATCH 4 #d1b67b07",
+  "5": "APPLY RZIMPORT BATCH 5 #d1b67b07",
+  "6": "APPLY RZIMPORT BATCH 6 #d1b67b07",
+  "7": "APPLY RZIMPORT BATCH 7 #d1b67b07"
+ },
+ "batches": [
+  {
+   "batch": 1,
+   "owners": [
+    "P01_real_3_stone_fountain_architectura_L",
+    "P01_real_8_antique_wooden_fireplace_L",
+    "P01_real_12_ancient_stone_arch_L"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_12_ancient_stone_arch_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_12_ancient_stone_arch_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_3_stone_fountain_architectura_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_3_stone_fountain_architectura_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_8_antique_wooden_fireplace_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_8_antique_wooden_fireplace_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P01_real_3_stone_fountain_architectura_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P01_real_8_antique_wooden_fireplace_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P01_real_12_ancient_stone_arch_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P01_real_12_ancient_stone_arch_L/T_P01_real_12_ancient_stone_arch_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P01_real_3_stone_fountain_architectura_L/T_P01_real_3_stone_fountain_architectura_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P01_real_8_antique_wooden_fireplace_L/T_P01_real_8_antique_wooden_fireplace_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_12_ancient_stone_arch_L/T_P01_real_12_ancient_stone_arch_L_SkinColor_o2p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_12_ancient_stone_arch_L/T_P01_real_12_ancient_stone_arch_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_12_ancient_stone_arch_L/T_P01_real_12_ancient_stone_arch_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_3_stone_fountain_architectura_L/T_P01_real_3_stone_fountain_architectura_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_3_stone_fountain_architectura_L/T_P01_real_3_stone_fountain_architectura_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_3_stone_fountain_architectura_L/T_P01_real_3_stone_fountain_architectura_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_8_antique_wooden_fireplace_L/T_P01_real_8_antique_wooden_fireplace_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_8_antique_wooden_fireplace_L/T_P01_real_8_antique_wooden_fireplace_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_8_antique_wooden_fireplace_L/T_P01_real_8_antique_wooden_fireplace_L_SkinNormal_o2"
+   ],
+   "passages": [
+    "P01"
+   ]
+  },
+  {
+   "batch": 2,
+   "owners": [
+    "P01_real_18_ivory_niche_with_L",
+    "P01_real_20_evergreen_tree_vertical_L",
+    "P01_real_22_topiary_plant_shape_R"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_18_ivory_niche_with_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_18_ivory_niche_with_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_20_evergreen_tree_vertical_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_20_evergreen_tree_vertical_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_22_topiary_plant_shape_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_22_topiary_plant_shape_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P01_real_18_ivory_niche_with_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P01_real_20_evergreen_tree_vertical_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P01_real_22_topiary_plant_shape_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P01_real_18_ivory_niche_with_L/T_P01_real_18_ivory_niche_with_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P01_real_20_evergreen_tree_vertical_L/T_P01_real_20_evergreen_tree_vertical_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P01_real_22_topiary_plant_shape_R/T_P01_real_22_topiary_plant_shape_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_18_ivory_niche_with_L/T_P01_real_18_ivory_niche_with_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_18_ivory_niche_with_L/T_P01_real_18_ivory_niche_with_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_18_ivory_niche_with_L/T_P01_real_18_ivory_niche_with_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_20_evergreen_tree_vertical_L/T_P01_real_20_evergreen_tree_vertical_L_SkinColor_o2p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_20_evergreen_tree_vertical_L/T_P01_real_20_evergreen_tree_vertical_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_20_evergreen_tree_vertical_L/T_P01_real_20_evergreen_tree_vertical_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_22_topiary_plant_shape_R/T_P01_real_22_topiary_plant_shape_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_22_topiary_plant_shape_R/T_P01_real_22_topiary_plant_shape_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_22_topiary_plant_shape_R/T_P01_real_22_topiary_plant_shape_R_SkinNormal_o2"
+   ],
+   "passages": [
+    "P01"
+   ]
+  },
+  {
+   "batch": 3,
+   "owners": [
+    "P04_real_11_gothic_arch_window_R",
+    "P04_real_13_gothic_arch_ruin_R",
+    "P04_real_14_gothic_window_stone_L"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_11_gothic_arch_window_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_11_gothic_arch_window_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_13_gothic_arch_ruin_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_13_gothic_arch_ruin_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_14_gothic_window_stone_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_14_gothic_window_stone_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_11_gothic_arch_window_R_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_14_gothic_window_stone_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_13_gothic_arch_ruin_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_11_gothic_arch_window_R/T_P04_real_11_gothic_arch_window_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_13_gothic_arch_ruin_R/T_P04_real_13_gothic_arch_ruin_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_14_gothic_window_stone_L/T_P04_real_14_gothic_window_stone_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_11_gothic_arch_window_R/T_P04_real_11_gothic_arch_window_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_11_gothic_arch_window_R/T_P04_real_11_gothic_arch_window_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_11_gothic_arch_window_R/T_P04_real_11_gothic_arch_window_R_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_13_gothic_arch_ruin_R/T_P04_real_13_gothic_arch_ruin_R_SkinColor_o2p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_13_gothic_arch_ruin_R/T_P04_real_13_gothic_arch_ruin_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_13_gothic_arch_ruin_R/T_P04_real_13_gothic_arch_ruin_R_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_14_gothic_window_stone_L/T_P04_real_14_gothic_window_stone_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_14_gothic_window_stone_L/T_P04_real_14_gothic_window_stone_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_14_gothic_window_stone_L/T_P04_real_14_gothic_window_stone_L_SkinNormal_o2"
+   ],
+   "passages": [
+    "P04"
+   ]
+  },
+  {
+   "batch": 4,
+   "owners": [
+    "P04_real_25_gnarled_tree_illustration_L",
+    "P04_real_27_weathered_wood_stump_L",
+    "P04_real_29_dead_tree_with_L"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_25_gnarled_tree_illustration_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_25_gnarled_tree_illustration_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_27_weathered_wood_stump_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_27_weathered_wood_stump_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_29_dead_tree_with_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_29_dead_tree_with_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_27_weathered_wood_stump_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_25_gnarled_tree_illustration_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_29_dead_tree_with_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_25_gnarled_tree_illustration_L/T_P04_real_25_gnarled_tree_illustration_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_27_weathered_wood_stump_L/T_P04_real_27_weathered_wood_stump_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_29_dead_tree_with_L/T_P04_real_29_dead_tree_with_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_25_gnarled_tree_illustration_L/T_P04_real_25_gnarled_tree_illustration_L_SkinColor_o2p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_25_gnarled_tree_illustration_L/T_P04_real_25_gnarled_tree_illustration_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_25_gnarled_tree_illustration_L/T_P04_real_25_gnarled_tree_illustration_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_27_weathered_wood_stump_L/T_P04_real_27_weathered_wood_stump_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_27_weathered_wood_stump_L/T_P04_real_27_weathered_wood_stump_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_27_weathered_wood_stump_L/T_P04_real_27_weathered_wood_stump_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_29_dead_tree_with_L/T_P04_real_29_dead_tree_with_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_29_dead_tree_with_L/T_P04_real_29_dead_tree_with_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_29_dead_tree_with_L/T_P04_real_29_dead_tree_with_L_SkinNormal_o2"
+   ],
+   "passages": [
+    "P04"
+   ]
+  },
+  {
+   "batch": 5,
+   "owners": [
+    "P04_real_30_ancient_dry_tree_L",
+    "P04_real_34_dead_tree_with_L",
+    "P04_real_35_gnarled_tree_stump_R"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_30_ancient_dry_tree_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_30_ancient_dry_tree_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_34_dead_tree_with_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_34_dead_tree_with_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_35_gnarled_tree_stump_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_35_gnarled_tree_stump_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_30_ancient_dry_tree_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_34_dead_tree_with_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_35_gnarled_tree_stump_R_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_30_ancient_dry_tree_L/T_P04_real_30_ancient_dry_tree_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_34_dead_tree_with_L/T_P04_real_34_dead_tree_with_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_35_gnarled_tree_stump_R/T_P04_real_35_gnarled_tree_stump_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_30_ancient_dry_tree_L/T_P04_real_30_ancient_dry_tree_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_30_ancient_dry_tree_L/T_P04_real_30_ancient_dry_tree_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_30_ancient_dry_tree_L/T_P04_real_30_ancient_dry_tree_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_34_dead_tree_with_L/T_P04_real_34_dead_tree_with_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_34_dead_tree_with_L/T_P04_real_34_dead_tree_with_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_34_dead_tree_with_L/T_P04_real_34_dead_tree_with_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_35_gnarled_tree_stump_R/T_P04_real_35_gnarled_tree_stump_R_SkinColor_o2p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_35_gnarled_tree_stump_R/T_P04_real_35_gnarled_tree_stump_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_35_gnarled_tree_stump_R/T_P04_real_35_gnarled_tree_stump_R_SkinNormal_o2"
+   ],
+   "passages": [
+    "P04"
+   ]
+  },
+  {
+   "batch": 6,
+   "owners": [
+    "P04_real_38_gnarled_tree_stump_L",
+    "P04_real_50_dead_tree_with_L",
+    "P04_real_55_gnarled_tree_sculpture_R"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_38_gnarled_tree_stump_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_38_gnarled_tree_stump_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_50_dead_tree_with_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_50_dead_tree_with_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_55_gnarled_tree_sculpture_R_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_55_gnarled_tree_sculpture_R_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_38_gnarled_tree_stump_L_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_55_gnarled_tree_sculpture_R_t5j",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_50_dead_tree_with_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_38_gnarled_tree_stump_L/T_P04_real_38_gnarled_tree_stump_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_50_dead_tree_with_L/T_P04_real_50_dead_tree_with_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_55_gnarled_tree_sculpture_R/T_P04_real_55_gnarled_tree_sculpture_R_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_38_gnarled_tree_stump_L/T_P04_real_38_gnarled_tree_stump_L_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_38_gnarled_tree_stump_L/T_P04_real_38_gnarled_tree_stump_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_38_gnarled_tree_stump_L/T_P04_real_38_gnarled_tree_stump_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_50_dead_tree_with_L/T_P04_real_50_dead_tree_with_L_SkinColor_o2p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_50_dead_tree_with_L/T_P04_real_50_dead_tree_with_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_50_dead_tree_with_L/T_P04_real_50_dead_tree_with_L_SkinNormal_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_55_gnarled_tree_sculpture_R/T_P04_real_55_gnarled_tree_sculpture_R_SkinColor_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_55_gnarled_tree_sculpture_R/T_P04_real_55_gnarled_tree_sculpture_R_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_55_gnarled_tree_sculpture_R/T_P04_real_55_gnarled_tree_sculpture_R_SkinNormal_o2"
+   ],
+   "passages": [
+    "P04"
+   ]
+  },
+  {
+   "batch": 7,
+   "owners": [
+    "P04_real_56_gnarled_tree_stump_L"
+   ],
+   "packages": [
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_56_gnarled_tree_stump_L_Flap",
+    "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_56_gnarled_tree_stump_L_Front",
+    "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_56_gnarled_tree_stump_L_t5p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_56_gnarled_tree_stump_L/T_P04_real_56_gnarled_tree_stump_L_AgedPlywood_Stencil_Color",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_56_gnarled_tree_stump_L/T_P04_real_56_gnarled_tree_stump_L_SkinColor_o2p",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_56_gnarled_tree_stump_L/T_P04_real_56_gnarled_tree_stump_L_SkinMask_o2",
+    "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_56_gnarled_tree_stump_L/T_P04_real_56_gnarled_tree_stump_L_SkinNormal_o2"
+   ],
+   "passages": [
+    "P04"
+   ]
+  }
+ ],
+ "free_ram_gb": 27.27,
+ "inputs_hash": "d1b67b0776825d7cbe07d94fe95996d9d4127abb95359994111c6cef09437d26",
+ "manifests": [
+  {
+   "count": 6,
+   "rel": "DerivedAssets/FlatV3/Realism_20261007/P01_classical_garden/IMPORT_MANIFEST_v2_P01.json",
+   "run": "FV3RZ-P01-20261007-02",
+   "sha256": "2443e00c5109bdf9d8670d1458535d3b763e9b342de9e5e63b51f088f070097e"
+  },
+  {
+   "count": 13,
+   "rel": "DerivedAssets/FlatV3/Realism_20261007/P04_gothic_blasted_trees/IMPORT_MANIFEST_v2_P04.json",
+   "run": "FV3RZ-P04-20261007-02",
+   "sha256": "a5c662e1769409b7db2598bebbc7df86ba3b9e4f5b4e8b54c26e1a34db87f5d2"
+  }
+ ],
+ "mode": "DRY",
+ "reference": {
+  "Flap_parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+  "Front_parent": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+  "collision_count": 0,
+  "edge_geometry": [
+   {
+    "edge_x": [
+     -15.0,
+     -9.999917030334473
+    ],
+    "front_x": [
+     -15.0,
+     -14.999917984008789
+    ],
+    "lod": 0
+   },
+   {
+    "edge_x": [
+     -15.0,
+     -9.999917030334473
+    ],
+    "front_x": [
+     -15.0,
+     -14.999917984008789
+    ],
+    "lod": 1
+   }
+  ],
+  "lod0_triangles": 37234,
+  "mesh_slots": [
+   [
+    "Front",
+    "/Game/Scenes/Wings/FlatV3/Passage06/Materials/Instances/MI_FlatV3_P06_bronze_tree_L_v2_Front_o2p"
+   ],
+   [
+    "Flap",
+    "/Game/Scenes/Wings/FlatV3/Passage06/Materials/Instances/MI_FlatV3_P06_bronze_tree_L_v2_Flap"
+   ],
+   [
+    "Timber",
+    "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+   ],
+   [
+    "Edge",
+    "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+   ]
+  ],
+  "num_lods": 2,
+  "parents_exist": {
+   "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap": true,
+   "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front": true,
+   "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master": true,
+   "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3": true
+  },
+  "socket_names": [],
+  "texture_kind_errors": {},
+  "textures": {
+   "AgedStencil": {
+    "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "True",
+    "virtual_texture_streaming": "False"
+   },
+   "SkinColor": {
+    "compression_settings": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "True",
+    "virtual_texture_streaming": "False"
+   },
+   "SkinMask": {
+    "compression_settings": "<TextureCompressionSettings.TC_MASKS: 2>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD: 0>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "False",
+    "virtual_texture_streaming": "False"
+   },
+   "SkinNormal": {
+    "compression_settings": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+    "flip_green_channel": "False",
+    "lod_group": "<TextureGroup.TEXTUREGROUP_WORLD_NORMAL_MAP: 1>",
+    "mip_gen_settings": "<TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>",
+    "never_stream": "False",
+    "srgb": "False",
+    "virtual_texture_streaming": "False"
+   }
+  }
+ },
+ "refusals": [],
+ "run_id": "RZIMP-20261007-105438",
+ "status": "PASS",
+ "utc": "2026-10-07T14:54:39.734703Z",
+ "wings": {
+  "P01_real_12_ancient_stone_arch_L": {
+   "asset": "SM_FlatV3_P01_real_12_ancient_stone_arch_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P01_real_12_ancient_stone_arch_L/T_P01_real_12_ancient_stone_arch_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_12_ancient_stone_arch_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_12_ancient_stone_arch_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_12_ancient_stone_arch_L/T_P01_real_12_ancient_stone_arch_L_SkinColor_o2p",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_12_ancient_stone_arch_L/T_P01_real_12_ancient_stone_arch_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_12_ancient_stone_arch_L/T_P01_real_12_ancient_stone_arch_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P01_real_12_ancient_stone_arch_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P01_real_12_ancient_stone_arch_L",
+   "passage": "P01"
+  },
+  "P01_real_18_ivory_niche_with_L": {
+   "asset": "SM_FlatV3_P01_real_18_ivory_niche_with_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P01_real_18_ivory_niche_with_L/T_P01_real_18_ivory_niche_with_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_18_ivory_niche_with_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_18_ivory_niche_with_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_18_ivory_niche_with_L/T_P01_real_18_ivory_niche_with_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_18_ivory_niche_with_L/T_P01_real_18_ivory_niche_with_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_18_ivory_niche_with_L/T_P01_real_18_ivory_niche_with_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P01_real_18_ivory_niche_with_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P01_real_18_ivory_niche_with_L",
+   "passage": "P01"
+  },
+  "P01_real_20_evergreen_tree_vertical_L": {
+   "asset": "SM_FlatV3_P01_real_20_evergreen_tree_vertical_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P01_real_20_evergreen_tree_vertical_L/T_P01_real_20_evergreen_tree_vertical_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_20_evergreen_tree_vertical_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_20_evergreen_tree_vertical_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_20_evergreen_tree_vertical_L/T_P01_real_20_evergreen_tree_vertical_L_SkinColor_o2p",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_20_evergreen_tree_vertical_L/T_P01_real_20_evergreen_tree_vertical_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_20_evergreen_tree_vertical_L/T_P01_real_20_evergreen_tree_vertical_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P01_real_20_evergreen_tree_vertical_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P01_real_20_evergreen_tree_vertical_L",
+   "passage": "P01"
+  },
+  "P01_real_22_topiary_plant_shape_R": {
+   "asset": "SM_FlatV3_P01_real_22_topiary_plant_shape_R_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P01_real_22_topiary_plant_shape_R/T_P01_real_22_topiary_plant_shape_R_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_22_topiary_plant_shape_R_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_22_topiary_plant_shape_R_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_22_topiary_plant_shape_R/T_P01_real_22_topiary_plant_shape_R_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_22_topiary_plant_shape_R/T_P01_real_22_topiary_plant_shape_R_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_22_topiary_plant_shape_R/T_P01_real_22_topiary_plant_shape_R_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P01_real_22_topiary_plant_shape_R_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P01_real_22_topiary_plant_shape_R",
+   "passage": "P01"
+  },
+  "P01_real_3_stone_fountain_architectura_L": {
+   "asset": "SM_FlatV3_P01_real_3_stone_fountain_architectura_L_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P01_real_3_stone_fountain_architectura_L/T_P01_real_3_stone_fountain_architectura_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_3_stone_fountain_architectura_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_3_stone_fountain_architectura_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_3_stone_fountain_architectura_L/T_P01_real_3_stone_fountain_architectura_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_3_stone_fountain_architectura_L/T_P01_real_3_stone_fountain_architectura_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_3_stone_fountain_architectura_L/T_P01_real_3_stone_fountain_architectura_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P01_real_3_stone_fountain_architectura_L_t5j"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P01_real_3_stone_fountain_architectura_L",
+   "passage": "P01"
+  },
+  "P01_real_8_antique_wooden_fireplace_L": {
+   "asset": "SM_FlatV3_P01_real_8_antique_wooden_fireplace_L_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P01_real_8_antique_wooden_fireplace_L/T_P01_real_8_antique_wooden_fireplace_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_8_antique_wooden_fireplace_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P01_real_8_antique_wooden_fireplace_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_8_antique_wooden_fireplace_L/T_P01_real_8_antique_wooden_fireplace_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_8_antique_wooden_fireplace_L/T_P01_real_8_antique_wooden_fireplace_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P01_real_8_antique_wooden_fireplace_L/T_P01_real_8_antique_wooden_fireplace_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P01_real_8_antique_wooden_fireplace_L_t5j"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P01_real_8_antique_wooden_fireplace_L",
+   "passage": "P01"
+  },
+  "P04_real_11_gothic_arch_window_R": {
+   "asset": "SM_FlatV3_P04_real_11_gothic_arch_window_R_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_11_gothic_arch_window_R/T_P04_real_11_gothic_arch_window_R_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_11_gothic_arch_window_R_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_11_gothic_arch_window_R_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_11_gothic_arch_window_R/T_P04_real_11_gothic_arch_window_R_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_11_gothic_arch_window_R/T_P04_real_11_gothic_arch_window_R_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_11_gothic_arch_window_R/T_P04_real_11_gothic_arch_window_R_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_11_gothic_arch_window_R_t5j"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P04_real_11_gothic_arch_window_R",
+   "passage": "P04"
+  },
+  "P04_real_13_gothic_arch_ruin_R": {
+   "asset": "SM_FlatV3_P04_real_13_gothic_arch_ruin_R_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_13_gothic_arch_ruin_R/T_P04_real_13_gothic_arch_ruin_R_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_13_gothic_arch_ruin_R_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_13_gothic_arch_ruin_R_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_13_gothic_arch_ruin_R/T_P04_real_13_gothic_arch_ruin_R_SkinColor_o2p",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_13_gothic_arch_ruin_R/T_P04_real_13_gothic_arch_ruin_R_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_13_gothic_arch_ruin_R/T_P04_real_13_gothic_arch_ruin_R_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_13_gothic_arch_ruin_R_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P04_real_13_gothic_arch_ruin_R",
+   "passage": "P04"
+  },
+  "P04_real_14_gothic_window_stone_L": {
+   "asset": "SM_FlatV3_P04_real_14_gothic_window_stone_L_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_14_gothic_window_stone_L/T_P04_real_14_gothic_window_stone_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_14_gothic_window_stone_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_14_gothic_window_stone_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_14_gothic_window_stone_L/T_P04_real_14_gothic_window_stone_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_14_gothic_window_stone_L/T_P04_real_14_gothic_window_stone_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_14_gothic_window_stone_L/T_P04_real_14_gothic_window_stone_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_14_gothic_window_stone_L_t5j"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P04_real_14_gothic_window_stone_L",
+   "passage": "P04"
+  },
+  "P04_real_25_gnarled_tree_illustration_L": {
+   "asset": "SM_FlatV3_P04_real_25_gnarled_tree_illustration_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_25_gnarled_tree_illustration_L/T_P04_real_25_gnarled_tree_illustration_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_25_gnarled_tree_illustration_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_25_gnarled_tree_illustration_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_25_gnarled_tree_illustration_L/T_P04_real_25_gnarled_tree_illustration_L_SkinColor_o2p",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_25_gnarled_tree_illustration_L/T_P04_real_25_gnarled_tree_illustration_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_25_gnarled_tree_illustration_L/T_P04_real_25_gnarled_tree_illustration_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_25_gnarled_tree_illustration_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P04_real_25_gnarled_tree_illustration_L",
+   "passage": "P04"
+  },
+  "P04_real_27_weathered_wood_stump_L": {
+   "asset": "SM_FlatV3_P04_real_27_weathered_wood_stump_L_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_27_weathered_wood_stump_L/T_P04_real_27_weathered_wood_stump_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_27_weathered_wood_stump_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_27_weathered_wood_stump_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_27_weathered_wood_stump_L/T_P04_real_27_weathered_wood_stump_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_27_weathered_wood_stump_L/T_P04_real_27_weathered_wood_stump_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_27_weathered_wood_stump_L/T_P04_real_27_weathered_wood_stump_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_27_weathered_wood_stump_L_t5j"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P04_real_27_weathered_wood_stump_L",
+   "passage": "P04"
+  },
+  "P04_real_29_dead_tree_with_L": {
+   "asset": "SM_FlatV3_P04_real_29_dead_tree_with_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_29_dead_tree_with_L/T_P04_real_29_dead_tree_with_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_29_dead_tree_with_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_29_dead_tree_with_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_29_dead_tree_with_L/T_P04_real_29_dead_tree_with_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_29_dead_tree_with_L/T_P04_real_29_dead_tree_with_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_29_dead_tree_with_L/T_P04_real_29_dead_tree_with_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_29_dead_tree_with_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P04_real_29_dead_tree_with_L",
+   "passage": "P04"
+  },
+  "P04_real_30_ancient_dry_tree_L": {
+   "asset": "SM_FlatV3_P04_real_30_ancient_dry_tree_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_30_ancient_dry_tree_L/T_P04_real_30_ancient_dry_tree_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_30_ancient_dry_tree_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_30_ancient_dry_tree_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_30_ancient_dry_tree_L/T_P04_real_30_ancient_dry_tree_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_30_ancient_dry_tree_L/T_P04_real_30_ancient_dry_tree_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_30_ancient_dry_tree_L/T_P04_real_30_ancient_dry_tree_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_30_ancient_dry_tree_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P04_real_30_ancient_dry_tree_L",
+   "passage": "P04"
+  },
+  "P04_real_34_dead_tree_with_L": {
+   "asset": "SM_FlatV3_P04_real_34_dead_tree_with_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_34_dead_tree_with_L/T_P04_real_34_dead_tree_with_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_34_dead_tree_with_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_34_dead_tree_with_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_34_dead_tree_with_L/T_P04_real_34_dead_tree_with_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_34_dead_tree_with_L/T_P04_real_34_dead_tree_with_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_34_dead_tree_with_L/T_P04_real_34_dead_tree_with_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_34_dead_tree_with_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P04_real_34_dead_tree_with_L",
+   "passage": "P04"
+  },
+  "P04_real_35_gnarled_tree_stump_R": {
+   "asset": "SM_FlatV3_P04_real_35_gnarled_tree_stump_R_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_35_gnarled_tree_stump_R/T_P04_real_35_gnarled_tree_stump_R_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_35_gnarled_tree_stump_R_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_35_gnarled_tree_stump_R_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_35_gnarled_tree_stump_R/T_P04_real_35_gnarled_tree_stump_R_SkinColor_o2p",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_35_gnarled_tree_stump_R/T_P04_real_35_gnarled_tree_stump_R_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_35_gnarled_tree_stump_R/T_P04_real_35_gnarled_tree_stump_R_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_35_gnarled_tree_stump_R_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P04_real_35_gnarled_tree_stump_R",
+   "passage": "P04"
+  },
+  "P04_real_38_gnarled_tree_stump_L": {
+   "asset": "SM_FlatV3_P04_real_38_gnarled_tree_stump_L_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_38_gnarled_tree_stump_L/T_P04_real_38_gnarled_tree_stump_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_38_gnarled_tree_stump_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_38_gnarled_tree_stump_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_38_gnarled_tree_stump_L/T_P04_real_38_gnarled_tree_stump_L_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_38_gnarled_tree_stump_L/T_P04_real_38_gnarled_tree_stump_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_38_gnarled_tree_stump_L/T_P04_real_38_gnarled_tree_stump_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_38_gnarled_tree_stump_L_t5j"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P04_real_38_gnarled_tree_stump_L",
+   "passage": "P04"
+  },
+  "P04_real_50_dead_tree_with_L": {
+   "asset": "SM_FlatV3_P04_real_50_dead_tree_with_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_50_dead_tree_with_L/T_P04_real_50_dead_tree_with_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_50_dead_tree_with_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_50_dead_tree_with_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_50_dead_tree_with_L/T_P04_real_50_dead_tree_with_L_SkinColor_o2p",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_50_dead_tree_with_L/T_P04_real_50_dead_tree_with_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_50_dead_tree_with_L/T_P04_real_50_dead_tree_with_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_50_dead_tree_with_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P04_real_50_dead_tree_with_L",
+   "passage": "P04"
+  },
+  "P04_real_55_gnarled_tree_sculpture_R": {
+   "asset": "SM_FlatV3_P04_real_55_gnarled_tree_sculpture_R_t5j",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_55_gnarled_tree_sculpture_R/T_P04_real_55_gnarled_tree_sculpture_R_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_55_gnarled_tree_sculpture_R_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_55_gnarled_tree_sculpture_R_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_55_gnarled_tree_sculpture_R/T_P04_real_55_gnarled_tree_sculpture_R_SkinColor_o2",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_55_gnarled_tree_sculpture_R/T_P04_real_55_gnarled_tree_sculpture_R_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_55_gnarled_tree_sculpture_R/T_P04_real_55_gnarled_tree_sculpture_R_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_55_gnarled_tree_sculpture_R_t5j"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P04_real_55_gnarled_tree_sculpture_R",
+   "passage": "P04"
+  },
+  "P04_real_56_gnarled_tree_stump_L": {
+   "asset": "SM_FlatV3_P04_real_56_gnarled_tree_stump_L_t5p",
+   "destinations": {
+    "AgedStencil": "/Game/Scenes/Wings/FlatV3/Realism/Textures/Aged/P04_real_56_gnarled_tree_stump_L/T_P04_real_56_gnarled_tree_stump_L_AgedPlywood_Stencil_Color",
+    "Flap": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_56_gnarled_tree_stump_L_Flap",
+    "Front": "/Game/Scenes/Wings/FlatV3/Realism/Materials/Instances/MI_FlatV3_P04_real_56_gnarled_tree_stump_L_Front",
+    "SkinColor": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_56_gnarled_tree_stump_L/T_P04_real_56_gnarled_tree_stump_L_SkinColor_o2p",
+    "SkinMask": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_56_gnarled_tree_stump_L/T_P04_real_56_gnarled_tree_stump_L_SkinMask_o2",
+    "SkinNormal": "/Game/Scenes/Wings/FlatV3/Realism/Textures/P04_real_56_gnarled_tree_stump_L/T_P04_real_56_gnarled_tree_stump_L_SkinNormal_o2",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_56_gnarled_tree_stump_L_t5p"
+   },
+   "height_cm": 1000.0,
+   "mount": "wing",
+   "notes": [],
+   "owner": "P04_real_56_gnarled_tree_stump_L",
+   "passage": "P04"
+  }
+ }
+}
