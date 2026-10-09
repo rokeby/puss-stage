@@ -46,6 +46,10 @@ STRIKES = [(130, ["SpotLight3"]), (145, ["SpotLight2"]), (160, ["K_shrine_spot_3
            (330, ["Spot_shrine", "P_Fire", "P_Fire2", "P_Fire3", "P_Fire4", "P_Fire5", "P_Fire6"])]
 # F11 (Gary 8 Oct: the cloudy fog "should just be there when we arrive in her scene"): her smoke appears at the cut.
 LATE = [(376, ["Humo_Par4"])]
+# F15 (Gary 8 Oct: the fog "seems to be the last thing to be on and it doesn't really care about darkness ... a big white
+# blob"): measured PIE 9 Oct 01:40, the white frame at S2 0.86 (frame ~3346) is Humo_Par4 in the exit camera -> hidden
+# again from EXIT_HIDE to the scene end.
+EXIT_HIDE = (3300, ["Humo_Par4"])
 
 
 def _level(a):
@@ -137,6 +141,13 @@ def main():
             _add_vis(seq, unreal, x, OURS_PREFIX, (0, END), True); rec["added"].append(OURS_PREFIX + str(x.get_actor_label()))
         for l, f in plan_hers:
             _add_vis(seq, unreal, hers_by[l], HERS_PREFIX, (0, f), True); rec["added"].append(HERS_PREFIX + l)
+        for l in EXIT_HIDE[1]:
+            # add_possessable on an already-bound actor returns THAT binding (live 9 Oct: it renamed the strike binding),
+            # so the exit window is a second visibility track on the strike binding, not a new binding.
+            b = [x for x in seq.get_bindings() if str(x.get_display_name()) == HERS_PREFIX + l][0]
+            t = b.add_track(unreal.MovieSceneVisibilityTrack); t.set_property_name_and_path("bHidden", "bHidden")
+            s_ = t.add_section(); s_.set_range(EXIT_HIDE[0], END); s_.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
+            list(s_.get_all_channels())[0].set_default(False)                    # channel = visible -> False = hidden
         json.dump(rec, open(REC, "w"), indent=1)
     elif mode == "REVERT":
         if not os.path.exists(REC): raise RuntimeError("NO_RECORD")

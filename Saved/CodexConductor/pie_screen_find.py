@@ -10,7 +10,7 @@ def main():
     w = u.get_editor_subsystem(u.UnrealEditorSubsystem).get_game_world()
     root = list(u.GameplayStatics.get_all_actors_of_class(w, u.InfinityStageShowRoot))[0]
     tr, player = root.transport, root.sequence_player
-    seg = [s for s in list(tr.segments) if str(s.label).startswith("Scene 3")][0]
+    seg = [s for s in list(tr.segments) if str(s.label).startswith(a.get("segment", "Scene 3"))][0]
     pc = u.GameplayStatics.get_player_controller(w, 0)
     st = {"wait": -1, "h": None}
 
@@ -38,6 +38,8 @@ def main():
                 lc = act.get_component_by_class(u.LightComponent)
                 if lc is not None and lc.is_visible():
                     lights.append([lab, cls, round(uvx, 3), round(uvy, 3), round(float(lc.get_editor_property("intensity")), 1)])
+                elif any(k in (lab + cls).lower() for k in a.get("words", [])):
+                    cube.append([lab, cls, round(uvx, 3), round(uvy, 3), [round(e.x), round(e.y), round(e.z)]])
                 elif max(e.x, e.y, e.z) < 60 and math.hypot(uvx - a["cube_uv"][0], uvy - a["cube_uv"][1]) < 0.12:
                     cube.append([lab, cls, round(uvx, 3), round(uvy, 3), [round(e.x), round(e.y), round(e.z)]])
             cm = u.GameplayStatics.get_player_camera_manager(w, 0)
