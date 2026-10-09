@@ -1247,7 +1247,50 @@
    "beats": "",
    "notes": "",
    "cut": false
+  },
+  "WV0A8I6G": {
+   "light": "",
+   "soundTech": "",
+   "action": "",
+   "soundCue": "",
+   "videoCue": "Passage 6",
+   "klara": "",
+   "gary": "",
+   "cameron": "",
+   "beats": "",
+   "notes": "",
+   "cut": false
+  },
+  "WV0A8PMW": {
+   "light": "",
+   "soundTech": "",
+   "action": "",
+   "soundCue": "",
+   "videoCue": "Scene 6: Void",
+   "klara": "",
+   "gary": "",
+   "cameron": "",
+   "beats": "",
+   "notes": "",
+   "cut": false
+  },
+  "WV0A8YAX": {
+   "light": "",
+   "soundTech": "",
+   "action": "",
+   "soundCue": "",
+   "videoCue": "Ending",
+   "klara": "",
+   "gary": "",
+   "cameron": "",
+   "beats": "",
+   "notes": "",
+   "cut": false
   }
  },
- "web_keys": {}
+ "web_keys": {
+  "WV0A8I6G": "R0097",
+  "WV0A8PMW": "R0098",
+  "WV0A8YAX": "R0099"
+ }
 }
