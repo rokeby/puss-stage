@@ -68,14 +68,14 @@ TAutoConsoleVariable<int32> CVarSurtitlesSpeakers(
     TEXT("1: show the Speaker column, small, above the line."));
 
 /** Over the show and the video fallback (5), under the rehearsal bar (20). */
-constexpr int32 OverlayZOrder = 10;
+constexpr int32 SurtitleZOrder = 10;
 /** The show's frame rate, for hh:mm:ss:ff. */
-constexpr double SheetFps = 25.0;
+constexpr double SurtitleSheetFps = 25.0;
 /** The layout's reference frame; SScaleBox fits it to the viewport. */
-constexpr float FrameWidth = 1920.0f;
-constexpr float FrameHeight = 1080.0f;
+constexpr float SurtitleFrameWidth = 1920.0f;
+constexpr float SurtitleFrameHeight = 1080.0f;
 
-TCHAR KindLetter(const EInfinityCueType Type)
+TCHAR SurtitleKindLetter(const EInfinityCueType Type)
 {
     switch (Type)
     {
@@ -86,7 +86,7 @@ TCHAR KindLetter(const EInfinityCueType Type)
     }
 }
 
-bool KeyMatches(const FString& Key, const TArray<FInfinityTransportSegment>& Segments, const int32 SegmentIndex)
+bool SurtitleKeyMatches(const FString& Key, const TArray<FInfinityTransportSegment>& Segments, const int32 SegmentIndex)
 {
     const FString Trimmed = Key.TrimStartAndEnd();
     if (Trimmed.IsEmpty() || !Segments.IsValidIndex(SegmentIndex))
@@ -97,7 +97,7 @@ bool KeyMatches(const FString& Key, const TArray<FInfinityTransportSegment>& Seg
         || Trimmed.Equals(Segments[SegmentIndex].Label.ToString().TrimStartAndEnd(), ESearchCase::IgnoreCase);
 }
 
-int32 FindColumn(const TArray<FString>& Header, std::initializer_list<const TCHAR*> Names)
+int32 FindSurtitleColumn(const TArray<FString>& Header, std::initializer_list<const TCHAR*> Names)
 {
     for (int32 Column = 0; Column < Header.Num(); ++Column)
     {
@@ -113,12 +113,12 @@ int32 FindColumn(const TArray<FString>& Header, std::initializer_list<const TCHA
     return INDEX_NONE;
 }
 
-FString Cell(const TArray<FString>& Row, const int32 Column)
+FString SurtitleCell(const TArray<FString>& Row, const int32 Column)
 {
     return Row.IsValidIndex(Column) ? Row[Column].TrimStartAndEnd() : FString();
 }
 
-FString ResolveFontPath()
+FString ResolveSurtitleFontPath()
 {
     const FString Override = CVarSurtitlesFont.GetValueOnGameThread();
     if (!Override.IsEmpty())
@@ -138,7 +138,7 @@ FString ResolveFontPath()
     return FPaths::FileExists(Georgia) ? Georgia : FString();
 }
 
-void DumpWorld(UWorld* World)
+void SurtitleDumpWorld(UWorld* World)
 {
     if (UInfinityStageSurtitleSubsystem* Surtitles = World ? World->GetSubsystem<UInfinityStageSurtitleSubsystem>() : nullptr)
     {
@@ -150,7 +150,7 @@ void DumpWorld(UWorld* World)
     }
 }
 
-void ReloadWorld(UWorld* World)
+void SurtitleReloadWorld(UWorld* World)
 {
     if (UInfinityStageSurtitleSubsystem* Surtitles = World ? World->GetSubsystem<UInfinityStageSurtitleSubsystem>() : nullptr)
     {
@@ -158,7 +158,7 @@ void ReloadWorld(UWorld* World)
     }
 }
 
-UInfinityStageSurtitleSubsystem* SurtitlesOf(UWorld* World)
+UInfinityStageSurtitleSubsystem* SurtitleSubsystemOf(UWorld* World)
 {
     UInfinityStageSurtitleSubsystem* Surtitles = World ? World->GetSubsystem<UInfinityStageSurtitleSubsystem>() : nullptr;
     if (!Surtitles)
@@ -168,64 +168,64 @@ UInfinityStageSurtitleSubsystem* SurtitlesOf(UWorld* World)
     return Surtitles;
 }
 
-void LogControl(UInfinityStageSurtitleSubsystem* Surtitles, const TCHAR* What, const bool bOk)
+void LogSurtitleControl(UInfinityStageSurtitleSubsystem* Surtitles, const TCHAR* What, const bool bOk)
 {
     UE_LOG(LogInfinityStageSurtitles, Display, TEXT("INFINITY_SURTITLES_CONTROL %s ok=%d %s | %s"),
         What, bOk ? 1 : 0, *Surtitles->GetLastMessage(), *Surtitles->DescribeSelected());
 }
 
-void StepWorld(const TArray<FString>& Args, UWorld* World)
+void SurtitleStepWorld(const TArray<FString>& Args, UWorld* World)
 {
-    if (UInfinityStageSurtitleSubsystem* Surtitles = SurtitlesOf(World))
+    if (UInfinityStageSurtitleSubsystem* Surtitles = SurtitleSubsystemOf(World))
     {
         const int32 Delta = Args.Num() > 0 && FCString::Atoi(*Args[0]) < 0 ? -1 : 1;
-        LogControl(Surtitles, Delta > 0 ? TEXT("next") : TEXT("previous"), Surtitles->StepLine(Delta));
+        LogSurtitleControl(Surtitles, Delta > 0 ? TEXT("next") : TEXT("previous"), Surtitles->StepLine(Delta));
     }
 }
 
-void StampWorld(const TArray<FString>& Args, UWorld* World)
+void SurtitleStampWorld(const TArray<FString>& Args, UWorld* World)
 {
-    if (UInfinityStageSurtitleSubsystem* Surtitles = SurtitlesOf(World))
+    if (UInfinityStageSurtitleSubsystem* Surtitles = SurtitleSubsystemOf(World))
     {
         const bool bOut = Args.Num() > 0 && Args[0].Equals(TEXT("Out"), ESearchCase::IgnoreCase);
-        LogControl(Surtitles, bOut ? TEXT("stamp_out") : TEXT("stamp_in"), Surtitles->StampAtPlayhead(bOut));
+        LogSurtitleControl(Surtitles, bOut ? TEXT("stamp_out") : TEXT("stamp_in"), Surtitles->StampAtPlayhead(bOut));
     }
 }
 
-void NudgeWorld(const TArray<FString>& Args, UWorld* World)
+void SurtitleNudgeWorld(const TArray<FString>& Args, UWorld* World)
 {
-    if (UInfinityStageSurtitleSubsystem* Surtitles = SurtitlesOf(World))
+    if (UInfinityStageSurtitleSubsystem* Surtitles = SurtitleSubsystemOf(World))
     {
         const bool bOut = Args.Num() > 0 && Args[0].Equals(TEXT("Out"), ESearchCase::IgnoreCase);
         const double Delta = Args.Num() > 1 ? FCString::Atod(*Args[1]) : 0.0;
-        LogControl(Surtitles, bOut ? TEXT("nudge_out") : TEXT("nudge_in"), Surtitles->Nudge(bOut, Delta));
+        LogSurtitleControl(Surtitles, bOut ? TEXT("nudge_out") : TEXT("nudge_in"), Surtitles->Nudge(bOut, Delta));
     }
 }
 
-FAutoConsoleCommandWithWorldAndArgs StepCommand(
+FAutoConsoleCommandWithWorldAndArgs SurtitleStepCommand(
     TEXT("InfinityStage.Surtitles.Step"),
     TEXT("1 next / -1 previous surtitle: scrubs there (pauses) and selects it."),
-    FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&StepWorld));
+    FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&SurtitleStepWorld));
 
-FAutoConsoleCommandWithWorldAndArgs StampCommand(
+FAutoConsoleCommandWithWorldAndArgs SurtitleStampCommand(
     TEXT("InfinityStage.Surtitles.Stamp"),
     TEXT("In | Out: sets the selected surtitle's In or Out to the playhead, in the sheet."),
-    FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&StampWorld));
+    FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&SurtitleStampWorld));
 
-FAutoConsoleCommandWithWorldAndArgs NudgeCommand(
+FAutoConsoleCommandWithWorldAndArgs SurtitleNudgeCommand(
     TEXT("InfinityStage.Surtitles.Nudge"),
     TEXT("In | Out <seconds>: moves the selected surtitle's In or Out, in the sheet."),
-    FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&NudgeWorld));
+    FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&SurtitleNudgeWorld));
 
-FAutoConsoleCommandWithWorld DumpCommand(
+FAutoConsoleCommandWithWorld SurtitleDumpCommand(
     TEXT("InfinityStage.Surtitles.Dump"),
     TEXT("Logs every surtitle line at its absolute Master time (INFINITY_SURTITLE rows)."),
-    FConsoleCommandWithWorldDelegate::CreateStatic(&DumpWorld));
+    FConsoleCommandWithWorldDelegate::CreateStatic(&SurtitleDumpWorld));
 
-FAutoConsoleCommandWithWorld ReloadCommand(
+FAutoConsoleCommandWithWorld SurtitleReloadCommand(
     TEXT("InfinityStage.Surtitles.Reload"),
     TEXT("Re-reads the surtitle sheet."),
-    FConsoleCommandWithWorldDelegate::CreateStatic(&ReloadWorld));
+    FConsoleCommandWithWorldDelegate::CreateStatic(&SurtitleReloadWorld));
 }
 
 // ---------------------------------------------------------------------------
@@ -241,7 +241,7 @@ bool FInfinitySurtitleScript::LoadFromCsvText(const FString& Text)
     int32 HeaderRow = INDEX_NONE;
     for (int32 Row = 0; Row < Table.Num() && HeaderRow == INDEX_NONE; ++Row)
     {
-        if (FindColumn(Table[Row], { TEXT("Segment") }) != INDEX_NONE)
+        if (FindSurtitleColumn(Table[Row], { TEXT("Segment") }) != INDEX_NONE)
         {
             HeaderRow = Row;
         }
@@ -252,12 +252,12 @@ bool FInfinitySurtitleScript::LoadFromCsvText(const FString& Text)
         return false;
     }
     const TArray<FString>& Header = Table[HeaderRow];
-    const int32 SegmentColumn = FindColumn(Header, { TEXT("Segment") });
-    const int32 InColumn = FindColumn(Header, { TEXT("In"), TEXT("Start") });
-    const int32 OutColumn = FindColumn(Header, { TEXT("Out"), TEXT("End") });
-    const int32 SpeakerColumn = FindColumn(Header, { TEXT("Speaker") });
-    const int32 TextColumn = FindColumn(Header, { TEXT("Text"), TEXT("Surtitle"), TEXT("Line") });
-    const int32 KeyColumn = FindColumn(Header, { TEXT("Key") });
+    const int32 SegmentColumn = FindSurtitleColumn(Header, { TEXT("Segment") });
+    const int32 InColumn = FindSurtitleColumn(Header, { TEXT("In"), TEXT("Start") });
+    const int32 OutColumn = FindSurtitleColumn(Header, { TEXT("Out"), TEXT("End") });
+    const int32 SpeakerColumn = FindSurtitleColumn(Header, { TEXT("Speaker") });
+    const int32 TextColumn = FindSurtitleColumn(Header, { TEXT("Text"), TEXT("Surtitle"), TEXT("Line") });
+    const int32 KeyColumn = FindSurtitleColumn(Header, { TEXT("Key") });
     if (InColumn == INDEX_NONE || TextColumn == INDEX_NONE)
     {
         Warnings.Add(TEXT("the header needs In and Text columns"));
@@ -269,13 +269,13 @@ bool FInfinitySurtitleScript::LoadFromCsvText(const FString& Text)
     {
         const TArray<FString>& Cells = Table[Row];
         const int32 SourceRow = Row + 1;
-        const FString SegmentCell = Cell(Cells, SegmentColumn);
+        const FString SegmentCell = SurtitleCell(Cells, SegmentColumn);
         if (!SegmentCell.IsEmpty())
         {
             CarriedSegment = SegmentCell;
         }
-        const FString InCell = Cell(Cells, InColumn);
-        const FString LineText = Cell(Cells, TextColumn);
+        const FString InCell = SurtitleCell(Cells, InColumn);
+        const FString LineText = SurtitleCell(Cells, TextColumn);
         if (InCell.IsEmpty())
         {
             if (!LineText.IsEmpty())
@@ -288,24 +288,24 @@ bool FInfinitySurtitleScript::LoadFromCsvText(const FString& Text)
         FInfinitySurtitleLine Line;
         Line.SourceRow = SourceRow;
         Line.Segment = CarriedSegment;
-        Line.Speaker = Cell(Cells, SpeakerColumn);
-        Line.Key = Cell(Cells, KeyColumn);
+        Line.Speaker = SurtitleCell(Cells, SpeakerColumn);
+        Line.Key = SurtitleCell(Cells, KeyColumn);
         Line.Text = LineText;
         if (Line.Segment.IsEmpty())
         {
             Warnings.Add(FString::Printf(TEXT("row %d: no Segment yet, skipped"), SourceRow));
             continue;
         }
-        if (!InfinityStageSurtitles::ParseTime(InCell, SheetFps, Line.InSeconds))
+        if (!InfinityStageSurtitles::ParseTime(InCell, SurtitleSheetFps, Line.InSeconds))
         {
             Warnings.Add(FString::Printf(TEXT("row %d: In \"%s\" is not a time, skipped"), SourceRow, *InCell));
             continue;
         }
-        const FString OutCell = Cell(Cells, OutColumn);
+        const FString OutCell = SurtitleCell(Cells, OutColumn);
         if (!OutCell.IsEmpty())
         {
             double Out = 0.0;
-            if (!InfinityStageSurtitles::ParseTime(OutCell, SheetFps, Out))
+            if (!InfinityStageSurtitles::ParseTime(OutCell, SurtitleSheetFps, Out))
             {
                 Warnings.Add(FString::Printf(TEXT("row %d: Out \"%s\" is not a time; held to the next line"), SourceRow, *OutCell));
             }
@@ -398,19 +398,19 @@ FString SegmentCode(const TArray<FInfinityTransportSegment>& Segments, const int
     {
         Ordinal += Segments[Index].Type == Type ? 1 : 0;
     }
-    return FString::Printf(TEXT("%c%d"), KindLetter(Type), Ordinal);
+    return FString::Printf(TEXT("%c%d"), SurtitleKindLetter(Type), Ordinal);
 }
 
 bool LineMatchesSegment(const FInfinitySurtitleLine& Line, const TArray<FInfinityTransportSegment>& Segments, const int32 SegmentIndex)
 {
-    return KeyMatches(Line.Segment, Segments, SegmentIndex);
+    return SurtitleKeyMatches(Line.Segment, Segments, SegmentIndex);
 }
 
 int32 ResolveSegment(const FString& Key, const TArray<FInfinityTransportSegment>& Segments)
 {
     for (int32 Index = 0; Index < Segments.Num(); ++Index)
     {
-        if (KeyMatches(Key, Segments, Index))
+        if (SurtitleKeyMatches(Key, Segments, Index))
         {
             return Index;
         }
@@ -535,7 +535,7 @@ bool SetLineTime(FString& InOutCsvText, const FInfinitySurtitleLine& Line, const
     int32 HeaderRow = INDEX_NONE;
     for (int32 Row = 0; Row < Table.Num() && HeaderRow == INDEX_NONE; ++Row)
     {
-        if (FindColumn(Table[Row], { TEXT("Segment") }) != INDEX_NONE)
+        if (FindSurtitleColumn(Table[Row], { TEXT("Segment") }) != INDEX_NONE)
         {
             HeaderRow = Row;
         }
@@ -547,15 +547,15 @@ bool SetLineTime(FString& InOutCsvText, const FInfinitySurtitleLine& Line, const
         return false;
     }
     const TArray<FString>& Header = Table[HeaderRow];
-    const int32 InColumn = FindColumn(Header, { TEXT("In"), TEXT("Start") });
-    const int32 OutColumn = FindColumn(Header, { TEXT("Out"), TEXT("End") });
-    const int32 KeyColumn = FindColumn(Header, { TEXT("Key") });
+    const int32 InColumn = FindSurtitleColumn(Header, { TEXT("In"), TEXT("Start") });
+    const int32 OutColumn = FindSurtitleColumn(Header, { TEXT("Out"), TEXT("End") });
+    const int32 KeyColumn = FindSurtitleColumn(Header, { TEXT("Key") });
     TArray<FString>& Cells = Table[RowIndex];
 
     // Stale guard: the row on disk must still be the line we loaded.
     double DiskIn = -1.0;
-    if (Cell(Cells, KeyColumn) != Line.Key
-        || !ParseTime(Cell(Cells, InColumn), SheetFps, DiskIn) || !FMath::IsNearlyEqual(DiskIn, Line.InSeconds, 1e-6))
+    if (SurtitleCell(Cells, KeyColumn) != Line.Key
+        || !ParseTime(SurtitleCell(Cells, InColumn), SurtitleSheetFps, DiskIn) || !FMath::IsNearlyEqual(DiskIn, Line.InSeconds, 1e-6))
     {
         OutError = FString::Printf(TEXT("row %d changed on disk; reloaded, try again"), Line.SourceRow);
         return false;
@@ -572,7 +572,7 @@ bool SetLineTime(FString& InOutCsvText, const FInfinitySurtitleLine& Line, const
         return false;
     }
     double OtherOut = -1.0;
-    const bool bHasOut = ParseTime(Cell(Cells, OutColumn), SheetFps, OtherOut);
+    const bool bHasOut = ParseTime(SurtitleCell(Cells, OutColumn), SurtitleSheetFps, OtherOut);
     if ((bOut && Seconds <= Line.InSeconds) || (!bOut && bHasOut && OtherOut <= Seconds))
     {
         OutError = TEXT("Out must stay after In");
@@ -748,7 +748,7 @@ void UInfinityStageSurtitleSubsystem::ApplyStyle()
     {
         return;
     }
-    const FString FontPath = ResolveFontPath();
+    const FString FontPath = ResolveSurtitleFontPath();
     const float Size = FMath::Max(8.0f, CVarSurtitlesSize.GetValueOnGameThread());
     const float Top = FMath::Max(0.0f, CVarSurtitlesTop.GetValueOnGameThread());
     const float BarOpacity = FMath::Clamp(CVarSurtitlesBarOpacity.GetValueOnGameThread(), 0.0f, 1.0f);
@@ -783,8 +783,8 @@ void UInfinityStageSurtitleSubsystem::ApplyStyle()
         .Visibility(EVisibility::Collapsed)
         [
             SNew(SBox)
-            .WidthOverride(FrameWidth)
-            .HeightOverride(FrameHeight)
+            .WidthOverride(SurtitleFrameWidth)
+            .HeightOverride(SurtitleFrameHeight)
             [
                 SNew(SVerticalBox)
                 + SVerticalBox::Slot()
@@ -798,7 +798,7 @@ void UInfinityStageSurtitleSubsystem::ApplyStyle()
                     .Padding(FMargin(Size * 0.7f, Size * 0.22f))
                     [
                         SNew(SBox)
-                        .MaxDesiredWidth(FrameWidth * 0.8f)
+                        .MaxDesiredWidth(SurtitleFrameWidth * 0.8f)
                         [
                             SNew(SVerticalBox)
                             + SVerticalBox::Slot()
@@ -826,7 +826,7 @@ void UInfinityStageSurtitleSubsystem::ApplyStyle()
                 ]
             ]
         ];
-    Viewport->AddViewportWidgetContent(Overlay.ToSharedRef(), OverlayZOrder);
+    Viewport->AddViewportWidgetContent(Overlay.ToSharedRef(), SurtitleZOrder);
     bOverlayAdded = true;
     ShownLine = INDEX_NONE;
 }

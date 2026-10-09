@@ -6,37 +6,37 @@
 
 namespace
 {
-constexpr double Ticks = 24000.0;
+constexpr double SurtitleTicks = 24000.0;
 
-FInfinityTransportSegment MakeSegment(const EInfinityCueType Type, const TCHAR* Label, const double StartSeconds, const double EndSeconds)
+FInfinityTransportSegment MakeSurtitleSegment(const EInfinityCueType Type, const TCHAR* Label, const double StartSeconds, const double EndSeconds)
 {
     FInfinityTransportSegment Segment;
     Segment.Type = Type;
     Segment.Label = FText::FromString(Label);
-    Segment.StartFrame = FFrameNumber(int32(StartSeconds * Ticks));
-    Segment.EndFrame = FFrameNumber(int32(EndSeconds * Ticks));
+    Segment.StartFrame = FFrameNumber(int32(StartSeconds * SurtitleTicks));
+    Segment.EndFrame = FFrameNumber(int32(EndSeconds * SurtitleTicks));
     return Segment;
 }
 
 /** Passage 1 [0,100), Scene 1 [100,200), Passage 2 [200,300), Scene 2 "Mountains" [300,452.341). */
-TArray<FInfinityTransportSegment> MakeShow()
+TArray<FInfinityTransportSegment> MakeSurtitleShow()
 {
     return {
-        MakeSegment(EInfinityCueType::WingPair, TEXT("Passage 1"), 0.0, 100.0),
-        MakeSegment(EInfinityCueType::Scene, TEXT("S1 Animals"), 100.0, 200.0),
-        MakeSegment(EInfinityCueType::WingPair, TEXT("Passage 2"), 200.0, 300.0),
-        MakeSegment(EInfinityCueType::Scene, TEXT("Mountains"), 300.0, 452.341),
+        MakeSurtitleSegment(EInfinityCueType::WingPair, TEXT("Passage 1"), 0.0, 100.0),
+        MakeSurtitleSegment(EInfinityCueType::Scene, TEXT("S1 Animals"), 100.0, 200.0),
+        MakeSurtitleSegment(EInfinityCueType::WingPair, TEXT("Passage 2"), 200.0, 300.0),
+        MakeSurtitleSegment(EInfinityCueType::Scene, TEXT("Mountains"), 300.0, 452.341),
     };
 }
 
-int64 At(const double MasterSeconds)
+int64 SurtitleAt(const double MasterSeconds)
 {
-    return int64(FMath::RoundToDouble(MasterSeconds * Ticks));
+    return int64(FMath::RoundToDouble(MasterSeconds * SurtitleTicks));
 }
 
 // The Google Sheet export shape: a title row, the header, carry-down segments, a quoted
 // multi-line cell, a clear row (time, no text), a bad time, and a Passage line by label.
-const TCHAR* SheetCsv =
+const TCHAR* SurtitleSheetCsv =
     TEXT("Surtitles,,,,,\n")
     TEXT("Segment,In,Out,Speaker,Text,Notes\n")
     TEXT("S2,1:14,1:25,West,\"We have been here\na while.\",slow\n")
@@ -80,7 +80,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 bool FInfinityStageSurtitleSheetTest::RunTest(const FString& Parameters)
 {
     FInfinitySurtitleScript Script;
-    TestTrue(TEXT("The sheet loads"), Script.LoadFromCsvText(SheetCsv));
+    TestTrue(TEXT("The sheet loads"), Script.LoadFromCsvText(SurtitleSheetCsv));
     // Kept: 1:14, 1:40, 2:01 (clear), Passage 2. Dropped with a warning: Out<In, bad time, no time.
     TestEqual(TEXT("Four lines kept"), Script.Lines.Num(), 4);
     TestEqual(TEXT("Three warnings"), Script.Warnings.Num(), 3);
@@ -108,7 +108,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FInfinityStageSurtitleSegmentTest::RunTest(const FString& Parameters)
 {
-    const TArray<FInfinityTransportSegment> Show = MakeShow();
+    const TArray<FInfinityTransportSegment> Show = MakeSurtitleShow();
     TestEqual(TEXT("P1"), InfinityStageSurtitles::SegmentCode(Show, 0), FString(TEXT("P1")));
     TestEqual(TEXT("S1 counts Scenes only"), InfinityStageSurtitles::SegmentCode(Show, 1), FString(TEXT("S1")));
     TestEqual(TEXT("P2"), InfinityStageSurtitles::SegmentCode(Show, 2), FString(TEXT("P2")));
@@ -126,13 +126,13 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FInfinityStageSurtitleEvaluateTest::RunTest(const FString& Parameters)
 {
-    const TArray<FInfinityTransportSegment> Show = MakeShow();
+    const TArray<FInfinityTransportSegment> Show = MakeSurtitleShow();
     FInfinitySurtitleScript Script;
-    Script.LoadFromCsvText(SheetCsv);
+    Script.LoadFromCsvText(SurtitleSheetCsv);
 
     auto LineAt = [&](const double MasterSeconds, const double Fade = 0.0)
     {
-        return InfinityStageSurtitles::Evaluate(Script, Show, At(MasterSeconds), Ticks, Fade);
+        return InfinityStageSurtitles::Evaluate(Script, Show, SurtitleAt(MasterSeconds), SurtitleTicks, Fade);
     };
 
     // Mountains (S2) starts at Master 300 s.
@@ -159,12 +159,12 @@ bool FInfinityStageSurtitleEvaluateTest::RunTest(const FString& Parameters)
 
     // A retime moves the Scene; the line moves with it.
     TArray<FInfinityTransportSegment> Retimed = Show;
-    Retimed[3].StartFrame = FFrameNumber(int32(310.0 * Ticks));
-    Retimed[3].EndFrame = FFrameNumber(int32(462.341 * Ticks));
+    Retimed[3].StartFrame = FFrameNumber(int32(310.0 * SurtitleTicks));
+    Retimed[3].EndFrame = FFrameNumber(int32(462.341 * SurtitleTicks));
     TestEqual(TEXT("Retime: line follows its segment"),
-        InfinityStageSurtitles::Evaluate(Script, Retimed, At(310.0 + 74.0), Ticks, 0.0).LineIndex, 0);
+        InfinityStageSurtitles::Evaluate(Script, Retimed, SurtitleAt(310.0 + 74.0), SurtitleTicks, 0.0).LineIndex, 0);
     TestEqual(TEXT("Control: the old Master time no longer shows it"),
-        InfinityStageSurtitles::Evaluate(Script, Retimed, At(300.0 + 74.0), Ticks, 0.0).LineIndex, INDEX_NONE);
+        InfinityStageSurtitles::Evaluate(Script, Retimed, SurtitleAt(300.0 + 74.0), SurtitleTicks, 0.0).LineIndex, INDEX_NONE);
     return true;
 }
 
@@ -226,17 +226,17 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FInfinityStageSurtitleStepTest::RunTest(const FString& Parameters)
 {
-    const TArray<FInfinityTransportSegment> Show = MakeShow();
+    const TArray<FInfinityTransportSegment> Show = MakeSurtitleShow();
     FInfinitySurtitleScript Script;
-    Script.LoadFromCsvText(SheetCsv);
+    Script.LoadFromCsvText(SurtitleSheetCsv);
     // Text lines by Master landing time (In + 0.3 s fade): row "On the road" 210.78, 1:14 374.3, 1:40 400.3.
     int64 Land = 0;
     auto Step = [&](const double FromSeconds, const int32 Delta)
     {
-        return InfinityStageSurtitles::FindStepTarget(Script, Show, At(FromSeconds), Ticks, 0.3, Delta, Land);
+        return InfinityStageSurtitles::FindStepTarget(Script, Show, SurtitleAt(FromSeconds), SurtitleTicks, 0.3, Delta, Land);
     };
     TestEqual(TEXT("Next from the top: the Passage 2 line"), Step(0.0, 1), 3);
-    TestEqual(TEXT("...landing just past its fade-in"), Land, At(210.78));
+    TestEqual(TEXT("...landing just past its fade-in"), Land, SurtitleAt(210.78));
     TestEqual(TEXT("Next from a landing goes on"), Step(210.78, 1), 0);
     TestEqual(TEXT("Next skips the clear row"), Step(374.3, 1), 1);
     TestEqual(TEXT("Previous from mid-line goes to its start"), Step(380.0, -1), 0);
