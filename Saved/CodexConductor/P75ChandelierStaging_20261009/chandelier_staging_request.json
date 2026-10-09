@@ -1,0 +1,7 @@
+{
+  "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+  "tool_name": "ExecuteProjectPythonFile",
+  "arguments": {
+    "relativeSavedPath": "CodexConductor/P75ChandelierStaging_20261009/chandelier_staging_run.py"
+  }
+}

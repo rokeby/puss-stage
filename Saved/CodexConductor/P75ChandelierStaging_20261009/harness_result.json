@@ -1,0 +1,77 @@
+{
+  "blender": false,
+  "details": [
+    {
+      "kind": "POSITIVE",
+      "name": "plan",
+      "ok": true
+    },
+    {
+      "kind": "POSITIVE",
+      "name": "hidden-shadow flags",
+      "ok": true
+    },
+    {
+      "kind": "POSITIVE",
+      "name": "seeded single-draw order",
+      "ok": true
+    },
+    {
+      "kind": "POSITIVE",
+      "name": "projected shadow",
+      "ok": true
+    },
+    {
+      "kind": "POSITIVE",
+      "name": "P06 clearances",
+      "ok": true
+    },
+    {
+      "kind": "POSITIVE",
+      "name": "stable plan hash",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "GPU light cap",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "GPU shadow cap",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "hidden shadow flag",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "topple overlap",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "socket count",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "APPLY confirm",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "stale APPLY review hash",
+      "ok": true
+    }
+  ],
+  "fail": 0,
+  "negative": 7,
+  "offline": true,
+  "pass": 13,
+  "positive": 6,
+  "total": 13,
+  "unreal": false
+}
