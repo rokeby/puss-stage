@@ -29,6 +29,21 @@ no In**, and **a line with no segment** (the Cue Book always writes the segment 
 parser's "carry down" never applies). **But an In time with EMPTY Text is a valid "clear row"** (it ends the line
 before it): the page must allow saving it, show it as "clear screen", and export it.
 
+**Two editors, one file (Gary, 9 Oct):** "The surtitles should be editable in the cue book, but also editable in
+Unreal because it's in Unreal that we'll understand the real time codes and be able to see them and move between
+them." So the CSV has two writers: the Cue Book export and (later, Surtitle session C++) the Cue Desk. Make the export
+a **three-way merge**, never a blind overwrite:
+- every exported row carries a stable `Key` column (`T…`; confirm with the Surtitle session that its parser ignores an
+  unknown column; it finds columns by name, so it should [inf]);
+- each export also writes `Docs/CueSheet/surtitles_base.csv` (exactly what was exported);
+- before exporting, if `Puss_Surtitles.csv` on disk differs from the base, diff it against the base by `Key` (rows
+  without a Key = new rows added in Unreal): those are Unreal-side edits. Turn them into a Cue Book changes file (the
+  same `kind: "changes"` route as `cue_sync tocuebook`, so the page previews and applies them with field-level
+  conflicts), write NOTHING to the CSV, and stop with `CUE_SYNC_SURTITLES_UNREAL_EDITS|n=..|file=..`. After Gary
+  applies that file, the next export includes them.
+- Harness: an Unreal-side time nudge comes back as a change, never lost; a row edited on both sides is a conflict;
+  NEGATIVE control: an export over an un-imported Unreal edit must refuse.
+
 ## Build (offline)
 
 1. **Code.gs:** a `surtitles` tab (same safety as `cues`: text stored as literal text, append-only `log` entries with
