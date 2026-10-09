@@ -108,6 +108,12 @@ def _sha(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def _legacy_mech(text):
+    """Records made before build 2604e8f8 (wing mechanism SoundCues, 9 Oct) have no SoundCues field. Drop it ONLY when
+    EMPTY so those records still compare; a non-empty SoundCues is a real edit and still counts as drift."""
+    return text.replace(",SoundCues=,", ",", 1)
+
+
 # =====================================================================================================================
 # Unreal access (everything that touches `unreal` lives here; the harness replaces this class)
 # =====================================================================================================================
@@ -507,7 +513,7 @@ class UnrealOps:
             cue = cues[i]
             pair = cue.get_editor_property("wing_pair")
             mech = unreal.InfinityMechanismMotion()
-            if not mech.import_text(row["mech_text"]) or mech.export_text() != row["mech_text"]:
+            if not mech.import_text(row["mech_text"]) or _legacy_mech(mech.export_text()) != _legacy_mech(row["mech_text"]):
                 raise core.PlanError("ORIGINAL_MECH_IMPORT_MISMATCH %s" % row["label"])
             pair.set_editor_property("mechanism", mech)
             pair.set_editor_property("local_override_mask", int(row["mask"]))
@@ -1032,7 +1038,7 @@ def _revert_scope_check(ops, core, orig_doc, pre_texts, pre_index, now_texts):
             bad.append("NONTARGET_CUE_CHANGED index %d" % i)
     for r in orig_doc["rows"]:
         live = ops.read_row(r["cue_guid"])
-        if live["mech_text"] != r["mech_text"]:
+        if _legacy_mech(live["mech_text"]) != _legacy_mech(r["mech_text"]):
             bad.append("TARGET_MECHANISM_NOT_RESTORED %s" % r["label"])
         if int(live["mask"]) != int(r["mask"]):
             bad.append("TARGET_MASK_NOT_RESTORED %s %d want %d" % (r["label"], int(live["mask"]), int(r["mask"])))
@@ -1058,7 +1064,7 @@ def run_revert(ops, core, args, orig_doc, run, here):
         if row["cue_guid"] not in pre_index:
             _stop(ops, core, run, "TARGET_CUE_GONE %s %s" % (row["label"], row["cue_guid"]))
         live = ops.read_row(row["cue_guid"])
-        if _sha(live["mech_text"]) != applied["after_mech_sha"].get(row["cue_guid"]):
+        if _sha(live["mech_text"]) != applied["after_mech_sha"].get(row["cue_guid"]) and                 _sha(_legacy_mech(live["mech_text"])) != applied["after_mech_sha"].get(row["cue_guid"]):
             _stop(ops, core, run, "DRIFT_SINCE_APPLY %s mechanism (someone edited the row's mechanism after APPLY; "
                                   "refused)" % row["label"])
         want_mask = _expected_after_mask(orig_doc, applied, row)

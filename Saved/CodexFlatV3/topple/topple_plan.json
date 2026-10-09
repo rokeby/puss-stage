@@ -1,0 +1,3683 @@
+{
+ "tool": "make_keys.py",
+ "made": "2026-10-09T10:45:31",
+ "dry_run_id": "TOPPLE-20261009-103833",
+ "parts": [
+  "still",
+  "chain"
+ ],
+ "inputs": {
+  "passage_guid": "9BFC29C45D47911FF7836BB8537230D2",
+  "tick": 24000.0,
+  "keeper": "6DB7C86FE7463FB8ED5143833DF28400",
+  "all_rows": [
+   [
+    "DFD138DA78440386500FEC8E57AE3BA9",
+    "4a800783e7c4911665396f1d9f8fca8e752acae86dadb1cea8c117182077faf0"
+   ],
+   [
+    "C1CDC6C8BB4116B5D3BB67B4103FF047",
+    "e78306a6fcb71a7222362faa21f7bf7a05f291b05c67eaff3f602746396c148c"
+   ],
+   [
+    "D92313E04C50AB918446E1A5C1A766D6",
+    "bb9a228e1cc100af95a1000b2e599d0273d22582f410862c9d19c28cded87cc9"
+   ],
+   [
+    "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+    "4cb7aa60186f1ab366913ed5c90f97ce87a925a8d5c393758bbf9cfaec84ab45"
+   ],
+   [
+    "E9850E1D8D4473A298BEA0A87E7AC60A",
+    "e3159d8271f0a7e2baa61b3734168562915913beb0d1600d8f08e630b8839ac2"
+   ],
+   [
+    "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+    "4be9352cc4e64448b2e957a40d76799f09638e65b080033c7989e4bd4797e4ba"
+   ],
+   [
+    "ABFFBA7B47F22FE2F67C52A63EE441F7",
+    "b562949ca72bce6c3392c5448935a019c47980bb1fd634c7b1f67dac6e145fea"
+   ],
+   [
+    "735A7090BC4094A56E9818B65CD531B7",
+    "e2bc812ba7c46cd5adc8d6768bc58d58c5c81697451998f5639a3b8b81fda431"
+   ],
+   [
+    "F060763E471ABBB50FE986831AFBAC59",
+    "f9d399656d4eaff53a0dda0c6a9448cf0e34e3c2457f7e20f88e5aa90294b7f1"
+   ],
+   [
+    "884761C04271AFF58AF47B8B8AE5CD64",
+    "4a800783e7c4911665396f1d9f8fca8e752acae86dadb1cea8c117182077faf0"
+   ],
+   [
+    "7B0D67932249C38B1F010C93D74A38F2",
+    "ccbcf262b990dd12f1cfa678ba2cef64330e0bb45ddaa7b85d7a806384418d04"
+   ],
+   [
+    "84D6E0B0E64D490C8BAEC7955AED56C2",
+    "dba229c9780437fd02d0f583104094895984a82e6986dc0bf6497f6df4e768e4"
+   ],
+   [
+    "008D989B20485276BC8D0493439D39EA",
+    "a8b1493ee1bf90e1f5581c261d38644b718c14d2f68b5c2a24b3de20cfdbbf65"
+   ],
+   [
+    "2C9C4A30466204C2890815B6C777DACF",
+    "ccbcf262b990dd12f1cfa678ba2cef64330e0bb45ddaa7b85d7a806384418d04"
+   ],
+   [
+    "AA62A3AC5C432FCBE3A672B23443FA6A",
+    "edb99827d503f71a5073a36762be4978d18d8c508aa2cca594b0a4c2b7f5b74e"
+   ],
+   [
+    "6DB7C86FE7463FB8ED5143833DF28400",
+    "a2f75f44b54d1167ef02ce86dd658a8477f600caa79c6ed285809ec226300179"
+   ],
+   [
+    "1D2D86BCE74A910A13CC588B0D451795",
+    "b985bf4ad96b4be02930c7e6dd88dde9eee688c0359815ecb2cc9c774f2a0fe7"
+   ],
+   [
+    "3F1CEC91DE4164DCF2F0698A885CBD14",
+    "d7a6bab67417b34e990a3238b9c161a13bba4099a26f490fad82f13d180f3ffd"
+   ],
+   [
+    "4927CDF2454CE3EC567E4C8BBB58AFB0",
+    "a71f5d07a07c4d6e490b7f746af8fcac8dfe7474b4f6ae422e4365bb795150ea"
+   ],
+   [
+    "88A3B6EF6F43524F0A057A84271187B7",
+    "b4a7fe1711e63bb18524154f7fb49939999b528fdbaa7e966c0c2a6f9e07eac5"
+   ],
+   [
+    "6C060F41144F94D9214DF3BF039C7E99",
+    "6fa231ec1e0b317f16595745ea6bce8ed55bdb449ddd1dfe4c8e9d15fd14c276"
+   ],
+   [
+    "11F403689E45D226B3298AAF16790170",
+    "bae4f0183f4bebf993ff7d99c43cbfbe60a731ebe11ffbb2c134157ef5963b7b"
+   ],
+   [
+    "4AA16A12224559F4375C89AF372F0857",
+    "bfbf95b30da21e958a0a3fce143e564c2364608e5edd5a676361f733b28a3863"
+   ],
+   [
+    "821E817A714533C8BFDB38B63581F33F",
+    "275f5281e82b149d92e1b6012d8858c7e5074e3c832a4e3372838de3530d716a"
+   ],
+   [
+    "CC3403E5418809B2A1D9328EFC64C048",
+    "004397bae26d0c0f55d84bd4d775b1f9091d31c75a33c8f3c4c8d2f0f6d06571"
+   ],
+   [
+    "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+    "b03f2b448c00f08ce82551461845a24756b02bcd017ae5e4198ae4737728c172"
+   ],
+   [
+    "AF6EB4EB57431F88F4BFC0957DA0E395",
+    "a3cfb1dab8515dafcd67b238907a8d68316dbf1a354a0b8a2106b3d42f889e82"
+   ],
+   [
+    "30450225EE4DB0B28CEF8FA67FD430D4",
+    "41d7902aa063842afed75f32c5c59e32fd86d4f66843177f33534551b7d5411a"
+   ],
+   [
+    "07E24048F24647AA7D5992AB6A8A0770",
+    "ed95d6aafc45eb60eb6ec88c74f1ae736eb6046097b3929835857ad54c5d5ba2"
+   ]
+  ],
+  "law_points": [
+   [
+    0,
+    0.0
+   ],
+   [
+    21066,
+    250.0
+   ],
+   [
+    88479,
+    1050.0
+   ],
+   [
+    164318,
+    1950.0
+   ],
+   [
+    248584,
+    2950.0
+   ],
+   [
+    341277,
+    4050.0
+   ],
+   [
+    433970,
+    5150.0
+   ],
+   [
+    526663,
+    6250.0
+   ],
+   [
+    619356,
+    7350.0
+   ],
+   [
+    712049,
+    8450.0
+   ],
+   [
+    796315,
+    9450.0
+   ],
+   [
+    880581,
+    10450.0
+   ],
+   [
+    922714,
+    10950.0
+   ],
+   [
+    964847,
+    11450.0
+   ],
+   [
+    1006980,
+    11950.0
+   ],
+   [
+    1049113,
+    12450.0
+   ],
+   [
+    1091246,
+    12950.0
+   ],
+   [
+    1133379,
+    13450.0
+   ],
+   [
+    1175512,
+    13950.0
+   ],
+   [
+    1276631,
+    15150.0
+   ],
+   [
+    1377750,
+    16350.0
+   ],
+   [
+    1478869,
+    17550.0
+   ],
+   [
+    1579988,
+    18750.0
+   ],
+   [
+    1681107,
+    19950.0
+   ],
+   [
+    1782226,
+    21150.0
+   ],
+   [
+    1883345,
+    22350.0
+   ],
+   [
+    1984464,
+    23550.0
+   ],
+   [
+    2085583,
+    24750.0
+   ],
+   [
+    2186702,
+    25950.0
+   ],
+   [
+    2296248,
+    27250.0
+   ],
+   [
+    2654400,
+    27640.283
+   ]
+  ],
+  "segment_end": 2654400,
+  "modulation": {
+   "wing_modulation": false,
+   "speed_shaped": false,
+   "longitudinal_offset": false
+  },
+  "side": "L",
+  "rows": [
+   {
+    "cue_guid": "884761C04271AFF58AF47B8B8AE5CD64",
+    "show_index": 226,
+    "label": "P06 OLD 09 - bamboo_scaffold",
+    "station_cm": 9450.0,
+    "pass_frame": 796315,
+    "height_cm": 1120.0,
+    "thickness_cm": 24.75,
+    "hinge_route_cm": 9441.425,
+    "has_top": false,
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p",
+    "has_hinge_socket": false,
+    "lateral_min_cm": -814.394,
+    "lateral_max_cm": -420.667
+   },
+   {
+    "cue_guid": "7B0D67932249C38B1F010C93D74A38F2",
+    "show_index": 227,
+    "label": "P06 Wing 002",
+    "station_cm": 10450.0,
+    "pass_frame": 880581,
+    "height_cm": 1120.0,
+    "thickness_cm": 24.9,
+    "hinge_route_cm": 10441.351,
+    "has_top": false,
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p",
+    "has_hinge_socket": false,
+    "lateral_min_cm": -793.917,
+    "lateral_max_cm": -467.639
+   },
+   {
+    "cue_guid": "84D6E0B0E64D490C8BAEC7955AED56C2",
+    "show_index": 228,
+    "label": "P06 Wing 038",
+    "station_cm": 10950.0,
+    "pass_frame": 922714,
+    "height_cm": 1120.0,
+    "thickness_cm": 24.9,
+    "hinge_route_cm": 10941.351,
+    "has_top": false,
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j",
+    "has_hinge_socket": false,
+    "lateral_min_cm": -894.916,
+    "lateral_max_cm": -466.876
+   },
+   {
+    "cue_guid": "008D989B20485276BC8D0493439D39EA",
+    "show_index": 229,
+    "label": "P06 Wing 047",
+    "station_cm": 11450.0,
+    "pass_frame": 964847,
+    "height_cm": 1120.0,
+    "thickness_cm": 24.9,
+    "hinge_route_cm": 11441.351,
+    "has_top": false,
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p",
+    "has_hinge_socket": false,
+    "lateral_min_cm": -823.524,
+    "lateral_max_cm": -466.876
+   },
+   {
+    "cue_guid": "2C9C4A30466204C2890815B6C777DACF",
+    "show_index": 230,
+    "label": "P06 OLD 19 - ceramic_totem",
+    "station_cm": 11950.0,
+    "pass_frame": 1006980,
+    "height_cm": 1120.0,
+    "thickness_cm": 24.9,
+    "hinge_route_cm": 11941.35,
+    "has_top": false,
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p",
+    "has_hinge_socket": false,
+    "lateral_min_cm": -798.234,
+    "lateral_max_cm": -466.876
+   },
+   {
+    "cue_guid": "AA62A3AC5C432FCBE3A672B23443FA6A",
+    "show_index": 231,
+    "label": "P06 Wing 050",
+    "station_cm": 12450.0,
+    "pass_frame": 1049113,
+    "height_cm": 1120.0,
+    "thickness_cm": 24.9,
+    "hinge_route_cm": 12441.351,
+    "has_top": false,
+    "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j",
+    "has_hinge_socket": false,
+    "lateral_min_cm": -831.945,
+    "lateral_max_cm": -466.876
+   }
+  ],
+  "brace": {
+   "label": "P06 Wing 007",
+   "cue_guid": "6DB7C86FE7463FB8ED5143833DF28400",
+   "hinge_route_cm": 12941.35,
+   "thickness_cm": 24.9,
+   "height_cm": 1120.0,
+   "gap_cm": 500.0,
+   "reached": true,
+   "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j",
+   "lateral_overlap_cm": 333.2,
+   "contact_deg": 25.1,
+   "contact_height_cm": 1014.2
+  },
+  "exclude_rows": [
+   "07E24048F24647AA7D5992AB6A8A0770",
+   "11F403689E45D226B3298AAF16790170",
+   "30450225EE4DB0B28CEF8FA67FD430D4",
+   "4927CDF2454CE3EC567E4C8BBB58AFB0",
+   "4AA16A12224559F4375C89AF372F0857",
+   "6C060F41144F94D9214DF3BF039C7E99",
+   "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+   "821E817A714533C8BFDB38B63581F33F",
+   "88A3B6EF6F43524F0A057A84271187B7",
+   "AF6EB4EB57431F88F4BFC0957DA0E395",
+   "CC3403E5418809B2A1D9328EFC64C048"
+  ]
+ },
+ "inputs_hash": "14ad882570c70cc963b55994ca29b3f6c14bdf4b06c62dd7664bb8a240afaaa8",
+ "confirm_token": "P06 still+chain L 884761C0..AA62A3AC #14ad8825",
+ "keeper": {
+  "cue_guid": "6DB7C86FE7463FB8ED5143833DF28400",
+  "label": "P06 Wing 007",
+  "ordinal": 15,
+  "pass_s": 45.47,
+  "station_cm": 12950.0,
+  "mechanism": {
+   "kind": "<InfinityMechanismKind.SLIDE: 0>",
+   "playback_mode": "<InfinityMotionPlaybackMode.CONTINUOUS_LOOP: 2>",
+   "phase_origin": "<InfinityMotionPhaseOrigin.PASSAGE_START: 0>",
+   "cycle_rate_hz": 0.18,
+   "phase_offset_cycles": 2.0,
+   "max_angle_deg": 90.0,
+   "inward_travel_cm": 75.0,
+   "top_follows_mechanism": true,
+   "top_curve_flat": false
+  },
+  "meshes": [
+   "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j",
+   "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_10_building_under_construct_R_t5j"
+  ]
+ },
+ "still": [
+  {
+   "cue_guid": "DFD138DA78440386500FEC8E57AE3BA9",
+   "label": "P06 Wing 001",
+   "action": "still",
+   "show_index": 217,
+   "set": {
+    "playback_mode": "STATIC",
+    "phase_offset_cycles": 0.0
+   }
+  },
+  {
+   "cue_guid": "C1CDC6C8BB4116B5D3BB67B4103FF047",
+   "label": "P06 Wing 037",
+   "action": "still",
+   "show_index": 218,
+   "set": {
+    "playback_mode": "STATIC",
+    "phase_offset_cycles": 0.0
+   }
+  },
+  {
+   "cue_guid": "D92313E04C50AB918446E1A5C1A766D6",
+   "label": "P06 OLD 06 - gauze_lattice",
+   "action": "still",
+   "show_index": 219,
+   "set": {
+    "playback_mode": "STATIC",
+    "phase_offset_cycles": 0.0
+   }
+  },
+  {
+   "cue_guid": "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+   "label": "P06 Wing 041",
+   "action": "still",
+   "show_index": 220,
+   "set": {
+    "playback_mode": "STATIC",
+    "phase_offset_cycles": 0.0
+   }
+  },
+  {
+   "cue_guid": "E9850E1D8D4473A298BEA0A87E7AC60A",
+   "label": "P06 Wing 014",
+   "action": "still",
+   "show_index": 221,
+   "set": {
+    "playback_mode": "STATIC",
+    "phase_offset_cycles": 0.0
+   }
+  },
+  {
+   "cue_guid": "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+   "label": "P06 Wing 033",
+   "action": "still",
+   "show_index": 222,
+   "set": {
+    "playback_mode": "STATIC",
+    "phase_offset_cycles": 0.0
+   }
+  },
+  {
+   "cue_guid": "ABFFBA7B47F22FE2F67C52A63EE441F7",
+   "label": "P06 OLD 02 - covered_biomech_plus_covered_pillar",
+   "action": "still",
+   "show_index": 223,
+   "set": {
+    "playback_mode": "STATIC",
+    "phase_offset_cycles": 0.0
+   }
+  },
+  {
+   "cue_guid": "735A7090BC4094A56E9818B65CD531B7",
+   "label": "P06 Wing 040",
+   "action": "still",
+   "show_index": 224,
+   "set": {
+    "playback_mode": "STATIC",
+    "phase_offset_cycles": 0.0
+   }
+  },
+  {
+   "cue_guid": "F060763E471ABBB50FE986831AFBAC59",
+   "label": "P06 OLD 13 - covered_pillar",
+   "action": "still",
+   "show_index": 225,
+   "set": {
+    "playback_mode": "STATIC",
+    "phase_offset_cycles": 0.0
+   }
+  },
+  {
+   "cue_guid": "884761C04271AFF58AF47B8B8AE5CD64",
+   "label": "P06 OLD 09 - bamboo_scaffold",
+   "action": "chain"
+  },
+  {
+   "cue_guid": "7B0D67932249C38B1F010C93D74A38F2",
+   "label": "P06 Wing 002",
+   "action": "chain"
+  },
+  {
+   "cue_guid": "84D6E0B0E64D490C8BAEC7955AED56C2",
+   "label": "P06 Wing 038",
+   "action": "chain"
+  },
+  {
+   "cue_guid": "008D989B20485276BC8D0493439D39EA",
+   "label": "P06 Wing 047",
+   "action": "chain"
+  },
+  {
+   "cue_guid": "2C9C4A30466204C2890815B6C777DACF",
+   "label": "P06 OLD 19 - ceramic_totem",
+   "action": "chain"
+  },
+  {
+   "cue_guid": "AA62A3AC5C432FCBE3A672B23443FA6A",
+   "label": "P06 Wing 050",
+   "action": "chain"
+  },
+  {
+   "cue_guid": "6DB7C86FE7463FB8ED5143833DF28400",
+   "label": "P06 Wing 007",
+   "action": "keep"
+  },
+  {
+   "cue_guid": "1D2D86BCE74A910A13CC588B0D451795",
+   "label": "P06 Wing 012",
+   "action": "still",
+   "show_index": 233,
+   "set": {
+    "playback_mode": "STATIC",
+    "phase_offset_cycles": 0.0
+   }
+  },
+  {
+   "cue_guid": "3F1CEC91DE4164DCF2F0698A885CBD14",
+   "label": "P06 Wing 045",
+   "action": "still",
+   "show_index": 234,
+   "set": {
+    "playback_mode": "STATIC",
+    "phase_offset_cycles": 0.0
+   }
+  },
+  {
+   "cue_guid": "4927CDF2454CE3EC567E4C8BBB58AFB0",
+   "label": "P06 Wing 046",
+   "action": "exclude"
+  },
+  {
+   "cue_guid": "88A3B6EF6F43524F0A057A84271187B7",
+   "label": "P06 Wing 016",
+   "action": "exclude"
+  },
+  {
+   "cue_guid": "6C060F41144F94D9214DF3BF039C7E99",
+   "label": "P06 Wing 053",
+   "action": "exclude"
+  },
+  {
+   "cue_guid": "11F403689E45D226B3298AAF16790170",
+   "label": "P06 Wing 052",
+   "action": "exclude"
+  },
+  {
+   "cue_guid": "4AA16A12224559F4375C89AF372F0857",
+   "label": "P06 Wing 022",
+   "action": "exclude"
+  },
+  {
+   "cue_guid": "821E817A714533C8BFDB38B63581F33F",
+   "label": "P06 Wing 048",
+   "action": "exclude"
+  },
+  {
+   "cue_guid": "CC3403E5418809B2A1D9328EFC64C048",
+   "label": "P06 OLD 23 - steel_scaffold",
+   "action": "exclude"
+  },
+  {
+   "cue_guid": "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+   "label": "P06 Wing 025",
+   "action": "exclude"
+  },
+  {
+   "cue_guid": "AF6EB4EB57431F88F4BFC0957DA0E395",
+   "label": "P06 Wing 044",
+   "action": "exclude"
+  },
+  {
+   "cue_guid": "30450225EE4DB0B28CEF8FA67FD430D4",
+   "label": "P06 Wing 049",
+   "action": "exclude"
+  },
+  {
+   "cue_guid": "07E24048F24647AA7D5992AB6A8A0770",
+   "label": "P06 Wing 055",
+   "action": "exclude"
+  }
+ ],
+ "still_counts": {
+  "still": 11,
+  "already_still": 0,
+  "keep": 1,
+  "chain": 6,
+  "exclude": 11
+ },
+ "chain": {
+  "side": "L",
+  "start_ordinal": 9,
+  "n": 6,
+  "end": "braced",
+  "rows": [
+   {
+    "fall_order": 0,
+    "cue_guid": "884761C04271AFF58AF47B8B8AE5CD64",
+    "show_index": 226,
+    "label": "P06 OLD 09 - bamboo_scaffold",
+    "side": "L",
+    "has_top": false,
+    "action": "chain",
+    "set": {
+     "kind": "TOPPLE",
+     "playback_mode": "ONE_SHOT",
+     "phase_origin": "PASS_FRAME",
+     "cycle_rate_hz": 0.114074,
+     "phase_offset_cycles": 0.9456985943043427,
+     "max_angle_deg": -90.0,
+     "top_follows_mechanism": null
+    },
+    "keys": [
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.000781,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.102714,
+      "Value": 0.028889,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": -0.00357,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.14264,
+      "Value": 0.018889,
+      "ArriveTangent": -0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.001079,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.176814,
+      "Value": 0.021111,
+      "ArriveTangent": 0.00054,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.146204,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.348923,
+      "Value": 0.100003,
+      "ArriveTangent": 0.983377,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.541589,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.459385,
+      "Value": 0.239163,
+      "ArriveTangent": 2.217525,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 2.21973,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.56823,
+      "Value": 0.672576,
+      "ArriveTangent": 6.334665,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 2.789179,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.632064,
+      "Value": 0.854922,
+      "ArriveTangent": 2.40536,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 1.132467,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.699463,
+      "Value": 0.92258,
+      "ArriveTangent": 0.857774,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.470658,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.761776,
+      "Value": 0.951493,
+      "ArriveTangent": 0.445269,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.257206,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.816436,
+      "Value": 0.965793,
+      "ArriveTangent": 0.258339,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.151672,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.865583,
+      "Value": 0.973349,
+      "ArriveTangent": 0.151428,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": -0.033261,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.892628,
+      "Value": 0.972894,
+      "ArriveTangent": -5.1e-05,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 6.9e-05,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.919721,
+      "Value": 0.973349,
+      "ArriveTangent": 0.03318,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": -0.007253,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.925614,
+      "Value": 0.973327,
+      "ArriveTangent": -4.3e-05,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 7.5e-05,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.931508,
+      "Value": 0.973349,
+      "ArriveTangent": 0.007277,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 1.0,
+      "Value": 0.973349,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     }
+    ],
+    "curve_text": "(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000781000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.102714000,Value=0.028889000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=-0.003570000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.142640000,Value=0.018889000,ArriveTangent=-0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.001079000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.176814000,Value=0.021111000,ArriveTangent=0.000540000,ArriveTangentWeight=0.000000000,LeaveTangent=0.146204000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.348923000,Value=0.100003000,ArriveTangent=0.983377000,ArriveTangentWeight=0.000000000,LeaveTangent=0.541589000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.459385000,Value=0.239163000,ArriveTangent=2.217525000,ArriveTangentWeight=0.000000000,LeaveTangent=2.219730000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.568230000,Value=0.672576000,ArriveTangent=6.334665000,ArriveTangentWeight=0.000000000,LeaveTangent=2.789179000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.632064000,Value=0.854922000,ArriveTangent=2.405360000,ArriveTangentWeight=0.000000000,LeaveTangent=1.132467000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.699463000,Value=0.922580000,ArriveTangent=0.857774000,ArriveTangentWeight=0.000000000,LeaveTangent=0.470658000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.761776000,Value=0.951493000,ArriveTangent=0.445269000,ArriveTangentWeight=0.000000000,LeaveTangent=0.257206000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.816436000,Value=0.965793000,ArriveTangent=0.258339000,ArriveTangentWeight=0.000000000,LeaveTangent=0.151672000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.865583000,Value=0.973349000,ArriveTangent=0.151428000,ArriveTangentWeight=0.000000000,LeaveTangent=-0.033261000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.892628000,Value=0.972894000,ArriveTangent=-0.000051000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000069000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.919721000,Value=0.973349000,ArriveTangent=0.033180000,ArriveTangentWeight=0.000000000,LeaveTangent=-0.007253000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.925614000,Value=0.973327000,ArriveTangent=-0.000043000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000075000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.931508000,Value=0.973349000,ArriveTangent=0.007277000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=1.000000000,Value=0.973349000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000))),ExternalCurve=None)",
+    "other_side": "R",
+    "other_keys": [
+     {
+      "InterpMode": "RCIM_Linear",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Linear",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 1.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     }
+    ],
+    "other_curve_text": "(EditorCurveData=(Keys=((InterpMode=RCIM_Linear,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=0.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Linear,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=1.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000))),ExternalCurve=None)",
+    "samples": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.02,
+      0.0028694865440435625
+     ],
+     [
+      0.04,
+      0.009742900120278265
+     ],
+     [
+      0.051357,
+      0.01445452745425
+     ],
+     [
+      0.06,
+      0.01806453164486013
+     ],
+     [
+      0.08,
+      0.025278672033945168
+     ],
+     [
+      0.1,
+      0.028829612203689424
+     ],
+     [
+      0.102714,
+      0.028889
+     ],
+     [
+      0.12,
+      0.02486886428643903
+     ],
+     [
+      0.122677,
+      0.0238711830225
+     ],
+     [
+      0.14,
+      0.019013800927630362
+     ],
+     [
+      0.14264,
+      0.018889
+     ],
+     [
+      0.159727,
+      0.02000230247325
+     ],
+     [
+      0.16,
+      0.0200288149195352
+     ],
+     [
+      0.176814,
+      0.021111
+     ],
+     [
+      0.18,
+      0.02158289871313936
+     ],
+     [
+      0.2,
+      0.024900813474532473
+     ],
+     [
+      0.22,
+      0.02908039336925769
+     ],
+     [
+      0.24,
+      0.03446649020749797
+     ],
+     [
+      0.26,
+      0.041403955799436294
+     ],
+     [
+      0.262869,
+      0.04254657660880637
+     ],
+     [
+      0.28,
+      0.05023764195525556
+     ],
+     [
+      0.3,
+      0.061312400485138766
+     ],
+     [
+      0.32,
+      0.07497308319926888
+     ],
+     [
+      0.34,
+      0.09156454190782877
+     ],
+     [
+      0.348923,
+      0.100003
+     ],
+     [
+      0.36,
+      0.10656059086477225
+     ],
+     [
+      0.38,
+      0.12160839533445987
+     ],
+     [
+      0.4,
+      0.14158711767707552
+     ],
+     [
+      0.404154,
+      0.146442094696
+     ],
+     [
+      0.42,
+      0.1674389668807285
+     ],
+     [
+      0.44,
+      0.20010615193352826
+     ],
+     [
+      0.459385,
+      0.239163
+     ],
+     [
+      0.46,
+      0.24053221694168025
+     ],
+     [
+      0.48,
+      0.2899341031679118
+     ],
+     [
+      0.5,
+      0.35041376132001045
+     ],
+     [
+      0.513807,
+      0.39988132034840285
+     ],
+     [
+      0.52,
+      0.4243638030934874
+     ],
+     [
+      0.54,
+      0.5141768401838542
+     ],
+     [
+      0.56,
+      0.6222454842866221
+     ],
+     [
+      0.56823,
+      0.672576
+     ],
+     [
+      0.58,
+      0.7064688146638398
+     ],
+     [
+      0.6,
+      0.7663725498179227
+     ],
+     [
+      0.600147,
+      0.76681158775575
+     ],
+     [
+      0.62,
+      0.8239160783762526
+     ],
+     [
+      0.632064,
+      0.854922
+     ],
+     [
+      0.64,
+      0.8638034484133322
+     ],
+     [
+      0.66,
+      0.8851875141412784
+     ],
+     [
+      0.665763,
+      0.8910647500859004
+     ],
+     [
+      0.68,
+      0.9049944492980647
+     ],
+     [
+      0.699463,
+      0.92258
+     ],
+     [
+      0.7,
+      0.9228327678723924
+     ],
+     [
+      0.72,
+      0.9322555640119063
+     ],
+     [
+      0.730619,
+      0.9372340245882415
+     ],
+     [
+      0.74,
+      0.9415945792884006
+     ],
+     [
+      0.76,
+      0.9507006609831107
+     ],
+     [
+      0.761776,
+      0.951493
+     ],
+     [
+      0.78,
+      0.9562382693732517
+     ],
+     [
+      0.789106,
+      0.9586352587775001
+     ],
+     [
+      0.8,
+      0.9615041622455156
+     ],
+     [
+      0.816436,
+      0.965793
+     ],
+     [
+      0.82,
+      0.9663351455153086
+     ],
+     [
+      0.84,
+      0.9694161880689428
+     ],
+     [
+      0.841009,
+      0.9695724215638595
+     ],
+     [
+      0.86,
+      0.9724996438357201
+     ],
+     [
+      0.865583,
+      0.973349
+     ],
+     [
+      0.879105,
+      0.9730092378977626
+     ],
+     [
+      0.88,
+      0.9729945970795257
+     ],
+     [
+      0.892628,
+      0.972894
+     ],
+     [
+      0.9,
+      0.9729285526817597
+     ],
+     [
+      0.906174,
+      0.9730093570203985
+     ],
+     [
+      0.919721,
+      0.973349
+     ],
+     [
+      0.92,
+      0.973347020760351
+     ],
+     [
+      0.922667,
+      0.9733326908218352
+     ],
+     [
+      0.925614,
+      0.973327
+     ],
+     [
+      0.928561,
+      0.9733326939265
+     ],
+     [
+      0.931508,
+      0.973349
+     ],
+     [
+      0.94,
+      0.973349
+     ],
+     [
+      0.96,
+      0.973349
+     ],
+     [
+      0.965754,
+      0.973349
+     ],
+     [
+      0.98,
+      0.973349
+     ],
+     [
+      1.0,
+      0.973349
+     ]
+    ],
+    "timing": {
+     "cue_guid": "884761C04271AFF58AF47B8B8AE5CD64",
+     "CycleRateHz": 0.114074,
+     "PhaseOffsetCycles": 0.9456985943043427,
+     "start_s": 0.0,
+     "duration_s": 8.7662,
+     "pass_frame_rel": 796315,
+     "hinge_minus_station_cm": -8.575000000000728,
+     "camera_mps_at_hinge": 2.848123798447773
+    },
+    "final_deg": 87.601,
+    "fit_max_err_deg": 0.091
+   },
+   {
+    "fall_order": 1,
+    "cue_guid": "7B0D67932249C38B1F010C93D74A38F2",
+    "show_index": 227,
+    "label": "P06 Wing 002",
+    "side": "L",
+    "has_top": false,
+    "action": "chain",
+    "set": {
+     "kind": "TOPPLE",
+     "playback_mode": "ONE_SHOT",
+     "phase_origin": "PASS_FRAME",
+     "cycle_rate_hz": 0.264201,
+     "phase_offset_cycles": 1.80187820883625,
+     "max_angle_deg": -90.0,
+     "top_follows_mechanism": null
+    },
+    "keys": [
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 1.204738,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.147842,
+      "Value": 0.278887,
+      "ArriveTangent": 2.683541,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 1.264064,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.303941,
+      "Value": 0.528444,
+      "ArriveTangent": 1.938964,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 1.064382,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.448261,
+      "Value": 0.708467,
+      "ArriveTangent": 1.402238,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.810257,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.574857,
+      "Value": 0.820539,
+      "ArriveTangent": 0.932372,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.547457,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.688683,
+      "Value": 0.885558,
+      "ArriveTangent": 0.577697,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": -0.126896,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.751321,
+      "Value": 0.881541,
+      "ArriveTangent": -0.000192,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.000262,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.814069,
+      "Value": 0.885558,
+      "ArriveTangent": 0.126585,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": -0.027672,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.827719,
+      "Value": 0.885368,
+      "ArriveTangent": -0.000165,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.000286,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.841369,
+      "Value": 0.885558,
+      "ArriveTangent": 0.027764,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 1.0,
+      "Value": 0.885558,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     }
+    ],
+    "curve_text": "(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=1.204738000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.147842000,Value=0.278887000,ArriveTangent=2.683541000,ArriveTangentWeight=0.000000000,LeaveTangent=1.264064000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.303941000,Value=0.528444000,ArriveTangent=1.938964000,ArriveTangentWeight=0.000000000,LeaveTangent=1.064382000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.448261000,Value=0.708467000,ArriveTangent=1.402238000,ArriveTangentWeight=0.000000000,LeaveTangent=0.810257000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.574857000,Value=0.820539000,ArriveTangent=0.932372000,ArriveTangentWeight=0.000000000,LeaveTangent=0.547457000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.688683000,Value=0.885558000,ArriveTangent=0.577697000,ArriveTangentWeight=0.000000000,LeaveTangent=-0.126896000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.751321000,Value=0.881541000,ArriveTangent=-0.000192000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000262000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.814069000,Value=0.885558000,ArriveTangent=0.126585000,ArriveTangentWeight=0.000000000,LeaveTangent=-0.027672000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.827719000,Value=0.885368000,ArriveTangent=-0.000165000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000286000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.841369000,Value=0.885558000,ArriveTangent=0.027764000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=1.000000000,Value=0.885558000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000))),ExternalCurve=None)",
+    "other_side": "R",
+    "other_keys": [
+     {
+      "InterpMode": "RCIM_Linear",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Linear",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 1.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     }
+    ],
+    "other_curve_text": "(EditorCurveData=(Keys=((InterpMode=RCIM_Linear,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=0.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Linear,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=1.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000))),ExternalCurve=None)",
+    "samples": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.02,
+      0.025668778957732497
+     ],
+     [
+      0.04,
+      0.05465470480054835
+     ],
+     [
+      0.06,
+      0.08721144098287517
+     ],
+     [
+      0.073921,
+      0.11211485085924999
+     ],
+     [
+      0.08,
+      0.12359265095914049
+     ],
+     [
+      0.1,
+      0.164051998183772
+     ],
+     [
+      0.12,
+      0.20884314611119703
+     ],
+     [
+      0.14,
+      0.2582197581958434
+     ],
+     [
+      0.147842,
+      0.278887
+     ],
+     [
+      0.16,
+      0.2945674836277107
+     ],
+     [
+      0.18,
+      0.32172425721360204
+     ],
+     [
+      0.2,
+      0.3505850957952206
+     ],
+     [
+      0.22,
+      0.3811610473057242
+     ],
+     [
+      0.225892,
+      0.39049739676688533
+     ],
+     [
+      0.24,
+      0.41346315967827035
+     ],
+     [
+      0.26,
+      0.44750248084601707
+     ],
+     [
+      0.28,
+      0.48329005874212194
+     ],
+     [
+      0.3,
+      0.5208369412997427
+     ],
+     [
+      0.303941,
+      0.528444
+     ],
+     [
+      0.32,
+      0.5459086450357056
+     ],
+     [
+      0.34,
+      0.5686636285979031
+     ],
+     [
+      0.36,
+      0.5924721427304251
+     ],
+     [
+      0.376101,
+      0.61236057776
+     ],
+     [
+      0.38,
+      0.6172693013702472
+     ],
+     [
+      0.4,
+      0.6429902184543442
+     ],
+     [
+      0.42,
+      0.6695700079196911
+     ],
+     [
+      0.44,
+      0.6969437837032634
+     ],
+     [
+      0.448261,
+      0.708467
+     ],
+     [
+      0.46,
+      0.7180878346722299
+     ],
+     [
+      0.48,
+      0.7349471198598971
+     ],
+     [
+      0.5,
+      0.7523241810583562
+     ],
+     [
+      0.511559,
+      0.7625705911825
+     ],
+     [
+      0.52,
+      0.7701354069769968
+     ],
+     [
+      0.54,
+      0.7882971863252085
+     ],
+     [
+      0.56,
+      0.8067259078123812
+     ],
+     [
+      0.574857,
+      0.820539
+     ],
+     [
+      0.58,
+      0.8233639245814687
+     ],
+     [
+      0.6,
+      0.8345103985472847
+     ],
+     [
+      0.62,
+      0.8458647967467586
+     ],
+     [
+      0.63177,
+      0.85261823772
+     ],
+     [
+      0.64,
+      0.8573631237295931
+     ],
+     [
+      0.66,
+      0.8689413840454919
+     ],
+     [
+      0.68,
+      0.8805355822441584
+     ],
+     [
+      0.688683,
+      0.885558
+     ],
+     [
+      0.7,
+      0.8842482886135615
+     ],
+     [
+      0.72,
+      0.8825575682072457
+     ],
+     [
+      0.720002,
+      0.8825574393560001
+     ],
+     [
+      0.74,
+      0.8816759654312407
+     ],
+     [
+      0.751321,
+      0.881541
+     ],
+     [
+      0.76,
+      0.8816210388035194
+     ],
+     [
+      0.78,
+      0.8823926728430562
+     ],
+     [
+      0.782695,
+      0.8825586855495
+     ],
+     [
+      0.8,
+      0.8839715319112849
+     ],
+     [
+      0.814069,
+      0.885558
+     ],
+     [
+      0.82,
+      0.8854293158349476
+     ],
+     [
+      0.820894,
+      0.8854160661812499
+     ],
+     [
+      0.827719,
+      0.885368
+     ],
+     [
+      0.834544,
+      0.8854161156625001
+     ],
+     [
+      0.84,
+      0.8855219180481672
+     ],
+     [
+      0.841369,
+      0.885558
+     ],
+     [
+      0.86,
+      0.885558
+     ],
+     [
+      0.88,
+      0.8855580000000001
+     ],
+     [
+      0.9,
+      0.8855579999999998
+     ],
+     [
+      0.92,
+      0.885558
+     ],
+     [
+      0.920685,
+      0.885558
+     ],
+     [
+      0.94,
+      0.8855580000000001
+     ],
+     [
+      0.96,
+      0.885558
+     ],
+     [
+      0.98,
+      0.885558
+     ],
+     [
+      1.0,
+      0.885558
+     ]
+    ],
+    "timing": {
+     "cue_guid": "7B0D67932249C38B1F010C93D74A38F2",
+     "CycleRateHz": 0.264201,
+     "PhaseOffsetCycles": 1.80187820883625,
+     "start_s": 4.9812,
+     "duration_s": 3.785,
+     "pass_frame_rel": 880581,
+     "hinge_minus_station_cm": -8.648999999999432,
+     "camera_mps_at_hinge": 2.848123798447773
+    },
+    "final_deg": 79.7,
+    "fit_max_err_deg": 0.043
+   },
+   {
+    "fall_order": 2,
+    "cue_guid": "84D6E0B0E64D490C8BAEC7955AED56C2",
+    "show_index": 228,
+    "label": "P06 Wing 038",
+    "side": "L",
+    "has_top": false,
+    "action": "chain",
+    "set": {
+     "kind": "TOPPLE",
+     "playback_mode": "ONE_SHOT",
+     "phase_origin": "PASS_FRAME",
+     "cycle_rate_hz": 0.310037,
+     "phase_offset_cycles": 2.485270647009786,
+     "max_angle_deg": -90.0,
+     "top_follows_mechanism": null
+    },
+    "keys": [
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 1.077298,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.18318,
+      "Value": 0.278887,
+      "ArriveTangent": 2.077972,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 1.140928,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.352538,
+      "Value": 0.528444,
+      "ArriveTangent": 1.81874,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 1.051166,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.501098,
+      "Value": 0.708467,
+      "ArriveTangent": 1.339155,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.786372,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.634673,
+      "Value": 0.820539,
+      "ArriveTangent": 0.865244,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": -0.190061,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.708177,
+      "Value": 0.813485,
+      "ArriveTangent": -0.000288,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.000392,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.781811,
+      "Value": 0.820539,
+      "ArriveTangent": 0.189596,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": -0.041447,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.79783,
+      "Value": 0.820205,
+      "ArriveTangent": -0.000248,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.000428,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.813848,
+      "Value": 0.820539,
+      "ArriveTangent": 0.041584,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 1.0,
+      "Value": 0.820539,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     }
+    ],
+    "curve_text": "(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=1.077298000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.183180000,Value=0.278887000,ArriveTangent=2.077972000,ArriveTangentWeight=0.000000000,LeaveTangent=1.140928000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.352538000,Value=0.528444000,ArriveTangent=1.818740000,ArriveTangentWeight=0.000000000,LeaveTangent=1.051166000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.501098000,Value=0.708467000,ArriveTangent=1.339155000,ArriveTangentWeight=0.000000000,LeaveTangent=0.786372000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.634673000,Value=0.820539000,ArriveTangent=0.865244000,ArriveTangentWeight=0.000000000,LeaveTangent=-0.190061000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.708177000,Value=0.813485000,ArriveTangent=-0.000288000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000392000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.781811000,Value=0.820539000,ArriveTangent=0.189596000,ArriveTangentWeight=0.000000000,LeaveTangent=-0.041447000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.797830000,Value=0.820205000,ArriveTangent=-0.000248000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000428000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.813848000,Value=0.820539000,ArriveTangent=0.041584000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=1.000000000,Value=0.820539000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000))),ExternalCurve=None)",
+    "other_side": "R",
+    "other_keys": [
+     {
+      "InterpMode": "RCIM_Linear",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Linear",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 1.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     }
+    ],
+    "other_curve_text": "(EditorCurveData=(Keys=((InterpMode=RCIM_Linear,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=0.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Linear,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=1.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000))),ExternalCurve=None)",
+    "samples": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.02,
+      0.022303471586509156
+     ],
+     [
+      0.04,
+      0.04622717388319584
+     ],
+     [
+      0.06,
+      0.0719289181957989
+     ],
+     [
+      0.08,
+      0.09956651583005721
+     ],
+     [
+      0.09159,
+      0.11653056708500001
+     ],
+     [
+      0.1,
+      0.12929777809170967
+     ],
+     [
+      0.12,
+      0.161280516286495
+     ],
+     [
+      0.14,
+      0.19567254172015225
+     ],
+     [
+      0.16,
+      0.23263166569841998
+     ],
+     [
+      0.18,
+      0.2723156995270374
+     ],
+     [
+      0.18318,
+      0.278887
+     ],
+     [
+      0.2,
+      0.2986141307441084
+     ],
+     [
+      0.22,
+      0.32347981885059734
+     ],
+     [
+      0.24,
+      0.34989605141192265
+     ],
+     [
+      0.26,
+      0.3778838706781189
+     ],
+     [
+      0.267859,
+      0.389316389413
+     ],
+     [
+      0.28,
+      0.40746431889922013
+     ],
+     [
+      0.3,
+      0.4386584383252607
+     ],
+     [
+      0.32,
+      0.4714872712062751
+     ],
+     [
+      0.34,
+      0.5059718597922975
+     ],
+     [
+      0.352538,
+      0.528444
+     ],
+     [
+      0.36,
+      0.5363598395879725
+     ],
+     [
+      0.38,
+      0.5582641057720658
+     ],
+     [
+      0.4,
+      0.5811130790808066
+     ],
+     [
+      0.42,
+      0.6048344401167975
+     ],
+     [
+      0.426818,
+      0.6131075442699999
+     ],
+     [
+      0.44,
+      0.629355869482642
+     ],
+     [
+      0.46,
+      0.6546050477809425
+     ],
+     [
+      0.48,
+      0.6805096556143019
+     ],
+     [
+      0.5,
+      0.7069973735853231
+     ],
+     [
+      0.501098,
+      0.708467
+     ],
+     [
+      0.52,
+      0.7235324979564051
+     ],
+     [
+      0.54,
+      0.7398670968841928
+     ],
+     [
+      0.56,
+      0.7565369929565315
+     ],
+     [
+      0.567886,
+      0.763186506887532
+     ],
+     [
+      0.58,
+      0.7734711031839557
+     ],
+     [
+      0.6,
+      0.7905983445770004
+     ],
+     [
+      0.62,
+      0.8078476341461999
+     ],
+     [
+      0.634673,
+      0.820539
+     ],
+     [
+      0.64,
+      0.8195623027675834
+     ],
+     [
+      0.66,
+      0.8165373900180544
+     ],
+     [
+      0.671425,
+      0.815268365676
+     ],
+     [
+      0.68,
+      0.8145371494981066
+     ],
+     [
+      0.7,
+      0.813575672759866
+     ],
+     [
+      0.708177,
+      0.813485
+     ],
+     [
+      0.72,
+      0.8136733120036322
+     ],
+     [
+      0.74,
+      0.8148221741577711
+     ],
+     [
+      0.744994,
+      0.8152705190830001
+     ],
+     [
+      0.76,
+      0.8170023993086843
+     ],
+     [
+      0.78,
+      0.8201997496085628
+     ],
+     [
+      0.781811,
+      0.820539
+     ],
+     [
+      0.789821,
+      0.8202894937268912
+     ],
+     [
+      0.79783,
+      0.820205
+     ],
+     [
+      0.8,
+      0.8202118542705751
+     ],
+     [
+      0.805839,
+      0.820289595399
+     ],
+     [
+      0.813848,
+      0.820539
+     ],
+     [
+      0.82,
+      0.8205390000000001
+     ],
+     [
+      0.84,
+      0.820539
+     ],
+     [
+      0.86,
+      0.820539
+     ],
+     [
+      0.88,
+      0.820539
+     ],
+     [
+      0.9,
+      0.820539
+     ],
+     [
+      0.906924,
+      0.820539
+     ],
+     [
+      0.92,
+      0.820539
+     ],
+     [
+      0.94,
+      0.820539
+     ],
+     [
+      0.96,
+      0.820539
+     ],
+     [
+      0.98,
+      0.820539
+     ],
+     [
+      1.0,
+      0.820539
+     ]
+    ],
+    "timing": {
+     "cue_guid": "84D6E0B0E64D490C8BAEC7955AED56C2",
+     "CycleRateHz": 0.310037,
+     "PhaseOffsetCycles": 2.485270647009786,
+     "start_s": 5.5408,
+     "duration_s": 3.2254,
+     "pass_frame_rel": 922714,
+     "hinge_minus_station_cm": -8.648999999999432,
+     "camera_mps_at_hinge": 2.848123798447773
+    },
+    "final_deg": 73.848,
+    "fit_max_err_deg": 0.028
+   },
+   {
+    "fall_order": 3,
+    "cue_guid": "008D989B20485276BC8D0493439D39EA",
+    "show_index": 229,
+    "label": "P06 Wing 047",
+    "side": "L",
+    "has_top": false,
+    "action": "chain",
+    "set": {
+     "kind": "TOPPLE",
+     "playback_mode": "ONE_SHOT",
+     "phase_origin": "PASS_FRAME",
+     "cycle_rate_hz": 0.379567,
+     "phase_offset_cycles": 3.484685822527922,
+     "max_angle_deg": -90.0,
+     "top_follows_mechanism": null
+    },
+    "keys": [
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.932039,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.207338,
+      "Value": 0.278887,
+      "ArriveTangent": 1.868057,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 1.080057,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.389214,
+      "Value": 0.528444,
+      "ArriveTangent": 1.664983,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.977887,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.552744,
+      "Value": 0.708467,
+      "ArriveTangent": 1.191176,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": -0.261666,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.642733,
+      "Value": 0.696611,
+      "ArriveTangent": -0.000394,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.000537,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.73288,
+      "Value": 0.708467,
+      "ArriveTangent": 0.261029,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": -0.057062,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.752491,
+      "Value": 0.707904,
+      "ArriveTangent": -0.000341,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.000589,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.772102,
+      "Value": 0.708467,
+      "ArriveTangent": 0.057252,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 1.0,
+      "Value": 0.708467,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     }
+    ],
+    "curve_text": "(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.932039000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.207338000,Value=0.278887000,ArriveTangent=1.868057000,ArriveTangentWeight=0.000000000,LeaveTangent=1.080057000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.389214000,Value=0.528444000,ArriveTangent=1.664983000,ArriveTangentWeight=0.000000000,LeaveTangent=0.977887000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.552744000,Value=0.708467000,ArriveTangent=1.191176000,ArriveTangentWeight=0.000000000,LeaveTangent=-0.261666000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.642733000,Value=0.696611000,ArriveTangent=-0.000394000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000537000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.732880000,Value=0.708467000,ArriveTangent=0.261029000,ArriveTangentWeight=0.000000000,LeaveTangent=-0.057062000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.752491000,Value=0.707904000,ArriveTangent=-0.000341000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000589000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.772102000,Value=0.708467000,ArriveTangent=0.057252000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=1.000000000,Value=0.708467000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000))),ExternalCurve=None)",
+    "other_side": "R",
+    "other_keys": [
+     {
+      "InterpMode": "RCIM_Linear",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Linear",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 1.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     }
+    ],
+    "other_curve_text": "(EditorCurveData=(Keys=((InterpMode=RCIM_Linear,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=0.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Linear,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=1.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000))),ExternalCurve=None)",
+    "samples": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.02,
+      0.019246014720420604
+     ],
+     [
+      0.04,
+      0.03978432679957987
+     ],
+     [
+      0.06,
+      0.061737678114323936
+     ],
+     [
+      0.08,
+      0.085228810541499
+     ],
+     [
+      0.1,
+      0.11038046595795119
+     ],
+     [
+      0.103669,
+      0.11518448748949998
+     ],
+     [
+      0.12,
+      0.1373153862405266
+     ],
+     [
+      0.14,
+      0.16615631326607158
+     ],
+     [
+      0.16,
+      0.19702598891143216
+     ],
+     [
+      0.18,
+      0.23004715505345438
+     ],
+     [
+      0.2,
+      0.2653425535689849
+     ],
+     [
+      0.207338,
+      0.278887
+     ],
+     [
+      0.22,
+      0.29281950131325213
+     ],
+     [
+      0.24,
+      0.31587319863700203
+     ],
+     [
+      0.26,
+      0.34021000213535657
+     ],
+     [
+      0.28,
+      0.3658310518801307
+     ],
+     [
+      0.298276,
+      0.39036749985299996
+     ],
+     [
+      0.3,
+      0.3927374879431393
+     ],
+     [
+      0.32,
+      0.42093045039619764
+     ],
+     [
+      0.34,
+      0.45041107931112057
+     ],
+     [
+      0.36,
+      0.4811805147597231
+     ],
+     [
+      0.38,
+      0.5132398968138203
+     ],
+     [
+      0.389214,
+      0.528444
+     ],
+     [
+      0.4,
+      0.5391006664950575
+     ],
+     [
+      0.42,
+      0.559415529411617
+     ],
+     [
+      0.44,
+      0.5804014804555562
+     ],
+     [
+      0.46,
+      0.6019999167106458
+     ],
+     [
+      0.470979,
+      0.6140956062287499
+     ],
+     [
+      0.48,
+      0.624152235260656
+     ],
+     [
+      0.5,
+      0.646799833189358
+     ],
+     [
+      0.52,
+      0.6698841075805219
+     ],
+     [
+      0.54,
+      0.6933464555179186
+     ],
+     [
+      0.552744,
+      0.708467
+     ],
+     [
+      0.56,
+      0.7066435873575254
+     ],
+     [
+      0.58,
+      0.7023992559077513
+     ],
+     [
+      0.597738,
+      0.6996001153039398
+     ],
+     [
+      0.6,
+      0.6993087109422866
+     ],
+     [
+      0.62,
+      0.6973804811951944
+     ],
+     [
+      0.64,
+      0.6966230954005379
+     ],
+     [
+      0.642733,
+      0.696611
+     ],
+     [
+      0.66,
+      0.697057409807557
+     ],
+     [
+      0.68,
+      0.6986622436221214
+     ],
+     [
+      0.687806,
+      0.6996036125167213
+     ],
+     [
+      0.7,
+      0.7014263232444733
+     ],
+     [
+      0.72,
+      0.7053409598102924
+     ],
+     [
+      0.73288,
+      0.708467
+     ],
+     [
+      0.74,
+      0.7081339899735096
+     ],
+     [
+      0.742685,
+      0.708046469914895
+     ],
+     [
+      0.752491,
+      0.707904
+     ],
+     [
+      0.76,
+      0.707988518240687
+     ],
+     [
+      0.762296,
+      0.7080465834375778
+     ],
+     [
+      0.772102,
+      0.708467
+     ],
+     [
+      0.78,
+      0.7084669999999998
+     ],
+     [
+      0.8,
+      0.708467
+     ],
+     [
+      0.82,
+      0.708467
+     ],
+     [
+      0.84,
+      0.708467
+     ],
+     [
+      0.86,
+      0.708467
+     ],
+     [
+      0.88,
+      0.708467
+     ],
+     [
+      0.886051,
+      0.708467
+     ],
+     [
+      0.9,
+      0.708467
+     ],
+     [
+      0.92,
+      0.708467
+     ],
+     [
+      0.94,
+      0.708467
+     ],
+     [
+      0.96,
+      0.708467
+     ],
+     [
+      0.98,
+      0.708467
+     ],
+     [
+      1.0,
+      0.708467
+     ]
+    ],
+    "timing": {
+     "cue_guid": "008D989B20485276BC8D0493439D39EA",
+     "CycleRateHz": 0.379567,
+     "PhaseOffsetCycles": 3.484685822527922,
+     "start_s": 6.1317,
+     "duration_s": 2.6346,
+     "pass_frame_rel": 964847,
+     "hinge_minus_station_cm": -8.648999999999432,
+     "camera_mps_at_hinge": 2.848123798447773
+    },
+    "final_deg": 63.762,
+    "fit_max_err_deg": 0.019
+   },
+   {
+    "fall_order": 4,
+    "cue_guid": "2C9C4A30466204C2890815B6C777DACF",
+    "show_index": 230,
+    "label": "P06 OLD 19 - ceramic_totem",
+    "side": "L",
+    "has_top": false,
+    "action": "chain",
+    "set": {
+     "kind": "TOPPLE",
+     "playback_mode": "ONE_SHOT",
+     "phase_origin": "PASS_FRAME",
+     "cycle_rate_hz": 0.478851,
+     "phase_offset_cycles": 4.975275617060641,
+     "max_angle_deg": -90.0,
+     "top_follows_mechanism": null
+    },
+    "keys": [
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.856233,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.229449,
+      "Value": 0.278887,
+      "ArriveTangent": 1.659694,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.975067,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.435754,
+      "Value": 0.528444,
+      "ArriveTangent": 1.437119,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": -0.315724,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.549282,
+      "Value": 0.510504,
+      "ArriveTangent": -0.00047,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.00064,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.663009,
+      "Value": 0.528444,
+      "ArriveTangent": 0.314961,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": -0.068853,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.687749,
+      "Value": 0.527587,
+      "ArriveTangent": -0.000411,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.00071,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.71249,
+      "Value": 0.528444,
+      "ArriveTangent": 0.069082,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 1.0,
+      "Value": 0.528444,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     }
+    ],
+    "curve_text": "(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.856233000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.229449000,Value=0.278887000,ArriveTangent=1.659694000,ArriveTangentWeight=0.000000000,LeaveTangent=0.975067000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.435754000,Value=0.528444000,ArriveTangent=1.437119000,ArriveTangentWeight=0.000000000,LeaveTangent=-0.315724000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.549282000,Value=0.510504000,ArriveTangent=-0.000470000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000640000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.663009000,Value=0.528444000,ArriveTangent=0.314961000,ArriveTangentWeight=0.000000000,LeaveTangent=-0.068853000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.687749000,Value=0.527587000,ArriveTangent=-0.000411000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000710000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.712490000,Value=0.528444000,ArriveTangent=0.069082000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=1.000000000,Value=0.528444000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000))),ExternalCurve=None)",
+    "other_side": "R",
+    "other_keys": [
+     {
+      "InterpMode": "RCIM_Linear",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Linear",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 1.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     }
+    ],
+    "other_curve_text": "(EditorCurveData=(Keys=((InterpMode=RCIM_Linear,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=0.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Linear,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=1.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000))),ExternalCurve=None)",
+    "samples": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.02,
+      0.017615646624261874
+     ],
+     [
+      0.04,
+      0.03626493090138302
+     ],
+     [
+      0.06,
+      0.05602534943786671
+     ],
+     [
+      0.08,
+      0.07697439884021623
+     ],
+     [
+      0.1,
+      0.09918957571493489
+     ],
+     [
+      0.114724,
+      0.11639873751968555
+     ],
+     [
+      0.12,
+      0.12274837666852595
+     ],
+     [
+      0.14,
+      0.14772829830749268
+     ],
+     [
+      0.16,
+      0.1742068372383384
+     ],
+     [
+      0.18,
+      0.20226149006756633
+     ],
+     [
+      0.2,
+      0.23196975340167988
+     ],
+     [
+      0.22,
+      0.2634091238471822
+     ],
+     [
+      0.229449,
+      0.278887
+     ],
+     [
+      0.24,
+      0.28930515814853114
+     ],
+     [
+      0.26,
+      0.30976499886258524
+     ],
+     [
+      0.28,
+      0.33114983176084134
+     ],
+     [
+      0.3,
+      0.3534516321517332
+     ],
+     [
+      0.32,
+      0.37666237534369446
+     ],
+     [
+      0.332601,
+      0.39174943955296015
+     ],
+     [
+      0.34,
+      0.40077403664515865
+     ],
+     [
+      0.36,
+      0.4257785913645595
+     ],
+     [
+      0.38,
+      0.45166801481033064
+     ],
+     [
+      0.4,
+      0.4784342822909057
+     ],
+     [
+      0.42,
+      0.5060693691147183
+     ],
+     [
+      0.435754,
+      0.528444
+     ],
+     [
+      0.44,
+      0.5271285019568379
+     ],
+     [
+      0.46,
+      0.521606167017232
+     ],
+     [
+      0.48,
+      0.5171954852917398
+     ],
+     [
+      0.492518,
+      0.515000230486
+     ],
+     [
+      0.5,
+      0.5138959032901267
+     ],
+     [
+      0.52,
+      0.5117068675221584
+     ],
+     [
+      0.54,
+      0.5106278244976007
+     ],
+     [
+      0.549282,
+      0.510504
+     ],
+     [
+      0.56,
+      0.5106694529179482
+     ],
+     [
+      0.58,
+      0.5118265152068324
+     ],
+     [
+      0.6,
+      0.5140885785894126
+     ],
+     [
+      0.606146,
+      0.5150057308139816
+     ],
+     [
+      0.62,
+      0.5174560462379753
+     ],
+     [
+      0.64,
+      0.5219293213248073
+     ],
+     [
+      0.66,
+      0.5275088070221952
+     ],
+     [
+      0.663009,
+      0.528444
+     ],
+     [
+      0.675379,
+      0.5278038431150001
+     ],
+     [
+      0.68,
+      0.5276732909624804
+     ],
+     [
+      0.687749,
+      0.527587
+     ],
+     [
+      0.7,
+      0.5277999467944733
+     ],
+     [
+      0.70012,
+      0.5278040682989894
+     ],
+     [
+      0.71249,
+      0.528444
+     ],
+     [
+      0.72,
+      0.528444
+     ],
+     [
+      0.74,
+      0.528444
+     ],
+     [
+      0.76,
+      0.528444
+     ],
+     [
+      0.78,
+      0.528444
+     ],
+     [
+      0.8,
+      0.528444
+     ],
+     [
+      0.82,
+      0.528444
+     ],
+     [
+      0.84,
+      0.528444
+     ],
+     [
+      0.856245,
+      0.528444
+     ],
+     [
+      0.86,
+      0.528444
+     ],
+     [
+      0.88,
+      0.528444
+     ],
+     [
+      0.9,
+      0.528444
+     ],
+     [
+      0.92,
+      0.528444
+     ],
+     [
+      0.94,
+      0.528444
+     ],
+     [
+      0.96,
+      0.528444
+     ],
+     [
+      0.98,
+      0.528444
+     ],
+     [
+      1.0,
+      0.528444
+     ]
+    ],
+    "timing": {
+     "cue_guid": "2C9C4A30466204C2890815B6C777DACF",
+     "CycleRateHz": 0.478851,
+     "PhaseOffsetCycles": 4.975275617060641,
+     "start_s": 6.6779,
+     "duration_s": 2.0883,
+     "pass_frame_rel": 1006980,
+     "hinge_minus_station_cm": -8.649999999999636,
+     "camera_mps_at_hinge": 2.848123798447773
+    },
+    "final_deg": 47.56,
+    "fit_max_err_deg": 0.019
+   },
+   {
+    "fall_order": 5,
+    "cue_guid": "AA62A3AC5C432FCBE3A672B23443FA6A",
+    "show_index": 231,
+    "label": "P06 Wing 050",
+    "side": "L",
+    "has_top": false,
+    "action": "chain",
+    "set": {
+     "kind": "TOPPLE",
+     "playback_mode": "ONE_SHOT",
+     "phase_origin": "PASS_FRAME",
+     "cycle_rate_hz": 0.62144,
+     "phase_offset_cycles": 7.2499491799449025,
+     "max_angle_deg": -90.0,
+     "top_follows_mechanism": null
+    },
+    "keys": [
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.751451,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.267737,
+      "Value": 0.278887,
+      "ArriveTangent": 1.392475,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": -0.305962,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.41507,
+      "Value": 0.256533,
+      "ArriveTangent": -0.000447,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.000609,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.562662,
+      "Value": 0.278887,
+      "ArriveTangent": 0.305231,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": -0.066728,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.59477,
+      "Value": 0.27781,
+      "ArriveTangent": -0.000398,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.000688,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_Break",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.626877,
+      "Value": 0.278887,
+      "ArriveTangent": 0.06695,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Cubic",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 1.0,
+      "Value": 0.278887,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     }
+    ],
+    "curve_text": "(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.751451000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.267737000,Value=0.278887000,ArriveTangent=1.392475000,ArriveTangentWeight=0.000000000,LeaveTangent=-0.305962000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.415070000,Value=0.256533000,ArriveTangent=-0.000447000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000609000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.562662000,Value=0.278887000,ArriveTangent=0.305231000,ArriveTangentWeight=0.000000000,LeaveTangent=-0.066728000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.594770000,Value=0.277810000,ArriveTangent=-0.000398000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000688000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,TangentWeightMode=RCTWM_WeightedNone,Time=0.626877000,Value=0.278887000,ArriveTangent=0.066950000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=1.000000000,Value=0.278887000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000))),ExternalCurve=None)",
+    "other_side": "R",
+    "other_keys": [
+     {
+      "InterpMode": "RCIM_Linear",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 0.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     },
+     {
+      "InterpMode": "RCIM_Linear",
+      "TangentMode": "RCTM_User",
+      "TangentWeightMode": "RCTWM_WeightedNone",
+      "Time": 1.0,
+      "Value": 0.0,
+      "ArriveTangent": 0.0,
+      "ArriveTangentWeight": 0.0,
+      "LeaveTangent": 0.0,
+      "LeaveTangentWeight": 0.0
+     }
+    ],
+    "other_curve_text": "(EditorCurveData=(Keys=((InterpMode=RCIM_Linear,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=0.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000),(InterpMode=RCIM_Linear,TangentMode=RCTM_User,TangentWeightMode=RCTWM_WeightedNone,Time=1.000000000,Value=0.000000000,ArriveTangent=0.000000000,ArriveTangentWeight=0.000000000,LeaveTangent=0.000000000,LeaveTangentWeight=0.000000000))),ExternalCurve=None)",
+    "samples": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.02,
+      0.015378749033979925
+     ],
+     [
+      0.04,
+      0.031484024298775885
+     ],
+     [
+      0.06,
+      0.04835642803867214
+     ],
+     [
+      0.08,
+      0.06603656249795295
+     ],
+     [
+      0.1,
+      0.08456502992090266
+     ],
+     [
+      0.12,
+      0.10398243255180542
+     ],
+     [
+      0.133869,
+      0.11799078290755874
+     ],
+     [
+      0.14,
+      0.12432937263494565
+     ],
+     [
+      0.16,
+      0.14564645241460744
+     ],
+     [
+      0.18,
+      0.16797427413507518
+     ],
+     [
+      0.2,
+      0.19135344004063318
+     ],
+     [
+      0.22,
+      0.21582455237556564
+     ],
+     [
+      0.24,
+      0.24142821338415674
+     ],
+     [
+      0.26,
+      0.268205025310691
+     ],
+     [
+      0.267737,
+      0.278887
+     ],
+     [
+      0.28,
+      0.2752951867875702
+     ],
+     [
+      0.3,
+      0.27012176521483394
+     ],
+     [
+      0.32,
+      0.26579134962827805
+     ],
+     [
+      0.34,
+      0.26229739390455586
+     ],
+     [
+      0.341403,
+      0.2620835203055031
+     ],
+     [
+      0.36,
+      0.259633351920321
+     ],
+     [
+      0.38,
+      0.25779267755222673
+     ],
+     [
+      0.4,
+      0.2567688246769266
+     ],
+     [
+      0.41507,
+      0.256533
+     ],
+     [
+      0.42,
+      0.25656037822669436
+     ],
+     [
+      0.44,
+      0.25717317013247154
+     ],
+     [
+      0.46,
+      0.2585957990956981
+     ],
+     [
+      0.48,
+      0.2608347078637641
+     ],
+     [
+      0.488866,
+      0.262090028722
+     ],
+     [
+      0.5,
+      0.26389633918405964
+     ],
+     [
+      0.52,
+      0.26778713580397473
+     ],
+     [
+      0.54,
+      0.27251354047089954
+     ],
+     [
+      0.56,
+      0.27808199593222405
+     ],
+     [
+      0.562662,
+      0.278887
+     ],
+     [
+      0.578716,
+      0.27808228454499995
+     ],
+     [
+      0.58,
+      0.2780409309396924
+     ],
+     [
+      0.59477,
+      0.27781
+     ],
+     [
+      0.6,
+      0.2778411971973432
+     ],
+     [
+      0.610823,
+      0.2780825490426927
+     ],
+     [
+      0.62,
+      0.2784764276745423
+     ],
+     [
+      0.626877,
+      0.278887
+     ],
+     [
+      0.64,
+      0.278887
+     ],
+     [
+      0.66,
+      0.278887
+     ],
+     [
+      0.68,
+      0.278887
+     ],
+     [
+      0.7,
+      0.278887
+     ],
+     [
+      0.72,
+      0.278887
+     ],
+     [
+      0.74,
+      0.278887
+     ],
+     [
+      0.76,
+      0.278887
+     ],
+     [
+      0.78,
+      0.278887
+     ],
+     [
+      0.8,
+      0.278887
+     ],
+     [
+      0.813438,
+      0.278887
+     ],
+     [
+      0.82,
+      0.278887
+     ],
+     [
+      0.84,
+      0.278887
+     ],
+     [
+      0.86,
+      0.278887
+     ],
+     [
+      0.88,
+      0.278887
+     ],
+     [
+      0.9,
+      0.278887
+     ],
+     [
+      0.92,
+      0.278887
+     ],
+     [
+      0.94,
+      0.278887
+     ],
+     [
+      0.96,
+      0.278887
+     ],
+     [
+      0.98,
+      0.278887
+     ],
+     [
+      1.0,
+      0.278887
+     ]
+    ],
+    "timing": {
+     "cue_guid": "AA62A3AC5C432FCBE3A672B23443FA6A",
+     "CycleRateHz": 0.62144,
+     "PhaseOffsetCycles": 7.2499491799449025,
+     "start_s": 7.1571,
+     "duration_s": 1.6092,
+     "pass_frame_rel": 1049113,
+     "hinge_minus_station_cm": -8.648999999999432,
+     "camera_mps_at_hinge": 2.848123798447773
+    },
+    "final_deg": 25.1,
+    "fit_max_err_deg": 0.01
+   }
+  ],
+  "brace": {
+   "label": "P06 Wing 007",
+   "cue_guid": "6DB7C86FE7463FB8ED5143833DF28400",
+   "hinge_route_cm": 12941.35,
+   "thickness_cm": 24.9,
+   "height_cm": 1120.0,
+   "gap_cm": 500.0,
+   "reached": true,
+   "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j",
+   "lateral_overlap_cm": 333.2,
+   "contact_deg": 25.1,
+   "contact_height_cm": 1014.2
+  },
+  "next_row_hits": [],
+  "events": [
+   {
+    "t": 1.55,
+    "type": "release",
+    "slab": 0,
+    "deg": 1.9
+   },
+   {
+    "t": 3.0588,
+    "type": "snag",
+    "slab": 0,
+    "deg": 9.0003
+   },
+   {
+    "t": 4.9812,
+    "type": "domino",
+    "slab": 0,
+    "hits": 1,
+    "contact_deg": 60.5319,
+    "omega_before_dps": 65.0625,
+    "omega_after_dps": 28.6275,
+    "energy_lost_frac": 0.6128
+   },
+   {
+    "t": 5.5408,
+    "type": "domino",
+    "slab": 1,
+    "hits": 2,
+    "contact_deg": 25.0998,
+    "omega_before_dps": 63.839,
+    "omega_after_dps": 30.0461,
+    "energy_lost_frac": 0.5858
+   },
+   {
+    "t": 6.1317,
+    "type": "domino",
+    "slab": 2,
+    "hits": 3,
+    "contact_deg": 25.0998,
+    "omega_before_dps": 58.0095,
+    "omega_after_dps": 31.8226,
+    "energy_lost_frac": 0.5173
+   },
+   {
+    "t": 6.6779,
+    "type": "domino",
+    "slab": 3,
+    "hits": 4,
+    "contact_deg": 25.0998,
+    "omega_before_dps": 63.8486,
+    "omega_after_dps": 36.8791,
+    "energy_lost_frac": 0.4917
+   },
+   {
+    "t": 7.1571,
+    "type": "domino",
+    "slab": 4,
+    "hits": 5,
+    "contact_deg": 25.0998,
+    "omega_before_dps": 71.5674,
+    "omega_after_dps": 42.0027,
+    "energy_lost_frac": 0.4835
+   },
+   {
+    "t": 7.5879,
+    "type": "wall",
+    "slab": 5,
+    "n": 1,
+    "contact_deg": 25.0998,
+    "omega_before_dps": 77.9255,
+    "omega_after_dps": -17.1436,
+    "rebound_deg": 2.0119
+   },
+   {
+    "t": 8.0625,
+    "type": "wall",
+    "slab": 5,
+    "n": 2,
+    "contact_deg": 25.0998,
+    "omega_before_dps": 17.1024,
+    "omega_after_dps": -3.7625,
+    "rebound_deg": 0.0969
+   },
+   {
+    "t": 8.1658,
+    "type": "wall",
+    "slab": 5,
+    "n": 3,
+    "contact_deg": 25.0998,
+    "omega_before_dps": 3.7749,
+    "omega_after_dps": -0.8305,
+    "rebound_deg": 0.0
+   },
+   {
+    "t": 8.1658,
+    "type": "rest",
+    "slab": 5,
+    "deg": 25.0998
+   }
+  ],
+  "t_end_s": 8.766249999996088,
+  "gaps_m": [
+   9.999300000000005,
+   5.0,
+   5.0,
+   5.0,
+   5.0,
+   5.0
+  ],
+  "contact_c_m": [
+   0.24825,
+   0.249,
+   0.249,
+   0.249,
+   0.249,
+   0.249
+  ],
+  "contact_deg": [
+   60.53186989274446,
+   25.099810557300053,
+   25.099810557300053,
+   25.099810557300053,
+   25.099810557300053,
+   25.099810557300053
+  ],
+  "timing": {
+   "creak_frame_rel": 597349.7120000682,
+   "creak_s": 24.889571333336175,
+   "rest_s": 33.655821333332256,
+   "segment_end_s": 110.6,
+   "camera_cm_at_creak": 7088.848491256891,
+   "lead_cm_at_creak": 2352.576508743108,
+   "camera_mps_at_creak": 2.848111507880854,
+   "rows": [
+    {
+     "cue_guid": "884761C04271AFF58AF47B8B8AE5CD64",
+     "CycleRateHz": 0.114074,
+     "PhaseOffsetCycles": 0.9456985943043427,
+     "start_s": 0.0,
+     "duration_s": 8.7662,
+     "pass_frame_rel": 796315,
+     "hinge_minus_station_cm": -8.575000000000728,
+     "camera_mps_at_hinge": 2.848123798447773
+    },
+    {
+     "cue_guid": "7B0D67932249C38B1F010C93D74A38F2",
+     "CycleRateHz": 0.264201,
+     "PhaseOffsetCycles": 1.80187820883625,
+     "start_s": 4.9812,
+     "duration_s": 3.785,
+     "pass_frame_rel": 880581,
+     "hinge_minus_station_cm": -8.648999999999432,
+     "camera_mps_at_hinge": 2.848123798447773
+    },
+    {
+     "cue_guid": "84D6E0B0E64D490C8BAEC7955AED56C2",
+     "CycleRateHz": 0.310037,
+     "PhaseOffsetCycles": 2.485270647009786,
+     "start_s": 5.5408,
+     "duration_s": 3.2254,
+     "pass_frame_rel": 922714,
+     "hinge_minus_station_cm": -8.648999999999432,
+     "camera_mps_at_hinge": 2.848123798447773
+    },
+    {
+     "cue_guid": "008D989B20485276BC8D0493439D39EA",
+     "CycleRateHz": 0.379567,
+     "PhaseOffsetCycles": 3.484685822527922,
+     "start_s": 6.1317,
+     "duration_s": 2.6346,
+     "pass_frame_rel": 964847,
+     "hinge_minus_station_cm": -8.648999999999432,
+     "camera_mps_at_hinge": 2.848123798447773
+    },
+    {
+     "cue_guid": "2C9C4A30466204C2890815B6C777DACF",
+     "CycleRateHz": 0.478851,
+     "PhaseOffsetCycles": 4.975275617060641,
+     "start_s": 6.6779,
+     "duration_s": 2.0883,
+     "pass_frame_rel": 1006980,
+     "hinge_minus_station_cm": -8.649999999999636,
+     "camera_mps_at_hinge": 2.848123798447773
+    },
+    {
+     "cue_guid": "AA62A3AC5C432FCBE3A672B23443FA6A",
+     "CycleRateHz": 0.62144,
+     "PhaseOffsetCycles": 7.2499491799449025,
+     "start_s": 7.1571,
+     "duration_s": 1.6092,
+     "pass_frame_rel": 1049113,
+     "hinge_minus_station_cm": -8.648999999999432,
+     "camera_mps_at_hinge": 2.848123798447773
+    }
+   ],
+   "refusals": [],
+   "first_impact_s": 32.477488,
+   "first_impact_type": "wall",
+   "camera_cm_at_first_impact": 9249.975221322953,
+   "row0_ahead_cm_at_first_impact": 191.4497786770462,
+   "last_row_ahead_cm_at_first_impact": 3191.3757786770475,
+   "final_impact_s": 32.477488,
+   "final_impact_type": "wall",
+   "camera_cm_at_final_impact": 9249.975221322953,
+   "row0_ahead_cm_at_final_impact": 191.4497786770462,
+   "last_row_ahead_cm_at_final_impact": 3191.3757786770475,
+   "frame_share_at_final_impact": 0.3908,
+   "mean_frame_share_release_to_final_impact": 0.569,
+   "chain_inner_edge_m": 4.207,
+   "daylight_at_creak": 0.969,
+   "daylight_at_final_impact": 0.717,
+   "daylight_at_rest": 0.662
+  },
+  "flags": [
+   "FLOOR_END_LIES_THROUGH 2 standing same-side panel(s) within 1120 cm"
+  ]
+ },
+ "window_table": [
+  {
+   "side": "L",
+   "start_ordinal": 9,
+   "labels": [
+    "P06 OLD 09 - bamboo_scaffold",
+    "P06 Wing 002",
+    "P06 Wing 038",
+    "P06 Wing 047",
+    "P06 OLD 19 - ceramic_totem",
+    "P06 Wing 050"
+   ],
+   "lead_m_at_creak": 23.53,
+   "creak_s": 24.89,
+   "final_impact_s": 32.48,
+   "frame_share_at_final_impact": 0.3908,
+   "refusals": [],
+   "final_impact_s_at_mid_lead": 30.56
+  }
+ ],
+ "solver": {
+  "path": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-07\\p06_plan\\topple\\topple_solver.py",
+  "sha256": "eeaa50b8ee187958002803ca0e16c165ec700262541620108029a3f7fb2bc212",
+  "extension": "E:\\PussStage\\Saved\\CodexFlatV3\\topple\\topple_chain.py"
+ },
+ "request": {
+  "slam_s": 32.477488,
+  "lead_cm": null,
+  "n": 6,
+  "end": "braced",
+  "side": "L",
+  "candidate": "9",
+  "lead_range_cm": [
+   2300.0,
+   3500.0
+  ],
+  "exclude_rows": [
+   "07E24048F24647AA7D5992AB6A8A0770",
+   "11F403689E45D226B3298AAF16790170",
+   "30450225EE4DB0B28CEF8FA67FD430D4",
+   "4927CDF2454CE3EC567E4C8BBB58AFB0",
+   "4AA16A12224559F4375C89AF372F0857",
+   "6C060F41144F94D9214DF3BF039C7E99",
+   "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+   "821E817A714533C8BFDB38B63581F33F",
+   "88A3B6EF6F43524F0A057A84271187B7",
+   "AF6EB4EB57431F88F4BFC0957DA0E395",
+   "CC3403E5418809B2A1D9328EFC64C048"
+  ]
+ },
+ "refusals": [],
+ "gates_ok": true,
+ "exclude_rows": [
+  "07E24048F24647AA7D5992AB6A8A0770",
+  "11F403689E45D226B3298AAF16790170",
+  "30450225EE4DB0B28CEF8FA67FD430D4",
+  "4927CDF2454CE3EC567E4C8BBB58AFB0",
+  "4AA16A12224559F4375C89AF372F0857",
+  "6C060F41144F94D9214DF3BF039C7E99",
+  "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+  "821E817A714533C8BFDB38B63581F33F",
+  "88A3B6EF6F43524F0A057A84271187B7",
+  "AF6EB4EB57431F88F4BFC0957DA0E395",
+  "CC3403E5418809B2A1D9328EFC64C048"
+ ],
+ "excluded": [
+  {
+   "cue_guid": "07E24048F24647AA7D5992AB6A8A0770",
+   "label": "P06 Wing 055",
+   "ordinal": 28,
+   "requested_sides": []
+  },
+  {
+   "cue_guid": "11F403689E45D226B3298AAF16790170",
+   "label": "P06 Wing 052",
+   "ordinal": 21,
+   "requested_sides": []
+  },
+  {
+   "cue_guid": "30450225EE4DB0B28CEF8FA67FD430D4",
+   "label": "P06 Wing 049",
+   "ordinal": 27,
+   "requested_sides": []
+  },
+  {
+   "cue_guid": "4927CDF2454CE3EC567E4C8BBB58AFB0",
+   "label": "P06 Wing 046",
+   "ordinal": 18,
+   "requested_sides": []
+  },
+  {
+   "cue_guid": "4AA16A12224559F4375C89AF372F0857",
+   "label": "P06 Wing 022",
+   "ordinal": 22,
+   "requested_sides": []
+  },
+  {
+   "cue_guid": "6C060F41144F94D9214DF3BF039C7E99",
+   "label": "P06 Wing 053",
+   "ordinal": 20,
+   "requested_sides": []
+  },
+  {
+   "cue_guid": "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+   "label": "P06 Wing 025",
+   "ordinal": 25,
+   "requested_sides": []
+  },
+  {
+   "cue_guid": "821E817A714533C8BFDB38B63581F33F",
+   "label": "P06 Wing 048",
+   "ordinal": 23,
+   "requested_sides": []
+  },
+  {
+   "cue_guid": "88A3B6EF6F43524F0A057A84271187B7",
+   "label": "P06 Wing 016",
+   "ordinal": 19,
+   "requested_sides": []
+  },
+  {
+   "cue_guid": "AF6EB4EB57431F88F4BFC0957DA0E395",
+   "label": "P06 Wing 044",
+   "ordinal": 26,
+   "requested_sides": []
+  },
+  {
+   "cue_guid": "CC3403E5418809B2A1D9328EFC64C048",
+   "label": "P06 OLD 23 - steel_scaffold",
+   "ordinal": 24,
+   "requested_sides": []
+  }
+ ]
+}
