@@ -357,6 +357,15 @@ def _main(tmp):
     check("F1 POS batches never mix manifests; <= 3 each", [b["owners"] for b in fx["batches"]] ==
           [["P02_real_91_synth_fern_L", "P02_real_92_synth_hut_R"], ["VAL_real_93_synth_valance_C", "VAL_real_94_synth_garland_C"]],
           [b["owners"] for b in fx["batches"]])
+    pro_root = (tmp + "/pro_token").replace("\\", "/")
+    pro_entry = make_entry(pro_root, "PRO", "PRO_side_L", "L", "wing", 1080.0, 356.0, variant="t5j")
+    pro_manifest = make_manifest(pro_root, "IMPORT_MANIFEST_PaperProsc_synthetic.json", [pro_entry])
+    pro_plan = core.build_plan(PROJECT, [pro_manifest])
+    check("F1b POS PRO passage token accepts a conforming paper-proscenium wing", pro_plan["gates_ok"],
+          pro_plan["refusals"])
+    bad_passage = single(tmp, "pro_unknown", passage="PR0", owner="PR0_side_L")
+    check("F1b NEG misspelled paper-proscenium passage token is refused", any(
+        "PASSAGE_UNKNOWN" in row for row in bad_passage), bad_passage)
     v = W["VAL_real_93_synth_valance_C"]
     check("F2 POS top border: no sockets expected, no pole, mount top-border, centred bounds, z 0..300",
           v["mount"] == "top-border" and v["expected"]["sockets"] == [] and v["expected"]["pole"] is None and

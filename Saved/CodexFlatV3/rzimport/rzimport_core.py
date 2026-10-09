@@ -88,7 +88,7 @@ TEXTURE_CMP = ("compression_settings", "srgb", "lod_group", "mip_gen_settings", 
                "never_stream", "virtual_texture_streaming")
 COPY_FROM_REFERENCE = TEXTURE_CMP
 
-PASSAGES = ("P01", "P02", "P03", "P04", "P05", "P06", "VAL", "S2K")
+PASSAGES = ("P01", "P02", "P03", "P04", "P05", "P06", "VAL", "S2K", "PRO")
 MOUNTS = ("wing", "top-border")
 MAX_PER_BATCH = 3
 MIN_FREE_RAM_GB = 12.0
