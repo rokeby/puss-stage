@@ -218,14 +218,24 @@ def _track_snapshot(track):
             "range": [int(section.get_start_frame()), int(section.get_end_frame())],
             "defaults": [bool(channel.get_default()) for channel in channels],
             "channels": len(channels),
-            "completion": str(section.get_completion_mode()).split(".")[-1],
+            "completion": str(section.get_completion_mode()).split(".")[-1].split(":")[0].strip("<> "),  # [meas] str() = "<MovieSceneCompletionMode.RESTORE_STATE: 1>"
         })
     return {
         "class": str(track.get_class().get_name()),
-        "display": str(track.get_display_name()),
+        "display": _track_label(track),
         "property": str(track.get_property_name()),
         "sections": sections,
     }
+
+
+def _track_label(track):
+    # [meas P18PROBE 9 Oct] UE 5.8 get_display_name() on a visibility track returns "Visibility"; the name set by
+    # set_display_name lives only in the editor property display_name.
+    try:
+        label = str(track.get_editor_property("display_name"))
+    except Exception:  # noqa: BLE001
+        label = ""
+    return label or str(track.get_display_name())
 
 
 def _snapshot(sequence, plan, run):
@@ -239,7 +249,7 @@ def _snapshot(sequence, plan, run):
         if name != target["name"]:
             _stop(run, "BINDING_NAME_DRIFT|%s|got=%r|want=%r" % (target["guid"], name, target["name"]))
         owned = [_track_snapshot(track) for track in binding.get_tracks()
-                 if str(track.get_display_name()) == TRACK_NAME]
+                 if _track_label(track) == TRACK_NAME]
         targets.append({"kind": target["kind"], "guid": target["guid"], "name": name, "owned": owned})
     return {
         "sequence": _asset_path(sequence.get_path_name()),
@@ -319,7 +329,7 @@ def _remove_owned_tracks(sequence, plan, run):
     removed = 0
     for target in plan["targets"]:
         binding = bindings[target["guid"]]
-        tracks = [track for track in binding.get_tracks() if str(track.get_display_name()) == TRACK_NAME]
+        tracks = [track for track in binding.get_tracks() if _track_label(track) == TRACK_NAME]
         if len(tracks) != 1:
             _stop(run, "OWNED_TRACK_COUNT|%s|%d|NOTHING SAVED; Don't-Save restart" % (target["kind"], len(tracks)))
         binding.remove_track(tracks[0])
