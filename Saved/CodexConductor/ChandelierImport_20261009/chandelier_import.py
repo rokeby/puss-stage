@@ -186,7 +186,7 @@ def _socket_names(mesh):
 
 def _texture_readback(tex):
     return {"srgb": bool(tex.get_editor_property("srgb")),
-            "compression": str(tex.get_editor_property("compression_settings")).split(".")[-1],
+            "compression": str(tex.get_editor_property("compression_settings")).split(".")[-1].split(":")[0].strip("<> "),
             "flip_green_channel": bool(tex.get_editor_property("flip_green_channel")),
             "max_texture_size": int(tex.get_editor_property("max_texture_size"))}
 
@@ -373,7 +373,7 @@ def run_import(c, plan, rec, values):
 
 
 def _sampler_name(tex):
-    compression = str(tex.get_editor_property("compression_settings")).split(".")[-1]
+    compression = str(tex.get_editor_property("compression_settings")).split(".")[-1].split(":")[0].strip("<> ")
     srgb = bool(tex.get_editor_property("srgb"))
     for row in C.TEXTURE_SPECS:
         if row[4] == compression and row[3] == srgb:
