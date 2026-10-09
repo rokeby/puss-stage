@@ -41,6 +41,11 @@ a **three-way merge**, never a blind overwrite:
   same `kind: "changes"` route as `cue_sync tocuebook`, so the page previews and applies them with field-level
   conflicts), write NOTHING to the CSV, and stop with `CUE_SYNC_SURTITLES_UNREAL_EDITS|n=..|file=..`. After Gary
   applies that file, the next export includes them.
+- Owner's amendments (Surtitle session, 9 Oct; parser cites `InfinityStageSurtitles.cpp:100, 196-200, 212-243` on
+  branch `surtitles` [decl], not compiled): (1) **atomic writes**: write `Puss_Surtitles.csv.tmp` then rename over
+  the real file (the runtime re-reads within ~1 s of a timestamp change); (2) write `Key` as an **empty cell, never
+  missing**, so every row has the same column count; (3) never name a new column `Line`, `Start` or `End` (parser
+  aliases for Text/In/Out); `Key` is safe. The Unreal writer will round-trip the raw table and edit only its cells.
 - Harness: an Unreal-side time nudge comes back as a change, never lost; a row edited on both sides is a conflict;
   NEGATIVE control: an export over an un-imported Unreal edit must refuse.
 
