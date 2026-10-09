@@ -55,7 +55,7 @@ Unreal is used for **cinematic footage**: recording video comes first.
   3. Rerun the harness in the main tree.
   4. `git add -f` explicit paths, commit, push.
   - Codex worktrees are under `C:\Users\Administrator\.codex\worktrees\<id>\PussStage`. Codex cannot commit from them.
-- **Job numbers:** next free is **103**. Grep tools, records and commits before briefing anything; work is often already done.
+- **Job numbers:** next free is **104**. Grep tools, records and commits before briefing anything; work is often already done.
 - **Editor transport**: `Saved/CodexConductor/conductor_helpers/mcprun.sh <request.json> "<regex>" "<prefix>" 1`. This calls `ExecuteProjectPythonFile` on the guarded MCP at 127.0.0.1:8010, with scripts under `Saved/`.
 - **Editor restart:**
   - Kill UnrealEditor.
@@ -99,7 +99,7 @@ Check `Saved/CodexRuns/ledger.tsv`, the codex_p102 log, and the report file abov
 - **Deprioritised by Gary**: swarm and ending.
 
 **Waiting on Gary:**
-- P05 length: 186.4 → 42.0 s? Two camera keys fall past the new end.
+- ~~P05 length~~ DECIDED (E26): cut to audio (42.04 s), past-end camera keys brought forward; job 103, live after 102.
 - S3 dune set D (594 cm, over the landed box).
 - Gobo content.
 - Cue Book dark stills retake.
