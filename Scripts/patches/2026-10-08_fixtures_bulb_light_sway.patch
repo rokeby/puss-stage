@@ -33,7 +33,7 @@ index 39a9714..6f80e00 100644
          if (!Runtime.bPrepared)
          {
              Runtime.bPrepared = true;
-+            Runtime.AuthoredBodyRelative = Body->GetActorRelativeTransform();
++            Runtime.AuthoredBodyRelative = (Body->GetRootComponent() ? Body->GetRootComponent()->GetRelativeTransform() : FTransform::Identity);
              float Authored = 1.0f;
              UStaticMeshComponent* Mesh = Body->FindComponentByClass<UStaticMeshComponent>();
 +            FVector FilamentOffset = FVector::ZeroVector;
@@ -80,7 +80,7 @@ index 39a9714..6f80e00 100644
 +                        && CandidateCue == CueGuid && CandidateAttachment == Settings.CordAttachmentGuid)
 +                    {
 +                        Runtime.Cord = Candidate;
-+                        Runtime.AuthoredCordRelative = Candidate->GetActorRelativeTransform();
++                        Runtime.AuthoredCordRelative = (Candidate->GetRootComponent() ? Candidate->GetRootComponent()->GetRelativeTransform() : FTransform::Identity);
 +                        if (const UStaticMeshComponent* CordMesh = Candidate->FindComponentByClass<UStaticMeshComponent>())
 +                        {
 +                            if (const UStaticMesh* StaticMesh = CordMesh->GetStaticMesh())
