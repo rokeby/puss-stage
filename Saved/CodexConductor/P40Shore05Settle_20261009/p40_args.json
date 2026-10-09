@@ -1,0 +1,40 @@
+{
+  "mode": "DRY",
+  "confirm": "",
+  "extra_count": 0,
+  "seed": 4005,
+  "candidate_count": 256,
+  "placement_bounds_local_cm": [2450.0, 3950.0, -720.0, 780.0],
+  "figure_clearance_cm": 115.0,
+  "camera_clearance_cm": 185.0,
+  "sightline_half_width_cm": 90.0,
+  "sightline_length_cm": 1800.0,
+  "crossfade_frames": 72,
+  "foot_offsets_cm": {
+    "Shore01_M56": -35.0,
+    "Shore02_F52": -35.0,
+    "Shore03_M59": 5.7,
+    "Shore04_F55": -35.0,
+    "Shore05_M53": -35.0,
+    "Shore06_F25": -35.0
+  },
+  "cloth_reset": {
+    "enabled": false,
+    "acknowledge_inferred_behavior": false,
+    "teleport_distance_threshold_cm": 25.0,
+    "teleport_rotation_threshold_deg": 15.0
+  },
+  "outfit": {
+    "enabled": true,
+    "asset_version": 1,
+    "colour_parameter_candidates": [
+      "BaseColor Tint",
+      "Base Color Tint",
+      "BaseColor",
+      "Base Color",
+      "Color",
+      "Colour",
+      "Tint"
+    ]
+  }
+}

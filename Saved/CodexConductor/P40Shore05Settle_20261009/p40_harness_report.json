@@ -1,0 +1,174 @@
+{
+  "blender_started": false,
+  "cases": [
+    {
+      "control": "POSITIVE",
+      "name": "args_dry_valid",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "args_extra_five_valid",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "args_apply_confirm_valid",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "args_revert_record_valid",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "args_bad_extra_refused",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "args_bool_extra_refused",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "args_apply_confirm_refused",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "args_duplicate_record_refused",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "args_revert_without_record_refused",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "cloth_inferred_requires_ack",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "cloth_inferred_ack_valid",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "candidate_seed_deterministic_five_draws",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE_CONTROL",
+      "name": "candidate_seed_changes",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "candidate_empty_refused",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "placement_mandatory_shore05",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "placement_up_to_five_variants",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "placement_requires_camera_reads",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "placement_bounds_unordered_refused",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE_CONTROL",
+      "name": "sightline_tube_refuses_candidate",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE_CONTROL",
+      "name": "figure_spacing_refuses_candidate",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "dune_height_is_shared_authority",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "all_six_forward_only_chains_cover_scene",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "chain_reverse_mutation_caught",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "chain_overlap_mutation_caught",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "chain_weight_mutation_caught",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "underwear_colour_is_weave_mean_times_tint",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "underwear_tint_short_refused",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "colour_parameter_unique",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "colour_parameter_missing_refused",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "colour_parameter_ambiguous_refused",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "stills_include_first_visible_boundary",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "editor_static_safety_guards",
+      "passed": true
+    }
+  ],
+  "negative_passed": 18,
+  "negative_total": 18,
+  "passed": 32,
+  "positive_passed": 14,
+  "positive_total": 14,
+  "result": "PASS",
+  "schema": "p40_shore05_settle/1",
+  "total": 32,
+  "unreal_started": false
+}
