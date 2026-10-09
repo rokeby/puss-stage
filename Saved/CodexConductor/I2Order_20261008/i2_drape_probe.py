@@ -67,7 +67,7 @@ def main():
                 row = {"comp": c.get_name(), "visible": bool(c.is_visible()),
                        "asset": gca.get_path_name() if gca else None,
                        "hidden_in_game": bool(c.get_editor_property("hidden_in_game"))}
-                for fn in ("is_playing", "get_animation_time", "get_playback_speed", "get_duration"):
+                for fn in ("is_playing", "is_looping", "get_animation_time", "get_elapsed_time", "get_playback_speed", "get_duration", "get_number_of_frames", "get_start_time_offset"):
                     try:
                         row[fn] = getattr(c, fn)()
                     except Exception as exc:  # noqa: BLE001
