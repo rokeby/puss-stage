@@ -35,3 +35,5 @@ Order (dependencies first; Gary's decisions 9 Oct in `memory/tonight-queue-9-oct
 | 21 | Cue Book stills | cueing `cuebook_stills_driver.py` | Low priority. |
 
 Gary-owned: Code.gs redeploy; pearl clear coat; video fallbacks (Sat night + tomorrow night); opening choreography after Hyper3D.
+
+Creative backlog (later, Gary's call on where/when): iron chandelier with lit candles, swinging dramatically in a Passage — mesh from Hyper3D (Rodin iron variant, after Gary's review), then candle flames + swing rig (existing bulb-sway + P06 FX fire patterns).
