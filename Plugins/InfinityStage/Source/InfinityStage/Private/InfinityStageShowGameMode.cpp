@@ -1,4 +1,5 @@
 #include "InfinityStageShowGameMode.h"
+#include "InfinityStageCueSheet.h"
 
 #include "GameFramework/PlayerController.h"
 #include "Components/InputComponent.h"
@@ -50,6 +51,34 @@ void AInfinityStageShowPlayerController::SetupInputComponent()
     InputComponent->BindKey(EKeys::Left, IE_Released, this, &AInfinityStageShowPlayerController::EndLeftInput);
     InputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleShowPlayback);
     InputComponent->BindKey(EKeys::H, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleDirectorHud);
+    // Script cursor (Cue Director): a presentation clicker sends PageDown / PageUp.
+    InputComponent->BindKey(EKeys::PageDown, IE_Pressed, this, &AInfinityStageShowPlayerController::NextScriptLine);
+    InputComponent->BindKey(EKeys::PageUp, IE_Pressed, this, &AInfinityStageShowPlayerController::PreviousScriptLine);
+    InputComponent->BindKey(EKeys::F5, IE_Pressed, this, &AInfinityStageShowPlayerController::ReloadCueSheet);
+}
+
+void AInfinityStageShowPlayerController::NextScriptLine()
+{
+    if (UInfinityStageCueDirectorSubsystem* Director = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageCueDirectorSubsystem>() : nullptr)
+    {
+        Director->StepLine(1);
+    }
+}
+
+void AInfinityStageShowPlayerController::PreviousScriptLine()
+{
+    if (UInfinityStageCueDirectorSubsystem* Director = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageCueDirectorSubsystem>() : nullptr)
+    {
+        Director->StepLine(-1);
+    }
+}
+
+void AInfinityStageShowPlayerController::ReloadCueSheet()
+{
+    if (UInfinityStageCueDirectorSubsystem* Director = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageCueDirectorSubsystem>() : nullptr)
+    {
+        UE_LOG(LogTemp, Display, TEXT("INFINITY_CUESHEET_RELOAD ok=%d"), Director->Reload() ? 1 : 0);
+    }
 }
 
 void AInfinityStageShowPlayerController::ToggleDirectorHud()

@@ -67,8 +67,17 @@ INFINITYSTAGE_API bool IsEnabledFor(int32 ConsoleValue, EWorldType::Type WorldTy
 /** The effective switch for a world, read from the console variable. */
 INFINITYSTAGE_API bool IsEnabledForWorld(const UWorld* World);
 
-/** Flips the console variable relative to its effective value in this world. */
+/** H cycles: off -> strip -> strip + script panel -> off (Gary, 7 Oct: "press H twice to see script"). */
 INFINITYSTAGE_API void Toggle(const UWorld* World);
+
+/** The pure cycle behind Toggle. */
+INFINITYSTAGE_API void NextMode(bool bStripOn, bool bScriptOn, bool& bOutStripOn, bool& bOutScriptOn);
+
+/** The script panel is shown (only ever with the strip). */
+INFINITYSTAGE_API bool IsScriptPanelEnabledForWorld(const UWorld* World);
+
+/** Greedy word wrap to MaxChars per line (no measuring: the panel uses a fixed-width budget). */
+INFINITYSTAGE_API TArray<FString> WrapText(const FString& Text, int32 MaxChars);
 
 /** 1-based index of the station nearest DistanceCm (ties go to the later one); 0 when empty. */
 INFINITYSTAGE_API int32 NearestBay(const TArray<double>& SortedStationDistancesCm, double DistanceCm);
@@ -113,6 +122,7 @@ protected:
 
 private:
     void Draw(UCanvas* Canvas, APlayerController* PlayerController);
+    void DrawScriptPanel(UCanvas* Canvas, UFont* Font, float BottomOfPanel, const FInfinityDirectorHudState& State);
     AInfinityStageShowRoot* FindShowRoot();
     void RebuildSegmentCache(const AInfinityStageShowRoot& Root, int32 SegmentIndex);
 
