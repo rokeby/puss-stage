@@ -340,8 +340,8 @@ def cloth_state(figure):
                        "underwear_colour_linear": core.cloth_colour(tint) if tint else None,
                        "reset": bool(prop(cloth, "reset", False)),
                        "teleport": bool(prop(cloth, "teleport", False)),
-                       "teleport_distance_threshold": float(cloth.get_teleport_distance_threshold()),
-                       "teleport_rotation_threshold": float(cloth.get_teleport_rotation_threshold()),
+                       "teleport_distance_threshold": float(cloth.get_editor_property("teleport_distance_threshold")),
+                       "teleport_rotation_threshold": float(cloth.get_editor_property("teleport_rotation_threshold")),
                        "pin_audit": "declaration-only asset path; MaxDistance collection is not exposed by component Python",
                        "pin_ready_v3_name": bool(asset and "_v3" in path_of(asset).lower())}
 
@@ -564,8 +564,8 @@ def cloth_apply(cfg):
         # are a safe template policy.  They do not prove warm-up or rest.
         cloth.set_editor_property("teleport", False)
         cloth.set_editor_property("reset", False)
-        cloth.set_teleport_distance_threshold(cfg["cloth_reset"]["teleport_distance_threshold_cm"])
-        cloth.set_teleport_rotation_threshold(cfg["cloth_reset"]["teleport_rotation_threshold_deg"])
+        cloth.set_editor_property("teleport_distance_threshold", cfg["cloth_reset"]["teleport_distance_threshold_cm"])
+        cloth.set_editor_property("teleport_rotation_threshold", cfg["cloth_reset"]["teleport_rotation_threshold_deg"])
         unreal.BlueprintEditorLibrary.compile_blueprint(bp)
         _, _, after = cloth_state(figure)
         require(after["reset"] is False and after["teleport"] is False, "CLOTH_RESET_READBACK|" + figure)
@@ -752,8 +752,8 @@ def revert(run, cfg):
         bp, cloth = cloth_template(row["figure"])
         before = row["before"]
         cloth.modify(); cloth.set_editor_property("reset", before["reset"]); cloth.set_editor_property("teleport", before["teleport"])
-        cloth.set_teleport_distance_threshold(before["teleport_distance_threshold"])
-        cloth.set_teleport_rotation_threshold(before["teleport_rotation_threshold"])
+        cloth.set_editor_property("teleport_distance_threshold", before["teleport_distance_threshold"])
+        cloth.set_editor_property("teleport_rotation_threshold", before["teleport_rotation_threshold"])
         unreal.BlueprintEditorLibrary.compile_blueprint(bp)
     clams = unreal.load_asset(core.CLAMS)
     for row in reversed(record["created"]):
