@@ -48,7 +48,7 @@ def fixture():
                          "transform_ranges": [[0, 3150]],
                          "transform_defaults": [[['Location.X', 100.0 + i], ['Rotation.Z', 90.0]]]})
     bee = {"bindings": bindings, "fps": 25.0, "tick": 24000.0, "playback": [0, 3150],
-           "subtrack_range": [0, 3150], "protected_choreo": [{"name": "CHAIN_A", "sections": []}]}
+           "subtrack_range": [0, 2765], "protected_choreo": [{"name": "CHAIN_A", "sections": []}]}
     expected_glints = [{"name": row["name"], "spawn_keys": row["spawn_keys"]} for row in bindings]
     live = {"p06_length_s": 110.6, "sunset": sunset, "car": car, "bee": bee, "fx": []}
     records = {
@@ -146,7 +146,23 @@ def negative_controls():
     return 9
 
 
+def logged_subtrack_roundoff_regression():
+    args, live, records = fixture()
+    logged_live = [0, 2764]
+    recorded_plan = [0, 2765]
+    C.yes(logged_live != recorded_plan,
+          "old exact guard refuses logged 0-2764 vs 0-2765")
+    live["bee"]["subtrack_range"] = logged_live
+    C.yes("BEE_SUBTRACK_RANGE_DRIFT" not in R.build_plan(args, live, records)["refusals"],
+          "new plan accepts logged one-frame end round-off after P33 MOVE_INSIDE")
+    live["bee"]["subtrack_range"] = [0, 2763]
+    C.yes("BEE_SUBTRACK_RANGE_DRIFT" in R.build_plan(args, live, records)["refusals"],
+          "new plan refuses two-frame end drift")
+    return 3
+
+
 positive = positive_controls()
 negative = negative_controls()
-print("P06_RETIME_HARNESS_OK|positive=%d/%d|negative=%d/%d|checks=%d" %
-      (positive, positive, negative, negative, C.count))
+regression = logged_subtrack_roundoff_regression()
+print("P06_RETIME_HARNESS_OK|positive=%d/%d|negative=%d/%d|regression=%d/%d|checks=%d" %
+      (positive, positive, negative, negative, regression, regression, C.count))

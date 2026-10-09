@@ -117,6 +117,15 @@ def scale_frame(frame, factor):
     return int(round(float(frame) * float(factor)))
 
 
+def section_range_matches(got, want, tolerance_frames=1):
+    """Accept Sequencer's established one-display-frame boundary round-off only."""
+    got = list(got or [])
+    want = list(want or [])
+    return (len(got) == len(want) == 2
+            and all(abs(int(actual) - int(expected)) <= int(tolerance_frames)
+                    for actual, expected in zip(got, want)))
+
+
 def validate_args(args):
     failures = []
     mode = str(args.get("mode") or "").upper()
@@ -258,8 +267,12 @@ def build_plan(args, live, records):
                     failures.append("BEE_NAME_DRIFT:%d" % index)
                 if got.get("spawn_keys") != want.get("spawn_keys"):
                     failures.append("BEE_KEYS_DRIFT:%d" % index)
-        expected_sub = (expected_bee.get("subtrack") or {}).get("range")
-        if expected_sub and list(bee_before.get("subtrack_range") or []) != list(expected_sub):
+        # P33 MOVE_INSIDE deliberately resized this subsection to the compiled
+        # P06 boundary, so validate it against this retime's newly computed
+        # boundary, not the pre-P33 bee authoring record. Unreal can read that
+        # boundary one display frame short after the rebuild.
+        planned_sub = bee_after.get("subtrack_range")
+        if planned_sub and not section_range_matches(bee_before.get("subtrack_range"), planned_sub):
             failures.append("BEE_SUBTRACK_RANGE_DRIFT")
 
     fx = fx_activation_classification(records.get("fx"))
