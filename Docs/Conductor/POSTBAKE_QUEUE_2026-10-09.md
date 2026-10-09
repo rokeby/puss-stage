@@ -9,8 +9,9 @@ Order (dependencies first; Gary's decisions 9 Oct in `memory/tonight-queue-9-oct
 
 | # | Slot | Tool | Notes |
 |---|---|---|---|
+| 0 | W&T review stills (one short PIE) | `Saved/CodexFlatV3/review_stills/` (Q6) | Conductor starts/ends PIE; S2 wide/fall/ceiling, P02 rows, keeper, proscenium. |
 | 1 | Passages = music lengths | Codex job 33 `passages_to_music.py` | APPLY without Gary's review (his word). P06 126.0 → 110.56 s. |
-| 2 | P06 sunset rescale | conductor (p06_sunset tool) | Proportional to job 33; read back dusk time (~32.47 s). |
+| 2 | P06 retime | Codex job 42 `p06_retime.py` | Sunset cycle × live k, car + bees scaled, FX distance-gated (unchanged). New dusk ≈ 32.48 s → W&T. |
 | 3 | I2 shrink to 1950 | Codex job 24 `shrink_scene_playback.py` | Before I2 camera work. |
 | 4 | I2 move-in at 0:50.4 | Codex job 34 (finishing touches) | |
 | 5 | I2 polish | Codex job 39 `I2Polish_20261009` | Boundary probe (PIE) → repair; F17 diff; F18; run-on. |
@@ -25,7 +26,7 @@ Order (dependencies first; Gary's decisions 9 Oct in `memory/tonight-queue-9-oct
 | 14 | S3 figures: Shore05 (+variants), cloth settle, underwear colour | Codex job 40 | |
 | 15 | S3 +50 % handprints, camera wall | Codex job 38 | Still before save. |
 | 16 | Gobo 007 as stand-in | gobo session args 007 | Gary reviews content later. |
-| 17 | Infrastructure for Gary's review | job 35 uplights P02–P06; job 30 parcans (6, one model fine); P02 P01-style lighting (perf gate) | Stills after. |
+| 17 | Infrastructure for Gary's review | job 35 uplights P02–P06; parcans (job 43, one model SM_Lantern_ParCan, bay-1 refused); P02 P01-style lighting = W&T Q7 `p02lighting/` (perf gate; 415 vs 414 reconcile first; job 43 GPU-loss runbook); S2 seam + dark shots (job 43 `s2_lighting_seam.py`) | Stills after. |
 | 18 | Trough clear | Codex job 25 | |
 | 19 | W&T queue | Q1–Q3 (S2 overlay re-pose/sky start, poles, P03 cards, P02 fences, P06 scaffold, Wing 044 UVs) | W&T sequences. |
 | 20 | GPU/RAM-heavy investigations LAST | Codex job 38 dune ground probe (fire shadows); P06 wing burn (after W&T Wing 044 UV spec) | Gary: only when GPU/RAM free. |

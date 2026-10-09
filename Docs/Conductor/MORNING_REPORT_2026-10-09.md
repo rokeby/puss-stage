@@ -40,6 +40,8 @@ Tiers: **measured** = run and read back from Unreal; **inferred** = not verified
 - **Live breath vs authored breath**: you chose an AUTHORED breath (FT jobs 36/45). Cueing's Codex job 47 builds a LIVE transport breath (P key). It's held, not built: say if you want a live breath too.
 - **Cue Book**: job 48 (reorder + phone running-order view) needs one more Code.gs redeploy — do both together.
 
+- **Fuser margin regen**: 8 edge-touching wing picks need regenerating with margins — batch ready at `DerivedAssets/FlatV3/FuserQueue/90_margin_regen/BATCH_fuser.txt` (W&T Q9).
+
 ## Planned
 - **P37 (Codex, running)**: P06 falls more dramatic + settle dust + a 12-wing RIGHT-side domino ending in a slam at ~122 s before the Void (brief `codex_briefs/p37_p06_domino_finale.md`).
 
