@@ -5,6 +5,7 @@ import argparse
 import datetime
 import importlib.util
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -38,7 +39,7 @@ def font(size, bold=False):
     return ImageFont.load_default()
 
 
-def render_timeline(plan, out):
+def _render_timeline_job37(plan, out):
     width, height = 1800, 760
     image = Image.new("RGB", (width, height), (13, 15, 20))
     draw = ImageDraw.Draw(image)
@@ -120,6 +121,82 @@ def render_timeline(plan, out):
     image.save(out)
 
 
+def render_timeline(plan, out):
+    width, height = 1800, 1000
+    image = Image.new("RGB", (width, height), (13, 15, 20))
+    draw = ImageDraw.Draw(image)
+    left, right = 245, width - 70
+    top, bottom = 120, height - 105
+    projection = plan["post_p33_projection"]
+    duration = float(projection["post_p33_segment_end_s"])
+
+    def x(sec):
+        return left + (right - left) * float(sec) / duration
+
+    chain = plan.get("chain_b")
+    b_start = max(0.0, float(chain["timing"]["creak_s"]) - 5.0) if chain else 0.0
+
+    def xb(sec):
+        return left + (right - left) * (float(sec) - b_start) / (duration - b_start)
+
+    draw.text((55, 25), "P06 choreographed slow domino - OFFLINE DRY timeline",
+              fill=(238, 241, 245), font=font(28, True))
+    draw.text((55, 62), "Post-P33 end %.6f s; selected music %.6f s; no Unreal/render acceptance" %
+              (duration, projection["selected_music_s"]), fill=(155, 164, 178), font=font(17))
+    for value in range(0, int(duration) + 1, 10):
+        xx = x(value)
+        draw.line((xx, top, xx, 155), fill=(42, 47, 58), width=1)
+        draw.text((xx - 12, 145), "%ds" % value, fill=(170, 178, 190), font=font(12))
+    if chain:
+        first_tick = int(math.ceil(b_start / 5.0) * 5)
+        for value in range(first_tick, int(duration) + 1, 5):
+            xx = xb(value)
+            draw.line((xx, 190, xx, bottom), fill=(42, 47, 58), width=1)
+            draw.text((xx - 12, bottom + 15), "%ds" % value, fill=(170, 178, 190), font=font(14))
+
+    draw.text((25, 112), "Chain A after P33", fill=(227, 142, 73), font=font(17, True))
+    draw.line((left, 140, right, 140), fill=(75, 81, 95), width=2)
+    for row in plan["p33_forecast"]["chain_a"]:
+        value = row["post_p33_impact_s_if_mechanism_untouched"]
+        draw.ellipse((x(value) - 4, 136, x(value) + 4, 144), fill=(245, 206, 155))
+
+    draw.text((25, 169), "B: creak -> impact; dot = dust", fill=(238, 79, 93), font=font(17, True))
+    if chain:
+        for i, row in enumerate(chain["rows"]):
+            y = 210 + i * 52
+            timing = row["timing"]
+            draw.text((28, y - 11), "%02d  %s" % (i + 1, row["label"]),
+                      fill=(210, 216, 226), font=font(14))
+            draw.line((left, y, right, y), fill=(55, 61, 73), width=2)
+            draw.line((xb(timing["creak_s"]), y, xb(timing["impact_s"]), y),
+                      fill=(238, 79, 93), width=8)
+            draw.ellipse((xb(timing["impact_s"]) - 6, y - 6, xb(timing["impact_s"]) + 6, y + 6),
+                         fill=(207, 169, 239))
+            draw.text((xb(timing["creak_s"]) - 18, y + 13), "%.2f" % timing["creak_s"],
+                      fill=(255, 173, 181), font=font(11))
+            draw.text((xb(timing["impact_s"]) - 20, y - 28), "%.2f" % timing["impact_s"],
+                      fill=(224, 194, 246), font=font(11))
+        slam = chain["timing"]["final_impact_s"]
+        draw.line((xb(slam), 188, xb(slam), 210 + (len(chain["rows"]) - 1) * 52 + 22),
+                  fill=(235, 194, 255), width=2)
+        draw.text((xb(slam) - 210, 178), "LAST IMPACT / SLAM %.3f s" % slam,
+                  fill=(235, 194, 255), font=font(14, True))
+    else:
+        draw.text((left, 220), "No eligible Chain B; inspect exact blockers in plan JSON",
+                  fill=(255, 130, 141), font=font(18, True))
+
+    banner = ("APPLY READY - %d/%d rows; reduced to avoid standing-panel intersections" %
+              (plan["selected_rows"], plan["requested_rows"])) if plan["apply_ready"] else (
+              "APPLY REFUSED - inspect exact blockers in plan JSON")
+    color = (80, 195, 123) if plan["apply_ready"] else (238, 79, 93)
+    draw.rounded_rectangle((55, 900, width - 55, 950), radius=10,
+                           fill=(29, 33, 42), outline=color, width=2)
+    draw.text((75, 914), banner, fill=color, font=font(18, True))
+    out = Path(out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    image.save(out)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--measurements", required=True)
@@ -143,7 +220,7 @@ def main(argv=None):
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(plan, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     render_timeline(plan, ns.timeline)
-    print("P37_P06_DOMINO_DRY|apply_ready=%d|chain_b=%d/%d|blockers=%d|plan=%s|timeline=%s" %
+    print("P37B_P06_CHOREOGRAPHED_DOMINO_DRY|apply_ready=%d|chain_b=%d/%d|blockers=%d|plan=%s|timeline=%s" %
           (int(plan["apply_ready"]), plan["selected_rows"], plan["requested_rows"], len(plan["blockers"]),
            out, Path(ns.timeline)))
 

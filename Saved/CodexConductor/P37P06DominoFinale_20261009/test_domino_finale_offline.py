@@ -45,7 +45,7 @@ def guid(i):
 
 
 def side(i, name):
-    route = 500.0 + i * 500.0
+    route = 500.0 + i * 1200.0
     lateral = 700.0 if name == "R" else -700.0
     return {"mesh": "/Game/Test/SM_%s_%02d" % (name, i), "materialized": True, "upright": True,
             "external_curve": None, "thickness_cm": 25.0, "height_cm": 1000.0,
@@ -60,12 +60,13 @@ def fixture():
     rows = []
     for i in range(20):
         rows.append({"ordinal": i, "show_index": 100 + i, "cue_guid": guid(i), "label": "Synthetic %02d" % i,
-                     "enabled": True, "has_top": False, "station_cm": 500.0 + i * 500.0,
+                     "enabled": True, "has_top": False, "station_cm": 500.0 + i * 1200.0,
                      "pass_frame": int((2.0 + i * 4.0) * tick), "mechanism_sha": "m%02d" % i,
                      "sides": {"L": side(i, "L"), "R": side(i, "R")}})
     measurement = {"dry_ok": True, "run_id": "SYNTH-DRY", "tick": tick,
                    "passage_guid": T.P06_GUID, "rows": rows,
-                   "law": {"points": [[0, 0.0], [int(126.001125 * tick), 10000.0]],
+                    "law": {"points": ([[0, 0.0]] + [[r["pass_frame"], r["station_cm"]] for r in rows] +
+                                       [[int(126.001125 * tick), 40000.0]]),
                            "segment_end": int(126.001125 * tick)},
                    "modulation": {"wing_modulation": False, "speed_shaped": False,
                                   "longitudinal_offset": False}}
@@ -90,20 +91,26 @@ def fixture():
 m, a_plan, active, inventory = fixture()
 
 args, bad = D.validate_args({})
-check("args +: conservative defaults validate", not bad and args["restyle_chain_a"] is False and args["side"] == "R")
+check("args +: choreographed B defaults validate", not bad and args["mode_b"] == "choreographed" and
+      args["restyle_chain_a"] is False and args["side"] == "R" and args["min_fall_s"] == 1.4)
 check("args -: dust auto_activate true refused",
       "DUST_AUTO_ACTIVATE_TRUE_REFUSED" in D.validate_args({"dust_auto_activate": True})[1])
 check("args -: bounce over 3 degrees refused",
       "BOUNCE_OUTSIDE_0_3_DEG" in D.validate_args({"bounce_deg": 3.01, "bounce_jitter_deg": 0.0})[1])
 check("args -: bounce plus jitter over 3 refused",
       "BOUNCE_PLUS_JITTER_GT_3_DEG" in D.validate_args({"bounce_deg": 2.9, "bounce_jitter_deg": .2})[1])
+check("args -: unknown B mode refused", "MODE_B_INVALID" in D.validate_args({"mode_b": "physics"})[1])
+check("args -: fall shorter than minimum refused",
+      any("FALL_BELOW_MINIMUM" in x for x in D.validate_args({"fall_s": 1.39})[1]))
 
 draws1 = D.seeded_draws(3706, 4, .08, 2.0, .35)
 draws2 = D.seeded_draws(3706, 4, .08, 2.0, .35)
 check("random +: same seed is bit-stable", draws1 == draws2)
 check("random -control: another seed changes the ordered draws", draws1 != D.seeded_draws(3707, 4, .08, 2.0, .35))
-check("random +: one bounded hesitation and bounce draw per row",
-      len(draws1) == 4 and all(0 <= r["hesitation_s"] <= .08 and 0 <= r["bounce_deg"] <= 3 for r in draws1))
+check("random +: one signed shockwave jitter per transition and one bounce draw per row",
+      len(draws1) == 4 and draws1[0]["shockwave_jitter_s"] is None and
+      all(-.08 <= r["shockwave_jitter_s"] <= .08 for r in draws1[1:]) and
+      all(0 <= r["bounce_deg"] <= 3 for r in draws1))
 
 raw = D.gravity_solver_keys(1.65, .62, 2.5, 2.35)
 pre = [r for r in raw if r["phase"] <= 1.65 / (1.65 + .62)]
@@ -113,15 +120,38 @@ check("bounce +: exactly one rebound no greater than 3 degrees",
       len([r for r in raw if 0 < r["phase"] < 1 and r["value"] < 1 and r["phase"] > pre[-1]["phase"]]) == 1
       and min(r["value"] for r in raw if r["phase"] >= pre[-1]["phase"]) >= 1 - 3 / 90.0)
 
-chosen, table, reason = D.choose_suffix(m["rows"], 12, "R", D.guid_set_from_chain(a_plan["chain"]))
-check("chain +: valid synthetic 12-row suffix reaches the end", chosen["n"] == 12 and chosen["start_ordinal"] == 8)
+projected = D.project_post_p33(m, 110.561125, 25.0)
+chosen, table, reason = D.choose_choreographed_suffix(
+    projected, 12, "R", D.guid_set_from_chain(a_plan["chain"]), args, T)
+check("chain +: valid synthetic 12-row choreographed suffix reaches the end",
+      chosen["n"] == 12 and chosen["start_ordinal"] == 8 and reason is None)
 check("chain +: diagnostics are ordered 12 down to 1", [r["n"] for r in table] == list(range(12, 0, -1)))
 
 plan = D.build_plan(m, a_plan, active, inventory, {}, T)
 check("plan +: valid synthetic plan is APPLY-ready", plan["apply_ready"] and plan["selected_rows"] == 12)
-check("plan +: final impact is exactly 122.0 s", abs(plan["chain_b"]["timing"]["final_impact_s"] - 122.0) < 1e-9)
-check("plan +: solved rest leaves at least two seconds", plan["chain_b"]["timing"]["rest_s"] <=
-      plan["chain_b"]["timing"]["finish_limit_s"])
+check("plan +: P33 rounds selected 110.561125 s music to a 110.6 s Passage",
+      plan["post_p33_projection"]["selected_music_s"] == 110.561125 and
+      plan["post_p33_projection"]["post_p33_segment_end_s"] == 110.6)
+check("plan +: final impact is exactly post-P33 end minus two seconds",
+      abs(plan["chain_b"]["timing"]["final_impact_s"] - 108.6) < 1e-9)
+check("plan +: solved rest remains inside P06", plan["chain_b"]["timing"]["rest_s"] <=
+      plan["chain_b"]["timing"]["segment_end_s"])
+check("plan +: each next creak follows prior impact by bounded shockwave delay",
+      all(.27 <= row["timing"]["shockwave_from_previous_s"] <= .43 for row in plan["chain_b"]["rows"][1:]))
+check("geometry +: downstage fall audit has no standing-panel intersections",
+      all(not row["standing_panel_intersections"] for row in plan["chain_b"]["fall_sweep_audit"]))
+slow = D.build_plan(m, a_plan, active, inventory, {"fall_s": 10.0}, T)
+check("timing +: oversized requested chain reduces N without squeezing fall below its requested time",
+      slow["apply_ready"] and 2 <= slow["selected_rows"] < 12 and
+      all(abs(row["timing"]["impact_s"] - row["timing"]["creak_s"] - 10.0) < 1e-8
+          for row in slow["chain_b"]["rows"]))
+
+contact_m = copy.deepcopy(m)
+for fixture_row in contact_m["rows"]:
+    fixture_row["sides"]["R"]["height_cm"] = 1500.0
+contact = D.build_plan(contact_m, a_plan, active, inventory, {"mode_b": "contact"}, T)
+check("compatibility +: explicit contact mode remains available", contact["apply_ready"] and
+      contact["chain_b"]["mode_b"] == "contact")
 check("dust +: one capped, non-auto burst per impact", len(plan["dust_bursts"]) == 12 and
       all(x["auto_activate"] is False and x["cast_shadow"] is False and x["light_count"] == 0
           for x in plan["dust_bursts"]))
@@ -135,9 +165,20 @@ check("restyle +: opt-in A restyle has a separate legacy plan and confirm",
       restyled["chain_a_restyle_plan"]["chain"]["chain_id"] == D.CHAIN_A_RESTYLE and
       "A_RESTYLE" in restyled["chain_a_restyle_confirm"])
 
-late = D.build_plan(m, a_plan, active, inventory, {"slam_s": 124.0}, T)
-check("guard -: slam whose settle crosses end-2 is refused",
-      not late["apply_ready"] and any("CHAIN_FINISH_AFTER_END_MINUS_MARGIN" in x for x in late["blockers"]))
+late = D.build_plan(m, a_plan, active, inventory, {"slam_s": 108.61}, T)
+check("guard -: slam after end-minus-two is refused",
+      not late["apply_ready"] and any("SLAM_AFTER_END_MINUS_LEAD" in x for x in late["blockers"]))
+
+collision_m = copy.deepcopy(m)
+first = collision_m["rows"][-12]["sides"]["R"]
+standing = collision_m["rows"][-13]["sides"]["R"]
+standing["hinge_route_cm"] = first["hinge_route_cm"] - 500.0
+standing["hinge_world"][0] = standing["hinge_route_cm"]
+collision = D.build_plan(collision_m, a_plan, active, inventory, {}, T)
+check("guard -: fall sweep through a standing panel is refused",
+      not collision["suffix_diagnostics"][0]["eligible"] and
+      any("FALL_SWEEP_INTERSECTS_STANDING_PANEL" in x
+          for x in collision["suffix_diagnostics"][0]["reasons"]))
 
 overlap_rows = a_plan["chain"]["rows"] + plan["chain_b"]["rows"][:1]
 check("guard -: Chain B over a Chain A row is refused",
@@ -162,28 +203,27 @@ state = {"rows": {"A1": {"keys": [1, 2, 3]}, "B1": {"keys": [8, 9]}},
                     "B": {"active": True, "original_rows": {"B1": {"keys": [7]}}}}}
 a_before = copy.deepcopy(state["rows"]["A1"])
 registry = D.registry_entry("B", "APPLY-B", ["B1"], {"B1": "hash"}, "originals-B.json")
-before, after = D.revert_scope(state, registry)
+before_apply, applied = D.apply_scope(state, "B", {"B1": {"keys": [10, 11]}})
+check("APPLY -control: B apply leaves A keys bit-identical",
+      applied["rows"]["A1"] == a_before and before_apply["rows"]["A1"] == a_before)
+before, after = D.revert_scope(applied, registry)
 check("REVERT +: B is restored and deactivated", after["rows"]["B1"] == {"keys": [7]} and
       after["chains"]["B"]["active"] is False)
 check("REVERT -control: B revert leaves A keys bit-identical", after["rows"]["A1"] == a_before and
       after["chains"]["A"]["active"] is True and before["rows"]["A1"] == after["rows"]["A1"])
 
 forecast = plan["p33_forecast"]
-check("P33 +: 122 s finale is detected past a 110.6 s P06", forecast["chain_b_past_new_end"] is True)
+check("P33 +: B is solved inside the post-P33 P06", forecast["chain_b_past_new_end"] is False)
 check("P33 +: Chain A row shifts are non-uniform", len({round(x["shift_s"], 6) for x in forecast["chain_a"]}) > 1)
 
 production = json.loads((HERE / "domino_finale_plan.json").read_text(encoding="utf-8"))
-check("production negative: only one contactable suffix row means APPLY refused",
-      production["selected_rows"] == 0 and production["reduction_reason"].startswith("ONLY_1_"))
-
-asset_inventory = json.loads((HERE / "asset_inventory.json").read_text(encoding="utf-8"))
-check("inventory +: chosen dust has zero ParticleModuleLight strings",
-      not next(x for x in asset_inventory["dust_candidates"] if x["asset"].endswith("P_Ambient_Dust"))[
-          "particle_light_module_strings"])
-check("inventory +: Collapse01 is loudest by measured full-file RMS",
-      asset_inventory["default_slam_sound"].endswith("Collapse01") and
-      asset_inventory["sound_candidates"][0]["embedded_wave"]["rms_dbfs"] >
-      asset_inventory["sound_candidates"][1]["embedded_wave"]["rms_dbfs"])
+check("production +: choreographed plan reduces 12 to 11 rather than crossing standing panels",
+      production["apply_ready"] and production["selected_rows"] == 11 and
+      production["requested_rows"] == 12 and production["args"]["mode_b"] == "choreographed" and
+      production["reduction_reason"] == "REDUCED_TO_11_TO_FIT_WITHOUT_SQUEEZING")
+check("production +: inherited dust and Collapse01 inventory gates passed",
+      not production["dust_asset_inventory"]["particle_light_module_strings"] and
+      production["slam_sound"]["asset"].endswith("Collapse01"))
 
 live_source = (HERE / "domino_finale_apply.py").read_text(encoding="utf-8")
 apply_b_source = live_source[live_source.index("def run_apply(args, plan, run):"):
@@ -205,11 +245,12 @@ check("live records +: B and A_RESTYLE route to separate record directories",
 
 from PIL import Image
 with Image.open(HERE / "p06_domino_finale_timeline.png") as timeline:
-    check("preview +: timeline PNG rendered at review resolution", timeline.size == (1800, 760))
+    check("preview +: timeline PNG rendered at review resolution", timeline.size == (1800, 1000))
 
 passed = sum(RESULTS)
 failed = len(RESULTS) - passed
-result_line = "P37_P06_DOMINO_HARNESS|PASS=%d|FAIL=%d|TOTAL=%d" % (passed, failed, len(RESULTS))
+result_line = "P37B_P06_CHOREOGRAPHED_DOMINO_HARNESS|PASS=%d|FAIL=%d|TOTAL=%d" % (
+    passed, failed, len(RESULTS))
 (HERE / "harness_result.txt").write_text(result_line + "\n", encoding="utf-8")
 print(result_line)
 raise SystemExit(0 if failed == 0 else 1)
