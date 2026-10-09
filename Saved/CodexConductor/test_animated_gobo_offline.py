@@ -76,6 +76,7 @@ check("B02b existing master+MPC are reused, only texture/MI created",
 check("B02c only missing shared asset is created", ag.created_assets_for(PLAN, [ag.MPC]) == [ag.MASTER, RAW["texture_path"], RAW["mi_path"]])
 check("B03 look defaults are Gary-tunable args", all(k in PLAN["params"] for k in ("BlurUV", "Softness", "Contrast", "Depth", "Scale", "FlipU", "FlipV")))
 check("B04 planning is deterministic", ag.plan_from_args(ARGS)["digest"] == PLAN["digest"])
+check("B04a default has no Approach keys", PLAN["approach_keys"] == [] and PLAN["approach_seconds"] == [])
 check("B05 DRY confirm exact", ag.confirm_ok("DRY", "DRY ANIMATED_GOBO") and not ag.confirm_ok("DRY", "APPLY ANIMATED_GOBO"))
 check("B06 destructive REVERT confirm is explicit", ag.confirm_text("REVERT") == "REVERT ANIMATED_GOBO DELETE CREATED ASSETS")
 raises("B07 -control empty labels", "LIGHT_LABELS", lambda: ag.normalized_args(dict(RAW, light_labels=[])))
@@ -107,6 +108,49 @@ raises("B19 -control REVERT reusing the APPLY run_id", "APPLY_RUN", lambda: ag.n
 check("B20 plan and record files are per run", ag.plan_file("X", "R1") != ag.plan_file("X", "R2") and
       ag.record_file("X", "R1") != ag.record_file("X", "R2"))
 
+PULL_SPEC = {"in_s": 1.5, "out_end_s": 9.0, "out_s": 1.5, "from": 1.0}
+PULL_RAW = dict(RAW, approach_pull=PULL_SPEC, params={"ApproachGrow": 0.6, "ApproachBlur": 0.8})
+PULL_ARGS = ag.normalized_args(PULL_RAW)
+PULL_PLAN = ag.plan_from_args(PULL_ARGS)
+EXPECTED_SECONDS = [[0.0, 1.0], [1.5, 0.0], [7.5, 0.0], [9.0, 1.0]]
+EXPECTED_APPROACH = [[175, 1.0], [213, 0.0], [363, 0.0], [400, 1.0]]
+check("B21 pull expansion is exact", PULL_ARGS["approach_seconds"] == EXPECTED_SECONDS,
+      PULL_ARGS["approach_seconds"])
+check("B22 pull seconds convert to display frames", PULL_PLAN["approach_keys"] == EXPECTED_APPROACH,
+      PULL_PLAN["approach_keys"])
+DIRECT_PLAN = ag.plan_from_args(ag.normalized_args(dict(
+    RAW, approach_keys=EXPECTED_SECONDS, params={"ApproachGrow": 0.6, "ApproachBlur": 0.8})))
+check("B23 explicit keys and convenience pull plan identically", DIRECT_PLAN["digest"] == PULL_PLAN["digest"])
+CHANGED_APPROACH = ag.plan_from_args(ag.normalized_args(dict(
+    RAW, approach_keys=[[0.0, 0.8], [1.5, 0.0], [7.5, 0.0], [9.0, 0.8]],
+    params={"ApproachGrow": 0.6, "ApproachBlur": 0.8})))
+check("B24 Approach keys participate in the plan digest", CHANGED_APPROACH["digest"] != PULL_PLAN["digest"])
+REPORT = ag.approach_report(PULL_PLAN)
+check("B25 DRY Approach report carries seconds and implied grow/defocus",
+      REPORT["keys_seconds_from_frame_start"] == EXPECTED_SECONDS and
+      abs(REPORT["max_grow_multiplier"] - 1.6) < 1e-9 and
+      abs(REPORT["max_approach_defocus"] - 0.8) < 1e-9, REPORT)
+raises("B26 -control refuse approach_keys plus approach_pull", "APPROACH_ARGS", lambda: ag.normalized_args(
+    dict(RAW, approach_keys=EXPECTED_SECONDS, approach_pull=PULL_SPEC)))
+raises("B27 -control malformed Approach row", "APPROACH_KEYS", lambda: ag.normalized_args(
+    dict(RAW, approach_keys=[[0.0, 1.0, 2.0]])))
+raises("B28 -control Approach below zero", "APPROACH_VALUE", lambda: ag.normalized_args(
+    dict(RAW, approach_keys=[[0.0, -0.01]])))
+raises("B29 -control Approach above one", "APPROACH_VALUE", lambda: ag.normalized_args(
+    dict(RAW, approach_keys=[[0.0, 1.01]])))
+raises("B30 -control non-increasing Approach seconds", "APPROACH_TIME", lambda: ag.normalized_args(
+    dict(RAW, approach_keys=[[1.0, 1.0], [1.0, 0.0]])))
+raises("B31 -control Approach before frame_start", "APPROACH_TIME", lambda: ag.normalized_args(
+    dict(RAW, approach_keys=[[-0.1, 1.0]])))
+raises("B32 -control sub-frame seconds cannot collapse onto one display frame", "APPROACH_FRAME_COLLISION",
+       lambda: ag.plan_from_args(ag.normalized_args(dict(RAW, approach_keys=[[0.0, 1.0], [0.01, 0.0]]))))
+raises("B33 -control pull needs out_end_s", "APPROACH_PULL", lambda: ag.normalized_args(
+    dict(RAW, approach_pull={"in_s": 1.5})))
+raises("B34 -control pull durations must be positive", "APPROACH_PULL", lambda: ag.normalized_args(
+    dict(RAW, approach_pull={"out_end_s": 9.0, "out_s": 0.0})))
+raises("B35 -control pull phases must remain ordered", "APPROACH_TIME", lambda: ag.normalized_args(
+    dict(RAW, approach_pull={"in_s": 8.0, "out_end_s": 9.0, "out_s": 2.0})))
+
 # C. Preflight positive and every important refusal.
 CLEAN = {"pie": False, "sequencer_open": False, "world_ok": True,
          "census": {"content": [], "maps": []},
@@ -116,6 +160,10 @@ CLEAN = {"pie": False, "sequencer_open": False, "world_ok": True,
 check("C01 positive DRY preflight", ag.preflight_refusals("DRY", ARGS, CLEAN, PLAN) == [])
 check("C01b positive DRY preflight reusing valid shared assets", ag.preflight_refusals(
     "DRY", ARGS, dict(CLEAN, existing_shared=[ag.MASTER, ag.MPC]), PLAN) == [])
+check("C01c Approach keys inside playback pass", ag.preflight_refusals("DRY", PULL_ARGS, CLEAN, PULL_PLAN) == [])
+approach_outside = ag.preflight_refusals("DRY", PULL_ARGS, dict(CLEAN, playback=[0, 400]), PULL_PLAN)
+check("C01d -control Approach key on exclusive playback end refuses",
+      any("APPROACH_KEYS_OUTSIDE_PLAYBACK" in row for row in approach_outside), approach_outside)
 cases = [
     ("PIE", {"pie": True}, "PIE_OR_SIE_ACTIVE"),
     ("Sequencer open", {"sequencer_open": True}, "SEQUENCER_IS_OPEN"),
@@ -155,6 +203,13 @@ check("D02b section spans the whole playback (handheld Clock runs while lit)", A
       AFTER["track"]["range"])
 check("D02c Clock keyed linear in seconds over playback", AFTER["track"]["clock_keys"] == [[0, 0.0], [2182, 2182 / 25.0]],
       AFTER["track"]["clock_keys"])
+check("D02d default emits no Approach channel", AFTER["track"]["approach_keys"] == [] and
+      AFTER["track"]["channel_count"] == 2)
+PULL_AFTER = ag.apply_model(BEFORE, PULL_PLAN)
+check("D02e Approach snapshot round-trip model", PULL_AFTER["track"]["approach_keys"] == EXPECTED_APPROACH and
+      PULL_AFTER["track"]["channel_count"] == 3)
+check("D02f Approach does not alter Frame or Clock keys", PULL_AFTER["track"]["keys"] == AFTER["track"]["keys"] and
+      PULL_AFTER["track"]["clock_keys"] == AFTER["track"]["clock_keys"])
 check("D03 exact APPLY snapshot passes", ag.snapshot_diff(AFTER, RECORD["snapshot_after"]) == [])
 check("D04 exact REVERT restores before", ag.revert_model(AFTER, RECORD) == BEFORE)
 drift = copy.deepcopy(AFTER)
@@ -171,6 +226,17 @@ check("D08 -control unexpected dirty package fails", bool(ag.exact_dirty(
 tick_drift = copy.deepcopy(AFTER)
 tick_drift["track"]["keys"] = [[0.21875, 0.0], [0.3125, 24.0]]  # tick numbers read back as display frames at 800 tpf
 check("D05b -control keys landing in tick units are detected", bool(ag.snapshot_diff(tick_drift, RECORD["snapshot_after"])))
+approach_tick = EXPECTED_APPROACH[1][0] * 800
+check("D05c Approach display frame converts to raw ticks", approach_tick == 170400)
+check("D05d -control passing display frame as raw tick misplaces Approach key",
+      abs(EXPECTED_APPROACH[1][0] / 800.0 - EXPECTED_APPROACH[1][0]) > 200.0)
+float32_live = copy.deepcopy(PULL_AFTER)
+float32_live["track"]["approach_keys"][0][1] = 0.99999994
+check("D05e float32 Approach read-back passes numeric tolerance",
+      ag.snapshot_diff(float32_live, PULL_AFTER) == [])
+approach_drift = copy.deepcopy(PULL_AFTER)
+approach_drift["track"]["approach_keys"][0][1] = 0.99
+check("D05f -control real Approach drift is detected", bool(ag.snapshot_diff(approach_drift, PULL_AFTER)))
 check("D09 -control dirty map fails", bool(ag.exact_dirty(
     {"content": ag.created_assets_for(PLAN, []) + [PLAN["sequence"]], "maps": ["/Game/Map"]},
     ag.created_assets_for(PLAN, []) + [PLAN["sequence"]])))
@@ -356,6 +422,15 @@ MOVED = copy.deepcopy(LIVE)
 MOVED["track"]["keys"][1][1] = 23.0
 check("J03 -control a real key change on a v1 run is still drift", bool(ag.snapshot_diff(ag.comparable(MOVED, OLD), OLD)))
 check("J04 comparable() leaves a missing track alone", ag.comparable({"track": None}, OLD) == {"track": None})
+OLD_V2 = copy.deepcopy(AFTER)
+OLD_V2["track"].pop("approach_keys")
+LIVE_V3 = copy.deepcopy(AFTER)
+check("J05 v3 snapshot keeps a v2 record without approach_keys revertible",
+      ag.snapshot_diff(ag.comparable(LIVE_V3, OLD_V2), OLD_V2) == [])
+NEW_DRIFT = copy.deepcopy(PULL_AFTER)
+NEW_DRIFT["track"]["approach_keys"][1][1] = 0.02
+check("J06 -control a real Approach drift in a new record is detected",
+      bool(ag.snapshot_diff(ag.comparable(NEW_DRIFT, PULL_AFTER), PULL_AFTER)))
 
 check("I18 stepped schedules get no false speed warning", "speed_vs_take" not in ag.timing_report(SPLAN, 25.0))
 check("I19 -control linear ramps still report speed", "speed_vs_take" in ag.timing_report(PLAN, 25.0))
@@ -387,6 +462,8 @@ check("E12 no UE5.8-absent master-track API", not any(n in source for n in
 check("E13 track uses get_tracks/add_track/remove_track", all(n in source for n in
       ("seq.get_tracks()", "seq.add_track(", "seq.remove_track(")))
 check("E14 keys are converted to ticks", "unreal.FrameNumber(int(frame) * ticks_per_frame)" in source)
+check("E14b Frame, Clock and Approach all use the display-to-tick conversion",
+      source.count("unreal.FrameNumber(int(frame) * ticks_per_frame)") == 3)
 check("E15 revert deletes only what its run created", "if path in created and" in source)
 check("E16 no single global record file", "RECORD_NAME" not in source and "PLAN_NAME" not in source)
 

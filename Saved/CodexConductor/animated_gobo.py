@@ -57,6 +57,7 @@ import datetime
 import fractions
 import hashlib
 import json
+import math
 import os
 import re
 import shutil
@@ -282,6 +283,83 @@ def clock_keys(playback, display_fps):
     return [[a, a / float(display_fps)], [b, b / float(display_fps)]]
 
 
+def normalize_approach_keys(approach_keys=None, approach_pull=None):
+    """Validate seconds-from-frame-start keys, expanding the convenience pull when supplied."""
+    if approach_keys is not None and approach_pull is not None:
+        raise PlanError("APPROACH_ARGS|refuse both approach_keys and approach_pull")
+    if approach_pull is not None:
+        if not isinstance(approach_pull, dict):
+            raise PlanError("APPROACH_PULL|need an object")
+        unknown = sorted(set(approach_pull) - {"in_s", "out_end_s", "out_s", "from"})
+        if unknown:
+            raise PlanError("APPROACH_PULL|unknown fields %s" % unknown)
+        if "out_end_s" not in approach_pull:
+            raise PlanError("APPROACH_PULL|out_end_s is required")
+        try:
+            in_s = float(approach_pull.get("in_s", 1.5))
+            out_end_s = float(approach_pull["out_end_s"])
+            out_s = float(approach_pull.get("out_s", 1.5))
+            from_value = float(approach_pull.get("from", 1.0))
+        except (TypeError, ValueError):
+            raise PlanError("APPROACH_PULL|fields must be numeric")
+        if not all(math.isfinite(v) for v in (in_s, out_end_s, out_s, from_value)):
+            raise PlanError("APPROACH_PULL|fields must be finite")
+        if in_s <= 0.0 or out_s <= 0.0 or out_end_s <= 0.0:
+            raise PlanError("APPROACH_PULL|in_s, out_s and out_end_s must be positive")
+        approach_keys = [[0.0, from_value], [in_s, 0.0],
+                         [out_end_s - out_s, 0.0], [out_end_s, from_value]]
+    if approach_keys is None:
+        return []
+    if not isinstance(approach_keys, (list, tuple)):
+        raise PlanError("APPROACH_KEYS|need [[seconds_from_frame_start,value], ...]")
+    out = []
+    for index, row in enumerate(approach_keys):
+        if not isinstance(row, (list, tuple)) or len(row) != 2:
+            raise PlanError("APPROACH_KEYS|row %d must be [seconds,value]" % index)
+        if any(isinstance(v, bool) for v in row):
+            raise PlanError("APPROACH_KEYS|row %d must be numeric" % index)
+        try:
+            seconds, value = float(row[0]), float(row[1])
+        except (TypeError, ValueError):
+            raise PlanError("APPROACH_KEYS|row %d must be numeric" % index)
+        if not math.isfinite(seconds) or not math.isfinite(value):
+            raise PlanError("APPROACH_KEYS|row %d must be finite" % index)
+        if seconds < 0.0:
+            raise PlanError("APPROACH_TIME|row %d is before frame_start" % index)
+        if not 0.0 <= value <= 1.0:
+            raise PlanError("APPROACH_VALUE|row %d value %.7g is outside 0..1" % (index, value))
+        if out and seconds <= out[-1][0]:
+            raise PlanError("APPROACH_TIME|seconds must be strictly increasing")
+        out.append([seconds, value])
+    return out
+
+
+def approach_display_keys(seconds_keys, frame_start, display_fps):
+    """Convert validated seconds keys to integer display frames; APPLY converts those frames to ticks."""
+    out = [[int(frame_start) + int(round(seconds * float(display_fps))), value]
+           for seconds, value in seconds_keys]
+    if any(b[0] <= a[0] for a, b in zip(out, out[1:])):
+        raise PlanError("APPROACH_FRAME_COLLISION|seconds collapse onto the same display frame")
+    return out
+
+
+def approach_report(plan: dict):
+    """DRY-facing focus-pull timing and the maximum size/defocus contributed by Approach."""
+    seconds = plan.get("approach_seconds") or []
+    if not seconds:
+        return None
+    maximum = max(value for _, value in seconds)
+    params = plan["params"]
+    return {
+        "keys_seconds_from_frame_start": copy.deepcopy(seconds),
+        "keys_display_frames": copy.deepcopy(plan["approach_keys"]),
+        "max_approach": maximum,
+        "max_grow_multiplier": 1.0 + params["ApproachGrow"] * maximum,
+        "max_approach_defocus": params["ApproachBlur"] * maximum,
+        "max_total_defocus_no_hand": min(1.0, params["Defocus"] + params["ApproachBlur"] * maximum),
+    }
+
+
 def created_assets_for(plan: dict, existing_shared) -> list:
     """Shared assets are created only when absent; per-run assets are always created."""
     existing = set(existing_shared)
@@ -367,7 +445,7 @@ def normalized_args(raw: dict) -> dict:
     allowed = {
         "mode", "confirm", "run_id", "apply_run", "world", "sequence", "light_label", "light_labels",
         "atlas_png", "manifest", "mi_path", "texture_path", "frame_start", "frame_end", "params",
-        "atlas_compatible", "display_fps",
+        "atlas_compatible", "display_fps", "approach_keys", "approach_pull",
     }
     unknown = sorted(set(raw) - allowed)
     if unknown:
@@ -414,6 +492,7 @@ def normalized_args(raw: dict) -> dict:
     unknown_params = sorted(set(params) - set(SCALAR_DEFAULTS))
     if unknown_params:
         raise PlanError("UNKNOWN_PARAMS|%s" % unknown_params)
+    approach_seconds = normalize_approach_keys(raw.get("approach_keys"), raw.get("approach_pull"))
     return {
         "mode": mode, "confirm": raw.get("confirm"), "run_id": run_id,
         "apply_run": str(apply_run) if apply_run else None,
@@ -422,6 +501,7 @@ def normalized_args(raw: dict) -> dict:
         "mi_path": mi_path, "texture_path": texture_path, "frame_start": start, "frame_end": end,
         "params": params, "atlas_compatible": atlas_compatible,
         "display_fps": float(raw["display_fps"]) if raw.get("display_fps") else None,
+        "approach_seconds": approach_seconds,
     }
 
 
@@ -474,6 +554,7 @@ def plan_from_args(args: dict) -> dict:
                         "turn 0..5 deg, breath 0..0.2, handblur 0..1")
     if not args.get("display_fps"):
         raise PlanError("DISPLAY_FPS|required (Clock keys and schedules are in display frames); I2 is 25")
+    approach_keys = approach_display_keys(args.get("approach_seconds") or [], args["frame_start"], args["display_fps"])
     fps = take.get("fps")
     schedule = manifest.get("schedule")
     if schedule:
@@ -487,7 +568,7 @@ def plan_from_args(args: dict) -> dict:
         frame_keys = [[args["frame_start"], 0.0], [args["frame_end"], float(frames)]]
         interp, range_end = "LINEAR", args["frame_end"]
     plan = {
-        "schema_version": 2, "run": args["run_id"], "world": args["world"], "sequence": args["sequence"],
+        "schema_version": 3, "run": args["run_id"], "world": args["world"], "sequence": args["sequence"],
         "light_labels": list(args["light_labels"]), "atlas_png": args["atlas_png"],
         "atlas_sha256": atlas_sha, "manifest": args["manifest"],
         "atlas_compatible": bool(args.get("atlas_compatible", True)),
@@ -496,6 +577,8 @@ def plan_from_args(args: dict) -> dict:
         "master": master_for(args.get("atlas_compatible", True)), "mpc": MPC, "mi": args["mi_path"], "texture": args["texture_path"],
         "frame_parameter": FRAME_PARAMETER,
         "frame_keys": frame_keys, "frame_interp": interp, "display_fps": float(args["display_fps"]),
+        "approach_seconds": copy.deepcopy(args.get("approach_seconds") or []),
+        "approach_keys": approach_keys,
         "sequence_range_requested": [args["frame_start"], range_end], "params": params,
         "take_fps": float(fps) if fps else None,
         "atlas": {"px": px, "cols": cols, "rows": rows, "frames": frames,
@@ -546,6 +629,9 @@ def preflight_refusals(mode: str, args: dict, state: dict, plan=None) -> list[st
         # Playback end treated as exclusive [inf]; keys must sit strictly inside it.
         if plan and (plan["frame_keys"][0][0] < playback[0] or plan["frame_keys"][-1][0] >= playback[1]):
             out.append("KEYS_OUTSIDE_PLAYBACK|keys=%s playback=%s" % (plan["sequence_range_requested"], playback))
+        approach_keys = (plan or {}).get("approach_keys") or []
+        if approach_keys and (approach_keys[0][0] < playback[0] or approach_keys[-1][0] >= playback[1]):
+            out.append("APPROACH_KEYS_OUTSIDE_PLAYBACK|keys=%s playback=%s" % (approach_keys, playback))
     elif mode == "VERIFY":
         if not state.get("record_exists"):
             out.append("NOTHING_TO_VERIFY")
@@ -561,8 +647,10 @@ def apply_model(before: dict, plan: dict) -> dict:
     after = copy.deepcopy(before)
     playback = before["playback"]
     after["track"] = {"name": TRACK_NAME, "mpc": MPC, "parameter": FRAME_PARAMETER,
-                      "keys": copy.deepcopy(plan["frame_keys"]), "channel_count": 2,
+                      "keys": copy.deepcopy(plan["frame_keys"]),
+                      "channel_count": 2 + int(bool(plan["approach_keys"])),
                       "clock_keys": clock_keys(playback, plan["display_fps"]),
+                      "approach_keys": copy.deepcopy(plan["approach_keys"]),
                       "range": [int(playback[0]), int(playback[1])]}
     for label in plan["light_labels"]:
         after["lights"][label] = plan["mi"]
@@ -587,7 +675,34 @@ def comparable(current: dict, recorded: dict) -> dict:
 
 
 def snapshot_diff(a: dict, b: dict) -> list[str]:
-    return [] if a == b else ["SNAPSHOT_DIFF|got=%s|want=%s" % (_digest(a), _digest(b))]
+    """Compare read-back numerically; channel values are float32 and must not be hash-compared after rounding."""
+    differences = []
+
+    def walk(got, want, path):
+        if isinstance(got, dict) and isinstance(want, dict):
+            if set(got) != set(want):
+                differences.append("%s.keys got=%s want=%s" % (path, sorted(got), sorted(want)))
+                return
+            for key in sorted(want):
+                walk(got[key], want[key], "%s.%s" % (path, key))
+            return
+        if isinstance(got, list) and isinstance(want, list):
+            if len(got) != len(want):
+                differences.append("%s.length got=%d want=%d" % (path, len(got), len(want)))
+                return
+            for index, (got_value, want_value) in enumerate(zip(got, want)):
+                walk(got_value, want_value, "%s[%d]" % (path, index))
+            return
+        numeric = (int, float)
+        if isinstance(got, numeric) and not isinstance(got, bool) and isinstance(want, numeric) and not isinstance(want, bool):
+            if not math.isclose(float(got), float(want), rel_tol=0.0, abs_tol=FLOAT_TOL):
+                differences.append("%s got=%.9g want=%.9g" % (path, got, want))
+            return
+        if got != want:
+            differences.append("%s got=%r want=%r" % (path, got, want))
+
+    walk(a, b, "snapshot")
+    return ["SNAPSHOT_DIFF|" + " || ".join(differences[:8])] if differences else []
 
 
 def exact_dirty(actual: dict, expected_content: list[str]) -> list[str]:
@@ -678,13 +793,15 @@ def _track_snapshot(seq):
     all_channels = list(section.get_all_channels())
     channels = [c for c in all_channels if channel_param(c.channel_name) == FRAME_PARAMETER]
     clocks = [c for c in all_channels if channel_param(c.channel_name) == CLOCK_PARAMETER]
+    approaches = [c for c in all_channels if channel_param(c.channel_name) == APPROACH_PARAMETER]
     span = None
     if section.has_start_frame() and section.has_end_frame():
         span = [int(section.get_start_frame()), int(section.get_end_frame())]
     return {"name": TRACK_NAME, "mpc": _path_of(track.get_editor_property("mpc")), "parameter": FRAME_PARAMETER,
             "keys": _key_rows(channels[0]) if len(channels) == 1 else [],
-            "channel_count": len(channels) + len(clocks),
-            "clock_keys": [[f, round(v, 4)] for f, v in _key_rows(clocks[0])] if len(clocks) == 1 else [],
+            "channel_count": len(channels) + len(clocks) + len(approaches),
+            "clock_keys": _key_rows(clocks[0]) if len(clocks) == 1 else [],
+            "approach_keys": _key_rows(approaches[0]) if len(approaches) == 1 else [],
             "range": span}
 
 
@@ -952,6 +1069,9 @@ def _add_frame_track(seq, mpc, plan, ticks_per_frame, run):
     for frame, value in clock_keys(playback, plan["display_fps"]):
         section.add_scalar_parameter_key(CLOCK_PARAMETER, unreal.FrameNumber(int(frame) * ticks_per_frame),
                                          float(value), unreal.MovieSceneKeyInterpolation.LINEAR)
+    for frame, value in plan["approach_keys"]:
+        section.add_scalar_parameter_key(APPROACH_PARAMETER, unreal.FrameNumber(int(frame) * ticks_per_frame),
+                                         float(value), unreal.MovieSceneKeyInterpolation.LINEAR)
     return track
 
 
@@ -996,10 +1116,12 @@ def run_dry(args, plan, run):
     state = _live_state(args, seq, run, plan)
     refusals = preflight_refusals("DRY", args, state, plan)
     timing = timing_report(plan, state["display_fps"]) if state["display_fps"] else None
+    approach = approach_report(plan)
     border = None
     if plan["params"]["BorderDepth"] > 0.0:
         border = {"max_scale_in_cone": max_scale_for_border(plan["params"]["BorderWidth"], plan["params"]["BorderAspect"])}
     report = {"run": run, "mode": "DRY", "plan": plan, "state": state, "api_probe": probe, "timing": timing,
+              "approach": approach,
               "border": border,
               "created_assets": created_assets_for(plan, state["existing_shared"]),
               "refusals": refusals, "apply_ready": not refusals}
@@ -1012,6 +1134,10 @@ def run_dry(args, plan, run):
         ",".join(p.rsplit("/", 1)[1] for p in state["existing_shared"]) or "none", state["ticks_per_frame"],
         plan["master"].rsplit("/", 1)[1], plan["params"]["BorderDepth"])
     unreal.log(marker)
+    if approach:
+        unreal.log("%s_APPROACH|run=%s|seconds=%s|frames=%s|max_grow=%.4f|max_defocus=%.4f" % (
+            MARK, run, approach["keys_seconds_from_frame_start"], approach["keys_display_frames"],
+            approach["max_grow_multiplier"], approach["max_approach_defocus"]))
     if timing and "speed_vs_take" in timing and abs(timing["speed_vs_take"] - 1.0) > SPEED_WARN:
         unreal.log_warning("%s_TIMING|run=%s|speed_vs_take=%.3f|native_frame_end=%d|display_fps=%.3f" % (
             MARK, run, timing["speed_vs_take"], timing["native_frame_end"], timing["display_fps"]))
@@ -1047,7 +1173,7 @@ def run_apply(args, plan, run):
     if os.path.getsize(source) != os.path.getsize(copied):
         _stop(run, "BACKUP_SIZE|%s" % copied)
     record_path = record_file(_here(), run)
-    record = {"schema_version": 2, "run": run, "applied": False, "verified": False, "plan": plan,
+    record = {"schema_version": 3, "run": run, "applied": False, "verified": False, "plan": plan,
               "plan_digest": plan["digest"], "backup": backup, "backup_files": [copied],
               "snapshot_before": before, "sequence": args["sequence"], "created_assets": created,
               "reused_assets": sorted(state["existing_shared"]), "ticks_per_frame": ticks_per_frame,
