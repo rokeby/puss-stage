@@ -12,12 +12,14 @@ namespace InfinityStageShowKeys
 /** Script cursor (Cue Director). Gary, 9 Oct: not PageUp/PageDown, which some keyboards lack. */
 INFINITYSTAGE_API FKey ScriptPrevious();   // ","
 INFINITYSTAGE_API FKey ScriptNext();       // "."
+INFINITYSTAGE_API FKey Breath();           // "P"
 /** Every key the show controller binds (Right/Left appear once each though they bind press and release). */
 INFINITYSTAGE_API TArray<FKey> AllBound();
 /** The same as key names ("Comma", "Period", ...), for code that does not link InputCore (the tests). */
 INFINITYSTAGE_API TArray<FName> AllBoundNames();
 INFINITYSTAGE_API FName ScriptPreviousName();
 INFINITYSTAGE_API FName ScriptNextName();
+INFINITYSTAGE_API FName BreathName();
 }
 
 /** Keyboard transport for the focused game viewport, using the one Show player. */
@@ -49,6 +51,8 @@ public:
     void ToggleRehearsalBar();
     /** T: surtitle blackout (InfinityStage.Surtitles). */
     void ToggleSurtitles();
+    /** P: live Passage pause with a real-time mechanism clock. */
+    void ToggleBreath();
 
 protected:
     virtual void SetupInputComponent() override;

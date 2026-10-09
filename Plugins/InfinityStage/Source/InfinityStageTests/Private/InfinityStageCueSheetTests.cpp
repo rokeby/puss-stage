@@ -149,6 +149,7 @@ bool FInfinityStageCueDirectorSettingsTest::RunTest(const FString& Parameters)
 {
     FInfinityCueDirectorSettings Settings;
     Settings.bRunThrough = true;
+    Settings.bAllowBreathInPerformance = false;
     const FGuid SceneOne = FGuid::NewGuid();
     const FGuid SceneTwo = FGuid::NewGuid();
     Settings.StopAfterSegments = {SceneOne, SceneTwo};
@@ -161,6 +162,7 @@ bool FInfinityStageCueDirectorSettingsTest::RunTest(const FString& Parameters)
     Read.Parse(Text, Warnings);
     TestEqual(TEXT("No warnings on our own output"), Warnings.Num(), 0);
     TestTrue(TEXT("Run-through survives"), Read.bRunThrough);
+    TestFalse(TEXT("Performance breath setting survives"), Read.bAllowBreathInPerformance);
     TestTrue(TEXT("Stops survive, in order"), Read.StopAfterSegments == Settings.StopAfterSegments);
     TestTrue(TEXT("Held GO numbers survive"), Read.HoldGoNumbers == Settings.HoldGoNumbers);
 
@@ -226,11 +228,13 @@ bool FInfinityStageScriptKeysTest::RunTest(const FString& Parameters)
 {
     TestTrue(TEXT("Back is the comma key"), InfinityStageShowKeys::ScriptPreviousName() == FName(TEXT("Comma")));
     TestTrue(TEXT("On is the full-stop key"), InfinityStageShowKeys::ScriptNextName() == FName(TEXT("Period")));
+    TestTrue(TEXT("Passage breath is P"), InfinityStageShowKeys::BreathName() == FName(TEXT("P")));
     // Compared by name: this test module does not link InputCore (EKeys, FKey::GetFName).
     const TArray<FName> Bound = InfinityStageShowKeys::AllBoundNames();
     TestFalse(TEXT("PageUp is not bound"), Bound.Contains(FName(TEXT("PageUp"))));
     TestFalse(TEXT("PageDown is not bound"), Bound.Contains(FName(TEXT("PageDown"))));
     TestTrue(TEXT("The script keys are in the bound set"), Bound.Contains(FName(TEXT("Comma"))) && Bound.Contains(FName(TEXT("Period"))));
+    TestTrue(TEXT("The breath key is in the bound set"), Bound.Contains(FName(TEXT("P"))));
     // Control: no key does two jobs (a clash would make one of them silently win).
     TSet<FName> Unique(Bound);
     TestEqual(TEXT("Control: every bound key is distinct"), Unique.Num(), Bound.Num());

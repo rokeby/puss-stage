@@ -39,10 +39,11 @@ namespace InfinityStageShowKeys
 {
 FKey ScriptPrevious() { return EKeys::Comma; }
 FKey ScriptNext() { return EKeys::Period; }
+FKey Breath() { return EKeys::P; }
 TArray<FKey> AllBound()
 {
     // Keep in step with SetupInputComponent below.
-    return { EKeys::Right, EKeys::Left, EKeys::SpaceBar, EKeys::H, ScriptNext(), ScriptPrevious(), EKeys::F5, EKeys::B };
+    return { EKeys::Right, EKeys::Left, EKeys::SpaceBar, EKeys::H, ScriptNext(), ScriptPrevious(), EKeys::F5, EKeys::B, EKeys::T, Breath() };
 }
 TArray<FName> AllBoundNames()
 {
@@ -55,6 +56,7 @@ TArray<FName> AllBoundNames()
 }
 FName ScriptPreviousName() { return ScriptPrevious().GetFName(); }
 FName ScriptNextName() { return ScriptNext().GetFName(); }
+FName BreathName() { return Breath().GetFName(); }
 }
 
 AInfinityStageShowPlayerController::AInfinityStageShowPlayerController()
@@ -80,6 +82,7 @@ void AInfinityStageShowPlayerController::SetupInputComponent()
     InputComponent->BindKey(EKeys::F5, IE_Pressed, this, &AInfinityStageShowPlayerController::ReloadCueSheet);
     InputComponent->BindKey(EKeys::B, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleRehearsalBar);
     InputComponent->BindKey(EKeys::T, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleSurtitles);
+    InputComponent->BindKey(InfinityStageShowKeys::Breath(), IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleBreath);
 }
 
 void AInfinityStageShowPlayerController::NextScriptLine()
@@ -121,6 +124,14 @@ void AInfinityStageShowPlayerController::ToggleRehearsalBar()
 void AInfinityStageShowPlayerController::ToggleSurtitles()
 {
     InfinityStageSurtitles::ToggleBlackout();
+}
+
+void AInfinityStageShowPlayerController::ToggleBreath()
+{
+    UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
+    ReportTransportResult(this, Transport
+        ? (Transport->IsBreathing() ? Transport->EndBreath() : Transport->BeginBreath())
+        : EInfinityTransportResult::NoPlayer);
 }
 
 void AInfinityStageShowPlayerController::ToggleDirectorHud()
@@ -182,6 +193,12 @@ void AInfinityStageShowPlayerController::ApplyHoldLeftAction(const EInfinityHold
 void AInfinityStageShowPlayerController::BeginRightInput()
 {
     UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
+    if (Transport && Transport->IsBreathing())
+    {
+        ReportTransportResult(this, Transport->EndBreath());
+        HoldRightState.Reset();
+        return;
+    }
     if (Transport && (Transport->ReleaseActiveHold() || Transport->ReleaseActiveVamp()))
     {
         // A GO at a hold, or a vamp release, is the whole RIGHT gesture. Its key-up must not also

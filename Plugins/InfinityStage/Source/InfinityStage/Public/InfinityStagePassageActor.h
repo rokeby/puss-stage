@@ -208,6 +208,9 @@ private:
     bool bMechanismSoundHistoryValid = false;
     double LastMechanismSoundMasterFrame = 0.0;
     double LastMechanismSoundWorldSeconds = 0.0;
+    double LastMechanismSoundBreathElapsedSeconds = 0.0;
+    double LastMechanismSoundBreathRealSeconds = 0.0;
+    bool bMechanismSoundBreathHistoryValid = false;
     bool bMechanismSoundDryRunForTests = false;
     TArray<FName> FiredMechanismSoundsForTests;
 

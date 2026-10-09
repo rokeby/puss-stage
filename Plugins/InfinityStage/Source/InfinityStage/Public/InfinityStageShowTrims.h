@@ -96,6 +96,9 @@ public:
 
     FInfinityShowTrimValues GetValues() const;
 
+    /** Runtime-only overlay used by Passage breath; it changes Music only, never Ambience. */
+    void SetBreathMusicMix(float VolumeMultiplier, float PitchMultiplier);
+
     virtual void Tick(float DeltaSeconds) override;
     virtual bool ShouldTickIfViewportsOnly() const override { return true; }
     virtual void PostRegisterAllComponents() override;
@@ -109,6 +112,9 @@ private:
 
     float AppliedMasterGain = 1.0f;
     float AppliedMusicGain = 1.0f;
+    float AppliedMusicPitch = 1.0f;
     float AppliedAmbienceGain = 1.0f;
+    float BreathMusicVolume = 1.0f;
+    float BreathMusicPitch = 1.0f;
     bool bMixPushed = false;
 };

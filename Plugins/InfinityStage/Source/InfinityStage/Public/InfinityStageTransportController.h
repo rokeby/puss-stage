@@ -27,7 +27,74 @@ enum class EInfinityTransportResult : uint8
     NoPlayer,
     NoSegment,
     NotReady,
-    UnsafeExternalClock
+    UnsafeExternalClock,
+    BreathNotAllowed
+};
+
+/** Pure output of the live breath music envelope. */
+struct INFINITYSTAGE_API FInfinityBreathAudioValue
+{
+    float Volume = 1.0f;
+    float Pitch = 1.0f;
+    bool bMute = false;
+};
+
+/**
+ * Gary-tunable music wind-down/up. The transport applies this to the Music
+ * SoundClass hook when one is present; Sequencer audio itself cannot keep
+ * sounding after its owning player is paused.
+ */
+USTRUCT(BlueprintType)
+struct INFINITYSTAGE_API FInfinityBreathAudio
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Breath", meta = (ClampMin = "0.01", Units = "s"))
+    float RampSeconds = 3.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Breath", meta = (ClampMin = "0.01", ClampMax = "1.0"))
+    float PitchFloor = 0.5f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Breath", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float VolumeFloor = 0.0f;
+
+    /** Shape of the fade. 1 is linear; larger values linger before falling. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Breath", meta = (ClampMin = "0.1", UIMax = "6.0"))
+    float EaseExponent = 2.0f;
+
+    /** Extra downward pitch arc at the middle of either transition. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Breath", meta = (ClampMin = "0.0", ClampMax = "0.5"))
+    float StrangePitchDip = 0.08f;
+
+    FInfinityBreathAudioValue Evaluate(
+        double ElapsedSeconds,
+        const FInfinityBreathAudioValue& Start,
+        const FInfinityBreathAudioValue& Target,
+        bool bEntering) const;
+};
+
+/** Pure real-time breath clock, injectable in automation without a world. */
+struct INFINITYSTAGE_API FInfinityBreathClock
+{
+    bool bActive = false;
+    double StartedAtRealSeconds = 0.0;
+
+    void Begin(double RealSeconds)
+    {
+        bActive = true;
+        StartedAtRealSeconds = RealSeconds;
+    }
+    void End() { bActive = false; }
+    double Elapsed(double RealSeconds) const
+    {
+        return bActive ? FMath::Max(0.0, RealSeconds - StartedAtRealSeconds) : 0.0;
+    }
+    static double PhaseSeconds(double ShowSeconds, double BreathElapsedSeconds, bool bBreathing)
+    {
+        // The false branch returns the input expression itself: outside a breath
+        // no offset, conversion or accumulated state is allowed to change it.
+        return bBreathing ? ShowSeconds + BreathElapsedSeconds : ShowSeconds;
+    }
 };
 
 /** Pure input decisions for the viewport's tap-or-hold Right Arrow binding. */
@@ -336,6 +403,10 @@ struct INFINITYSTAGE_API FInfinityGoCue
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
     bool bHold = true;
 
+    /** BREATH markers pause a Passage on crossing instead of acting as HOLD/PASS. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
+    bool bBreath = false;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
     int32 SegmentIndex = INDEX_NONE;
 
@@ -346,9 +417,22 @@ struct INFINITYSTAGE_API FInfinityGoCue
 
 namespace InfinityStageGoCues
 {
-/** Parses "GO <number> [HOLD|PASS] <label>". OutMode: -1 unmarked, 0 PASS, 1 HOLD. */
+/** Parses "GO <number> [HOLD|PASS|BREATH] <label>". Modes: -1 unmarked, 0 PASS, 1 HOLD, 2 BREATH. */
 INFINITYSTAGE_API bool ParseMarkerLabel(const FString& Text, FString& OutNumber, FString& OutLabel, int32& OutMode);
 }
+
+/** Pure crossing state for GO ... BREATH markers. Navigation never triggers one. */
+struct INFINITYSTAGE_API FInfinityBreathCueState
+{
+    void Reset();
+    void OnNavigation(FFrameNumber TargetFrame);
+    int32 Tick(FFrameNumber CurrentFrame, bool bPlayingForward, const TArray<FInfinityGoCue>& Cues);
+
+private:
+    TSet<int32> Crossed;
+    FFrameNumber PreviousFrame = 0;
+    bool bHasPreviousFrame = false;
+};
 
 /**
  * Pure hold arming/release. A HOLD arms only when forward playback crosses its
@@ -455,6 +539,14 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport")
     bool bPerformanceMode = true;
 
+    /** Gary wants live breaths available in performance; turn off only for a locked show. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Breath")
+    bool bAllowBreathInPerformance = true;
+
+    /** Music envelope only. Route, camera and Master time remain frozen. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Breath")
+    FInfinityBreathAudio BreathAudio;
+
     /** Continue a playing Passage into its immediately following cinematic Scene.
      * The Scene still holds at its end; this never starts the next Passage. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport")
@@ -503,7 +595,8 @@ public:
     void SetVideoAudioMuted(bool bMuted);
 
     /** Sets run-through, its stops and its kept holds in one go (the Cue Director's settings file). */
-    void ApplyCueDirector(bool bInRunThrough, const TArray<FGuid>& StopAfter, const TArray<FString>& HoldGoNumbers);
+    void ApplyCueDirector(bool bInRunThrough, const TArray<FGuid>& StopAfter,
+        const TArray<FString>& HoldGoNumbers, bool bInAllowBreathInPerformance);
 
     /** Pure: in run-through, the first segment at or after From that is a stop, else the last segment. */
     static int32 RunThroughStopIndex(const TArray<FInfinityTransportSegment>& InSegments, int32 From, const TArray<FGuid>& StopAfter);
@@ -749,6 +842,24 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     EInfinityTransportResult PauseTransport();
 
+    /** Pauses the Master at its exact frame and advances only the Passage breath clock. */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport|Breath")
+    EInfinityTransportResult BeginBreath();
+
+    /** Leaves breath and resumes forward from the same Master frame. */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport|Breath")
+    EInfinityTransportResult EndBreath();
+
+    UFUNCTION(BlueprintPure, Category = "Infinity Stage|Transport|Breath")
+    bool IsBreathing() const { return BreathClock.bActive; }
+
+    UFUNCTION(BlueprintPure, Category = "Infinity Stage|Transport|Breath")
+    double GetBreathElapsedSeconds() const;
+
+    /** Pure refusal seam used by automation and BeginBreath. */
+    static EInfinityTransportResult CanBeginBreath(
+        EInfinityCueType SegmentType, bool bInPerformanceMode, bool bAllowInPerformance);
+
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     EInfinityTransportResult ResumeForward();
 
@@ -877,6 +988,18 @@ private:
 
     FInfinityGoHoldState GoHoldState;
 
+    FInfinityBreathCueState BreathCueState;
+
+    FInfinityBreathClock BreathClock;
+
+    FInfinityBreathAudioValue AppliedBreathAudio;
+    FInfinityBreathAudioValue BreathAudioTransitionStart;
+    FInfinityBreathAudioValue BreathAudioTransitionTarget;
+    double BreathAudioTransitionStartedAtRealSeconds = 0.0;
+    bool bBreathAudioTransitionActive = false;
+    bool bBreathAudioEntering = false;
+    bool bMasterMusicMutedForBreath = false;
+
     /** Set by a forward boundary play: the segment whose end it will stop on. */
     FInfinityTransportRest BoundaryEndRest;
 
@@ -943,6 +1066,13 @@ private:
     /** Returns true when this tick looped and no camera boundary work should run. */
     bool HandleVampPlayback(FFrameNumber CurrentFrame);
     bool HandleGoHold(FFrameNumber CurrentFrame);
+    bool HandleBreathCue(FFrameNumber CurrentFrame);
+    void FinishBreath(bool bResume);
+    void TickBreathAudio();
+    void ApplyBreathAudio(const FInfinityBreathAudioValue& Value);
+    double GetRealTimeSeconds() const;
+    void EvaluateBreathingPassage(FFrameNumber MasterFrame);
+    void SetBreathMusicMuted(bool bMuted);
     void SetManagedMasterAudioMuted(bool bMuted);
     void StopFastForwardPlayback();
 

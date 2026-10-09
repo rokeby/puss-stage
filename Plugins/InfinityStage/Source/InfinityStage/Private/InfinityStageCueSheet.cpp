@@ -293,6 +293,7 @@ void FInfinityScriptCursor::SyncToSegment(const FInfinityCueSheet& Sheet, const 
 void FInfinityCueDirectorSettings::Parse(const FString& Text, TArray<FString>& OutWarnings)
 {
     bRunThrough = false;
+    bAllowBreathInPerformance = true;
     StopAfterSegments.Reset();
     HoldGoNumbers.Reset();
     UseVideoScenes.Reset();
@@ -324,6 +325,10 @@ void FInfinityCueDirectorSettings::Parse(const FString& Text, TArray<FString>& O
         if (Key.Equals(TEXT("run_through"), ESearchCase::IgnoreCase))
         {
             bRunThrough = Value.ToBool();
+        }
+        else if (Key.Equals(TEXT("allow_breath_in_performance"), ESearchCase::IgnoreCase))
+        {
+            bAllowBreathInPerformance = Value.ToBool();
         }
         else if (Key.Equals(TEXT("stop_after"), ESearchCase::IgnoreCase))
         {
@@ -368,6 +373,8 @@ FString FInfinityCueDirectorSettings::Serialize(TFunctionRef<FString(const FGuid
     FString Out = TEXT("# Puss Cue Director: how the show runs in performance. Written by the Cue Desk panel;\n")
         TEXT("# safe to edit by hand. Applied in PIE at start and on F5.\n");
     Out += FString::Printf(TEXT("run_through = %s\n"), bRunThrough ? TEXT("true") : TEXT("false"));
+    Out += FString::Printf(TEXT("allow_breath_in_performance = %s\n"),
+        bAllowBreathInPerformance ? TEXT("true") : TEXT("false"));
     for (const FGuid& Guid : StopAfterSegments)
     {
         Out += FString::Printf(TEXT("stop_after = %s   # %s\n"), *Guid.ToString(EGuidFormats::Digits), *LabelOf(Guid));
@@ -536,7 +543,8 @@ bool UInfinityStageCueDirectorSubsystem::ApplyToTransport()
     {
         return false;   // retried every tick until the Show transport exists
     }
-    Transport->ApplyCueDirector(Settings.bRunThrough, Settings.StopAfterSegments, Settings.HoldGoNumbers);
+    Transport->ApplyCueDirector(Settings.bRunThrough, Settings.StopAfterSegments, Settings.HoldGoNumbers,
+        Settings.bAllowBreathInPerformance);
     return true;
 }
 

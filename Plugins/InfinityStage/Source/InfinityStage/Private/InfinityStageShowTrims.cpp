@@ -90,6 +90,16 @@ FInfinityShowTrimValues AInfinityStageShowTrims::GetValues() const
     return Values;
 }
 
+void AInfinityStageShowTrims::SetBreathMusicMix(const float VolumeMultiplier, const float PitchMultiplier)
+{
+    BreathMusicVolume = FMath::Clamp(VolumeMultiplier, 0.0f, 1.0f);
+    BreathMusicPitch = FMath::Max(0.01f, PitchMultiplier);
+    if (GetWorld() && GetWorld()->IsGameWorld())
+    {
+        ApplySound(GetValues());
+    }
+}
+
 void AInfinityStageShowTrims::Tick(const float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
@@ -118,9 +128,12 @@ void AInfinityStageShowTrims::ApplySound(const FInfinityShowTrimValues& Values)
             AppliedMasterGain = Master;
         }
     }
-    const float Music = InfinityStageShowTrims::DbToGain(Values.MusicGainDb);
+    const float Music = InfinityStageShowTrims::DbToGain(Values.MusicGainDb) * BreathMusicVolume;
+    const float MusicPitch = BreathMusicPitch;
     const float Ambience = InfinityStageShowTrims::DbToGain(Values.AmbienceGainDb);
-    const bool bMusicChanged = MusicSoundClass && !FMath::IsNearlyEqual(Music, AppliedMusicGain, 1.0e-4f);
+    const bool bMusicChanged = MusicSoundClass
+        && (!FMath::IsNearlyEqual(Music, AppliedMusicGain, 1.0e-4f)
+            || !FMath::IsNearlyEqual(MusicPitch, AppliedMusicPitch, 1.0e-4f));
     const bool bAmbienceChanged = AmbienceSoundClass && !FMath::IsNearlyEqual(Ambience, AppliedAmbienceGain, 1.0e-4f);
     if (!bMusicChanged && !bAmbienceChanged)
     {
@@ -137,8 +150,9 @@ void AInfinityStageShowTrims::ApplySound(const FInfinityShowTrimValues& Values)
     }
     if (bMusicChanged)
     {
-        UGameplayStatics::SetSoundMixClassOverride(this, SoundMix, MusicSoundClass, Music, 1.0f, 0.0f, true);
+        UGameplayStatics::SetSoundMixClassOverride(this, SoundMix, MusicSoundClass, Music, MusicPitch, 0.0f, true);
         AppliedMusicGain = Music;
+        AppliedMusicPitch = MusicPitch;
     }
     if (bAmbienceChanged)
     {
@@ -166,6 +180,9 @@ void AInfinityStageShowTrims::EndPlay(const EEndPlayReason::Type EndPlayReason)
         }
     }
     AppliedMasterGain = 1.0f;
+    AppliedMusicGain = 1.0f;
+    AppliedMusicPitch = 1.0f;
+    AppliedAmbienceGain = 1.0f;
     bMixPushed = false;
     Super::EndPlay(EndPlayReason);
 }

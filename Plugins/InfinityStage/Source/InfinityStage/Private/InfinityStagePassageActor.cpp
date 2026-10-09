@@ -32,6 +32,7 @@
 #include "HAL/IConsoleManager.h"
 #include "InfinityStageCompiler.h"
 #include "InfinityStageShowAsset.h"
+#include "InfinityStageTransportController.h"
 #include "InfinityStageWingLibraryAsset.h"
 #include "LevelSequence.h"
 #include "Materials/MaterialInterface.h"
@@ -1326,6 +1327,14 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
         {
             return Candidate.PassageGuid == Passage->PassageGuid;
         });
+    const double TicksPerSecond = ShowAsset->TickResolution.AsDecimal();
+    const UInfinityStageTransportController* Transport =
+        UInfinityStageTransportController::FindForWorld(GetWorld());
+    const bool bBreathing = Transport && Transport->IsBreathing();
+    const double BreathElapsedSeconds = bBreathing ? Transport->GetBreathElapsedSeconds() : 0.0;
+    const double EffectiveMechanismFrame = bBreathing
+        ? MasterFrame.Value + BreathElapsedSeconds * TicksPerSecond
+        : static_cast<double>(MasterFrame.Value);
     TMap<FGuid, int32> WingOrdinalsByCue;
     TMap<FGuid, FCameraGustTiming> GustTimingsByCue;
     for (int32 WingOrdinal = 0; WingOrdinal < Passage->Wings.Num(); ++WingOrdinal)
@@ -1356,7 +1365,7 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
     {
         bHasWingModulation = WingSection->EvaluateWingModulation(
             *Passage,
-            FFrameTime(MasterFrame),
+            bBreathing ? FFrameTime::FromDecimal(EffectiveMechanismFrame) : FFrameTime(MasterFrame),
             WingModulation);
     }
     // Most cues share a phase origin, so the rate integral is resolved once per
@@ -1394,7 +1403,7 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
     }
     else
     {
-        SoundWorldSeconds = SoundWorld->GetTimeSeconds();
+        SoundWorldSeconds = bBreathing ? SoundWorld->GetRealTimeSeconds() : SoundWorld->GetTimeSeconds();
         SoundCameraLocation = Route->GetLocationAtDistanceAlongSpline(
             static_cast<float>(EvaluatedCameraDistanceCm),
             ESplineCoordinateSpace::World);
@@ -1404,9 +1413,21 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
             // not at a cue. This step only records history; it fires nothing.
             PreloadMechanismSounds(*Passage);
         }
+        else if (bBreathing)
+        {
+            if (bMechanismSoundBreathHistoryValid)
+            {
+                const double ShowDeltaSeconds = BreathElapsedSeconds - LastMechanismSoundBreathElapsedSeconds;
+                const double RealElapsedSeconds = SoundWorldSeconds - LastMechanismSoundBreathRealSeconds;
+                bForwardSoundStep = InfinityStageMechanismSound::IsForwardPlaybackStep(
+                    ShowDeltaSeconds,
+                    RealElapsedSeconds,
+                    CVarInfinityStageMechanismSoundMaxRateRatio.GetValueOnGameThread(),
+                    CVarInfinityStageMechanismSoundMaxStepSeconds.GetValueOnGameThread());
+            }
+        }
         else
         {
-            const double TicksPerSecond = ShowAsset->TickResolution.AsDecimal();
             const double ShowDeltaSeconds = TicksPerSecond > UE_DOUBLE_SMALL_NUMBER
                 ? (MasterFrame.Value - LastMechanismSoundMasterFrame) / TicksPerSecond
                 : 0.0;
@@ -1491,8 +1512,14 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
                 const double ActivationFrame = Timing->GroupTriggerFrame
                     + StaggerOrdinal * Timing->EffectiveStaggerSeconds * ShowAsset->TickResolution.AsDecimal();
                 const double OpeningFrames = Timing->EffectiveOpeningSeconds * ShowAsset->TickResolution.AsDecimal();
+                // During a breath only a gust already active at the frozen frame
+                // receives elapsed time. Future triggers stay future while the
+                // camera distance and Master frame remain frozen.
+                const double GustFrame = bBreathing && MasterFrame.Value >= ActivationFrame
+                    ? EffectiveMechanismFrame
+                    : static_cast<double>(MasterFrame.Value);
                 Phase = OpeningFrames > UE_DOUBLE_SMALL_NUMBER
-                    ? FMath::Clamp((MasterFrame.Value - ActivationFrame) / OpeningFrames, 0.0, 1.0)
+                    ? FMath::Clamp((GustFrame - ActivationFrame) / OpeningFrames, 0.0, 1.0)
                     : (MasterFrame.Value >= ActivationFrame ? 1.0 : 0.0);
             }
             // Camera-window pairs behind the camera remain open; in either mode,
@@ -1515,7 +1542,7 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
             // integral of that rate, not a sample of it. Differencing two
             // integrals taken from the Passage start keeps scrub, seek and
             // reverse agreeing with sequential playback.
-            double ElapsedFrames = MasterFrame.Value - OriginFrame;
+            double ElapsedFrames = (bBreathing ? EffectiveMechanismFrame : MasterFrame.Value) - OriginFrame;
             if (bHasWingModulation)
             {
                 const int64 OriginKey = static_cast<int64>(FMath::RoundToInt64(OriginFrame));
@@ -1748,8 +1775,18 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
     }
     if (bVoiceMechanisms)
     {
-        LastMechanismSoundMasterFrame = static_cast<double>(MasterFrame.Value);
-        LastMechanismSoundWorldSeconds = SoundWorldSeconds;
+        if (bBreathing)
+        {
+            LastMechanismSoundBreathElapsedSeconds = BreathElapsedSeconds;
+            LastMechanismSoundBreathRealSeconds = SoundWorldSeconds;
+            bMechanismSoundBreathHistoryValid = true;
+        }
+        else
+        {
+            LastMechanismSoundMasterFrame = static_cast<double>(MasterFrame.Value);
+            LastMechanismSoundWorldSeconds = SoundWorldSeconds;
+            bMechanismSoundBreathHistoryValid = false;
+        }
         bMechanismSoundHistoryValid = true;
     }
 
@@ -1845,7 +1882,8 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
     // editing it captures live settings and aim back into the Show.
     if (GetWorld() && GetWorld()->IsGameWorld())
     {
-        const double ShowSeconds = MasterFrame.Value / ShowAsset->TickResolution.AsDecimal();
+        const double ShowSeconds = FInfinityBreathClock::PhaseSeconds(
+            MasterFrame.Value / ShowAsset->TickResolution.AsDecimal(), BreathElapsedSeconds, bBreathing);
         for (AActor* Lamp : ManagedAttachmentActors)
         {
             FGuid CueGuid;
@@ -2405,6 +2443,7 @@ void AInfinityStagePassageActor::ResetMechanismSoundHistory()
 {
     MechanismSoundHistory.Reset();
     bMechanismSoundHistoryValid = false;
+    bMechanismSoundBreathHistoryValid = false;
 }
 
 void AInfinityStagePassageActor::PreloadMechanismSounds(const FInfinityCompiledPassage& Passage)

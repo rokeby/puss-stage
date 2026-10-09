@@ -96,6 +96,8 @@ struct INFINITYSTAGE_API FInfinityScriptCursor
 struct INFINITYSTAGE_API FInfinityCueDirectorSettings
 {
     bool bRunThrough = false;
+    /** Gary, 9 Oct: live Passage breaths remain available in performance by default. */
+    bool bAllowBreathInPerformance = true;
     TArray<FGuid> StopAfterSegments;
     TArray<FString> HoldGoNumbers;
     /** Scenes ("S3") that play their pre-rendered video instead of the live Scene. */

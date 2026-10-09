@@ -8,6 +8,7 @@
 #include "InfinityStageCompiler.h"
 #include "InfinityStagePassageActor.h"
 #include "InfinityStageShowAsset.h"
+#include "InfinityStageShowTrims.h"
 #include "LevelSequence.h"
 #include "LevelSequencePlayer.h"
 #include "MovieScene.h"
@@ -25,6 +26,22 @@
 #include "UniversalObjectLocatorResolveParams.h"
 
 DEFINE_LOG_CATEGORY(LogInfinityStageTransport);
+
+FInfinityBreathAudioValue FInfinityBreathAudio::Evaluate(
+    const double ElapsedSeconds,
+    const FInfinityBreathAudioValue& Start,
+    const FInfinityBreathAudioValue& Target,
+    const bool bEntering) const
+{
+    const double Alpha = FMath::Clamp(ElapsedSeconds / FMath::Max(0.01, static_cast<double>(RampSeconds)), 0.0, 1.0);
+    const float Eased = static_cast<float>(FMath::Pow(Alpha, FMath::Max(0.1f, EaseExponent)));
+    FInfinityBreathAudioValue Value;
+    Value.Volume = FMath::Lerp(Start.Volume, Target.Volume, Eased);
+    const float Arc = StrangePitchDip * FMath::Sin(static_cast<float>(Alpha * UE_PI));
+    Value.Pitch = FMath::Max(0.01f, FMath::Lerp(Start.Pitch, Target.Pitch, Eased) - Arc);
+    Value.bMute = bEntering && Alpha >= 1.0 && Value.Volume <= VolumeFloor + UE_KINDA_SMALL_NUMBER;
+    return Value;
+}
 
 namespace
 {
@@ -303,12 +320,14 @@ void CollectGoCues(
         Cue.Frame = SegmentStart + Offset;
         Cue.Number = Number;
         Cue.Label = Label;
-        Cue.bHold = Mode < 0 ? bDefaultHold : Mode == 1;
+        Cue.bBreath = Mode == 2;
+        Cue.bHold = !Cue.bBreath && (Mode < 0 ? bDefaultHold : Mode == 1);
         Cue.SegmentIndex = SegmentIndex;
         Cue.SegmentStartFrame = SegmentStart;
         UE_LOG(LogInfinityStageTransport, Log,
             TEXT("INFINITY_GO_CUE number=%s mode=%s frame=%d segment=%d label='%s'"),
-            *Cue.Number, Cue.bHold ? TEXT("HOLD") : TEXT("PASS"), Cue.Frame.Value, SegmentIndex, *Cue.Label);
+            *Cue.Number, Cue.bBreath ? TEXT("BREATH") : (Cue.bHold ? TEXT("HOLD") : TEXT("PASS")),
+            Cue.Frame.Value, SegmentIndex, *Cue.Label);
     }
 }
 
@@ -701,12 +720,72 @@ bool ParseMarkerLabel(const FString& Text, FString& OutNumber, FString& OutLabel
         OutMode = 0;
         LabelStart = 3;
     }
+    else if (Words.IsValidIndex(2) && Words[2].Equals(TEXT("LIVEBREATH"), ESearchCase::CaseSensitive))
+    {
+        // A LIVE breath (P47): crossing it pauses the Passage until GO.
+        OutMode = 2;
+        LabelStart = 3;
+    }
+    else if (Words.IsValidIndex(2) && Words[2].Equals(TEXT("BREATH"), ESearchCase::CaseSensitive))
+    {
+        // "GO <n> BREATH" documents an AUTHORED breath (finishing touches P36/P45): never a GO of any kind.
+        OutNumber.Reset();
+        return false;
+    }
     for (int32 Index = LabelStart; Index < Words.Num(); ++Index)
     {
         OutLabel += (OutLabel.IsEmpty() ? TEXT("") : TEXT(" ")) + Words[Index];
     }
     return true;
 }
+}
+
+void FInfinityBreathCueState::Reset()
+{
+    Crossed.Reset();
+    bHasPreviousFrame = false;
+}
+
+void FInfinityBreathCueState::OnNavigation(const FFrameNumber TargetFrame)
+{
+    for (auto It = Crossed.CreateIterator(); It; ++It)
+    {
+        if (!bHasPreviousFrame || TargetFrame < PreviousFrame)
+        {
+            It.RemoveCurrent();
+        }
+    }
+    PreviousFrame = TargetFrame;
+    bHasPreviousFrame = true;
+}
+
+int32 FInfinityBreathCueState::Tick(
+    const FFrameNumber CurrentFrame,
+    const bool bPlayingForward,
+    const TArray<FInfinityGoCue>& Cues)
+{
+    if (!bHasPreviousFrame)
+    {
+        PreviousFrame = CurrentFrame;
+        bHasPreviousFrame = true;
+        return INDEX_NONE;
+    }
+    int32 Hit = INDEX_NONE;
+    if (bPlayingForward && CurrentFrame > PreviousFrame)
+    {
+        for (int32 Index = 0; Index < Cues.Num(); ++Index)
+        {
+            const FInfinityGoCue& Cue = Cues[Index];
+            if (Cue.bBreath && Cue.Frame > PreviousFrame && Cue.Frame <= CurrentFrame && !Crossed.Contains(Index))
+            {
+                Crossed.Add(Index);
+                Hit = Index;
+                break;
+            }
+        }
+    }
+    PreviousFrame = CurrentFrame;
+    return Hit;
 }
 
 void FInfinityGoHoldState::Reset()
@@ -830,6 +909,8 @@ bool UInfinityStageTransportController::StepJumpResettle(
 
 void UInfinityStageTransportController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    FinishBreath(false);
+    ApplyBreathAudio(FInfinityBreathAudioValue());
     bVideoAudioMuted = false;
     SetManagedMasterAudioMuted(false);
     UnregisterForWorld();
@@ -842,6 +923,8 @@ void UInfinityStageTransportController::EndPlay(const EEndPlayReason::Type EndPl
 
 void UInfinityStageTransportController::BeginDestroy()
 {
+    FinishBreath(false);
+    ApplyBreathAudio(FInfinityBreathAudioValue());
     bVideoAudioMuted = false;
     SetManagedMasterAudioMuted(false);
     UnregisterForWorld();
@@ -861,6 +944,7 @@ void UInfinityStageTransportController::TickComponent(
     }
     const FFrameNumber CurrentFrame = GetCurrentMasterFrame();
     const int32 FrameSegment = FindSegmentAtFrame(CurrentFrame);
+    TickBreathAudio();
     if (SeamDiagOn())
     {
         TickSeamDiag(CurrentFrame, DeltaTime);
@@ -887,6 +971,16 @@ void UInfinityStageTransportController::TickComponent(
         UE_LOG(LogInfinityStageTransport, Warning,
             TEXT("INFINITY_REWIND_INTERLOCK frame=%d segment=%d"),
             CurrentFrame.Value, FrameSegment);
+    }
+    if (IsBreathing())
+    {
+        EvaluateBreathingPassage(CurrentFrame);
+        RunTickTail(CurrentFrame, DeltaTime);
+        return;
+    }
+    if (HandleBreathCue(CurrentFrame))
+    {
+        return;
     }
     if (HandleGoHold(CurrentFrame))
     {
@@ -959,6 +1053,8 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
     VampPlaybackState.Reset();
     GoCues.Reset();
     GoHoldState.Reset();
+    BreathCueState.Reset();
+    FinishBreath(false);
     ClearTransportRests();
     if (InShowAsset && InShowAsset->DisplayRate.IsValid() && InShowAsset->TickResolution.IsValid())
     {
@@ -1128,6 +1224,7 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
 
 bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer* InPlayer, UInfinityStageShowAsset* InShowAsset)
 {
+    FinishBreath(false);
     SetManagedMasterAudioMuted(false);
     Player = InPlayer;
     bFastForwardActive = false;
@@ -1169,6 +1266,7 @@ bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer
     }
     VampPlaybackState.OnNavigation(GetCurrentMasterFrame());
     GoHoldState.OnNavigation(GetCurrentMasterFrame());
+    BreathCueState.OnNavigation(GetCurrentMasterFrame());
     return true;
 }
 
@@ -1250,9 +1348,11 @@ int32 UInfinityStageTransportController::RunThroughStopIndex(
 void UInfinityStageTransportController::ApplyCueDirector(
     const bool bInRunThrough,
     const TArray<FGuid>& StopAfter,
-    const TArray<FString>& HoldGoNumbers)
+    const TArray<FString>& HoldGoNumbers,
+    const bool bInAllowBreathInPerformance)
 {
     bRunThrough = bInRunThrough;
+    bAllowBreathInPerformance = bInAllowBreathInPerformance;
     RunThroughStopAfter = StopAfter;
     RunThroughHoldGoNumbers = HoldGoNumbers;
     GoHoldState.KeepNumbers = TSet<FString>(HoldGoNumbers);
@@ -1262,8 +1362,8 @@ void UInfinityStageTransportController::ApplyCueDirector(
         Matched += StopAfter.Contains(Segment.SegmentGuid) ? 1 : 0;
     }
     UE_LOG(LogInfinityStageTransport, Log,
-        TEXT("INFINITY_CUE_DIRECTOR_APPLIED run_through=%d stops=%d matched=%d hold_go=%d"),
-        bRunThrough ? 1 : 0, StopAfter.Num(), Matched, HoldGoNumbers.Num());
+        TEXT("INFINITY_CUE_DIRECTOR_APPLIED run_through=%d stops=%d matched=%d hold_go=%d allow_breath_performance=%d"),
+        bRunThrough ? 1 : 0, StopAfter.Num(), Matched, HoldGoNumbers.Num(), bAllowBreathInPerformance ? 1 : 0);
     if (Matched != StopAfter.Num())
     {
         UE_LOG(LogInfinityStageTransport, Warning,
@@ -1433,6 +1533,7 @@ EInfinityTransportResult UInfinityStageTransportController::StepShotForward()
 
 EInfinityTransportResult UInfinityStageTransportController::BeginFastForward()
 {
+    FinishBreath(false);
     if (!Player)
     {
         return LastResult = EInfinityTransportResult::NoPlayer;
@@ -1510,6 +1611,7 @@ FFrameNumber UInfinityStageTransportController::ResolveRewindTargetFrame(
 
 EInfinityTransportResult UInfinityStageTransportController::BeginRewind()
 {
+    FinishBreath(false);
     if (!Player)
     {
         return LastResult = EInfinityTransportResult::NoPlayer;
@@ -1693,6 +1795,126 @@ EInfinityTransportResult UInfinityStageTransportController::PauseTransport()
     return LastResult;
 }
 
+EInfinityTransportResult UInfinityStageTransportController::CanBeginBreath(
+    const EInfinityCueType SegmentType,
+    const bool bInPerformanceMode,
+    const bool bAllowInPerformance)
+{
+    if (SegmentType != EInfinityCueType::WingPair)
+    {
+        return EInfinityTransportResult::BreathNotAllowed;
+    }
+    if (bInPerformanceMode && !bAllowInPerformance)
+    {
+        return EInfinityTransportResult::BreathNotAllowed;
+    }
+    return EInfinityTransportResult::Succeeded;
+}
+
+double UInfinityStageTransportController::GetRealTimeSeconds() const
+{
+    const UWorld* World = GetWorld();
+    return World ? World->GetRealTimeSeconds() : 0.0;
+}
+
+double UInfinityStageTransportController::GetBreathElapsedSeconds() const
+{
+    return BreathClock.Elapsed(GetRealTimeSeconds());
+}
+
+EInfinityTransportResult UInfinityStageTransportController::BeginBreath()
+{
+    if (!Player)
+    {
+        return LastResult = EInfinityTransportResult::NoPlayer;
+    }
+    if (IsBreathing())
+    {
+        return LastResult = EInfinityTransportResult::Succeeded;
+    }
+    RefreshSelectedSegment();
+    if (!Segments.IsValidIndex(SelectedSegmentIndex))
+    {
+        return LastResult = EInfinityTransportResult::NoSegment;
+    }
+    const EInfinityTransportResult Allowed = CanBeginBreath(
+        Segments[SelectedSegmentIndex].Type, bPerformanceMode, bAllowBreathInPerformance);
+    if (Allowed != EInfinityTransportResult::Succeeded)
+    {
+        UE_LOG(LogInfinityStageTransport, Warning,
+            TEXT("INFINITY_BREATH_REFUSED frame=%d segment=%d type=%d performance=%d allow_performance=%d result=%d"),
+            GetCurrentMasterFrame().Value, SelectedSegmentIndex,
+            static_cast<int32>(Segments[SelectedSegmentIndex].Type),
+            bPerformanceMode ? 1 : 0, bAllowBreathInPerformance ? 1 : 0,
+            static_cast<int32>(Allowed));
+        return LastResult = Allowed;
+    }
+
+    StopFastForwardPlayback();
+    JumpResettleState.bPending = false;
+    Player->Pause();
+    BreathClock.Begin(GetRealTimeSeconds());
+    BreathAudioTransitionStart = AppliedBreathAudio;
+    BreathAudioTransitionTarget.Volume = BreathAudio.VolumeFloor;
+    BreathAudioTransitionTarget.Pitch = BreathAudio.PitchFloor;
+    BreathAudioTransitionTarget.bMute = BreathAudio.VolumeFloor <= UE_KINDA_SMALL_NUMBER;
+    BreathAudioTransitionStartedAtRealSeconds = GetRealTimeSeconds();
+    bBreathAudioTransitionActive = true;
+    bBreathAudioEntering = true;
+    EvaluateBreathingPassage(GetCurrentMasterFrame());
+    UE_LOG(LogInfinityStageTransport, Log,
+        TEXT("INFINITY_BREATH_BEGIN frame=%d segment=%d ramp_s=%.3f pitch_floor=%.3f volume_floor=%.3f"),
+        GetCurrentMasterFrame().Value, SelectedSegmentIndex, BreathAudio.RampSeconds,
+        BreathAudio.PitchFloor, BreathAudio.VolumeFloor);
+    return LastResult = EInfinityTransportResult::Succeeded;
+}
+
+void UInfinityStageTransportController::FinishBreath(const bool bResume)
+{
+    if (!IsBreathing())
+    {
+        return;
+    }
+    const double Elapsed = GetBreathElapsedSeconds();
+    const FFrameNumber FrozenFrame = GetCurrentMasterFrame();
+    BreathClock.End();
+    SetBreathMusicMuted(false);
+
+    if (bResume)
+    {
+        BreathAudioTransitionStart = AppliedBreathAudio;
+        BreathAudioTransitionTarget = FInfinityBreathAudioValue();
+        BreathAudioTransitionStartedAtRealSeconds = GetRealTimeSeconds();
+        bBreathAudioTransitionActive = true;
+        bBreathAudioEntering = false;
+        // PlayTo starts at the unchanged Master frame and restores the ordinary
+        // boundary target. The Passage phase offset is already zero again.
+        PlayForwardToBoundary();
+    }
+    else
+    {
+        bBreathAudioTransitionActive = false;
+        ApplyBreathAudio(FInfinityBreathAudioValue());
+    }
+    UE_LOG(LogInfinityStageTransport, Log,
+        TEXT("INFINITY_BREATH_END frame=%d elapsed_s=%.3f resume=%d"),
+        FrozenFrame.Value, Elapsed, bResume ? 1 : 0);
+}
+
+EInfinityTransportResult UInfinityStageTransportController::EndBreath()
+{
+    if (!Player)
+    {
+        return LastResult = EInfinityTransportResult::NoPlayer;
+    }
+    if (!IsBreathing())
+    {
+        return LastResult = EInfinityTransportResult::NotReady;
+    }
+    FinishBreath(true);
+    return LastResult;
+}
+
 EInfinityTransportResult UInfinityStageTransportController::ResumeForward()
 {
     if (!Player)
@@ -1740,6 +1962,7 @@ EInfinityTransportResult UInfinityStageTransportController::Shuttle(const float 
 
 EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(const FFrameNumber TargetFrame)
 {
+    FinishBreath(false);
     if (!Player)
     {
         return LastResult = EInfinityTransportResult::NoPlayer;
@@ -1766,6 +1989,7 @@ EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(c
     ClearTransportRests();
     VampPlaybackState.OnNavigation(TargetFrame);
     GoHoldState.OnNavigation(TargetFrame);
+    BreathCueState.OnNavigation(TargetFrame);
     JumpResettleState = {true, TargetFrame, 0.0f, 0};
     SelectedSegmentIndex = TargetIndex;
     bCoveredHandoffActive = IsCoveredHandoffActive(TargetIndex, TargetFrame);
@@ -1854,6 +2078,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToMasterFrame(
     const FFrameNumber TargetFrame,
     const bool bKeepPlaying)
 {
+    FinishBreath(false);
     if (!Player)
     {
         return LastResult = EInfinityTransportResult::NoPlayer;
@@ -1880,6 +2105,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToMasterFrame(
     ClearTransportRests();
     VampPlaybackState.OnNavigation(TargetFrame);
     GoHoldState.OnNavigation(TargetFrame);
+    BreathCueState.OnNavigation(TargetFrame);
     SelectedSegmentIndex = SegmentIndex;
     bCoveredHandoffActive = IsCoveredHandoffActive(SegmentIndex, TargetFrame);
     if (bKeepPlaying)
@@ -2728,6 +2954,28 @@ bool UInfinityStageTransportController::HandleVampPlayback(const FFrameNumber Cu
     return true;
 }
 
+bool UInfinityStageTransportController::HandleBreathCue(const FFrameNumber CurrentFrame)
+{
+    if (GoCues.IsEmpty() || !Player)
+    {
+        return false;
+    }
+    const int32 Hit = BreathCueState.Tick(
+        CurrentFrame,
+        Player->IsPlaying() && !Player->IsReversed(),
+        GoCues);
+    if (!GoCues.IsValidIndex(Hit))
+    {
+        return false;
+    }
+    const EInfinityTransportResult Result = BeginBreath();
+    UE_LOG(LogInfinityStageTransport, Log,
+        TEXT("INFINITY_GO_BREATH number=%s frame=%d crossed_at=%d result=%d label='%s'"),
+        *GoCues[Hit].Number, GoCues[Hit].Frame.Value, CurrentFrame.Value,
+        static_cast<int32>(Result), *GoCues[Hit].Label);
+    return Result == EInfinityTransportResult::Succeeded;
+}
+
 bool UInfinityStageTransportController::HandleGoHold(const FFrameNumber CurrentFrame)
 {
     if (GoCues.IsEmpty() || !Player)
@@ -2805,14 +3053,71 @@ void UInfinityStageTransportController::SetVideoAudioMuted(const bool bMuted)
     SetManagedMasterAudioMuted(bFastForwardActive || bRewindActive);
 }
 
+void UInfinityStageTransportController::EvaluateBreathingPassage(const FFrameNumber MasterFrame)
+{
+    if (!Segments.IsValidIndex(SelectedSegmentIndex)
+        || Segments[SelectedSegmentIndex].Type != EInfinityCueType::WingPair)
+    {
+        return;
+    }
+    AInfinityStageCameraRig* Rig = FindCameraRigForPassage(Segments[SelectedSegmentIndex].SegmentGuid);
+    if (Rig && Rig->PassageActor)
+    {
+        Rig->PassageActor->EvaluateMechanismsAtMasterFrame(MasterFrame);
+    }
+}
+
+void UInfinityStageTransportController::ApplyBreathAudio(const FInfinityBreathAudioValue& Value)
+{
+    AppliedBreathAudio = Value;
+    UWorld* World = GetWorld();
+    if (!World || !World->IsGameWorld())
+    {
+        return;
+    }
+    for (TActorIterator<AInfinityStageShowTrims> It(World); It; ++It)
+    {
+        It->SetBreathMusicMix(Value.Volume, Value.Pitch);
+    }
+}
+
+void UInfinityStageTransportController::TickBreathAudio()
+{
+    if (!bBreathAudioTransitionActive)
+    {
+        return;
+    }
+    const FInfinityBreathAudioValue Value = BreathAudio.Evaluate(
+        GetRealTimeSeconds() - BreathAudioTransitionStartedAtRealSeconds,
+        BreathAudioTransitionStart,
+        BreathAudioTransitionTarget,
+        bBreathAudioEntering);
+    ApplyBreathAudio(Value);
+    const bool bDone = GetRealTimeSeconds() - BreathAudioTransitionStartedAtRealSeconds
+        >= FMath::Max(0.01f, BreathAudio.RampSeconds);
+    if (bDone)
+    {
+        bBreathAudioTransitionActive = false;
+        ApplyBreathAudio(BreathAudioTransitionTarget);
+        SetBreathMusicMuted(bBreathAudioEntering && BreathAudioTransitionTarget.bMute);
+    }
+}
+
+void UInfinityStageTransportController::SetBreathMusicMuted(const bool bMuted)
+{
+    bMasterMusicMutedForBreath = bMuted;
+    SetManagedMasterAudioMuted(bFastForwardActive || bRewindActive);
+}
+
 void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bRequestedMuted)
 {
     // A Scene showing its fallback video keeps the Master's own sound muted whatever
     // fast-forward or rewind ask for (Cue Director CD4): no double sound.
-    const bool bMuted = bRequestedMuted || bVideoAudioMuted;
+    const bool bMuteNested = bRequestedMuted || bVideoAudioMuted;
+    const bool bMuteMusic = bMuteNested || bMasterMusicMutedForBreath;
     // Restore nested mutes first and unconditionally: EndPlay may arrive with no
     // Player, and the early return below must not strand a muted Scene or Choreo.
-    if (!bMuted && !NestedAudioMutedForFastForward.IsEmpty())
+    if (!bMuteNested && !NestedAudioMutedForFastForward.IsEmpty())
     {
         for (const TPair<TWeakObjectPtr<UMovieSceneTrack>, bool>& Entry : NestedAudioMutedForFastForward)
         {
@@ -2828,7 +3133,7 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bR
         }
         NestedAudioMutedForFastForward.Reset();
     }
-    if (bMasterAudioMutedForFastForward == bMuted || !Player || !Player->GetSequence())
+    if (!Player || !Player->GetSequence())
     {
         return;
     }
@@ -2837,7 +3142,7 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bR
     // Every other audio track in the Master and its nested sequences (Scene and
     // Choreography sound) is muted with it, through the same transient local flag,
     // and each is restored to exactly its own prior state when 1x resumes.
-    if (bMuted)
+    if (bMuteNested && NestedAudioMutedForFastForward.IsEmpty())
     {
         NestedAudioMutedForFastForward.Reset();
         TSet<const UMovieSceneSequence*> Visited;
@@ -2861,16 +3166,21 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bR
         }
     }
 
+    if (bMasterAudioMutedForFastForward == bMuteMusic)
+    {
+        return;
+    }
+
     UMovieSceneInfinityAudioTrack* MusicTrack = MovieScene
         ? MovieScene->FindTrack<UMovieSceneInfinityAudioTrack>()
         : nullptr;
     if (!MusicTrack)
     {
-        bMasterAudioMutedForFastForward = bMuted;
+        bMasterAudioMutedForFastForward = bMuteMusic;
         return;
     }
 
-    if (bMuted)
+    if (bMuteMusic)
     {
 #if WITH_EDITOR
         bMasterAudioWasEvalDisabled = MusicTrack->IsLocalEvalDisabled();
@@ -2894,7 +3204,7 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bR
     // section stops or resumes on the next evaluation.
     MusicTrack->MarkAsChanged();
     MovieScene->MarkAsChanged();
-    bMasterAudioMutedForFastForward = bMuted;
+    bMasterAudioMutedForFastForward = bMuteMusic;
 }
 
 void UInfinityStageTransportController::StopFastForwardPlayback()
