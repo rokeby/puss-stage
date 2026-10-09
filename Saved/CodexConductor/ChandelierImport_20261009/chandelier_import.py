@@ -489,8 +489,8 @@ def _build_master(c, plan, path):
         g.link(scalars[name], "", custom, name)
     switch = g.node(u.MaterialExpressionStaticSwitchParameter, -250, -100, parameter_name="UseClean",
                     default_value=False, group="02 Variant", sort_priority=0)
-    g.link(samples["BaseColorClean"], "RGB", switch, "A")
-    g.link(custom, "", switch, "B")
+    g.link(samples["BaseColorClean"], "RGB", switch, "True")  # [meas CHI-160142] StaticSwitchParameter pins are True/False
+    g.link(custom, "", switch, "False")
     MP = u.MaterialProperty
     for source, output, prop in ((switch, "", MP.MP_BASE_COLOR),
                                  (samples["NormalTexture"], "RGB", MP.MP_NORMAL),
