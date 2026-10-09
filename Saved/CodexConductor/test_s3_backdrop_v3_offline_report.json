@@ -1,0 +1,50 @@
+{
+  "suite": "P32 S3 backdrop v3 offline",
+  "positive_pass": 22,
+  "negative_controls_pass": 4,
+  "positive_cases": [
+    "crop_box_exact",
+    "crop_ratio_exact",
+    "pot_contract_accepts",
+    "lowered_leaf_rect_exact",
+    "leaf_rect_shift_is_point05_v",
+    "paint_as_is",
+    "production_plan_pot",
+    "production_plan_uses_existing_upscaler",
+    "tiny_cpu_upscaler_called_once",
+    "tiny_pot_written",
+    "tiny_leaf_written",
+    "qa_written",
+    "ue_plan_four_create_only_assets",
+    "backdrop_child_of_live_mi",
+    "leaf_child_of_live_mi",
+    "param_swap_only",
+    "dry_mode_default",
+    "apply_confirm",
+    "revert_confirm",
+    "no_asset_deletion",
+    "import_is_create_only",
+    "all_three_modes_present"
+  ],
+  "negative_controls": [
+    {
+      "name": "crop_ratio_mutation",
+      "reason": "crop is not exactly 2:3: 10x14"
+    },
+    {
+      "name": "pot_size_mutation",
+      "reason": "production POT output must be 4096x8192, got 4096x8000"
+    },
+    {
+      "name": "param_swap_mutation",
+      "reason": "PARAM_SWAP_ONLY|leaf"
+    },
+    {
+      "name": "lowered_mural_offset_mutation",
+      "reason": "LOWERED_LEAF_RECT"
+    }
+  ],
+  "gpu_or_cuda_run": false,
+  "unreal_or_mcp_run": false,
+  "fixture": "24x36 synthetic RGB; injected CPU nearest-repeat 2x test double"
+}
