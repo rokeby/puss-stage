@@ -1,0 +1,59 @@
+{
+  "failed": 0,
+  "passed": 13,
+  "results": [
+    {
+      "name": "+ defaults produce matched cut and 150-frame ease",
+      "status": "PASS"
+    },
+    {
+      "name": "+ fake Unreal APPLY->REVERT is exact",
+      "status": "PASS"
+    },
+    {
+      "name": "- moved cut refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- rebound hangar camera refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- edge-in-frame close distance refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- PIE running refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- dirty census refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- existing hangar transform track refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- full I2 snapshot drift since DRY refuses before backup",
+      "status": "PASS"
+    },
+    {
+      "name": "- mouth recorded constant drift refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- wrong confirm refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "+ analytical preview files are emitted",
+      "status": "PASS"
+    },
+    {
+      "name": "+ module imports without Unreal",
+      "status": "PASS"
+    }
+  ],
+  "total": 13
+}

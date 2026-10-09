@@ -832,10 +832,13 @@ class UnrealBackend(object):
         return component
 
     def _binding_object_guid(self, obj):
-        binding = self.seq.find_binding_from_object(obj, self.world)
-        if binding is None or not binding.is_valid():
-            return ""
-        return self._guid(binding.get_id())
+        path = str(obj.get_path_name())
+        bindings = [binding for binding in self.seq.get_bindings()
+                    if any(str(bound.get_path_name()) == path
+                           for bound in self.seq.locate_bound_objects(binding, self.world))]
+        if len(bindings) > 1:
+            raise PlanError("OBJECT_MULTIBOUND|%s|%d" % (path, len(bindings)))
+        return self._guid(bindings[0].get_id()) if bindings else ""
 
     def _camera_fact(self, actor, expected_guid):
         component = self._camera_component(actor)
