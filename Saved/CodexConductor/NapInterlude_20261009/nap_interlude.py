@@ -212,7 +212,10 @@ def seam_failures(keys, loop_frames, tolerance=1.0e-4):
         return ["SEAM_ENDPOINT_MISSING"]
     if abs(by_frame[0] - by_frame[loop_frames]) > tolerance:
         failures.append("SEAM_VALUE")
-    frames = sorted(by_frame)
+    # The wake tail may contain keys after VampEnd.  Only keys belonging to the
+    # repeated interval describe the loop seam; tail keys must not replace the
+    # final in-loop slope.
+    frames = sorted(frame for frame in by_frame if 0 <= frame <= int(loop_frames))
     if len(frames) < 4:
         failures.append("SEAM_TOO_FEW_KEYS")
     else:
@@ -406,7 +409,7 @@ def build_plan(snapshot, raw_args):
 def record_minted_nap_guid(plan, value):
     """Bind UE's post-construction GUID into every persisted Nap identity."""
     minted = norm_guid(value)
-    if len(minted) != 32:
+    if len(minted) != 32 or minted == "0" * 32:
         raise PlanError("MINTED_NAP_GUID_INVALID|%s" % value)
     if plan["nap"]["label"] != MASTER_CUE_LABEL:
         raise PlanError("MINTED_NAP_LABEL_INVALID|%s" % plan["nap"]["label"])
@@ -727,13 +730,16 @@ class UnrealBackend(object):
         scene.set_editor_property("use_sequence_length", True); scene.set_editor_property("camera_owner", ue.InfinityCameraOwner.TIMELINE)
         cue.set_editor_property("scene", scene)
         cues.insert(plan["nap"]["show_index"], cue); show.set_editor_property("cues", cues)
-        inserted = list(show.get_editor_property("cues"))[plan["nap"]["show_index"]]
-        inserted_label = str(inserted.get_editor_property("label"))
-        minted_guid = self._guid(inserted.get_editor_property("cue_guid"))
-        if inserted_label != MASTER_CUE_LABEL or len(minted_guid) != 32:
-            raise PlanError("INSERTED_NAP_IDENTITY|label=%s|guid=%s" % (inserted_label, minted_guid))
         if not ue.InfinityStageSequenceBuilderLibrary.rebuild_managed_master(show, master):
             raise PlanError("REBUILD_MANAGED_MASTER_FAILED")
+        rebuilt_cues = list(show.get_editor_property("cues"))
+        if plan["nap"]["show_index"] >= len(rebuilt_cues):
+            raise PlanError("INSERTED_NAP_MISSING_AFTER_REBUILD")
+        inserted = rebuilt_cues[plan["nap"]["show_index"]]
+        inserted_label = str(inserted.get_editor_property("label"))
+        minted_guid = self._guid(inserted.get_editor_property("cue_guid"))
+        if inserted_label != MASTER_CUE_LABEL or len(minted_guid) != 32 or minted_guid == "0" * 32:
+            raise PlanError("INSERTED_NAP_IDENTITY|label=%s|guid=%s" % (inserted_label, minted_guid))
         return {"minted_nap_cue_guid": minted_guid, "nap_label": inserted_label,
                 "affected_passages_materialized": [], "reason": "no Passage authoring data changed"}
 

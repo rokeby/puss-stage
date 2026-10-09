@@ -1,5 +1,5 @@
 {
-  "checks": 40,
+  "checks": 45,
   "negative": {
     "passed": 14,
     "total": 14

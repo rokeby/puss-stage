@@ -1,6 +1,7 @@
 """Offline positive/negative harness for P79.  No Unreal or Blender imports."""
 
 import copy
+import inspect
 import json
 import os
 import tempfile
@@ -188,6 +189,29 @@ def main():
     c.check(sum(1 for unused_frame, label in plan["markers"] if n.parse_go_marker(label)) == 1,
             "single GO marker")
     c.check(not n.seam_failures(plan["breathing_z_keys"], plan["loop_frames"]), "seam")
+    tail_keys = copy.deepcopy(plan["breathing_z_keys"])
+    tail_keys.append([plan["loop_frames"] + 25, tail_keys[-1][1]])
+    c.check(not n.seam_failures(tail_keys, plan["loop_frames"]), "wake tail excluded from seam slope")
+    apply_source = inspect.getsource(n.UnrealBackend.apply)
+    c.check(apply_source.index("rebuild_managed_master") < apply_source.index("rebuilt_cues ="),
+            "Nap identity read follows managed-Master rebuild")
+    compiled_with_minted = n.expected_segments(
+        plan["segments_before"], plan["anchors"]["interaction4_segment_index"],
+        dict(plan["nap"], guid=MINTED_NAP), plan["delta_ticks"])
+    old_identity_failures = n.downstream_timing_failures(
+        plan["segments_before"], compiled_with_minted,
+        plan["anchors"]["interaction4_segment_index"], "0" * 32,
+        plan["nap"]["label"], plan["delta_ticks"])
+    c.check("NAP_GUID_COUNT|0" in old_identity_failures and
+            "NAP_IDENTITY_COUNT|0" in old_identity_failures,
+            "pre-rebuild zero GUID reproduces live identity miss")
+    post_rebuild_plan = copy.deepcopy(plan)
+    n.record_minted_nap_guid(post_rebuild_plan, MINTED_NAP)
+    c.check(not n.downstream_timing_failures(
+        post_rebuild_plan["segments_before"], compiled_with_minted,
+        post_rebuild_plan["anchors"]["interaction4_segment_index"],
+        post_rebuild_plan["nap"]["guid"], post_rebuild_plan["nap"]["label"],
+        post_rebuild_plan["delta_ticks"]), "post-rebuild minted GUID finds one Nap identity")
     c.check(plan["nap"]["guid"] is None, "DRY has no invented Nap GUID")
     c.check(plan["fallback_job"]["segment_identity"] ==
             {"label": n.MASTER_CUE_LABEL, "guid": None}, "DRY fallback identity awaits mint")
@@ -239,7 +263,10 @@ def main():
         c.positive()
 
     bad = copy.deepcopy(plan["breathing_z_keys"]); bad[-1][1] += 0.5
-    c.check("SEAM_VALUE" in n.seam_failures(bad, plan["loop_frames"]), "negative seam control")
+    c.check("SEAM_VALUE" in n.seam_failures(bad, plan["loop_frames"]), "negative seam value control")
+    bad_slope = copy.deepcopy(tail_keys); bad_slope[-2][1] += 0.5
+    c.check("SEAM_SLOPE" in n.seam_failures(bad_slope, plan["loop_frames"]),
+            "negative in-loop seam slope control")
     c.negative()
 
     facts = {"markers": plan["markers"][:-1], "breathing_z_keys": plan["breathing_z_keys"],
