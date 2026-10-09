@@ -267,13 +267,22 @@ void FormatLines(const FInfinityDirectorHudState& State, FString& OutTop, FStrin
     {
         OutTop += FString::Printf(TEXT("   BAY %d/%d"), State.Bay, State.BayCount);
     }
-    if (!State.LastGo.IsEmpty())
+    if (State.bHold && !State.LastGo.IsEmpty())
     {
-        OutTop += TEXT("   ") + State.LastGo;
+        // A hold arms when the playhead crosses a HOLD GO, so the held GO is the last one crossed. Say so plainly:
+        // "next GO 30" during a hold at GO 20 read as the wrong cue (Gary's I2 note, 9 Oct).
+        OutTop += TEXT("   HOLDING at ") + State.LastGo + TEXT(" (press GO)");
     }
-    if (!State.NextGo.IsEmpty())
+    else
     {
-        OutTop += TEXT("   next ") + State.NextGo;
+        if (!State.LastGo.IsEmpty())
+        {
+            OutTop += TEXT("   ") + State.LastGo;
+        }
+        if (!State.NextGo.IsEmpty())
+        {
+            OutTop += TEXT("   next ") + State.NextGo;
+        }
     }
 
     const TCHAR* Status = State.bHold

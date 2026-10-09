@@ -162,6 +162,17 @@ bool FInfinityStageDirectorHudPureTest::RunTest(const FString& Parameters)
     State.bHold = true;
     FormatLines(State, Top, Bottom);
     TestTrue(TEXT("A GO hold prints HOLD"), Bottom.StartsWith(TEXT("HOLD")));
+
+    // I2 note (9 Oct): during a hold the top line names the held GO, not the next one.
+    State.LastGo = TEXT("GO 20 HOLD 'curtain'");
+    State.NextGo = TEXT("GO 30 HOLD 'curtain' @ 1:07.0");
+    FormatLines(State, Top, Bottom);
+    TestTrue(TEXT("A hold names the GO it is holding at"), Top.Contains(TEXT("HOLDING at GO 20 HOLD 'curtain' (press GO)")));
+    TestFalse(TEXT("A hold does not advertise the next GO"), Top.Contains(TEXT("GO 30")));
+    State.bHold = false;
+    FormatLines(State, Top, Bottom);
+    TestTrue(TEXT("Control: without a hold the next GO is shown"), Top.Contains(TEXT("next GO 30")));
+    TestFalse(TEXT("Control: without a hold nothing says HOLDING"), Top.Contains(TEXT("HOLDING")));
     return true;
 }
 
