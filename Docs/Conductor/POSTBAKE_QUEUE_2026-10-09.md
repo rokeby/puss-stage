@@ -36,4 +36,4 @@ Order (dependencies first; Gary's decisions 9 Oct in `memory/tonight-queue-9-oct
 
 Gary-owned: Code.gs redeploy; pearl clear coat; video fallbacks (Sat night + tomorrow night); opening choreography after Hyper3D.
 
-Creative backlog (later, Gary's call on where/when): iron chandelier with lit candles, swinging dramatically in a Passage — mesh from Hyper3D (Rodin iron variant, after Gary's review), then candle flames + swing rig (existing bulb-sway + P06 FX fire patterns).
+Creative backlog (later, Gary's call on where/when): iron chandelier with lit candles, swinging dramatically in a Passage — mesh from Hyper3D (Rodin iron variant, after Gary's review), then candle flames + swing rig: hang it on a CHAIN using the SAME rig as the lights on wings (Gary: "the same kind of physics as the lights on wings" = the fixtures bulb-sway, built 9 Oct 7f53ab6) — no new physics; P06 FX fire pattern for the candles. Image-based chandelier (~2.3 m, two tiers) delivered; iron variant generating.
