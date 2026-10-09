@@ -727,6 +727,18 @@ def _live_window(core, meas, plan):
     return core.window_report(meas["rows"], start, c["side"], c["n"], keeper), keeper
 
 
+def _window_refusals_for_apply(win, plan):
+    """Keep every live window refusal except the slab-thickness model in explicit non-contact choreography."""
+    refusals = list((win or {}).get("refusals") or [])
+    chain = plan.get("chain") or {}
+    rows = chain.get("rows") or []
+    if rows and chain.get("mode_b") == "choreographed" and all(
+            row.get("chain_mode") == "choreographed" for row in rows):
+        return [reason for reason in refusals
+                if not reason.split(": ", 1)[-1].startswith("TOO_THICK_FOR_SLAB:")]
+    return refusals
+
+
 def _excluded_fingerprints(core, excluded_guids, measured_rows, cue_texts):
     """Full-cue SHA256 by GUID.  This is deliberately wider than Mechanism so exclusion means no row write at all."""
     by_guid = {r["cue_guid"]: r for r in measured_rows}
@@ -848,16 +860,21 @@ def run_apply(ops, core, args, plan, run, here):
         _stop(ops, core, run, "EXCLUDED_ROWS_MISMATCH: APPLY=%s plan=%s" % (
             sorted(requested_excluded_guids), sorted(plan_excluded_guids)))
     win, keeper = _live_window(core, meas, plan)
-    if win is not None and win["refusals"]:
-        _stop(ops, core, run, "WINDOW_REFUSED_LIVE %s" % win["refusals"])
+    window_refusals = _window_refusals_for_apply(win, plan)
+    if window_refusals:
+        _stop(ops, core, run, "WINDOW_REFUSED_LIVE %s" % window_refusals)
     chain_guids = [r["cue_guid"] for r in (plan.get("chain") or {"rows": []})["rows"]]
     try:
         core.require_no_excluded_conflict(plan_excluded_guids, keeper, chain_guids)
     except core.PlanError as exc:
         _stop(ops, core, run, str(exc))
     live_inputs = core.inputs_for(meas, win, keeper, plan_excluded_guids)
-    if core.inputs_hash(live_inputs) != plan["inputs_hash"]:
+    live_inputs_hash = core.inputs_hash(live_inputs)
+    if live_inputs_hash != plan["inputs_hash"]:
         _stop(ops, core, run, "PLAN_STALE: live measurement hash differs from topple_plan.json (re-run DRY + make_keys)")
+    ops.log("%s_INPUTS_OK|run=%s|planned=%s|live=%s|rows=%d" % (
+        core.MARK, run, plan["inputs_hash"], live_inputs_hash,
+        len((plan.get("chain") or {"rows": []})["rows"])))
     if any(meas["modulation"].get(k) for k in ("wing_modulation", "speed_shaped", "longitudinal_offset")):
         _stop(ops, core, run, "MODULATION_LIVE %s" % json.dumps(meas["modulation"]))
     still_live, still_ref = (core.still_plan(meas["rows"], keeper, set(chain_guids), plan_excluded_guids)

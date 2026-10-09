@@ -339,6 +339,12 @@ def _mechanism_hashes(ops, guids):
     return {guid: hashlib.sha256(ops.read_row(guid)["mech_text"].encode("utf-8")).hexdigest() for guid in guids}
 
 
+def _legacy_chain_plan(plan):
+    """Present Chain B through the field-scoped legacy writer's exact plan contract."""
+    return {"parts": ["chain"], "still": [], "keeper": None, "chain": plan["chain_b"],
+            "inputs": plan["inputs"], "inputs_hash": plan["inputs_hash"]}
+
+
 def run_dry(args, plan, run):
     _guard_context()
     probe = _api_probe()
@@ -418,10 +424,19 @@ def run_apply(args, plan, run):
     ops = legacy.UnrealOps(top_core)
     a_guids = plan["chain_a"]["row_guids"]
     a_before = _mechanism_hashes(ops, a_guids)
-    legacy.run_apply(ops, top_core, {"override_flags": True, "pose_probe": args.get("pose_probe", True),
-                                    "decided_by": args["decided_by"]}, plan, run, records)
+    legacy_plan = _legacy_chain_plan(plan)
+    unreal.log("%s_B_POST_A_PLAN|run=%s|finale_hash=%s|legacy_hash=%s|rows=%d" % (
+        MARK, run, plan["inputs_hash"], legacy_plan["inputs_hash"], len(legacy_plan["chain"]["rows"])))
+    b_after = legacy.run_apply(
+        ops, top_core, {"override_flags": True, "pose_probe": args.get("pose_probe", True),
+                        "decided_by": args["decided_by"]}, legacy_plan, run, records)
+    b_guids = [r["cue_guid"] for r in plan["chain_b"]["rows"]]
+    if set(b_after) != set(b_guids):
+        raise LiveError("CHAIN_B_WRITE_SET_MISMATCH|got=%s|want=%s" % (sorted(b_after), sorted(b_guids)))
     if _mechanism_hashes(ops, a_guids) != a_before:
         raise LiveError("CHAIN_A_CHANGED_BY_B_APPLY")
+    unreal.log("%s_B_LEGACY_APPLY_OK|run=%s|written=%d|chain_a_bit_identical=1" % (
+        MARK, run, len(b_after)))
     choreo, sequence = _build_fx(plan, run)
     fx_after = _save_fx(plan, choreo, sequence)
     record.update(status="applied", chain_a_hashes=a_before, fx_after=fx_after,

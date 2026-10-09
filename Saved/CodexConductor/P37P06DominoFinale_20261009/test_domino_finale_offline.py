@@ -24,6 +24,8 @@ def load(name, path):
 
 
 T = load("p37_harness_topple_core", PROJECT / "Saved/CodexFlatV3/topple/topple_core.py")
+A = load("p37_harness_domino_apply", HERE / "domino_finale_apply.py")
+TA = load("p37_harness_topple_apply", PROJECT / "Saved/CodexFlatV3/topple/topple_apply.py")
 
 
 def check(name, condition):
@@ -225,6 +227,44 @@ check("production +: inherited dust and Collapse01 inventory gates passed",
       not production["dust_asset_inventory"]["particle_light_module_strings"] and
       production["slam_sound"]["asset"].endswith("Collapse01"))
 
+legacy_view = A._legacy_chain_plan(production)
+check("live adapter +: B uses the exact legacy chain-only plan schema",
+      set(legacy_view) == {"parts", "still", "keeper", "chain", "inputs", "inputs_hash"} and
+      legacy_view["parts"] == ["chain"] and legacy_view["still"] == [] and
+      legacy_view["keeper"] is None and legacy_view["chain"] is production["chain_b"])
+check("live adapter +: post-A legacy and finale input hashes match and B rows are present",
+      legacy_view["inputs_hash"] == production["inputs_hash"] and
+      [r["cue_guid"] for r in legacy_view["chain"]["rows"]] ==
+      [r["cue_guid"] for r in production["chain_b"]["rows"]])
+
+thick_refusals = [
+    "P06 Wing 016 R: TOO_THICK_FOR_SLAB: 72.0 cm",
+    "P06 Wing 022 R: TOO_THICK_FOR_SLAB: 96.8 cm",
+    "P06 Wing 025 R: TOO_THICK_FOR_SLAB: 72.0 cm",
+    "P06 Wing 044 R: PANEL_NOT_UPRIGHT",
+]
+check("live window +: choreographed mode bypasses only slab-thickness refusals",
+      TA._window_refusals_for_apply({"refusals": thick_refusals}, legacy_view) ==
+      ["P06 Wing 044 R: PANEL_NOT_UPRIGHT"])
+contact_view = copy.deepcopy(legacy_view)
+contact_view["chain"]["mode_b"] = "contact"
+for row in contact_view["chain"]["rows"]:
+    row["chain_mode"] = "contact"
+check("live window -: contact mode still refuses thick slabs",
+      TA._window_refusals_for_apply({"refusals": thick_refusals}, contact_view) == thick_refusals)
+
+input_rows = {row["label"]: row for row in production["inputs"]["rows"]}
+audits = {row["label"]: row for row in production["chain_b"]["fall_sweep_audit"]}
+thick_ind = {"P06 Wing 016": 72.0, "P06 Wing 022": 96.793, "P06 Wing 025": 72.0}
+check("production +: all three thick IND pieces are explicitly in B and thickness-hashed",
+      all(label in input_rows and abs(input_rows[label]["thickness_cm"] - thickness) < 1e-6
+          for label, thickness in thick_ind.items()))
+check("production +: all three thick IND pieces have clean standing-panel sweep audits",
+      all(label in audits and not audits[label]["standing_panel_intersections"] for label in thick_ind))
+check("production +: B end-margin gate covers the thick IND chain",
+      production["chain_b"]["timing"]["final_impact_s"] <=
+      production["chain_b"]["timing"]["segment_end_s"] - production["args"]["slam_lead_s"] + 1e-9)
+
 live_source = (HERE / "domino_finale_apply.py").read_text(encoding="utf-8")
 apply_b_source = live_source[live_source.index("def run_apply(args, plan, run):"):
                              live_source.index("def run_revert(args, plan, run):")]
@@ -242,6 +282,9 @@ check("live FX +: dust is tagged, non-auto, shadowless, and particle-triggered",
                                              '"cast_shadow", False', 'ParticleKey', '"TRIGGER"')))
 check("live records +: B and A_RESTYLE route to separate record directories",
       '"records", C.CHAIN_B' in live_source and '"records", C.CHAIN_A_RESTYLE' in live_source)
+check("live proof +: post-A matching hashes and exact B write set are logged/checked",
+      "B_POST_A_PLAN" in apply_b_source and "b_after = legacy.run_apply" in apply_b_source and
+      "CHAIN_B_WRITE_SET_MISMATCH" in apply_b_source and "B_LEGACY_APPLY_OK" in apply_b_source)
 
 from PIL import Image
 with Image.open(HERE / "p06_domino_finale_timeline.png") as timeline:
