@@ -27,6 +27,8 @@ public class InfinityStage : ModuleRules
             "SlateCore",
             // Scene video fallbacks (Cue Director CD4).
             "MediaAssets",
+            // USynthComponent::SetVolumeMultiplier (UMediaSoundComponent derives from it): link error without it.
+            "AudioMixer",
             "Json",
             "Niagara",
             // Scene arrivals play a backcloth's GeometryCache before the Scene (AInfinityStageArrival).

@@ -311,6 +311,11 @@ void UInfinityStageDirectorHudSubsystem::Initialize(FSubsystemCollectionBase& Co
         TEXT("Game"), FDebugDrawDelegate::CreateUObject(this, &UInfinityStageDirectorHudSubsystem::Draw));
 }
 
+void UInfinityStageDirectorHudSubsystem::SetShowRootForTests(AInfinityStageShowRoot* Root)
+{
+    CachedShowRoot = Root;
+}
+
 void UInfinityStageDirectorHudSubsystem::Deinitialize()
 {
     if (DrawHandle.IsValid())

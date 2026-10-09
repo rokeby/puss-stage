@@ -144,20 +144,20 @@ void UInfinityStageVideoFallbackSubsystem::Deinitialize()
 
 void UInfinityStageVideoFallbackSubsystem::ReloadRegistry()
 {
-    const FString Root = InfinityStageVideoFallback::ResolveRoot();
+    const FString FallbackRoot = InfinityStageVideoFallback::ResolveRoot();
     FString Text;
     Clips.Reset();
     FailedOrdinal = INDEX_NONE;
-    if (FFileHelper::LoadFileToString(Text, *FPaths::Combine(Root, TEXT("current.json"))))
+    if (FFileHelper::LoadFileToString(Text, *FPaths::Combine(FallbackRoot, TEXT("current.json"))))
     {
         TArray<FString> Warnings;
-        Clips = InfinityStageVideoFallback::ParseRegistry(Text, Root, Warnings);
+        Clips = InfinityStageVideoFallback::ParseRegistry(Text, FallbackRoot, Warnings);
         for (const FString& Warning : Warnings)
         {
             Warn(Warning);
         }
     }
-    UE_LOG(LogInfinityStageVideoFallback, Log, TEXT("INFINITY_VIDEO_FALLBACK_REGISTRY clips=%d root=%s"), Clips.Num(), *Root);
+    UE_LOG(LogInfinityStageVideoFallback, Log, TEXT("INFINITY_VIDEO_FALLBACK_REGISTRY clips=%d root=%s"), Clips.Num(), *FallbackRoot);
 }
 
 void UInfinityStageVideoFallbackSubsystem::Warn(const FString& Message)

@@ -112,7 +112,7 @@ public:
     FInfinityDirectorHudState GatherState();
 
     /** TEST SEAM: use this root instead of searching the world. */
-    void SetShowRootForTests(AInfinityStageShowRoot* Root) { CachedShowRoot = Root; }
+    void SetShowRootForTests(AInfinityStageShowRoot* Root);   // out of line: the root type is only forward-declared here
 
     /** TEST SEAM: how many times the per-segment cache was rebuilt. */
     int32 GetSegmentCacheBuildsForTests() const { return SegmentCacheBuilds; }
