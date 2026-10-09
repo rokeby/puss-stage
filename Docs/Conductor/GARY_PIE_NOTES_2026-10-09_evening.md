@@ -25,3 +25,4 @@
 - **E20 (cloud wings)**: the last few bays of cloud wings should widen a lot — **Gary does this manually**. No job.
 - **E21 (P05 transition curtain image)**: change it from a rabbit in a circle of toadstools to a **deer looking at the camera**, with the deer drawn a bit smaller. **Gary's note to self**: no job unless he asks.
 - **E22 (I5 curtain)**: hidden behind a wall. Not urgent, since the S5 hangar will change or go when Rob's material comes in. Revisit after Rob's S5 lands. No job now.
+- **E23 (S6)**: (a) a parcan stands in the middle of the frame as we arrive; Gary thinks it may be a misplaced Puss light. (b) The sunset is good, but the sun disc itself isn't visible, only its reflection. S6 is the ONLY place in the show where the sun should be visible. → Codex job 99.
