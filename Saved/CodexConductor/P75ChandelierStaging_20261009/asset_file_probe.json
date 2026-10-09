@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-10-09T16:23:18.3957232-04:00",
+  "offline_only": true,
+  "project_root_read_only": "E:/PussStage",
+  "production_files_expected": 26,
+  "production_files_present": 26,
+  "body": "Content/Scenes/Props/Chandelier/SM_Chandelier_Iron3.uasset",
+  "material": "Content/Scenes/Props/Chandelier/MI_Chandelier_Iron3.uasset",
+  "chain_mesh_pattern": "Content/Scenes/Props/Chandelier/Chain/ChainLink_00..23.uasset",
+  "chain_layout": "DerivedAssets/ChandelierBuild/Output/Iron3/chandelier_Iron3_chain.json",
+  "chain_layout_sha256": "cccc8d7356bbd0b33c50d6857d839a9b3524c12798496d26cc2e08f2c526381b",
+  "unreal_load_verified": false
+}
