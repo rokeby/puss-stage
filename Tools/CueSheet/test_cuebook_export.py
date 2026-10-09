@@ -64,6 +64,8 @@ class CueBookExportHarness(unittest.TestCase):
         CUE.WEB_BASELINE = str(docs / "web_baseline.json")
         CUE.WEB_REPORT = str(docs / "web_report.md")
         CUE.SURTITLES_EXPORT = str(content / "Puss_Surtitles.csv")
+        CUE.SURTITLES_BASE = str(docs / "surtitles_base.csv")
+        CUE.SEGMENT_MAP = str(root / "Tools" / "CueBook" / "segment_map.json")
         fields = ["Key", "Origin", "#", "Light", "Video Cue", "Speaker: Klara", "Notes", CUE.DIRECTOR]
         rows = [{"Key": "R1", "Origin": "shared", "#": "1", "Light": "warm, then dark",
                  "Video Cue": "Passage 1", "Speaker: Klara": "café \"line\"", "Notes": "keep\nline break",
@@ -98,7 +100,7 @@ class CueBookExportHarness(unittest.TestCase):
                 export_rows = list(csv.reader(handle))
             self.assertEqual(export_rows[0][-2:], ["At", "GO"])
             self.assertEqual(export_rows[2][-2:], ["1:14.5", "20 PASS"])
-            self.assertIn("CUE_SYNC_EXPORT_OK|cues=1|changed_files=", stdout.getvalue())
+            self.assertIn("CUE_SYNC_EXPORT_OK|cues=1|surtitles=0|changed_files=", stdout.getvalue())
             self.assertIn("Docs/CueSheet/working.csv", result["changed_files"])
 
     def test_export_is_byte_stable_on_second_run(self):
@@ -113,20 +115,97 @@ class CueBookExportHarness(unittest.TestCase):
             self.assertEqual(result["changed_files"], [])
             self.assertEqual(before, {path: pathlib.Path(path).read_bytes() for path in paths})
 
-    def test_export_calls_cb3_writer_when_present(self):
+    def test_surtitle_csv_round_trip_matches_branch_parser_rules(self):
+        lines = [
+            {"key": "TABC1", "ord": 10, "segment": "S5", "in": "1:14.5", "out": "1:16",
+             "speaker": "Mountain, left", "text": "A quoted \"rumble\"\nsecond line", "notes": ""},
+            {"key": "", "ord": 20, "segment": "S5", "in": "00:01:16:12", "out": "",
+             "speaker": "", "text": "", "notes": "clear"},
+        ]
+        text = CUE.surtitles_csv(lines, {"S5"})
+        rows, warnings = CUE.parse_surtitles_csv("ignored preamble\r\n" + text)
+        self.assertEqual(warnings, [])
+        self.assertEqual(rows[0]["text"], lines[0]["text"])
+        self.assertEqual(rows[0]["speaker"], "Mountain, left")
+        self.assertEqual(rows[1]["text"], "")
+        self.assertEqual(rows[1]["key"], "")
+        self.assertTrue(all(len(row) == 7 for row in csv.reader(io.StringIO(text))))
+
+    def test_surtitle_negative_bad_times_and_unknown_segment(self):
+        base = {"key": "TABC1", "segment": "S5", "in": "1", "out": "", "text": "hello"}
+        for patch in ({"in": "-1"}, {"in": "00:00:00:25"}, {"out": "0.5"}):
+            line = dict(base, **patch)
+            with self.subTest(patch=patch), self.assertRaises(ValueError):
+                CUE.surtitles_csv([line], {"S5"})
+        with self.assertRaisesRegex(ValueError, "unknown surtitle segment"):
+            CUE.surtitles_csv([dict(base, segment="S99")], {"S5"})
+
+    def test_export_writes_surtitles_and_base_byte_stably(self):
         with tempfile.TemporaryDirectory() as folder:
             source, _fields, _row = self._sandbox(pathlib.Path(folder))
             payload = json.loads(source.read_text(encoding="utf-8"))
-            payload["surtitles"] = [{"segment": "P1", "in": "1", "text": "Hello"}]
+            payload["surtitles"] = [{"key": "TABC1", "ord": 10, "segment": "Passage 1", "in": "1",
+                                      "out": "", "speaker": "", "text": "Hello", "notes": "", "cut": False}]
             source.write_text(json.dumps(payload), encoding="utf-8")
-            CUE.surtitles_csv = lambda lines: "Segment,In,Out,Speaker,Text,Notes\r\nP1,1,,,Hello,\r\n"
-            try:
-                with contextlib.redirect_stdout(io.StringIO()):
-                    result = CUE.cuebook_export(str(source))
-                self.assertIn("Content/InfinityStage/CueSheet/Puss_Surtitles.csv", result["changed_files"])
-                self.assertIn(b"Hello", pathlib.Path(CUE.SURTITLES_EXPORT).read_bytes())
-            finally:
-                del CUE.surtitles_csv
+            with contextlib.redirect_stdout(io.StringIO()):
+                result = CUE.cuebook_export(str(source))
+            self.assertEqual(result["surtitles"], 1)
+            self.assertIn("Content/InfinityStage/CueSheet/Puss_Surtitles.csv", result["changed_files"])
+            self.assertEqual(pathlib.Path(CUE.SURTITLES_EXPORT).read_bytes(), pathlib.Path(CUE.SURTITLES_BASE).read_bytes())
+            before = pathlib.Path(CUE.SURTITLES_EXPORT).read_bytes()
+            with contextlib.redirect_stdout(io.StringIO()):
+                second = CUE.cuebook_export(str(source))
+            self.assertEqual(second["changed_files"], [])
+            self.assertEqual(pathlib.Path(CUE.SURTITLES_EXPORT).read_bytes(), before)
+
+    def test_unreal_time_nudge_refuses_overwrite_and_returns_change(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source, _fields, _row = self._sandbox(pathlib.Path(folder))
+            payload = json.loads(source.read_text(encoding="utf-8"))
+            payload["surtitles"] = [{"key": "TABC1", "ord": 10, "segment": "Passage 1", "in": "1",
+                                      "out": "", "speaker": "", "text": "Hello", "notes": "", "cut": False}]
+            source.write_text(json.dumps(payload), encoding="utf-8")
+            with contextlib.redirect_stdout(io.StringIO()):
+                CUE.cuebook_export(str(source))
+            live = pathlib.Path(CUE.SURTITLES_EXPORT)
+            external = live.read_text(encoding="utf-8").replace("Passage 1,1,", "Passage 1,1.25,")
+            live.write_text(external, encoding="utf-8", newline="")
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                result = CUE.cuebook_export(str(source))
+            self.assertTrue(result["blocked"])
+            self.assertIn("CUE_SYNC_SURTITLES_UNREAL_EDITS|n=1|file=", stdout.getvalue())
+            self.assertEqual(live.read_text(encoding="utf-8"), external)
+            changes = json.loads((pathlib.Path(CUE.ROOT) / result["changes_file"]).read_text(encoding="utf-8"))
+            self.assertEqual(changes["changes"], [{"key": "TABC1", "field": "in", "from": "1", "to": "1.25"}])
+
+    def test_existing_unbased_unreal_row_is_not_overwritten(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source, _fields, _row = self._sandbox(pathlib.Path(folder))
+            payload = json.loads(source.read_text(encoding="utf-8"))
+            payload["surtitles"] = []
+            source.write_text(json.dumps(payload), encoding="utf-8")
+            live = pathlib.Path(CUE.SURTITLES_EXPORT)
+            live.parent.mkdir(parents=True, exist_ok=True)
+            original = "Segment,In,Out,Speaker,Text,Notes,Key\r\nPassage 1,2,,,From Unreal,,\r\n"
+            live.write_text(original, encoding="utf-8", newline="")
+            original_bytes = live.read_bytes()
+            with contextlib.redirect_stdout(io.StringIO()):
+                result = CUE.cuebook_export(str(source))
+            self.assertTrue(result["blocked"])
+            self.assertEqual(live.read_bytes(), original_bytes)
+            changes = json.loads((pathlib.Path(CUE.ROOT) / result["changes_file"]).read_text(encoding="utf-8"))
+            self.assertEqual(len(changes["adds"]), 1)
+
+    def test_both_side_edit_is_emitted_with_conflict_base(self):
+        base = "Segment,In,Out,Speaker,Text,Notes,Key\r\nS5,1,,,Hello,,TABC1\r\n"
+        live = base.replace("S5,1,", "S5,1.25,")
+        current = [{"key": "TABC1", "segment": "S5", "in": "1.5", "out": "", "speaker": "",
+                    "text": "Hello", "notes": "", "cut": False}]
+        changes, adds = CUE.unreal_surtitle_changes(base, live, current)
+        self.assertEqual(adds, [])
+        self.assertEqual(changes, [{"key": "TABC1", "field": "in", "from": "1", "to": "1.25"}])
+        self.assertNotEqual(current[0]["in"], changes[0]["from"])
 
     def test_existing_selftest_remains_23_of_23(self):
         output = io.StringIO()

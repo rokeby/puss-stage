@@ -52,6 +52,8 @@ Saved/Codex*/**
 *.sln
 Thumbs.db
 .DS_Store
+__pycache__/
+*.pyc
 
 # Codex run logs and ledger are transcripts, not source.
 Saved/CodexRuns/

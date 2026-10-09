@@ -9,6 +9,9 @@ segment, with stills, and edit it. No accounts. Built 8 Oct 2026 for Gary.
 - **Into the project:** `python Tools/CueSheet/cue_sync.py cuebook` (with `CUEBOOK_PASS` set) downloads the list,
   keeps the download in `Docs/CueSheet/pulls/`, and merges it into `Docs/CueSheet/working.csv`. A field edited both
   on the page and in the working copy keeps the working copy and is listed in `Docs/CueSheet/web_report.md`.
+- **Surtitles:** each segment has a light time-coded line view (In, Out, Speaker, Text, Notes). Empty Text with an
+  In time is a clear-screen row. `cue_sync.py export <backup.json>` writes the Unreal CSV and merge base; if Unreal
+  changed the CSV, export writes a previewable `kind: "changes"` file and refuses to overwrite that edit.
 
 ## How work is kept safe
 
@@ -44,12 +47,19 @@ segment, with stills, and edit it. No accounts. Built 8 Oct 2026 for Gary.
 Changing `Code.gs` later: paste the new code, then **Deploy > Manage deployments** > edit (pencil) > Version: **New
 version** > Deploy. The URL stays the same.
 
+The surtitles and cue At/GO fields require that redeploy. Until then the new page keeps cue editing available and
+says “Surtitles need the updated script.”
+
 ## Testing
 
 `python Tools/CueBook/test/build_test_site.py` builds `test/_build`: the real page with the REAL `Code.gs` running
 in the browser on a fake spreadsheet (`test/mock_services.js`), so the whole flow runs locally
 (`.claude/launch.json` entry `cuebook-test`, passcode `test-pass`). `window.MOCK_OFFLINE = true` simulates a dropped
 connection.
+
+`python Tools/CueBook/test/build_test_site.py --browser-harness` also injects the automated browser runner. Serve
+`test/_build` and open it in a browser: it finishes with `CUEBOOK_BROWSER_HARNESS_OK 5/5` after line add, edit,
+field-conflict, offline-reload and old-deployment controls. The normal build remains the interactive mock.
 
 Checked 8 Oct in the browser against the real `Code.gs` on the fake spreadsheet:
 - seed: 96 cues round-trip field for field; a second seed is refused; a wrong passcode is refused;

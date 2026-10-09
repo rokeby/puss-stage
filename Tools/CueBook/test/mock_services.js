@@ -56,6 +56,7 @@
   window.Utilities = { sleep: function () {}, formatDate: function () { return 'now'; } };
   window.ContentService = { MimeType: { JSON: 'json' }, createTextOutput: function (s) { return { text: s, setMimeType: function () { return this; } }; } };
   window.MOCK_OFFLINE = false;
+  window.MOCK_OLD_DEPLOYMENT = false;
   window.MOCK_CALLS = 0;
   window.mockReset = function () { data = {}; persist(); };
   // The page calls this instead of fetch. JSON round-trips both ways, like the network.
@@ -64,8 +65,9 @@
       setTimeout(function () {
         window.MOCK_CALLS++;
         if (window.MOCK_OFFLINE) return reject(Object.assign(new Error('offline'), { code: 'network' }));
-        var out = doPost({ postData: { contents: JSON.stringify(req) } });
-        resolve(JSON.parse(out.text));
+        var out = JSON.parse(doPost({ postData: { contents: JSON.stringify(req) } }).text);
+        if (window.MOCK_OLD_DEPLOYMENT && req.action === 'list') delete out.surtitles;
+        resolve(out);
       }, 120);
     });
   };

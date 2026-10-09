@@ -61,6 +61,9 @@ AT = 'At'
 GO = 'GO'
 WEB_BASELINE = os.path.join(DIR, 'web_baseline.json')
 WEB_REPORT = os.path.join(DIR, 'web_report.md')
+SURTITLES_EXPORT = os.path.join(ROOT, 'Content', 'InfinityStage', 'CueSheet', 'Puss_Surtitles.csv')
+SURTITLES_BASE = os.path.join(DIR, 'surtitles_base.csv')
+SEGMENT_MAP = os.path.join(ROOT, 'Tools', 'CueBook', 'segment_map.json')
 # page field -> working.csv column
 WEB_FIELDS = {'light': 'Light', 'soundTech': 'Sound tech', 'action': 'Action', 'soundCue': 'Sound cue',
               'videoCue': 'Video Cue', 'klara': 'Speaker: Klara', 'gary': 'Speaker: Gary',
@@ -68,6 +71,8 @@ WEB_FIELDS = {'light': 'Light', 'soundTech': 'Sound tech', 'action': 'Action', '
 CUT_MARK = '[CUT on the Cue Book]'
 TIME_FIELD = re.compile(r'^[+]?(?:\d+(?:\.\d*)?|\.\d+)$')
 GO_FIELD = re.compile(r'^([0-9]+(?:\.[0-9]+)?)(?:\s+(HOLD|PASS))?$')
+SURTITLE_FIELDS = ('segment', 'in', 'out', 'speaker', 'text', 'notes')
+SURTITLE_HEADERS = ('Segment', 'In', 'Out', 'Speaker', 'Text', 'Notes', 'Key')
 
 
 def parse_cue_time(text, fps=25.0):
@@ -100,6 +105,126 @@ def parse_go(text):
         raise ValueError('bad GO %r (expected "<number> [HOLD|PASS]")' % text)
     number, mode = match.groups()
     return number, mode, number + ((' ' + mode) if mode else '')
+
+
+def _segment_map():
+    """cb2 label -> transport key map, when that stream has supplied it; otherwise empty."""
+    if not os.path.exists(SEGMENT_MAP):
+        return {}
+    with open(SEGMENT_MAP, encoding='utf-8') as handle:
+        data = json.load(handle)
+    if isinstance(data, dict):
+        data = data.get('segments', data)
+    if isinstance(data, list):
+        pairs = ((item.get('label') or item.get('name'), item.get('key') or item.get('id'))
+                 for item in data if isinstance(item, dict))
+    elif isinstance(data, dict):
+        pairs = data.items()
+    else:
+        return {}
+    return {str(label).strip(): str(key).strip() for label, key in pairs if label and isinstance(key, str) and key.strip()}
+
+
+def cuebook_segments(cues):
+    labels = ['Prologue']
+    for cue in sorted(cues, key=lambda item: float(item.get('ord') or 0)):
+        label = str(cue.get('videoCue') or '').strip().split('\n', 1)[0]
+        if label and not cue.get('cut'):
+            labels.append(label)
+    mapping = _segment_map()
+    known = set(labels) | {mapping[label] for label in labels if label in mapping}
+    return known, mapping
+
+
+def validate_surtitle_line(line, known_segments=None):
+    segment = str(line.get('segment') or '').strip()
+    in_text = str(line.get('in') or '').strip()
+    out_text = str(line.get('out') or '').strip()
+    if not segment:
+        raise ValueError('a surtitle line has no segment')
+    if known_segments is not None and segment not in known_segments:
+        raise ValueError('unknown surtitle segment %r' % segment)
+    in_seconds = parse_cue_time(in_text)
+    if out_text:
+        out_seconds = parse_cue_time(out_text)
+        if out_seconds <= in_seconds:
+            raise ValueError('surtitle Out must be after In (%r <= %r)' % (out_text, in_text))
+    return segment
+
+
+def surtitles_csv(lines, known_segments=None, segment_map=None):
+    """Cue Book lines -> RFC-4180 sheet accepted by InfinityStageSurtitles.cpp:100,233-324,345-379."""
+    segment_map = segment_map or {}
+    output = io.StringIO(newline='')
+    writer = csv.writer(output, lineterminator='\r\n')
+    writer.writerow(SURTITLE_HEADERS)
+    live = [line for line in lines if not line.get('cut')]
+    live.sort(key=lambda line: (str(line.get('segment') or ''), parse_cue_time(line.get('in') or ''),
+                                float(line.get('ord') or 0), str(line.get('key') or '')))
+    for line in live:
+        segment = validate_surtitle_line(line, known_segments)
+        segment = segment_map.get(segment, segment)
+        writer.writerow([segment, str(line.get('in') or '').strip(), str(line.get('out') or '').strip(),
+                         str(line.get('speaker') or ''), str(line.get('text') or ''),
+                         str(line.get('notes') or ''), str(line.get('key') or '')])
+    return output.getvalue()
+
+
+def parse_surtitles_csv(text):
+    """Port of branch parser column/time rules for offline export/merge verification.
+
+    Source: InfinityStageSurtitles.cpp:100-119,233-324,345-379 on branch ``surtitles``.
+    Returns (accepted rows, warnings); an invalid Out holds to next line, matching the C++ parser.
+    """
+    table = list(csv.reader(io.StringIO(str(text).lstrip('\ufeff'))))
+    header_i = next((i for i, row in enumerate(table)
+                     if any(cell.strip().lower() == 'segment' for cell in row)), None)
+    if header_i is None:
+        return [], ['no header row (a cell "Segment")']
+    header = [cell.strip().lower() for cell in table[header_i]]
+    def column(*names):
+        lowered = [name.lower() for name in names]
+        return next((i for i, name in enumerate(header) if name in lowered), None)
+    cols = {'segment': column('Segment'), 'in': column('In', 'Start'), 'out': column('Out', 'End'),
+            'speaker': column('Speaker'), 'text': column('Text', 'Surtitle', 'Line'), 'key': column('Key'),
+            'notes': column('Notes')}
+    if cols['in'] is None or cols['text'] is None:
+        return [], ['the header needs In and Text columns']
+    def cell(row, name):
+        index = cols[name]
+        return row[index].strip() if index is not None and index < len(row) else ''
+    rows, warnings, carried = [], [], ''
+    for offset, source in enumerate(table[header_i + 1:], header_i + 2):
+        segment = cell(source, 'segment')
+        if segment:
+            carried = segment
+        in_text, line_text = cell(source, 'in'), cell(source, 'text')
+        if not in_text:
+            if line_text:
+                warnings.append('row %d: text with no In time, skipped' % offset)
+            continue
+        if not carried:
+            warnings.append('row %d: no Segment yet, skipped' % offset)
+            continue
+        try:
+            in_seconds = parse_cue_time(in_text)
+        except ValueError:
+            warnings.append('row %d: In %r is not a time, skipped' % (offset, in_text))
+            continue
+        out_text = cell(source, 'out')
+        if out_text:
+            try:
+                out_seconds = parse_cue_time(out_text)
+            except ValueError:
+                warnings.append('row %d: Out %r is not a time; held to the next line' % (offset, out_text))
+                out_text = ''
+            else:
+                if out_seconds <= in_seconds:
+                    warnings.append('row %d: Out is not after In, skipped' % offset)
+                    continue
+        rows.append({'segment': carried, 'in': in_text, 'out': out_text, 'speaker': cell(source, 'speaker'),
+                     'text': line_text, 'notes': cell(source, 'notes'), 'key': cell(source, 'key')})
+    return rows, warnings
 
 
 def validate_cuebook_docs(docs):
@@ -521,24 +646,107 @@ def _changed_rows(before, after, path):
     return sum(1 for a, b in itertools.zip_longest(old, new) if a != b)
 
 
+def _base36(number):
+    alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    out = ''
+    while number:
+        number, digit = divmod(number, 36)
+        out = alphabet[digit] + out
+    return out or '0'
+
+
+def _unreal_line_key(line, row_index):
+    material = json.dumps([row_index] + [line.get(field, '') for field in SURTITLE_FIELDS],
+                          ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+    return 'T' + _base36(int(hashlib.sha1(material).hexdigest()[:13], 16))[:11]
+
+
+def unreal_surtitle_changes(base_text, live_text, cuebook_lines):
+    """Return the field changes/adds still needed in the Cue Book for Unreal's version of the CSV."""
+    base_rows, base_warnings = parse_surtitles_csv(base_text)
+    live_rows, live_warnings = parse_surtitles_csv(live_text)
+    if base_warnings or live_warnings:
+        raise ValueError('cannot merge surtitle CSV with parser warnings: base=%r live=%r' %
+                         (base_warnings, live_warnings))
+    base_by_key = {row['key']: row for row in base_rows if row['key']}
+    current = {str(line.get('key') or ''): line for line in cuebook_lines if line.get('key')}
+    changes, adds, seen, previous = [], [], set(), ''
+    for index, row in enumerate(live_rows, 1):
+        key = row.get('key') or _unreal_line_key(row, index)
+        base = base_by_key.get(key)
+        now = current.get(key)
+        if base is None:
+            fields = {field: row.get(field, '') for field in SURTITLE_FIELDS}
+            if not now or any(str(now.get(field) or '') != value for field, value in fields.items()) or now.get('cut'):
+                adds.append({'key': key, 'after': previous, 'fields': fields})
+        else:
+            seen.add(key)
+            for field in SURTITLE_FIELDS:
+                old, new = base.get(field, ''), row.get(field, '')
+                if old != new and (not now or str(now.get(field) or '') != new):
+                    changes.append({'key': key, 'field': field, 'from': old, 'to': new})
+        previous = key
+    for key, base in base_by_key.items():
+        if key not in seen:
+            now = current.get(key)
+            if not now or not now.get('cut'):
+                changes.append({'key': key, 'field': 'cut', 'from': False, 'to': True,
+                                'why': 'row removed in Unreal'})
+    return changes, adds
+
+
+def write_surtitle_changes(changes, adds):
+    import datetime
+    out_dir = os.path.join(DIR, 'to_cuebook')
+    os.makedirs(out_dir, exist_ok=True)
+    stamp = datetime.datetime.now().strftime('%Y-%m-%dT%H%M%S')
+    out = os.path.join(out_dir, 'cuebook_surtitle_changes_%s.json' % stamp)
+    payload = {'app': 'puss-cue-book', 'kind': 'changes', 'target': 'surtitles',
+               'created': datetime.datetime.now().isoformat(),
+               'source': 'Content/InfinityStage/CueSheet/Puss_Surtitles.csv',
+               'changes': changes, 'adds': adds}
+    with open(out, 'w', encoding='utf-8') as handle:
+        json.dump(payload, handle, ensure_ascii=False, indent=1)
+    return out
+
+
+def atomic_write(path, text):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    temp = path + '.tmp'
+    with open(temp, 'w', encoding='utf-8', newline='') as handle:
+        handle.write(text)
+    os.replace(temp, path)
+
+
 def cuebook_export(path):
     """Saved Cue Book -> merge -> render -> optional cb3 surtitle export, with deterministic summaries."""
     with open(path, encoding='utf-8') as handle:
         payload = json.load(handle)
+    surtitle_text = None
+    if 'surtitles' in payload:
+        known_segments, mapping = cuebook_segments(payload.get('cues') or [])
+        surtitle_text = surtitles_csv(payload.get('surtitles') or [], known_segments, mapping)
+        if os.path.exists(SURTITLES_EXPORT):
+            live = _bytes(SURTITLES_EXPORT)
+            base = _bytes(SURTITLES_BASE) if os.path.exists(SURTITLES_BASE) else surtitles_csv([]).encode('utf-8')
+            if live != base:
+                changes, adds = unreal_surtitle_changes(base.decode('utf-8-sig'), live.decode('utf-8-sig'),
+                                                        payload.get('surtitles') or [])
+                if changes or adds:
+                    change_file = write_surtitle_changes(changes, adds)
+                    rel = os.path.relpath(change_file, ROOT).replace('\\', '/')
+                    print('CUE_SYNC_SURTITLES_UNREAL_EDITS|n=%d|file=%s' % (len(changes) + len(adds), rel))
+                    return {'blocked': True, 'unreal_edits': len(changes) + len(adds), 'changes_file': rel,
+                            'changed_files': [rel]}
     candidates = [WORKING, WEB_BASELINE, WEB_REPORT, RENDER, EXPORT]
-    surtitle_path = globals().get('SURTITLES_EXPORT', os.path.join(
-        ROOT, 'Content', 'InfinityStage', 'CueSheet', 'Puss_Surtitles.csv'))
-    surtitle_writer = globals().get('surtitles_csv')
-    if callable(surtitle_writer) and 'surtitles' in payload:
-        candidates.append(surtitle_path)
+    if surtitle_text is not None:
+        candidates += [SURTITLES_EXPORT, SURTITLES_BASE]
     before = {p: _bytes(p) for p in candidates}
     summary = webpull(path, render_after=False)
     render()
-    if callable(surtitle_writer) and 'surtitles' in payload:
-        text = surtitle_writer(payload.get('surtitles') or [])
-        os.makedirs(os.path.dirname(surtitle_path), exist_ok=True)
-        with open(surtitle_path, 'w', encoding='utf-8', newline='') as handle:
-            handle.write(text)
+    if surtitle_text is not None:
+        atomic_write(SURTITLES_EXPORT, surtitle_text)
+        atomic_write(SURTITLES_BASE, surtitle_text)
     changed = []
     for output in candidates:
         after = _bytes(output)
@@ -548,9 +756,10 @@ def cuebook_export(path):
         print('CUE_SYNC_EXPORT_FILE|path=%s|changed_rows=%d|bytes_before=%d|bytes_after=%d|sha256=%s' %
               (changed[-1], _changed_rows(before[output], after, output), len(before[output]), len(after),
                hashlib.sha256(after).hexdigest()))
-    print('CUE_SYNC_EXPORT_OK|cues=%d|changed_files=%s' %
-          (summary['docs'], json.dumps(changed, separators=(',', ':'))))
-    return {'cues': summary['docs'], 'changed_files': changed}
+    surtitle_count = len([line for line in payload.get('surtitles', []) if not line.get('cut')])
+    print('CUE_SYNC_EXPORT_OK|cues=%d|surtitles=%d|changed_files=%s' %
+          (summary['docs'], surtitle_count, json.dumps(changed, separators=(',', ':'))))
+    return {'cues': summary['docs'], 'surtitles': surtitle_count, 'changed_files': changed}
 
 
 def cuebook_pull():
@@ -575,9 +784,11 @@ def cuebook_pull():
     os.makedirs(os.path.join(DIR, 'pulls'), exist_ok=True)
     out = os.path.join(DIR, 'pulls', 'cuebook_%s.json' % datetime.datetime.now().strftime('%Y-%m-%dT%H%M'))
     with open(out, 'w', encoding='utf-8') as f:
-        json.dump({'app': 'puss-cue-book', 'saved': datetime.datetime.now().isoformat(), 'cues': res['cues']}, f,
+        json.dump({'app': 'puss-cue-book', 'saved': datetime.datetime.now().isoformat(), 'cues': res['cues'],
+                   'surtitles': res.get('surtitles', [])}, f,
                   ensure_ascii=False, indent=1)
-    print('CUE_SYNC_CUEBOOK_DOWNLOADED cues=%d file=%s' % (len(res['cues']), out))
+    print('CUE_SYNC_CUEBOOK_DOWNLOADED cues=%d surtitles=%d file=%s' %
+          (len(res['cues']), len(res.get('surtitles', [])), out))
     webpull(out)
 
 
