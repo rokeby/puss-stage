@@ -137,6 +137,13 @@ def run():
     check("positive", "cat_uses_shared_interface", len(cat_result.poses) == round(cat_length * fps),
           len(cat_result.poses))
 
+    check("positive", "default_render_scale_is_two", clip.scaled_render_size(803) == 1606)
+    try:
+        clip.scaled_render_size(803, 0.5)
+        check("negative", "sub_1x_render_scale_refused", False, "accepted")
+    except ValueError as exc:
+        check("negative", "sub_1x_render_scale_refused", "at least 1" in str(exc), str(exc))
+
     passed = sum(ok for _kind, _label, ok, _detail in RESULTS)
     positive = [item for item in RESULTS if item[0] == "positive"]
     negative = [item for item in RESULTS if item[0] == "negative"]

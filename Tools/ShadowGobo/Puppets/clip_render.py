@@ -22,6 +22,16 @@ DEFAULT_DISPLAY_FPS = 25.0
 DEFAULT_FACE_SWAP = 0.5
 DEFAULT_QUANTUM = 0.01
 MIN_BUDGET_MOVE_FRAMES = 4
+DEFAULT_RENDER_SCALE = 2.0
+
+
+def scaled_render_size(cell_inner_px: int, render_scale: float = DEFAULT_RENDER_SCALE) -> int:
+    """Source-frame dimension for a target atlas-cell interior."""
+    if cell_inner_px < 1:
+        raise ValueError("cell_inner_px must be positive")
+    if render_scale < 1.0:
+        raise ValueError("render_scale must be at least 1")
+    return int(math.ceil(float(cell_inner_px) * float(render_scale)))
 
 
 @dataclass

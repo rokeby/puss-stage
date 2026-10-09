@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "claims": [
+    {
+      "tier": "declaration-proven",
+      "claim": "Boy rods are authored at width 5 world units.",
+      "evidence": "Tools/ShadowGobo/Puppets/boy_rig.py:295"
+    },
+    {
+      "tier": "declaration-proven",
+      "claim": "The narrowest slit used by the rub clip is width 4 world units.",
+      "evidence": "Tools/ShadowGobo/Puppets/boy_rig.py:94,103,440-454"
+    },
+    {
+      "tier": "measured",
+      "claim": "Widths below are projected into cell pixels from the 1450-unit clip window.",
+      "evidence": "Tools/ShadowGobo/Puppets/boy_rig.py:503-508"
+    }
+  ],
+  "minimum_required_px": 2.0,
+  "actual_clip": {
+    "atlas_px": 8192,
+    "inner_px": 803,
+    "features": {
+      "main_and_arm_rods": {
+        "world_width": 5.0,
+        "cell_px": 2.769,
+        "meets_2px": true,
+        "warning": null
+      },
+      "narrowest_clip_slit": {
+        "world_width": 4.0,
+        "cell_px": 2.2152,
+        "meets_2px": true,
+        "warning": null
+      }
+    }
+  },
+  "planning_case": {
+    "cells": 196,
+    "cols": 14,
+    "cell_px": 585,
+    "inner_px": 569,
+    "features": {
+      "main_and_arm_rods": {
+        "world_width": 5.0,
+        "cell_px": 1.9621,
+        "meets_2px": false,
+        "warning": "MIN_FEATURE_WIDTH|main_and_arm_rods=1.962px|required=2.000px"
+      },
+      "narrowest_clip_slit": {
+        "world_width": 4.0,
+        "cell_px": 1.5697,
+        "meets_2px": false,
+        "warning": "MIN_FEATURE_WIDTH|narrowest_clip_slit=1.570px|required=2.000px"
+      }
+    }
+  }
+}

@@ -24,6 +24,7 @@ from PIL import Image, ImageDraw, ImageFilter
 sys.path.insert(0, str(Path(__file__).parent))
 from puppet_cut import chain, slit, punch  # noqa: E402
 from clip_render import (DEFAULT_DISPLAY_FPS, clip_frames as shared_clip_frames,
+                         scaled_render_size,
                          render_clip as shared_render_clip)  # noqa: E402
 
 # ------------------------------------------------------------------------------------------------ head (local)
@@ -500,10 +501,11 @@ def clip_frames(keys, length, fps=DEFAULT_DISPLAY_FPS, tear_speed=0.45, face_swa
 
 
 def render_clip(keys, length, out, fps=DEFAULT_DISPLAY_FPS, window=(540.0, 560.0, 1450.0),
-                cell_px=640, max_cells=None, tear_speed=0.45, face_swap=0.5):
+                cell_px=640, max_cells=None, tear_speed=0.45, face_swap=0.5, render_scale=1.0):
     """Sharp transmission frames (white = light passes) of a square world window, one PNG per clip frame."""
     cx, cy, size = window
-    view = dict(x0=cx - size / 2, y0=cy - size / 2, scale=cell_px / size, w=cell_px, h=cell_px)
+    render_px = scaled_render_size(cell_px, render_scale)
+    view = dict(x0=cx - size / 2, y0=cy - size / 2, scale=render_px / size, w=render_px, h=render_px)
     return shared_render_clip(
         keys, length, Path(out), lambda pose: render_pose(pose, ss=2, view=view), fps=fps,
         max_cells=max_cells, tear_speed=tear_speed, face_swap=face_swap,
