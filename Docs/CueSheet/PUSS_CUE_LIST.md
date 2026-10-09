@@ -107,9 +107,9 @@ the shared Google Sheet is never written. *Local* = a row added here; **Director
 - `R0070` **CAMERON:** cough, whimper
 - `R0071` **KLARA:** So Puss...
 
-## Passage 5
+## Passage 4
 
-- `R0072` **Video Cue:** Passage 5 | **KLARA:** walked on
+- `R0072` **Video Cue:** Passage 4 | **KLARA:** walked on
 - `R0073` **KLARA:** And when nine years had passed, around 4pm in the afternoon, they arrived at a school.
 
 ## Scene 4
@@ -130,9 +130,9 @@ the shared Google Sheet is never written. *Local* = a row added here; **Director
 - `R0084` **Action:** Puss purr
 - `R0085` **KLARA:** Purred Puss. And they set off again
 
-## Passage 4
+## Passage 5
 
-- `R0086` **Video Cue:** Passage 4
+- `R0086` **Video Cue:** Passage 5
 - `R0087` **KLARA:** For 30 seconds he walked, until he came upon a lush valley, in whose bosom lay a village, flanked by two great mountains, Pilatus the tall, and Rigi the old and fat.
 
 ## Scene 5: Mountains
