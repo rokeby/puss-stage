@@ -1,0 +1,7 @@
+{
+  "mode": "DRY",
+  "run": "J95-DRY-001",
+  "confirm": "CONFIRM_JOB95_DRY",
+  "settle_seconds": 3.0,
+  "record": "records/job95_J95-APPLY-001_apply.json"
+}

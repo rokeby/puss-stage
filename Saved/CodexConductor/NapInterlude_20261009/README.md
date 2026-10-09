@@ -86,3 +86,40 @@ python Saved/CodexConductor/NapInterlude_20261009/test_nap_interlude.py
 ```
 
 Expected: `P79_NAP_HARNESS_OK|positive=3/3|negative=14/14|checks=45`.
+
+## Job 97 / E18 in-place revision (9 Oct evening)
+
+Do not rerun P79 insertion: the Nap is already applied. Job 97 is
+`e18_nap_revision.py`, launched by `e18_nap_revision_run.py`; editable live
+values and mode/confirmation are in `e18_nap_revision_settings.py`. It anchors
+the existing cue on minted GUID `211B6129497610E7977707AA939D7763`, never writes
+`cue_guid`, and renames both cue and same-frame GO marker to
+`Interlude: Puss Sleep/Wet Tennis Ball/Battery`. It pins the recorded Master
+range at 1490.64–1511.64 s and refuses or reports any timing change.
+
+The patch hides the existing cat reversibly, puts the breath on the ground-level
+camera (Z 45 cm, 1.25 cm rise/fall, 0.20 degree roll, four-second seamless AUTO
+cycle), dims the two P79 lights to 18/8, and audits I1–I5 in I4-first order. For
+each existing named shadow-spot pair it adds explicit zero-intensity/unspawned
+keys at the sequence end; zero bindings means absent, while exactly one refuses.
+
+Run DRY first with `DRY E18 <run>`, review its exact dynamic package census,
+JSON/PNG and stills plan, then APPLY from unchanged state with
+`APPLY E18 <new-run>`. APPLY backs up every named package before mutation,
+requires precisely that dirty census, target-saves it, and reads it back before
+`E18_NAP_REVISION_APPLY_OK`. Run `SavedMasterMatchesShow` and
+`SceneCutBindingsResolve` separately, then capture entry, breath peak, both vamp
+seam sides, and I4 terminal darkness. PIE/rendered acceptance must prove no cat,
+CAT'S VIEW, near-dark ambience, seamless breath, one-GO release, unchanged P05
+handoff, and terminal darkness across all interactions.
+
+REVERT uses `REVERT E18 <apply-run>` plus `source_run_id=<apply-run>`. It takes a
+fresh backup, restores complete recorded cue/marker, cat, camera, lights and spot
+channels, target-saves the same package set, and requires exact semantic
+read-back. Offline harness command:
+
+```powershell
+python Saved/CodexConductor/NapInterlude_20261009/test_e18_nap_revision.py
+```
+
+Expected: `E18_NAP_REVISION_HARNESS_OK|positive=3/3|negative=15/15|checks=26/26`.

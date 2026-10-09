@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <pattern id="rivets" width="80" height="80" patternUnits="userSpaceOnUse">
+      <circle cx="20" cy="20" r="8" fill="#7b826f" stroke="#161a15" stroke-width="5"/>
+      <circle cx="20" cy="20" r="3" fill="#b8bda7"/>
+    </pattern>
+    <filter id="rough"><feTurbulence baseFrequency=".025 .09" numOctaves="3" seed="98" result="n"/><feColorMatrix in="n" values=".8 0 0 0 .05  0 .35 0 0 .01  0 0 .12 0 0  0 0 0 .7 0"/></filter>
+  </defs>
+  <rect width="1280" height="720" fill="#171a1b"/>
+  <text x="55" y="64" fill="#f1eee4" font-family="sans-serif" font-size="30" font-weight="bold">S5 girder surface — offline parameter preview</text>
+  <text x="55" y="100" fill="#aaa" font-family="sans-serif" font-size="18">Diagram, not an Unreal render. Fog and brightness are deliberately absent and unchanged.</text>
+  <g transform="translate(70 150)">
+    <rect width="530" height="420" rx="14" fill="#203223"/>
+    <rect width="530" height="420" rx="14" fill="#000" opacity=".42" filter="url(#rough)"/>
+    <path d="M0 65 C90 5 130 125 230 55 S390 120 530 25 L530 170 C410 120 350 210 220 140 S80 190 0 130Z" fill="#6e2811" opacity=".52"/>
+    <rect width="530" height="95" fill="url(#rivets)" opacity=".95"/>
+    <path d="M5 10 L525 10 M5 410 L525 410" stroke="#b2b89f" stroke-width="9" opacity=".45"/>
+    <text x="24" y="390" fill="#f1eee4" font-family="sans-serif" font-size="26">Rig MI</text>
+    <text x="24" y="418" fill="#d2cbbd" font-family="sans-serif" font-size="16">stronger chips / grime / rivet normal</text>
+  </g>
+  <g transform="translate(680 150)">
+    <rect width="530" height="420" rx="14" fill="#203223"/>
+    <rect width="530" height="420" rx="14" fill="#000" opacity=".34" filter="url(#rough)"/>
+    <path d="M0 100 C65 35 120 145 195 70 S330 145 405 75 S485 115 530 55 L530 185 C430 145 370 225 270 155 S90 235 0 165Z" fill="#6e2811" opacity=".45"/>
+    <rect width="530" height="95" fill="url(#rivets)" opacity=".82"/>
+    <path d="M5 10 L525 10 M5 410 L525 410" stroke="#b2b89f" stroke-width="9" opacity=".38"/>
+    <text x="24" y="390" fill="#f1eee4" font-family="sans-serif" font-size="26">Hangar MI</text>
+    <text x="24" y="418" fill="#d2cbbd" font-family="sans-serif" font-size="16">tighter tiling for scaled cube lattice</text>
+  </g>
+  <text x="70" y="625" fill="#d0ccc0" font-family="sans-serif" font-size="18">Shared parent: M_UP_PaintedSteel · dark green paint · brown-orange rust · black grime band · edge/rivet highlights</text>
+  <text x="70" y="660" fill="#999" font-family="sans-serif" font-size="16">Gary-owned defaults live in s5_girder_texture_args.json; rendered A/B stills are the acceptance gate.</text>
+</svg>

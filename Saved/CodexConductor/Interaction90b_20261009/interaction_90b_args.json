@@ -1,0 +1,16 @@
+{
+  "mode": "DRY",
+  "confirm": "DRY INTERACTION90B",
+  "run_id": "I90B-DRY-SET-UNIQUE",
+  "params": {
+    "i2_enabled": true,
+    "i3_enabled": true,
+    "i3_reveal_gap_frames": 2,
+    "i3_spot_fade_frames": 100,
+    "s3_black_fade_frames": 25,
+    "lighting_audit_interactions": [1, 2, 3, 4, 5],
+    "lighting_fix_steps": [],
+    "through_plane_margin_cm": 1.0,
+    "numeric_tolerance": 0.0001
+  }
+}

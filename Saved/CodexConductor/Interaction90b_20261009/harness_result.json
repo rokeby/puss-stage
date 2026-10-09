@@ -1,0 +1,8 @@
+{
+  "command": "python Saved/CodexConductor/Interaction90b_20261009/test_interaction_90b.py",
+  "fail": 0,
+  "pass": 16,
+  "result": "INTERACTION_90B_HARNESS|pass=16|fail=0|total=16",
+  "tier": "measured-offline",
+  "total": 16
+}

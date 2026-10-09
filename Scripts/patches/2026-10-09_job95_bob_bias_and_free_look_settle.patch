@@ -1,0 +1,172 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
+@@ -701,6 +701,7 @@ FInfinityGaitBob AInfinityStageCameraRig::StepGaitBob(
+     if (DeltaSeconds == 0.0)
+     {
++        const double CentredLiftCm = RawLiftCm - State.LiftMeanCm;
+         return {
+-            State.WalkWeight * RawLiftCm,
+-            State.WalkWeight * (RawLiftCm - State.LiftMeanCm) * RollDegPerCm};
++            State.WalkWeight * CentredLiftCm,
++            State.WalkWeight * CentredLiftCm * RollDegPerCm};
+     }
+@@ -718,7 +719,8 @@ FInfinityGaitBob AInfinityStageCameraRig::StepGaitBob(
+         : 1.0;
+     State.WalkWeight += (TargetWeight - State.WalkWeight) * WeightAlpha;
+ 
++    const double CentredLiftCm = RawLiftCm - State.LiftMeanCm;
+     return {
+-        State.WalkWeight * RawLiftCm,
+-        State.WalkWeight * (RawLiftCm - State.LiftMeanCm) * RollDegPerCm};
++        State.WalkWeight * CentredLiftCm,
++        State.WalkWeight * CentredLiftCm * RollDegPerCm};
+ }
+@@ -766,7 +768,8 @@ double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
+         return 0.0;
+     }
+ 
+-    // Rest height comes from the reference (bind) pose. That is not the walk's
+-    // mean: a walking cat sits lower, so the raw lift can stay biased negative.
+-    // Height keeps that bias; StepGaitBob centres only the roll on the raw mean.
++    // The bind pose is only the stable measurement reference. A walking cat sits
++    // lower than that pose, so RawLiftCm carries a persistent negative bias.
++    // StepGaitBob removes its running mean from BOTH height and roll: only the
++    // gait excursion moves the camera, never the walk-vs-bind pose difference.
+     TArray<FTransform> RestComponentSpace;
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
+@@ -280,5 +280,5 @@ public:
+      */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Camera|Crossing Settle",
+-        meta = (ClampMin = "0.0", UIMax = "3.0", Units = "s"))
+-    double CrossingSettleSeconds = 1.0;
++        meta = (ClampMin = "0.0", UIMax = "5.0", Units = "s"))
++    double CrossingSettleSeconds = 3.0;
+ 
+     /** This master frame's settle share: 1 outside the window, 0 at the Passage end. */
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGaitBobTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGaitBobTests.cpp
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGaitBobTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGaitBobTests.cpp
+@@ -16,5 +16,5 @@ bool FInfinityStageGaitBobMasterTimedTest::RunTest(const FString& Parameters)
+     constexpr double FadeSeconds = 0.5;
+     constexpr double RollDegPerCm = 0.12;
+ 
+-    // (a) A biased constant lift remains as height but converges to no roll.
++    // (a) The bind-vs-walk bias is not gait: a constant lift converges to no height or roll.
+     {
+@@ -30,6 +30,6 @@ bool FInfinityStageGaitBobMasterTimedTest::RunTest(const FString& Parameters)
+                 State, Frame * FrameSeconds, -15.0, ReferenceSpeed, ReferenceSpeed,
+                 RollMeanSeconds, FadeSeconds, RollDegPerCm);
+         }
+-        TestEqual(TEXT("Walking weight converges to the full -15 cm height"), Bob.HeightCm, -15.0, 0.001);
+-        TestTrue(TEXT("A constant biased raw lift converges to zero roll"), FMath::Abs(Bob.RollDeg) < 1.0e-9);
++        TestTrue(TEXT("A constant bind-pose bias converges to zero height"), FMath::Abs(Bob.HeightCm) < 1.0e-9);
++        TestTrue(TEXT("A constant bind-pose bias converges to zero roll"), FMath::Abs(Bob.RollDeg) < 1.0e-9);
+     }
+@@ -123,4 +123,5 @@ bool FInfinityStageGaitBobMasterTimedTest::RunTest(const FString& Parameters)
+     // (f) At full weight, a -15 +/- 8 cm gait rolls both ways and averages near zero.
+     {
+         FInfinityGaitBobState State;
++        double MaxAbsHeight = 0.0;
+         State.bPrimed = true;
+@@ -141,9 +142,11 @@ bool FInfinityStageGaitBobMasterTimedTest::RunTest(const FString& Parameters)
+             if (Frame > 300)
+             {
++                MaxAbsHeight = FMath::Max(MaxAbsHeight, FMath::Abs(Bob.HeightCm));
+                 MinRoll = FMath::Min(MinRoll, Bob.RollDeg);
+                 MaxRoll = FMath::Max(MaxRoll, Bob.RollDeg);
+                 RollSum += Bob.RollDeg;
+                 ++Samples;
+             }
+         }
++        TestTrue(TEXT("The centred gait still carries a visible height excursion"), MaxAbsHeight > 5.0);
+         TestTrue(TEXT("A biased oscillating gait rolls to both sides"), MinRoll < -0.5 && MaxRoll > 0.5);
+         TestTrue(TEXT("A biased oscillating gait averages near zero roll"), FMath::Abs(RollSum / Samples) < 0.02);
+diff --git a/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp b/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp
+--- a/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp
++++ b/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp
+@@ -10,4 +10,5 @@
+ #include "EngineUtils.h"
+ #include "GameFramework/Actor.h"
+ #include "GameFramework/PlayerController.h"
++#include "InfinityStageCameraRig.h"
+ #include "InfinityStageShowRoot.h"
+@@ -463,4 +464,18 @@ void UGo1RemoteReceiverComponent::UpdateLook(
+ 
+ 		Target = AccumulatedLook;
++		// A Passage rig's Master-time crossing envelope is already the authored
++		// ease to its Scene Entry pose. Free Look uses that same envelope, so a
++		// dog/mouse look returns to the route aim BEFORE the cut rather than
++		// disappearing on it. Gaze remains live, and non-Passage cameras keep
++		// their existing behavior. At the boundary the weight is exactly zero.
++		if (!bGaze)
++		{
++			if (const AInfinityStageCameraRig* PassageRig = Cast<AInfinityStageCameraRig>(TargetActor))
++			{
++				const double Weight = FMath::Clamp(PassageRig->CurrentCrossingSettleWeight, 0.0, 1.0);
++				Target.Pitch *= Weight;
++				Target.Yaw *= Weight;
++			}
++		}
+ 		if (bGaze)
+ 		{
+diff --git a/Plugins/Go1Input/Source/Go1Input/Private/Go1LookResetAtCutTests.cpp b/Plugins/Go1Input/Source/Go1Input/Private/Go1LookResetAtCutTests.cpp
+--- a/Plugins/Go1Input/Source/Go1Input/Private/Go1LookResetAtCutTests.cpp
++++ b/Plugins/Go1Input/Source/Go1Input/Private/Go1LookResetAtCutTests.cpp
+@@ -7,2 +7,3 @@
+ #include "GameFramework/PlayerController.h"
++#include "InfinityStageCameraRig.h"
+ #include "Kismet/GameplayStatics.h"
+@@ -198,4 +199,50 @@ bool FGo1LookResetEasesAcrossBlendTest::RunTest(const FString& Parameters)
+ 	return true;
+ }
+ 
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++	FGo1FreeLookReturnsDuringPassageSettleTest,
++	"InfinityStage.Go1.FreeLookReturnsDuringPassageSettle",
++	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FGo1FreeLookReturnsDuringPassageSettleTest::RunTest(const FString& Parameters)
++{
++	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++	AInfinityStageCameraRig* Rig = World->SpawnActor<AInfinityStageCameraRig>();
++	AActor* Host = World->SpawnActor<AActor>();
++	UGo1RemoteReceiverComponent* Receiver = Host ? NewObject<UGo1RemoteReceiverComponent>(Host) : nullptr;
++	if (!TestTrue(TEXT("Fixture: Passage rig and receiver"), Rig && Receiver))
++	{
++		World->DestroyWorld(false);
++		return true;
++	}
++	if (!Rig->Camera->IsActive())
++	{
++		Rig->Camera->Activate(true);
++	}
++	Receiver->RotationMode = EGo1RotationMode::Velocity;
++	Receiver->LookHandoverSeconds = 0.0f;
++	constexpr float Frame = 1.0f / 60.0f;
++
++	Rig->CurrentCrossingSettleWeight = 1.0;
++	Receiver->UpdateLook(Rig, false, false, FVector2D(5.0, -2.5), Frame);
++	const FRotator Full = Receiver->GetLookOffset();
++	TestTrue(TEXT("Control: Free Look is non-zero before the settle"),
++		FMath::IsNearlyEqual(Full.Yaw, 20.0, 0.01) && FMath::IsNearlyEqual(Full.Pitch, 10.0, 0.01));
++
++	Rig->CurrentCrossingSettleWeight = 0.5;
++	Receiver->UpdateLook(Rig, false, false, FVector2D::ZeroVector, Frame);
++	const FRotator Half = Receiver->GetLookOffset();
++	TestTrue(TEXT("Halfway through the settle, Free Look is halfway home"),
++		FMath::IsNearlyEqual(Half.Yaw, 10.0, 0.01) && FMath::IsNearlyEqual(Half.Pitch, 5.0, 0.01));
++
++	Rig->CurrentCrossingSettleWeight = 0.0;
++	Receiver->UpdateLook(Rig, false, false, FVector2D::ZeroVector, Frame);
++	TestTrue(TEXT("At the Passage boundary, Free Look is exactly authored default"),
++		Receiver->GetLookOffset().IsNearlyZero(0.001));
++
++	Receiver->ReleaseLook();
++	World->DestroyWorld(false);
++	return true;
++}
++
+ #endif

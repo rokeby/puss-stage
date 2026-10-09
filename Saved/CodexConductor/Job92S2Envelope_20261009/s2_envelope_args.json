@@ -1,0 +1,31 @@
+{
+ "mode": "DRY",
+ "confirm": "DRY S2ENVELOPE",
+ "run_id": null,
+ "dry_plan_digest": null,
+ "old": {
+  "half_width_cm": 1000.0,
+  "height_cm": 3000.0,
+  "lattice_landed_z_cm": 1200.0,
+  "lattice_rest_z_cm": 2800.0,
+  "door_height_cm": 450.0,
+  "door_width_cm": 300.0,
+  "wall_thickness_cm": 50.0
+ },
+ "new": {
+  "half_width_cm": 2500.0,
+  "height_cm": 4500.0,
+  "lattice_landed_z_cm": 2800.0,
+  "lattice_rest_z_cm": 4200.0,
+  "door_height_cm": 450.0,
+  "door_width_cm": 300.0,
+  "wall_thickness_cm": 50.0
+ },
+ "bounds": {
+  "side_margin_cm": 300.0,
+  "top_margin_cm": 300.0,
+  "round_up_cm": 100.0
+ },
+ "approved_by": "PENDING conductor review of the live BOUNDS probe and stills",
+ "note": "2500/4500/2800/4200 cm are conservative offline defaults. APPLY refuses unless the live content bounds plus margins fit and its digest matches the preceding DRY."
+}

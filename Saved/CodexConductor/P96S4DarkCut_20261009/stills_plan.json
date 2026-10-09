@@ -1,0 +1,27 @@
+{
+  "schema": "p96_s4_dark_cut_stills/1",
+  "capture_rule": "For every frame containing the P04 Geometry Cache: pose, tick/decode, re-pose the same time, then capture.",
+  "scene_display_rate_fps": 25,
+  "frames": [
+    {"frame": 0, "name": "s4_first", "expect": "total darkness; no P04 or hangar light leakage"},
+    {"frame": 104, "name": "arrival_land", "expect": "total darkness at the former land beat"},
+    {"frame": 118, "name": "before_old_glide", "expect": "entry camera; total darkness"},
+    {"frame": 119, "name": "old_glide_start", "expect": "entry camera remains; no glide cut"},
+    {"frame": 319, "name": "before_old_crossfade", "expect": "total darkness"},
+    {"frame": 404, "name": "hard_cut_minus_1", "expect": "entry camera; total darkness"},
+    {"frame": 405, "name": "hard_cut", "expect": "Klara nested camera; her own dark opening; curtain hidden"},
+    {"frame": 406, "name": "hard_cut_plus_1", "expect": "same Klara shot; no one-frame flash"},
+    {"frame": 1050, "name": "klara_pullback_curtain_crossing", "expect": "no raised curtain in her camera path"},
+    {"frame": 2902, "name": "klara_rest_pose", "expect": "no curtain and no P04 light leakage"},
+    {"frame": 4499, "name": "klara_last", "expect": "Klara sequence still owns the image"},
+    {"frame": 4864, "name": "before_exit_cut", "expect": "no curtain reappearance"},
+    {"frame": 4865, "name": "exit_cut", "expect": "existing exit camera unchanged"}
+  ],
+  "pie_acceptance": [
+    "Run uninterrupted from the final 2 seconds of P04 through S4 frame 406.",
+    "Repeat by rehearsal jump to S4 frame 405 to expose Geometry Cache decode/stale-frame behavior.",
+    "Confirm P04 attachments and S4 hangar practicals contribute zero light before the cut.",
+    "Confirm the Klara cut has no unresolved-camera fallback and no one-frame flash.",
+    "Confirm the P04 backcloth remains hidden through Klara's pullback and does not reappear before the exit cut."
+  ]
+}

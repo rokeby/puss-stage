@@ -1,0 +1,24 @@
+{
+  "command": "python Saved/CodexConductor/S5GirderTexture_20261009/test_s5_girder_texture_offline.py",
+  "result": "PASS",
+  "tests": 22,
+  "failures": 0,
+  "errors": 0,
+  "controls": {
+    "positive": [
+      "DRY/APPLY/REVERT argument validation",
+      "Gary-owned look defaults",
+      "exact S5 beam/rail selection",
+      "assignment and float-tolerance read-back",
+      "narrow content plus one-map dirty census"
+    ],
+    "negative": [
+      "unknown mode and bad confirmations refused",
+      "out-of-range look values refused",
+      "near-match actors excluded",
+      "missing beam or rail family refused",
+      "assignment/scalar drift detected",
+      "foreign dirty content or map detected"
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "scope": "records/manifests only; no live editor census",
+  "structure_05": {
+    "evidence_tier": "measured from saved APPLY record",
+    "record": "Saved/CodexConductor/Girders_20261007/girders_v3_originals_GV3A-20261007-024125.json",
+    "status": "APPLIED",
+    "current_meshes_inferred_from_applied_plan": {
+      "gridiron": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder_v3",
+      "columns": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn_v3",
+      "knees": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket_v3"
+    },
+    "material_before_and_preserved_by_v3_apply": "/Game/InfinityStage/RigAtmos/Underpass/Materials/MI_UP_Steel_Green",
+    "recorded_instance_counts": {
+      "gridiron": 277,
+      "columns": 94,
+      "knees": 184
+    },
+    "live_census_required": true
+  },
+  "s5_hangar_lattice": {
+    "evidence_tier": "declaration-proven builder contract; current saved actors/materials inferred",
+    "declared_actor_labels": [
+      "S5 Hangar Lattice Beam NN",
+      "S5 Hangar Lattice Rail N"
+    ],
+    "declared_mesh": "/Engine/BasicShapes/Cube",
+    "declared_material": "/Game/StarterContent/Materials/M_Metal_Burnished_Steel",
+    "excluded": [
+      "hangar walls",
+      "hangar roof",
+      "bulbs and glow lights",
+      "practicals",
+      "fog, exposure and lighting"
+    ],
+    "live_census_required": true
+  }
+}

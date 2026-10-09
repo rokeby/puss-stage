@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="520" viewBox="0 0 1400 520">
+  <rect width="1400" height="520" fill="#111820"/>
+  <style>
+    text { font-family: Segoe UI, Arial, sans-serif; fill: #edf2f4; }
+    .title { font-size: 28px; font-weight: 700; }
+    .label { font-size: 18px; }
+    .small { font-size: 14px; fill: #b8c4cc; }
+    .old { fill: #d9a441; stroke: #ffe09a; stroke-width: 2; }
+    .new { fill: #477a5a; stroke: #8fc49e; stroke-width: 2; }
+    .line { stroke: #71808a; stroke-width: 3; }
+  </style>
+  <text x="55" y="55" class="title">P03 wing-pair depth order — Job 93 offline plan</text>
+  <text x="55" y="105" class="label">Before (saved-record reconstruction)</text>
+  <line x1="80" y1="165" x2="1320" y2="165" class="line"/>
+  <text x="55" y="170" class="small">front</text><text x="1325" y="170" class="small">S3</text>
+  <g transform="translate(110,130)">
+    <rect class="old" x="0" y="0" width="42" height="70" rx="5"/><rect class="old" x="55" y="0" width="42" height="70" rx="5"/><rect class="old" x="110" y="0" width="42" height="70" rx="5"/>
+    <rect class="new" x="165" y="0" width="42" height="70" rx="5"/><rect class="new" x="220" y="0" width="42" height="70" rx="5"/><rect class="new" x="275" y="0" width="42" height="70" rx="5"/><rect class="new" x="330" y="0" width="42" height="70" rx="5"/><rect class="new" x="385" y="0" width="42" height="70" rx="5"/><rect class="new" x="440" y="0" width="42" height="70" rx="5"/><rect class="new" x="495" y="0" width="42" height="70" rx="5"/><rect class="new" x="550" y="0" width="42" height="70" rx="5"/><rect class="new" x="605" y="0" width="42" height="70" rx="5"/><rect class="new" x="660" y="0" width="42" height="70" rx="5"/><rect class="new" x="715" y="0" width="42" height="70" rx="5"/><rect class="new" x="770" y="0" width="42" height="70" rx="5"/><rect class="new" x="825" y="0" width="42" height="70" rx="5"/><rect class="new" x="880" y="0" width="42" height="70" rx="5"/><rect class="new" x="935" y="0" width="42" height="70" rx="5"/><rect class="new" x="990" y="0" width="42" height="70" rx="5"/><rect class="new" x="1045" y="0" width="42" height="70" rx="5"/><rect class="new" x="1100" y="0" width="42" height="70" rx="5"/>
+  </g>
+  <text x="55" y="275" class="label">After (legacy pairs at ordinals 1, 8, 15; six newer rows between)</text>
+  <line x1="80" y1="335" x2="1320" y2="335" class="line"/>
+  <text x="55" y="340" class="small">front</text><text x="1325" y="340" class="small">S3</text>
+  <g transform="translate(110,300)">
+    <rect class="old" x="0" y="0" width="42" height="70" rx="5"/>
+    <rect class="new" x="55" y="0" width="42" height="70" rx="5"/><rect class="new" x="110" y="0" width="42" height="70" rx="5"/><rect class="new" x="165" y="0" width="42" height="70" rx="5"/><rect class="new" x="220" y="0" width="42" height="70" rx="5"/><rect class="new" x="275" y="0" width="42" height="70" rx="5"/><rect class="new" x="330" y="0" width="42" height="70" rx="5"/>
+    <rect class="old" x="385" y="0" width="42" height="70" rx="5"/>
+    <rect class="new" x="440" y="0" width="42" height="70" rx="5"/><rect class="new" x="495" y="0" width="42" height="70" rx="5"/><rect class="new" x="550" y="0" width="42" height="70" rx="5"/><rect class="new" x="605" y="0" width="42" height="70" rx="5"/><rect class="new" x="660" y="0" width="42" height="70" rx="5"/><rect class="new" x="715" y="0" width="42" height="70" rx="5"/>
+    <rect class="old" x="770" y="0" width="42" height="70" rx="5"/>
+    <rect class="new" x="825" y="0" width="42" height="70" rx="5"/><rect class="new" x="880" y="0" width="42" height="70" rx="5"/><rect class="new" x="935" y="0" width="42" height="70" rx="5"/><rect class="new" x="990" y="0" width="42" height="70" rx="5"/><rect class="new" x="1045" y="0" width="42" height="70" rx="5"/><rect class="new" x="1100" y="0" width="42" height="70" rx="5"/>
+  </g>
+  <rect class="old" x="55" y="430" width="28" height="28" rx="4"/><text x="95" y="451" class="label">legacy square WingPair cue</text>
+  <rect class="new" x="390" y="430" width="28" height="28" rx="4"/><text x="430" y="451" class="label">newer/green WingPair cue</text>
+  <text x="790" y="451" class="small">Diagram only; final visual acceptance requires live PIE stills.</text>
+</svg>

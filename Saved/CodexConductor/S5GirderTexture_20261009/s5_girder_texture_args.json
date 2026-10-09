@@ -1,0 +1,33 @@
+{
+  "mode": "DRY",
+  "confirm": "",
+  "rig_scalars": {
+    "RustTileM": 0.7,
+    "ChipTileM": 0.95,
+    "ChipThreshold": 0.52,
+    "ChipAmount": 1.0,
+    "StreakAmount": 0.55,
+    "PaintRoughness": 0.48,
+    "RustRoughness": 0.88,
+    "GrimeAmount": 0.62,
+    "RustNormalStrength": 0.9,
+    "RivetHeight": 0.85
+  },
+  "hangar_scalars": {
+    "RustTileM": 0.1,
+    "ChipTileM": 0.14,
+    "ChipThreshold": 0.54,
+    "ChipAmount": 0.9,
+    "StreakAmount": 0.4,
+    "PaintRoughness": 0.52,
+    "RustRoughness": 0.88,
+    "GrimeAmount": 0.55,
+    "RustNormalStrength": 0.85,
+    "RivetHeight": 0.75
+  },
+  "vectors": {
+    "PaintColor": [0.032, 0.055, 0.035],
+    "BandColor": [0.01, 0.011, 0.01],
+    "RustColor": [0.22, 0.075, 0.025]
+  }
+}

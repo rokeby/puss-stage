@@ -1,0 +1,95 @@
+{
+  "passed": 22,
+  "failed": 0,
+  "total": 22,
+  "results": [
+    {
+      "name": "+ default darkness/settle/rise frames",
+      "status": "PASS"
+    },
+    {
+      "name": "+ UE enum string normalises",
+      "status": "PASS"
+    },
+    {
+      "name": "+ enum accessor normalises",
+      "status": "PASS"
+    },
+    {
+      "name": "+ channel suffixes normalise",
+      "status": "PASS"
+    },
+    {
+      "name": "+ 24-to-30 fps mapping",
+      "status": "PASS"
+    },
+    {
+      "name": "- non-integral frame mapping refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "+ two-key dim rig ramp retimes",
+      "status": "PASS"
+    },
+    {
+      "name": "+ three-key strike ramp retimes",
+      "status": "PASS"
+    },
+    {
+      "name": "- malformed light channel refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- illuminated first key refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- illuminated hold key refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "+ fire reveal shifts and preserves tail",
+      "status": "PASS"
+    },
+    {
+      "name": "- fire cannot move earlier",
+      "status": "PASS"
+    },
+    {
+      "name": "+ wave values gate after crowd settle",
+      "status": "PASS"
+    },
+    {
+      "name": "- wave value gate order refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- crowd census default cannot drift",
+      "status": "PASS"
+    },
+    {
+      "name": "- negative settle pad refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- sub-second light rise refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- over-six-second light rise refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "+ module imports without Unreal",
+      "status": "PASS"
+    },
+    {
+      "name": "+ source contains UE 5.8 safety contract",
+      "status": "PASS"
+    },
+    {
+      "name": "+ shipped args are safe DRY",
+      "status": "PASS"
+    }
+  ]
+}

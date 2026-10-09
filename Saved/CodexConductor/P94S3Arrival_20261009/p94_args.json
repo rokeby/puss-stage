@@ -1,0 +1,37 @@
+{
+  "mode": "DRY",
+  "confirm": "DRY P94S3ARRIVAL",
+  "run": "P94-DRY-20261009-1",
+  "params": {
+    "crowd_copy_count": 15,
+    "crowd_visible_root_frame": 360,
+    "crowd_to_clams_offset": 22,
+    "settle_padding_frames": 12,
+    "rise_duration_frames": 72,
+    "fire_labels": [
+      "S3 Ghost Light Flame",
+      "S3 Fire B",
+      "S3 Fire C"
+    ],
+    "fire_light_labels": [
+      "S3 Ghost Light",
+      "S3 Fire B Light",
+      "S3 Fire C Light"
+    ],
+    "crowd_light_labels": [
+      "S3 Crowd Key A",
+      "S3 Crowd Rim A",
+      "S3 Crowd Key B",
+      "S3 Crowd Rim B",
+      "S3 Crowd Key C",
+      "S3 Crowd Rim C"
+    ],
+    "wave_owner_prefix": "S3 WaveV3 ",
+    "wave_light_count": 10,
+    "wave_source_start_frame": 360,
+    "wave_source_full_frame": 384,
+    "unmanaged_effect_tokens": ["smoke", "haze", "fog"],
+    "allowed_unmanaged_effect_labels": [],
+    "value_tolerance": 0.0001
+  }
+}

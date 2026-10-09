@@ -1,0 +1,18 @@
+"""Editable conductor settings for Job 97.  Change run_id/mode/confirm together."""
+
+RAW = {
+    "mode": "DRY",
+    "run_id": "E18-CHOOSE-UNIQUE-RUN",
+    "confirm": "DRY E18 E18-CHOOSE-UNIQUE-RUN",
+    "source_run_id": "",
+    "params": {
+        "recorded_nap_guid": "211B6129497610E7977707AA939D7763",
+        "camera_ground_z_cm": 45.0,
+        "camera_breath_amplitude_cm": 1.25,
+        "camera_breath_roll_deg": 0.20,
+        "camera_breath_period_seconds": 4.0,
+        "expected_master_start_seconds": 1490.64,
+        "expected_master_end_seconds": 1511.64,
+        "nap_light_intensities": {"P79_Nap_Warm": 18.0, "P79_Nap_Cool": 8.0},
+    },
+}

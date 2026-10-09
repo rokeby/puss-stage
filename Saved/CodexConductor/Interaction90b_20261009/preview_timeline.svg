@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520">
+  <rect width="1200" height="520" fill="#11151b"/>
+  <style>text{font-family:Segoe UI,Arial,sans-serif;fill:#e8edf4}.h{font-size:26px;font-weight:700}.l{font-size:18px}.s{font-size:14px;fill:#aeb9c7}.axis{stroke:#52606f;stroke-width:2}.cam{stroke:#57b8ff;stroke-width:18}.dark{stroke:#07090d;stroke-width:32}.spot{stroke:#ffcc66;stroke-width:18}.target{fill:#6ee7a8}.cut{stroke:#ff6b8a;stroke-width:3;stroke-dasharray:8 7}</style>
+  <text x="50" y="45" class="h">Job 90b analytical timeline (not a render)</text>
+  <text x="50" y="92" class="l">I2 — preserve move-in, remove pulse, cross curtain, land exactly on P03 start</text>
+  <line x1="80" y1="145" x2="1120" y2="145" class="axis"/>
+  <line x1="80" y1="145" x2="430" y2="145" class="cam"/><text x="80" y="125" class="s">job 34/60 move-in preserved</text>
+  <line x1="430" y1="90" x2="430" y2="190" class="cut"/><text x="440" y="112" class="s">live sleight cut</text>
+  <line x1="430" y1="145" x2="760" y2="145" class="cam"/><text x="500" y="174" class="s">hold close: no zoom-back pulse</text>
+  <line x1="760" y1="145" x2="1080" y2="145" class="cam"/><text x="760" y="125" class="s">after CST drop: through curtain plane</text>
+  <circle cx="1080" cy="145" r="13" class="target"/><text x="1000" y="183" class="s">P03 live start pose</text>
+  <text x="50" y="250" class="l">S3 → I3 — reach black, move unseen, then reveal I2-reference shadow light</text>
+  <line x1="80" y1="305" x2="1120" y2="305" class="axis"/>
+  <line x1="80" y1="305" x2="310" y2="305" class="dark"/><text x="80" y="282" class="s">S3 tail fades to total black</text>
+  <line x1="310" y1="305" x2="690" y2="305" class="dark"/><text x="335" y="344" class="s">I3 camera moves in total darkness</text>
+  <line x1="690" y1="305" x2="1020" y2="305" class="spot"/><text x="700" y="282" class="s">black clears as shadow spots rise</text>
+  <circle cx="690" cy="305" r="10" class="target"/><text x="650" y="375" class="s">camera settled</text>
+  <text x="50" y="445" class="l">Lighting cut census</text>
+  <text x="50" y="478" class="s">I1–I5: cut−1 / cut / cut+1 · shadow spots + world/spawned lights + PP exposure + fog · explicit F17 fixes only</text>
+</svg>

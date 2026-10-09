@@ -1,0 +1,10 @@
+{
+  "command": "python Saved/CodexConductor/P96S4DarkCut_20261009/test_p96.py",
+  "result": "P96_HARNESS_OK",
+  "passed": 15,
+  "total": 15,
+  "positive": 2,
+  "negative": 9,
+  "trap_and_static_safety": 4,
+  "offline_only": true
+}
