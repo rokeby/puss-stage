@@ -50,9 +50,11 @@ LOOK = {
                "stream_width": 0.30, "splash_scale": 2.2,
                # stop higher/forward and pour onto the FRONT of the face so the stream crosses light (review 9 Oct)
                "stop_xy": (0.55, 0.030), "target_xy": (0.402, 0.165)},
-    "page": {"attach": "boy_near_hand", "size_boy_height": 0.28, "page_text": "Cagliuso",
-             # Gary 9 Oct: "a calligraphic feeling font"; the atlas is the artifact, so a local font is fine.
-             "page_font": "C:/Windows/Fonts/Gabriola.ttf", "page_text_width": 0.82, "page_text_bold": 0.003},
+    "page": {"attach": "boy_near_hand", "size_boy_height": 0.34, "page_text": "Cagliuso",
+             # PG7d: a font remains an explicit opt-in; the production default is carved polygonal lettering.
+             "page_font": None, "page_text_width": 0.85, "page_text_bold": 0.003,
+             "page_text_angle_deg": -18.0, "page_text_diagonal_fill": 0.85,
+             "page_text_seed": 1709, "page_wedge_down": 0.066, "page_wedge_thin": 0.038},
     "turnip": {"attach": "boy_near_hand", "size_boy_height": 0.12, "bite_seconds": 0.24},
     "pearl": {"attach_from": "puss_mouth", "attach_to": "boy_near_hand", "size_boy_height": 0.10},
     "crown": {"attach": "boy_head_top", "size_boy_height": 0.18, "restitution": 0.25},
@@ -228,36 +230,96 @@ def draw_prop(image, prop, centre, size_px, angle=0.0, flip_x=1.0, *, state=0, r
             draw.ellipse((x-r, y-r, x+r, y+r), fill=0)
 
 
-def page_text_strokes(text, centre, size_px):
-    """Dependency-free calligraphic vector strokes with slant and a flourished capital."""
-    glyphs={
-        "C":[((1,0),(0,0),(0,2),(1,2))], "A":[((0,2),(.5,0),(1,2)),((.2,1.1),(.8,1.1))],
-        "G":[((1,0),(0,0),(0,2),(1,2),(1,1.15),(.55,1.15))], "L":[((0,0),(0,2),(1,2))],
-        "I":[((0,0),(1,0)),((.5,0),(.5,2)),((0,2),(1,2))], "U":[((0,0),(0,1.65),(.2,2),(.8,2),(1,1.65),(1,0))],
-        "S":[((1,0),(0,0),(0,1),(1,1),(1,2),(0,2))], "O":[((0,0),(1,0),(1,2),(0,2),(0,0))],
-        "M":[((0,2),(0,0),(.5,1.05),(1,0),(1,2))],
-    }
-    word="".join(c for c in str(text).upper() if c in glyphs)
-    if not word:
-        return []
-    total=.78*size_px; advance=total/len(word); height=.22*size_px
-    x0=centre[0]-total/2; y0=centre[1]-.02*size_px; width=max(2,round(.020*size_px))
-    result=[]
+PAGE_GLYPHS = {
+    # Centre-lines in a small, deliberately blunt Roman hand. The role selects
+    # a broad down-cut or a finer upstroke/crossbar; all are expanded to wedges.
+    "C": (((.86,-.42),(.54,-.55),(.18,-.43),(.05,-.05),(.12,.34),(.50,.53),(.88,.35),"down"),),
+    "A": (((.08,.52),(.48,-.54),"up"),((.48,-.54),(.92,.52),"down"),((.25,.12),(.75,.12),"cross")),
+    "G": (((.86,-.40),(.55,-.55),(.17,-.42),(.05,-.04),(.13,.35),(.52,.54),(.90,.33),(.90,.07),(.58,.07),"down"),),
+    "L": (((.18,-.53),(.18,.49),(.90,.49),"down"),),
+    "I": (((.10,-.50),(.88,-.50),"cross"),((.49,-.50),(.49,.50),"down"),((.08,.50),(.90,.50),"cross")),
+    "U": (((.12,-.52),(.12,.27),(.29,.51),(.68,.53),(.88,.27),(.88,-.52),"down"),),
+    "S": (((.88,-.40),(.55,-.55),(.18,-.43),(.13,-.12),(.73,.08),(.88,.34),(.58,.54),(.15,.41),"down"),),
+    "O": (((.50,-.55),(.17,-.42),(.07,-.02),(.18,.40),(.51,.55),(.84,.39),(.93,-.03),(.82,-.43),(.50,-.55),"down"),),
+    "M": (((.10,.52),(.10,-.52),(.50,.08),(.90,-.52),(.90,.52),"down"),),
+}
+
+
+def _knife_wedge(points, middle_width):
+    """Expand a centre-line into a pointed, asymmetric hand-pushed knife cut."""
+    source=np.asarray(points,dtype=float)
+    # Every segment needs interior samples: a two-point stroke would otherwise
+    # have zero width at both pointed ends and collapse to a line.
+    dense=[]
+    for index in range(len(source)-1):
+        samples=np.linspace(source[index],source[index+1],5,endpoint=False)
+        dense.extend(samples)
+    dense.append(source[-1]);p=np.asarray(dense,dtype=float)
+    if len(p)<2: return _poly(())
+    delta=np.gradient(p,axis=0); lengths=np.linalg.norm(delta,axis=1);lengths[lengths<1e-9]=1.0
+    normal=np.column_stack((-delta[:,1]/lengths,delta[:,0]/lengths))
+    t=np.linspace(0.0,1.0,len(p))
+    profile=np.sin(np.pi*np.power(t,.78)); profile[0]=profile[-1]=0.0
+    half=.5*middle_width*profile
+    left=p+normal*(half*(1.08-.10*t))[:,None]
+    right=p-normal*(half*(.92+.08*t))[:,None]
+    return _poly(np.vstack((left,right[::-1])))
+
+
+def _wedge_serif(point, toward, width):
+    """Triangular end nick joined to a stroke point, never a typographic cap."""
+    point=np.asarray(point,float); direction=np.asarray(toward,float)-point
+    length=np.linalg.norm(direction)
+    if length<1e-9: return _poly(())
+    direction/=length; normal=np.array((-direction[1],direction[0]))
+    shoulder=point+direction*width*.72
+    return _poly((point, shoulder+normal*width*.55, shoulder-normal*width*.55))
+
+
+def page_text_polygons(text, centre, size_px, *, angle_deg=None, diagonal_fill=None, seed=None):
+    """Return independent knife-cut polygons for deterministic hand-carved capitals."""
+    word="".join(c for c in str(text).upper() if c in PAGE_GLYPHS)
+    if not word: return []
+    angle=LOOK["page"]["page_text_angle_deg"] if angle_deg is None else angle_deg
+    fill=LOOK["page"]["page_text_diagonal_fill"] if diagonal_fill is None else diagonal_fill
+    rng=np.random.default_rng(LOOK["page"]["page_text_seed"] if seed is None else seed)
+    advance=1.0; spacing=.22; raw_width=len(word)*advance+(len(word)-1)*spacing
+    # The irregular scroll narrows at its curled ends; 1.01 is its safe diagonal
+    # chord after the required card margin, and ``fill`` occupies that chord.
+    target_width=1.01*float(fill)*size_px; unit=target_width/raw_width; glyph_height=.38*size_px
+    x0=-target_width/2; polygons=[]
     for index,char in enumerate(word):
-        gx=x0+index*advance
-        rendered=[]
-        for stroke in glyphs[char]:
-            points=[]
-            for x,y in stroke:
-                yy=y0+(y-1)*height/2
-                points.append((gx+x*.62*advance + (1-y)*.13*advance, yy))
-            rendered.append(points)
-        if index == 0:
-            rendered.append([(gx+.12*advance,y0+.40*height),
-                             (gx-.30*advance,y0+.50*height),
-                             (gx-.40*advance,y0+.30*height)])
-        result.append((rendered, width))
-    return result
+        letter_scale=float(rng.uniform(.965,1.035)); letter_angle=float(rng.uniform(-2.2,2.2))
+        origin=np.array((x0+(index*(advance+spacing)+.5)*unit,float(rng.uniform(-.018,.018))*size_px))
+        local_angle=math.radians(letter_angle); local_rot=np.array(((math.cos(local_angle),-math.sin(local_angle)),(math.sin(local_angle),math.cos(local_angle))))
+        for raw in PAGE_GLYPHS[char]:
+            role=raw[-1]; pts=np.asarray(raw[:-1],float)
+            pts[:,0]=(pts[:,0]-.5)*unit*.82*letter_scale
+            pts[:,1]=pts[:,1]*glyph_height*letter_scale
+            pts=pts@local_rot.T+origin
+            ratio=LOOK["page"]["page_wedge_down"] if role=="down" else LOOK["page"]["page_wedge_thin"]
+            width=ratio*glyph_height*letter_scale
+            polygons.append(_knife_wedge(pts,width))
+            polygons.append(_wedge_serif(pts[0],pts[1],width*.85))
+            polygons.append(_wedge_serif(pts[-1],pts[-2],width*.72))
+        if index==0:
+            swash=np.asarray(((-.44,.22),(-.62,.37),(-.47,.52),(-.19,.45)),float)
+            swash[:,0]=swash[:,0]*unit;swash[:,1]=swash[:,1]*glyph_height
+            swash=swash@local_rot.T+origin
+            polygons.append(_knife_wedge(swash,LOOK["page"]["page_wedge_thin"]*glyph_height))
+    a=math.radians(float(angle)); rotation=np.array(((math.cos(a),-math.sin(a)),(math.sin(a),math.cos(a))))
+    c=np.asarray(centre,float)
+    return [_poly(np.asarray(poly)@rotation.T+c) for poly in polygons if len(poly)>=3]
+
+
+def page_text_strokes(text, centre, size_px):
+    """Compatibility entry point: PG7d strokes are closed knife-cut polygons."""
+    return page_text_polygons(text,centre,size_px)
+
+
+def page_narrowest_wedge_middle_px(size_px):
+    """Smallest designed maximum width, before per-letter positive size jitter."""
+    return LOOK["page"]["page_wedge_thin"]*.38*size_px*.965
 
 
 def _page_font(size_px, text):
@@ -277,17 +339,18 @@ def _page_font(size_px, text):
 
 
 def draw_page_text(draw, centre, size_px, text=None):
-    """Cut the selected page name in a calligraphic face (page_font); falls back to the vector strokes."""
+    """Cut the selected page name; default path is polygonal carved lettering."""
     text = text or LOOK["page"]["page_text"]
     font = _page_font(size_px, text)
     if font is not None:
         bold = max(1, round(LOOK["page"]["page_text_bold"] * size_px))
-        draw.text(centre, text, font=font, fill=255, anchor="mm", stroke_width=bold, stroke_fill=255)
+        box=max(16,int(math.ceil(size_px*2.0))); layer=Image.new("L",(box,box),0)
+        ImageDraw.Draw(layer).text((box/2,box/2),text,font=font,fill=255,anchor="mm",stroke_width=bold,stroke_fill=255)
+        layer=layer.rotate(-LOOK["page"]["page_text_angle_deg"],resample=Image.Resampling.BICUBIC,expand=False)
+        draw.bitmap((round(centre[0]-box/2),round(centre[1]-box/2)),layer,fill=255)
         return
-    for letter_index, (strokes, width) in enumerate(page_text_strokes(text or LOOK["page"]["page_text"], centre, size_px)):
-        for stroke_index, points in enumerate(strokes):
-            stroke_width=max(2, round(width * (1.35 if (letter_index+stroke_index)%2 == 0 else .82)))
-            draw.line(points,fill=255,width=stroke_width,joint="curve")
+    for polygon in page_text_polygons(text,centre,size_px):
+        draw.polygon(polygon,fill=255)
 
 
 def base_layers(px, boy_pose=None, puss_pose=None):
@@ -511,7 +574,11 @@ def save_templates(root):
     root.mkdir(parents=True, exist_ok=True); lib=library(); thumbs=[]
     for name,prop in lib.items():
         im=Image.new("L",(1000,1000),255); draw_prop(im,prop,(500,500),360,state=0)
-        if name=="page": draw_page_text(ImageDraw.Draw(im),(500,500),360)
+        if name=="page":
+            draw_page_text(ImageDraw.Draw(im),(500,500),360)
+            closeup=Image.new("L",(2000,2000),255);draw_prop(closeup,prop,(1000,1000),720,state=0)
+            draw_page_text(ImageDraw.Draw(closeup),(1000,1000),720)
+            closeup.save(root/"page_flat_closeup.png")
         im.save(root/(name+"_template.png")); thumbs.append((name,im.resize((280,280))))
         def d(poly): return "M"+" L".join("%.2f,%.2f"%(x,y) for x,y in transform(poly,(500,500),360))+" Z"
         outline=_turnip(0) if name=="turnip" else prop.outline
@@ -519,14 +586,14 @@ def save_templates(root):
         text_svg=""
         if name=="page":
             chunks=[]
-            if _page_font(360, LOOK["page"]["page_text"]) is not None:
+            font=_page_font(360, LOOK["page"]["page_text"])
+            if font is not None:
                 chunks.append('<text x="500" y="500" text-anchor="middle" dominant-baseline="middle" font-family="Gabriola" '
                               'font-size="%d" fill="#fff" stroke="#fff" stroke-width="%d">%s</text>' % (
-                                  _page_font(360, LOOK["page"]["page_text"]).size, max(1, round(LOOK["page"]["page_text_bold"] * 360)),
+                                  font.size, max(1, round(LOOK["page"]["page_text_bold"] * 360)),
                                   LOOK["page"]["page_text"]))
-            for strokes,width in ([] if chunks else page_text_strokes(LOOK["page"]["page_text"],(500,500),360)):
-                for points in strokes:
-                    chunks.append('<polyline points="%s" fill="none" stroke="#fff" stroke-width="%d" stroke-linecap="round" stroke-linejoin="round"/>'%(" ".join("%.2f,%.2f"%p for p in points),width))
+            for polygon in ([] if chunks else page_text_polygons(LOOK["page"]["page_text"],(500,500),360)):
+                chunks.append('<polygon points="%s" fill="#fff"/>'%(" ".join("%.2f,%.2f"%p for p in polygon)))
             text_svg="".join(chunks)
         svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><path fill="#000" fill-rule="evenodd" d="%s"/>%s</svg>'%(path,text_svg)
         (root/(name+".svg")).write_text(svg,encoding="utf-8")
@@ -541,8 +608,8 @@ def add_manifest(path,name,states,min_width_px):
         "name":name,"look":LOOK[name],"attach_modes":list(ATTACH_MODES),"quantized_transforms":True,
         "product_transmissions":True,"minimum_feature_width_px":round(min_width_px,3),"meets_2px":min_width_px>=2,
         "claims":[
-            {"tier":"measured","claim":"Frames were rendered, SDF-packed and read back offline.","evidence":"Tools/ShadowGobo/Puppets/props.py:544"},
-            {"tier":"inferred","claim":"The proposed scale and staging need Gary's visual approval.","evidence":"Tools/ShadowGobo/Puppets/props.py:293"},
+            {"tier":"measured","claim":"Frames were rendered, SDF-packed and read back offline.","evidence":"Tools/ShadowGobo/Puppets/props.py:606"},
+            {"tier":"inferred","claim":"The proposed scale and staging need Gary's visual approval.","evidence":"Tools/ShadowGobo/Puppets/props.py:53"},
         ]}
     path.write_text(json.dumps(data,indent=2),encoding="utf-8")
 
@@ -585,9 +652,18 @@ def build_scratch(root, demos=None):
         relative_size = (LOOK[name]["size_boy_height"] if "size_boy_height" in LOOK[name]
                          else LOOK[name]["size_vs_puss_height"] * .45)
         min_width=prop.min_feature_local*relative_size*(VISIBLE_BAND["bottom"]-VISIBLE_BAND["top"])*manifest["atlas"]["inner_px"]
+        if name=="page":
+            page_size=relative_size*(VISIBLE_BAND["bottom"]-VISIBLE_BAND["top"])*manifest["atlas"]["inner_px"]
+            min_width=min(min_width,page_narrowest_wedge_middle_px(page_size))
         add_manifest(atlas/"manifest.json",name,states,min_width)
         curtain_gif(atlas/"manifest.json",out/"curtain_preview_defocus025.gif")
         metrics[name]={"rendered_frames":len(states),"unique_cells":manifest["take"]["frames_packed"],"grid":"%dx%d"%(manifest["atlas"]["cols"],manifest["atlas"]["rows"]),"cell_px":manifest["atlas"]["cell_px"],"minimum_feature_width_px":round(min_width,3),"gif_bytes":(out/"curtain_preview_defocus025.gif").stat().st_size,"source_scale":source_scale,"frame_strip":"frame_strip_6.png"}
+        if name=="page":
+            metrics[name].update({"narrowest_wedge_middle_px":round(page_narrowest_wedge_middle_px(page_size),3),
+                                  "page_size_boy_height":LOOK["page"]["size_boy_height"],
+                                  "page_text_angle_deg":LOOK["page"]["page_text_angle_deg"],
+                                  "page_text_diagonal_fill":LOOK["page"]["page_text_diagonal_fill"],
+                                  "flat_closeup":"prop_templates/page_flat_closeup.png"})
         if name=="bucket":
             visibility=bucket_visibility_measurements(states,480)
             (out/"pour_visibility_per_frame.json").write_text(json.dumps({
@@ -626,13 +702,15 @@ def targets_for(deliver):
 
 
 def write_report(metrics,path):
-    lines=["# PG7c shadow props Gary-notes report","","[measured] The table is read from the offline APPLY output; each demo uses the current 0.5625 Puss framing and knee crop imported from `build_boy_puss_composite.py`. `Tools/ShadowGobo/Puppets/props.py:544`","","| Demo | Frames | Unique cells | Grid | Min feature | GIF |","|---|---:|---:|---:|---:|---:|"]
+    lines=["# PG7d carved page lettering report","","[measured] The table is read from the offline APPLY output; each demo uses the current 0.5625 Puss framing and knee crop imported from `build_boy_puss_composite.py`. `Tools/ShadowGobo/Puppets/props.py:640`","","| Demo | Frames | Unique cells | Grid | Min feature | GIF |","|---|---:|---:|---:|---:|---:|"]
     for n,m in metrics.items(): lines.append("| %s | %d | %d | %s | %.2f px | %.2f MB |"%(n,m["rendered_frames"],m["unique_cells"],m["grid"],m["minimum_feature_width_px"],m["gif_bytes"]/1048576))
     bucket=metrics.get("bucket",{}).get("pour_visibility",{})
-    lines += ["","[measured] Every demo has `curtain_preview_defocus025.gif` and `frame_strip_6.png` beside it. `Tools/ShadowGobo/Puppets/props.py:521`",
-              "[measured] Bucket pour gate: %s required frames; minimum %s water-on-light pixels at 480 px; maximum pail/boy overlap %s pixels; all pass=%s. Per-frame evidence: `clip_prop_bucket/pour_visibility_per_frame.json`. `Tools/ShadowGobo/Puppets/props.py:455`"%(bucket.get("required_frames","n/a"),bucket.get("minimum_water_light_pixels","n/a"),bucket.get("maximum_bucket_boy_overlap_pixels","n/a"),bucket.get("all_pass","n/a")),
-              "[measured] Shorter falls and fewer droplets reduce unique cells directly; static holds already de-duplicate to one cell. `Tools/ShadowGobo/Puppets/props.py:293`",
-              "[inferred] Gary should confirm the page spelling (default `Cagliuso`; his note said `Camuso`) and visually approve the scroll, fat turnip, lip-origin pail pour, pearl gleam, and Puss-sized baby booties before Unreal application. `Tools/ShadowGobo/Puppets/props.py:46`"]
+    page=metrics.get("page",{})
+    lines += ["","[measured] The page demo has `curtain_preview_defocus025.gif` and `frame_strip_6.png`; its atlas is SDF 8192 and the preview uses BlurUV 0. `Tools/ShadowGobo/Puppets/prop_demos/clip_prop_page/atlas/manifest.json:14` `Tools/ShadowGobo/Puppets/prop_demos/clip_prop_page/atlas/manifest.json:49`",
+              "[measured] Carved page: angle %s degrees, diagonal fill %s, narrowest wedge middle %.3f px, page size %.2f boy height. `Tools/ShadowGobo/Puppets/props.py:294`"%(page.get("page_text_angle_deg","n/a"),page.get("page_text_diagonal_fill","n/a"),page.get("narrowest_wedge_middle_px",float("nan")),page.get("page_size_boy_height",float("nan"))),
+              "[declaration-proven] The default `page_font` is None; the generated page SVG therefore uses closed polygons rather than a font reference. `Tools/ShadowGobo/Puppets/props.py:55`",
+              "[measured] The offline controls verify separate cut-outs, the requested principal-axis angle, a six-unit card margin, no font open, and all earlier prop checks. `Tools/ShadowGobo/Puppets/test_props_offline.py:45`",
+              "[inferred] Gary should visually approve the larger page scale (0.28 to 0.34 boy height), carved treatment, and spelling `Cagliuso`. `Tools/ShadowGobo/Puppets/props.py:53`"]
     path.write_text("\n".join(lines)+"\n",encoding="utf-8")
 
 

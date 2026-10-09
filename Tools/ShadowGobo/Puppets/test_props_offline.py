@@ -1,6 +1,6 @@
 """PG7 positive/negative offline harness."""
 from __future__ import annotations
-import argparse,json,sys
+import argparse,json,math,sys
 from pathlib import Path
 import numpy as np
 from PIL import Image,ImageDraw
@@ -12,6 +12,15 @@ def add(rows,kind,label,value,detail): rows.append({"kind":kind,"label":label,"p
 def components(prop):
     im=Image.new("L",(500,500),255);props.draw_prop(im,prop,(250,250),170,state=0);mask=np.asarray(im)<128
     labels,n=ndimage.label(mask,np.ones((3,3),dtype=np.uint8));sizes=np.bincount(labels.ravel())[1:];return int(np.sum(sizes>20))
+def page_text_mask(angle=None,centre=(300,300),size=220):
+    im=Image.new("L",(600,600),0);draw=ImageDraw.Draw(im)
+    for polygon in props.page_text_polygons(props.LOOK["page"]["page_text"],centre,size,angle_deg=angle):
+        draw.polygon(polygon,fill=1)
+    return np.asarray(im,dtype=bool)
+def principal_axis_deg(mask):
+    yy,xx=np.nonzero(mask);points=np.column_stack((xx-xx.mean(),yy-yy.mean()))
+    values,vectors=np.linalg.eigh(np.cov(points,rowvar=False));v=vectors[:,int(np.argmax(values))]
+    angle=math.degrees(math.atan2(v[1],v[0]));return angle-180 if angle>90 else angle+180 if angle<=-90 else angle
 def run(report=None):
     rows=[];lib=props.library()
     for name,p in lib.items(): add(rows,"positive",name+"_connected",components(p)==1,{"components":components(p)})
@@ -30,8 +39,27 @@ def run(report=None):
     add(rows,"positive","boot_is_round_baby_bootie",float(boot[:,0].max())>.65 and float(boot[:,1].max())>.68 and len(lib["boot"].cuts)>=4,{"toe_x":float(boot[:,0].max()),"sole_y":float(boot[:,1].max()),"detail_cuts":len(lib["boot"].cuts)})
     page=Image.new("L",(600,600),255);props.draw_prop(page,lib["page"],(300,300),220);before=np.asarray(page).copy();props.draw_page_text(ImageDraw.Draw(page),(300,300),220)
     name_mask=(before<80)&(np.asarray(page)>200);name_pixels=int(np.sum(name_mask));labels,n=ndimage.label(name_mask,np.ones((3,3),dtype=np.uint8));sizes=np.bincount(labels.ravel())[1:];letters=int(np.sum(sizes>8))
-    expected_letters=len(props.LOOK["page"]["page_text"].replace(" ",""));add(rows,"positive","page_text_connected_letter_cutouts",name_pixels>150 and 1<=letters<=expected_letters+3,{"text":props.LOOK["page"]["page_text"],"cut_pixels":name_pixels,"connected_letters":letters,"expected":expected_letters})
+    expected_letters=len(props.LOOK["page"]["page_text"].replace(" ",""));add(rows,"positive","page_text_separate_letter_cutouts",name_pixels>150 and letters>=expected_letters,{"text":props.LOOK["page"]["page_text"],"cut_pixels":name_pixels,"connected_cutouts":letters,"minimum":expected_letters})
     add(rows,"negative","page_without_name_fails",0<150,{"cut_pixels":0})
+    carved=page_text_mask();carved_angle=principal_axis_deg(carved);wanted=props.LOOK["page"]["page_text_angle_deg"]
+    add(rows,"positive","page_text_principal_axis_matches_angle",abs(carved_angle-wanted)<=5,{"measured_deg":carved_angle,"arg_deg":wanted,"tolerance_deg":5})
+    horizontal_angle=principal_axis_deg(page_text_mask(angle=0.0))
+    add(rows,"negative","horizontal_page_layout_fails_angle_gate",abs(horizontal_angle-wanted)>5,{"measured_deg":horizontal_angle,"arg_deg":wanted,"tolerance_deg":5})
+    card=Image.new("L",(600,600),255);props.draw_prop(card,lib["page"],(300,300),220);card_mask=np.asarray(card)<128
+    safe=ndimage.binary_erosion(card_mask,iterations=6)
+    add(rows,"positive","page_text_keeps_six_unit_card_margin",bool(np.all(safe[carved])),{"outside_safe_pixels":int(np.sum(carved&~safe)),"margin_units":6})
+    overhang=page_text_mask(centre=(145,300))
+    add(rows,"negative","overhanging_page_stroke_fails_margin",bool(np.any(overhang&~safe)),{"outside_safe_pixels":int(np.sum(overhang&~safe)),"margin_units":6})
+    original_truetype=props.ImageFont.truetype
+    try:
+        props.ImageFont.truetype=lambda *a,**k: (_ for _ in ()).throw(AssertionError("font opened"))
+        no_font_opened=props._page_font(220,props.LOOK["page"]["page_text"]) is None
+    finally:
+        props.ImageFont.truetype=original_truetype
+    add(rows,"positive","page_carved_default_opens_no_font",no_font_opened,{"page_font":props.LOOK["page"]["page_font"]})
+    demo_page_size=props.LOOK["page"]["size_boy_height"]*(props.VISIBLE_BAND["bottom"]-props.VISIBLE_BAND["top"])*(8192//9-16)
+    narrowest=props.page_narrowest_wedge_middle_px(demo_page_size)
+    add(rows,"positive","page_narrowest_wedge_middle_at_least_two_px",narrowest>=2.0,{"narrowest_wedge_middle_px":narrowest,"page_size_boy_height":props.LOOK["page"]["size_boy_height"]})
     a=Image.new("L",(32,32),255);ImageDraw.Draw(a).rectangle((4,4,27,27),fill=0);b=a.copy();ImageDraw.Draw(b).ellipse((10,10,20,20),fill=255)
     product=clip_render.product_transmissions((a,b));painter=a.copy();ImageDraw.Draw(painter).ellipse((10,10,20,20),fill=255)
     add(rows,"positive","overlap_stays_black",product.getpixel((15,15))==0,{"pixel":product.getpixel((15,15))})
@@ -80,7 +108,7 @@ def run(report=None):
         add(rows,"positive",name+"_hold_dedup",len(set(hold))==1,{"hold_frames":len(hold),"unique":len(set(hold))})
     anchors={**boy_rig.prop_anchors(boy_rig.P()),**cat_rig.prop_anchors(cat_rig.make_pose("sit_look_up"))};add(rows,"positive","rig_anchors_exposed",len(anchors)==5,{"anchors":sorted(anchors)})
     pos=[r for r in rows if r["kind"]=="positive"];neg=[r for r in rows if r["kind"]=="negative"]
-    data={"positive":{"passed":sum(r["passed"] for r in pos),"total":len(pos)},"negative":{"passed":sum(r["passed"] for r in neg),"total":len(neg)},"total":{"passed":sum(r["passed"] for r in rows),"total":len(rows)},"results":rows,"claims":[{"tier":"measured","claim":"All PG7 controls ran offline.","evidence":"Tools/ShadowGobo/Puppets/test_props_offline.py:15"}]}
+    data={"positive":{"passed":sum(r["passed"] for r in pos),"total":len(pos)},"negative":{"passed":sum(r["passed"] for r in neg),"total":len(neg)},"total":{"passed":sum(r["passed"] for r in rows),"total":len(rows)},"results":rows,"claims":[{"tier":"measured","claim":"All PG7 controls ran offline.","evidence":"Tools/ShadowGobo/Puppets/test_props_offline.py:24"}]}
     if report: Path(report).write_text(json.dumps(data,indent=2),encoding="utf-8")
     print("SHADOW_PROPS_HARNESS|positive=%d/%d|negative=%d/%d|total=%d/%d"%(data["positive"]["passed"],data["positive"]["total"],data["negative"]["passed"],data["negative"]["total"],data["total"]["passed"],data["total"]["total"]))
     for r in rows:

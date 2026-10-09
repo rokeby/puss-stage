@@ -1,15 +1,15 @@
 {
   "positive": {
-    "passed": 31,
-    "total": 31
+    "passed": 35,
+    "total": 35
   },
   "negative": {
-    "passed": 7,
-    "total": 7
+    "passed": 9,
+    "total": 9
   },
   "total": {
-    "passed": 38,
-    "total": 38
+    "passed": 44,
+    "total": 44
   },
   "results": [
     {
@@ -144,13 +144,13 @@
     },
     {
       "kind": "positive",
-      "label": "page_text_connected_letter_cutouts",
+      "label": "page_text_separate_letter_cutouts",
       "passed": true,
       "detail": {
         "text": "Cagliuso",
-        "cut_pixels": 2546,
-        "connected_letters": 8,
-        "expected": 8
+        "cut_pixels": 5046,
+        "connected_cutouts": 8,
+        "minimum": 8
       }
     },
     {
@@ -159,6 +159,61 @@
       "passed": true,
       "detail": {
         "cut_pixels": 0
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "page_text_principal_axis_matches_angle",
+      "passed": true,
+      "detail": {
+        "measured_deg": -16.670704095765075,
+        "arg_deg": -18.0,
+        "tolerance_deg": 5
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "horizontal_page_layout_fails_angle_gate",
+      "passed": true,
+      "detail": {
+        "measured_deg": 1.3877182216225208,
+        "arg_deg": -18.0,
+        "tolerance_deg": 5
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "page_text_keeps_six_unit_card_margin",
+      "passed": true,
+      "detail": {
+        "outside_safe_pixels": 0,
+        "margin_units": 6
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "overhanging_page_stroke_fails_margin",
+      "passed": true,
+      "detail": {
+        "outside_safe_pixels": 3843,
+        "margin_units": 6
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "page_carved_default_opens_no_font",
+      "passed": true,
+      "detail": {
+        "page_font": null
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "page_narrowest_wedge_middle_at_least_two_px",
+      "passed": true,
+      "detail": {
+        "narrowest_wedge_middle_px": 2.252957987234043,
+        "page_size_boy_height": 0.34
       }
     },
     {
@@ -438,7 +493,7 @@
     {
       "tier": "measured",
       "claim": "All PG7 controls ran offline.",
-      "evidence": "Tools/ShadowGobo/Puppets/test_props_offline.py:15"
+      "evidence": "Tools/ShadowGobo/Puppets/test_props_offline.py:24"
     }
   ]
 }

@@ -24,14 +24,19 @@
     "unique_cells": 70,
     "grid": "9x8",
     "cell_px": 910,
-    "minimum_feature_width_px": 4.66,
-    "gif_bytes": 1538286,
+    "minimum_feature_width_px": 2.253,
+    "gif_bytes": 1686647,
     "source_scale": {
       "actual_unique_before_pack": 70,
       "source_px": 2048,
       "required_px": 1788
     },
-    "frame_strip": "frame_strip_6.png"
+    "frame_strip": "frame_strip_6.png",
+    "narrowest_wedge_middle_px": 2.253,
+    "page_size_boy_height": 0.34,
+    "page_text_angle_deg": -18.0,
+    "page_text_diagonal_fill": 0.85,
+    "flat_closeup": "prop_templates/page_flat_closeup.png"
   },
   "turnip": {
     "rendered_frames": 100,
