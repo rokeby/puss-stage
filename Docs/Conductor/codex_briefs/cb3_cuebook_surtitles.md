@@ -15,6 +15,17 @@ In/Out relative to the segment start; blank Out = until the next line or segment
 clears. The Cue Book stores exactly these fields per line, plus `key`, `ord`, `version`, `cut`, `updatedBy`,
 `updatedAt` like cues.
 
+**Confirmed by the owner (Surtitle session, 9 Oct; declaration-proven from the branch's InfinityStageSurtitles.cpp,
+not built or run yet):** header = first row with a cell "Segment" (case-insensitive), rows above ignored; columns by
+name, any order; required In + Text; aliases In/Start, Out/End, Text/Surtitle/Line; Notes ignored. RFC-4180 via
+`FInfinityCueSheet::ParseCsv`: quote any cell with commas, quotes or newlines (a quoted newline is an on-screen line
+break). UTF-8 (BOM handled). Times: seconds, m:ss.s, h:mm:ss.s, hh:mm:ss:ff (ff < 25 @25 fps), no negatives.
+`S<n>`/`P<n>`/`I<n>` count Scene / **WingPair** / Sequence transport segments in show order (same as `use_video`).
+Skipped with INFINITY_SURTITLES_WARNING: Out <= In, unparseable In, missing segment, text with no In. Reloads ~1 s
+after the file's timestamp changes, and on F5 (an export during PIE lands live). **Single writer:** the Cue Book
+export is THE writer of `Puss_Surtitles.csv`; the master Sheet tab must not also export it. The page must refuse to
+save a line the parser would skip (Out <= In, bad time, ff >= 25), so nothing silently disappears in UE.
+
 ## Build (offline)
 
 1. **Code.gs:** a `surtitles` tab (same safety as `cues`: text stored as literal text, append-only `log` entries with
