@@ -285,8 +285,8 @@ def _backup(sequence_path, label, run):
 def _add_owned_track(binding, frame_range, run):
     track = binding.add_track(unreal.MovieSceneVisibilityTrack)
     if str(track.get_property_name()) in ("None", ""):
-        track.set_property_name_and_path("bHiddenInGame", "bHiddenInGame")
-    if str(track.get_property_name()) != "bHiddenInGame":
+        track.set_property_name_and_path("bHidden", "bHidden")
+    if str(track.get_property_name()) != "bHidden":
         _stop(run, "VISIBILITY_PROPERTY|%r" % str(track.get_property_name()))
     track.set_display_name(TRACK_NAME)
     section = track.add_section()
@@ -295,7 +295,7 @@ def _add_owned_track(binding, frame_range, run):
     channels = list(section.get_all_channels())
     if len(channels) != 1:
         _stop(run, "VISIBILITY_CHANNELS|%d" % len(channels))
-    channels[0].set_default(True)
+    channels[0].set_default(False)  # Visibility channel stores VISIBLE; False = hidden.
     return track
 
 
@@ -305,8 +305,8 @@ def _expected_after(before):
     expected = {
         "class": "MovieSceneVisibilityTrack",
         "display": TRACK_NAME,
-        "property": "bHiddenInGame",
-        "sections": [{"range": [start, end], "defaults": [True], "channels": 1,
+        "property": "bHidden",
+        "sections": [{"range": [start, end], "defaults": [False], "channels": 1,
                       "completion": "RESTORE_STATE"}],
     }
     for row in out["targets"]:

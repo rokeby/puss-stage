@@ -1,0 +1,8 @@
+{
+  "mode": "DRY",
+  "confirm": "DRY VISFIX",
+  "run": "P26VIS-S1-REPLACE-ME",
+  "sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
+  "file": "E:/PussStage/Content/InfinityStage/Dev/Sequences/LS_DevScene_01.uasset",
+  "tag": "S1"
+}

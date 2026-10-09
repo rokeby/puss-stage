@@ -109,7 +109,8 @@ expected = P._expected_after({
 })
 eq("expected track per target", [len(r["owned"]) for r in expected["targets"]], [1, 1])
 eq("full playback range", expected["targets"][0]["owned"][0]["sections"][0]["range"], [0, 4900])
-check("hidden default true", expected["targets"][0]["owned"][0]["sections"][0]["defaults"] == [True])
+check("visible default false means hidden", expected["targets"][0]["owned"][0]["sections"][0]["defaults"] == [False])
+eq("visibility binds actor bHidden", expected["targets"][0]["owned"][0]["property"], "bHidden")
 eq("restore state", expected["targets"][0]["owned"][0]["sections"][0]["completion"], "RESTORE_STATE")
 
 # Source-level safety assertions catch accidental broadening of the live writer.

@@ -713,7 +713,7 @@ def _meaning(kind, r, rise_end_tick):
             t = _nt_target(r, kind, rise_end_tick)
         except PlanError as exc:
             return "NOT OPTED IN; would REFUSE: %s" % exc
-        extra = (" (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
+        extra = (" (source bHiddenInGame stores HIDDEN; the created bHidden track stores VISIBLE = not hidden)"
                  if kind == "visibility" else "")
         return "NOT OPTED IN; would hold %r from %s%s" % (t["value"], t["source"], extra)
     return "UNSUPPORTED track class: listed only"
@@ -1052,8 +1052,19 @@ def _read_nt_section(t, s, kind):
     return out
 
 
+def visibility_channel_value(target):
+    """Convert a source visibility value to UE 5.8 bHidden track VISIBLE semantics."""
+    prop = str(target.get("property_path") or "None")
+    if prop == "bHiddenInGame":
+        return not bool(target["value"])
+    if prop in ("bHidden", "None", ""):
+        return bool(target["value"])
+    raise PlanError("VISIBILITY_SOURCE_PROPERTY|%s" % prop)
+
+
 def _want(t, plan, nm, path):
-    return {"range": plan["range"], "completion": plan["completion"], "value": t["value"], "kind": t["kind"],
+    value = visibility_channel_value(t) if t["kind"] == "visibility" else t["value"]
+    return {"range": plan["range"], "completion": plan["completion"], "value": value, "kind": t["kind"],
             "property_path": path, "display": nm["track"]}
 
 
@@ -1126,8 +1137,8 @@ def run_apply_float(args, run, plan, scene):
         tr = b.add_track(getattr(unreal, t["track_class"]))
         if t["kind"] in ("float", "bool"):
             tr.set_property_name_and_path(unreal.Name(t["property_name"]), t["property_path"])
-        elif str(tr.get_property_name()) in ("None", ""):               # prec klara_reveal.py:3131-3135
-            tr.set_property_name_and_path("bHiddenInGame", "bHiddenInGame")
+        elif t["kind"] == "visibility":
+            tr.set_property_name_and_path("bHidden", "bHidden")
         tr.set_display_name(nm["track"])
         s = tr.add_section()
         s.set_range(int(plan["range"][0]), int(plan["range"][1]))
@@ -1137,17 +1148,18 @@ def run_apply_float(args, run, plan, scene):
         ch = list(s.get_all_channels())
         if len(ch) != 1:
             _stop(run, "NEW_CHANNELS|%s|%d|%s" % (t["id"], len(ch), ns))
-        ch[0].set_default(float(t["value"]) if t["kind"] == "float" else bool(t["value"]))
+        written_value = visibility_channel_value(t) if t["kind"] == "visibility" else t["value"]
+        ch[0].set_default(float(written_value) if t["kind"] == "float" else bool(written_value))
         got = _read_nt_section(tr, s, t["kind"])
         d = float_readback_diff(_want(t, plan, nm, t["property_path"] if t["kind"] != "visibility"
                                       else got["property_path"]), got)
-        if t["kind"] == "visibility" and got["property_path"] != "bHiddenInGame":
+        if t["kind"] == "visibility" and got["property_path"] != "bHidden":
             d.append("visibility property %s" % got["property_path"])
         if d:
             _stop(run, "READBACK|%s|%s|%s" % (t["id"], d, ns))
         added.add((g, got["property_path"]))
         rows.append({"id": t["id"], "guid": g, "track_class": t["track_class"], "kind": t["kind"],
-                     "property_path": got["property_path"], "value": t["value"]})
+                     "property_path": got["property_path"], "value": written_value})
     census1 = _census()
     if census1 != [scene_path]:
         _stop(run, "DIRTY_SET|%s|%s" % (census1, ns))

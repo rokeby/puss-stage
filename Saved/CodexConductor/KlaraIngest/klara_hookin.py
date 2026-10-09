@@ -953,7 +953,8 @@ def _api_table():
           lambda: [hasattr(u, "MovieSceneLevelVisibilityTrack"),
                    hasattr(u.MovieSceneLevelVisibilitySection, "set_level_names")])
     probe("LevelVisibility.VISIBLE", "inf", lambda: repr(u.LevelVisibility.VISIBLE))
-    probe("MovieSceneVisibilityTrack property name == bHiddenInGame", "inf; APPLY gates on the live track",
+    probe("MovieSceneVisibilityTrack binds AActor::bHidden with VISIBLE channel semantics",
+          "decl MovieScenePropertyTrack.h:53-56; APPLY gates on bHidden",
           lambda: hasattr(u, "MovieSceneVisibilityTrack"))
     probe("MovieSceneCompletionMode.RESTORE_STATE", "prec curtain_sleight.py:1875 (KEEP_STATE)",
           lambda: repr(u.MovieSceneCompletionMode.RESTORE_STATE))
@@ -1856,21 +1857,21 @@ def _make_rekeyed_copy(args, key, row, transform, world, level_pkgs, run):
 
 
 def _add_vis_binding(seq, actor, prefix, frames, hidden):
-    """One possessable on a show/streamed actor + a Visibility track, one RESTORE_STATE section, value = hidden."""
+    """One RESTORE_STATE Visibility section; bHidden's bool channel stores VISIBLE, not hidden."""
     b = seq.add_possessable(actor)                                                     # prec scene_exit_block.py:936
     b.set_display_name(prefix + str(actor.get_actor_label()))
     t = b.add_track(unreal.MovieSceneVisibilityTrack)
     if str(t.get_property_name()) in ("None", ""):
         # 7 Oct live: a Python-added visibility track has no property bound yet (precedent for bound property tracks:
         # CodexStructure/hangar_build.py:491 set_property_name_and_path)
-        t.set_property_name_and_path("bHiddenInGame", "bHiddenInGame")
-    if str(t.get_property_name()) != "bHiddenInGame":                                   # [inf] gate: True = hidden
+        t.set_property_name_and_path("bHidden", "bHidden")
+    if str(t.get_property_name()) != "bHidden":                                        # [decl] True = visible
         raise PlanError("VISIBILITY_TRACK_PROPERTY: %r" % str(t.get_property_name()))
     s = t.add_section()
     s.set_range(int(frames[0]), int(frames[1]))
     s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
     ch = list(s.get_all_channels())[0]
-    ch.set_default(bool(hidden))
+    ch.set_default(not bool(hidden))
     return b
 
 

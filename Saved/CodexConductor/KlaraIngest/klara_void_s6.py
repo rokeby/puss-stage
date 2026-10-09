@@ -37,7 +37,7 @@ MECHANISM (APPLY saves ONLY LS_DevScene_06 + the copy; no map write)
          markers stay on her music, which is the same 188.0 s recording [inf: same name stem + duration; DRY compares]);
          our SW_S6_The_Void_Live section(s) DEACTIVATED (never deleted); the "Hangar Fold" sub-section (LS_S6_HangarRise:
          rise + practical wave + uplight strikes) DEACTIVATED; every RigAtmos.Scene6Hangar actor hidden [0, end)
-         (bHiddenInGame, RESTORE_STATE [prec klara_hookin.py:1143-1159]), every hangar light component Intensity = 0
+         (bHidden, VISIBLE=False, RESTORE_STATE [decl MovieScenePropertyTrack.h:53-56]), every hangar light component Intensity = 0
          [0, end), the hangar PPV bEnabled = false; our rig sun/moon/sky/fog hidden [0, end) [prec klara_hookin.py:896];
          the GLIMMER: a NiagaraActor spawnable (her /Game/FX/NS_BeeSwarm) spawned at glimmer.start_s at her swarm's
          first world pose, alive until S + overlap - a fresh system starts EMPTY and fills (WarmupTime unset [meas]) =
@@ -1191,13 +1191,13 @@ def _add_vis(seq, actor, prefix, frames):           # klara_hookin.py:1143-1159 
     b.set_display_name(prefix + str(actor.get_actor_label()))
     t = b.add_track(unreal.MovieSceneVisibilityTrack)
     if str(t.get_property_name()) in ("None", ""):
-        t.set_property_name_and_path("bHiddenInGame", "bHiddenInGame")
-    if str(t.get_property_name()) != "bHiddenInGame":
+        t.set_property_name_and_path("bHidden", "bHidden")
+    if str(t.get_property_name()) != "bHidden":
         raise PlanError("VISIBILITY_TRACK_PROPERTY: %r" % str(t.get_property_name()))
     s = t.add_section()
     s.set_range(int(frames[0]), int(frames[1]))
     s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
-    list(s.get_all_channels())[0].set_default(True)
+    list(s.get_all_channels())[0].set_default(False)  # Visibility channel stores VISIBLE; False = hidden.
     if actor.get_class().get_name() == "PostProcessVolume":
         bt = b.add_track(unreal.MovieSceneBoolTrack)
         bt.set_property_name_and_path(unreal.Name("bEnabled"), "bEnabled")

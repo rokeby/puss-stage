@@ -531,6 +531,8 @@ class FloatPlan(unittest.TestCase):
         q = plan3(kinds=("float", "visibility"))
         vt = [t for t in q["targets"] if t["kind"] == "visibility"]
         self.assertEqual((len(vt), vt[0]["value"]), (1, False))
+        self.assertTrue(H.visibility_channel_value(vt[0]))  # legacy hidden=False -> new visible=True
+        self.assertFalse(H.visibility_channel_value(dict(vt[0], value=True)))
         self.assertTrue(any(x["kind"] == "geometry_cache" for x in q["listed"]))
         with self.assertRaises(H.PlanError):
             plan3(kinds=("geometry_cache",))
@@ -652,11 +654,11 @@ class FloatReadbackAndRevert(unittest.TestCase):
                     dict(blend="ADDITIVE"), dict(display="Intensity"), dict(property_path="BlendWeight"),
                     dict(value=None)):
             self.assertTrue(H.float_readback_diff(self.want(), self.got(**bad)), bad)
-        vw = self.want(kind="visibility", value=False, property_path="bHiddenInGame")
-        self.assertEqual(H.float_readback_diff(vw, self.got(kind="visibility", value=False, blend=None,
-                                                            property_path="bHiddenInGame")), [])
-        self.assertTrue(H.float_readback_diff(vw, self.got(kind="visibility", value=True,
-                                                           property_path="bHiddenInGame")))
+        vw = self.want(kind="visibility", value=True, property_path="bHidden")
+        self.assertEqual(H.float_readback_diff(vw, self.got(kind="visibility", value=True, blend=None,
+                                                            property_path="bHidden")), [])
+        self.assertTrue(H.float_readback_diff(vw, self.got(kind="visibility", value=False,
+                                                           property_path="bHidden")))
 
     def test_revert_order_children_first(self):
         created = [{"guid": "P1", "child": False}, {"guid": "C1", "child": True}, {"guid": "A", "child": False},

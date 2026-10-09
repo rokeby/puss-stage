@@ -3191,14 +3191,14 @@ def _add_visibility(seq, actor, label, rng, hidden, shared):  # prec klara_hooki
     b = _possess(seq, actor, PREFIX + "Hide: " + label, shared)
     t = b.add_track(unreal.MovieSceneVisibilityTrack)
     if str(t.get_property_name()) in ("None", ""):
-        t.set_property_name_and_path("bHiddenInGame", "bHiddenInGame")
-    if str(t.get_property_name()) != "bHiddenInGame":
+        t.set_property_name_and_path("bHidden", "bHidden")
+    if str(t.get_property_name()) != "bHidden":
         raise PlanError("VISIBILITY_TRACK_PROPERTY: %r" % str(t.get_property_name()))
     t.set_display_name(PREFIX + "Visibility")          # v3: REVERT finds OUR tracks on a shared binding by name
     s = t.add_section()
     s.set_range(int(rng[0]), int(rng[1]))
     s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
-    list(s.get_all_channels())[0].set_default(bool(hidden))
+    list(s.get_all_channels())[0].set_default(not bool(hidden))  # Visibility channel stores VISIBLE.
     return b
 
 

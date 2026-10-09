@@ -1206,13 +1206,13 @@ def _add_vis_binding(seq, actor, prefix, frames):   # klara_hookin.py:1143-1159 
     b.set_display_name(prefix + str(actor.get_actor_label()))
     t = b.add_track(unreal.MovieSceneVisibilityTrack)
     if str(t.get_property_name()) in ("None", ""):
-        t.set_property_name_and_path("bHiddenInGame", "bHiddenInGame")
-    if str(t.get_property_name()) != "bHiddenInGame":
+        t.set_property_name_and_path("bHidden", "bHidden")
+    if str(t.get_property_name()) != "bHidden":
         raise PlanError("VISIBILITY_TRACK_PROPERTY: %r" % str(t.get_property_name()))
     s = t.add_section()
     s.set_range(int(frames[0]), int(frames[1]))
     s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
-    list(s.get_all_channels())[0].set_default(True)
+    list(s.get_all_channels())[0].set_default(False)  # Visibility channel stores VISIBLE; False = hidden.
     if actor.get_class().get_name() == "PostProcessVolume":
         # a hidden PPV may still blend [inf]; disable it too (bool track precedent add_curtain_active_tracks.py:128-131)
         bt = b.add_track(unreal.MovieSceneBoolTrack)

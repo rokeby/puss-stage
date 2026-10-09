@@ -1,0 +1,8 @@
+{
+  "confirm": "PIE PROBE VISFIX",
+  "run": "P26VISPIE-S4-REPLACE-ME",
+  "sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04",
+  "tag": "S4",
+  "outside_hidden": false,
+  "settle_ticks": 5
+}
