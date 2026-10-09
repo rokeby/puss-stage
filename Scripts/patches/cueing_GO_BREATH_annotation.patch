@@ -1,0 +1,32 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+index 77109c2..ff2c43a 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+@@ -689,6 +689,12 @@ bool ParseMarkerLabel(const FString& Text, FString& OutNumber, FString& OutLabel
+     {
+         return false;
+     }
++    // "GO <n> BREATH ..." marks an authored breath (Gary, 9 Oct: placed in rehearsal; the music truly pauses).
++    // It is documentation for the cue list only: never a HOLD, a PASS or anything else the transport acts on.
++    if (Words.IsValidIndex(2) && Words[2].Equals(TEXT("BREATH"), ESearchCase::CaseSensitive))
++    {
++        return false;
++    }
+     OutNumber = Candidate;
+     int32 LabelStart = 2;
+     if (Words.IsValidIndex(2) && Words[2].Equals(TEXT("HOLD"), ESearchCase::CaseSensitive))
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGoCueTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGoCueTests.cpp
+index cdc469c..88e44a0 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGoCueTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGoCueTests.cpp
+@@ -59,6 +59,10 @@ bool FInfinityStageGoMarkerParseTest::RunTest(const FString& Parameters)
+     TestFalse(TEXT("Control: GOAT is not GO"), InfinityStageGoCues::ParseMarkerLabel(TEXT("GOAT 1"), Number, Label, Mode));
+     TestFalse(TEXT("Control: GO needs a number"), InfinityStageGoCues::ParseMarkerLabel(TEXT("GO"), Number, Label, Mode));
+     TestFalse(TEXT("Control: a lone dot is not a number"), InfinityStageGoCues::ParseMarkerLabel(TEXT("GO . x"), Number, Label, Mode));
++    // An authored-breath note is never a transport GO (a default HOLD inside a Scene would stop the show).
++    TestFalse(TEXT("GO n BREATH is an annotation, not a GO"), InfinityStageGoCues::ParseMarkerLabel(TEXT("GO 22 BREATH sit with the rain"), Number, Label, Mode));
++    TestTrue(TEXT("Control: lower-case breath is label text on an ordinary GO"),
++        InfinityStageGoCues::ParseMarkerLabel(TEXT("GO 23 breath"), Number, Label, Mode) && Mode == -1 && Label == TEXT("breath"));
+     return true;
+ }
+ 
