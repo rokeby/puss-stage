@@ -1,15 +1,15 @@
 {
   "positive": {
-    "passed": 30,
-    "total": 30
+    "passed": 31,
+    "total": 31
   },
   "negative": {
-    "passed": 6,
-    "total": 6
+    "passed": 7,
+    "total": 7
   },
   "total": {
-    "passed": 36,
-    "total": 36
+    "passed": 38,
+    "total": 38
   },
   "results": [
     {
@@ -91,10 +91,10 @@
     },
     {
       "kind": "positive",
-      "label": "pearl_has_star_punch",
+      "label": "pearl_has_no_punch_other_than_gleam",
       "passed": true,
       "detail": {
-        "vertices": 10
+        "cut_count": 1
       }
     },
     {
@@ -115,37 +115,42 @@
     },
     {
       "kind": "positive",
-      "label": "turnip_bulb_wider_than_tall",
+      "label": "turnip_bulb_width_height_over_1_25",
       "passed": true,
       "detail": {
-        "width": 1.19,
-        "height": 0.6
+        "width": 1.44,
+        "height": 0.55,
+        "ratio": 2.6181818181818177
       }
     },
     {
       "kind": "positive",
-      "label": "turnip_has_long_tail_and_four_blades",
+      "label": "turnip_has_short_tail_and_small_spiky_leaves",
       "passed": true,
       "detail": {
-        "tail_y": 0.96,
-        "blade_tips": 4
+        "tail_y": 0.91,
+        "leaf_tips": 4
       }
     },
     {
       "kind": "positive",
-      "label": "boot_has_cavalier_cuff_heel_and_point",
+      "label": "boot_is_round_baby_bootie",
       "passed": true,
       "detail": {
-        "toe_x": 0.67,
-        "cuff_width": 0.8200000000000001
+        "toe_x": 0.69,
+        "sole_y": 0.72,
+        "detail_cuts": 5
       }
     },
     {
       "kind": "positive",
-      "label": "cagliuso_cut_is_large",
+      "label": "page_text_connected_letter_cutouts",
       "passed": true,
       "detail": {
-        "cut_pixels": 2276
+        "text": "Cagliuso",
+        "cut_pixels": 2546,
+        "connected_letters": 8,
+        "expected": 8
       }
     },
     {
@@ -204,10 +209,10 @@
       "passed": true,
       "detail": {
         "areas": [
-          29355,
-          28381,
-          28270,
-          28054
+          31846,
+          29936,
+          29051,
+          28255
         ]
       }
     },
@@ -234,11 +239,11 @@
       "passed": true,
       "detail": {
         "new_black_pixels": [
-          407,
-          402,
-          391,
-          388,
-          392
+          441,
+          428,
+          398,
+          381,
+          383
         ]
       }
     },
@@ -247,7 +252,7 @@
       "label": "black_on_black_turnip_fails",
       "passed": true,
       "detail": {
-        "new_black_pixels": 5
+        "new_black_pixels": 9
       }
     },
     {
@@ -303,7 +308,7 @@
       "passed": true,
       "detail": {
         "threshold": 120,
-        "minimum": 1577,
+        "minimum": 1661,
         "max_overlap": 0
       }
     },
@@ -314,9 +319,28 @@
       "detail": {
         "frame": 0,
         "phase": "stream",
-        "water_light_pixels": 503,
-        "bucket_boy_overlap_pixels": 1272,
+        "water_light_pixels": 1499,
+        "bucket_boy_overlap_pixels": 1325,
         "passes_pour_gate": false
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "bucket_stream_origin_at_rim_lip_every_pour_frame",
+      "passed": true,
+      "detail": {
+        "max_distance_px": 0.0,
+        "tolerance_px": 3.0,
+        "frames": 15
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "bucket_base_origin_fails",
+      "passed": true,
+      "detail": {
+        "min_distance_px": 57.5641355072352,
+        "tolerance_px": 3.0
       }
     },
     {

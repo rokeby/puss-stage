@@ -354,13 +354,16 @@
     "filter": "Bilinear",
     "address": "Clamp"
   },
-  "sha256": "ffcd1eaaa7fefdc2cf8abb7fa07203fcee5cc2ed93df04c602a17bdbdb95b393",
+  "sha256": "4d1e984f6ca314dd9aa648234c028a65a34291e47566423887d00277476bb31f",
   "prop_demo": {
     "name": "page",
     "look": {
       "attach": "boy_near_hand",
       "size_boy_height": 0.28,
-      "show_cagliuso": true
+      "page_text": "Cagliuso",
+      "page_font": "C:/Windows/Fonts/Gabriola.ttf",
+      "page_text_width": 0.82,
+      "page_text_bold": 0.003
     },
     "attach_modes": [
       "world",
@@ -378,12 +381,12 @@
       {
         "tier": "measured",
         "claim": "Frames were rendered, SDF-packed and read back offline.",
-        "evidence": "Tools/ShadowGobo/Puppets/props.py:380"
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:544"
       },
       {
         "tier": "inferred",
         "claim": "The proposed scale and staging need Gary's visual approval.",
-        "evidence": "Tools/ShadowGobo/Puppets/props.py:266"
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:293"
       }
     ]
   }

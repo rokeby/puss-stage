@@ -17,19 +17,20 @@ def run(report=None):
     for name,p in lib.items(): add(rows,"positive",name+"_connected",components(p)==1,{"components":components(p)})
     crown_top=[p for p in lib["crown"].outline if p[1]<-.3]
     add(rows,"positive","crown_has_five_points",len(crown_top)==5,{"top_points":crown_top})
-    star=lib["pearl"].cuts[1];add(rows,"positive","pearl_has_star_punch",len(star)==10,{"vertices":len(star)})
+    add(rows,"positive","pearl_has_no_punch_other_than_gleam",len(lib["pearl"].cuts)==1,{"cut_count":len(lib["pearl"].cuts)})
     pearl_radii=np.linalg.norm(np.asarray(lib["pearl"].outline),axis=1)
     add(rows,"positive","pearl_disc_stays_round",float(np.ptp(pearl_radii))<1e-9,{"radius_range":float(np.ptp(pearl_radii))})
     crescent=lib["pearl"].cuts[0]
     add(rows,"positive","pearl_crescent_is_smooth_and_tapered",len(crescent)>=40 and np.linalg.norm(np.asarray(crescent[0])-np.asarray(crescent[-1]))<1e-9,{"vertices":len(crescent)})
     turnip=np.asarray(lib["turnip"].outline);bulb=turnip[(turnip[:,1]>=.02)&(turnip[:,1]<=.62)]
     bulb_width=float(np.ptp(bulb[:,0]));bulb_height=float(np.ptp(bulb[:,1]))
-    add(rows,"positive","turnip_bulb_wider_than_tall",bulb_width>bulb_height,{"width":bulb_width,"height":bulb_height})
-    add(rows,"positive","turnip_has_long_tail_and_four_blades",float(turnip[:,1].max())>=.9 and int(np.sum(turnip[:,1]<-.5))==4,{"tail_y":float(turnip[:,1].max()),"blade_tips":int(np.sum(turnip[:,1]<-.5))})
+    add(rows,"positive","turnip_bulb_width_height_over_1_25",bulb_width/bulb_height>1.25,{"width":bulb_width,"height":bulb_height,"ratio":bulb_width/bulb_height})
+    add(rows,"positive","turnip_has_short_tail_and_small_spiky_leaves",float(turnip[:,1].max())<.95 and 3<=int(np.sum(turnip[:,1]<-.28))<=5,{"tail_y":float(turnip[:,1].max()),"leaf_tips":int(np.sum(turnip[:,1]<-.28))})
     boot=np.asarray(lib["boot"].outline)
-    add(rows,"positive","boot_has_cavalier_cuff_heel_and_point",float(boot[:,0].max())>.6 and float(np.ptp(boot[boot[:,1]<-.3,0]))>.7,{"toe_x":float(boot[:,0].max()),"cuff_width":float(np.ptp(boot[boot[:,1]<-.3,0]))})
-    page=Image.new("L",(600,600),255);props.draw_prop(page,lib["page"],(300,300),220);before=np.asarray(page).copy();props.draw_cagliuso(ImageDraw.Draw(page),(300,300),220)
-    name_pixels=int(np.sum((before<80)&(np.asarray(page)>200)));add(rows,"positive","cagliuso_cut_is_large",name_pixels>150,{"cut_pixels":name_pixels})
+    add(rows,"positive","boot_is_round_baby_bootie",float(boot[:,0].max())>.65 and float(boot[:,1].max())>.68 and len(lib["boot"].cuts)>=4,{"toe_x":float(boot[:,0].max()),"sole_y":float(boot[:,1].max()),"detail_cuts":len(lib["boot"].cuts)})
+    page=Image.new("L",(600,600),255);props.draw_prop(page,lib["page"],(300,300),220);before=np.asarray(page).copy();props.draw_page_text(ImageDraw.Draw(page),(300,300),220)
+    name_mask=(before<80)&(np.asarray(page)>200);name_pixels=int(np.sum(name_mask));labels,n=ndimage.label(name_mask,np.ones((3,3),dtype=np.uint8));sizes=np.bincount(labels.ravel())[1:];letters=int(np.sum(sizes>8))
+    expected_letters=len(props.LOOK["page"]["page_text"].replace(" ",""));add(rows,"positive","page_text_connected_letter_cutouts",name_pixels>150 and 1<=letters<=expected_letters+3,{"text":props.LOOK["page"]["page_text"],"cut_pixels":name_pixels,"connected_letters":letters,"expected":expected_letters})
     add(rows,"negative","page_without_name_fails",0<150,{"cut_pixels":0})
     a=Image.new("L",(32,32),255);ImageDraw.Draw(a).rectangle((4,4,27,27),fill=0);b=a.copy();ImageDraw.Draw(b).ellipse((10,10,20,20),fill=255)
     product=clip_render.product_transmissions((a,b));painter=a.copy();ImageDraw.Draw(painter).ellipse((10,10,20,20),fill=255)
@@ -63,6 +64,15 @@ def run(report=None):
         {"threshold":props.LOOK["bucket"]["min_water_light_pixels_480"],"minimum":min(r["water_light_pixels"] for r in required),"max_overlap":max(r["bucket_boy_overlap_pixels"] for r in required)})
     bad_bucket=props.bucket_visibility_measurements([bucket_states[45]],480,(.30,.285))[0]
     add(rows,"negative","bucket_over_head_while_pouring_fails",not bad_bucket["passes_pour_gate"],bad_bucket)
+    pour_states=[s for s in bucket_states if s["phase"]=="stream"]
+    lip_distances=[];base_distances=[]
+    for state in pour_states:
+        centre=np.asarray(state["xy"])*480;size=props.LOOK["bucket"]["size_boy_height"]*(props.VISIBLE_BAND["bottom"]-props.VISIBLE_BAND["top"])*480
+        lip_distances.append(props.bucket_origin_lip_distance(centre,size,state["angle"]))
+        base_distances.append(props.bucket_origin_lip_distance(centre,size,state["angle"],props.BUCKET_BASE_ORIGIN_LOCAL))
+    tolerance=3.0
+    add(rows,"positive","bucket_stream_origin_at_rim_lip_every_pour_frame",max(lip_distances)<=tolerance,{"max_distance_px":max(lip_distances),"tolerance_px":tolerance,"frames":len(lip_distances)})
+    add(rows,"negative","bucket_base_origin_fails",min(base_distances)>tolerance,{"min_distance_px":min(base_distances),"tolerance_px":tolerance})
     pearl=props.demo_states("pearl");steps=np.diff([s["u"] for s in pearl]);add(rows,"positive","pearl_no_anchor_jump",float(max(steps))<.05,{"max_fraction_step":float(max(steps))})
     boots=props.demo_states("boots")[-1]["boots"];xs=[b[0] for b in boots];upright=all(abs(b[2])<1e-6 for b in boots);spacing=min(np.diff(xs));add(rows,"positive","boots_upright_row",upright and spacing>.07,{"spacing":float(spacing),"angles":[b[2] for b in boots]})
     for name in ("bucket","page","turnip","pearl","crown","boots"):

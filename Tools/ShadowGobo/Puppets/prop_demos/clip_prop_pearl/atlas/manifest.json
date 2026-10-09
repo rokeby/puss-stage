@@ -306,7 +306,7 @@
     "filter": "Bilinear",
     "address": "Clamp"
   },
-  "sha256": "5663bdc610d0be122edf63b94064d31f12d17396cef3f71a92d86e166c500df9",
+  "sha256": "a2e32ea7a4353865690d23b8d1bb14db03de581eb8bae531e6f0a04d3ca84aab",
   "prop_demo": {
     "name": "pearl",
     "look": {
@@ -330,12 +330,12 @@
       {
         "tier": "measured",
         "claim": "Frames were rendered, SDF-packed and read back offline.",
-        "evidence": "Tools/ShadowGobo/Puppets/props.py:380"
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:544"
       },
       {
         "tier": "inferred",
         "claim": "The proposed scale and staging need Gary's visual approval.",
-        "evidence": "Tools/ShadowGobo/Puppets/props.py:266"
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:293"
       }
     ]
   }

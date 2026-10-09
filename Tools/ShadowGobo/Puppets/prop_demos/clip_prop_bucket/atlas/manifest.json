@@ -282,7 +282,7 @@
     "filter": "Bilinear",
     "address": "Clamp"
   },
-  "sha256": "442ebdd24b0ead79666645061c9b177766f34610727d9c2c31279725fdbc8453",
+  "sha256": "6eb2379197942b4718336601b65c7f39a35dc8d8852fcfdcddd57464c6adc8d5",
   "prop_demo": {
     "name": "bucket",
     "look": {
@@ -312,18 +312,18 @@
     ],
     "quantized_transforms": true,
     "product_transmissions": true,
-    "minimum_feature_width_px": 6.629,
+    "minimum_feature_width_px": 7.366,
     "meets_2px": true,
     "claims": [
       {
         "tier": "measured",
         "claim": "Frames were rendered, SDF-packed and read back offline.",
-        "evidence": "Tools/ShadowGobo/Puppets/props.py:380"
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:544"
       },
       {
         "tier": "inferred",
         "claim": "The proposed scale and staging need Gary's visual approval.",
-        "evidence": "Tools/ShadowGobo/Puppets/props.py:266"
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:293"
       }
     ]
   }

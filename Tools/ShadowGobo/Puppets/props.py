@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 HERE = Path(__file__).resolve().parent
 TOOL_DIR = HERE.parent
@@ -50,7 +50,9 @@ LOOK = {
                "stream_width": 0.30, "splash_scale": 2.2,
                # stop higher/forward and pour onto the FRONT of the face so the stream crosses light (review 9 Oct)
                "stop_xy": (0.55, 0.030), "target_xy": (0.402, 0.165)},
-    "page": {"attach": "boy_near_hand", "size_boy_height": 0.28, "show_cagliuso": True},
+    "page": {"attach": "boy_near_hand", "size_boy_height": 0.28, "page_text": "Cagliuso",
+             # Gary 9 Oct: "a calligraphic feeling font"; the atlas is the artifact, so a local font is fine.
+             "page_font": "C:/Windows/Fonts/Gabriola.ttf", "page_text_width": 0.82, "page_text_bold": 0.003},
     "turnip": {"attach": "boy_near_hand", "size_boy_height": 0.12, "bite_seconds": 0.24},
     "pearl": {"attach_from": "puss_mouth", "attach_to": "boy_near_hand", "size_boy_height": 0.10},
     "crown": {"attach": "boy_head_top", "size_boy_height": 0.18, "restitution": 0.25},
@@ -103,15 +105,15 @@ def _tapered_crescent(cx, cy, radius, width, start_deg=205, end_deg=305, n=22):
 
 def _turnip(bites=0):
     leaves_and_left = [
-        (-.50, .02), (-.42, -.08), (-.62, -.58), (-.31, -.22),
-        (-.24, -.76), (-.10, -.20), (.02, -.82), (.10, -.19),
-        (.38, -.68), (.28, -.13), (.48, -.42), (.42, -.04), (.52, .03),
+        (-.68, .08), (-.55, -.02), (-.42, -.34), (-.25, -.13),
+        (-.14, -.42), (-.03, -.12), (.12, -.38), (.20, -.10),
+        (.42, -.31), (.34, -.04), (.59, .06),
     ]
-    right_edge = [(0.59, .16), (0.56, .30), (0.47, .43), (0.32, .52)]
+    right_edge = [(0.72, .19), (0.69, .38), (0.56, .57), (0.34, .68)]
     notches = [
-        ((.59, .13), (.45, .17), (.40, .23), (.48, .29), (.56, .31)),
-        ((.54, .27), (.39, .30), (.35, .36), (.41, .42), (.48, .44)),
-        ((.45, .40), (.31, .41), (.27, .47), (.32, .52), (.37, .54)),
+        ((.72, .16), (.55, .20), (.49, .27), (.58, .34), (.68, .37)),
+        ((.54, .31), (.34, .35), (.27, .44), (.39, .52), (.52, .56)),
+        ((.44, .52), (.21, .53), (.14, .62), (.25, .69), (.36, .70)),
     ]
     if bites:
         right_edge = list(notches[0])
@@ -119,36 +121,45 @@ def _turnip(bites=0):
             right_edge += list(notches[1][1:])
         if bites >= 3:
             right_edge += list(notches[2][1:])
-    lower = [(0.17, .58), (.07, .62), (.035, .78), (0, .96), (-.04, .78),
-             (-.09, .62), (-.25, .57), (-.42, .48), (-.54, .34), (-.60, .18)]
+    lower = [(0.16, .72), (.07, .74), (.025, .84), (0, .91), (-.035, .84),
+             (-.09, .74), (-.28, .70), (-.48, .61), (-.63, .45), (-.72, .23)]
     return _poly(leaves_and_left + right_edge + lower)
 
 
 def library():
-    bucket = Prop("bucket", _poly([(-.52,-.38),(.52,-.38),(.45,.48),(-.45,.48)]),
-                  (_poly([(-.43,-.13),(.42,-.11),(.39,-.045),(-.41,-.07)]),
-                   _poly([(-.45,.22),(.43,.19),(.42,.27),(-.44,.30)]),
-                   _poly([(-.18,-.28),(-.08,-.25),(-.14,.10),(-.20,.16)])),
-                  (.50, -.30), .24, "world", .045)
-    page = Prop("page", _poly([(-.48,-.62),(-.34,-.67),(-.12,-.61),(.08,-.68),(.48,-.60),(.46,.62),(.21,.57),
-                                (.02,.65),(-.22,.58),(-.48,.63)]),
-                tuple(_poly([(-.32,y),(.31,y),(.31,y+.035),(-.32,y+.035)]) for y in (-.34,-.18,-.02,.14,.30)),
+    bucket = Prop("bucket", _poly([(-.61,-.43),(.61,-.43),(.55,-.34),(.42,.49),(-.42,.49),(-.55,-.34)]),
+                  (_poly([(-.52,-.31),(.52,-.31),(.49,-.22),(-.49,-.22)]),
+                   _poly([(-.48,.17),(.47,.15),(.45,.23),(-.47,.26)])),
+                  (.58, -.35), .24, "world", .050)
+    page = Prop("page", _poly([(-.50,-.54),(-.61,-.58),(-.67,-.51),(-.62,-.43),(-.49,-.39),
+                                (-.47,-.23),(-.51,-.05),(-.47,.15),(-.50,.38),(-.61,.43),
+                                (-.66,.51),(-.60,.59),(-.48,.62),(-.20,.58),(.05,.64),(.29,.58),
+                                (.49,.62),(.61,.58),(.67,.50),(.61,.42),(.49,.38),(.46,.17),
+                                (.50,-.03),(.46,-.24),(.49,-.39),(.61,-.43),(.66,-.51),(.60,-.59),
+                                (.48,-.62),(.24,-.58),(-.03,-.64),(-.27,-.58)]),
+                (_tapered_crescent(-.53,-.50,.105,.035,120,300,18),
+                 _tapered_crescent(.53,.50,.105,.035,-60,120,18)),
                 (0,0), .28, "boy_near_hand", .035)
     turnip = Prop("turnip", _turnip(0),
-                  (_poly([(-.48,.02),(-.22,.075),(.18,.08),(.48,.025),(.46,.095),(.14,.15),(-.22,.14),(-.45,.08)]),),
+                  (_tapered_crescent(-.12,.30,.40,.055,205,302,18),
+                   _tapered_crescent(-.05,.49,.29,.045,205,300,16)),
                   (0,.18), .12, "boy_near_hand", .055)
     pearl = Prop("pearl", _circle(0,0,.50),
-                 (_tapered_crescent(0, 0, .355, .105, 195, 292), _star(.23,-.20,.065)),
+                 (_tapered_crescent(0, 0, .355, .105, 195, 292),),
                  (0,0), .10, "puss_mouth", .045)
     crown = Prop("crown", _poly([(-.52,.38),(-.50,-.34),(-.39,-.08),(-.28,-.48),(-.18,-.08),(0,-.55),
                                   (.18,-.08),(.28,-.48),(.39,-.08),(.50,-.34),(.52,.38)]),
                  (_circle(-.28,.18,.07), _circle(0,.17,.07), _circle(.28,.18,.07),
                   _poly([(-.43,.25),(.42,.23),(.42,.30),(-.43,.33)])), (0,.38), .18, "boy_head_top", .055)
-    boot = Prop("boot", _poly([(-.42,-.56),(.40,-.56),(.32,-.34),(.23,-.30),(.20,.25),
-                                (.39,.30),(.67,.43),(.62,.54),(.45,.59),(-.02,.58),(-.05,.46),
-                                (-.28,.46),(-.34,.31),(-.23,.25),(-.22,-.30),(-.34,-.34)]),
-                (_poly([(-.33,-.42),(.31,-.43),(.27,-.34),(-.29,-.33)]),
-                 _poly([(-.20,.34),(.36,.39),(.52,.47),(.48,.51),(.30,.45),(-.19,.41)])),
+    boot = Prop("boot", _poly([(-.39,-.52),(-.22,-.59),(-.05,-.52),(.12,-.59),(.34,-.50),
+                                (.29,-.37),(.23,-.30),(.22,.16),(.38,.20),(.57,.29),(.69,.42),
+                                (.68,.54),(.60,.64),(.48,.70),(.29,.72),(.08,.68),(-.11,.61),
+                                (-.27,.53),(-.34,.40),(-.32,.25),(-.23,.17),(-.22,-.29),(-.34,-.36)]),
+                (_poly([(-.27,-.42),(-.12,-.45),(.04,-.40),(.23,-.44),(.25,-.39),(.07,-.36),(-.12,-.40),(-.26,-.36)]),
+                 _poly([(-.19,-.17),(.19,-.16),(.20,-.11),(-.19,-.11)]),
+                 _circle(.18,-.135,.045,16),
+                 _tapered_crescent(.19,.43,.39,.045,28,151,18),
+                 _poly([(-.12,.52),(.04,.57),(.24,.61),(.44,.59),(.52,.55),(.52,.59),(.42,.63),(.23,.64),(.03,.61),(-.13,.57)])),
                 (0,.58), .14, "world", .050)
     return {p.name: p for p in (bucket, page, turnip, pearl, crown, boot)}
 
@@ -204,11 +215,6 @@ def draw_prop(image, prop, centre, size_px, angle=0.0, flip_x=1.0, *, state=0, r
     for cut in prop.cuts:
         q = transform(cut, centre, size_px, angle, flip_x)
         draw.polygon([tuple(v) for v in q], fill=255)
-    if prop.name == "bucket":
-        # Articulated handle remains connected to the pail at both lugs.
-        handle_local = ((-.48,-.30),(-.42,-.72),(0,-.90),(.42,-.72),(.48,-.30))
-        handle = transform(handle_local, centre, size_px, angle, flip_x)
-        draw.line([tuple(v) for v in handle], fill=0, width=max(3, round(.055*size_px)), joint="curve")
     if rod:
         pivot = transform((prop.pivot,), centre, size_px, angle, flip_x)[0]
         endpoint = rod if isinstance(rod, tuple) else (pivot[0], max(0, pivot[1]-size_px*1.25))
@@ -222,21 +228,66 @@ def draw_prop(image, prop, centre, size_px, angle=0.0, flip_x=1.0, *, state=0, r
             draw.ellipse((x-r, y-r, x+r, y+r), fill=0)
 
 
-def draw_cagliuso(draw, centre, size_px):
-    """Broad single-stroke cut lettering sized for projection, not typography."""
+def page_text_strokes(text, centre, size_px):
+    """Dependency-free calligraphic vector strokes with slant and a flourished capital."""
     glyphs={
         "C":[((1,0),(0,0),(0,2),(1,2))], "A":[((0,2),(.5,0),(1,2)),((.2,1.1),(.8,1.1))],
         "G":[((1,0),(0,0),(0,2),(1,2),(1,1.15),(.55,1.15))], "L":[((0,0),(0,2),(1,2))],
         "I":[((0,0),(1,0)),((.5,0),(.5,2)),((0,2),(1,2))], "U":[((0,0),(0,1.65),(.2,2),(.8,2),(1,1.65),(1,0))],
         "S":[((1,0),(0,0),(0,1),(1,1),(1,2),(0,2))], "O":[((0,0),(1,0),(1,2),(0,2),(0,0))],
+        "M":[((0,2),(0,0),(.5,1.05),(1,0),(1,2))],
     }
-    word="CAGLIUSO"; total=.78*size_px; advance=total/len(word); height=.19*size_px
+    word="".join(c for c in str(text).upper() if c in glyphs)
+    if not word:
+        return []
+    total=.78*size_px; advance=total/len(word); height=.22*size_px
     x0=centre[0]-total/2; y0=centre[1]-.02*size_px; width=max(2,round(.020*size_px))
+    result=[]
     for index,char in enumerate(word):
         gx=x0+index*advance
+        rendered=[]
         for stroke in glyphs[char]:
-            points=[(gx+x*.72*advance,y0+(y-1)*height/2) for x,y in stroke]
-            draw.line(points,fill=255,width=width,joint="curve")
+            points=[]
+            for x,y in stroke:
+                yy=y0+(y-1)*height/2
+                points.append((gx+x*.62*advance + (1-y)*.13*advance, yy))
+            rendered.append(points)
+        if index == 0:
+            rendered.append([(gx+.12*advance,y0+.40*height),
+                             (gx-.30*advance,y0+.50*height),
+                             (gx-.40*advance,y0+.30*height)])
+        result.append((rendered, width))
+    return result
+
+
+def _page_font(size_px, text):
+    """Largest font size whose rendered width fits page_text_width of the page; None if the font is missing."""
+    path = LOOK["page"].get("page_font")
+    if not path or not Path(path).is_file():
+        return None
+    target = LOOK["page"]["page_text_width"] * size_px
+    lo, hi = 4, 2000
+    while hi - lo > 1:
+        mid = (lo + hi) // 2
+        if ImageFont.truetype(path, mid).getlength(text) <= target:
+            lo = mid
+        else:
+            hi = mid
+    return ImageFont.truetype(path, lo)
+
+
+def draw_page_text(draw, centre, size_px, text=None):
+    """Cut the selected page name in a calligraphic face (page_font); falls back to the vector strokes."""
+    text = text or LOOK["page"]["page_text"]
+    font = _page_font(size_px, text)
+    if font is not None:
+        bold = max(1, round(LOOK["page"]["page_text_bold"] * size_px))
+        draw.text(centre, text, font=font, fill=255, anchor="mm", stroke_width=bold, stroke_fill=255)
+        return
+    for letter_index, (strokes, width) in enumerate(page_text_strokes(text or LOOK["page"]["page_text"], centre, size_px)):
+        for stroke_index, points in enumerate(strokes):
+            stroke_width=max(2, round(width * (1.35 if (letter_index+stroke_index)%2 == 0 else .82)))
+            draw.line(points,fill=255,width=stroke_width,joint="curve")
 
 
 def base_layers(px, boy_pose=None, puss_pose=None):
@@ -356,6 +407,21 @@ def _draw_bucket_water(image, state, tip, target, size):
             draw.ellipse((x-r,y-r*1.55,x+r,y+r*1.55),fill=0)
 
 
+BUCKET_RIM_LIP_LOCAL = (-.61, -.43)
+BUCKET_BASE_ORIGIN_LOCAL = (-.42, .49)
+
+
+def bucket_stream_origin(centre, size, angle, local_origin=BUCKET_RIM_LIP_LOCAL):
+    """Transform the mouth lip nearest the boy; the base is never a pour origin."""
+    return transform((local_origin,), centre, size, angle)[0]
+
+
+def bucket_origin_lip_distance(centre, size, angle, local_origin=BUCKET_RIM_LIP_LOCAL):
+    origin=bucket_stream_origin(centre,size,angle,local_origin)
+    lip=bucket_stream_origin(centre,size,angle,BUCKET_RIM_LIP_LOCAL)
+    return float(np.linalg.norm(origin-lip))
+
+
 def render_state(name, state, px, *, return_layers=False, bucket_xy_override=None):
     lib = library(); boy_pose = boy_rig.P(); puss_pose = cat_rig.make_pose("sit_look_up")
     if name == "turnip":
@@ -370,14 +436,14 @@ def render_state(name, state, px, *, return_layers=False, bucket_xy_override=Non
         rod_end=(.985*px, max(0.0,(VISIBLE_BAND["top"]-.16)*px))
         draw_prop(prop_layer, lib["bucket"], centre, size, state["angle"], rod=rod_end)
         draw_prop(bucket_card, lib["bucket"], centre, size, state["angle"], rod=False)
-        tip=transform(((-.48,.42),),centre,size,state["angle"])[0]
+        tip=bucket_stream_origin(centre,size,state["angle"])
         target=(LOOK["bucket"]["target_xy"][0]*px,(VISIBLE_BAND["top"]+LOOK["bucket"]["target_xy"][1])*px)
         _draw_bucket_water(water_layer,state,tip,target,size)
     elif name == "page":
         x,y,a,sx=state["motion"]; size=LOOK["page"]["size_boy_height"]*boy_h
         draw_prop(prop_layer, lib["page"], (x*px,y*px), size, a, sx, rod=False)
         if state["label"] and sx > .72:
-            draw_cagliuso(ImageDraw.Draw(prop_layer),(x*px,y*px),size)
+            draw_page_text(ImageDraw.Draw(prop_layer),(x*px,y*px),size)
     elif name == "turnip":
         anchor=cell_anchor(px,"boy_near_hand",boy_pose); size=LOOK["turnip"]["size_boy_height"]*boy_h
         centre=(anchor[0]+.07*size,anchor[1]-.03*size)
@@ -445,11 +511,24 @@ def save_templates(root):
     root.mkdir(parents=True, exist_ok=True); lib=library(); thumbs=[]
     for name,prop in lib.items():
         im=Image.new("L",(1000,1000),255); draw_prop(im,prop,(500,500),360,state=0)
+        if name=="page": draw_page_text(ImageDraw.Draw(im),(500,500),360)
         im.save(root/(name+"_template.png")); thumbs.append((name,im.resize((280,280))))
         def d(poly): return "M"+" L".join("%.2f,%.2f"%(x,y) for x,y in transform(poly,(500,500),360))+" Z"
         outline=_turnip(0) if name=="turnip" else prop.outline
         path=d(outline)+" "+" ".join(d(c) for c in prop.cuts)
-        svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><path fill="#000" fill-rule="evenodd" d="%s"/></svg>'%path
+        text_svg=""
+        if name=="page":
+            chunks=[]
+            if _page_font(360, LOOK["page"]["page_text"]) is not None:
+                chunks.append('<text x="500" y="500" text-anchor="middle" dominant-baseline="middle" font-family="Gabriola" '
+                              'font-size="%d" fill="#fff" stroke="#fff" stroke-width="%d">%s</text>' % (
+                                  _page_font(360, LOOK["page"]["page_text"]).size, max(1, round(LOOK["page"]["page_text_bold"] * 360)),
+                                  LOOK["page"]["page_text"]))
+            for strokes,width in ([] if chunks else page_text_strokes(LOOK["page"]["page_text"],(500,500),360)):
+                for points in strokes:
+                    chunks.append('<polyline points="%s" fill="none" stroke="#fff" stroke-width="%d" stroke-linecap="round" stroke-linejoin="round"/>'%(" ".join("%.2f,%.2f"%p for p in points),width))
+            text_svg="".join(chunks)
+        svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><path fill="#000" fill-rule="evenodd" d="%s"/>%s</svg>'%(path,text_svg)
         (root/(name+".svg")).write_text(svg,encoding="utf-8")
     sheet=Image.new("RGB",(840,600),(238,232,216)); dr=ImageDraw.Draw(sheet)
     for i,(name,im) in enumerate(thumbs):
@@ -462,8 +541,8 @@ def add_manifest(path,name,states,min_width_px):
         "name":name,"look":LOOK[name],"attach_modes":list(ATTACH_MODES),"quantized_transforms":True,
         "product_transmissions":True,"minimum_feature_width_px":round(min_width_px,3),"meets_2px":min_width_px>=2,
         "claims":[
-            {"tier":"measured","claim":"Frames were rendered, SDF-packed and read back offline.","evidence":"Tools/ShadowGobo/Puppets/props.py:380"},
-            {"tier":"inferred","claim":"The proposed scale and staging need Gary's visual approval.","evidence":"Tools/ShadowGobo/Puppets/props.py:266"},
+            {"tier":"measured","claim":"Frames were rendered, SDF-packed and read back offline.","evidence":"Tools/ShadowGobo/Puppets/props.py:544"},
+            {"tier":"inferred","claim":"The proposed scale and staging need Gary's visual approval.","evidence":"Tools/ShadowGobo/Puppets/props.py:293"},
         ]}
     path.write_text(json.dumps(data,indent=2),encoding="utf-8")
 
@@ -547,13 +626,13 @@ def targets_for(deliver):
 
 
 def write_report(metrics,path):
-    lines=["# PG7b shadow props revision report","","[measured] The table is read from the offline APPLY output; each demo uses the current 0.5625 Puss framing and knee crop imported from `build_boy_puss_composite.py`. `Tools/ShadowGobo/Puppets/props.py`","","| Demo | Frames | Unique cells | Grid | Min feature | GIF |","|---|---:|---:|---:|---:|---:|"]
+    lines=["# PG7c shadow props Gary-notes report","","[measured] The table is read from the offline APPLY output; each demo uses the current 0.5625 Puss framing and knee crop imported from `build_boy_puss_composite.py`. `Tools/ShadowGobo/Puppets/props.py:544`","","| Demo | Frames | Unique cells | Grid | Min feature | GIF |","|---|---:|---:|---:|---:|---:|"]
     for n,m in metrics.items(): lines.append("| %s | %d | %d | %s | %.2f px | %.2f MB |"%(n,m["rendered_frames"],m["unique_cells"],m["grid"],m["minimum_feature_width_px"],m["gif_bytes"]/1048576))
     bucket=metrics.get("bucket",{}).get("pour_visibility",{})
-    lines += ["","[measured] Every demo has `curtain_preview_defocus025.gif` and `frame_strip_6.png` beside it. `Tools/ShadowGobo/Puppets/props.py`",
-              "[measured] Bucket pour gate: %s required frames; minimum %s water-on-light pixels at 480 px; maximum pail/boy overlap %s pixels; all pass=%s. Per-frame evidence: `clip_prop_bucket/pour_visibility_per_frame.json`. `Tools/ShadowGobo/Puppets/props.py`"%(bucket.get("required_frames","n/a"),bucket.get("minimum_water_light_pixels","n/a"),bucket.get("maximum_bucket_boy_overlap_pixels","n/a"),bucket.get("all_pass","n/a")),
-              "[measured] Shorter falls and fewer droplets reduce unique cells directly; static holds already de-duplicate to one cell. `Tools/ShadowGobo/Puppets/props.py`",
-              "[inferred] Gary should decide whether the Cagliuso word remains and visually approve the revised bucket staging, turnip, pearl gleam, and Puss-sized cavalier boots before Unreal application. `Tools/ShadowGobo/Puppets/props.py`"]
+    lines += ["","[measured] Every demo has `curtain_preview_defocus025.gif` and `frame_strip_6.png` beside it. `Tools/ShadowGobo/Puppets/props.py:521`",
+              "[measured] Bucket pour gate: %s required frames; minimum %s water-on-light pixels at 480 px; maximum pail/boy overlap %s pixels; all pass=%s. Per-frame evidence: `clip_prop_bucket/pour_visibility_per_frame.json`. `Tools/ShadowGobo/Puppets/props.py:455`"%(bucket.get("required_frames","n/a"),bucket.get("minimum_water_light_pixels","n/a"),bucket.get("maximum_bucket_boy_overlap_pixels","n/a"),bucket.get("all_pass","n/a")),
+              "[measured] Shorter falls and fewer droplets reduce unique cells directly; static holds already de-duplicate to one cell. `Tools/ShadowGobo/Puppets/props.py:293`",
+              "[inferred] Gary should confirm the page spelling (default `Cagliuso`; his note said `Camuso`) and visually approve the scroll, fat turnip, lip-origin pail pour, pearl gleam, and Puss-sized baby booties before Unreal application. `Tools/ShadowGobo/Puppets/props.py:46`"]
     path.write_text("\n".join(lines)+"\n",encoding="utf-8")
 
 

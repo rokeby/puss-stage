@@ -346,7 +346,7 @@
     "filter": "Bilinear",
     "address": "Clamp"
   },
-  "sha256": "c32e1c9a543e9e250e0b6e723af76921e793a17fe6e1c9060e76f1ddddbb70aa",
+  "sha256": "a43b99293b72d4a9c149013972ae16e50c352d4e002fb3b9fce5dbed9c884731",
   "prop_demo": {
     "name": "boots",
     "look": {
@@ -371,12 +371,12 @@
       {
         "tier": "measured",
         "claim": "Frames were rendered, SDF-packed and read back offline.",
-        "evidence": "Tools/ShadowGobo/Puppets/props.py:380"
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:544"
       },
       {
         "tier": "inferred",
         "claim": "The proposed scale and staging need Gary's visual approval.",
-        "evidence": "Tools/ShadowGobo/Puppets/props.py:266"
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:293"
       }
     ]
   }
