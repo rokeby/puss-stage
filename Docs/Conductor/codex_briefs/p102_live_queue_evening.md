@@ -70,3 +70,7 @@ Write `Docs/Conductor/LIVE_QUEUE_REPORT_2026-10-09.md`:
 - Give the first STOP reason, if any.
 
 Commit nothing.
+
+## Added 9 Oct ~23:20 (run after item 5, before item 6)
+7. **Job 103, P05 to 42.04 s (E26)**: `Saved/CodexConductor/passages_to_music_p05_e26_{dry,apply}_request.json`. The REVERT is `..._revert`. See `Docs/Conductor/P103_P05_E26_REPORT_2026-10-09.md`.
+8. **Job 104, P06 to the full 125 s (E27/E27b)**: `Saved/CodexConductor/P104P06FullTrack_20261009/`. Run its DRY first. **Gary: "Leave the sound waves".** APPLY only if the DRY verdict is `LENGTHEN_ONLY`. If it says `IMPORT_AND_SWAP`, STOP and report.
