@@ -1,6 +1,6 @@
 {
   "marker": "ANIMATED_GOBO_HARNESS",
-  "passed": 137,
+  "passed": 156,
   "failed": 0,
   "results": [
     {
@@ -369,11 +369,25 @@
       "detail": ""
     },
     {
-      "name": "D02b apply model expects section range [start, end+1)",
+      "name": "D02b section spans the whole playback (handheld Clock runs while lit)",
       "pass": true,
       "detail": [
-        175,
-        251
+        0,
+        2183
+      ]
+    },
+    {
+      "name": "D02c Clock keyed linear in seconds over playback",
+      "pass": true,
+      "detail": [
+        [
+          0,
+          0.0
+        ],
+        [
+          2182,
+          87.28
+        ]
       ]
     },
     {
@@ -575,7 +589,7 @@
       "name": "F -control shared missing scalar",
       "pass": true,
       "detail": [
-        "MASTER_SCALARS|['BlurUV', 'BorderAspect', 'BorderDepth', 'BorderFeather', 'BorderWidth', 'CellUV', 'Contrast', 'Depth', 'FlipU', 'FlipV', 'Frames', 'GutterUV', 'Rows', 'Scale', 'Softness', 'SpotAxes', 'UVCentre']"
+        "MASTER_SCALARS|['ApproachBlur', 'ApproachGrow', 'BlurUV', 'BorderAspect', 'BorderDepth', 'BorderFeather', 'BorderWidth', 'CellUV', 'Contrast', 'Defocus', 'Depth', 'FlipU', 'FlipV', 'Frames', 'GutterUV', 'HandAmp', 'HandBlur', 'HandBreath', 'HandShift', 'HandSpeed', 'HandTurn', 'Rows', 'Scale', 'Softness', 'SpotAxes', 'UVCentre']"
       ]
     },
     {
@@ -589,7 +603,14 @@
       "name": "F -control shared MPC without Frame",
       "pass": true,
       "detail": [
-        "MPC_FRAME"
+        "MPC_SCALARS|missing ['Approach', 'Clock', 'Frame']"
+      ]
+    },
+    {
+      "name": "F -control shared MPC without Clock (old run-004 MPC)",
+      "pass": true,
+      "detail": [
+        "MPC_SCALARS|missing ['Approach', 'Clock']"
       ]
     },
     {
@@ -790,6 +811,106 @@
       "detail": ""
     },
     {
+      "name": "I01 schedule -> CONSTANT keys in display frames",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "I02 a later event wins a shared frame",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "I03 Clock keys are seconds, exclusive end",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "I04 channel_param reads suffixed names",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "I05 -control display_fps missing",
+      "pass": true,
+      "detail": "DISPLAY_FPS|required (Clock keys and schedules are in display frames); I2 is 25"
+    },
+    {
+      "name": "I06 -control sequence display rate differs from args",
+      "pass": true,
+      "detail": [
+        "DISPLAY_FPS_MISMATCH|sequence=30.0 args=25.0"
+      ]
+    },
+    {
+      "name": "I07 matching display rate passes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "I08 -control HandShift too large",
+      "pass": true,
+      "detail": "HAND_PARAMS|defocus 0..1, grow >=0, approachblur 0..1, amp 0..3, speed >0, shift 0..0.05, turn 0..5 deg, breath 0..0.2, handblur 0..1"
+    },
+    {
+      "name": "I09 -control negative speed",
+      "pass": true,
+      "detail": "HAND_PARAMS|defocus 0..1, grow >=0, approachblur 0..1, amp 0..3, speed >0, shift 0..0.05, turn 0..5 deg, breath 0..0.2, handblur 0..1"
+    },
+    {
+      "name": "I10 linear ramp kept when the manifest has no schedule",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "I11 schedule manifest -> CONSTANT keys from frame_start",
+      "pass": true,
+      "detail": [
+        [
+          175,
+          0.0
+        ],
+        [
+          185,
+          1.0
+        ],
+        [
+          225,
+          23.0
+        ]
+      ]
+    },
+    {
+      "name": "I12 -control schedule cell outside the atlas",
+      "pass": true,
+      "detail": "SCHEDULE_CELL|cells outside 0..23: [99]"
+    },
+    {
+      "name": "I13 both nodes share the identical handheld noise",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "I14 border does not wobble (no Clock in the border node)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "I15 defocus mixes R (sharp) to G (blur)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "I16 MPC carries Frame, Clock, Approach",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "I17 every Edge input is wired",
+      "pass": true,
+      "detail": ""
+    },
+    {
       "name": "E01 never deletes existing material expressions",
       "pass": true,
       "detail": ""
@@ -850,7 +971,7 @@
       "detail": ""
     },
     {
-      "name": "E17 sRGB-off atlas is sampled as LINEAR_GRAYSCALE (2 sampler sites)",
+      "name": "E17 sRGB-off RG atlas: BC7 + LINEAR_COLOR at both sampler sites (no sRGB samplers)",
       "pass": true,
       "detail": ""
     },
