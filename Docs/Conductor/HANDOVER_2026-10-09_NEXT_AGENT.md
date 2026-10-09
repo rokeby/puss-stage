@@ -55,7 +55,7 @@ Unreal is used for **cinematic footage**: recording video comes first.
   3. Rerun the harness in the main tree.
   4. `git add -f` explicit paths, commit, push.
   - Codex worktrees are under `C:\Users\Administrator\.codex\worktrees\<id>\PussStage`. Codex cannot commit from them.
-- **Job numbers:** next free is **104**. Grep tools, records and commits before briefing anything; work is often already done.
+- **Job numbers:** next free is **105** (104 = P06 to 125 s, E27). Grep tools, records and commits before briefing anything; work is often already done.
 - **Editor transport**: `Saved/CodexConductor/conductor_helpers/mcprun.sh <request.json> "<regex>" "<prefix>" 1`. This calls `ExecuteProjectPythonFile` on the guarded MCP at 127.0.0.1:8010, with scripts under `Saved/`.
 - **Editor restart:**
   - Kill UnrealEditor.
