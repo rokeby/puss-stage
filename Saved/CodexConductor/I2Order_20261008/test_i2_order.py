@@ -250,8 +250,11 @@ class Track:
     def get_class(self):
         return _Cls(self.cls)
 
+    UE_FIXED_NAMES = {"MovieSceneSpawnTrack": "Spawned", "MovieSceneGeometryCacheTrack": "Geometry Cache",
+                      "MovieSceneVisibilityTrack": "Visibility"}
+
     def get_display_name(self):
-        return self.name
+        return self.UE_FIXED_NAMES.get(self.cls, self.name)
 
     def set_display_name(self, n):
         mark_dirty()
@@ -390,7 +393,11 @@ class Seq:
 
     def add_possessable(self, obj):
         mark_dirty()
+        for b in self.bindings:
+            if getattr(b, "obj", None) is obj:
+                return b
         b = Binding(self, getattr(obj, "label", "comp"))
+        b.obj = obj
         self.bindings.append(b)
         return b
 
@@ -657,6 +664,9 @@ def build_world(ue, ghost_keys=None, seg_shift=74.64, extra_s2=None, extra_ev3=F
     # untouched noise: curtain rig, cards
     r = B("Curtain Rig - Fire Safety Curtain", "CADCDD324D30B60303DE0887AB056510")
     add_track(r, "MovieSceneFloatTrack", "CurtainProgress", "CurtainProgress", [Section(None, 0, 2226, [Channel("", "float", None, [(0, 0.0), (500, 1.0)])])])
+    for i in range(4):   # extra untouched bindings (I2 also carries e.g. 'Interaction 2 — Stalls Camera')
+        b = B("Noise %d" % i)
+        add_track(b, "MovieSceneFloatTrack", "Noise", "Noise", [Section(None, 0, 2226, [Channel("", "float", None, [(0, float(i))])])])
     for label in ("Sleight Hangar Shadow Card", "Sleight Mouth Shadow Card"):
         b = B(label)
         add_track(b, "MovieSceneSpawnTrack", "", "", [Section(None, 0, 2227, [Channel("", "bool", False, [(0, False)])])])
@@ -756,6 +766,10 @@ def build_world(ue, ghost_keys=None, seg_shift=74.64, extra_s2=None, extra_ev3=F
     if extra_ev3:
         actors.append(ue.PostProcessVolume("PostProcessVolume", "PostProcessVolume", [0, 0, 0], unbound=True, priority=0.0, enabled=True,
                                            blend_weight=1.0, blend_radius=100.0, settings=ppv_u.get_editor_property("settings")))
+    by_label = {a.label: a for a in actors if hasattr(a, "label")}
+    for b in seq.bindings:
+        if b.parent is None and b.name in by_label:
+            b.obj = by_label[b.name]
     dev = Seq()
     dev.pb = [0, 3891]
     for label in s2_labels:
@@ -1057,7 +1071,8 @@ def main():
               marker("I2_ORDER_DRY_OK|run=T9-DRY"))
     pre9 = snap_plain(T)
     ok, rec9 = run(T, "APPLY", "T9-DRY")
-    check("P9-apply-ok", ok and any("dark_bindings=59|exposure_bindings=2|foreign=unchanged" in m for m in marker("I2_ORDER_APPLY_OK|run=T9-DRY")),
+    check("P9-apply-ok", ok and any('dark_tracks=59|exposure_tracks=2|reused_bindings=["S2 Ghost Light", "S2 Sleight Twin Lantern"]|foreign=unchanged' in m
+                                    for m in marker("I2_ORDER_APPLY_OK|run=T9-DRY")),
           rec9 if not ok else marker("I2_ORDER_APPLY_OK|run=T9-DRY"))
     check("P9-apply-saved-LS-only", ST.saves == ["/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips"] and not ST.dirty, ST.saves)
     if ok:
@@ -1067,7 +1082,18 @@ def main():
                      and b.tracks[0].path == "bHidden" and b.tracks[0].sections[0].completion.endswith("RESTORE_STATE")
                      and b.tracks[0].sections[0].chans[0].default is False and b.tracks[0].sections[0].chans[0]._eval(174) is False
                      for b in dark)
-        check("P9-dark-bindings-bHidden-true-visible-restore", len(dark) == 59 and vis_ok)
+        check("P9-dark-bindings-bHidden-true-visible-restore", len(dark) == 57 and vis_ok, len(dark))
+        # 10: actors already bound in I2 keep their binding and name; exactly our one track is added
+        for label in ("S2 Ghost Light", "S2 Sleight Twin Lantern"):
+            bs = [b for b in seq.bindings if b.name == label]
+            vt = [t for t in bs[0].tracks if t.cls == "MovieSceneVisibilityTrack"] if len(bs) == 1 else []
+            check("P10-reused-binding-kept-%s" % label, len(bs) == 1 and len(bs[0].tracks) == 1 and len(vt) == 1 and vt[0].prop == "bHidden"
+                  and vt[0].sections[0].chans[0]._eval(0) is False, [b.name for b in bs])
+        rr = [c for c in rec9["created"] if c.get("reused")]
+        check("P10-record-says-track-added-to-existing", sorted(c["binding_name"] for c in rr) == ["S2 Ghost Light", "S2 Sleight Twin Lantern"]
+              and all(c["note"].startswith("track added to existing binding") for c in rr), rr)
+        check("P10-dry-predicted-reuse", sorted(t["label"] for t in rep9["plan"]["darkness"]["targets"] if t.get("reuse_expected"))
+              == ["S2 Ghost Light", "S2 Sleight Twin Lantern"])
         expo = [b for b in seq.bindings if b.name.startswith("I2 Order Exposure: ")]
         check("P9-exposure-bindings-blendweight-0", len(expo) == 2 and all(b.tracks[0].prop == "BlendWeight" and b.tracks[0].sections[0].chans[0]._eval(1249) == 0.0
                                                                           and b.tracks[0].sections[0].completion.endswith("RESTORE_STATE") for b in expo))
@@ -1081,6 +1107,8 @@ def main():
         names_after = [b.name for b in WORLD["seq"].bindings]
         check("P9-revert-removes-only-ours", not any(n.startswith(("I2 Order Dark: ", "I2 Order Exposure: ")) for n in names_after)
               and "S2 Ghost Light" in names_after and "S2 Sleight Twin Lantern/LightComponent" in names_after)
+        gl = [b for b in WORLD["seq"].bindings if b.name == "S2 Ghost Light"]
+        check("P10-revert-removed-only-our-track-on-reused", len(gl) == 1 and gl[0].tracks == [], [t.cls for t in gl[0].tracks] if gl else None)
         post9 = snap_plain(T)
         check("P9-revert-exact", json.dumps(post9, sort_keys=True, default=str) == json.dumps(pre9, sort_keys=True, default=str),
               T.untouched_diff(pre9, post9, set()))
@@ -1161,6 +1189,61 @@ def main():
         check("N9-revert-refuses-foreign-binding", False)
     except T.Stop as e:
         check("N9-revert-refuses-foreign-binding", "REFUSE_REMOVE_FOREIGN" in str(e), e)
+
+    # =========================================================== 10: live I2ORDER-DRY-3 stop, reproduced
+    # a reused binding that already carries a visibility track -> DRY refusal
+    fresh(tmp, ue)
+    gb = [b for b in WORLD["seq"].bindings if b.name == "S2 Ghost Light"][0]
+    add_track(gb, "MovieSceneVisibilityTrack", "", "bHidden", [Section(None, 0, 2227, [Channel("", "bool", True, [])])])
+    ok, repn = run(T, "DRY", "T10-VIS")
+    check("N10-reused-binding-has-visibility-refused", ok and any(x.startswith("DARKNESS_TARGET_BINDING_HAS_VISIBILITY|S2 Ghost Light") for x in repn["refusals"]),
+          repn if not ok else repn["refusals"][:3])
+    # the old behaviour (rename the reused binding) is caught by read-back
+    fresh(tmp, ue)
+    run(T, "DRY", "T10-REN")
+    orig_c2 = T._create_all
+
+    def renaming_create(seq, plan, run_id):
+        out = orig_c2(seq, plan, run_id)
+        for c in out:
+            if c.get("reused"):
+                [b for b in seq.bindings if b.guid.s == c["guid"]][0].name = c["planned_name"]
+        return out
+
+    T._create_all = renaming_create
+    ok, why = run(T, "APPLY", "T10-REN")
+    T._create_all = orig_c2
+    check("N10-renamed-reused-binding-stops", not ok and "BINDING_RENAMED_OR_REPARENTED" in why and not ST.saves, why)
+    # a stopped APPLY leaves an unapplied record: the next APPLY says so
+    ST.dirty.clear()
+    ok, why = run(T, "APPLY", "T10-REN")
+    check("N10-stale-unapplied-record", not ok and "STALE_UNAPPLIED_RECORD" in why, why)
+    # every problem is printed (no truncation)
+    fresh(tmp, ue)
+    run(T, "DRY", "T10-ALL")
+    orig_w = T._apply_writes
+
+    def noisy(seq, plan, run_id, originals=None):
+        orig_w(seq, plan, run_id, originals)
+        for b in [b for b in seq.bindings if b.name.startswith("S2 Practical")] or []:
+            pass
+        n = 0
+        for b in seq.bindings:
+            for t in b.tracks:
+                if b.name.startswith(("Curtain Rig", "Sleight Hangar Shadow", "Sleight Mouth Shadow", "Shadow Play Spot", "S2 Ghost Light/", "S2 Sleight Twin Lantern/", "Transition Drape", "Noise ")):
+                    if any(sct.chans for sct in t.sections):
+                        TOUCHED.add((b.guid.s, t.cls, t.prop))
+                    for sct in t.sections:
+                        for c in sct.chans:
+                            c.keys.append(Key(c, 99999 + n, True if c.kind == "bool" else 1.0))
+                            n += 1
+
+    TOUCHED = set()
+    T._apply_writes = noisy
+    ok, why = run(T, "APPLY", "T10-ALL")
+    T._apply_writes = orig_w
+    nprob = why.count("UNTOUCHED_TRACK_CHANGED")
+    check("P10-stop-line-lists-all-problems", not ok and nprob == len(TOUCHED) and nprob > 12, (nprob, len(TOUCHED)))
 
     # REVERT drift
     fresh(tmp, ue)

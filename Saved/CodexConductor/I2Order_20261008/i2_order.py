@@ -696,9 +696,11 @@ def resize_spot_check(hits, gs_twins, box, tol):
 def owned_keys_apply(guids, twin):
     """The tracks APPLY may write (binding guid, class, display name, property)."""
     g = guids
-    out = {track_key(g["drape"], "MovieSceneSpawnTrack", "", "*"),
+    # Spawn/GC: UE names these tracks itself ('Spawned', 'Geometry Cache': measured I2ORDER-DRY-3 stop line), so they are
+    # owned by binding GUID + class (the drape has exactly one of each: _facts asserts it).
+    out = {track_key(g["drape"], "MovieSceneSpawnTrack", "*", "*"),
            track_key(g["drape"], "MovieScene3DTransformTrack", CAM_TRACK, "*"),
-           track_key(g["drape"], "MovieSceneGeometryCacheTrack", "", "*"),
+           track_key(g["drape"], "MovieSceneGeometryCacheTrack", "*", "*"),
            track_key(g["held_cam"], "MovieScene3DTransformTrack", CAM_TRACK, "*")}
     for prop in LENS_PROPS:
         out.add(track_key(g["held_cam_comp"], "MovieSceneFloatTrack", CAM_TRACK, prop))
@@ -720,6 +722,16 @@ def tracks_by_key(snapshot):
     return out
 
 
+def owned_match(key, owned):
+    """key 'guid|class|name|prop' against owned patterns of the same shape where '*' matches any field."""
+    parts = key.split("#")[0].split("|")
+    for o in owned:
+        op = o.split("|")
+        if len(op) == 4 and all(a == "*" or a == b for a, b in zip(op, parts)):
+            return True
+    return False
+
+
 def untouched_diff(before, after, owned, created_bindings=()):
     """Everything except the owned tracks (and bindings created by FIX) must be identical."""
     fail = []
@@ -737,8 +749,7 @@ def untouched_diff(before, after, owned, created_bindings=()):
             fail.append("BINDING_RENAMED_OR_REPARENTED|%s" % g)
     tb, ta = tracks_by_key(before), tracks_by_key(after)
     for k in sorted(set(tb) | set(ta)):
-        base = k.split("#")[0]
-        if base in owned or base.rsplit("|", 1)[0] + "|*" in owned:
+        if owned_match(k, owned):
             continue
         if k.split("|")[0] in created_bindings:
             continue
@@ -1510,6 +1521,12 @@ def build_plan(facts, p):
                                 dmeta["strike"], end)
         refusals += drf
         refusals += check_darkness(dk, spot_labels, fade, end, {b["name"] for b in snap["bindings"]})
+        top = {b["name"]: b for b in snap["bindings"] if not b["parent"]}
+        for t in dk["targets"]:
+            b0 = top.get(t["label"])
+            t["reuse_expected"] = b0["guid"] if b0 else None
+            if b0 and any(x["class"] == "MovieSceneVisibilityTrack" for x in b0["tracks"]):
+                refusals.append("DARKNESS_TARGET_BINDING_HAS_VISIBILITY|%s|%s" % (t["label"], b0["guid"]))
         if dk["missing"]:
             warnings.append("DARKNESS_MISSING_ACTORS|%s" % json.dumps([m["label"] for m in dk["missing"]]))
         if dk["streamed_listed"]:
@@ -2530,9 +2547,10 @@ def _print_dry(run, rep, out):
         for t in dk["targets"]:
             groups.setdefault("%s<%d" % (t["group"], t["until"]), []).append(t["label"])
         fs = dk.get("foreign_source") or {}
-        _log("%s_DARKNESS|run=%s|source=%s '%s' count=%s digest=%s|targets=%d|groups=%s|missing=%s|streamed_listed=%s|"
+        _log("%s_DARKNESS|run=%s|source=%s '%s' count=%s digest=%s|targets=%d|reuse_expected=%s|groups=%s|missing=%s|streamed_listed=%s|"
              "directional_report=%s|prefix='%s'|vis=bHidden/bHidden TRUE=VISIBLE|completion=RESTORE_STATE"
              % (MARK, run, fs.get("sequence"), FOREIGN_DARK_PREFIX, fs.get("count"), fs.get("digest"), len(dk["targets"]),
+                json.dumps([t["label"] for t in dk["targets"] if t.get("reuse_expected")]),
                 json.dumps({k: len(v) for k, v in sorted(groups.items())}), json.dumps([m["label"] for m in dk["missing"]]),
                 json.dumps([m["label"] for m in dk["streamed_listed"]]), json.dumps([m["label"] for m in dk["directional_report"]]),
                 DARK_PREFIX))
@@ -2600,10 +2618,21 @@ def created_specs(plan):
     return out
 
 
-def check_created(snapshot, created, specs):
-    """created: [{"guid","binding_name"}] in spec order.  Read-back of every created binding/track."""
+# UE names these track classes itself; set_display_name does not change what get_display_name returns for them
+# [measured: I2ORDER-DRY-3 stop line read 'Visibility' for every new visibility track; 'Spawned'/'Geometry Cache']
+UE_FIXED_TRACK_NAMES = {"MovieSceneVisibilityTrack": "Visibility", "MovieSceneSpawnTrack": "Spawned",
+                        "MovieSceneGeometryCacheTrack": "Geometry Cache"}
+
+
+def check_created(snapshot, created, specs, before=None):
+    """created: [{"guid","binding_name","reused"}] in spec order.  Read-back of every written binding/track.
+    A NEW binding must carry our prefix and exactly our one track.  A REUSED binding (add_possessable returned the
+    existing binding of an actor already bound in I2) must keep its own name and parent and gain exactly our one track;
+    its other tracks are checked by untouched_diff.  Class/property/path are strict; the display name is checked only
+    for classes whose name UE does not fix (UE_FIXED_TRACK_NAMES)."""
     fail = []
     by = {b["guid"]: b for b in snapshot["bindings"]}
+    bb = {b["guid"]: b for b in (before or {}).get("bindings", [])}
     if len(created) != len(specs):
         return ["CREATED_COUNT|%d!=%d" % (len(created), len(specs))]
     for c, sp in zip(created, specs):
@@ -2611,17 +2640,30 @@ def check_created(snapshot, created, specs):
         if b is None:
             fail.append("CREATED_MISSING|%s" % sp["binding_name"])
             continue
-        if b["name"] != sp["binding_name"] or not b["name"].startswith((DARK_PREFIX, EXPO_PREFIX)):
-            fail.append("CREATED_NAME|%r" % b["name"])
-        tr = b["tracks"]
         want = sp["track"]
-        if len(tr) != 1:
-            fail.append("CREATED_TRACK_COUNT|%s|%d" % (b["name"], len(tr)))
+        if c.get("reused"):
+            old = bb.get(c["guid"])
+            if before is not None and old is None:
+                fail.append("REUSED_BINDING_NOT_PREEXISTING|%s" % c["guid"])
+            elif old is not None and (b["name"], b["parent"]) != (old["name"], old["parent"]):
+                fail.append("REUSED_BINDING_RENAMED|%s|%r->%r" % (c["guid"], old["name"], b["name"]))
+            ours = [t for t in b["tracks"] if t["class"] == want["class"] and t["prop"] == want["prop"]]
+            if old is not None:
+                had = [t for t in old["tracks"] if t["class"] == want["class"] and t["prop"] == want["prop"]]
+                if had:
+                    fail.append("REUSED_BINDING_ALREADY_HAD_TRACK|%s|%s" % (b["name"], want["class"]))
+        else:
+            if b["name"] != sp["binding_name"] or not b["name"].startswith((DARK_PREFIX, EXPO_PREFIX)):
+                fail.append("CREATED_NAME|%r" % b["name"])
+            ours = b["tracks"]
+        if len(ours) != 1:
+            fail.append("CREATED_TRACK_COUNT|%s|%d" % (b["name"], len(ours)))
             continue
-        t = tr[0]
+        t = ours[0]
         if t["class"] == "MovieSceneVisibilityTrack" and t["prop"] != "bHidden":
             fail.append("VIS_TRACK_PROPERTY_NOT_bHidden|%s|%r" % (b["name"], t["prop"]))
-        if (t["class"], t["prop"], t["path"], t["name"]) != (want["class"], want["prop"], want["path"], want["name"]):
+        name_ok = t["name"] == want["name"] or t["name"] == UE_FIXED_TRACK_NAMES.get(t["class"])
+        if (t["class"], t["prop"], t["path"]) != (want["class"], want["prop"], want["path"]) or not name_ok:
             fail.append("CREATED_TRACK|%s|%r" % (b["name"], (t["class"], t["prop"], t["path"], t["name"])))
         if len(t["sections"]) != 1:
             fail.append("CREATED_SECTIONS|%s" % b["name"])
@@ -2651,12 +2693,30 @@ def _create_all(seq, plan, run):
         rows = by_path.get(sp["actor_path"], [])
         if len(rows) != 1:
             _stop(run, "CREATE_ACTOR|%s|%d|NOTHING SAVED; Don't-Save restart" % (sp["actor_path"], len(rows)))
+        existing = {_guid(x.get_id()) for x in seq.get_bindings()}
         b = seq.add_possessable(rows[0])
         if b is None or not b.is_valid():
             _stop(run, "CREATE_BINDING|%s|NOTHING SAVED; Don't-Save restart" % sp["binding_name"])
-        b.set_display_name(sp["binding_name"])
-        created.append({"guid": _guid(b.get_id()), "binding_name": sp["binding_name"]})
+        g = _guid(b.get_id())
         w = sp["track"]
+        if g in existing:
+            # [measured I2ORDER-DRY-3, Conductor 5 01:45] add_possessable on an actor already bound in this sequence
+            # returns THAT binding: never rename it; add our one track to it; REVERT removes only that track.
+            for t0 in b.get_tracks():
+                try:
+                    p0 = str(t0.get_property_name())
+                except Exception:  # noqa: BLE001
+                    p0 = ""
+                if t0.get_class().get_name() == w["class"] and p0 == w["prop"]:
+                    _stop(run, "REUSED_BINDING_ALREADY_HAS_TRACK|%s|%s|NOTHING SAVED; Don't-Save restart"
+                          % (b.get_display_name(), w["class"]))
+            created.append({"guid": g, "binding_name": str(b.get_display_name()), "reused": True,
+                            "planned_name": sp["binding_name"], "track_class": w["class"], "track_prop": w["prop"],
+                            "note": "track added to existing binding %s '%s'" % (g, b.get_display_name())})
+        else:
+            b.set_display_name(sp["binding_name"])
+            created.append({"guid": g, "binding_name": sp["binding_name"], "reused": False,
+                            "track_class": w["class"], "track_prop": w["prop"]})
         t = b.add_track(getattr(ue, w["class"]))
         if t is None:
             _stop(run, "CREATE_TRACK|%s|NOTHING SAVED; Don't-Save restart" % sp["binding_name"])
@@ -2678,12 +2738,26 @@ def _create_all(seq, plan, run):
 
 
 def _remove_created(seq, created, run):
+    """New bindings (our prefix) are removed; on a REUSED binding only our one track is removed, never the binding."""
     for c in reversed(created):
-        if not c["binding_name"].startswith((DARK_PREFIX, EXPO_PREFIX)):
-            _stop(run, "REFUSE_REMOVE_FOREIGN|%s" % c["binding_name"])
         rows = [b for b in seq.get_bindings() if _guid(b.get_id()) == c["guid"]]
         if len(rows) != 1 or str(rows[0].get_display_name()) != c["binding_name"]:
             _stop(run, "CREATED_BINDING_DRIFT|%s|NOTHING SAVED; Don't-Save restart" % c["binding_name"])
+        if c.get("reused"):
+            ts = []
+            for t in rows[0].get_tracks():
+                try:
+                    pr = str(t.get_property_name())
+                except Exception:  # noqa: BLE001
+                    pr = ""
+                if t.get_class().get_name() == c["track_class"] and pr == c["track_prop"]:
+                    ts.append(t)
+            if len(ts) != 1:
+                _stop(run, "REUSED_TRACK_COUNT|%s|%d|NOTHING SAVED; Don't-Save restart" % (c["binding_name"], len(ts)))
+            rows[0].remove_track(ts[0])
+            continue
+        if not c["binding_name"].startswith((DARK_PREFIX, EXPO_PREFIX)):
+            _stop(run, "REFUSE_REMOVE_FOREIGN|%s" % c["binding_name"])
         rows[0].remove()
 
 
@@ -2697,6 +2771,10 @@ def run_apply(run, p, confirm):
     here = _here()
     rp = os.path.join(here, RECORD)
     if os.path.exists(rp):
+        r0 = _load_json(rp) or {}
+        if not r0.get("applied"):
+            _stop(run, "STALE_UNAPPLIED_RECORD|%s|run=%s stopped before its save: after the Don't-Save restart rename it to "
+                       "i2_order_record.json.stopped-%s; nothing mutated" % (rp, r0.get("run"), r0.get("run")))
         _stop(run, "RECORD_EXISTS|%s|nothing mutated (REVERT first)" % rp)
     before = _snapshot(seq)
     rep = _report(seq, show, p, run, before)
@@ -2721,24 +2799,25 @@ def run_apply(run, p, confirm):
     created = _create_all(seq, plan, run)
     record["created"] = created
     _write_json(rp, record)
-    cguids = [c["guid"] for c in created]
+    cguids = [c["guid"] for c in created if not c.get("reused")]
     after = _snapshot(seq)
-    owned = set(plan["owned"])
+    owned = set(plan["owned"]) | {track_key(c["guid"], c["track_class"], "*", c["track_prop"]) for c in created if c.get("reused")}
+    record["owned_reused"] = sorted(owned - set(plan["owned"]))
     problems = untouched_diff(before, after, owned, cguids)
     problems += _cmp_specs(_owned_specs_live(seq, plan, run), plan["writes"])
-    problems += check_created(after, created, created_specs(plan))
+    problems += check_created(after, created, created_specs(plan), before)
     if _foreign_digest(run) != foreign0:
         problems.append("FOREIGN_S2_ARRIVAL_BINDINGS_CHANGED")
     if guard_hashes(after) != record["guards_before"]:
         problems.append("GUARD_CHANGED|before=%r|after=%r" % (record["guards_before"], guard_hashes(after)))
     problems += _post_checks(seq, plan, run)
     if problems:
-        _stop(run, "PRESAVE_READBACK|%s|NOTHING SAVED; Don't-Save restart; backup %s" % (json.dumps(problems[:12]), backup))
+        _stop(run, "PRESAVE_READBACK|%s|NOTHING SAVED; Don't-Save restart; backup %s" % (json.dumps(problems), backup))
     _save_ls(run)
     seq = _ue().load_asset(SEQ_PATH)
     after2 = _snapshot(seq)
     problems = untouched_diff(before, after2, owned, cguids) + _cmp_specs(_owned_specs_live(seq, plan, run), plan["writes"])
-    problems += check_created(after2, created, created_specs(plan))
+    problems += check_created(after2, created, created_specs(plan), before)
     if _foreign_digest(run) != foreign0:
         problems.append("FOREIGN_S2_ARRIVAL_BINDINGS_CHANGED_AFTER_SAVE")
     if json.dumps(after2, sort_keys=True, default=str) != json.dumps(after, sort_keys=True, default=str):
@@ -2747,16 +2826,17 @@ def run_apply(run, p, confirm):
         problems.append("GUARD_CHANGED_AFTER_SAVE")
     problems += _post_checks(seq, plan, run)
     if problems:
-        _stop(run, "READBACK_FAILED_AFTER_SAVE|%s|restore from %s" % (json.dumps(problems[:12]), backup))
+        _stop(run, "READBACK_FAILED_AFTER_SAVE|%s|restore from %s" % (json.dumps(problems), backup))
     record.update({"applied": True, "snapshot_after": after2, "guards_after": guard_hashes(after2),
                    "owned_after": _owned_specs_live(seq, plan, run), "census_after": _census(), "foreign_digest": foreign0})
     _write_json(rp, record)
-    nd = len([c for c in created if c["binding_name"].startswith(DARK_PREFIX)])
-    _log("%s_APPLY_OK|run=%s|H=%d|hold=[%s,%d]|held=%s|twin=%s|visible_from=%d|fade=%d|fills=%d|dark_bindings=%d|exposure_bindings=%d|"
-         "foreign=unchanged|guards=unchanged|saved=%s|backup=%s|record=%s"
+    nd = len([c for c in created if c["track_class"] == "MovieSceneVisibilityTrack"])
+    nr = [c["binding_name"] for c in created if c.get("reused")]
+    _log("%s_APPLY_OK|run=%s|H=%d|hold=[%s,%d]|held=%s|twin=%s|visible_from=%d|fade=%d|fills=%d|dark_tracks=%d|exposure_tracks=%d|"
+         "reused_bindings=%s|foreign=unchanged|guards=unchanged|saved=%s|backup=%s|record=%s"
          % (MARK, run, plan["hold_frame"], plan["hold_start"], plan["hold_end"], plan["held_camera"],
             (plan["writes"]["twin"] or {}).get("name"), plan["drape"]["visible_from"], plan["drape"]["fade_start"],
-            int(plan["coverage"]["held"]["fills_frame"]), nd, len(created) - nd, SEQ_PATH, backup, rp))
+            int(plan["coverage"]["held"]["fills_frame"]), nd, len(created) - nd, json.dumps(nr), SEQ_PATH, backup, rp))
     return record
 
 
@@ -2777,13 +2857,13 @@ def run_verify(run, p, confirm):
     if guard_hashes(live) != rec["guards_before"]:
         problems.append("GUARD_CHANGED_SINCE_APPLY")
     problems += _post_checks(seq, plan, run)
-    problems += check_created(live, rec.get("created", []), created_specs(plan))
+    problems += check_created(live, rec.get("created", []), created_specs(plan), rec["snapshot_before"])
     if rec.get("foreign_digest") and _foreign_digest(run) != rec["foreign_digest"]:
         problems.append("FOREIGN_S2_ARRIVAL_BINDINGS_CHANGED_SINCE_APPLY")
     if _census() != {"content": [], "maps": []}:
         problems.append("VERIFY_DIRTIED")
     if problems:
-        _stop(run, "VERIFY_FAILED|%s" % json.dumps(problems[:12]))
+        _stop(run, "VERIFY_FAILED|%s" % json.dumps(problems))
     _log("%s_VERIFY_OK|run=%s|applied_run=%s|mutated=0|H=%d|visible_from=%d|guards=unchanged" %
          (MARK, run, rec["run"], plan["hold_frame"], plan["drape"]["visible_from"]))
 
@@ -2803,7 +2883,7 @@ def run_revert(run, p, confirm):
     live = _snapshot(seq)
     problems = untouched_diff(rec["snapshot_after"], live, set()) + _cmp_specs(_owned_specs_live(seq, plan, run), rec["owned_after"])
     if problems:
-        _stop(run, "STATE_DRIFTED_SINCE_APPLY|%s|restore from %s" % (json.dumps(problems[:12]), rec["backup"]))
+        _stop(run, "STATE_DRIFTED_SINCE_APPLY|%s|restore from %s" % (json.dumps(problems), rec["backup"]))
     backup, copied = _backup(run, "I2Order-Revert")
     txn = os.path.join(here, "i2_order_revert_%s.json" % run)
     _write_json(txn, {"run": run, "backup": backup, "backup_files": [copied], "source_record": rp,
@@ -2820,13 +2900,13 @@ def run_revert(run, p, confirm):
     if guard_hashes(after) != rec["guards_before"]:
         problems.append("GUARD_CHANGED")
     if problems:
-        _stop(run, "REVERT_PRESAVE|%s|NOTHING SAVED; Don't-Save restart" % json.dumps(problems[:12]))
+        _stop(run, "REVERT_PRESAVE|%s|NOTHING SAVED; Don't-Save restart" % json.dumps(problems))
     _save_ls(run)
     seq = _ue().load_asset(SEQ_PATH)
     after2 = _snapshot(seq)
     problems = untouched_diff(rec["snapshot_before"], after2, set()) + _cmp_specs(_owned_specs_live(seq, plan, run), rec["originals"])
     if problems:
-        _stop(run, "REVERT_READBACK|%s|restore from %s" % (json.dumps(problems[:12]), backup))
+        _stop(run, "REVERT_READBACK|%s|restore from %s" % (json.dumps(problems), backup))
     archived = rp + ".reverted-" + run
     os.rename(rp, archived)
     _write_json(txn, dict(_load_json(txn), completed=True, archived_record=archived))
@@ -2852,11 +2932,13 @@ def _fix_target(seq, step, run):
     if rows:
         b = rows[0]
     else:
+        existing = {_guid(x.get_id()) for x in seq.get_bindings()}
         b = seq.add_possessable(a)
         if b is None or not b.is_valid():
             _stop(run, "FIX_BIND|%s|NOTHING SAVED; Don't-Save restart" % step["actor_label"])
-        b.set_display_name(step["actor_label"])
-        created.append(_guid(b.get_id()))
+        if _guid(b.get_id()) not in existing:          # a reused binding keeps its own name [measured I2ORDER-DRY-3]
+            b.set_display_name(step["actor_label"])
+            created.append(_guid(b.get_id()))
     if step["kind"] != "LIGHT_DIM":
         return b, created
     kids = _bindings_named(seq, step["actor_label"] + "/LightComponent")
@@ -2922,19 +3004,21 @@ def run_fix(run, p, confirm):
         b, made = _fix_target(seq, step, run)
         created += made
         g, _ = _fix_write(b, spec, run)
-        owned.add(track_key(g, spec["class"], spec["name"], "*"))
+        owned.add(track_key(g, spec["class"], "*", "*"))
         specs[step["id"]] = {"guid": g, "spec": spec}
     after = _snapshot(seq)
     problems = untouched_diff(before, after, owned, created)
     for sid, row in specs.items():
         # found by binding + class + our display name, whatever property the setter really wrote (read back)
+        pre = [t for b in before["bindings"] if b["guid"] == row["guid"] for t in b["tracks"] if t["class"] == row["spec"]["class"]]
         hits = [t for b in after["bindings"] if b["guid"] == row["guid"] for t in b["tracks"]
-                if t["class"] == row["spec"]["class"] and t["name"] == FIX_TRACK]
+                if t["class"] == row["spec"]["class"]]
+        hits = hits if not pre else [t for t in hits if t not in pre]
         problems += ["%s|%s" % (sid, x) for x in check_fix_readback(row["spec"], hits[0] if len(hits) == 1 else None)]
     if guard_hashes(after) != record["guards_before"]:
         problems.append("GUARD_CHANGED")
     if problems:
-        _stop(run, "FIX_PRESAVE|%s|NOTHING SAVED; Don't-Save restart" % json.dumps(problems[:12]))
+        _stop(run, "FIX_PRESAVE|%s|NOTHING SAVED; Don't-Save restart" % json.dumps(problems))
     _save_ls(run)
     seq = _ue().load_asset(SEQ_PATH)
     after2 = _snapshot(seq)
@@ -2964,7 +3048,7 @@ def run_fix_revert(run, p, confirm):
         bs = [b for b in seq.get_bindings() if _guid(b.get_id()) == row["guid"]]
         if len(bs) != 1:
             _stop(run, "FIX_REVERT_BINDING|%s|NOTHING SAVED; Don't-Save restart" % sid)
-        ts = [t for t in bs[0].get_tracks() if t.get_class().get_name() == spec["class"] and str(t.get_display_name()) == FIX_TRACK]
+        ts = [t for t in bs[0].get_tracks() if t.get_class().get_name() == spec["class"]]
         if len(ts) != 1:
             _stop(run, "FIX_REVERT_TRACK|%s|NOTHING SAVED; Don't-Save restart" % sid)
         bs[0].remove_track(ts[0])
@@ -2974,7 +3058,7 @@ def run_fix_revert(run, p, confirm):
             bs[0].remove()
     after = _snapshot(seq)
     if json.dumps(after, sort_keys=True, default=str) != json.dumps(rec["snapshot_before"], sort_keys=True, default=str):
-        _stop(run, "FIX_REVERT_PRESAVE|%s|NOTHING SAVED; Don't-Save restart" % json.dumps(untouched_diff(rec["snapshot_before"], after, set())[:8]))
+        _stop(run, "FIX_REVERT_PRESAVE|%s|NOTHING SAVED; Don't-Save restart" % json.dumps(untouched_diff(rec["snapshot_before"], after, set())))
     _save_ls(run)
     os.rename(fp, fp + ".reverted-" + run)
     _log("%s_FIX_REVERT_OK|run=%s|saved=%s|backup=%s" % (MARK, run, SEQ_PATH, backup))
