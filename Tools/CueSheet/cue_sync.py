@@ -63,6 +63,13 @@ DIRECTOR = 'Director notes'
 AT = 'At'
 GO = 'GO'
 PAUSE = 'Pause possible'   # 'yes' = an ambience moment where a pause is possible (Gary 9 Oct)
+DOG_ACTION = 'Dog action'
+DOG_MODE = 'Dog mode'
+TREADMILL = 'Treadmill'
+DOG_MODE_LABELS = {
+    'lying': 'Lying down (damped)', 'standing': 'Standing', 'walk_trot': 'Walk / trot',
+    'run': 'Run', 'stairs_climb': 'Stairs / climb'
+}
 WEB_BASELINE = os.path.join(DIR, 'web_baseline.json')
 WEB_REPORT = os.path.join(DIR, 'web_report.md')
 SURTITLES_EXPORT = os.path.join(ROOT, 'Content', 'InfinityStage', 'CueSheet', 'Puss_Surtitles.csv')
@@ -74,7 +81,7 @@ PRINT_DIR = os.path.join(DIR, 'print')
 WEB_FIELDS = {'light': 'Light', 'soundTech': 'Sound tech', 'action': 'Action', 'soundCue': 'Sound cue',
               'videoCue': 'Video Cue', 'klara': 'Speaker: Klara', 'gary': 'Speaker: Gary',
               'cameron': 'Speaker: Cameron', 'beats': 'Beats', 'notes': 'Notes', 'at': AT, 'go': GO,
-              'pause': PAUSE}
+              'pause': PAUSE, 'dogAction': DOG_ACTION, 'dogMode': DOG_MODE, 'treadmill': TREADMILL}
 CUT_MARK = '[CUT on the Cue Book]'
 TIME_FIELD = re.compile(r'^[+]?(?:\d+(?:\.\d*)?|\.\d+)$')
 # BREATH = a breath-pause point (design 0d2ae74); the transport has no BREATH yet, so marker sync skips it.
@@ -249,6 +256,10 @@ def validate_cuebook_docs(docs):
                 problems.append('%s: GO has no At time' % key)
             if str(doc.get('pause') or '') not in ('', 'yes'):
                 problems.append('%s: pause must be yes or empty' % key)
+            if str(doc.get('dogMode') or '') not in ('',) + tuple(DOG_MODE_LABELS):
+                problems.append('%s: dogMode is not supported' % key)
+            if str(doc.get('treadmill') or '') not in ('', 'on', 'off'):
+                problems.append('%s: treadmill must be on, off or empty' % key)
         except ValueError as error:
             problems.append('%s: %s' % (key, error))
     if problems:
@@ -256,8 +267,32 @@ def validate_cuebook_docs(docs):
 
 
 def with_cuebook_fields(fields):
-    """At/GO are Cue Book-only columns and are always appended, never inserted into the Sheet layout."""
-    return list(fields) + [name for name in (AT, GO, PAUSE) if name not in fields]
+    """Cue Book-only columns are appended, never inserted into the Sheet layout."""
+    return list(fields) + [name for name in (AT, GO, PAUSE, DOG_ACTION, DOG_MODE, TREADMILL) if name not in fields]
+
+
+def with_dog_state(cues):
+    """Copy cues and resolve the last stated mode/treadmill; action remains cue-specific."""
+    mode = treadmill = ''
+    output = []
+    for source in cues:
+        cue = dict(source)
+        direct_mode = str(cue.get('dogMode') or '').strip()
+        direct_treadmill = str(cue.get('treadmill') or '').strip()
+        cue['_dogMode'] = direct_mode or mode
+        cue['_treadmill'] = direct_treadmill or treadmill
+        cue['_dogModeInherited'] = bool(cue['_dogMode'] and not direct_mode)
+        cue['_treadmillInherited'] = bool(cue['_treadmill'] and not direct_treadmill)
+        mode = direct_mode or mode
+        treadmill = direct_treadmill or treadmill
+        output.append(cue)
+    return output
+
+
+def dog_line(cue):
+    parts = [str(cue.get('dogAction') or '').strip(), DOG_MODE_LABELS.get(cue.get('_dogMode'), ''),
+             ('treadmill ' + cue.get('_treadmill')) if cue.get('_treadmill') else '']
+    return 'DOG: ' + ' \u00b7 '.join(part for part in parts if part) if any(parts) else ''
 
 
 # ---------------------------------------------------------------- reading the Sheet
@@ -897,13 +932,14 @@ PRINT_LABELS = {
     'num': '#', 'key': 'Key', 'segment': 'Segment', 'at': 'At', 'klara': 'Klara', 'gary': 'Gary',
     'cameron': 'Cameron', 'light': 'Light', 'soundTech': 'Sound tech', 'soundCue': 'Sound cue',
     'videoCue': 'Video cue', 'action': 'Action', 'beats': 'Beats', 'go': 'GO', 'pause': 'Pause',
-    'notes': 'Notes', 'director': 'Director notes'
+    'notes': 'Notes', 'director': 'Director notes', 'dogLine': 'Dog'
 }
 PRINT_COLUMNS = {
     'num': '#', 'key': 'Key', 'klara': 'Speaker: Klara', 'gary': 'Speaker: Gary',
     'cameron': 'Speaker: Cameron', 'light': 'Light', 'soundTech': 'Sound tech',
     'soundCue': 'Sound cue', 'videoCue': 'Video Cue', 'action': 'Action', 'beats': 'Beats',
-    'notes': 'Notes', 'director': DIRECTOR, 'at': AT, 'go': GO, 'pause': PAUSE
+    'notes': 'Notes', 'director': DIRECTOR, 'at': AT, 'go': GO, 'pause': PAUSE,
+    'dogAction': DOG_ACTION, 'dogMode': DOG_MODE, 'treadmill': TREADMILL
 }
 PRINT_SPEAKERS = ('klara', 'gary', 'cameron')
 
@@ -928,7 +964,7 @@ def print_cues_from_working(path=None):
         cue = {field: str(row.get(column) or '') for field, column in PRINT_COLUMNS.items()}
         cue.update({'ord': index + 1, 'cut': CUT_MARK in str(row.get(DIRECTOR) or '')})
         cues.append(cue)
-    return cues
+    return with_dog_state(cues)
 
 
 def print_segments(cues):
@@ -1041,6 +1077,8 @@ def render_print_html(cues, preset_name, presets=None, include_cut=False, from_s
                     value = cue.get(field)
                     if field == 'pause':
                         value = 'PAUSE POSSIBLE' if str(value or '').strip() == 'yes' else ''
+                    if field == 'dogLine':
+                        value = dog_line(cue)
                     value = _print_short(value, truncate.get(field))
                     if value:
                         out.append('<span class="field field-%s"><b>%s</b> %s</span>' %

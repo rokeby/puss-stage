@@ -14,7 +14,8 @@ sys.path.insert(0, str(HERE))
 import cue_sync as CUE  # noqa: E402
 import breath_shift as BS  # noqa: E402
 
-FIELDS = ["Key", "Origin", "Video Cue", "Speaker: Klara", CUE.DIRECTOR, "At", "GO", "Pause possible"]
+FIELDS = ["Key", "Origin", "Video Cue", "Speaker: Klara", CUE.DIRECTOR, "At", "GO", "Pause possible",
+          "Dog action", "Dog mode", "Treadmill"]
 
 
 class BreathShiftHarness(unittest.TestCase):

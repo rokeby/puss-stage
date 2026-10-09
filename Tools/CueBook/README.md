@@ -19,8 +19,11 @@ segment, with stills, and edit it. No accounts. Built 8 Oct 2026 for Gary.
   marked as cut, never deleted. The viewer's last 100 undo steps are kept in browser storage.
 - **At / GO help:** cue editing keeps a short explanation under At, GO and Pause possible, with a `?` expansion for
   accepted time formats and the real HOLD/PASS/BREATH behaviour.
-- **Print / PDF:** the header's **Print…** panel offers Full, Stage manager, Klara, Gary, Cameron, Lighting and
-  Sound presets, an optional segment range and an include-cut control. Its preview is the print layout; use the
+- **Dog directions:** optional physical action, operator GO1 mode and treadmill state share one Dog group. Mode and
+  treadmill carry forward when omitted (inherited values are grey); action remains cue-specific. Gary and Stage
+  manager prints include the dog line, and the Dog preset prints dog directions with cue context.
+- **Print / PDF:** the header's **Print…** panel offers Full, Stage manager, Klara, Gary, Cameron, Lighting, Sound and
+  Dog presets, an optional segment range and an include-cut control. Its preview is the print layout; use the
   browser print dialog's **Save as PDF**. The same definitions live in `site/print_presets.json` and drive the
   offline command: `python Tools/CueSheet/cue_sync.py print stage-manager --from "Passage 1" --to "Passage 2"`.
   Output goes to `Docs/CueSheet/print/` as a self-contained HTML file to open and print in any browser.
@@ -68,7 +71,7 @@ segment, with stills, and edit it. No accounts. Built 8 Oct 2026 for Gary.
 Changing `Code.gs` later: paste the new code, then **Deploy > Manage deployments** > edit (pencil) > Version: **New
 version** > Deploy. The URL stays the same.
 
-The surtitles and cue At/GO fields require that redeploy. Until then the new page keeps cue editing available and
+The surtitles, cue At/GO fields and Dog group require that redeploy. Until then the new page keeps supported cue editing available and
 says “Surtitles need the updated script.”
 
 ## Testing
@@ -79,8 +82,8 @@ in the browser on a fake spreadsheet (`test/mock_services.js`), so the whole flo
 connection.
 
 `python Tools/CueBook/test/build_test_site.py --browser-harness` also injects the automated browser runner. Serve
-`test/_build` and open it in a 375 px-wide browser: it finishes with `CUEBOOK_BROWSER_HARNESS_OK 22/22` after print
-presets, include-cut, running-order, accessible At/GO/pause help, field/move/add/cut and surtitle undo, undo conflict,
+`test/_build` and open it in a 375 px-wide browser: it finishes with `CUEBOOK_BROWSER_HARNESS_OK 26/26` after print
+presets, include-cut, running-order, accessible At/GO/pause/Dog help, dog carry-forward, field/move/add/cut and surtitle undo, undo conflict,
 the typing Ctrl+Z negative control, offline undo/move/line reloads, line conflict, and both old-deployment controls.
 The normal build remains the interactive mock.
 

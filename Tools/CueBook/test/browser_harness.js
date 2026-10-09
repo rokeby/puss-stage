@@ -66,6 +66,11 @@
       click('Show cues');
       await wait(() => !document.querySelector('.movebtn'), 'old deployment move buttons hidden');
       checks.push('old deployment hides move buttons instead of sending unsupported actions');
+      const oldCue = document.querySelector('.cue');
+      if (!oldCue) throw new Error('old deployment rendered no cue to edit');
+      clickWithin('#' + oldCue.id, 'Edit');
+      if (oldCue.querySelector('.dog-group')) throw new Error('old deployment exposed unsupported dog fields');
+      checks.push('old deployment hides the Dog editor group');
       window.__cuebook.renderPrintView('stage-manager');
       if (document.querySelectorAll('.print-cue').length !== 4) throw new Error('old deployment print failed');
       document.querySelector('.print-actions .btn:not(.primary)').click();
@@ -145,8 +150,8 @@
     ['cuebook.who', 'cuebook.pass', 'cuebook.outbox', 'cuebook.conflicts', 'cuebook.drafts', 'cuebook.lineDrafts', 'cuebook.showSurtitles', 'cuebook.runningOrder'].forEach(key => localStorage.removeItem(key));
     window.__cuebook.clearUndo();
     await api({ action: 'seed', op: 'browser-seed', cues: [
-      { key: 'R0001', ord: 10, version: 1, cut: false, num: '1', origin: 'shared', director: '', after: '', videoCue: 'S5 Mountains', klara: 'A mountain speaks', light: 'Warm state' },
-      { key: 'R0002', ord: 20, version: 1, cut: false, num: '2', origin: 'shared', director: '', after: '', soundCue: 'Rumble', gary: 'Listen', at: '1', go: '2 HOLD' },
+      { key: 'R0001', ord: 10, version: 1, cut: false, num: '1', origin: 'shared', director: '', after: '', videoCue: 'S5 Mountains', klara: 'A mountain speaks', light: 'Warm state', dogMode: 'standing', treadmill: 'off' },
+      { key: 'R0002', ord: 20, version: 1, cut: false, num: '2', origin: 'shared', director: '', after: '', soundCue: 'Rumble', gary: 'Listen', at: '1', go: '2 HOLD', dogAction: 'trotting', dogMode: 'walk_trot', treadmill: 'on' },
       { key: 'R0003', ord: 30, version: 1, cut: false, num: '3', origin: 'shared', director: '', after: '', videoCue: 'Passage 6', pause: 'yes', soundTech: 'Fade' },
       { key: 'R0004', ord: 40, version: 1, cut: true, num: '4', origin: 'shared', director: '', after: '', at: '2', go: '9 HOLD', cameron: 'Cut line' },
       { key: 'R0005', ord: 50, version: 1, cut: false, num: '5', origin: 'shared', director: '', after: '', cameron: 'Cameron line' }
@@ -155,12 +160,12 @@
     document.querySelector('#gPass').value = 'test-pass';
     document.querySelector('#gateForm').requestSubmit();
     const checks = [];
-    await wait(() => document.querySelector('#gate').hidden && button('Running order') && document.querySelector('[aria-label="Move R0002 up one cue"]') && document.querySelectorAll('#printPreset option').length === 7, 'sign in');
+    await wait(() => document.querySelector('#gate').hidden && button('Running order') && document.querySelector('[aria-label="Move R0002 up one cue"]') && document.querySelectorAll('#printPreset option').length === 8, 'sign in');
     window.print = () => {};
     click('Print…');
     if (document.querySelector('#printPanel').hidden) throw new Error('print panel did not open');
     click('Cancel');
-    const printCounts = { full: 4, 'stage-manager': 4, klara: 1, gary: 2, cameron: 1, lighting: 3, sound: 2 };
+    const printCounts = { full: 4, 'stage-manager': 4, klara: 1, gary: 2, cameron: 1, lighting: 3, sound: 2, dog: 2 };
     for (const [preset, expected] of Object.entries(printCounts)) {
       window.__cuebook.renderPrintView(preset);
       const actual = document.querySelectorAll('.print-cue').length;
@@ -168,7 +173,7 @@
       if ([...document.querySelectorAll('.print-cue')].some(row => row.dataset.key === 'R0004')) throw new Error(`print ${preset} included cut cue`);
       document.querySelector('.print-actions .btn:not(.primary)').click();
     }
-    checks.push('all seven print presets match expected visible-cue counts and hide cut cues');
+    checks.push('all eight print presets match expected visible-cue counts and hide cut cues');
     document.querySelector('#printCuts').checked = true;
     window.__cuebook.renderPrintView('full');
     if (document.querySelectorAll('.print-cue').length !== 5) throw new Error('include-cut control did not reveal cut cue');
@@ -180,16 +185,31 @@
     const runKeys = [...document.querySelectorAll('.run-cue')].map(row => row.dataset.key);
     if (new Set(runKeys).size !== 5) throw new Error('running order duplicates: ' + runKeys.join(','));
     checks.push('running order lists every seed cue exactly once');
+    const inheritedDog = document.querySelector('.run-cue[data-key="R0003"] .run-dog');
+    if (!inheritedDog || inheritedDog.querySelectorAll('.inherited').length !== 2 || !inheritedDog.textContent.includes('Walk / trot') || !inheritedDog.textContent.includes('treadmill on')) throw new Error('running order did not show inherited dog state');
+    checks.push('running order shows carried dog mode and treadmill as inherited');
     click('Running order');
 
     clickWithin('#cue-R0002', 'Edit');
     const described = ['at', 'go', 'pause'].map(field => document.querySelector(`[name="${field}"]`));
     if (described.some(control => !control || !document.getElementById(control.getAttribute('aria-describedby')) || !control.title)) throw new Error('At/GO/pause help is not connected');
-    [...document.querySelectorAll('#cue-R0002 .help-toggle')].forEach(node => node.click());
+    [...document.querySelectorAll('#cue-R0002 .editor > label .help-toggle')].forEach(node => node.click());
     if (document.querySelectorAll('#cue-R0002 .help-more:not([hidden])').length !== 3) throw new Error('At/GO/pause longer help did not open');
     if (document.documentElement.scrollWidth > document.documentElement.clientWidth) throw new Error(`horizontal scroll with help open: ${document.documentElement.scrollWidth}/${document.documentElement.clientWidth}`);
     checks.push('At, GO and pause show linked hints/tooltips, toggled help, and no horizontal scroll');
+    const dogControls = ['dogAction', 'dogMode', 'treadmill'].map(field => document.querySelector(`[name="${field}"]`));
+    if (dogControls.some(control => !control || !document.getElementById(control.getAttribute('aria-describedby')) || !control.title)) throw new Error('Dog help is not connected');
+    checks.push('Dog action, mode and treadmill have linked plain-language help');
 
+    input('#cue-R0002 textarea[name="dogAction"]', 'looking up');
+    document.querySelector('#cue-R0002 form').requestSubmit();
+    await wait(() => window.__cuebook.outbox.length === 0 && document.querySelector('#undoBtn').textContent.includes('Physical action on R0002'), 'dog field save');
+    if (!document.querySelector('#cue-R0002 .dog-line').textContent.includes('looking up')) throw new Error('saved dog direction not displayed');
+    document.querySelector('#undoBtn').click();
+    await wait(() => window.__cuebook.outbox.length === 0 && document.querySelector('#cue-R0002 .dog-line').textContent.includes('trotting'), 'dog field undo');
+    checks.push('Dog field save displays compactly and undo restores it');
+
+    clickWithin('#cue-R0002', 'Edit');
     const textarea = document.querySelector('#cue-R0002 textarea[name="notes"]');
     const undoBeforeTyping = window.__cuebook.undoCount;
     textarea.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true, cancelable: true }));

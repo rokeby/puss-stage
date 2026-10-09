@@ -130,15 +130,15 @@ class CueBookExportHarness(unittest.TestCase):
             with contextlib.redirect_stdout(stdout):
                 result = CUE.cuebook_export(str(source))
             fields, rows = CUE.load_csv(CUE.WORKING)
-            self.assertEqual(fields[-3:], ["At", "GO", "Pause possible"])
+            self.assertEqual(fields[-6:], ["At", "GO", "Pause possible", "Dog action", "Dog mode", "Treadmill"])
             for field in old_fields:
                 self.assertEqual(rows[0].get(field, "").encode("utf-8"), old_row.get(field, "").encode("utf-8"),
                                  msg="old column changed: %s" % field)
             self.assertEqual((rows[0]["At"], rows[0]["GO"]), ("1:14.5", "20 PASS"))
             with open(CUE.EXPORT, encoding="utf-8", newline="") as handle:
                 export_rows = list(csv.reader(handle))
-            self.assertEqual(export_rows[0][-3:], ["At", "GO", "Pause possible"])
-            self.assertEqual(export_rows[2][-3:-1], ["1:14.5", "20 PASS"])
+            self.assertEqual(export_rows[0][-6:], ["At", "GO", "Pause possible", "Dog action", "Dog mode", "Treadmill"])
+            self.assertEqual(export_rows[2][-6:-4], ["1:14.5", "20 PASS"])
             self.assertIn("CUE_SYNC_EXPORT_OK|cues=1|surtitles=0|changed_files=", stdout.getvalue())
             self.assertIn("Docs/CueSheet/working.csv", result["changed_files"])
 
@@ -253,8 +253,10 @@ class CueBookExportHarness(unittest.TestCase):
             row.update(values)
             return row
         return [
-            cue("R1", 10, num="1", videoCue="Passage 1", klara="Klara line", light="Warm"),
-            cue("R2", 20, num="2", gary="Gary line", soundCue="Rumble", action="Listen", go="2 HOLD"),
+            cue("R1", 10, num="1", videoCue="Passage 1", klara="Klara line", light="Warm",
+                dogMode="standing", treadmill="off"),
+            cue("R2", 20, num="2", gary="Gary line", soundCue="Rumble", action="Listen", go="2 HOLD",
+                dogAction="trotting", dogMode="walk_trot", treadmill="on"),
             cue("R3", 30, num="3", cameron="Cut Cameron line", cut=True),
             cue("R4", 40, num="4", videoCue="Passage 2", soundTech="Fade", pause="yes",
                 notes="A note long enough to prove that stage-manager output is shortened after sixty characters exactly."),
@@ -265,8 +267,9 @@ class CueBookExportHarness(unittest.TestCase):
         preset_path = HERE.parent / "CueBook" / "site" / "print_presets.json"
         presets = CUE.load_print_presets(str(preset_path))
         cues = self._print_fixture()
+        cues = CUE.with_dog_state(cues)
         expected = {"full": 4, "stage-manager": 4, "klara": 1, "gary": 2,
-                    "cameron": 1, "lighting": 3, "sound": 2}
+                    "cameron": 1, "lighting": 3, "sound": 2, "dog": 2}
         for name, count in expected.items():
             with self.subTest(preset=name):
                 selected = CUE.select_print_segments(cues, presets[name])
@@ -275,6 +278,22 @@ class CueBookExportHarness(unittest.TestCase):
                 self.assertFalse(any(cue["key"] == "R3" for cue, _context in rows))
         full_with_cut = CUE.select_print_segments(cues, presets["full"], include_cut=True)
         self.assertEqual(sum(len(segment["cues"]) for segment in full_with_cut), 5)
+
+    def test_dog_state_carries_mode_and_treadmill_but_not_action(self):
+        cues = CUE.with_dog_state(self._print_fixture())
+        self.assertEqual(CUE.dog_line(cues[1]), "DOG: trotting \u00b7 Walk / trot \u00b7 treadmill on")
+        self.assertEqual(CUE.dog_line(cues[3]), "DOG: Walk / trot \u00b7 treadmill on")
+        self.assertTrue(cues[3]["_dogModeInherited"] and cues[3]["_treadmillInherited"])
+        self.assertEqual(cues[3].get("dogAction"), "")
+        presets = CUE.load_print_presets(str(HERE.parent / "CueBook" / "site" / "print_presets.json"))
+        dog_html = CUE.render_print_html(cues, "dog", presets, printed_date="2026-10-09")
+        self.assertIn("DOG: trotting \u00b7 Walk / trot \u00b7 treadmill on", dog_html)
+        self.assertNotIn("Klara line", dog_html)
+
+    def test_bad_dog_enums_are_refused(self):
+        for document in ({"key": "R1", "dogMode": "telemetry_2"}, {"key": "R1", "treadmill": "maybe"}):
+            with self.subTest(document=document), self.assertRaises(ValueError):
+                CUE.validate_cuebook_docs([document])
 
     def test_print_negative_control_does_not_leak_unselected_fields(self):
         preset_path = HERE.parent / "CueBook" / "site" / "print_presets.json"
