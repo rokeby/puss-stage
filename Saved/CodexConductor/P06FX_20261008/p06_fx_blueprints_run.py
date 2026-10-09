@@ -1,3 +1,6 @@
+import sys as _sys  # purge stale P06 helper modules (editor Python caches imports across MCP runs; memory ue58-python-stale-module-cache)
+for _m in [k for k in list(_sys.modules) if k.startswith("p06_fx_") or k.startswith("p06_wingburn") or k.startswith("__p06_")]:
+    del _sys.modules[_m]
 import importlib.util
 import os
 

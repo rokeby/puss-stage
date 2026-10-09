@@ -57,10 +57,12 @@ def dependency_gate(args, asset_exists, bp_record, mi_record, live_mi, live_bps=
         bad.append("FIRE_PARTICLE_LIGHT_NOT_OFF")
     if not live_bps:
         bad.append("BP_LIVE_READBACK")
-    if not mi_record or mi_record.get("status") != "applied":
-        bad.append("WING_MI_RECORD_NOT_APPLIED")
-    elif not live_mi:
-        bad.append("WING_MI_LIVE_READBACK")
+    # 9 Oct: wing burn held (Wing 044 UVs not planar, P06WINGBURNMI UV_NOT_PLANAR) -> the MI is only required with a WingBurn placement.
+    if any(p["type"] == "WingBurn" for p in args["placements"]):
+        if not mi_record or mi_record.get("status") != "applied":
+            bad.append("WING_MI_RECORD_NOT_APPLIED")
+        elif not live_mi:
+            bad.append("WING_MI_LIVE_READBACK")
     return sorted(set(bad))
 
 
@@ -106,6 +108,8 @@ def _bps_live(args):
             row = dict(C.D.EFFECT_SPECS[name])
             row["name"] = name
             B._readback(row)
+        if not any(s.get("template") == C.D.FIRE_NO_LIGHT for s in C.D.EFFECT_SPECS.values()):
+            return True  # fire rows are Niagara (Gary 9 Oct); no Cascade particle light to prove off
         light = B._fire_light_readback(unreal.load_asset(C.D.FIRE_NO_LIGHT))
         return bool(light and all(abs(r["spawn_fraction"]) <= 1e-8
                                   and not r["high_quality_lights"]

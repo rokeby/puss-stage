@@ -32,10 +32,10 @@ check("args -: unknown type", raises(lambda: B.C.D.validate_blueprints({"types":
 
 rows = B.rows_for(a)
 check("plan +: all six default classes", [r["name"] for r in rows] == list(B.C.D.EFFECT_SPECS))
-check("plan +: Fire and WingBurn use private no-light template", all(r["template"] == B.C.D.FIRE_NO_LIGHT
-      for r in rows if r["name"] in ("FireBasket", "WingBurn")))
+check("plan +: Fire and WingBurn use the Stylish Niagara fire (Gary 9 Oct)", all(r["template"] == B.C.D.FIRE_NIAGARA
+      and r.get("niagara") for r in rows if r["name"] in ("FireBasket", "WingBurn")))
 lit = B.rows_for(B.C.D.validate_blueprints({"fire_particle_light_enabled": True}))
-check("plan -control: opt-in light uses source P_Fire", all(r["template"] == B.C.D.FIRE_SOURCE
+check("plan -control: Cascade light opt-in does not touch Niagara fire rows", all(r["template"] == B.C.D.FIRE_NIAGARA
       for r in lit if r["name"] in ("FireBasket", "WingBurn")))
 
 assets = [{"path": (B.C.D.FIRE_SOURCE if r["template"] == B.C.D.FIRE_NO_LIGHT else r["template"]), "class": "ParticleSystem"}
@@ -46,7 +46,11 @@ check("gate +: clean inventory/render/light-module probe", not B.gate(probe, row
 bad = dict(probe, cascade_render={"confirmed": False})
 check("gate -: unconfirmed renderer", "CASCADE_RENDER_UNPROVEN" in B.gate(bad, rows, False))
 bad = dict(probe, fire_particle_light={"readable": False, "modules": []})
-check("gate -: cannot safely disable fire light", "FIRE_LIGHT_MODULE_UNREADABLE" in B.gate(bad, rows, False))
+check("gate +: unreadable Cascade light module is irrelevant for Niagara fire rows",
+      "FIRE_LIGHT_MODULE_UNREADABLE" not in B.gate(bad, rows, False))
+cascade_rows = [dict(r, template=B.C.D.FIRE_NO_LIGHT, niagara=False) if r["name"] == "FireBasket" else r for r in rows]
+check("gate -: a Cascade no-light fire row still refuses an unreadable light module",
+      "FIRE_LIGHT_MODULE_UNREADABLE" in B.gate(bad, cascade_rows, False))
 
 cpp = (ROOT / "Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageEffectSource.cpp").read_text(encoding="utf-8")
 paths = set(p.split(".", 1)[0] for p in re.findall(r'TEXT\("(/Game/Scenes/Effects/BP_Effect_\w+\.\w+)"\)', cpp))

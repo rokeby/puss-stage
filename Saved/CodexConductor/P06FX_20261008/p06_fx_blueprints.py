@@ -30,7 +30,7 @@ def rows_for(args):
     for name in args["types"]:
         row = dict(C.D.EFFECT_SPECS[name])
         row["name"] = name
-        if name in ("FireBasket", "WingBurn") and args["fire_particle_light_enabled"]:
+        if name in ("FireBasket", "WingBurn") and args["fire_particle_light_enabled"] and not row.get("niagara"):
             row["template"] = C.D.FIRE_SOURCE
         rows.append(row)
     return rows
@@ -46,10 +46,12 @@ def gate(probe, rows, fire_light_enabled):
         bad.append("CASCADE_RENDER_UNPROVEN")
     by_path = {r["path"]: r for r in probe.get("particle_assets", [])}
     for row in rows:
+        if row.get("niagara"):
+            continue  # Niagara template: proven at build (NiagaraSystem load + FXSystemComponent read-back)
         source = C.D.FIRE_SOURCE if row["template"] == C.D.FIRE_NO_LIGHT else row["template"]
         if by_path.get(source, {}).get("class") != "ParticleSystem":
             bad.append("TEMPLATE_UNPROVEN|" + source)
-    if not fire_light_enabled:
+    if not fire_light_enabled and any(r["template"] == C.D.FIRE_NO_LIGHT for r in rows):
         light = probe.get("fire_particle_light", {})
         if not light.get("readable") or not light.get("modules"):
             bad.append("FIRE_LIGHT_MODULE_UNREADABLE")
@@ -111,14 +113,19 @@ def _subobject_component(bp, variable):
 def _readback(row):
     bp = unreal.load_asset(row["bp"])
     C.require(bp is not None, "BP_LOAD|" + row["bp"])
-    parent = bp.get_editor_property("parent_class")
-    parent_path = str(parent.get_path_name()) if parent is not None else ""
+    # [meas 9 Oct] UE 5.8 Python: Blueprint has no 'parent_class' property; test the generated class's CDO instead.
+    gc = bp.generated_class()
+    cdo = unreal.get_default_object(gc) if gc is not None else None
+    parent_path = ("/Script/InfinityStage.InfinityStageEffectSource"
+                   if cdo is not None and isinstance(cdo, unreal.InfinityStageEffectSource) else
+                   (str(gc.get_path_name()) if gc is not None else ""))
     C.require(parent_path == "/Script/InfinityStage.InfinityStageEffectSource",
               "BP_PARENT|%s|%s" % (row["bp"], parent_path))
     comp = _subobject_component(bp, row["component"])
-    C.require(isinstance(comp, unreal.ParticleSystemComponent), "BP_COMPONENT|" + row["bp"])
+    want_cls = unreal.NiagaraComponent if row.get("niagara") else unreal.ParticleSystemComponent
+    C.require(isinstance(comp, want_cls), "BP_COMPONENT|" + row["bp"])
     got = {"parent": parent_path, "component": row["component"],
-           "template": C.asset_id(comp.get_editor_property("template")),
+           "template": C.asset_id(comp.get_asset() if row.get("niagara") else comp.get_editor_property("template")),
            "auto_activate": bool(comp.get_editor_property("auto_activate")),
            "relative_location": [float(comp.get_editor_property("relative_location").x),
                                  float(comp.get_editor_property("relative_location").y),
@@ -137,13 +144,18 @@ def _build(row):
                for h in sds.k2_gather_subobject_data_for_blueprint(bp)}
     C.require(handles.get("TrackingRoot") is not None, "TRACKING_ROOT|" + row["bp"])
     handle, reason = sds.add_new_subobject(unreal.AddNewSubobjectParams(
-        parent_handle=handles["TrackingRoot"], new_class=unreal.ParticleSystemComponent, blueprint_context=bp))
+        parent_handle=handles["TrackingRoot"],
+        new_class=unreal.NiagaraComponent if row.get("niagara") else unreal.ParticleSystemComponent, blueprint_context=bp))
     C.require(lib.is_handle_valid(handle), "ADD_COMPONENT|%s|%s" % (row["bp"], reason))
     sds.rename_subobject(handle, unreal.Text(row["component"]))
     comp = lib.get_associated_object(lib.get_data(handle))
     template = unreal.load_asset(row["template"])
-    C.require(isinstance(template, unreal.ParticleSystem), "TEMPLATE_LOAD|" + row["template"])
-    comp.set_editor_property("template", template)
+    if row.get("niagara"):
+        C.require(isinstance(template, unreal.NiagaraSystem), "TEMPLATE_LOAD|" + row["template"])
+        comp.set_asset(template)
+    else:
+        C.require(isinstance(template, unreal.ParticleSystem), "TEMPLATE_LOAD|" + row["template"])
+        comp.set_editor_property("template", template)
     comp.set_editor_property("auto_activate", False)
     comp.set_editor_property("relative_location", unreal.Vector(*row["loc"]))
     C.require(unreal.BlueprintEditorLibrary.compile_blueprint(bp), "BP_COMPILE|" + row["bp"])
@@ -183,7 +195,7 @@ def main():
         C.require(not refusals, "GATE|" + ";".join(refusals))
         C.require(not os.path.exists(RECORD), "RECORD_EXISTS")
         need_private = (not args["fire_particle_light_enabled"]
-                        and any(r["name"] in ("FireBasket", "WingBurn") for r in rows))
+                        and any(r["template"] == C.D.FIRE_NO_LIGHT for r in rows))
         if need_private:
             C.require(not private_exists, "PRIVATE_FIRE_EXISTS_UNRECORDED")
         source_packages = sorted({C.D.FIRE_SOURCE if r["template"] == C.D.FIRE_NO_LIGHT else r["template"]

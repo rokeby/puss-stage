@@ -10,6 +10,9 @@ SHOW = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 ROOT = "/Game/Scenes/Effects"
 FIRE_SOURCE = "/Game/KK_S2_Shrine/StarterContent/Particles/P_Fire"
 FIRE_NO_LIGHT = ROOT + "/Cascade/PS_Fire_NoParticleLight"
+# Gary 9 Oct (conductor session): "Can you use the new fab vfx fire?" -> Stylish Fire (Niagara) replaces the Cascade P_Fire
+# for FireBasket + WingBurn; the Cascade light-strip path stays for rows that still name FIRE_NO_LIGHT.
+FIRE_NIAGARA = "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1"
 EFFECT_SPECS = {
     "HazePot": {"effect": "Haze", "component": "HazeFX",
                 "template": "/Game/KK_S2_Shrine/StarterContent/Particles/P_Smoke", "loc": [0, 0, 90]},
@@ -17,8 +20,8 @@ EFFECT_SPECS = {
                  "template": "/Game/Japanese_Alley/VFX/Humo_Par", "loc": [0, 0, 90]},
     "SteamKettle": {"effect": "Steam", "component": "SteamFX",
                     "template": "/Game/KK_S2_Shrine/StarterContent/Particles/P_Steam_Lit", "loc": [0, 0, 80]},
-    "FireBasket": {"effect": "Fire", "component": "FireFX", "template": FIRE_NO_LIGHT, "loc": [0, 0, 55]},
-    "WingBurn": {"effect": "WingBurn", "component": "FlameFX", "template": FIRE_NO_LIGHT, "loc": [0, 0, 0]},
+    "FireBasket": {"effect": "Fire", "component": "FireFX", "template": FIRE_NIAGARA, "niagara": True, "loc": [0, 0, 55]},
+    "WingBurn": {"effect": "WingBurn", "component": "FlameFX", "template": FIRE_NIAGARA, "niagara": True, "loc": [0, 0, 0]},
     "Motes": {"effect": "Motes", "component": "MotesFX",
               "template": "/Game/KK_S2_Shrine/StarterContent/Particles/P_Ambient_Dust", "loc": [0, 0, 0]},
 }

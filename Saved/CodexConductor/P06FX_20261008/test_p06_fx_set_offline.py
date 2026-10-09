@@ -60,6 +60,18 @@ runner = (HERE / "p06_fx_set_run.py").read_text(encoding="utf-8")
 check("runner +: implementation executes exactly once", runner.count("module.main()") == 1
       and '__name__ == "__main__"' in src)
 
+# 9 Oct conductor: wing burn held -> MI record only required when a WingBurn placement exists (+/- controls).
+try:
+    import copy as _copy
+    _args = _copy.deepcopy(S.C.D.validate_set({}))
+    _nob = dict(_args, placements=[p for p in _args["placements"] if p["type"] != "WingBurn"])
+    _ex = {S.C.D.EFFECT_SPECS[n]["bp"]: True for n in ("Motes", "FireBasket", "WingBurn")}
+    _bpr = {"status": "applied", "args": {"fire_particle_light_enabled": False}}
+    check("gate +: no WingBurn placement -> MI record not required", "WING_MI_RECORD_NOT_APPLIED" not in S.dependency_gate(_nob, _ex, _bpr, None, False))
+    check("gate -: WingBurn placement still requires the MI record", "WING_MI_RECORD_NOT_APPLIED" in S.dependency_gate(_args, _ex, _bpr, None, False))
+except Exception as _e:  # noqa: BLE001
+    check("gate controls ran: %r" % (_e,), False)
+
 failed = len(R) - sum(R)
 print("P06FXSET_HARNESS|pass=%d|fail=%d" % (sum(R), failed))
 sys.exit(1 if failed else 0)
