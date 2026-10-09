@@ -24,7 +24,10 @@ break). UTF-8 (BOM handled). Times: seconds, m:ss.s, h:mm:ss.s, hh:mm:ss:ff (ff 
 Skipped with INFINITY_SURTITLES_WARNING: Out <= In, unparseable In, missing segment, text with no In. Reloads ~1 s
 after the file's timestamp changes, and on F5 (an export during PIE lands live). **Single writer:** the Cue Book
 export is THE writer of `Puss_Surtitles.csv`; the master Sheet tab must not also export it. The page must refuse to
-save a line the parser would skip (Out <= In, bad time, ff >= 25), so nothing silently disappears in UE.
+save a line the parser would skip, so nothing silently disappears in UE: Out <= In, a bad time, ff >= 25, **text with
+no In**, and **a line with no segment** (the Cue Book always writes the segment on every exported row, so the
+parser's "carry down" never applies). **But an In time with EMPTY Text is a valid "clear row"** (it ends the line
+before it): the page must allow saving it, show it as "clear screen", and export it.
 
 ## Build (offline)
 
