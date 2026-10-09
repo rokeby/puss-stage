@@ -83,6 +83,9 @@ def shared_assets(plan: dict) -> tuple:
     return (plan["master"], MPC)
 TRACK_NAME = "ShadowGobo Frame (Conductor)"
 FRAME_PARAMETER = "Frame"
+CLOCK_PARAMETER = "Clock"        # keyed seconds: drives the handheld wobble deterministically (scrub/MRQ safe)
+APPROACH_PARAMETER = "Approach"  # 0 = puppet at the screen, 1 = near the lamp (bigger, softer); key it in Sequencer
+MPC_SCALARS = (FRAME_PARAMETER, CLOCK_PARAMETER, APPROACH_PARAMETER)
 TEXTURE_PARAMETER = "FlipbookAtlas"
 ARGS_NAME = "animated_gobo_args.json"
 PLANS_DIR = "animated_gobo_plans"
@@ -113,7 +116,18 @@ SCALAR_DEFAULTS = {
     "BorderWidth": 1.0,
     "BorderAspect": 1.0,
     "BorderFeather": 0.03,
+    "Defocus": 0.0,
+    "ApproachGrow": 0.5,
+    "ApproachBlur": 1.0,
+    "HandAmp": 1.0,
+    "HandSpeed": 1.0,
+    "HandShift": 0.006,
+    "HandTurn": 0.6,
+    "HandBreath": 0.03,
+    "HandBlur": 0.3,
 }
+HAND_NAMES = ("Defocus", "ApproachGrow", "ApproachBlur", "HandAmp", "HandSpeed", "HandShift", "HandTurn",
+              "HandBreath", "HandBlur")
 LOOK_NAMES = ("BlurUV", "Softness", "Contrast", "Depth")
 BORDER_NAMES = ("BorderDepth", "BorderWidth", "BorderAspect", "BorderFeather")
 
@@ -126,18 +140,40 @@ float count = max(1.0, Frames);
 float f = floor(clamp(Frame, 0.0, count - 1.0) + 1e-4);
 float col = fmod(f, max(1.0, Cols));
 float row = floor(f / max(1.0, Cols));
-float2 p = (UV + UVCentre - 0.5) / max(Scale, 1e-4) + 0.5;
+// Handheld: a hand holding the rods drifts, tilts and breathes toward the lamp (bigger).  The light's border does
+// NOT move (it is the lamp, not the puppet).  Approach is a keyed move toward the lamp.
+float ht = Clock * HandSpeed;
+float n1 = sin(6.2832 * 0.31 * ht + 1.3) * 0.6 + sin(6.2832 * 0.53 * ht + 4.1) * 0.3 + sin(6.2832 * 0.89 * ht + 2.2) * 0.1;
+float n2 = sin(6.2832 * 0.23 * ht + 0.4) * 0.6 + sin(6.2832 * 0.41 * ht + 5.0) * 0.3 + sin(6.2832 * 0.97 * ht + 3.3) * 0.1;
+float n3 = sin(6.2832 * 0.27 * ht + 2.7) * 0.6 + sin(6.2832 * 0.61 * ht + 0.9) * 0.3 + sin(6.2832 * 1.13 * ht + 5.5) * 0.1;
+float n4 = sin(6.2832 * 0.19 * ht + 3.9) * 0.7 + sin(6.2832 * 0.37 * ht + 1.7) * 0.3;
+float grow = 1.0 + ApproachGrow * saturate(Approach) + HandBreath * HandAmp * n4;
+float ang = radians(HandTurn * HandAmp * n3);
+float2 d = UV + UVCentre - 0.5;
+d = float2(d.x * cos(ang) - d.y * sin(ang), d.x * sin(ang) + d.y * cos(ang));
+d -= HandShift * HandAmp * float2(n1, n2);
+float2 p = d / max(Scale * grow, 1e-4) + 0.5;
 p = lerp(p, 1.0 - p, saturate(float2(FlipU, FlipV)));
 float2 safe = saturate(p) * (1.0 - 2.0 * GutterUV) + GutterUV;
 return (float2(col, row) + safe) * CellUV;
 """
 
-CODE_EDGE = """// Softness is an edge transition, not an optical convolution.  Border multiplies last.
+CODE_EDGE = """// Atlas R = sharp silhouette, G = the same frame pre-blurred (defocus).  Softness is an edge transition;
+// when defocused the soft gradient is kept rather than re-sharpened.  Border multiplies last.
+float ht = Clock * HandSpeed;
+float n1 = sin(6.2832 * 0.31 * ht + 1.3) * 0.6 + sin(6.2832 * 0.53 * ht + 4.1) * 0.3 + sin(6.2832 * 0.89 * ht + 2.2) * 0.1;
+float n2 = sin(6.2832 * 0.23 * ht + 0.4) * 0.6 + sin(6.2832 * 0.41 * ht + 5.0) * 0.3 + sin(6.2832 * 0.97 * ht + 3.3) * 0.1;
+float n3 = sin(6.2832 * 0.27 * ht + 2.7) * 0.6 + sin(6.2832 * 0.61 * ht + 0.9) * 0.3 + sin(6.2832 * 1.13 * ht + 5.5) * 0.1;
+float n4 = sin(6.2832 * 0.19 * ht + 3.9) * 0.7 + sin(6.2832 * 0.37 * ht + 1.7) * 0.3;
+float def = saturate(Defocus + ApproachBlur * saturate(Approach) + HandBlur * HandAmp * max(0.0, n4));
+float m = lerp(Mask.r, Mask.g, def);
 float w = max(1e-4, Softness);
-float shaped = smoothstep(0.5 - w, 0.5 + w, Mask);
+float shaped = smoothstep(0.5 - w, 0.5 + w, m);
+shaped = lerp(shaped, m, def);
 shaped = saturate((shaped - 0.5) * max(0.0, Contrast) + 0.5);
 return lerp(1.0, shaped, saturate(Depth)) * Border;
 """
+EDGE_INPUTS = ("Mask", "Softness", "Contrast", "Depth", "Border", "Clock", "Approach") + HAND_NAMES
 
 CODE_BORDER = """// Soft rectangle in IMAGE space (1 = image width), centred; black outside when BorderDepth = 1.
 // UE light-function UVs: U runs along the light's UP axis, V along its RIGHT axis (LightVector.zyx,
@@ -224,6 +260,28 @@ def channel_is_frame(name) -> bool:
     return bool(FRAME_CHANNEL_RE.match(str(name)))
 
 
+def channel_param(name):
+    """Which MPC scalar a scripting channel belongs to (names may carry a numeric suffix)."""
+    for param in MPC_SCALARS:
+        if re.match(r"^%s(_\d+)?$" % param, str(name)):
+            return param
+    return None
+
+
+def schedule_keys(schedule, frame_start, display_fps):
+    """[[seconds, cell], ...] -> CONSTANT keys [[display_frame, cell], ...]; later events win a shared frame."""
+    keys = {}
+    for t, cell in schedule:
+        keys[frame_start + int(round(float(t) * display_fps))] = float(int(cell))
+    return [[f, keys[f]] for f in sorted(keys)]
+
+
+def clock_keys(playback, display_fps):
+    """Linear seconds over the whole playback range (exclusive end)."""
+    a, b = int(playback[0]), int(playback[1]) - 1
+    return [[a, a / float(display_fps)], [b, b / float(display_fps)]]
+
+
 def created_assets_for(plan: dict, existing_shared) -> list:
     """Shared assets are created only when absent; per-run assets are always created."""
     existing = set(existing_shared)
@@ -293,8 +351,8 @@ def shared_asset_problems(desc: dict, master_path: str = MASTER, atlas_compatibl
             out.append("MASTER_SCALARS|%s" % sorted(master.get("scalars") or []))
         if sorted(master.get("textures") or []) != [TEXTURE_PARAMETER]:
             out.append("MASTER_TEXTURES|%s" % sorted(master.get("textures") or []))
-    if mpc is not None and FRAME_PARAMETER not in (mpc.get("scalars") or []):
-        out.append("MPC_FRAME")
+    if mpc is not None and sorted(set(MPC_SCALARS) - set(mpc.get("scalars") or [])):
+        out.append("MPC_SCALARS|missing %s" % sorted(set(MPC_SCALARS) - set(mpc.get("scalars") or [])))
     if master is not None and mpc is None:
         out.append("MASTER_WITHOUT_MPC|master must read %s" % MPC)
     if master is not None and mpc is not None and master_path not in (desc.get("mpc_referencers") or []):
@@ -306,7 +364,7 @@ def normalized_args(raw: dict) -> dict:
     allowed = {
         "mode", "confirm", "run_id", "apply_run", "world", "sequence", "light_label", "light_labels",
         "atlas_png", "manifest", "mi_path", "texture_path", "frame_start", "frame_end", "params",
-        "atlas_compatible",
+        "atlas_compatible", "display_fps",
     }
     unknown = sorted(set(raw) - allowed)
     if unknown:
@@ -360,6 +418,7 @@ def normalized_args(raw: dict) -> dict:
         "light_labels": labels, "atlas_png": atlas_png, "manifest": manifest,
         "mi_path": mi_path, "texture_path": texture_path, "frame_start": start, "frame_end": end,
         "params": params, "atlas_compatible": atlas_compatible,
+        "display_fps": float(raw["display_fps"]) if raw.get("display_fps") else None,
     }
 
 
@@ -405,7 +464,25 @@ def plan_from_args(args: dict) -> dict:
     if gutter_px > 0 and params["BlurUV"] > gutter_px / float(px[0]):
         raise PlanError("LOOK_PARAMS|BlurUV %.5f exceeds the %d px gutter (%.5f atlas uv)" %
                         (params["BlurUV"], gutter_px, gutter_px / float(px[0])))
+    if not (0.0 <= params["Defocus"] <= 1.0 and params["ApproachGrow"] >= 0.0 and 0.0 <= params["ApproachBlur"] <= 1.0
+            and 0.0 <= params["HandAmp"] <= 3.0 and params["HandSpeed"] > 0.0 and 0.0 <= params["HandShift"] <= 0.05
+            and 0.0 <= params["HandTurn"] <= 5.0 and 0.0 <= params["HandBreath"] <= 0.2 and 0.0 <= params["HandBlur"] <= 1.0):
+        raise PlanError("HAND_PARAMS|defocus 0..1, grow >=0, approachblur 0..1, amp 0..3, speed >0, shift 0..0.05, "
+                        "turn 0..5 deg, breath 0..0.2, handblur 0..1")
+    if not args.get("display_fps"):
+        raise PlanError("DISPLAY_FPS|required (Clock keys and schedules are in display frames); I2 is 25")
     fps = take.get("fps")
+    schedule = manifest.get("schedule")
+    if schedule:
+        bad = [c for _, c in schedule if not 0 <= int(c) < frames]
+        if bad:
+            raise PlanError("SCHEDULE_CELL|cells outside 0..%d: %s" % (frames - 1, bad[:5]))
+        frame_keys = schedule_keys(schedule, args["frame_start"], args["display_fps"])
+        interp, range_end = "CONSTANT", frame_keys[-1][0]
+    else:
+        # Display frames.  End value = Frames so each cell holds (end-start)/Frames frames; the shader clamps.
+        frame_keys = [[args["frame_start"], 0.0], [args["frame_end"], float(frames)]]
+        interp, range_end = "LINEAR", args["frame_end"]
     plan = {
         "schema_version": 2, "run": args["run_id"], "world": args["world"], "sequence": args["sequence"],
         "light_labels": list(args["light_labels"]), "atlas_png": args["atlas_png"],
@@ -415,9 +492,8 @@ def plan_from_args(args: dict) -> dict:
         "own_assets": [args["texture_path"], args["mi_path"]],
         "master": master_for(args.get("atlas_compatible", True)), "mpc": MPC, "mi": args["mi_path"], "texture": args["texture_path"],
         "frame_parameter": FRAME_PARAMETER,
-        # Display frames.  End value = Frames so each cell holds (end-start)/Frames frames; the shader clamps.
-        "frame_keys": [[args["frame_start"], 0.0], [args["frame_end"], float(frames)]],
-        "sequence_range_requested": [args["frame_start"], args["frame_end"]], "params": params,
+        "frame_keys": frame_keys, "frame_interp": interp, "display_fps": float(args["display_fps"]),
+        "sequence_range_requested": [args["frame_start"], range_end], "params": params,
         "take_fps": float(fps) if fps else None,
         "atlas": {"px": px, "cols": cols, "rows": rows, "frames": frames,
                   "cell_px": int(atlas.get("cell_px", 0)), "gutter_px": int(atlas.get("gutter_px", 0))},
@@ -461,6 +537,8 @@ def preflight_refusals(mode: str, args: dict, state: dict, plan=None) -> list[st
             out.append("OWNED_TRACK_EXISTS|%d|one gobo track per sequence" % state["owned_track_count"])
         if not state.get("ticks_per_frame"):
             out.append("TICK_RATE|%s" % state.get("rate_error"))
+        if plan and state.get("display_fps") and abs(float(state["display_fps"]) - plan["display_fps"]) > 1e-6:
+            out.append("DISPLAY_FPS_MISMATCH|sequence=%s args=%s" % (state["display_fps"], plan["display_fps"]))
         playback = state.get("playback") or [0, -1]
         # Playback end treated as exclusive [inf]; keys must sit strictly inside it.
         if plan and (plan["frame_keys"][0][0] < playback[0] or plan["frame_keys"][-1][0] >= playback[1]):
@@ -475,10 +553,14 @@ def preflight_refusals(mode: str, args: dict, state: dict, plan=None) -> list[st
 
 
 def apply_model(before: dict, plan: dict) -> dict:
+    """The section spans the whole playback so the handheld Clock runs whenever the light is up; Frame holds its
+    edge values outside its keys (constant extrapolation)."""
     after = copy.deepcopy(before)
+    playback = before["playback"]
     after["track"] = {"name": TRACK_NAME, "mpc": MPC, "parameter": FRAME_PARAMETER,
-                      "keys": copy.deepcopy(plan["frame_keys"]), "channel_count": 1,
-                      "range": [plan["frame_keys"][0][0], plan["frame_keys"][-1][0] + 1]}
+                      "keys": copy.deepcopy(plan["frame_keys"]), "channel_count": 2,
+                      "clock_keys": clock_keys(playback, plan["display_fps"]),
+                      "range": [int(playback[0]), int(playback[1])]}
     for label in plan["light_labels"]:
         after["lights"][label] = plan["mi"]
     return after
@@ -581,12 +663,16 @@ def _track_snapshot(seq):
     if len(sections) != 1:
         return {"invalid_sections": len(sections)}
     section = sections[0]
-    channels = [c for c in section.get_all_channels() if channel_is_frame(c.channel_name)]
+    all_channels = list(section.get_all_channels())
+    channels = [c for c in all_channels if channel_param(c.channel_name) == FRAME_PARAMETER]
+    clocks = [c for c in all_channels if channel_param(c.channel_name) == CLOCK_PARAMETER]
     span = None
     if section.has_start_frame() and section.has_end_frame():
         span = [int(section.get_start_frame()), int(section.get_end_frame())]
     return {"name": TRACK_NAME, "mpc": _path_of(track.get_editor_property("mpc")), "parameter": FRAME_PARAMETER,
-            "keys": _key_rows(channels[0]) if len(channels) == 1 else [], "channel_count": len(channels),
+            "keys": _key_rows(channels[0]) if len(channels) == 1 else [],
+            "channel_count": len(channels) + len(clocks),
+            "clock_keys": [[f, round(v, 4)] for f, v in _key_rows(clocks[0])] if len(clocks) == 1 else [],
             "range": span}
 
 
@@ -609,6 +695,10 @@ def _api_probe(seq):
         "MovieSceneKeyInterpolation",
     )
     out = {name: hasattr(unreal, name) for name in names}
+    out["MovieSceneKeyInterpolation.CONSTANT"] = hasattr(getattr(unreal, "MovieSceneKeyInterpolation", None), "CONSTANT")
+    out["TextureCompressionSettings.TC_BC7"] = hasattr(getattr(unreal, "TextureCompressionSettings", None), "TC_BC7")
+    out["MaterialSamplerType.SAMPLERTYPE_LINEAR_COLOR"] = hasattr(getattr(unreal, "MaterialSamplerType", None),
+                                                                  "SAMPLERTYPE_LINEAR_COLOR")
     for method in ("get_tracks", "add_track", "remove_track", "get_tick_resolution", "get_display_rate"):
         out["sequence." + method] = hasattr(seq, method)
     out["MovieSceneParameterSection.add_scalar_parameter_key"] = hasattr(
@@ -682,10 +772,13 @@ def _create_mpc(tools, run):
                              unreal.MaterialParameterCollectionFactoryNew())
     if obj is None:
         _stop(run, "CREATE_MPC")
-    scalar = unreal.CollectionScalarParameter()
-    scalar.set_editor_property("parameter_name", FRAME_PARAMETER)
-    scalar.set_editor_property("default_value", 0.0)
-    obj.set_editor_property("scalar_parameters", [scalar])
+    scalars = []
+    for name in MPC_SCALARS:
+        scalar = unreal.CollectionScalarParameter()
+        scalar.set_editor_property("parameter_name", name)
+        scalar.set_editor_property("default_value", 0.0)
+        scalars.append(scalar)
+    obj.set_editor_property("scalar_parameters", scalars)
     return obj
 
 
@@ -713,25 +806,34 @@ def _create_master(tools, texture, mpc, plan, run):
     node("UV", unreal.MaterialExpressionTextureCoordinate, -1500, -700, coordinate_index=0)
     node("Frame", unreal.MaterialExpressionCollectionParameter, -1500, -550,
          collection=mpc, parameter_name=FRAME_PARAMETER)
+    node("Clock", unreal.MaterialExpressionCollectionParameter, -1500, -480,
+         collection=mpc, parameter_name=CLOCK_PARAMETER)
+    node("Approach", unreal.MaterialExpressionCollectionParameter, -1500, -410,
+         collection=mpc, parameter_name=APPROACH_PARAMETER)
     for index, (name, value) in enumerate(SCALAR_DEFAULTS.items()):
-        if name in LOOK_NAMES or name in BORDER_NAMES:
+        if name in LOOK_NAMES or name in BORDER_NAMES or name in HAND_NAMES:
             continue
         node(name, unreal.MaterialExpressionScalarParameter, -1500, -350 + 100 * index,
              parameter_name=name, default_value=float(value), group="01 Atlas")
-    uv_inputs = ["UV", "Frame", "Cols", "Rows", "Frames", "GutterUV", "CellUV", "Scale", "FlipU", "FlipV", "UVCentre", "SpotAxes"]
+    uv_inputs = ["UV", "Frame", "Cols", "Rows", "Frames", "GutterUV", "CellUV", "Scale", "FlipU", "FlipV", "UVCentre",
+                 "SpotAxes", "Clock", "Approach", "HandAmp", "HandSpeed", "HandShift", "HandTurn", "HandBreath",
+                 "ApproachGrow"]
     node("AtlasUV", unreal.MaterialExpressionCustom, -900, -250, description="ShadowGobo atlas frame UV",
          code=CODE_UV, output_type=unreal.CustomMaterialOutputType.CMOT_FLOAT2,
          inputs=[_custom_input(v) for v in uv_inputs])
     # sRGB-off grayscale needs LINEAR_GRAYSCALE: plain GRAYSCALE failed to compile in run AG-I2-TEST-002
     # ("Sampler type is Grayscale, should be Linear Grayscale", PussStage.log 8 Oct 21:37) [measured].
     node("Atlas", unreal.MaterialExpressionTextureSampleParameter2D, -550, -200, parameter_name=TEXTURE_PARAMETER,
-         texture=texture, sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_LINEAR_GRAYSCALE, group="01 Atlas")
+         texture=texture, sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_LINEAR_COLOR, group="01 Atlas")
     for index, name in enumerate(LOOK_NAMES):
         node(name, unreal.MaterialExpressionScalarParameter, -500, 100 + index * 110,
              parameter_name=name, default_value=float(SCALAR_DEFAULTS[name]), group="02 Look")
     for index, name in enumerate(BORDER_NAMES):
         node(name, unreal.MaterialExpressionScalarParameter, -500, 600 + index * 110,
              parameter_name=name, default_value=float(SCALAR_DEFAULTS[name]), group="03 Border")
+    for index, name in enumerate(HAND_NAMES):
+        node(name, unreal.MaterialExpressionScalarParameter, -1800, -700 + index * 110,
+             parameter_name=name, default_value=float(SCALAR_DEFAULTS[name]), group="04 Handheld")
     offsets = {"L": (-1.0, 0.0), "R": (1.0, 0.0), "U": (0.0, -1.0), "D": (0.0, 1.0)}
     for index, (suffix, direction) in enumerate(offsets.items()):
         code = "return P + float2(%.1f, %.1f) * clamp(BlurUV, 0.0, 0.003);" % direction
@@ -741,13 +843,13 @@ def _create_master(tools, texture, mpc, plan, run):
              inputs=[_custom_input("P"), _custom_input("BlurUV")])
         node("Atlas" + suffix, unreal.MaterialExpressionTextureSampleParameter2D, -350, 50 + index * 120,
              parameter_name=TEXTURE_PARAMETER, texture=texture,
-             sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_LINEAR_GRAYSCALE, group="01 Atlas")
+             sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_LINEAR_COLOR, group="01 Atlas")
     node("Blur", unreal.MaterialExpressionCustom, -50, -180, description="ShadowGobo five tap blur",
-         code=CODE_AVG, output_type=unreal.CustomMaterialOutputType.CMOT_FLOAT1,
+         code=CODE_AVG, output_type=unreal.CustomMaterialOutputType.CMOT_FLOAT3,
          inputs=[_custom_input(v) for v in ("C", "L", "R", "U", "D")])
     node("Edge", unreal.MaterialExpressionCustom, -100, 0, description="ShadowGobo softness contrast depth",
          code=CODE_EDGE, output_type=unreal.CustomMaterialOutputType.CMOT_FLOAT1,
-         inputs=[_custom_input(v) for v in ("Mask", "Softness", "Contrast", "Depth", "Border")])
+         inputs=[_custom_input(v) for v in EDGE_INPUTS])
     node("Border", unreal.MaterialExpressionCustom, -300, 650, description="ShadowGobo soft rectangle border",
          code=CODE_BORDER, output_type=unreal.CustomMaterialOutputType.CMOT_FLOAT1,
          inputs=[_custom_input(v) for v in BORDER_INPUTS])
@@ -756,8 +858,8 @@ def _create_master(tools, texture, mpc, plan, run):
             _stop(run, "CONNECT|%s->AtlasUV.%s" % (src, src))
     if not mel.connect_material_expressions(nodes["AtlasUV"], "", nodes["Atlas"], "UVs"):
         _stop(run, "CONNECT|AtlasUV->Atlas.UVs")
-    if not mel.connect_material_expressions(nodes["Atlas"], "R", nodes["Blur"], "C"):
-        _stop(run, "CONNECT|Atlas.R->Blur.C")
+    if not mel.connect_material_expressions(nodes["Atlas"], "RGB", nodes["Blur"], "C"):
+        _stop(run, "CONNECT|Atlas.RGB->Blur.C")
     for suffix in offsets:
         if not mel.connect_material_expressions(nodes["AtlasUV"], "", nodes["UV" + suffix], "P"):
             _stop(run, "CONNECT|AtlasUV->UV%s.P" % suffix)
@@ -765,11 +867,11 @@ def _create_master(tools, texture, mpc, plan, run):
             _stop(run, "CONNECT|BlurUV->UV%s.BlurUV" % suffix)
         if not mel.connect_material_expressions(nodes["UV" + suffix], "", nodes["Atlas" + suffix], "UVs"):
             _stop(run, "CONNECT|UV%s->Atlas%s.UVs" % (suffix, suffix))
-        if not mel.connect_material_expressions(nodes["Atlas" + suffix], "R", nodes["Blur"], suffix):
-            _stop(run, "CONNECT|Atlas%s.R->Blur.%s" % (suffix, suffix))
+        if not mel.connect_material_expressions(nodes["Atlas" + suffix], "RGB", nodes["Blur"], suffix):
+            _stop(run, "CONNECT|Atlas%s.RGB->Blur.%s" % (suffix, suffix))
     if not mel.connect_material_expressions(nodes["Blur"], "", nodes["Edge"], "Mask"):
         _stop(run, "CONNECT|Blur->Edge.Mask")
-    for name in ("Softness", "Contrast", "Depth"):
+    for name in ("Softness", "Contrast", "Depth", "Clock", "Approach") + HAND_NAMES:
         if not mel.connect_material_expressions(nodes[name], "", nodes["Edge"], name):
             _stop(run, "CONNECT|%s->Edge.%s" % (name, name))
     for src in BORDER_INPUTS:
@@ -794,7 +896,8 @@ def _import_texture(args, run):
     if tex is None or not isinstance(tex, unreal.Texture2D):
         _stop(run, "IMPORT_TEXTURE|%s" % args["texture_path"])
     tex.set_editor_property("srgb", False)
-    tex.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_GRAYSCALE)
+    # R = sharp, G = pre-blurred: two linear channels.  BC7 keeps hard silhouette edges clean (Masks = DXT1 blocks).
+    tex.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_BC7)
     tex.set_editor_property("mip_gen_settings", unreal.TextureMipGenSettings.TMGS_NO_MIPMAPS)
     tex.set_editor_property("never_stream", True)
     tex.set_editor_property("filter", unreal.TextureFilter.TF_BILINEAR)
@@ -827,12 +930,16 @@ def _add_frame_track(seq, mpc, plan, ticks_per_frame, run):
     track.set_editor_property("mpc", mpc)  # [decl] MovieSceneMaterialParameterCollectionTrack.h:26-28
     section = track.add_section()
     # Display frames [prec] key_walkin_i1_p02.py:331 (set_range(playback_start, playback_end + 1)).
-    section.set_range(plan["frame_keys"][0][0], plan["frame_keys"][-1][0] + 1)
-    interpolation = unreal.MovieSceneKeyInterpolation.LINEAR
+    playback = [int(seq.get_playback_start()), int(seq.get_playback_end())]
+    section.set_range(playback[0], playback[1])
+    interpolation = getattr(unreal.MovieSceneKeyInterpolation, plan["frame_interp"])
     for frame, value in plan["frame_keys"]:
         # Raw FFrameNumber = tick resolution [inf]; read back in display frames by _key_rows.
         section.add_scalar_parameter_key(FRAME_PARAMETER, unreal.FrameNumber(int(frame) * ticks_per_frame),
                                          float(value), interpolation)
+    for frame, value in clock_keys(playback, plan["display_fps"]):
+        section.add_scalar_parameter_key(CLOCK_PARAMETER, unreal.FrameNumber(int(frame) * ticks_per_frame),
+                                         float(value), unreal.MovieSceneKeyInterpolation.LINEAR)
     return track
 
 
