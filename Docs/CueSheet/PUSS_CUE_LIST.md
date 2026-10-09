@@ -19,8 +19,8 @@ the shared Google Sheet is never written. *Local* = a row added here; **Director
 - `R0012` **Action:** Cameron: dog approaches
 - `R0013` **KLARA:** And the father said..
 - `R0014` **GARY:** here my boy, take this cat, it will … well, you'll figure it out
-- `R0015` **Sound tech:** Lav mic 2 (GZZ) off  /  / GZZ mic on table on /  / cat voice box on | **Action:** Cameron passes control of the dog to Gary
-- `R0016` **Action:** Gary puts down old man  /  / moves over to mic on table | **KLARA:** Thus he spoke and closed his eyes. And the boy, feeling short-changed and unloved, whimpered.
+- `R0015` **Sound tech:** Lav mic 2 (GZZ) off  /  / GZZ mic on table on /  / cat voice box on | **Action:** Cameron passes control of the dog to Gary
+- `R0016` **Action:** Gary puts down old man  /  / moves over to mic on table | **KLARA:** Thus he spoke and closed his eyes. And the boy, feeling short-changed and unloved, whimpered.
 - `R0017` **Action:** Klara moves boy | **CAMERON:** whimper
 - `R0018` **KLARA:** And the cat took pity on the boy and it said
 - `R0019` **GARY:** Don't cry, boy...
@@ -123,6 +123,10 @@ the shared Google Sheet is never written. *Local* = a row added here; **Director
 - `R0080` **Beats:** B5: page floats across screen, boy falls
 - `R0081` **Beats:** B6: exit
 
+## Nap — battery change
+
+- `R0100` **Action:** Puss lies down and sleeps, gently rising and falling; loops until GO | **Video Cue:** Nap — battery change | **Notes:** Crew: change the GO1 battery here. GO 45 = wake (Unreal: sleeping loop until GO, Conductor job 79) | **Dog action:** lies down, sleeps | **Dog mode:** lying | **Treadmill:** off | *local*
+
 ## Transition
 
 - `R0082` **Video Cue:** Transition | **KLARA:** And so the boy was named Cagliuso. But Cagliuso still felt so full of wants. And, yet again, he whimpered
@@ -132,12 +136,12 @@ the shared Google Sheet is never written. *Local* = a row added here; **Director
 
 ## Passage 5
 
-- `R0086` **Video Cue:** Passage 5
+- `R0086` **Video Cue:** Passage 5 | **Notes:** DREAM (Gary 9 Oct): Passage 5 and the Scene 5 clouds are Puss's dream after the nap; Puss may still be running in the dream, or simply sleeping. A dream within a dream.
 - `R0087` **KLARA:** For 30 seconds he walked, until he came upon a lush valley, in whose bosom lay a village, flanked by two great mountains, Pilatus the tall, and Rigi the old and fat.
 
 ## Scene 5: Mountains
 
-- `R0088` **Video Cue:** Scene 5: Mountains | **Beats:** B1:establishing village
+- `R0088` **Video Cue:** Scene 5: Mountains | **Beats:** B1:establishing village | **Notes:** DREAM (Gary 9 Oct): Passage 5 and the Scene 5 clouds are Puss's dream after the nap; Puss may still be running in the dream, or simply sleeping. A dream within a dream.
 - `R0089` **KLARA:** Puss came upon the mountains in the midst of a quarrel.... | **Beats:** B2: pan up to mountain
 - `R0090` **Beats:** B3: And I will tell you again, it I whose word is law. For I am taller than the tallest tree, I am the closest to the sun and the moon, the ancient light of the stars.
 - `R0091` **Beats:** B4: You have your head in the clouds! It is I whose word is law. For I am older than the oldest tree, older than the stars, and I have drunk from the depths of time.
