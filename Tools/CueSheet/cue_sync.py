@@ -863,6 +863,10 @@ def cuebook_pull():
     webpull(out)
 
 
+def _no_crlf(value):
+    return value.replace(chr(13) + chr(10), chr(10)) if isinstance(value, str) else value
+
+
 def cuebook_changes(baseline, work_rows):
     """What the Cue Book needs so it matches working.csv. Pure. -> (changes, adds, gone)."""
     to_page = {v: k for k, v in baseline.get('web_keys', {}).items()}
@@ -884,7 +888,8 @@ def cuebook_changes(baseline, work_rows):
             seen.add(page_key)
             for f in list(WEB_FIELDS) + ['cut']:
                 was = base.get(f, False if f == 'cut' else '')
-                if mine[f] != was:
+                # Line endings differ between the Sheet export (CRLF in cells) and the page (LF): not a change.
+                if _no_crlf(mine[f]) != _no_crlf(was):
                     changes.append({'key': page_key, 'field': f, 'from': was, 'to': mine[f]})
         prev_page_key = page_key
     gone = [k for k in base_rows if k not in seen and not base_rows[k].get('cut')

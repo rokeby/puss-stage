@@ -1,7 +1,7 @@
 {
  "app": "puss-cue-book",
  "kind": "changes",
- "created": "2026-10-09T13:11:38.221777",
+ "created": "2026-10-09T13:14:38.610018",
  "source": "Docs/CueSheet/working.csv",
  "changes": [
   {
@@ -20,7 +20,7 @@
  "adds": [
   {
    "key": "WR0100",
-   "after": "R0081",
+   "after": "R0085",
    "fields": {
     "light": "",
     "soundTech": "",

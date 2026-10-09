@@ -123,16 +123,16 @@ the shared Google Sheet is never written. *Local* = a row added here; **Director
 - `R0080` **Beats:** B5: page floats across screen, boy falls
 - `R0081` **Beats:** B6: exit
 
-## Nap — battery change
-
-- `R0100` **Action:** Puss lies down and sleeps, gently rising and falling; loops until GO | **Video Cue:** Nap — battery change | **Notes:** Crew: change the GO1 battery here. GO 45 = wake (Unreal: sleeping loop until GO, Conductor job 79) | **Dog action:** lies down, sleeps | **Dog mode:** lying | **Treadmill:** off | *local*
-
 ## Transition
 
 - `R0082` **Video Cue:** Transition | **KLARA:** And so the boy was named Cagliuso. But Cagliuso still felt so full of wants. And, yet again, he whimpered
 - `R0083` **CAMERON:** whimper
 - `R0084` **Action:** Puss purr
 - `R0085` **KLARA:** Purred Puss. And they set off again
+
+## Nap — battery change
+
+- `R0100` **Action:** Puss lies down and sleeps, gently rising and falling; loops until GO | **Video Cue:** Nap — battery change | **Notes:** Crew: change the GO1 battery here. GO 45 = wake (Unreal: sleeping loop until GO, Conductor job 79) | **Dog action:** lies down, sleeps | **Dog mode:** lying | **Treadmill:** off | *local*
 
 ## Passage 5
 

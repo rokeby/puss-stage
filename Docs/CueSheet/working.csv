@@ -86,11 +86,11 @@ R0078,shared,,,,,,,,Cagliuso is a fine name,,,,,,,,,,
 R0079,shared,,,,,,,Thought Puss to himself,,,,,,,,,,,
 R0080,shared,,,,,,,,,,"B5: page floats across screen, boy falls",,,,,,,,
 R0081,shared,,,,,,,,,,B6: exit,,,,,,,,
-R0100,local,,,,"Puss lies down and sleeps, gently rising and falling; loops until GO",,Nap — battery change,,,,,"Crew: change the GO1 battery here. GO 45 = wake (Unreal: sleeping loop until GO, Conductor job 79)",,,,,"lies down, sleeps",lying,off
 R0082,shared,,,,,,Transition,"And so the boy was named Cagliuso. But Cagliuso still felt so full of wants. And, yet again, he whimpered",,,,,,,,,,,
 R0083,shared,,,,,,,,,whimper,,,,,,,,,
 R0084,shared,,,,Puss purr,,,,,,,,,,,,,,
 R0085,shared,,,,,,,Purred Puss. And they set off again,,,,,,,,,,,
+R0100,local,,,,"Puss lies down and sleeps, gently rising and falling; loops until GO",,Nap — battery change,,,,,"Crew: change the GO1 battery here. GO 45 = wake (Unreal: sleeping loop until GO, Conductor job 79)",,,,,"lies down, sleeps",lying,off
 R0086,shared,,,,,,Passage 5,,,,,"DREAM (Gary 9 Oct): Passage 5 and the Scene 5 clouds are Puss's dream after the nap; Puss may still be running in the dream, or simply sleeping. A dream within a dream.",,,,,,,
 R0087,shared,,,,,,,"For 30 seconds he walked, until he came upon a lush valley, in whose bosom lay a village, flanked by two great mountains, Pilatus the tall, and Rigi the old and fat.",,,,,,,,,,,
 R0088,shared,,,,,,Scene 5: Mountains,,,,B1:establishing village,"DREAM (Gary 9 Oct): Passage 5 and the Scene 5 clouds are Puss's dream after the nap; Puss may still be running in the dream, or simply sleeping. A dream within a dream.",,,,,,,
