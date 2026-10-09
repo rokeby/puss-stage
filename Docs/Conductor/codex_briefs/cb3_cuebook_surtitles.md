@@ -8,6 +8,16 @@ Code.gs in a browser).
 
 Gary, 9 Oct: "The subtitles system, built into cue desk in UE5 and also into cueing web app."
 
+## Scope: keep it light (Gary, 9 Oct)
+
+"The subtitle's primary role is for the section with the mountains to speak, and perhaps we can bring it in
+elsewhere … if it involves any heavy effort, please don't pursue incredibly detailed subtitle control … the
+surtitle is more like a time-coded subtitle on the upper end of the display than … an opera surtitle, which has a
+queuing person running it all the time."
+So: a plain per-segment list of time-coded lines (mostly S5) with add / edit / cut, and the export. **Not** wanted:
+a "make surtitle" action on every script line, per-line styling, operator cueing, or anything beyond the fields
+below. If a feature costs more than a small amount of code, leave it out and list it in the report.
+
 ## The model (do not invent another)
 
 The surtitles branch's sheet: `Segment, In, Out, Speaker, Text, Notes`; Segment = `S<n>`/`P<n>`/`I<n>` or a cue label;
@@ -56,8 +66,8 @@ a **three-way merge**, never a blind overwrite:
    `addLine` (keys `T` + base36). Old pages must keep working against the new script, and the new page against the
    OLD deployment (no `surtitles` in the reply → the view says "Surtitles need the updated script").
 2. **Page:** a "Surtitles" toggle per segment showing its lines in time order (In, Out, Speaker, Text) with add /
-   edit / cut, the same outbox / drafts / conflict UI as cues; a "Make surtitle" action on a cue's spoken line
-   (copies the text, Speaker = that person, In blank for the author to fill); In/Out validated with the branch's
+   edit / cut, the same outbox / drafts / conflict UI as cues (no per-script-line "make surtitle" action: out of
+   scope, see above); In/Out validated with the branch's
    time forms. Segment key written as `S<n>`/`P<n>`/`I<n>` using cb2's `segment_map.json` when present, else the
    segment's label.
 3. **Export:** `cue_sync.py` gains `surtitles_csv(lines) -> text` writing the branch's columns exactly, and `export`
