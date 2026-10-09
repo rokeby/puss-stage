@@ -632,6 +632,17 @@ def merge_flash(cues, path=NOTE_LAMPS_RECORD):
     return hit, rec.get("run")
 
 
+
+def _plain_rows(scores, tool, show):
+    """FF._runtime_plain, falling back to meshy_swap's plain rows on a build without the held P4 bulb-body fields
+    (emit_point_light, ...) [meas 8 Oct live DRY: "Failed to find property"]. This tool never writes those fields."""
+    try:
+        return FF._runtime_plain(scores, tool, show)
+    except Exception as exc:  # noqa: BLE001
+        if "Failed to find property" not in str(exc):
+            raise
+        return MS._runtime_plain(scores, tool, show)
+
 class OfflineBackend:
     """COUNT: everything from files. Never writes; any write call is a bug."""
 
@@ -786,7 +797,10 @@ class LiveBackend:
             return False
 
     def _cues(self, show):
-        cues = FF._runtime_plain(self.scores, self.tool, show)
+        # FF._runtime_plain also reads the P4 bulb-practical body fields (emit_point_light, ...) from a HELD C++ patch;
+        # on a build without them it raises "Failed to find property" [meas 8 Oct live DRY]. This tool never writes those
+        # fields, so fall back to meshy_swap's plain runtime rows (the base FF itself wraps) when they are absent.
+        cues = _plain_rows(self.scores, self.tool, show)
         if self.has_flash:
             for cue_plain, cue in zip(cues, show.get_editor_property("cues")):
                 for row, att in zip(cue_plain["attachments"], self.tool._pair_attachments(cue)):
@@ -985,7 +999,7 @@ class LiveBackend:
 
     def housing_check(self):
         _, _, _, _, _, plan = FF._follow_state(self.show, self.tool, self.structure,
-                                               FF._runtime_plain(self.scores, self.tool, self.show))
+                                               _plain_rows(self.scores, self.tool, self.show))
         return {"count": plan["count"], "ism_count": plan["ism_count"], "stale": plan["stale"],
                 "count_matches": plan["count_matches"]}
 
