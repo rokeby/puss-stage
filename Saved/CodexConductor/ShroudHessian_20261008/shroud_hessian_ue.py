@@ -702,6 +702,10 @@ def _apply(opts):
     problems = [p for f in opts["figures"] for p in transition_problems(before[f], after[f], rec["assignments"][f])]
     require(not problems, "APPLY_READBACK|%r" % problems[:12])
     content, maps = sorted(BP_PATHS[f] for f in opts["figures"]), [WORLD]
+    # [meas SHAPPLY1 9 Oct] assigning the new MIs to the cloth components dirties those MIs (engine-side; this tool never
+    # edits them).  Save exactly the ASSIGNED MIs that are dirty, alongside the BPs; anything else still refuses.
+    assigned = set(rec["assignments"].values())
+    content = sorted(set(content) | {pk for pk in _census()["content"] if pk in assigned})
     rec["dirty_before_save"] = _save_exact(content, maps)
     again = {f: _figure_state(f) for f in opts["figures"]}
     problems = [p for f in opts["figures"] for p in transition_problems(before[f], again[f], rec["assignments"][f])]
