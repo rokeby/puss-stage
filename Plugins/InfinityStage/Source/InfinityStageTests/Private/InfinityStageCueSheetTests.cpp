@@ -1,5 +1,6 @@
 #include "InfinityStageCueSheet.h"
 #include "InfinityStageDirectorHud.h"
+#include "InfinityStageTransportController.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -135,6 +136,82 @@ bool FInfinityStageDirectorHudCycleTest::RunTest(const FString& Parameters)
         InfinityStageCueSheet::NextStandbyRow(Sheet, 0), 4);
     TestTrue(TEXT("Actions are tagged by department"),
         InfinityStageCueSheet::DescribeActions(Sheet.Rows[2]).Contains(TEXT("SND: Lav mic 2 (GZZ) off / GZZ mic on table on")));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageCueDirectorSettingsTest,
+    "InfinityStage.CueDirector.SettingsRoundTrip",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageCueDirectorSettingsTest::RunTest(const FString& Parameters)
+{
+    FInfinityCueDirectorSettings Settings;
+    Settings.bRunThrough = true;
+    const FGuid SceneOne = FGuid::NewGuid();
+    const FGuid SceneTwo = FGuid::NewGuid();
+    Settings.StopAfterSegments = {SceneOne, SceneTwo};
+    Settings.HoldGoNumbers = {TEXT("10")};
+    const FString Text = Settings.Serialize([](const FGuid&) { return FString(TEXT("Scene label")); });
+    TestTrue(TEXT("The file names each stop for a human"), Text.Contains(TEXT("# Scene label")));
+
+    FInfinityCueDirectorSettings Read;
+    TArray<FString> Warnings;
+    Read.Parse(Text, Warnings);
+    TestEqual(TEXT("No warnings on our own output"), Warnings.Num(), 0);
+    TestTrue(TEXT("Run-through survives"), Read.bRunThrough);
+    TestTrue(TEXT("Stops survive, in order"), Read.StopAfterSegments == Settings.StopAfterSegments);
+    TestTrue(TEXT("Held GO numbers survive"), Read.HoldGoNumbers == Settings.HoldGoNumbers);
+
+    FInfinityCueDirectorSettings Bad;
+    Bad.Parse(TEXT("run_through = yes\nstop_after = not-a-guid\nbanana = 3\njust text\n"), Warnings);
+    TestEqual(TEXT("Control: bad lines warn (bad GUID, unknown key, no '='), never throw"), Warnings.Num(), 3);
+    TestTrue(TEXT("...and the good line still counts"), Bad.bRunThrough);
+    TestEqual(TEXT("...and nothing bogus is kept"), Bad.StopAfterSegments.Num(), 0);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageRunThroughStopsTest,
+    "InfinityStage.CueDirector.RunThroughStopsWhereTicked",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageRunThroughStopsTest::RunTest(const FString& Parameters)
+{
+    TArray<FInfinityTransportSegment> Segments;
+    for (int32 Index = 0; Index < 6; ++Index)
+    {
+        FInfinityTransportSegment& Segment = Segments.AddDefaulted_GetRef();
+        Segment.SegmentGuid = FGuid::NewGuid();
+    }
+    using T = UInfinityStageTransportController;
+    TestEqual(TEXT("Control: no stops = play to the Show's end (run-through as built)"),
+        T::RunThroughStopIndex(Segments, 0, {}), 5);
+    const TArray<FGuid> Stops = {Segments[2].SegmentGuid, Segments[4].SegmentGuid};
+    TestEqual(TEXT("From the Opening, stop at the end of the first ticked segment"), T::RunThroughStopIndex(Segments, 0, Stops), 2);
+    TestEqual(TEXT("Starting inside a ticked segment stops at its own end"), T::RunThroughStopIndex(Segments, 2, Stops), 2);
+    TestEqual(TEXT("After GO, run on to the next ticked one"), T::RunThroughStopIndex(Segments, 3, Stops), 4);
+    TestEqual(TEXT("Past the last stop, run to the end"), T::RunThroughStopIndex(Segments, 5, Stops), 5);
+    TestEqual(TEXT("A stale GUID is ignored"), T::RunThroughStopIndex(Segments, 0, {FGuid::NewGuid()}), 5);
+
+    TArray<FInfinityGoCue> Cues;
+    for (const int32 Frame : {100, 200})
+    {
+        FInfinityGoCue& Cue = Cues.AddDefaulted_GetRef();
+        Cue.Frame = Frame;
+        Cue.bHold = true;
+        Cue.Number = Frame == 100 ? TEXT("9") : TEXT("10");
+    }
+    FInfinityGoHoldState Hold;
+    Hold.bPassAll = true;
+    Hold.KeepNumbers.Add(TEXT("10"));
+    Hold.Tick(50, true, Cues);
+    TestEqual(TEXT("Run-through passes an unlisted GO"), Hold.Tick(150, true, Cues), int32(INDEX_NONE));
+    TestEqual(TEXT("...but a kept GO still holds for Klara"), Hold.Tick(250, true, Cues), 1);
+    FInfinityGoHoldState PassAll;
+    PassAll.bPassAll = true;
+    PassAll.Tick(50, true, Cues);
+    TestEqual(TEXT("Control: run-through with nothing kept passes everything (as built)"), PassAll.Tick(250, true, Cues), int32(INDEX_NONE));
     return true;
 }
 

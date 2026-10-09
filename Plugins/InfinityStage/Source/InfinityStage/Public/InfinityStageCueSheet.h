@@ -84,8 +84,32 @@ struct INFINITYSTAGE_API FInfinityScriptCursor
     void SyncToSegment(const FInfinityCueSheet& Sheet, int32 SegmentOrdinal);
 };
 
+/**
+ * How the show runs in performance (Gary, 7 Oct: "most things run on and not need
+ * pressing go ... mostly after lights out after scenes"). A plain text file next to
+ * the CSV, written by the Cue Desk's Cue Director panel; no Show or level write.
+ *
+ *   run_through = true
+ *   stop_after = <segment GUID>   # Scene 1 ...   (the show stops at that segment's end; GO continues)
+ *   hold_go = 10                  # GO markers that still hold during run-through
+ */
+struct INFINITYSTAGE_API FInfinityCueDirectorSettings
+{
+    bool bRunThrough = false;
+    TArray<FGuid> StopAfterSegments;
+    TArray<FString> HoldGoNumbers;
+
+    /** Unknown keys and bad GUIDs become warnings; nothing is fatal. */
+    void Parse(const FString& Text, TArray<FString>& OutWarnings);
+    /** LabelOf names a segment for the trailing comment (readability only). */
+    FString Serialize(TFunctionRef<FString(const FGuid&)> LabelOf) const;
+};
+
 namespace InfinityStageCueSheet
 {
+/** Content/InfinityStage/CueSheet/cue_director.txt (console InfinityStage.CueDirector.SettingsPath overrides). */
+INFINITYSTAGE_API FString ResolveSettingsPath();
+
 /** Project default: Content/InfinityStage/CueSheet/Puss_Master_cue_sheet.csv (console InfinityStage.CueSheet.Path overrides). */
 INFINITYSTAGE_API FString ResolvePath();
 
@@ -101,15 +125,25 @@ INFINITYSTAGE_API int32 NextStandbyRow(const FInfinityCueSheet& Sheet, int32 Fro
 
 /** Holds the sheet and the script cursor for one game world (PIE or the show). */
 UCLASS()
-class INFINITYSTAGE_API UInfinityStageCueDirectorSubsystem : public UWorldSubsystem
+class INFINITYSTAGE_API UInfinityStageCueDirectorSubsystem : public UTickableWorldSubsystem
 {
     GENERATED_BODY()
 
 public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-    /** Re-reads the CSV (F5 in the show viewport): Gary exports a new sheet mid-rehearsal. */
+    /** Re-reads the CSV and the settings (F5 in the show viewport), and re-applies the settings. */
     bool Reload();
+
+    /** Pushes the run-through settings onto this world's Show transport. Returns false if there is none yet. */
+    bool ApplyToTransport();
+
+    virtual void OnWorldBeginPlay(UWorld& InWorld) override;
+    /** Applies the settings once the Show transport exists (it may appear after BeginPlay). */
+    virtual void Tick(float DeltaTime) override;
+    virtual TStatId GetStatId() const override { RETURN_QUICK_DECLARE_CYCLE_STAT(UInfinityStageCueDirectorSubsystem, STATGROUP_Tickables); }
+
+    const FInfinityCueDirectorSettings& GetSettings() const { return Settings; }
 
     void StepLine(int32 Delta);
     void SyncToSegment(int32 SegmentOrdinal) { Cursor.SyncToSegment(Sheet, SegmentOrdinal); }
@@ -123,4 +157,6 @@ protected:
 private:
     FInfinityCueSheet Sheet;
     FInfinityScriptCursor Cursor;
+    FInfinityCueDirectorSettings Settings;
+    bool bSettingsApplied = false;
 };

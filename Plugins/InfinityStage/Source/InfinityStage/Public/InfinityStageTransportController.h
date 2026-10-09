@@ -363,6 +363,9 @@ struct INFINITYSTAGE_API FInfinityGoHoldState
      * already active is left alone; whatever resumes play spends it as usual. */
     bool bPassAll = false;
 
+    /** Cue Director: GO numbers that still hold while bPassAll (run-through) is on. */
+    TSet<FString> KeepNumbers;
+
     /** A hold settles this many ticks BEFORE its GO frame (one display frame), so
      * the held picture is the state before the cue, and the cue's content starts
      * when GO plays through the marker. */
@@ -486,6 +489,21 @@ public:
      */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport")
     bool bRunThrough = false;
+
+    /** Cue Director (Gary, 7 Oct): in run-through, the show still stops at the END of these
+     * segments ("mostly after lights out after scenes"); GO (RIGHT / Space) continues. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cue Director")
+    TArray<FGuid> RunThroughStopAfter;
+
+    /** Cue Director: GO markers (by number) that still HOLD during run-through. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cue Director")
+    TArray<FString> RunThroughHoldGoNumbers;
+
+    /** Sets run-through, its stops and its kept holds in one go (the Cue Director's settings file). */
+    void ApplyCueDirector(bool bInRunThrough, const TArray<FGuid>& StopAfter, const TArray<FString>& HoldGoNumbers);
+
+    /** Pure: in run-through, the first segment at or after From that is a stop, else the last segment. */
+    static int32 RunThroughStopIndex(const TArray<FInfinityTransportSegment>& InSegments, int32 From, const TArray<FGuid>& StopAfter);
 
     /** A shorter Right Arrow press keeps the existing advance-to-next-cue action. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
