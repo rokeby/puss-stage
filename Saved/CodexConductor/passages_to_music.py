@@ -1,4 +1,4 @@
-"""P33: make all six Passage lengths equal their selected music lengths.
+"""P33: make selected Passage lengths equal their selected music lengths.
 
 [declaration-proven] The only Show fields written are LeadInFrames,
 IntervalToNext, and TailFrames.  They are scaled by one factor and the final
@@ -8,7 +8,8 @@ _write_timing() in passage_retime_to_music.py.
 [declaration-proven] P01-P05 target the P11 selected music duration. P06 targets
 the duration measured live from its assigned SW_P06_IntoVoid SoundWave. Targets
 round up to a whole Show display frame, plus an explicit per-Passage tail
-override; every shipped override is zero.
+override; every shipped override is zero. ``hold_passages`` explicitly keeps
+named Passages at their current compiled length while the other Passages retime.
 
 [declaration-proven] Passage-section channel keys are not scaled.  The managed
 Master rebuild carries them with their section start; relative_key_carry_gate()
@@ -80,6 +81,24 @@ def tail_override_s(args, key):
     return float((args.get("tail_overrides_s") or {}).get(key, 0.0))
 
 
+def hold_passages(args):
+    return list(args.get("hold_passages") or [])
+
+
+def planned_target_ticks(args, key, old_len, music_target):
+    """Return the current length only for an explicitly held Passage."""
+    return int(old_len) if key in hold_passages(args) else int(music_target)
+
+
+def passage_review(passage_label, inventory, actions, is_held):
+    """Held Passages are not shortened, so endpoint items are not stranded."""
+    if is_held:
+        return {}, [], ["%s HELD_CURRENT_LENGTH: shortening-only past-end review skipped" % passage_label]
+    groups = review_groups(passage_label, inventory)
+    refusals, notes = review_refusals(groups, actions)
+    return groups, refusals, notes
+
+
 def validate_args(args):
     out = []
     mode = str(args.get("mode") or "").upper()
@@ -89,6 +108,10 @@ def validate_args(args):
     if keys != list(VALID_KEYS):
         out.append("PASSAGES_MUST_BE_ALL_SIX_IN_ORDER: %r" % keys)
         keys = []
+    held = args.get("hold_passages") or []
+    if (not isinstance(held, list) or any(k not in VALID_KEYS for k in held)
+            or len(set(held)) != len(held)):
+        out.append("HOLD_PASSAGES_INVALID: %r" % held)
     tails = args.get("tail_overrides_s") or {}
     if not isinstance(tails, dict) or any(k not in VALID_KEYS for k in tails):
         out.append("TAIL_OVERRIDES_INVALID: %r" % tails)
@@ -685,6 +708,7 @@ def _gather(args):
     if show is None or master is None:
         raise PlanError("SHOW_OR_MASTER_DID_NOT_LOAD")
     keys = list(VALID_KEYS)
+    held = set(hold_passages(args))
     snap = base._snapshot(show, master, keys)
     tick = snap["tick"]
     rate = show.get_editor_property("display_rate")
@@ -712,7 +736,8 @@ def _gather(args):
         music = dict(rail, mode=fact["music_binding"]["mode"], offset=fact["music_binding"]["offset"], tick_rate=tick) if rail else None
         selected_s = _selected_seconds_live(key, args["per_passage"][key], music)
         extra = tail_override_s(args, key)
-        target = target_ticks(selected_s, extra, tick, fps[0], fps[1])
+        music_target = target_ticks(selected_s, extra, tick, fps[0], fps[1])
+        target = planned_target_ticks(args, key, old_len, music_target)
         plan = plan_scaled_timing(fact["lead"], fact["intervals"], fact["tail"], target)
         source_bad, source_notes, audio = source_policy(key, music, selected_s, args["per_passage"][key], review)
         refusals += source_bad
@@ -723,8 +748,7 @@ def _gather(args):
         choreo = base._choreo_facts(fact["choreo_obj"], master, fact["guid"], tick)
         inventory = build_inventory("P0%s" % key, segment, section_keys, choreo, snap["artist"], snap["markers"],
                                     snap["managed"], plan["new_ticks"])
-        groups = review_groups("P0%s" % key, inventory)
-        r_review, w_review = review_refusals(groups, actions)
+        groups, r_review, w_review = passage_review("P0%s" % key, inventory, actions, key in held)
         refusals += r_review
         warnings += w_review
         if any(int(pin) >= plan["new_ticks"] for pin in section_keys.get("pins_rel") or []):
@@ -738,7 +762,8 @@ def _gather(args):
         if new_speed.get("bay_max") and new_speed["bay_max"] > threshold:
             warnings.append("P%s SPEED_WARNING: %.3f cm/s > %.3f" % (key, new_speed["bay_max"], threshold))
         music_row = {"selectedSeconds": selected_s, "selectedTicks": int(round(selected_s * tick)),
-                      "targetRoundedTicks": target, "tailOverrideSeconds": extra, "live": audio}
+                      "targetRoundedTicks": music_target, "appliedTargetTicks": target,
+                      "tailOverrideSeconds": extra, "live": audio, "held": key in held}
         if args["per_passage"][key].get("duration_source"):
             music_row["durationSource"] = args["per_passage"][key]["duration_source"]
         row = {"key": key, "label": label, "guid": fact["guid"], "old": {"lenTicks": old_len,
@@ -770,6 +795,7 @@ def _gather(args):
               "segmentsPredicted": base.predict_segments(snap["segments"], deltas), "netDeltaTicks": sum(deltas.values()),
               "netDeltaSeconds": sum(deltas.values()) / tick, "oldShowEnd": old_end,
               "newShowEnd": old_end + sum(deltas.values()), "reviewInventorySha256": review_hash,
+              "heldPassages": sorted(held),
               "absoluteMasterContent": snap["artist"], "masterMarkers": snap["markers"],
               "handoffStaleBefore": stale, "handoffReport": handoff_report, "moveInsidePlan": move_plan,
               "refusals": refusals, "warnings": warnings}
@@ -779,11 +805,12 @@ def _gather(args):
 def _log_report(run, report):
     for key, row in sorted(report["per"].items()):
         unreal.log("%s_PLAN|run=%s|P0%s|old=%d(%.6fs)|new=%d(%.6fs)|music=%.6fs|tail_override=%.6fs|"
-                   "past=%d|absolute_passage_keys=%d" % (
+                   "held=%d|past=%d|absolute_passage_keys=%d" % (
                        MARK, run, key, row["plan"]["old_ticks"], row["old"]["lenSeconds"],
                        row["plan"]["new_ticks"], row["plan"]["new_ticks"] / report["tickRate"],
                        row["music"]["selectedSeconds"], row["music"]["tailOverrideSeconds"],
-                       row["inventory"]["pastCount"], len(row["inventory"]["absolutePassageKeys"])))
+                       int(row["music"]["held"]), row["inventory"]["pastCount"],
+                       len(row["inventory"]["absolutePassageKeys"])))
         if key == "5":
             unreal.log("%s_P05_HEIGHT_OFFSET|run=%s|%s" % (MARK, run, json.dumps(row["p05HeightOffset"], ensure_ascii=False)))
     for text in report["refusals"]:

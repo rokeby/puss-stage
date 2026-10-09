@@ -53,6 +53,7 @@ def isolated_dry_fixture():
     return {
         "mode": "DRY", "confirm": "DRY PASSAGES TO MUSIC", "run_id": None,
         "passages": list(tool.VALID_KEYS),
+        "hold_passages": [],
         "tail_overrides_s": {key: 0.0 for key in tool.VALID_KEYS},
         "review": {"inventory_sha256": None, "past_end_actions": {}},
         "per_passage": per_passage,
@@ -130,6 +131,19 @@ def music_targets_are_exact_display_frames():
         check(got == want, "P%s selected music target %d == %d" % (key, got, want))
         check(got % 960 == 0, "P%s target on 25 fps frame" % key)
     check(tool.target_ticks(42.022472, 1.0, TICK, *FPS) == 1032960, "positive explicit one-second override")
+
+
+@test
+def explicit_hold_keeps_passage_and_rejects_unknown_key():
+    held = args(hold_passages=["5"])
+    check(tool.planned_target_ticks(held, "5", 4472727, 1008960) == 4472727,
+          "positive held P05 remains at its current length")
+    groups, refusals, notes = tool.passage_review(
+        "P05", synthetic_inventory(), {}, is_held=True)
+    check(groups == {} and refusals == [] and any("HELD_CURRENT_LENGTH" in x for x in notes),
+          "positive held P05 skips shortening-only endpoint review")
+    check(any("HOLD_PASSAGES_INVALID" in x for x in tool.validate_args(args(hold_passages=["7"]))),
+          "negative unknown held Passage key refused")
 
 
 @test
