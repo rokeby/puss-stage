@@ -1,0 +1,14 @@
+{
+  "mode": "DRY",
+  "passage": "P02",
+  "confirm": "DRY_RAGGED_ENDCURTAIN_P02_ONLY",
+  "run_id": "Q18-REVIEW-P02-DRY",
+  "decided_by": "Gary 9 Oct: job 77 prepares the offline-only P02/P03 ragged held cache swap tool; apply nothing",
+  "howto": [
+    "Run P02 and P03 separately. Select with this passage field or --passage P02|P03.",
+    "DRY: mode=DRY and confirm=DRY_RAGGED_ENDCURTAIN_<PASSAGE>_ONLY.",
+    "APPLY after review: mode=APPLY, matching confirm, unique run_id, and a non-empty decided_by.",
+    "REVERT from an applied record: mode=REVERT, matching confirm, unique run_id, and a non-empty decided_by.",
+    "Execute Saved/CodexSoftGoods/q18/ragged_endcurtain_swap.py through ExecuteProjectPythonFile; never Save All and never open or scrub Master."
+  ]
+}
