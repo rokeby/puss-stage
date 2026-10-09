@@ -337,3 +337,24 @@ markers_video_s, approved_by, promoted_utc, previous}`, with paths relative to `
 - the S4 and S5 audio (no record);
 - whether any strobe or sweep light is active in a Scene (the DRY lists them);
 - the ShowRoot's saved `bAutoPlay` (the DRY reads it).
+
+---
+
+## 8. Saturday unattended extension (9 Oct, P50; offline-built, not run)
+
+- **[declaration-proven]** `Tools/Fallbacks/saturday_night_film.ps1` is the one DRY/APPLY/REVERT entry point. At run
+  time it launches a command-line DRY and create-only BUILD, so all six Scene ranges come from the current Master rather
+  than this document's 7 Oct table. It refuses another Unreal/Blender process, gates disk per selected tier, makes
+  `Backups/PreSaturdayFilm-<run>` before APPLY, and never deletes render data.
+- **[declaration-proven]** `Tools/Fallbacks/saturday_film.py` runs each Scene independently through render, encode, QC and
+  schema-1 merge/promotion. Its checkpoint skips completed stages; a Scene failure is recorded and does not stop later
+  Scenes. C is skipped when that Scene's P WAV source failed.
+- **[declaration-proven]** QC now records ffmpeg frozen stretches as well as black stretches. Missing required audio and
+  the existing frame/rate/resolution/duration checks are hard failures; black/frozen candidates stay visible for Gary's
+  morning judgement because authored darkness and static staging are valid.
+- **[measured, offline 9 Oct]** The original MRQ harness passes 31/31. The P50 harness passes 10/10, split 5/5 positive
+  and 5/5 negative, including missing Scene, QC-fail-no-promote, resume skip, CD4 schema, merge preservation and frozen
+  frame detection controls.
+- **[inferred/open]** No Unreal process, render, encode, QC over real media, registry promotion, Cue Desk playback or
+  visual acceptance was run in P50. Gary's Saturday execution and morning eyeball remain the acceptance gates. Follow
+  `SATURDAY_FILMING_RUNSHEET_2026-10-10.md`.

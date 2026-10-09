@@ -126,6 +126,20 @@ def parse_signalstats(text):
     return [float(m.group(1)) for m in re.finditer(r"lavfi\.signalstats\.YAVG=([0-9.]+)", text)]
 
 
+def parse_freezedetect(text):
+    """ffmpeg freezedetect output -> candidate frozen stretches in seconds."""
+    starts = [float(x) for x in re.findall(r"freeze_start:\s*([0-9.]+)", text)]
+    durations = [float(x) for x in re.findall(r"freeze_duration:\s*([0-9.]+)", text)]
+    ends = [float(x) for x in re.findall(r"freeze_end:\s*([0-9.]+)", text)]
+    out = []
+    for i, start in enumerate(starts):
+        duration = durations[i] if i < len(durations) else None
+        end = ends[i] if i < len(ends) else (start + duration if duration is not None else None)
+        out.append({"start_s": round(start, 3), "end_s": round(end, 3) if end is not None else None,
+                    "duration_s": round(duration, 3) if duration is not None else None})
+    return out
+
+
 def luma_findings(yavg, fps=FPS):
     """Pure QC over per-frame luma: black stretches, jumps, washed share, summary."""
     if not yavg:
@@ -147,7 +161,7 @@ def luma_findings(yavg, fps=FPS):
             "first_frame_black": yavg[0] < BLACK_YAVG}
 
 
-def hard_checks(expect_frames, video_frames, video_s, audio_s, fps=FPS):
+def hard_checks(expect_frames, video_frames, video_s, audio_s, fps=FPS, audio_required=True, audio_present=True):
     bad = []
     if video_frames != expect_frames:
         bad.append("FRAME_COUNT|%s!=%s" % (video_frames, expect_frames))
@@ -155,7 +169,47 @@ def hard_checks(expect_frames, video_frames, video_s, audio_s, fps=FPS):
         bad.append("AUDIO_LENGTH|%.4f vs %.4f" % (audio_s, expect_frames / float(fps)))
     if video_s is not None and abs(video_s - expect_frames / float(fps)) > 1.0 / fps:
         bad.append("VIDEO_LENGTH|%.4f" % video_s)
+    if audio_required and not audio_present:
+        bad.append("AUDIO_MISSING")
     return bad
+
+
+def validate_cd4_registry(registry):
+    """Validate the exact schema subset consumed by CD4's ParseRegistry."""
+    bad = []
+    if not isinstance(registry, dict):
+        return ["ROOT_NOT_OBJECT"]
+    if registry.get("schema") != 1:
+        bad.append("SCHEMA|%r" % registry.get("schema"))
+    scenes = registry.get("scenes")
+    if not isinstance(scenes, dict):
+        return bad + ["SCENES_NOT_OBJECT"]
+    for key, row in scenes.items():
+        if not re.match(r"^S[1-6]$", str(key)):
+            bad.append("SCENE_KEY|%s" % key)
+            continue
+        if not isinstance(row, dict):
+            bad.append("SCENE_NOT_OBJECT|%s" % key)
+            continue
+        if not isinstance(row.get("video"), str) or not row.get("video"):
+            bad.append("VIDEO|%s" % key)
+        if not isinstance(row.get("frames"), int) or row.get("frames", 0) <= 0:
+            bad.append("FRAMES|%s" % key)
+        if not isinstance(row.get("fps"), (int, float)) or row.get("fps", 0) <= 0:
+            bad.append("FPS|%s" % key)
+    return bad
+
+
+def merge_registry(registry, scene_key, entry):
+    """Return a merged schema-1 registry without discarding another Scene."""
+    out = json.loads(json.dumps(registry or {}))
+    out.setdefault("schema", 1)
+    out.setdefault("scenes", {})
+    out["scenes"][scene_key] = entry
+    bad = validate_cd4_registry(out)
+    if bad:
+        raise PostError("CD4_SCHEMA|%s" % ";".join(bad))
+    return out
 
 
 def stale_diff(manifest, current):
@@ -256,7 +310,7 @@ def cmd_encode(a):
     sc = built["scenes"][str(int(a.scene))]
     side = {"stem": stem, "scene": int(a.scene), "tier": a.tier, "version": a.version, "test_seconds": a.test,
             "fps": FPS, "frames": len(fm), "seconds": len(fm) / float(FPS), "master_keep_range": keep,
-            "audio_samples": s_n, "audio_sr": SR, "audio_from_job": aj["name"],
+            "audio_samples": s_n, "audio_sr": SR, "audio_from_job": aj["name"], "audio_required": True,
             "markers_video_s": sc.get("markers_video_s", []), "jobs": [j["name"] for j in rows],
             "files": {"mp4": mp4, "wav": wav}, "sha256": {"mp4": _sha(mp4), "wav": _sha(wav)},
             "encoded_utc": datetime.datetime.utcnow().isoformat() + "Z"}
@@ -275,19 +329,23 @@ def cmd_qc(a):
     vs = [s for s in pv["streams"] if s["codec_type"] == "video"][0]
     vframes = int(vs.get("nb_read_frames") or vs.get("nb_frames") or 0)
     vsec = float(pv["format"]["duration"])
-    pa = _probe(side["files"]["wav"])
-    asec = float(pa["format"]["duration"])
-    bad = hard_checks(side["frames"], vframes, vsec, asec)
+    audio_present = os.path.isfile(side["files"].get("wav", ""))
+    pa = _probe(side["files"]["wav"]) if audio_present else {"format": {"duration": None}}
+    asec = float(pa["format"]["duration"]) if audio_present else None
+    bad = hard_checks(side["frames"], vframes, vsec, asec,
+                      audio_required=bool(side.get("audio_required", True)), audio_present=audio_present)
     if (int(vs["width"]), int(vs["height"])) != (1920, 1080):
         bad.append("RESOLUTION|%sx%s" % (vs["width"], vs["height"]))
     if vs.get("r_frame_rate") != "25/1":
         bad.append("FRAME_RATE|%s" % vs.get("r_frame_rate"))
     r = _run([ff, "-hide_banner", "-i", side["files"]["mp4"], "-vf", "signalstats,metadata=print:file=-", "-f", "null", "-"])
     luma = luma_findings(parse_signalstats(r.stdout + r.stderr))
-    vd = _run([ff, "-hide_banner", "-i", side["files"]["wav"], "-af", "volumedetect", "-f", "null", "-"]).stderr
+    frozen_run = _run([ff, "-hide_banner", "-i", side["files"]["mp4"], "-vf", "freezedetect=n=-60dB:d=2", "-f", "null", "-"])
+    frozen = parse_freezedetect(frozen_run.stdout + frozen_run.stderr)
+    vd = _run([ff, "-hide_banner", "-i", side["files"]["wav"], "-af", "volumedetect", "-f", "null", "-"]).stderr if audio_present else ""
     mx = re.search(r"max_volume:\s*(-?[0-9.]+) dB", vd)
     mean = re.search(r"mean_volume:\s*(-?[0-9.]+) dB", vd)
-    sil = _run([ff, "-hide_banner", "-i", side["files"]["wav"], "-af", "silencedetect=n=-60dB:d=2", "-f", "null", "-"]).stderr
+    sil = _run([ff, "-hide_banner", "-i", side["files"]["wav"], "-af", "silencedetect=n=-60dB:d=2", "-f", "null", "-"]).stderr if audio_present else ""
     silences = re.findall(r"silence_start: ([0-9.]+)", sil)
     sheet = "%s/%s_sheet.png" % (od, stem)
     step = max(1, side["frames"] // 24)
@@ -301,12 +359,15 @@ def cmd_qc(a):
                     luma["luma_jump_count"])
     if luma.get("washed_share", 0) > 0.05:
         soft.append("WASHED_SHARE|%s (S3 white-out lesson: check the pinned exposure weight)" % luma["washed_share"])
+    if frozen:
+        soft.append("FROZEN_STRETCHES|%d (static staging may be authored; inspect the listed intervals)" % len(frozen))
     if mx and float(mx.group(1)) >= -0.1:
         soft.append("AUDIO_CLIPPING|max %s dB" % mx.group(1))
     if mean and float(mean.group(1)) < -60:
         soft.append("AUDIO_NEAR_SILENT|mean %s dB (S3 has no imported score; is that intended?)" % mean.group(1))
     qc = {"stem": stem, "hard_fail": bad, "soft": soft, "video_frames": vframes, "video_s": vsec, "audio_s": asec,
-          "luma": luma, "audio_max_db": mx.group(1) if mx else None, "audio_mean_db": mean.group(1) if mean else None,
+          "luma": luma, "frozen_stretches_s": frozen, "audio_present": audio_present,
+          "audio_max_db": mx.group(1) if mx else None, "audio_mean_db": mean.group(1) if mean else None,
           "silence_starts_s": silences[:50], "sheet": sheet, "ok": not bad,
           "human_checklist": ["exposure vs a PIE still at entry+5 s / mid / exit-5 s", "her streamed sets present",
                               "no HUD / debug text", "camera = authored cut list", "GeometryCache cloth not frozen",
@@ -357,18 +418,19 @@ def cmd_promote(a):
     if os.path.exists(cur_p):
         with open(cur_p, "r", encoding="utf-8") as h:
             cur = json.load(h)
-    cur.setdefault("schema", 1)
-    cur.setdefault("scenes", {})
-    prev = cur["scenes"].get("S%d" % a.scene)
-    cur["scenes"]["S%d" % a.scene] = {
+    prev = (cur.get("scenes") or {}).get("S%d" % a.scene)
+    entry = {
         "video": os.path.relpath(side["files"]["mp4"], RENDER_ROOT).replace("\\", "/"),
         "audio": os.path.relpath(side["files"]["wav"], RENDER_ROOT).replace("\\", "/"),
         "sidecar": "S%d/%s.json" % (a.scene, stem), "frames": side["frames"], "seconds": side["seconds"],
         "fps": FPS, "tier": a.tier, "version": a.version, "sha256": side["sha256"],
         "markers_video_s": side.get("markers_video_s", []), "approved_by": a.by,
         "promoted_utc": datetime.datetime.utcnow().isoformat() + "Z", "previous": prev}
-    with open(cur_p, "w", encoding="utf-8") as h:
+    cur = merge_registry(cur, "S%d" % a.scene, entry)
+    tmp_p = cur_p + ".tmp"
+    with open(tmp_p, "w", encoding="utf-8") as h:
         json.dump(cur, h, indent=1)
+    os.replace(tmp_p, cur_p)
     print("MRQPOST_PROMOTE_OK|S%d|%s|by=%s|current=%s" % (a.scene, stem, a.by, cur_p))
 
 
