@@ -97,17 +97,26 @@ def main():
                     ks = [k for k in rx.get_keys() if CALM_A + OFF < int(k.get_time().frame_number.value) < CALM_D + OFF]
                     if ks: calm_rows.append({"figure": n, "section": str(s.get_name()), "n": len(ks)})
     if "ocean" in parts:
+        # Gary 8 Oct ~20:40: "the figures should be starting to frenzy here but appear to be unmoving" -> EVERY figure
+        # (15 copies + the 5 Shore heroes, not M53) plays FRENZY from the swap; only the OCEAN 9 also move.
+        ocean_labels = {}
         for short, (x, y, yaw) in OCEAN.items():
             lab = [k for k in copies if k.startswith(short + " (")]
             if len(lab) != 1 or copies[lab[0]] is None: raise RuntimeError("OCEAN_MEMBER|" + short)
-            lab = lab[0]; src = lab.split("(from ")[1].rstrip(")")
+            ocean_labels[lab[0]] = (x, y, yaw)
+        for lab, b in sorted(figures.items()):
+            if lab.startswith("Shore05"): continue
+            src = lab.split("(from ")[1].rstrip(")") if "(from " in lab else lab.split(" ")[0]
             fz = srcs[src]["frenzy_span"]
-            anim_tracks = [t for c in children.get(copies[lab].get_id().export_text(), []) for t in c.get_tracks()
+            anim_tracks = [t for c in children.get(b.get_id().export_text(), []) for t in c.get_tracks()
                            if isinstance(t, unreal.MovieSceneSkeletalAnimationTrack)]
             if len(anim_tracks) != 1: raise RuntimeError("ANIM_TRACK|%s|%d" % (lab, len(anim_tracks)))
-            z = zfile.get(lab)
-            if z is None: raise RuntimeError("NO_Z|" + lab)
-            ocean_rows.append({"label": lab, "src": src, "xyzyaw": [x, y, z, yaw], "frenzy": [fz["source_in_seconds"], fz["source_out_seconds"]],
+            xyz = None
+            if lab in ocean_labels:
+                z = zfile.get(lab)
+                if z is None: raise RuntimeError("NO_Z|" + lab)
+                xyz = [ocean_labels[lab][0], ocean_labels[lab][1], z, ocean_labels[lab][2]]
+            ocean_rows.append({"label": lab, "src": src, "xyzyaw": xyz, "frenzy": [fz["source_in_seconds"], fz["source_out_seconds"]],
                                "anim_sections": len(anim_tracks[0].get_sections())})
     if mode == "DRY":
         json.dump({"calm": calm_rows, "ocean": ocean_rows}, open(HERE + "s3_crowd_late_dry.json", "w"), indent=1)
@@ -136,19 +145,20 @@ def main():
                                 k.set_value(float(k.get_value()) * e)
         if "ocean" in parts:
             for row in ocean_rows:
-                b = copies[row["label"]]; o = {"label": row["label"], "sway_ends": [], "anim_trim": [], "added": {}}
+                b = figures[row["label"]]; o = {"label": row["label"], "sway_ends": [], "anim_trim": [], "added": {}}
                 tt = [t for t in b.get_tracks() if isinstance(t, unreal.MovieScene3DTransformTrack)][0]
                 for s in tt.get_sections():
                     if "ADDITIVE" in _blend(s) and int(s.get_end_frame()) > T_SWAP + OFF:
                         o["sway_ends"].append([str(s.get_name()), int(s.get_start_frame()), int(s.get_end_frame())])
                         s.set_end_frame(T_SWAP + OFF)
-                ns = tt.add_section(); ns.set_range(T_SWAP + OFF, END); ns.set_blend_type(unreal.MovieSceneBlendType.ABSOLUTE)
-                x, y, z, yaw = row["xyzyaw"]
-                ch = _chans(ns)
-                for k, v in (("Location.X", x), ("Location.Y", y), ("Location.Z", z), ("Rotation.X", 0.0), ("Rotation.Y", 0.0),
-                             ("Rotation.Z", yaw), ("Scale.X", 1.0), ("Scale.Y", 1.0), ("Scale.Z", 1.0)):
-                    ch[k].set_default(float(v))
-                o["added"]["transform"] = str(ns.get_name())
+                if row["xyzyaw"] is not None:
+                    ns = tt.add_section(); ns.set_range(T_SWAP + OFF, END); ns.set_blend_type(unreal.MovieSceneBlendType.ABSOLUTE)
+                    x, y, z, yaw = row["xyzyaw"]
+                    ch = _chans(ns)
+                    for k, v in (("Location.X", x), ("Location.Y", y), ("Location.Z", z), ("Rotation.X", 0.0), ("Rotation.Y", 0.0),
+                                 ("Rotation.Z", yaw), ("Scale.X", 1.0), ("Scale.Y", 1.0), ("Scale.Z", 1.0)):
+                        ch[k].set_default(float(v))
+                    o["added"]["transform"] = str(ns.get_name())
                 at = [t for c in children[b.get_id().export_text()] for t in c.get_tracks() if isinstance(t, unreal.MovieSceneSkeletalAnimationTrack)][0]
                 tmpl = None
                 for s in at.get_sections():
@@ -187,10 +197,10 @@ def main():
                         for k in _chans(s)["Rotation.X"].get_keys():
                             if int(k.get_time().frame_number.value) == f: k.set_value(v)
         for o in rec["ocean"]:
-            b = copies[o["label"]]
+            b = figures[o["label"]]
             tt = [t for t in b.get_tracks() if isinstance(t, unreal.MovieScene3DTransformTrack)][0]
             for s in list(tt.get_sections()):
-                if str(s.get_name()) == o["added"]["transform"]: tt.remove_section(s)
+                if str(s.get_name()) == o["added"].get("transform"): tt.remove_section(s)
             for sname, st, en in o["sway_ends"]:
                 for s in tt.get_sections():
                     if str(s.get_name()) == sname: s.set_end_frame(en)
