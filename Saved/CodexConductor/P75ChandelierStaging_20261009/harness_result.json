@@ -3,47 +3,92 @@
   "details": [
     {
       "kind": "POSITIVE",
-      "name": "plan",
+      "name": "global cap includes drive-by",
       "ok": true
     },
     {
       "kind": "POSITIVE",
-      "name": "hidden-shadow flags",
+      "name": "opening and p06 part isolation",
       "ok": true
     },
     {
       "kind": "POSITIVE",
-      "name": "seeded single-draw order",
+      "name": "no flames or swing keys",
       "ok": true
     },
     {
       "kind": "POSITIVE",
-      "name": "projected shadow",
+      "name": "24-link pivot assembly",
       "ok": true
     },
     {
       "kind": "POSITIVE",
-      "name": "P06 clearances",
+      "name": "production asset paths",
       "ok": true
     },
     {
       "kind": "POSITIVE",
-      "name": "stable plan hash",
+      "name": "P06 light off by default",
+      "ok": true
+    },
+    {
+      "kind": "POSITIVE",
+      "name": "hidden-shadow flags for body plus links",
+      "ok": true
+    },
+    {
+      "kind": "POSITIVE",
+      "name": "shadow forecast and P06 clearances",
       "ok": true
     },
     {
       "kind": "NEGATIVE",
-      "name": "GPU light cap",
+      "name": "global light cap across parts",
       "ok": true
     },
     {
       "kind": "NEGATIVE",
-      "name": "GPU shadow cap",
+      "name": "global caster cap includes drive-by",
       "ok": true
     },
     {
       "kind": "NEGATIVE",
-      "name": "hidden shadow flag",
+      "name": "existing plus candidate global cap",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "24-link count",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "chain pivot drift",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "old body path refused",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "old chain path refused",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "APPLY one part only",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "stale opening review hash",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "hidden link flag",
       "ok": true
     },
     {
@@ -53,25 +98,15 @@
     },
     {
       "kind": "NEGATIVE",
-      "name": "socket count",
-      "ok": true
-    },
-    {
-      "kind": "NEGATIVE",
-      "name": "APPLY confirm",
-      "ok": true
-    },
-    {
-      "kind": "NEGATIVE",
-      "name": "stale APPLY review hash",
+      "name": "P75 may not add sound",
       "ok": true
     }
   ],
   "fail": 0,
-  "negative": 7,
+  "negative": 12,
   "offline": true,
-  "pass": 13,
-  "positive": 6,
-  "total": 13,
+  "pass": 20,
+  "positive": 8,
+  "total": 20,
   "unreal": false
 }

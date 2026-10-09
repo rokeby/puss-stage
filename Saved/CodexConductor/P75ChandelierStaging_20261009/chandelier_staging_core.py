@@ -1,7 +1,8 @@
 """Pure planning and validation for P75 chandelier staging.
 
-This module deliberately has no Unreal import.  The later-live tool consumes its
-plan, while the offline harness exercises every creative and safety invariant.
+P75 owns chandelier bodies, the 24 separately pivoted chain-link actors, a
+small number of grouped lights, and the Opening drive-by light keys. P56 owns
+all flame actors; P52/P52B own every swing key.
 """
 from __future__ import annotations
 
@@ -9,12 +10,21 @@ import copy
 import hashlib
 import json
 import math
-import random
 from typing import Any, Iterable
 
 
 class P75Error(RuntimeError):
     pass
+
+
+PARTS = ("opening", "p06")
+BODY_MESH = "/Game/Scenes/Props/Chandelier/SM_Chandelier_Iron3"
+MATERIAL = "/Game/Scenes/Props/Chandelier/MI_Chandelier_Iron3"
+CHAIN_MESHES = [
+    "/Game/Scenes/Props/Chandelier/Chain/ChainLink_%02d" % index
+    for index in range(24)
+]
+OLD_ASSET_ROOT = "/Game/Scenes/Chandelier/Iron3"
 
 
 def require(condition: Any, message: str) -> None:
@@ -40,17 +50,15 @@ def _hash(value: Any) -> str:
 
 DEFAULTS: dict[str, Any] = {
     "mode": "DRY",
+    "parts": ["opening", "p06"],
     "confirm": "",
-    "reviewed_plan_sha256": "",
+    "reviewed_plan_sha256": {"opening": "", "p06": ""},
     "opening_duration_s": 96.36,
-    "p06_duration_s": 110.6,
     "opening_shadow_start_s": 36.18,
     "opening_shadow_peak_s": 37.68,
     "opening_shadow_end_s": 39.18,
-    "opening_candle_start_s": 39.4,
-    "opening_candle_step_s": 0.085,
-    "opening_actor_location_cm": [-400.0, 600.0, 900.0],
-    "opening_actor_rotation_deg": [0.0, 0.0, 0.0],
+    "opening_body_location_cm": [-400.0, 600.0, 900.0],
+    "opening_body_rotation_deg": [0.0, 0.0, 0.0],
     "drive_by_light_location_cm": [-4200.0, -900.0, 850.0],
     "drive_by_target_start_cm": [0.0, 1200.0, 550.0],
     "drive_by_target_end_cm": [0.0, -1200.0, 550.0],
@@ -60,19 +68,17 @@ DEFAULTS: dict[str, Any] = {
     "drive_by_peak_intensity_cd": 2500.0,
     "proscenium_plane_x_cm": 0.0,
     "chandelier_shadow_size_cm": [300.0, 220.0],
-    "socket_count": 44,
-    "candle_seed": 7501,
-    "grouped_light_count": 4,
-    "shadow_caster_count": 2,
+    "opening_group_light_count": 2,
+    "opening_group_shadow_caster_count": 1,
+    "opening_group_lights_enabled": True,
+    "p06_group_light_count": 1,
+    "p06_group_shadow_caster_count": 0,
+    "p06_group_lights_enabled": False,
     "grouped_light_intensity_cd": 85.0,
     "grouped_light_attenuation_cm": 650.0,
     "p06_hang_station_cm": 5700.0,
     "p06_lateral_cm": 0.0,
-    "p06_hang_z_cm": 1050.0,
-    "p06_visible_start_s": 12.0,
-    "p06_candle_start_s": 12.25,
-    "p06_candle_state": "lit",
-    "p06_gutter_period_s": 0.7,
+    "p06_body_z_cm": 1050.0,
     "p06_first_chain_creak_s": 24.89,
     "p06_topple_stations_cm": [9450.0, 10450.0, 10950.0, 11450.0, 11950.0, 12450.0,
                                   15150.0, 16350.0, 17550.0, 18750.0, 19950.0, 21150.0,
@@ -82,9 +88,38 @@ DEFAULTS: dict[str, Any] = {
                                11450.0, 11950.0, 12450.0, 12950.0, 13450.0, 13950.0],
     "minimum_topple_clearance_cm": 1200.0,
     "minimum_wing_station_clearance_cm": 400.0,
-    "optional_cue_kick": False,
     "new_sound": False,
 }
+
+
+def validate_chain_schema(raw: Any) -> dict[str, Any]:
+    require(isinstance(raw, dict), "CHAIN_SCHEMA_OBJECT")
+    require(raw.get("schema") == "chandelier_chain_v1", "CHAIN_SCHEMA_ID")
+    require(raw.get("units") == "cm", "CHAIN_UNITS_CM")
+    require(int(raw.get("count", -1)) == 24, "CHAIN_LINK_COUNT_24")
+    require(_number(raw.get("length_cm"), "chain_length_cm") == 300.0, "CHAIN_LENGTH_300")
+    links = raw.get("links")
+    require(isinstance(links, list) and len(links) == 24, "CHAIN_LINK_ROWS_24")
+    clean_links = []
+    for index, row in enumerate(links):
+        require(isinstance(row, dict) and int(row.get("index", -1)) == index,
+                "CHAIN_LINK_INDEX_%02d" % index)
+        pivot = _vec3(row.get("pivot_cm"), "chain_pivot_%02d" % index)
+        length = _number(row.get("length_cm"), "chain_link_length_%02d" % index)
+        require(abs(length - 12.5) <= 1.0e-6, "CHAIN_LINK_LENGTH_%02d" % index)
+        expected = [0.0, 0.0, -12.5 * index]
+        require(all(abs(a - b) <= 1.0e-6 for a, b in zip(pivot, expected)),
+                "CHAIN_LINK_PIVOT_%02d" % index)
+        clean_links.append({"index": index, "pivot_cm": pivot, "length_cm": length,
+                            "mass_kg": row.get("mass_kg")})
+    body = raw.get("body")
+    require(isinstance(body, dict), "CHAIN_BODY_OBJECT")
+    attach = _vec3(body.get("attach_cm"), "chain_body_attach")
+    require(all(abs(a - b) <= 1.0e-6 for a, b in zip(attach, [0.0, 0.0, -300.0])),
+            "CHAIN_BODY_ATTACH")
+    return {"schema": "chandelier_chain_v1", "count": 24, "length_cm": 300.0,
+            "links": clean_links, "body": {"attach_cm": attach,
+            "mass_kg": body.get("mass_kg")}}
 
 
 def validate_args(raw: Any) -> dict[str, Any]:
@@ -94,57 +129,88 @@ def validate_args(raw: Any) -> dict[str, Any]:
     mode = str(args.get("mode", "DRY")).upper()
     require(mode in ("DRY", "APPLY", "REVERT"), "MODE")
     args["mode"] = mode
+    parts = args.get("parts")
+    require(isinstance(parts, list) and parts, "PARTS_NONEMPTY_LIST")
+    parts = [str(value).lower() for value in parts]
+    require(len(parts) == len(set(parts)), "PARTS_DUPLICATE")
+    require(all(value in PARTS for value in parts), "PARTS_ALLOWED")
+    require(mode == "DRY" or len(parts) == 1, "MUTATION_ONE_PART_REQUIRED")
+    args["parts"] = parts
     if mode in ("APPLY", "REVERT"):
-        require(args.get("confirm") == f"{mode} P75 CHANDELIER", "CONFIRM")
-    for key in ("opening_duration_s", "p06_duration_s", "opening_shadow_start_s",
-                "opening_shadow_peak_s", "opening_shadow_end_s", "opening_candle_start_s",
-                "opening_candle_step_s", "drive_by_outer_cone_deg",
-                "drive_by_soft_source_radius_cm", "drive_by_peak_intensity_cd",
-                "proscenium_plane_x_cm", "grouped_light_intensity_cd",
+        require(args.get("confirm") == "%s P75 CHANDELIER" % mode, "CONFIRM")
+    reviewed = args.get("reviewed_plan_sha256")
+    require(isinstance(reviewed, dict), "REVIEWED_HASHES_OBJECT")
+    args["reviewed_plan_sha256"] = {part: str(reviewed.get(part, "")) for part in PARTS}
+
+    body_mesh = str(args.get("body_mesh", ""))
+    material = str(args.get("material", ""))
+    chain_meshes = [str(value) for value in args.get("chain_meshes", [])]
+    all_paths = [body_mesh, material] + chain_meshes
+    require(not any(path.startswith(OLD_ASSET_ROOT) for path in all_paths), "OLD_ASSET_ROOT_REFUSED")
+    require(body_mesh == BODY_MESH, "PRODUCTION_BODY_MESH_REQUIRED")
+    require(material == MATERIAL, "PRODUCTION_MATERIAL_REQUIRED")
+    require(chain_meshes == CHAIN_MESHES, "PRODUCTION_CHAIN_MESHES_REQUIRED")
+    require(str(args.get("chain_layout_json", "")).replace("\\", "/").endswith(
+        "DerivedAssets/ChandelierBuild/Output/Iron3/chandelier_Iron3_chain.json"),
+        "PRODUCTION_CHAIN_JSON_REQUIRED")
+
+    for key in ("opening_duration_s", "opening_shadow_start_s", "opening_shadow_peak_s",
+                "opening_shadow_end_s", "drive_by_outer_cone_deg", "drive_by_soft_source_radius_cm",
+                "drive_by_peak_intensity_cd", "proscenium_plane_x_cm", "grouped_light_intensity_cd",
                 "grouped_light_attenuation_cm", "p06_hang_station_cm", "p06_lateral_cm",
-                "p06_hang_z_cm", "p06_visible_start_s", "p06_candle_start_s",
-                "p06_first_chain_creak_s", "minimum_topple_clearance_cm",
+                "p06_body_z_cm", "p06_first_chain_creak_s", "minimum_topple_clearance_cm",
                 "minimum_wing_station_clearance_cm"):
         args[key] = _number(args[key], key)
-    for key in ("opening_actor_location_cm", "opening_actor_rotation_deg",
+    for key in ("opening_body_location_cm", "opening_body_rotation_deg",
                 "drive_by_light_location_cm", "drive_by_target_start_cm",
                 "drive_by_target_end_cm", "drive_by_color_linear"):
         args[key] = _vec3(args[key], key)
     args["chandelier_shadow_size_cm"] = [
-        _number(item, "chandelier_shadow_size_cm") for item in args["chandelier_shadow_size_cm"]
-    ]
+        _number(item, "chandelier_shadow_size_cm") for item in args["chandelier_shadow_size_cm"]]
     require(len(args["chandelier_shadow_size_cm"]) == 2, "SHADOW_SIZE_PAIR")
-    args["socket_count"] = int(args["socket_count"])
-    require(args["socket_count"] == 44, "SOCKET_COUNT_44_REQUIRED")
-    args["grouped_light_count"] = int(args["grouped_light_count"])
-    args["shadow_caster_count"] = int(args["shadow_caster_count"])
-    require(0 <= args["grouped_light_count"] <= 4, "GPU_LIGHT_CAP_4")
-    require(0 <= args["shadow_caster_count"] <= 2, "GPU_SHADOW_CAP_2")
-    require(args["shadow_caster_count"] <= args["grouped_light_count"], "SHADOWS_EXCEED_LIGHTS")
+    for part in PARTS:
+        count_key = part + "_group_light_count"
+        caster_key = part + "_group_shadow_caster_count"
+        args[count_key] = int(args[count_key])
+        args[caster_key] = int(args[caster_key])
+        require(args[count_key] >= 0, part.upper() + "_LIGHT_COUNT")
+        require(0 <= args[caster_key] <= args[count_key], part.upper() + "_SHADOW_COUNT")
     require(0.0 <= args["opening_shadow_start_s"] < args["opening_shadow_peak_s"]
             < args["opening_shadow_end_s"] <= args["opening_duration_s"], "OPENING_SHADOW_ORDER")
-    require(args["opening_candle_start_s"] >= args["opening_shadow_end_s"], "CANDLES_BEFORE_SHADOW_END")
-    candle_end = args["opening_candle_start_s"] + (args["socket_count"] - 1) * args["opening_candle_step_s"]
-    require(candle_end < args["opening_duration_s"], "OPENING_CANDLES_OUTSIDE")
-    require(0.0 <= args["p06_visible_start_s"] < args["p06_first_chain_creak_s"], "P06_RETURN_AFTER_CREAK")
-    require(args["p06_candle_start_s"] < args["p06_first_chain_creak_s"], "P06_CANDLES_AFTER_CREAK")
-    require(str(args["p06_candle_state"]) in ("lit", "guttering"), "P06_CANDLE_STATE")
     require(args.get("new_sound") is False, "SILENT_DEFAULT_REQUIRED")
     return args
 
 
-def seeded_candle_order(count: int, seed: int) -> list[dict[str, Any]]:
-    """Return one deterministic draw per socket; no re-draws or hidden jitter."""
-    require(count > 0, "CANDLE_COUNT")
-    rng = random.Random(int(seed))
-    rows = [{"socket": f"Candle_{index:02d}", "draw": rng.random()} for index in range(1, count + 1)]
-    return sorted(rows, key=lambda row: (row["draw"], row["socket"]))
+def light_rows_for_part(args: dict[str, Any], part: str) -> list[dict[str, Any]]:
+    rows = []
+    if part == "opening":
+        rows.append({"label": "P75 Opening Drive-By", "owner_part": part,
+                     "cast_shadows": True, "enabled_default": False, "kind": "spot"})
+    count = args[part + "_group_light_count"]
+    casters = args[part + "_group_shadow_caster_count"]
+    enabled = bool(args[part + "_group_lights_enabled"])
+    title = "Opening" if part == "opening" else "P06"
+    for index in range(count):
+        rows.append({"label": "P75 %s Candle Group %02d" % (title, index + 1),
+                     "owner_part": part, "cast_shadows": index < casters,
+                     "enabled_default": enabled, "kind": "point"})
+    return rows
+
+
+def validate_global_light_guard(rows: Iterable[dict[str, Any]]) -> dict[str, int]:
+    rows = list(rows)
+    labels = [str(row.get("label", "")) for row in rows]
+    require(all(labels) and len(labels) == len(set(labels)), "GLOBAL_LIGHT_LABELS_UNIQUE")
+    light_count = len(rows)
+    caster_count = sum(bool(row.get("cast_shadows")) for row in rows)
+    require(light_count <= 4, "GLOBAL_GPU_LIGHT_CAP_4")
+    require(caster_count <= 2, "GLOBAL_GPU_SHADOW_CAP_2")
+    return {"lights": light_count, "shadow_casters": caster_count}
 
 
 def projected_shadow_size(light: Iterable[float], prop: Iterable[float], plane_x: float,
                           source_size_cm: Iterable[float]) -> dict[str, float]:
-    light_row = list(light)
-    prop_row = list(prop)
+    light_row, prop_row = list(light), list(prop)
     require(len(light_row) == 3 and len(prop_row) == 3, "SHADOW_POINTS")
     source_to_prop = prop_row[0] - light_row[0]
     source_to_plane = plane_x - light_row[0]
@@ -161,94 +227,80 @@ def minimum_clearance(value: float, obstacles: Iterable[float]) -> float:
     return min(rows) if rows else math.inf
 
 
-def build_plan(raw: Any) -> dict[str, Any]:
+def _labels(part: str) -> dict[str, Any]:
+    title = "Opening" if part == "opening" else "P06"
+    return {"body_actor_label": "P75 %s Chandelier Body" % title,
+            "link_actor_labels": ["P75 %s Chain Link %02d" % (title, index) for index in range(24)]}
+
+
+def build_plan(raw: Any, chain_raw: Any) -> dict[str, Any]:
     args = validate_args(raw)
-    order = seeded_candle_order(args["socket_count"], int(args["candle_seed"]))
-    ignition = []
-    for ordinal, row in enumerate(order):
-        ignition.append({"ordinal": ordinal, "socket": row["socket"], "draw": row["draw"],
-                         "time_s": args["opening_candle_start_s"] + ordinal * args["opening_candle_step_s"]})
-    shadow = projected_shadow_size(args["drive_by_light_location_cm"],
-                                   args["opening_actor_location_cm"],
-                                   args["proscenium_plane_x_cm"],
-                                   args["chandelier_shadow_size_cm"])
+    chain = validate_chain_schema(chain_raw)
+    all_lights = light_rows_for_part(args, "opening") + light_rows_for_part(args, "p06")
+    global_budget = validate_global_light_guard(all_lights)
+    shadow = projected_shadow_size(args["drive_by_light_location_cm"], args["opening_body_location_cm"],
+                                   args["proscenium_plane_x_cm"], args["chandelier_shadow_size_cm"])
     topple_clearance = minimum_clearance(args["p06_hang_station_cm"], args["p06_topple_stations_cm"])
     wing_clearance = minimum_clearance(args["p06_hang_station_cm"], args["p06_wing_stations_cm"])
     require(topple_clearance >= args["minimum_topple_clearance_cm"], "TOPPLE_ROW_OVERLAP")
     require(wing_clearance >= args["minimum_wing_station_clearance_cm"], "WING_ROW_OVERLAP")
-    flicker_rng = random.Random(int(args["candle_seed"]) + 1000)
-    opening_flicker = []
-    time_s = args["opening_candle_start_s"]
-    while time_s <= args["opening_duration_s"] + 1.0e-9:
-        opening_flicker.append([time_s, 0.72 + 0.28 * flicker_rng.random()])
-        time_s += 0.24
-    p06_flicker = []
-    time_s = args["p06_candle_start_s"]
-    while time_s <= 30.0 + 1.0e-9:
-        value = 1.0 if args["p06_candle_state"] == "lit" else 0.62 + 0.38 * flicker_rng.random()
-        p06_flicker.append([time_s, value])
-        time_s += args["p06_gutter_period_s"]
-    plan: dict[str, Any] = {
-        "schema": "p75_chandelier_staging_v1",
-        "opening": {
-            "duration_s": args["opening_duration_s"],
-            "body": {"hidden_in_game": True, "cast_hidden_shadow": True,
-                     "location_cm": args["opening_actor_location_cm"],
-                     "rotation_deg": args["opening_actor_rotation_deg"]},
-            "chain": {"hidden_in_game": True, "cast_hidden_shadow": True},
-            "drive_by": {"start_s": args["opening_shadow_start_s"],
-                         "peak_s": args["opening_shadow_peak_s"],
-                         "end_s": args["opening_shadow_end_s"], "passes": 1,
-                         "target_motion": "ARC_YAW", "target_start_cm": args["drive_by_target_start_cm"],
-                         "target_end_cm": args["drive_by_target_end_cm"],
-                         "outer_cone_deg": args["drive_by_outer_cone_deg"],
-                         "color_linear": args["drive_by_color_linear"],
-                         "soft_source_radius_cm": args["drive_by_soft_source_radius_cm"],
-                         "peak_intensity_cd": args["drive_by_peak_intensity_cd"]},
-            "projected_shadow_at_peak": shadow,
-            "candles": ignition,
-        },
-        "lights": {"grouped_count": args["grouped_light_count"],
-                   "shadow_casters": args["shadow_caster_count"],
-                   "individual_candle_lights": 0,
-                   "intensity_cd": args["grouped_light_intensity_cd"],
-                   "attenuation_cm": args["grouped_light_attenuation_cm"],
-                   "opening_flicker_scale_keys": opening_flicker,
-                   "p06_flicker_scale_keys_0_30": p06_flicker},
-        "p06": {
-            "duration_s": args["p06_duration_s"], "visible": True,
-            "hang_station_cm": args["p06_hang_station_cm"],
-            "lateral_cm": args["p06_lateral_cm"], "hang_z_cm": args["p06_hang_z_cm"],
-            "visible_start_s": args["p06_visible_start_s"],
-            "candle_start_s": args["p06_candle_start_s"],
-            "candle_state": args["p06_candle_state"],
-            "swing_owner": "P52B_CHAIN_PENDULUM_REBUILD",
-            "cue_kick": bool(args["optional_cue_kick"]), "new_sound": False,
-            "first_chain_creak_s": args["p06_first_chain_creak_s"],
-            "clearances_cm": {"nearest_topple_row": topple_clearance,
-                              "nearest_wing_station": wing_clearance},
-        },
-        "dependencies": {"mesh": "Iron3", "socket_count": 44, "candles": "P56",
-                         "swing": ["P52", "P52B"], "cue_kick_patch_optional": True},
-        "args": args,
+    parts = {
+        "opening": {**_labels("opening"), "hidden_in_game": True, "cast_hidden_shadow": True,
+                    "body_location_cm": args["opening_body_location_cm"],
+                    "body_rotation_deg": args["opening_body_rotation_deg"],
+                    "lights": light_rows_for_part(args, "opening"),
+                    "drive_by": {"start_s": args["opening_shadow_start_s"],
+                                 "peak_s": args["opening_shadow_peak_s"],
+                                 "end_s": args["opening_shadow_end_s"], "passes": 1,
+                                 "target_motion": "ARC_YAW",
+                                 "target_start_cm": args["drive_by_target_start_cm"],
+                                 "target_end_cm": args["drive_by_target_end_cm"],
+                                 "outer_cone_deg": args["drive_by_outer_cone_deg"],
+                                 "color_linear": args["drive_by_color_linear"],
+                                 "soft_source_radius_cm": args["drive_by_soft_source_radius_cm"],
+                                 "peak_intensity_cd": args["drive_by_peak_intensity_cd"]},
+                    "projected_shadow_at_peak": shadow,
+                    "owned_sequence_writes": ["drive_by_intensity", "drive_by_arc_rotation"]},
+        "p06": {**_labels("p06"), "hidden_in_game": False, "cast_hidden_shadow": False,
+                "hang_station_cm": args["p06_hang_station_cm"], "lateral_cm": args["p06_lateral_cm"],
+                "body_z_cm": args["p06_body_z_cm"],
+                "first_chain_creak_s": args["p06_first_chain_creak_s"],
+                "lights": light_rows_for_part(args, "p06"),
+                "clearances_cm": {"nearest_topple_row": topple_clearance,
+                                  "nearest_wing_station": wing_clearance},
+                "owned_sequence_writes": []},
     }
-    fingerprint_basis = copy.deepcopy(plan)
-    fingerprint_basis["args"].pop("reviewed_plan_sha256", None)
-    fingerprint_basis["args"].pop("confirm", None)
-    fingerprint_basis["args"]["mode"] = "DRY"
-    plan["plan_sha256"] = _hash(fingerprint_basis)
+    assets = {"body_mesh": args["body_mesh"], "material": args["material"],
+              "chain_meshes": args["chain_meshes"], "chain_layout_json": args["chain_layout_json"]}
+    forbidden = ["candle_flame_actors", "candle_visibility_keys", "swing_keys"]
+    for part in PARTS:
+        basis = {"schema": "p75_chandelier_staging_v2", "part": part, "part_plan": parts[part],
+                 "assets": assets, "chain": chain, "global_light_budget": global_budget,
+                 "forbidden_writes": forbidden}
+        parts[part]["plan_sha256"] = _hash(basis)
     if args["mode"] == "APPLY":
-        require(args.get("reviewed_plan_sha256") == plan["plan_sha256"], "REVIEWED_PLAN_HASH")
-    return plan
+        part = args["parts"][0]
+        require(args["reviewed_plan_sha256"].get(part) == parts[part]["plan_sha256"],
+                "REVIEWED_PLAN_HASH_" + part.upper())
+    return {"schema": "p75_chandelier_staging_v2", "selected_parts": args["parts"],
+            "parts": parts, "assets": assets, "chain": chain,
+            "global_light_budget": global_budget,
+            "instance_actor_labels": {part: _labels(part) for part in PARTS},
+            "ownership": {"flames": "P56", "swing_keys": ["P52", "P52B"],
+                          "p75_sequence_writes": "Opening drive-by light only"},
+            "forbidden_writes": forbidden, "args": args}
 
 
-def verify_hidden_shadow(body: dict[str, Any], chain: dict[str, Any]) -> None:
-    for name, row in (("BODY", body), ("CHAIN", chain)):
+def verify_hidden_shadow(body: dict[str, Any], links: Iterable[dict[str, Any]]) -> None:
+    rows = [("BODY", body)] + [("LINK_%02d" % index, row) for index, row in enumerate(links)]
+    require(len(rows) == 25, "HIDDEN_SHADOW_ASSEMBLY_COUNT")
+    for name, row in rows:
         require(row.get("hidden_in_game") is True, name + "_NOT_HIDDEN")
         require(row.get("cast_hidden_shadow") is True, name + "_NO_HIDDEN_SHADOW")
 
 
-def verify_no_topple_overlap(station_cm: float, topple_stations_cm: Iterable[float], clearance_cm: float) -> float:
-    got = minimum_clearance(station_cm, topple_stations_cm)
-    require(got >= clearance_cm, "TOPPLE_ROW_OVERLAP")
-    return got
+def verify_no_forbidden_writes(plan: dict[str, Any]) -> None:
+    require(plan.get("forbidden_writes") ==
+            ["candle_flame_actors", "candle_visibility_keys", "swing_keys"],
+            "FORBIDDEN_WRITE_CONTRACT")
+    require(plan["parts"]["p06"]["owned_sequence_writes"] == [], "P06_SEQUENCE_WRITES_FORBIDDEN")

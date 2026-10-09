@@ -1,8 +1,8 @@
 """Later-live UE 5.8 DRY/APPLY/REVERT tool for P75.
 
-The file is safe to import offline.  It creates no assets: it reuses the Iron3
-meshes and the P56 candle Blueprint, owns only tagged level actors and named
-Sequencer tracks, and saves only the level plus the two named sequences.
+The tool is offline-safe to import. Mutating runs accept exactly one part,
+``opening`` or ``p06``. Each part has its own record and REVERT boundary.
+P75 never spawns flames and never writes swing keys.
 """
 from __future__ import annotations
 
@@ -23,7 +23,6 @@ except ModuleNotFoundError:
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ARGS_PATH = os.path.join(HERE, "chandelier_staging_args.json")
-ACTIVE_RECORD = os.path.join(HERE, "chandelier_staging_ACTIVE.json")
 REPORT_PATH = os.path.join(HERE, "chandelier_staging_report.json")
 SPEC = importlib.util.spec_from_file_location("p75_core", os.path.join(HERE, "chandelier_staging_core.py"))
 CORE = importlib.util.module_from_spec(SPEC)
@@ -32,11 +31,9 @@ SPEC.loader.exec_module(CORE)
 
 MARK = "P75_CHANDELIER"
 OWNER_TAG = "P75_CHANDELIER_STAGING"
-OPENING_SEQUENCE = "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked"
-P06_SEQUENCE = "/Game/InfinityStage/Choreo/LS_Choreo_Passage_6"
 WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+OPENING_SEQUENCE = "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked"
 PASSAGE_LABEL = "Passage 6"
-TRACK_PREFIX = "P75 Chandelier [OWNED]"
 
 
 def require(condition: Any, message: str) -> None:
@@ -61,11 +58,19 @@ def _run_id() -> str:
     return "P75CHAN-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 
+def _active_record(part: str) -> str:
+    return os.path.join(HERE, "chandelier_staging_%s_ACTIVE.json" % part)
+
+
 def _asset_id(value: Any) -> str | None:
     if value is None:
         return None
     text = str(value.get_path_name()) if hasattr(value, "get_path_name") else str(value)
     return text.split(".", 1)[0]
+
+
+def _object_path(value: Any) -> str:
+    return str(value.get_path_name()) if hasattr(value, "get_path_name") else str(value)
 
 
 def _census() -> dict[str, list[str]]:
@@ -82,6 +87,14 @@ def _require_clean(label: str) -> dict[str, list[str]]:
 
 def _project_dir() -> str:
     return os.path.normpath(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir()))
+
+
+def _chain_path(args: dict[str, Any]) -> str:
+    relative = str(args["chain_layout_json"]).replace("/", os.sep)
+    path = os.path.normpath(os.path.join(_project_dir(), relative))
+    require(os.path.commonpath((_project_dir(), path)) == _project_dir(), "CHAIN_JSON_OUTSIDE_PROJECT")
+    require(os.path.isfile(path), "CHAIN_JSON_MISSING|" + path)
+    return path
 
 
 def _package_file(package: str) -> str:
@@ -102,8 +115,8 @@ def _sha(path: str) -> str:
     return digest.hexdigest()
 
 
-def _backup(run: str, packages: Iterable[str], note: str) -> dict[str, Any]:
-    root = os.path.join(_project_dir(), "Backups", "PreP75Chandelier-" + run)
+def _backup(run: str, part: str, packages: Iterable[str], note: str) -> dict[str, Any]:
+    root = os.path.join(_project_dir(), "Backups", "PreP75Chandelier%s-%s" % (part.title(), run))
     os.makedirs(root, exist_ok=False)
     rows = []
     for package in packages:
@@ -115,7 +128,7 @@ def _backup(run: str, packages: Iterable[str], note: str) -> dict[str, Any]:
         require(_sha(source) == _sha(destination), "BACKUP_HASH|" + package)
         rows.append({"package": package, "source": source, "backup": destination,
                      "bytes": os.path.getsize(source), "sha256": _sha(source)})
-    manifest = {"run": run, "note": note, "packages": rows}
+    manifest = {"run": run, "part": part, "note": note, "packages": rows}
     _write(os.path.join(root, "prechange.json"), manifest, exclusive=True)
     return {"root": root, "packages": rows}
 
@@ -133,6 +146,19 @@ def _actors() -> list[Any]:
     return list(unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors())
 
 
+def _part_tag(part: str) -> str:
+    return "P75_PART_" + part.upper()
+
+
+def _actor_tags(actor: Any) -> set[str]:
+    return {str(tag) for tag in actor.get_editor_property("tags")}
+
+
+def _tag(actor: Any, part: str, role: str) -> None:
+    actor.set_editor_property("tags", [unreal.Name(OWNER_TAG), unreal.Name(_part_tag(part)),
+                                       unreal.Name("P75_ROLE_" + role)])
+
+
 def _find_actor(label: str) -> Any:
     hits = [actor for actor in _actors() if str(actor.get_actor_label()) == label]
     require(len(hits) == 1, "ACTOR_COUNT|%s|%d" % (label, len(hits)))
@@ -141,29 +167,39 @@ def _find_actor(label: str) -> Any:
 
 def _passage6() -> Any:
     actor = _find_actor(PASSAGE_LABEL)
-    route = actor.get_editor_property("route")
-    require(route is not None, "P06_ROUTE_MISSING")
+    require(actor.get_editor_property("route") is not None, "P06_ROUTE_MISSING")
     return actor
 
 
-def _route_transform(plan: dict[str, Any]) -> Any:
+def _body_transform(plan: dict[str, Any], part: str) -> Any:
+    row = plan["parts"][part]
+    if part == "opening":
+        return unreal.Transform(unreal.Vector(*row["body_location_cm"]),
+                                unreal.Rotator(*row["body_rotation_deg"]), unreal.Vector(1.0, 1.0, 1.0))
     route = _passage6().get_editor_property("route")
     transform = route.get_transform_at_distance_along_spline(
-        plan["p06"]["hang_station_cm"], unreal.SplineCoordinateSpace.WORLD, True)
+        row["hang_station_cm"], unreal.SplineCoordinateSpace.WORLD, True)
     location = transform.translation
     across = transform.rotation.rotate_vector(unreal.Vector(0.0, 1.0, 0.0))
-    location = location + across * plan["p06"]["lateral_cm"] + unreal.Vector(0.0, 0.0, plan["p06"]["hang_z_cm"])
+    location = location + across * row["lateral_cm"] + unreal.Vector(0.0, 0.0, row["body_z_cm"])
     return unreal.Transform(location, transform.rotation.rotator(), unreal.Vector(1.0, 1.0, 1.0))
 
 
-def _load_assets(args: dict[str, Any]) -> dict[str, Any]:
-    paths = {"body_mesh": args["body_mesh"], "chain_mesh": args["chain_mesh"],
-             "candle_blueprint": args["candle_blueprint"],
-             "opening_sequence": args.get("opening_sequence", OPENING_SEQUENCE),
-             "p06_sequence": args.get("p06_sequence", P06_SEQUENCE)}
+def _load_assets(args: dict[str, Any], parts: list[str]) -> dict[str, Any]:
+    paths = {"body_mesh": args["body_mesh"], "material": args["material"]}
+    paths.update({"chain_%02d" % index: path for index, path in enumerate(args["chain_meshes"])})
+    if "opening" in parts:
+        paths["opening_sequence"] = args.get("opening_sequence", OPENING_SEQUENCE)
     loaded = {key: unreal.load_asset(path) for key, path in paths.items()}
     for key, value in loaded.items():
         require(value is not None, "ASSET_MISSING|%s|%s" % (key, paths[key]))
+    sockets = list(loaded["body_mesh"].get_editor_property("sockets"))
+    names = [str(socket.get_editor_property("socket_name")) for socket in sockets]
+    candles = sorted(name for name in names if name.startswith("Candle_"))
+    require(candles == ["Candle_%02d" % index for index in range(1, 45)], "SOCKET_COUNT_44_REQUIRED")
+    require("ChainAttach" in names, "CHAIN_ATTACH_SOCKET_REQUIRED")
+    require(not any(name.startswith("SOCKET_Candle_") for name in names), "UNSTRIPPED_SOCKET_PREFIX")
+    loaded["verified_socket_names"] = candles + ["ChainAttach"]
     return loaded
 
 
@@ -174,39 +210,105 @@ def _component_state(component: Any) -> dict[str, Any]:
 
 
 def _actor_state(actor: Any) -> dict[str, Any]:
-    location = actor.get_actor_location()
-    rotation = actor.get_actor_rotation()
+    location, rotation = actor.get_actor_location(), actor.get_actor_rotation()
     meshes = list(actor.get_components_by_class(unreal.StaticMeshComponent))
     lights = list(actor.get_components_by_class(unreal.LightComponent))
-    return {"label": str(actor.get_actor_label()),
-            "tags": sorted(str(tag) for tag in actor.get_editor_property("tags")),
+    return {"label": str(actor.get_actor_label()), "tags": sorted(_actor_tags(actor)),
             "location_cm": [float(location.x), float(location.y), float(location.z)],
             "rotation_deg": [float(rotation.roll), float(rotation.pitch), float(rotation.yaw)],
             "mesh": _asset_id(meshes[0].get_editor_property("static_mesh")) if meshes else None,
+            "materials": [_asset_id(value) for value in meshes[0].get_materials()] if meshes else [],
             "mesh_flags": _component_state(meshes[0]) if meshes else None,
             "light": ({"intensity": float(lights[0].get_editor_property("intensity")),
                        "cast_shadows": bool(lights[0].get_editor_property("cast_shadows"))}
                       if lights else None)}
 
 
-def _owned_states() -> list[dict[str, Any]]:
+def _part_owned_states(part: str) -> list[dict[str, Any]]:
     rows = [_actor_state(actor) for actor in _actors()
-            if OWNER_TAG in {str(tag) for tag in actor.get_editor_property("tags")}]
+            if OWNER_TAG in _actor_tags(actor) and _part_tag(part) in _actor_tags(actor)]
     return sorted(rows, key=lambda row: row["label"])
 
 
-def _tag(actor: Any, role: str) -> None:
-    actor.set_editor_property("tags", [unreal.Name(OWNER_TAG), unreal.Name("P75_ROLE_" + role)])
+def _actor_states_match(recorded: list[dict[str, Any]], live: list[dict[str, Any]]) -> bool:
+    """Compare saved actor state with the project's float read-back tolerances."""
+    if len(recorded) != len(live):
+        return False
+    for before, after in zip(recorded, live):
+        for key in ("label", "tags", "mesh", "materials", "mesh_flags"):
+            if before.get(key) != after.get(key):
+                return False
+        if any(abs(float(a) - float(b)) > 0.01
+               for a, b in zip(before["location_cm"], after["location_cm"])):
+            return False
+        if any(abs(float(a) - float(b)) > 0.001
+               for a, b in zip(before["rotation_deg"], after["rotation_deg"])):
+            return False
+        if (before.get("light") is None) != (after.get("light") is None):
+            return False
+        if before.get("light"):
+            if before["light"]["cast_shadows"] != after["light"]["cast_shadows"]:
+                return False
+            if abs(float(before["light"]["intensity"]) - float(after["light"]["intensity"])) > 0.001:
+                return False
+    return True
 
 
-def _spawn_mesh(label: str, mesh: Any, transform: Any, hidden: bool, hidden_shadow: bool, role: str) -> Any:
+def _nested_matches(recorded: Any, live: Any, tolerance: float = 1.0e-4) -> bool:
+    if isinstance(recorded, (int, float)) and isinstance(live, (int, float)):
+        return abs(float(recorded) - float(live)) <= tolerance
+    if type(recorded) is not type(live):
+        return False
+    if isinstance(recorded, dict):
+        return set(recorded) == set(live) and all(
+            _nested_matches(recorded[key], live[key], tolerance) for key in recorded)
+    if isinstance(recorded, list):
+        return len(recorded) == len(live) and all(
+            _nested_matches(a, b, tolerance) for a, b in zip(recorded, live))
+    return recorded == live
+
+
+def _live_light_rows() -> list[dict[str, Any]]:
+    rows = []
+    for actor in _actors():
+        if OWNER_TAG not in _actor_tags(actor):
+            continue
+        lights = list(actor.get_components_by_class(unreal.LightComponent))
+        for component in lights:
+            rows.append({"label": str(actor.get_actor_label()),
+                         "cast_shadows": bool(component.get_editor_property("cast_shadows"))})
+    return rows
+
+
+def _verify_part_readback(plan: dict[str, Any], part: str, rows: list[dict[str, Any]]) -> None:
+    labels = plan["instance_actor_labels"][part]
+    by_label = {row["label"]: row for row in rows}
+    require(len(by_label) == len(rows), "READBACK_LABEL_DUPLICATE")
+    body = by_label.get(labels["body_actor_label"])
+    require(body is not None and body["mesh"] == plan["assets"]["body_mesh"], "READBACK_BODY_MESH")
+    require(plan["assets"]["material"] in body["materials"], "READBACK_BODY_MATERIAL")
+    for index, label in enumerate(labels["link_actor_labels"]):
+        link = by_label.get(label)
+        require(link is not None and link["mesh"] == plan["assets"]["chain_meshes"][index],
+                "READBACK_CHAIN_MESH_%02d" % index)
+        require(plan["assets"]["material"] in link["materials"], "READBACK_CHAIN_MATERIAL_%02d" % index)
+    light_rows = [row for row in rows if row["light"] is not None]
+    require(len(light_rows) == len(plan["parts"][part]["lights"]), "READBACK_PART_LIGHT_COUNT")
+    require(sum(row["light"]["cast_shadows"] for row in light_rows) ==
+            sum(row["cast_shadows"] for row in plan["parts"][part]["lights"]),
+            "READBACK_PART_SHADOW_COUNT")
+
+
+def _spawn_mesh(label: str, mesh: Any, material: Any, transform: Any, hidden: bool,
+                hidden_shadow: bool, part: str, role: str) -> Any:
     subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     actor = subsystem.spawn_actor_from_class(unreal.StaticMeshActor, transform.translation, transform.rotation.rotator())
     require(actor is not None, "SPAWN_MESH|" + label)
     actor.set_actor_label(label, mark_dirty=True)
-    _tag(actor, role)
+    _tag(actor, part, role)
     component = actor.get_editor_property("static_mesh_component")
     component.set_editor_property("static_mesh", mesh)
+    component.set_material(0, material)
     component.set_editor_property("hidden_in_game", hidden)
     component.set_editor_property("cast_shadow", True)
     component.set_editor_property("cast_hidden_shadow", hidden_shadow)
@@ -215,123 +317,125 @@ def _spawn_mesh(label: str, mesh: Any, transform: Any, hidden: bool, hidden_shad
     return actor
 
 
-def _spawn_spot(label: str, plan: dict[str, Any]) -> Any:
-    subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
-    row = plan["opening"]["drive_by"]
+def _spawn_assembly(plan: dict[str, Any], assets: dict[str, Any], part: str) -> tuple[Any, list[Any]]:
+    row, labels = plan["parts"][part], plan["instance_actor_labels"][part]
+    body_transform = _body_transform(plan, part)
+    body = _spawn_mesh(labels["body_actor_label"], assets["body_mesh"], assets["material"], body_transform,
+                       row["hidden_in_game"], row["cast_hidden_shadow"], part, "BODY")
+    component = body.get_editor_property("static_mesh_component")
+    socket_transform = component.get_socket_transform(unreal.Name("ChainAttach"),
+                                                       unreal.RelativeTransformSpace.RTS_WORLD)
+    rotation = body.get_actor_rotation()
+    attach_offset = rotation.rotate_vector(unreal.Vector(*plan["chain"]["body"]["attach_cm"]))
+    top = socket_transform.translation - attach_offset
+    links = []
+    for link in plan["chain"]["links"]:
+        index = link["index"]
+        location = top + rotation.rotate_vector(unreal.Vector(*link["pivot_cm"]))
+        transform = unreal.Transform(location, rotation, unreal.Vector(1.0, 1.0, 1.0))
+        links.append(_spawn_mesh(labels["link_actor_labels"][index], assets["chain_%02d" % index],
+                                 assets["material"], transform, row["hidden_in_game"],
+                                 row["cast_hidden_shadow"], part, "CHAIN_LINK_%02d" % index))
+    require(len(links) == 24, "CHAIN_ASSEMBLY_COUNT_24")
+    return body, links
+
+
+def _spawn_spot(plan: dict[str, Any]) -> Any:
+    row = plan["parts"]["opening"]["drive_by"]
     location = unreal.Vector(*plan["args"]["drive_by_light_location_cm"])
-    actor = subsystem.spawn_actor_from_class(unreal.SpotLight, location, unreal.Rotator())
+    actor = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).spawn_actor_from_class(
+        unreal.SpotLight, location, unreal.Rotator())
     require(actor is not None, "SPAWN_DRIVE_BY")
-    actor.set_actor_label(label, mark_dirty=True)
-    _tag(actor, "OPENING_DRIVE_BY")
+    actor.set_actor_label("P75 Opening Drive-By", mark_dirty=True)
+    _tag(actor, "opening", "DRIVE_BY")
     component = actor.get_editor_property("spot_light_component")
     component.set_editor_property("intensity", 0.0)
     component.set_editor_property("outer_cone_angle", row["outer_cone_deg"])
     component.set_editor_property("soft_source_radius", row["soft_source_radius_cm"])
     component.set_editor_property("cast_shadows", True)
     component.set_light_color(unreal.LinearColor(*row["color_linear"], 1.0), True)
-    actor.set_actor_rotation(unreal.MathLibrary.find_look_at_rotation(location, unreal.Vector(*row["target_start_cm"])), False)
+    actor.set_actor_rotation(unreal.MathLibrary.find_look_at_rotation(
+        location, unreal.Vector(*row["target_start_cm"])), False)
     return actor
 
 
-def _spawn_point(label: str, parent: Any, index: int, plan: dict[str, Any]) -> Any:
-    subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
-    actor = subsystem.spawn_actor_from_class(unreal.PointLight, parent.get_actor_location(), unreal.Rotator())
-    require(actor is not None, "SPAWN_POINT|" + label)
-    actor.set_actor_label(label, mark_dirty=True)
-    _tag(actor, "GROUP_LIGHT_%02d" % index)
-    angle = math.tau * index / max(1, plan["lights"]["grouped_count"])
-    actor.attach_to_actor(parent, unreal.Name(), unreal.AttachmentRule.KEEP_WORLD,
-                          unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, False)
-    actor.set_actor_relative_location(unreal.Vector(85.0 * math.cos(angle), 85.0 * math.sin(angle), -15.0), False, False)
-    component = actor.get_editor_property("point_light_component")
-    component.set_editor_property("intensity", plan["lights"]["intensity_cd"])
-    component.set_editor_property("attenuation_radius", plan["lights"]["attenuation_cm"])
-    component.set_editor_property("cast_shadows", index < plan["lights"]["shadow_casters"])
-    return actor
+def _spawn_group_lights(plan: dict[str, Any], part: str, body: Any) -> list[Any]:
+    rows = [row for row in plan["parts"][part]["lights"] if row["kind"] == "point"]
+    actors = []
+    for index, row in enumerate(rows):
+        actor = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).spawn_actor_from_class(
+            unreal.PointLight, body.get_actor_location(), unreal.Rotator())
+        require(actor is not None, "SPAWN_POINT|" + row["label"])
+        actor.set_actor_label(row["label"], mark_dirty=True)
+        _tag(actor, part, "GROUP_LIGHT_%02d" % (index + 1))
+        angle = math.tau * index / max(1, len(rows))
+        actor.attach_to_actor(body, unreal.Name(), unreal.AttachmentRule.KEEP_WORLD,
+                              unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, False)
+        actor.set_actor_relative_location(unreal.Vector(85.0 * math.cos(angle),
+                                                        85.0 * math.sin(angle), -15.0), False, False)
+        component = actor.get_editor_property("point_light_component")
+        intensity = plan["args"]["grouped_light_intensity_cd"] if row["enabled_default"] else 0.0
+        component.set_editor_property("intensity", intensity)
+        component.set_editor_property("attenuation_radius", plan["args"]["grouped_light_attenuation_cm"])
+        component.set_editor_property("cast_shadows", row["cast_shadows"])
+        actors.append(actor)
+    return actors
 
 
-def _socket_name(component: Any, index: int) -> str:
-    candidates = ("Candle_%02d" % index, "SOCKET_Candle_%02d" % index)
-    hits = [name for name in candidates if component.does_socket_exist(unreal.Name(name))]
-    require(len(hits) == 1, "SOCKET_LOOKUP|%02d|%s" % (index, hits))
-    return hits[0]
+def _bindings_for(sequence: Any, obj: Any, world: Any) -> list[Any]:
+    target = _object_path(obj)
+    hits = []
+    for binding in sequence.get_bindings():
+        try:
+            if any(_object_path(value) == target for value in sequence.locate_bound_objects(binding, world)):
+                hits.append(binding)
+        except Exception:
+            pass
+    return hits
 
 
-def _spawn_candles(parent: Any, candle_class: Any, prefix: str, count: int) -> list[Any]:
-    mesh_component = parent.get_editor_property("static_mesh_component")
-    subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
-    rows = []
-    for index in range(1, count + 1):
-        socket = _socket_name(mesh_component, index)
-        actor = subsystem.spawn_actor_from_class(candle_class, parent.get_actor_location(), unreal.Rotator())
-        require(actor is not None, "SPAWN_CANDLE|" + socket)
-        actor.set_actor_label("P75_%s_Candle_%02d" % (prefix, index), mark_dirty=True)
-        _tag(actor, "%s_CANDLE_%02d" % (prefix, index))
-        require(actor.attach_to_component(mesh_component, unreal.Name(socket),
-                                          unreal.AttachmentRule.SNAP_TO_TARGET,
-                                          unreal.AttachmentRule.SNAP_TO_TARGET,
-                                          unreal.AttachmentRule.KEEP_RELATIVE, False), "ATTACH_CANDLE|" + socket)
-        rows.append(actor)
-    return rows
-
-
-def _binding_for(sequence: Any, actor: Any, label_override: str | None = None) -> tuple[Any, bool]:
-    label = label_override or (str(actor.get_actor_label()) if hasattr(actor, "get_actor_label")
-                               else TRACK_PREFIX + " Component " + str(actor.get_name()))
-    hits = [binding for binding in sequence.get_bindings() if str(binding.get_display_name()) == label]
-    require(len(hits) <= 1, "DUPLICATE_BINDING|" + label)
+def _binding_for(sequence: Any, obj: Any, world: Any, label: str) -> tuple[Any, bool]:
+    hits = _bindings_for(sequence, obj, world)
+    require(len(hits) <= 1, "TARGET_BINDING_COUNT|%s|%d" % (label, len(hits)))
     if hits:
         return hits[0], False
-    binding = sequence.add_possessable(actor)
+    binding = sequence.add_possessable(obj)
     require(binding is not None, "ADD_POSSESSABLE|" + label)
     binding.set_display_name(label)
     return binding, True
 
 
-def _owned_tracks(binding: Any) -> list[Any]:
+def _track_prefix(part: str) -> str:
+    return "P75 Chandelier %s [OWNED]" % part.title()
+
+
+def _owned_tracks(binding: Any, part: str) -> list[Any]:
     return [track for track in binding.get_tracks()
-            if str(track.get_display_name()).startswith(TRACK_PREFIX)]
+            if str(track.get_display_name()).startswith(_track_prefix(part))]
 
 
-def _visibility_track(sequence: Any, actor: Any, keys: list[tuple[float, bool]], duration_s: float,
-                      role: str) -> dict[str, Any]:
-    binding, created = _binding_for(sequence, actor)
-    require(not _owned_tracks(binding), "OWNED_TRACK_EXISTS|" + str(actor.get_actor_label()))
-    track = binding.add_track(unreal.MovieSceneVisibilityTrack)
-    track.set_property_name_and_path("bHidden", "bHidden")
-    track.set_display_name("%s %s Visibility" % (TRACK_PREFIX, role))
-    section = track.add_section()
-    section.set_range_seconds(0.0, duration_s)
-    channels = list(section.get_channels())
-    require(len(channels) == 1, "VISIBILITY_CHANNEL_COUNT")
-    for seconds, visible in keys:
-        channels[0].add_key(unreal.FrameNumber(round(seconds * 25.0)), bool(visible))
-    return {"actor": str(actor.get_actor_label()), "role": role, "binding_created": created,
-            "property": ["bHidden", "bHidden"], "visible_keys": keys}
-
-
-def _float_track(sequence: Any, component: Any, property_name: str, keys: list[tuple[float, float]],
-                 duration_s: float, role: str) -> dict[str, Any]:
-    binding, created = _binding_for(sequence, component, TRACK_PREFIX + " Component " + role)
-    require(not _owned_tracks(binding), "OWNED_COMPONENT_TRACK_EXISTS|" + role)
+def _float_track(sequence: Any, component: Any, world: Any, keys: list[tuple[float, float]],
+                 duration_s: float) -> dict[str, Any]:
+    binding, created = _binding_for(sequence, component, world, "P75 Opening Drive-By Component")
+    require(not _owned_tracks(binding, "opening"), "OWNED_COMPONENT_TRACK_EXISTS")
     track = binding.add_track(unreal.MovieSceneFloatTrack)
-    track.set_property_name_and_path(property_name, property_name)
-    track.set_display_name("%s %s" % (TRACK_PREFIX, role))
+    track.set_property_name_and_path("Intensity", "Intensity")
+    track.set_display_name(_track_prefix("opening") + " DriveBy Intensity")
     section = track.add_section()
     section.set_range_seconds(0.0, duration_s)
     channels = list(section.get_channels())
-    require(len(channels) == 1, "FLOAT_CHANNEL_COUNT|" + role)
+    require(len(channels) == 1, "FLOAT_CHANNEL_COUNT")
     for seconds, value in keys:
         channels[0].add_key(unreal.FrameNumber(round(seconds * 25.0)), float(value))
-    return {"role": role, "binding_created": created, "keys": keys}
+    return {"binding_created": created, "keys": keys}
 
 
-def _rotation_track(sequence: Any, actor: Any, timed_rotations: list[tuple[float, Any]],
-                    duration_s: float, role: str) -> dict[str, Any]:
-    binding, created = _binding_for(sequence, actor)
-    require(not _owned_tracks(binding), "OWNED_ROTATION_TRACK_EXISTS|" + role)
+def _rotation_track(sequence: Any, actor: Any, world: Any, timed_rotations: list[tuple[float, Any]],
+                    duration_s: float) -> dict[str, Any]:
+    binding, created = _binding_for(sequence, actor, world, str(actor.get_actor_label()))
+    require(not _owned_tracks(binding, "opening"), "OWNED_ROTATION_TRACK_EXISTS")
     track = binding.add_track(unreal.MovieScene3DTransformTrack)
-    track.set_display_name("%s %s Arc Rotation" % (TRACK_PREFIX, role))
+    track.set_display_name(_track_prefix("opening") + " DriveBy Arc Rotation")
     section = track.add_section()
     section.set_range_seconds(0.0, duration_s)
     channels = {str(channel.get_name()).lower(): channel for channel in section.get_channels()}
@@ -341,9 +445,9 @@ def _rotation_track(sequence: Any, actor: Any, timed_rotations: list[tuple[float
         require(len(hits) == 1, "ROTATION_CHANNEL|%s|%s" % (needles, sorted(channels)))
         return hits[0]
 
-    roll_channel = pick("rotation.x", "roll")
-    pitch_channel = pick("rotation.y", "pitch")
-    yaw_channel = pick("rotation.z", "yaw")
+    roll_channel, pitch_channel, yaw_channel = (pick("rotation.x", "roll"),
+                                                  pick("rotation.y", "pitch"),
+                                                  pick("rotation.z", "yaw"))
     rows = []
     for seconds, rotation in timed_rotations:
         frame = unreal.FrameNumber(round(seconds * 25.0))
@@ -351,19 +455,53 @@ def _rotation_track(sequence: Any, actor: Any, timed_rotations: list[tuple[float
         pitch_channel.add_key(frame, float(rotation.pitch))
         yaw_channel.add_key(frame, float(rotation.yaw))
         rows.append([seconds, float(rotation.roll), float(rotation.pitch), float(rotation.yaw)])
-    return {"role": role, "binding_created": created, "rotation_keys": rows}
+    return {"binding_created": created, "rotation_keys": rows}
 
 
-def _track_state(sequence: Any) -> list[dict[str, Any]]:
+def _key_value(key: Any) -> Any:
+    value = key.get_value()
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return bool(value) if isinstance(value, bool) else str(value)
+
+
+def _track_state(sequence: Any, part: str) -> list[dict[str, Any]]:
     rows = []
     for binding in sequence.get_bindings():
         for track in binding.get_tracks():
             name = str(track.get_display_name())
-            if name.startswith(TRACK_PREFIX):
-                rows.append({"binding": str(binding.get_display_name()), "track": name,
-                             "class": track.get_class().get_name(),
-                             "sections": len(track.get_sections())})
+            if not name.startswith(_track_prefix(part)):
+                continue
+            sections = []
+            for section in track.get_sections():
+                channels = []
+                for channel in section.get_channels():
+                    keys = [[int(key.get_time().frame_number.value), _key_value(key)] for key in channel.get_keys()]
+                    channels.append({"name": str(channel.get_name()), "keys": keys})
+                sections.append(channels)
+            rows.append({"binding": str(binding.get_display_name()), "track": name,
+                         "class": track.get_class().get_name(), "sections": sections})
     return sorted(rows, key=lambda row: (row["binding"], row["track"]))
+
+
+def _remove_owned_tracks(sequence: Any, part: str) -> int:
+    removed = 0
+    for binding in sequence.get_bindings():
+        for track in list(binding.get_tracks()):
+            if str(track.get_display_name()).startswith(_track_prefix(part)):
+                binding.remove_track(track)
+                removed += 1
+    return removed
+
+
+def _packages(part: str, args: dict[str, Any]) -> list[str]:
+    return [WORLD, args.get("opening_sequence", OPENING_SEQUENCE)] if part == "opening" else [WORLD]
+
+
+def _expected_dirty(part: str, args: dict[str, Any]) -> dict[str, list[str]]:
+    content = [args.get("opening_sequence", OPENING_SEQUENCE)] if part == "opening" else []
+    return {"content": content, "maps": [WORLD]}
 
 
 def _save_named(packages: Iterable[str]) -> None:
@@ -378,156 +516,132 @@ def _save_named(packages: Iterable[str]) -> None:
     _require_clean("POST_SAVE")
 
 
-def _remove_owned_tracks(sequence: Any) -> int:
-    removed = 0
-    for binding in sequence.get_bindings():
-        for track in list(binding.get_tracks()):
-            if str(track.get_display_name()).startswith(TRACK_PREFIX):
-                binding.remove_track(track)
-                removed += 1
-    return removed
+def _apply_opening_tracks(plan: dict[str, Any], sequence: Any, drive_by: Any, world: Any) -> list[dict[str, Any]]:
+    row = plan["parts"]["opening"]["drive_by"]
+    intensity = [(row["start_s"], 0.0), (row["peak_s"], row["peak_intensity_cd"]), (row["end_s"], 0.0)]
+    written = [_float_track(sequence, drive_by.get_editor_property("spot_light_component"), world,
+                            intensity, plan["args"]["opening_duration_s"])]
+    location = unreal.Vector(*plan["args"]["drive_by_light_location_cm"])
+    start, end = unreal.Vector(*row["target_start_cm"]), unreal.Vector(*row["target_end_cm"])
+    middle = (start + end) * 0.5
+    written.append(_rotation_track(sequence, drive_by, world,
+        [(row["start_s"], unreal.MathLibrary.find_look_at_rotation(location, start)),
+         (row["peak_s"], unreal.MathLibrary.find_look_at_rotation(location, middle)),
+         (row["end_s"], unreal.MathLibrary.find_look_at_rotation(location, end))],
+        plan["args"]["opening_duration_s"]))
+    return written
 
 
 def run(raw: dict[str, Any]) -> dict[str, Any]:
     run_id = _run_id()
-    plan = CORE.build_plan(raw)
-    args = plan["args"]
-    _guard()
+    validated = CORE.validate_args(raw)
+    _guard_result, world = _guard()
     dirty_before = _require_clean("PRE")
-    assets = _load_assets(raw)
-    packages = [WORLD, args.get("opening_sequence", OPENING_SEQUENCE), args.get("p06_sequence", P06_SEQUENCE)]
-    existing = _owned_states()
-    dry = {"ok": True, "run": run_id, "mode": args["mode"], "plan": plan,
-           "packages": packages, "existing_owned": existing, "dirty_before": dirty_before,
-           "live_checks": {"assets": sorted(assets), "world": WORLD,
-                           "p06_route": _asset_id(_passage6())}}
+    chain_path = _chain_path(validated)
+    chain_raw = _read(chain_path)
+    plan = CORE.build_plan(raw, chain_raw)
+    args, parts = plan["args"], plan["selected_parts"]
+    assets = _load_assets(args, parts)
+    existing_global = _live_light_rows()
+    missing_parts = [part for part in parts if not _part_owned_states(part)]
+    candidate = [row for part in missing_parts for row in plan["parts"][part]["lights"]]
+    live_global_budget = CORE.validate_global_light_guard(existing_global + candidate)
+
     if args["mode"] == "DRY":
         require(_census() == dirty_before, "DRY_CHANGED_CENSUS")
+        result = {"ok": True, "run": run_id, "mode": "DRY", "plan": plan,
+                  "chain_json": chain_path, "verified_socket_names": assets["verified_socket_names"],
+                  "existing_owned": {part: _part_owned_states(part) for part in CORE.PARTS},
+                  "live_global_budget_with_candidates": live_global_budget,
+                  "dirty_before": dirty_before}
         path = os.path.join(HERE, "chandelier_staging_DRY_%s.json" % run_id)
-        _write(path, dry)
-        unreal.log("%s_DRY_OK|run=%s|plan=%s|opening_shadow=%.2f-%.2f|candles=44|lights=%d|casters=%d|p06_station=%.1f|topple_clearance=%.1f|dirty=0+0|mutated=0" %
-                   (MARK, run_id, plan["plan_sha256"], plan["opening"]["drive_by"]["start_s"],
-                    plan["opening"]["drive_by"]["end_s"], plan["lights"]["grouped_count"],
-                    plan["lights"]["shadow_casters"], plan["p06"]["hang_station_cm"],
-                    plan["p06"]["clearances_cm"]["nearest_topple_row"]))
-        return dry
-
-    if args["mode"] == "APPLY":
-        require(not os.path.exists(ACTIVE_RECORD), "ACTIVE_RECORD_EXISTS")
-        require(not existing, "OWNED_ACTORS_EXIST")
-        backup = _backup(run_id, packages, "Before P75 body, chain, light, candle and sequence staging.")
-        record = {"schema": "p75_chandelier_active_v1", "status": "prepared", "run": run_id,
-                  "plan": plan, "packages": packages, "backup": backup, "dirty_before": dirty_before}
-        _write(ACTIVE_RECORD, record, exclusive=True)  # disk record before the first Unreal mutation
-        opening_transform = unreal.Transform(unreal.Vector(*plan["opening"]["body"]["location_cm"]),
-                                             unreal.Rotator(*plan["opening"]["body"]["rotation_deg"]),
-                                             unreal.Vector(1.0, 1.0, 1.0))
-        opening_body = _spawn_mesh("P75 Opening Chandelier", assets["body_mesh"], opening_transform, True, True, "OPENING_BODY")
-        opening_chain = _spawn_mesh("P75 Opening Chandelier Chain", assets["chain_mesh"], opening_transform, True, True, "OPENING_CHAIN")
-        p06_transform = _route_transform(plan)
-        p06_body = _spawn_mesh("P75 P06 Chandelier", assets["body_mesh"], p06_transform, False, False, "P06_BODY")
-        p06_chain = _spawn_mesh("P75 P06 Chandelier Chain", assets["chain_mesh"], p06_transform, False, False, "P06_CHAIN")
-        candle_class = assets["candle_blueprint"].generated_class()
-        require(candle_class is not None, "CANDLE_CLASS")
-        opening_candles = _spawn_candles(opening_body, candle_class, "Opening", 44)
-        p06_candles = _spawn_candles(p06_body, candle_class, "P06", 44)
-        drive_by = _spawn_spot("P75 Opening Drive-By", plan)
-        group_lights = [_spawn_point("P75 Opening Candle Group %02d" % (index + 1), opening_body, index, plan)
-                        for index in range(plan["lights"]["grouped_count"])]
-        p06_group_lights = [_spawn_point("P75 P06 Candle Group %02d" % (index + 1), p06_body, index, plan)
-                            for index in range(plan["lights"]["grouped_count"])]
-        opening_tracks = []
-        intensity_keys = [(plan["opening"]["drive_by"]["start_s"], 0.0),
-                          (plan["opening"]["drive_by"]["peak_s"], plan["opening"]["drive_by"]["peak_intensity_cd"]),
-                          (plan["opening"]["drive_by"]["end_s"], 0.0)]
-        opening_tracks.append(_float_track(assets["opening_sequence"], drive_by.get_editor_property("spot_light_component"),
-                                           "Intensity", intensity_keys, plan["opening"]["duration_s"], "DriveBy Intensity"))
-        drive_location = unreal.Vector(*plan["args"]["drive_by_light_location_cm"])
-        target_start = unreal.Vector(*plan["opening"]["drive_by"]["target_start_cm"])
-        target_end = unreal.Vector(*plan["opening"]["drive_by"]["target_end_cm"])
-        target_mid = (target_start + target_end) * 0.5
-        opening_tracks.append(_rotation_track(
-            assets["opening_sequence"], drive_by,
-            [(plan["opening"]["drive_by"]["start_s"], unreal.MathLibrary.find_look_at_rotation(drive_location, target_start)),
-             (plan["opening"]["drive_by"]["peak_s"], unreal.MathLibrary.find_look_at_rotation(drive_location, target_mid)),
-             (plan["opening"]["drive_by"]["end_s"], unreal.MathLibrary.find_look_at_rotation(drive_location, target_end))],
-            plan["opening"]["duration_s"], "DriveBy"))
-        opening_light_keys = [(0.0, 0.0), (plan["opening"]["candles"][0]["time_s"], 0.0)]
-        opening_light_keys.extend((time_s, scale * plan["lights"]["intensity_cd"])
-                                  for time_s, scale in plan["lights"]["opening_flicker_scale_keys"])
-        for index, light in enumerate(group_lights, 1):
-            opening_tracks.append(_float_track(assets["opening_sequence"], light.get_editor_property("point_light_component"),
-                                               "Intensity", opening_light_keys, plan["opening"]["duration_s"],
-                                               "Opening Group %02d Intensity" % index))
-        candle_by_socket = {int(str(actor.get_actor_label())[-2:]): actor for actor in opening_candles}
-        for row in plan["opening"]["candles"]:
-            index = int(row["socket"].split("_")[-1])
-            opening_tracks.append(_visibility_track(assets["opening_sequence"], candle_by_socket[index],
-                                                     [(0.0, False), (row["time_s"], True)],
-                                                     plan["opening"]["duration_s"], "Opening Candle %02d" % index))
-        p06_tracks = []
-        for actor, role in ((p06_body, "P06 Body"), (p06_chain, "P06 Chain")):
-            p06_tracks.append(_visibility_track(assets["p06_sequence"], actor,
-                                                [(0.0, False), (plan["p06"]["visible_start_s"], True)],
-                                                plan["p06"]["duration_s"], role))
-        for index, actor in enumerate(p06_candles, 1):
-            p06_tracks.append(_visibility_track(assets["p06_sequence"], actor,
-                                                [(0.0, False), (plan["p06"]["candle_start_s"], True)],
-                                                plan["p06"]["duration_s"], "P06 Candle %02d" % index))
-        p06_light_keys = [(0.0, 0.0), (plan["p06"]["candle_start_s"], 0.0)]
-        p06_light_keys.extend((time_s, scale * plan["lights"]["intensity_cd"])
-                              for time_s, scale in plan["lights"]["p06_flicker_scale_keys_0_30"])
-        for index, light in enumerate(p06_group_lights, 1):
-            p06_tracks.append(_float_track(assets["p06_sequence"], light.get_editor_property("point_light_component"),
-                                           "Intensity", p06_light_keys, plan["p06"]["duration_s"],
-                                           "P06 Group %02d Intensity" % index))
-        expected_content = sorted([packages[1], packages[2]])
-        require(_census() == {"content": expected_content, "maps": [WORLD]},
-                "APPLY_DIRTY_SCOPE|" + json.dumps(_census(), sort_keys=True))
-        _save_named(packages)
-        readback = {"actors": _owned_states(), "opening_tracks": _track_state(assets["opening_sequence"]),
-                    "p06_tracks": _track_state(assets["p06_sequence"])}
-        require(len(readback["actors"]) == 4 + 44 + 44 + 1 + len(group_lights) + len(p06_group_lights),
-                "READBACK_ACTOR_COUNT")
-        CORE.verify_hidden_shadow(_actor_state(opening_body)["mesh_flags"], _actor_state(opening_chain)["mesh_flags"])
-        record.update({"status": "applied", "readback": readback, "opening_tracks_written": opening_tracks,
-                       "p06_tracks_written": p06_tracks})
-        _write(ACTIVE_RECORD, record)
-        result = {"ok": True, "mode": "APPLY", "run": run_id, "plan_sha256": plan["plan_sha256"],
-                  "backup": backup, "readback": readback, "dirty_after": _census()}
-        _write(REPORT_PATH, result)
-        unreal.log("%s_APPLY_OK|run=%s|actors=%d|opening_tracks=%d|p06_tracks=%d|saved=3|readback=1|dirty=0+0" %
-                   (MARK, run_id, len(readback["actors"]), len(readback["opening_tracks"]), len(readback["p06_tracks"])))
+        _write(path, result)
+        hashes = ",".join("%s:%s" % (part, plan["parts"][part]["plan_sha256"]) for part in parts)
+        unreal.log("%s_DRY_OK|run=%s|parts=%s|plans=%s|global_lights=%d|global_casters=%d|links=24|flames=0|swing_keys=0|dirty=0+0|mutated=0" %
+                   (MARK, run_id, ",".join(parts), hashes, live_global_budget["lights"],
+                    live_global_budget["shadow_casters"]))
         return result
 
-    require(os.path.isfile(ACTIVE_RECORD), "ACTIVE_RECORD_MISSING")
-    record = _read(ACTIVE_RECORD)
-    require(record.get("status") == "applied", "ACTIVE_RECORD_STATUS")
-    require(_owned_states() == record["readback"]["actors"], "REVERT_ACTOR_DRIFT")
-    require(_track_state(assets["opening_sequence"]) == record["readback"]["opening_tracks"], "REVERT_OPENING_TRACK_DRIFT")
-    require(_track_state(assets["p06_sequence"]) == record["readback"]["p06_tracks"], "REVERT_P06_TRACK_DRIFT")
-    backup = _backup(run_id, packages, "Immediately before P75 tagged actor and owned track revert.")
-    removed_tracks = _remove_owned_tracks(assets["opening_sequence"]) + _remove_owned_tracks(assets["p06_sequence"])
+    part = parts[0]
+    record_path = _active_record(part)
+    packages = _packages(part, args)
+    sequence = assets.get("opening_sequence")
+    if args["mode"] == "APPLY":
+        require(not os.path.exists(record_path), "ACTIVE_RECORD_EXISTS|" + part)
+        require(not _part_owned_states(part), "OWNED_ACTORS_EXIST|" + part)
+        backup = _backup(run_id, part, packages, "Before P75 %s body, 24 chain links, lights and owned drive-by tracks." % part)
+        record = {"schema": "p75_chandelier_part_active_v2", "status": "prepared", "part": part,
+                  "run": run_id, "part_plan_sha256": plan["parts"][part]["plan_sha256"],
+                  "plan": plan, "packages": packages, "backup": backup, "dirty_before": dirty_before}
+        _write(record_path, record, exclusive=True)
+        body, links = _spawn_assembly(plan, assets, part)
+        lights = _spawn_group_lights(plan, part, body)
+        tracks_written = []
+        if part == "opening":
+            drive_by = _spawn_spot(plan)
+            lights.append(drive_by)
+            tracks_written = _apply_opening_tracks(plan, sequence, drive_by, world)
+            CORE.verify_hidden_shadow(_actor_state(body)["mesh_flags"],
+                                      [_actor_state(actor)["mesh_flags"] for actor in links])
+        CORE.validate_global_light_guard(_live_light_rows())
+        require(_census() == _expected_dirty(part, args),
+                "APPLY_DIRTY_SCOPE|" + json.dumps(_census(), sort_keys=True))
+        _save_named(packages)
+        readback = {"actors": _part_owned_states(part),
+                    "tracks": _track_state(sequence, part) if part == "opening" else []}
+        expected_actors = 25 + len(plan["parts"][part]["lights"])
+        require(len(readback["actors"]) == expected_actors, "READBACK_ACTOR_COUNT")
+        require(len(readback["tracks"]) == (2 if part == "opening" else 0), "READBACK_TRACK_COUNT")
+        _verify_part_readback(plan, part, readback["actors"])
+        record.update({"status": "applied", "readback": readback,
+                       "tracks_written": tracks_written,
+                       "instance_actor_labels": plan["instance_actor_labels"][part]})
+        _write(record_path, record)
+        result = {"ok": True, "mode": "APPLY", "part": part, "run": run_id,
+                  "part_plan_sha256": plan["parts"][part]["plan_sha256"], "backup": backup,
+                  "readback": readback, "global_light_budget": CORE.validate_global_light_guard(_live_light_rows()),
+                  "dirty_after": _census(), "record": record_path}
+        _write(REPORT_PATH, result)
+        unreal.log("%s_APPLY_OK|run=%s|part=%s|actors=%d|tracks=%d|global_lights=%d|global_casters=%d|flames=0|swing_keys=0|saved=%d|readback=1|dirty=0+0|record=%s" %
+                   (MARK, run_id, part, len(readback["actors"]), len(readback["tracks"]),
+                    result["global_light_budget"]["lights"], result["global_light_budget"]["shadow_casters"],
+                    len(packages), record_path))
+        return result
+
+    require(os.path.isfile(record_path), "ACTIVE_RECORD_MISSING|" + part)
+    record = _read(record_path)
+    require(record.get("status") == "applied" and record.get("part") == part, "ACTIVE_RECORD_STATUS")
+    require(_actor_states_match(record["readback"]["actors"], _part_owned_states(part)),
+            "REVERT_ACTOR_DRIFT|" + part)
+    if part == "opening":
+        require(_nested_matches(record["readback"]["tracks"], _track_state(sequence, part)),
+                "REVERT_TRACK_DRIFT|opening")
+    backup = _backup(run_id, part, packages, "Immediately before P75 %s isolated REVERT." % part)
+    removed_tracks = _remove_owned_tracks(sequence, part) if part == "opening" else 0
     subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
-    owned = [actor for actor in _actors() if OWNER_TAG in {str(tag) for tag in actor.get_editor_property("tags")}]
+    owned = [actor for actor in _actors()
+             if OWNER_TAG in _actor_tags(actor) and _part_tag(part) in _actor_tags(actor)]
     for actor in owned:
         require(subsystem.destroy_actor(actor), "DESTROY_ACTOR|" + str(actor.get_actor_label()))
-    require(_census() == {"content": sorted([packages[1], packages[2]]), "maps": [WORLD]},
+    require(_census() == _expected_dirty(part, args),
             "REVERT_DIRTY_SCOPE|" + json.dumps(_census(), sort_keys=True))
     _save_named(packages)
-    require(not _owned_states(), "REVERT_ACTORS_REMAIN")
-    require(not _track_state(assets["opening_sequence"]) and not _track_state(assets["p06_sequence"]),
-            "REVERT_TRACKS_REMAIN")
-    archive = ACTIVE_RECORD.replace("_ACTIVE.json", "_REVERTED_%s.json" % run_id)
+    require(not _part_owned_states(part), "REVERT_ACTORS_REMAIN|" + part)
+    require(part != "opening" or not _track_state(sequence, part), "REVERT_TRACKS_REMAIN|opening")
+    archive = record_path.replace("_ACTIVE.json", "_REVERTED_%s.json" % run_id)
     record.update({"status": "reverted", "revert_run": run_id, "revert_backup": backup,
                    "removed_actors": len(owned), "removed_tracks": removed_tracks})
-    _write(ACTIVE_RECORD, record)
-    os.replace(ACTIVE_RECORD, archive)
-    result = {"ok": True, "mode": "REVERT", "run": run_id, "removed_actors": len(owned),
-              "removed_tracks": removed_tracks, "archive": archive, "dirty_after": _census()}
+    _write(record_path, record)
+    os.replace(record_path, archive)
+    result = {"ok": True, "mode": "REVERT", "part": part, "run": run_id,
+              "removed_actors": len(owned), "removed_tracks": removed_tracks,
+              "archive": archive, "global_light_budget": CORE.validate_global_light_guard(_live_light_rows()),
+              "dirty_after": _census()}
     _write(REPORT_PATH, result)
-    unreal.log("%s_REVERT_OK|run=%s|actors=%d|tracks=%d|saved=3|readback=1|dirty=0+0" %
-               (MARK, run_id, len(owned), removed_tracks))
+    unreal.log("%s_REVERT_OK|run=%s|part=%s|actors=%d|tracks=%d|global_lights=%d|global_casters=%d|saved=%d|readback=1|dirty=0+0|record=%s" %
+               (MARK, run_id, part, len(owned), removed_tracks,
+                result["global_light_budget"]["lights"], result["global_light_budget"]["shadow_casters"],
+                len(packages), archive))
     return result
 
 

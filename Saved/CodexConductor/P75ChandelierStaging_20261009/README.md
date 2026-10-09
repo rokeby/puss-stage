@@ -1,57 +1,79 @@
-# P75 chandelier staging — conductor runbook
+# P75 chandelier staging - conductor runbook
 
-Offline delivery only. The worktree run did not open Unreal, MCP, PIE or Blender.
-The PNGs and `p75_offline_plan.json` are forecasts from the same pure planner
-used by the live tool; Gary owns every timing/look default in the args.
+Offline delivery only. This worktree run did not open Unreal, MCP, PIE or
+Blender. The live tool owns only chandelier body placement, 24 chain-link
+actors per instance, grouped lights, and the Opening drive-by light keys.
 
-## Files
+P56 owns every flame actor. P52/P52B own every swing key. P75 writes neither.
 
-- `chandelier_staging_core.py`: pure validation, deterministic candle order,
-  projected-shadow arithmetic, GPU guards and clearance gates.
-- `chandelier_staging.py`: later-live DRY/APPLY/REVERT tool.
-- `chandelier_staging_args.json`: Gary-owned staging values and asset paths.
-- `chandelier_staging_run.py` + `chandelier_staging_request.json`: guarded
-  project-Python MCP entry point for the conductor.
-- `test_chandelier_staging_offline.py`: six positive and seven negative controls.
-- `make_timeline_previews.py`: regenerates both PNGs from the live plan.
+## Production assets
+
+- Body: `/Game/Scenes/Props/Chandelier/SM_Chandelier_Iron3`
+- Material: `/Game/Scenes/Props/Chandelier/MI_Chandelier_Iron3`
+- Links: `/Game/Scenes/Props/Chandelier/Chain/ChainLink_00..23`
+- Pivots: `DerivedAssets/ChandelierBuild/Output/Iron3/chandelier_Iron3_chain.json`
+
+The tool refuses the retired `/Game/Scenes/Chandelier/Iron3` root. Before any
+mutation it requires exactly `Candle_01..44` plus `ChainAttach` on the body mesh;
+UE's imported names must not retain the `SOCKET_` prefix.
 
 ## Offline order
 
 1. `python Saved/CodexConductor/P75ChandelierStaging_20261009/test_chandelier_staging_offline.py`
 2. `python Saved/CodexConductor/P75ChandelierStaging_20261009/make_timeline_previews.py`
-3. Review `p75_offline_plan.json`, both PNGs, and the asset paths/defaults in
-   `chandelier_staging_args.json`.
+3. Review `p75_offline_plan.json`, both PNGs, and the args.
 
-## Later-live conductor order
+The harness currently contains 8 positive and 12 negative controls. It covers
+the level-global light cap, inclusion of the drive-by caster, part isolation,
+the 24-link pivot contract, production/retired paths, hidden-shadow flags, and
+the absence of flame/swing writes.
 
-1. Import/verify Iron3 and its chain from job 55. Require exactly 44 candle
-   sockets (`Candle_01..44` or `SOCKET_Candle_01..44`) and the P56 child
-   Blueprint. Keep PIE and Sequencer closed; require zero dirty packages.
-2. Leave mode `DRY`, execute `chandelier_staging_request.json`, and require
-   `P75_CHANDELIER_DRY_OK`, `mutated=0`, `dirty=0+0`. Review the placements,
-   frustum/look, timing, projected size, counts, clearances and the printed plan
-   hash. A live camera/frustum judgment is mandatory before APPLY; the offline
-   placement is only a starting point.
-3. Copy the DRY `plan` hash to `reviewed_plan_sha256`, change mode/confirm to
-   `APPLY` / `APPLY P75 CHANDELIER`, then execute the same request. Require
-   `P75_CHANDELIER_APPLY_OK`, `saved=3`, `readback=1`, `dirty=0+0`.
-4. Point P52B at the P06 body and the delivered 24-link actor set, then run its
-   DRY and REBUILD sequence. P75 does not duplicate its solver. If the imported
-   chain is monolithic rather than 24 separately pivoted actors, stop: P52B's
-   contract is not met and rigid P52 is only a deliberate fallback.
-5. Render-review Opening and P06. Confirm the hidden chandelier is out of camera,
-   the proscenium receives the predicted-scale shadow, P56 flames actually start
-   as visibility keys reveal them, and P06 remains silent before chain A's creak.
-6. To reverse, set mode/confirm to `REVERT` / `REVERT P75 CHANDELIER`. The tool
-   validates actor/track drift, backs up all three packages again, removes only
-   P75-tagged actors and P75-owned tracks, target-saves, reads back, and archives
-   its active record.
+## Separate live stages
 
-## Refusal boundary
+DRY may inspect both parts together (`"parts": ["opening", "p06"]`). APPLY and
+REVERT deliberately require exactly one part, which prevents a combined record
+or a cross-part rollback.
 
-The tool refuses wrong confirms, stale APPLY hashes, missing assets/world/route,
-nonzero dirty packages, more than four grouped lights, more than two shadow
-casters, any socket count other than 44, overlap with declared topple/wing rows,
-foreign owned-track collisions, and drift before REVERT. It never calls Save All
-and does not add audio. The live API calls and rendered look remain unproved until
-the conductor runs DRY/APPLY in UE 5.8.
+For each part:
+
+1. Set `mode` to `DRY` and `parts` to the single part. Execute
+   `chandelier_staging_request.json`. Require `P75_CHANDELIER_DRY_OK`,
+   `flames=0`, `swing_keys=0`, `dirty=0+0`, and `mutated=0`.
+2. Copy that part's `plan_sha256` into the same key under
+   `reviewed_plan_sha256`.
+3. Set `mode` / `confirm` to `APPLY` / `APPLY P75 CHANDELIER`. Execute again.
+4. Require `P75_CHANDELIER_APPLY_OK`, the named part, clean read-back, and the
+   part-specific active record:
+   - `chandelier_staging_opening_ACTIVE.json`
+   - `chandelier_staging_p06_ACTIVE.json`
+5. Repeat for the other part only after reviewing the first result.
+
+Opening saves only the level and Opening sequence. P06 saves only the level and
+writes no sequence tracks. Each part takes its own
+`Backups/PreP75Chandelier<Part>-<run>` snapshot.
+
+To reverse one part, select only that part and use `REVERT` /
+`REVERT P75 CHANDELIER`. The tool validates that part's actor/track read-back,
+backs up its exact package scope, removes only its tagged actors and owned
+Opening tracks, target-saves, then archives only that part's record.
+
+## Global light guard
+
+The cap is evaluated against every P75-owned light already in the level plus
+the selected part's candidates. The tool refuses totals above 4 lights or 2
+shadow casters. Defaults are:
+
+- Opening drive-by: 1 light, 1 caster.
+- Opening candle group: 2 lights, 1 caster.
+- P06 candle group: 1 light, 0 casters, intensity 0 by default.
+- Global total after both parts: 4 lights, 2 casters.
+
+The P06 body label and all 24 P06 link labels are emitted in the plan and APPLY
+record for P56/P52B. The same exposure is provided for the Opening instance.
+
+## Proof boundary
+
+The harness is measured offline. Asset existence on disk is measured, but UE
+loading, socket read-back, chain placement, saves, sequence key read-back and
+rendered appearance remain unproved until the conductor runs the stages in UE
+5.8. Never use Save All.
