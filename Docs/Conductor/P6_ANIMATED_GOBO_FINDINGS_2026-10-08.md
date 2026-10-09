@@ -195,6 +195,39 @@ Open:
 - **Whether it stays in I2** is Gary's look call.
 - **The show camera** at I2 ~230 doesn't frame the drape. **[measured]** That is a directing question.
 
+## State and morning runbook (9 Oct, ~05:00 UTC)
+
+**Live in I2 now:** run **AG-I2-TEST-005**, the boy "rubbing eyes".
+- Hard-edge 4096 atlas, 22 cells, stepped at 8 fps, with the v2 material (handheld Clock, Approach, RG defocus).
+- No-atlas master; VERIFY SUCCESS.
+- Gary saw it in his recording: "off to a very good start", moves should be real time, "a touch softer", "low
+  resolution, quite rough edge". **[measured: Conductor 5 / Gary]**
+
+**Ready offline:** run **006**, the real-time boy with SDF edges on an 8192 atlas, 89 cells at 803 px. Args are staged
+in `Saved/CodexConductor/animated_gobo_args_006_staged.json` and plan cleanly: 131 CONSTANT keys from frame 175,
+BlurUV 0, Softness 0.02, Defocus 0.25. **[measured: offline plan_from_args]**
+
+**Why BlurUV 0** **[measured offline, `Tools/ShadowGobo/Puppets/sdf_proto/pg4_check_zoom_blur0.png`]:** the material's
+5-tap BlurUV is in ATLAS uv. 0.00075 is about 6 px at 8192 and about 3 px at 4096. It closes narrow slits on SDF cells,
+and it also erodes the finest hair slits on hard 4096 cells (part of the "rough" look in 005).
+
+**Slot (~5 min, Gary's go; the editor is closed for the Cue Desk build and the ragged-curtain bake):**
+1. Write args = 005 staged plus `mode` REVERT, confirm `REVERT ANIMATED_GOBO DELETE CREATED ASSETS`,
+   `run_id` AG-I2-TEST-005-R, `apply_run` AG-I2-TEST-005. Execute `animated_gobo_request.json`; require
+   `ANIMATED_GOBO_REVERT_OK|run=AG-I2-TEST-005-R`. 005 created the no-atlas master and the MPC, so this deletes them;
+   006 recreates them.
+2. Copy `animated_gobo_args_006_staged.json` to `animated_gobo_args.json` (DRY). Require `ANIMATED_GOBO_DRY_OK|run=AG-I2-TEST-006|apply_ready=1`.
+3. Set mode/confirm to APPLY. Require `APPLY_OK_PENDING_VERIFY|run=AG-I2-TEST-006`. Then grep LogMaterial for
+   ShadowGobo for 40 s: there must be none.
+4. Set mode/confirm to VERIFY, with `run_id` AG-I2-TEST-006-V and `apply_run` AG-I2-TEST-006. Require
+   `ANIMATED_GOBO_SUCCESS ... dirty=0`.
+5. Conductor 5's review stills at I2 190 / 240 / 290 / 330 / 360, plus a face close-up. Compare with
+   `Tools/ShadowGobo/Puppets/clip_rub_rt_sdf/twin_ue.png`.
+- Tell Finishing Touches before step 1. Their I2 Order guard snapshots the gobo; 006 changes only the spots' LF and
+  the gobo track.
+- Gary's open choices: softness (Defocus 0.15 / 0.25 / 0.35); framing (the boy "a bit smaller and to the left": Scale
+  plus the clip window, then a re-render); whether to key Approach.
+
 ## Video to flipbook (exists since 6 Oct)
 
 `Tools/ShadowGobo/make_gobo_flipbook.py` turns a phone take into the atlas, preview GIF, contact sheet and manifest. See
