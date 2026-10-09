@@ -1,0 +1,3351 @@
+{
+  "schema_version": 1,
+  "generated_date": "2026-10-08",
+  "scope": "offline read-only audit of saved P02/P03 state after RZSW APPLY records",
+  "proof_boundary": {
+    "measured": "file parsing, image dimensions, joins, arithmetic, saved APPLY/readback records",
+    "declaration_proven": "documented material/geometry contracts",
+    "binary_proven": "named UAsset strings where explicitly stated",
+    "inferred": "render appearance and upgrade suitability; no Unreal/PIE/render was run"
+  },
+  "sources": {
+    "p02_dry": "E:\\PussStage\\Saved\\CodexFlatV3\\rzswap\\rzswap_dry_P02_LATEST.json:1",
+    "p03_dry": "E:\\PussStage\\Saved\\CodexFlatV3\\rzswap\\rzswap_dry_P03_LATEST.json:1",
+    "p02_apply": "E:\\PussStage\\Saved\\CodexFlatV3\\rzswap\\rzswap_apply_P02_RZSW-20261007-103331.json:1",
+    "p03_apply": "E:\\PussStage\\Saved\\CodexFlatV3\\rzswap\\rzswap_apply_P03_RZSW-20261007-103341.json:1",
+    "edge_probe": "E:\\PussStage\\Saved\\CodexFlatV3\\edge\\edge_family_probe.json:1",
+    "edge_rollout": "E:\\PussStage\\Saved\\CodexFlatV3\\edge\\edge_rollout_plan.json:1"
+  },
+  "summary": {
+    "rows": {
+      "P02": 23,
+      "P03": 21
+    },
+    "sides": {
+      "P02": 46,
+      "P03": 42,
+      "total": 88
+    },
+    "families": {
+      "flat_v3_thick5_older": 23,
+      "industrial_3d": 16,
+      "flat_v3_thick5_realism": 42,
+      "v2_10cm_card": 7
+    },
+    "below_250_px_per_m_count": 7,
+    "lowest_source_ppm": 167.6
+  },
+  "low_quality_ranking": [
+    {
+      "rank": 1,
+      "cue": "P03 Wing 003",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_YellowCurtainThreshold_01_L",
+      "ppm": 167.6,
+      "reason": "source art below ~250 px/m"
+    },
+    {
+      "rank": 2,
+      "cue": "P03 Wing 003",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_YellowCurtainThreshold_01_R",
+      "ppm": 170.4,
+      "reason": "source art below ~250 px/m"
+    },
+    {
+      "rank": 3,
+      "cue": "P03 Wing 004",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_RepeatingSanatoriumArches_01_L",
+      "ppm": 177.4,
+      "reason": "source art below ~250 px/m"
+    },
+    {
+      "rank": 4,
+      "cue": "P03 Wing 002",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_GlassBlockClassroom_01_L",
+      "ppm": 180.8,
+      "reason": "source art below ~250 px/m"
+    },
+    {
+      "rank": 5,
+      "cue": "P03 Wing 001",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_SunWashedAdministration_01_L",
+      "ppm": 182.5,
+      "reason": "source art below ~250 px/m"
+    },
+    {
+      "rank": 6,
+      "cue": "P03 Wing 001",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_SunWashedAdministration_01_R",
+      "ppm": 184.3,
+      "reason": "source art below ~250 px/m"
+    },
+    {
+      "rank": 7,
+      "cue": "P03 Wing 002",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_GlassBlockClassroom_01_R",
+      "ppm": 184.7,
+      "reason": "source art below ~250 px/m"
+    }
+  ],
+  "sides": [
+    {
+      "passage": "P02",
+      "row_index": 0,
+      "row_ordinal": 0,
+      "cue": "P02 Wing 001",
+      "cue_guid": "2796DA1CE44CBA0E7E495AB35D6E5B85",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/T5P/SM_FlatV3_P02_SET01_L_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 702.584,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9994,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P02_SET01_L_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 291.5,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET01_L\\skin_v3\\P02_SET01_L_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 0,
+      "row_ordinal": 0,
+      "cue": "P02 Wing 001",
+      "cue_guid": "2796DA1CE44CBA0E7E495AB35D6E5B85",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/T5P/SM_FlatV3_P02_SET01_R_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 556.465,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9975,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P02_SET01_R_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET01_R\\skin_v3\\P02_SET01_R_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 1,
+      "row_ordinal": 1,
+      "cue": "P02 Wing 002",
+      "cue_guid": "973A6AE0454E4045F75F6E824218157D",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceTarp_L",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 849.0,
+        "height_above_floor": 1200.34,
+        "total_depth": 96.793
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels_v2\\FenceTarp_v2_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 1,
+      "row_ordinal": 1,
+      "cue": "P02 Wing 002",
+      "cue_guid": "973A6AE0454E4045F75F6E824218157D",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceTarp_R",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 849.0,
+        "height_above_floor": 1200.34,
+        "total_depth": 96.793
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels_v2\\FenceTarp_v2_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 2,
+      "row_ordinal": 2,
+      "cue": "P02 Wing 004",
+      "cue_guid": "34E33BCD364FAB686BC453A3BC754B26",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_23_moss_covered_rock_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 535.801,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\23_moss_covered_rock\\stage1\\P02_real_23_moss_covered_rock_L\\skin_v3\\T_P02_real_23_moss_covered_rock_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\23_moss_covered_rock\\stage1\\P02_real_23_moss_covered_rock_L\\skin_v3\\P02_real_23_moss_covered_rock_L_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 2,
+      "row_ordinal": 2,
+      "cue": "P02 Wing 004",
+      "cue_guid": "34E33BCD364FAB686BC453A3BC754B26",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_32_entangled_roots_mossy_R_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 501.57,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\32_entangled_roots_mossy\\hf\\skins\\T_P02_real_32_entangled_roots_mossy_R_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\32_entangled_roots_mossy\\stage1\\P02_real_32_entangled_roots_mossy_R\\skin_v3\\P02_real_32_entangled_roots_mossy_R_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 3,
+      "row_ordinal": 3,
+      "cue": "P02 Wing 005",
+      "cue_guid": "F2A13CF80B447B1AA10EA4881F10C821",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_L",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 849.0,
+        "height_above_floor": 1200.34,
+        "total_depth": 96.793
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels\\FenceOpen_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 3,
+      "row_ordinal": 3,
+      "cue": "P02 Wing 005",
+      "cue_guid": "F2A13CF80B447B1AA10EA4881F10C821",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_R",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 849.0,
+        "height_above_floor": 1200.34,
+        "total_depth": 96.793
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels\\FenceOpen_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 4,
+      "row_ordinal": 4,
+      "cue": "P02 Wing 006",
+      "cue_guid": "6408185AE84BF6527CC2189329A5AEE7",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_26_moss_covered_rock_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 471.389,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0001,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\26_moss_covered_rock\\hf\\skins\\T_P02_real_26_moss_covered_rock_L_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\26_moss_covered_rock\\stage1\\P02_real_26_moss_covered_rock_L\\skin_v3\\P02_real_26_moss_covered_rock_L_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 4,
+      "row_ordinal": 4,
+      "cue": "P02 Wing 006",
+      "cue_guid": "6408185AE84BF6527CC2189329A5AEE7",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_37_wooden_stilt_hut_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 494.491,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\37_wooden_stilt_hut_v2\\stage1\\P02_real_37_wooden_stilt_hut_R\\skin_v3\\T_P02_real_37_wooden_stilt_hut_R_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\37_wooden_stilt_hut_v2\\stage1\\P02_real_37_wooden_stilt_hut_R\\skin_v3\\P02_real_37_wooden_stilt_hut_R_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 5,
+      "row_ordinal": 5,
+      "cue": "P02 Wing 007",
+      "cue_guid": "A54E14DCA44F897C45C0119A262D7C25",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_L",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 811.0,
+        "height_above_floor": 1221.6,
+        "total_depth": 72.0
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels_v2\\RollerShutter_v2_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 5,
+      "row_ordinal": 5,
+      "cue": "P02 Wing 007",
+      "cue_guid": "A54E14DCA44F897C45C0119A262D7C25",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_R",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 811.0,
+        "height_above_floor": 1221.6,
+        "total_depth": 72.0
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels_v2\\RollerShutter_v2_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 6,
+      "row_ordinal": 6,
+      "cue": "P02 Wing 008",
+      "cue_guid": "1E888ABDB94B07483942B9940A58A9F3",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_26_moss_covered_rock_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 471.389,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0001,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\26_moss_covered_rock\\hf\\skins\\T_P02_real_26_moss_covered_rock_L_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\26_moss_covered_rock\\stage1\\P02_real_26_moss_covered_rock_L\\skin_v3\\P02_real_26_moss_covered_rock_L_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 6,
+      "row_ordinal": 6,
+      "cue": "P02 Wing 008",
+      "cue_guid": "1E888ABDB94B07483942B9940A58A9F3",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_37_wooden_stilt_hut_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 494.491,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\37_wooden_stilt_hut_v2\\stage1\\P02_real_37_wooden_stilt_hut_R\\skin_v3\\T_P02_real_37_wooden_stilt_hut_R_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\37_wooden_stilt_hut_v2\\stage1\\P02_real_37_wooden_stilt_hut_R\\skin_v3\\P02_real_37_wooden_stilt_hut_R_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 7,
+      "row_ordinal": 7,
+      "cue": "P02 Wing 009",
+      "cue_guid": "3C63FFF5804AE7B1625AF08713E09CF9",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceTarp_L",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 849.0,
+        "height_above_floor": 1200.34,
+        "total_depth": 96.793
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels_v2\\FenceTarp_v2_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 7,
+      "row_ordinal": 7,
+      "cue": "P02 Wing 009",
+      "cue_guid": "3C63FFF5804AE7B1625AF08713E09CF9",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceTarp_R",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 849.0,
+        "height_above_floor": 1200.34,
+        "total_depth": 96.793
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels_v2\\FenceTarp_v2_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 8,
+      "row_ordinal": 8,
+      "cue": "P02 Wing 010",
+      "cue_guid": "BE5E3873F44ACC7A85BA089503191E1C",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_44_moss_covered_stone_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 542.898,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\44_moss_covered_stone\\hf\\skins\\T_P02_real_44_moss_covered_stone_L_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\44_moss_covered_stone\\stage1\\P02_real_44_moss_covered_stone_L\\skin_v3\\P02_real_44_moss_covered_stone_L_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 8,
+      "row_ordinal": 8,
+      "cue": "P02 Wing 010",
+      "cue_guid": "BE5E3873F44ACC7A85BA089503191E1C",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_42_rustic_wooden_hut_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 402.489,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0019,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\42_rustic_wooden_hut\\hf\\skins\\T_P02_real_42_rustic_wooden_hut_R_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\42_rustic_wooden_hut\\stage1\\P02_real_42_rustic_wooden_hut_R\\skin_v3\\P02_real_42_rustic_wooden_hut_R_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 9,
+      "row_ordinal": 9,
+      "cue": "P02 Wing 011",
+      "cue_guid": "0B80F8886249E85D99B0C691DC6466D5",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_L",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 849.0,
+        "height_above_floor": 1200.34,
+        "total_depth": 96.793
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels\\FenceOpen_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 9,
+      "row_ordinal": 9,
+      "cue": "P02 Wing 011",
+      "cue_guid": "0B80F8886249E85D99B0C691DC6466D5",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_R",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 849.0,
+        "height_above_floor": 1200.34,
+        "total_depth": 96.793
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels\\FenceOpen_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 10,
+      "row_ordinal": 10,
+      "cue": "P02 Wing 012",
+      "cue_guid": "C7C77C36F04E62E5764E5BA7BE04060C",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_63_jungle_hut_mossy_L_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 610.414,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\63_jungle_hut_mossy\\hf\\skins\\T_P02_real_63_jungle_hut_mossy_L_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.5,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\63_jungle_hut_mossy\\stage1\\P02_real_63_jungle_hut_mossy_L\\skin_v3\\P02_real_63_jungle_hut_mossy_L_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 10,
+      "row_ordinal": 10,
+      "cue": "P02 Wing 012",
+      "cue_guid": "C7C77C36F04E62E5764E5BA7BE04060C",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_53_wooden_stilt_house_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 473.894,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0018,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\53_wooden_stilt_house\\hf\\skins\\T_P02_real_53_wooden_stilt_house_R_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\53_wooden_stilt_house\\stage1\\P02_real_53_wooden_stilt_house_R\\skin_v3\\P02_real_53_wooden_stilt_house_R_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 11,
+      "row_ordinal": 11,
+      "cue": "P02 Wing 013",
+      "cue_guid": "FD2F56C90948D06111C1859046612353",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_L",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 811.0,
+        "height_above_floor": 1221.6,
+        "total_depth": 72.0
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels_v2\\RollerShutter_v2_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 11,
+      "row_ordinal": 11,
+      "cue": "P02 Wing 013",
+      "cue_guid": "FD2F56C90948D06111C1859046612353",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_R",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 811.0,
+        "height_above_floor": 1221.6,
+        "total_depth": 72.0
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels_v2\\RollerShutter_v2_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 12,
+      "row_ordinal": 12,
+      "cue": "P02 Wing 014",
+      "cue_guid": "75C71EC74F44A8D5F4668384501E418C",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_23_moss_covered_rock_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 535.801,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\23_moss_covered_rock\\stage1\\P02_real_23_moss_covered_rock_L\\skin_v3\\T_P02_real_23_moss_covered_rock_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\23_moss_covered_rock\\stage1\\P02_real_23_moss_covered_rock_L\\skin_v3\\P02_real_23_moss_covered_rock_L_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 12,
+      "row_ordinal": 12,
+      "cue": "P02 Wing 014",
+      "cue_guid": "75C71EC74F44A8D5F4668384501E418C",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_32_entangled_roots_mossy_R_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 501.57,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\32_entangled_roots_mossy\\hf\\skins\\T_P02_real_32_entangled_roots_mossy_R_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\32_entangled_roots_mossy\\stage1\\P02_real_32_entangled_roots_mossy_R\\skin_v3\\P02_real_32_entangled_roots_mossy_R_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 13,
+      "row_ordinal": 13,
+      "cue": "P02 Wing 003",
+      "cue_guid": "B33756C20D448A5615012AABA066A78A",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_19_moss_covered_driftwood_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 506.503,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\19_moss_covered_driftwood\\hf\\skins\\T_P02_real_19_moss_covered_driftwood_L_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\19_moss_covered_driftwood\\stage1\\P02_real_19_moss_covered_driftwood_L\\skin_v3\\P02_real_19_moss_covered_driftwood_L_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 13,
+      "row_ordinal": 13,
+      "cue": "P02 Wing 003",
+      "cue_guid": "B33756C20D448A5615012AABA066A78A",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_28_moss_covered_tree_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 396.267,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0004,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\28_moss_covered_tree\\hf\\skins\\T_P02_real_28_moss_covered_tree_R_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\28_moss_covered_tree\\stage1\\P02_real_28_moss_covered_tree_R\\skin_v3\\P02_real_28_moss_covered_tree_R_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 14,
+      "row_ordinal": 14,
+      "cue": "P02 Wing 015",
+      "cue_guid": "C8406F55D14E2B9D12D75CB414E57524",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_44_moss_covered_stone_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 542.898,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\44_moss_covered_stone\\hf\\skins\\T_P02_real_44_moss_covered_stone_L_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\44_moss_covered_stone\\stage1\\P02_real_44_moss_covered_stone_L\\skin_v3\\P02_real_44_moss_covered_stone_L_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 14,
+      "row_ordinal": 14,
+      "cue": "P02 Wing 015",
+      "cue_guid": "C8406F55D14E2B9D12D75CB414E57524",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_42_rustic_wooden_hut_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 402.489,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0019,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\42_rustic_wooden_hut\\hf\\skins\\T_P02_real_42_rustic_wooden_hut_R_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\42_rustic_wooden_hut\\stage1\\P02_real_42_rustic_wooden_hut_R\\skin_v3\\P02_real_42_rustic_wooden_hut_R_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 15,
+      "row_ordinal": 15,
+      "cue": "P02 Wing 016",
+      "cue_guid": "1C61F7124C4E4CDB9D572CBF37EA2AB2",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_L",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 849.0,
+        "height_above_floor": 1200.34,
+        "total_depth": 96.793
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels\\FenceOpen_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 15,
+      "row_ordinal": 15,
+      "cue": "P02 Wing 016",
+      "cue_guid": "1C61F7124C4E4CDB9D572CBF37EA2AB2",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_R",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 849.0,
+        "height_above_floor": 1200.34,
+        "total_depth": 96.793
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels\\FenceOpen_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 16,
+      "row_ordinal": 16,
+      "cue": "P02 Wing 017",
+      "cue_guid": "3A2A4913A048011774400A8BC6A2F500",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_63_jungle_hut_mossy_L_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 610.414,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\63_jungle_hut_mossy\\hf\\skins\\T_P02_real_63_jungle_hut_mossy_L_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.5,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\63_jungle_hut_mossy\\stage1\\P02_real_63_jungle_hut_mossy_L\\skin_v3\\P02_real_63_jungle_hut_mossy_L_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 16,
+      "row_ordinal": 16,
+      "cue": "P02 Wing 017",
+      "cue_guid": "3A2A4913A048011774400A8BC6A2F500",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_53_wooden_stilt_house_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 473.894,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0018,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\53_wooden_stilt_house\\hf\\skins\\T_P02_real_53_wooden_stilt_house_R_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\53_wooden_stilt_house\\stage1\\P02_real_53_wooden_stilt_house_R\\skin_v3\\P02_real_53_wooden_stilt_house_R_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 17,
+      "row_ordinal": 17,
+      "cue": "P02 Wing 018",
+      "cue_guid": "C01B9F971440183FDC7BEAB4535ED9A4",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_L",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 811.0,
+        "height_above_floor": 1221.6,
+        "total_depth": 72.0
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels_v2\\RollerShutter_v2_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 17,
+      "row_ordinal": 17,
+      "cue": "P02 Wing 018",
+      "cue_guid": "C01B9F971440183FDC7BEAB4535ED9A4",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_R",
+      "family": "industrial_3d",
+      "board_thickness_cm": null,
+      "bounds_cm": {
+        "width": 811.0,
+        "height_above_floor": 1221.6,
+        "total_depth": 72.0
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\ReviewSheets\\_panels_v2\\RollerShutter_v2_Daylight_Front.png",
+        "resolution_px": [
+          640,
+          900
+        ],
+        "min_source_px_per_m": null,
+        "below_250_px_per_m": false,
+        "mip_pot": "2K/4K POT scan sources; current Unreal mip readback UNCLEAR"
+      },
+      "relief": "3D/tiled scan; no per-card POM",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry"
+    },
+    {
+      "passage": "P02",
+      "row_index": 18,
+      "row_ordinal": 18,
+      "cue": "P02 Wing 019",
+      "cue_guid": "A27BB54D3745D5C95040249F8CD3A765",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/T5J/SM_FlatV3_P02_SET19_L_t5j",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 598.356,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 1.0,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET19_L\\skin_v3\\T_P02_SET19_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET19_L\\skin_v3\\P02_SET19_L_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 18,
+      "row_ordinal": 18,
+      "cue": "P02 Wing 019",
+      "cue_guid": "A27BB54D3745D5C95040249F8CD3A765",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/T5J/SM_FlatV3_P02_SET19_R_t5j",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 661.851,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 1.0,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET19_R\\skin_v3\\T_P02_SET19_R_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 309.4,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET19_R\\skin_v3\\P02_SET19_R_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 19,
+      "row_ordinal": 19,
+      "cue": "P02 Wing 020",
+      "cue_guid": "0CEEA95DF14599EAFCEEF8BAB535CF74",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/T5P/SM_FlatV3_P02_SET20_L_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 633.415,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 1.0,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET20_L\\skin_v3\\T_P02_SET20_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 323.3,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET20_L\\skin_v3\\P02_SET20_L_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 19,
+      "row_ordinal": 19,
+      "cue": "P02 Wing 020",
+      "cue_guid": "0CEEA95DF14599EAFCEEF8BAB535CF74",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/T5J/SM_FlatV3_P02_SET20_R_t5j",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 635.679,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 1.0,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET20_R\\skin_v3\\T_P02_SET20_R_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 322.2,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET20_R\\skin_v3\\P02_SET20_R_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 20,
+      "row_ordinal": 20,
+      "cue": "P02 Wing 021",
+      "cue_guid": "E96AA1F72244B2D52C5E02AF95372F63",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_19_moss_covered_driftwood_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 506.503,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\19_moss_covered_driftwood\\hf\\skins\\T_P02_real_19_moss_covered_driftwood_L_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\19_moss_covered_driftwood\\stage1\\P02_real_19_moss_covered_driftwood_L\\skin_v3\\P02_real_19_moss_covered_driftwood_L_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 20,
+      "row_ordinal": 20,
+      "cue": "P02 Wing 021",
+      "cue_guid": "E96AA1F72244B2D52C5E02AF95372F63",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_28_moss_covered_tree_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 396.267,
+        "height_above_floor": 1220.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0004,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\28_moss_covered_tree\\hf\\skins\\T_P02_real_28_moss_covered_tree_R_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 335.7,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P02_jungle\\28_moss_covered_tree\\stage1\\P02_real_28_moss_covered_tree_R\\skin_v3\\P02_real_28_moss_covered_tree_R_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 21,
+      "row_ordinal": 21,
+      "cue": "P02 Wing 022",
+      "cue_guid": "E75FE3E4AA44C0D53E3FB6A99D63F91C",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5J/SM_FlatV3_P04_ruined_gallery_L_v1_sc1_t5j",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 746.345,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9997,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\flats\\P04_ruined_gallery_L_v1\\skin_v3\\T_P04_ruined_gallery_L_v1_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 274.4,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\flats\\P04_ruined_gallery_L_v1\\skin_v3\\P04_ruined_gallery_L_v1_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 21,
+      "row_ordinal": 21,
+      "cue": "P02 Wing 022",
+      "cue_guid": "E75FE3E4AA44C0D53E3FB6A99D63F91C",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5J/SM_FlatV3_P04_ruined_gallery_R_v1_sc1_t5j",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 775.573,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9999,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\flats\\P04_ruined_gallery_R_v1\\skin_v3\\T_P04_ruined_gallery_R_v1_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 264.1,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 3,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-03\\thick5\\flaps_t5j\\P04_ruined_gallery_R_v1_sc1_t5j_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 22,
+      "row_ordinal": 22,
+      "cue": "P02 Wing 023",
+      "cue_guid": "2867A7E95E4A5EA329A6CAAC9BD8B0C3",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_L_v2_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 650.581,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9999,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\flats\\P04_coventry_ruin_L_v2\\skin_v3\\T_P04_coventry_ruin_L_v2_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 314.8,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\flats\\P04_coventry_ruin_L_v2\\skin_v3\\P04_coventry_ruin_L_v2_flaps.json"
+    },
+    {
+      "passage": "P02",
+      "row_index": 22,
+      "row_ordinal": 22,
+      "cue": "P02 Wing 023",
+      "cue_guid": "2867A7E95E4A5EA329A6CAAC9BD8B0C3",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/T5P/SM_FlatV3_P04_coventry_ruin_R_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 572.039,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9996,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P04_coventry_ruin_R_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 358.0,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\flats\\P04_coventry_ruin_R_v1\\skin_v3\\P04_coventry_ruin_R_v1_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 0,
+      "row_ordinal": 0,
+      "cue": "P03 Wing 001",
+      "cue_guid": "B8AE7B1FDF410C9B9F2A83BDA94DA489",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_SunWashedAdministration_01_L",
+      "family": "v2_10cm_card",
+      "board_thickness_cm": 10.0,
+      "bounds_cm": {
+        "width": 378.187,
+        "height_above_floor": 1000.0,
+        "total_depth": 10.0
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "per-mesh P03 Edge MI on canvas-edge master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\GeneratedWingsV2_Passage03\\P03_SunWashedAdministration_01_L\\Textures\\P03_SunWashedAdministration_01_L.png",
+        "resolution_px": [
+          862,
+          1825
+        ],
+        "min_source_px_per_m": 182.5,
+        "below_250_px_per_m": true,
+        "mip_pot": "FromTextureGroup + StretchToPowerOfTwo (saved readback); source non-POT"
+      },
+      "relief": "painted-master POM from _H plus _N",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry",
+      "low_quality_rank": 5
+    },
+    {
+      "passage": "P03",
+      "row_index": 0,
+      "row_ordinal": 0,
+      "cue": "P03 Wing 001",
+      "cue_guid": "B8AE7B1FDF410C9B9F2A83BDA94DA489",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_SunWashedAdministration_01_R",
+      "family": "v2_10cm_card",
+      "board_thickness_cm": 10.0,
+      "bounds_cm": {
+        "width": 351.431,
+        "height_above_floor": 1000.0,
+        "total_depth": 10.0
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "per-mesh P03 Edge MI on canvas-edge master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\GeneratedWingsV2_Passage03\\P03_SunWashedAdministration_01_R\\Textures\\P03_SunWashedAdministration_01_R.png",
+        "resolution_px": [
+          853,
+          1843
+        ],
+        "min_source_px_per_m": 184.3,
+        "below_250_px_per_m": true,
+        "mip_pot": "FromTextureGroup + StretchToPowerOfTwo (saved readback); source non-POT"
+      },
+      "relief": "painted-master POM from _H plus _N",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry",
+      "low_quality_rank": 6
+    },
+    {
+      "passage": "P03",
+      "row_index": 1,
+      "row_ordinal": 1,
+      "cue": "P03 Wing 003",
+      "cue_guid": "0ED8CD9770436E3F130C8D85C3637BE2",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_YellowCurtainThreshold_01_L",
+      "family": "v2_10cm_card",
+      "board_thickness_cm": 10.0,
+      "bounds_cm": {
+        "width": 476.02,
+        "height_above_floor": 1000.0,
+        "total_depth": 10.0
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "per-mesh P03 Edge MI on canvas-edge master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\GeneratedWingsV2_Passage03\\P03_YellowCurtainThreshold_01_L\\Textures\\P03_YellowCurtainThreshold_01_L.png",
+        "resolution_px": [
+          938,
+          1676
+        ],
+        "min_source_px_per_m": 167.6,
+        "below_250_px_per_m": true,
+        "mip_pot": "FromTextureGroup + StretchToPowerOfTwo (saved readback); source non-POT"
+      },
+      "relief": "painted-master POM from _H plus _N",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry",
+      "low_quality_rank": 1
+    },
+    {
+      "passage": "P03",
+      "row_index": 1,
+      "row_ordinal": 1,
+      "cue": "P03 Wing 003",
+      "cue_guid": "0ED8CD9770436E3F130C8D85C3637BE2",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_YellowCurtainThreshold_01_R",
+      "family": "v2_10cm_card",
+      "board_thickness_cm": 10.0,
+      "bounds_cm": {
+        "width": 469.127,
+        "height_above_floor": 1000.0,
+        "total_depth": 10.0
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "per-mesh P03 Edge MI on canvas-edge master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\GeneratedWingsV2_Passage03\\P03_YellowCurtainThreshold_01_R\\Textures\\P03_YellowCurtainThreshold_01_R.png",
+        "resolution_px": [
+          923,
+          1704
+        ],
+        "min_source_px_per_m": 170.4,
+        "below_250_px_per_m": true,
+        "mip_pot": "FromTextureGroup + StretchToPowerOfTwo (saved readback); source non-POT"
+      },
+      "relief": "painted-master POM from _H plus _N",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry",
+      "low_quality_rank": 2
+    },
+    {
+      "passage": "P03",
+      "row_index": 2,
+      "row_ordinal": 2,
+      "cue": "P03 Wing 002",
+      "cue_guid": "C82F2CC5BD4EF34E9C3BDFACB10C35CB",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_GlassBlockClassroom_01_L",
+      "family": "v2_10cm_card",
+      "board_thickness_cm": 10.0,
+      "bounds_cm": {
+        "width": 394.336,
+        "height_above_floor": 1000.0,
+        "total_depth": 10.0
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "per-mesh P03 Edge MI on canvas-edge master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\GeneratedWingsV2_Passage03\\P03_GlassBlockClassroom_01_L\\Textures\\P03_GlassBlockClassroom_01_L.png",
+        "resolution_px": [
+          870,
+          1808
+        ],
+        "min_source_px_per_m": 180.8,
+        "below_250_px_per_m": true,
+        "mip_pot": "FromTextureGroup + StretchToPowerOfTwo (saved readback); source non-POT"
+      },
+      "relief": "painted-master POM from _H plus _N",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry",
+      "low_quality_rank": 4
+    },
+    {
+      "passage": "P03",
+      "row_index": 2,
+      "row_ordinal": 2,
+      "cue": "P03 Wing 002",
+      "cue_guid": "C82F2CC5BD4EF34E9C3BDFACB10C35CB",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_GlassBlockClassroom_01_R",
+      "family": "v2_10cm_card",
+      "board_thickness_cm": 10.0,
+      "bounds_cm": {
+        "width": 377.455,
+        "height_above_floor": 1000.0,
+        "total_depth": 10.0
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "per-mesh P03 Edge MI on canvas-edge master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\GeneratedWingsV2_Passage03\\P03_GlassBlockClassroom_01_R\\Textures\\P03_GlassBlockClassroom_01_R.png",
+        "resolution_px": [
+          851,
+          1847
+        ],
+        "min_source_px_per_m": 184.7,
+        "below_250_px_per_m": true,
+        "mip_pot": "FromTextureGroup + StretchToPowerOfTwo (saved readback); source non-POT"
+      },
+      "relief": "painted-master POM from _H plus _N",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry",
+      "low_quality_rank": 7
+    },
+    {
+      "passage": "P03",
+      "row_index": 3,
+      "row_ordinal": 3,
+      "cue": "P03 Wing 004",
+      "cue_guid": "8D58B97EDF4136FDBE50549E3625C0DF",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_RepeatingSanatoriumArches_01_L",
+      "family": "v2_10cm_card",
+      "board_thickness_cm": 10.0,
+      "bounds_cm": {
+        "width": 374.563,
+        "height_above_floor": 1000.0,
+        "total_depth": 10.0
+      },
+      "edge": {
+        "winding": "UNCLEAR",
+        "inward_area_fraction": null,
+        "material": "per-mesh P03 Edge MI on canvas-edge master"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\GeneratedWingsV2_Passage03\\P03_RepeatingSanatoriumArches_01_L\\Textures\\P03_RepeatingSanatoriumArches_01_L.png",
+        "resolution_px": [
+          887,
+          1774
+        ],
+        "min_source_px_per_m": 177.4,
+        "below_250_px_per_m": true,
+        "mip_pot": "FromTextureGroup + StretchToPowerOfTwo (saved readback); source non-POT"
+      },
+      "relief": "painted-master POM from _H plus _N",
+      "authored_flap_count": 0,
+      "flap_evidence": "declared/no authored flap geometry",
+      "low_quality_rank": 3
+    },
+    {
+      "passage": "P03",
+      "row_index": 3,
+      "row_ordinal": 3,
+      "cue": "P03 Wing 004",
+      "cue_guid": "8D58B97EDF4136FDBE50549E3625C0DF",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_39_rock_monolith_lichen_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 279.954,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0002,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\39_rock_monolith_lichen_v2\\stage1\\P03_real_39_rock_monolith_lichen_R\\skin_v3\\T_P03_real_39_rock_monolith_lichen_R_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\39_rock_monolith_lichen_v2\\stage1\\P03_real_39_rock_monolith_lichen_R\\skin_v3\\P03_real_39_rock_monolith_lichen_R_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 4,
+      "row_ordinal": 4,
+      "cue": "P03 Wing 005",
+      "cue_guid": "3DC9D2BC0445FD5D87E5428D6C467C86",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_21_rock_formation_moss_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 484.137,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\21_rock_formation_moss_v2\\stage1\\P03_real_21_rock_formation_moss_L\\skin_v3\\T_P03_real_21_rock_formation_moss_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\21_rock_formation_moss_v2\\stage1\\P03_real_21_rock_formation_moss_L\\skin_v3\\P03_real_21_rock_formation_moss_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 4,
+      "row_ordinal": 4,
+      "cue": "P03 Wing 005",
+      "cue_guid": "3DC9D2BC0445FD5D87E5428D6C467C86",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_45_rustic_wooden_cottage_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 540.117,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\45_rustic_wooden_cottage_v2\\hf\\skins\\T_P03_real_45_rustic_wooden_cottage_R_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 379.2,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\45_rustic_wooden_cottage_v2\\stage1\\P03_real_45_rustic_wooden_cottage_R\\skin_v3\\P03_real_45_rustic_wooden_cottage_R_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 5,
+      "row_ordinal": 5,
+      "cue": "P03 Wing 006",
+      "cue_guid": "FC0C59529D4588FCEFC84F9FD09C68A3",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_40_stonehenge_portal_stone_L_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 278.189,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0012,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\40_stonehenge_portal_stone_v2\\hf\\skins\\T_P03_real_40_stonehenge_portal_stone_L_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\40_stonehenge_portal_stone_v2\\stage1\\P03_real_40_stonehenge_portal_stone_L\\skin_v3\\P03_real_40_stonehenge_portal_stone_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 5,
+      "row_ordinal": 5,
+      "cue": "P03 Wing 006",
+      "cue_guid": "FC0C59529D4588FCEFC84F9FD09C68A3",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_43_weathered_wooden_tower_R_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 401.683,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0001,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\43_weathered_wooden_tower_v2\\stage1\\P03_real_43_weathered_wooden_tower_R\\skin_v3\\T_P03_real_43_weathered_wooden_tower_R_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\43_weathered_wooden_tower_v2\\stage1\\P03_real_43_weathered_wooden_tower_R\\skin_v3\\P03_real_43_weathered_wooden_tower_R_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 6,
+      "row_ordinal": 6,
+      "cue": "P03 Wing 007",
+      "cue_guid": "7230D0A9AD4491A8CBFB788DC5A7D95C",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_33_stone_pillar_ancient_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 367.343,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\33_stone_pillar_ancient_v2\\stage1\\P03_real_33_stone_pillar_ancient_L\\skin_v3\\T_P03_real_33_stone_pillar_ancient_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\33_stone_pillar_ancient_v2\\stage1\\P03_real_33_stone_pillar_ancient_L\\skin_v3\\P03_real_33_stone_pillar_ancient_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 6,
+      "row_ordinal": 6,
+      "cue": "P03 Wing 007",
+      "cue_guid": "7230D0A9AD4491A8CBFB788DC5A7D95C",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_52_rock_monolith_lichen_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 277.456,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0002,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\52_rock_monolith_lichen_v2\\stage1\\P03_real_52_rock_monolith_lichen_R\\skin_v3\\T_P03_real_52_rock_monolith_lichen_R_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\52_rock_monolith_lichen_v2\\stage1\\P03_real_52_rock_monolith_lichen_R\\skin_v3\\P03_real_52_rock_monolith_lichen_R_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 7,
+      "row_ordinal": 7,
+      "cue": "P03 Wing 008",
+      "cue_guid": "7742F44B2A42B6A7203114874CAD3E5B",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_coat_wall_L_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 361.633,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9828,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P03_coat_wall_L_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P03\\flats\\P03_coat_wall_L_v1\\skin_v3\\P03_coat_wall_L_v1_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 7,
+      "row_ordinal": 7,
+      "cue": "P03 Wing 008",
+      "cue_guid": "7742F44B2A42B6A7203114874CAD3E5B",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_45_rustic_wooden_cottage_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 540.117,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\45_rustic_wooden_cottage_v2\\hf\\skins\\T_P03_real_45_rustic_wooden_cottage_R_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 379.2,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\45_rustic_wooden_cottage_v2\\stage1\\P03_real_45_rustic_wooden_cottage_R\\skin_v3\\P03_real_45_rustic_wooden_cottage_R_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 8,
+      "row_ordinal": 8,
+      "cue": "P03 Wing 009",
+      "cue_guid": "84C1E90ADF41D6E38AB76EADD2179FE6",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_58_rock_formation_isolated_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 459.533,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\58_rock_formation_isolated_v2\\stage1\\P03_real_58_rock_formation_isolated_L\\skin_v3\\T_P03_real_58_rock_formation_isolated_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\58_rock_formation_isolated_v2\\stage1\\P03_real_58_rock_formation_isolated_L\\skin_v3\\P03_real_58_rock_formation_isolated_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 8,
+      "row_ordinal": 8,
+      "cue": "P03 Wing 009",
+      "cue_guid": "84C1E90ADF41D6E38AB76EADD2179FE6",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_coat_wall_R_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 469.343,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9934,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P03_coat_wall_R_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P03\\flats\\P03_coat_wall_R_v1\\skin_v3\\P03_coat_wall_R_v1_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 9,
+      "row_ordinal": 9,
+      "cue": "P03 Wing 010",
+      "cue_guid": "0C81EB2D824B7C77E674BBA604B985A7",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_36_stone_monolith_with_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 291.314,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.001,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\36_stone_monolith_with_v2\\stage1\\P03_real_36_stone_monolith_with_L\\skin_v3\\T_P03_real_36_stone_monolith_with_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\36_stone_monolith_with_v2\\stage1\\P03_real_36_stone_monolith_with_L\\skin_v3\\P03_real_36_stone_monolith_with_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 9,
+      "row_ordinal": 9,
+      "cue": "P03 Wing 010",
+      "cue_guid": "0C81EB2D824B7C77E674BBA604B985A7",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_52_rock_monolith_lichen_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 277.456,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0002,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\52_rock_monolith_lichen_v2\\stage1\\P03_real_52_rock_monolith_lichen_R\\skin_v3\\T_P03_real_52_rock_monolith_lichen_R_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\52_rock_monolith_lichen_v2\\stage1\\P03_real_52_rock_monolith_lichen_R\\skin_v3\\P03_real_52_rock_monolith_lichen_R_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 10,
+      "row_ordinal": 10,
+      "cue": "P03 Wing 011",
+      "cue_guid": "5606A2F1DC449E7E3FAC5E866173DD7F",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_59_rock_formation_with_L_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 444.06,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0004,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\59_rock_formation_with_v2\\hf\\skins\\T_P03_real_59_rock_formation_with_L_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\59_rock_formation_with_v2\\stage1\\P03_real_59_rock_formation_with_L\\skin_v3\\P03_real_59_rock_formation_with_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 10,
+      "row_ordinal": 10,
+      "cue": "P03 Wing 011",
+      "cue_guid": "5606A2F1DC449E7E3FAC5E866173DD7F",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_39_rock_monolith_lichen_R_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 279.954,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0002,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\39_rock_monolith_lichen_v2\\stage1\\P03_real_39_rock_monolith_lichen_R\\skin_v3\\T_P03_real_39_rock_monolith_lichen_R_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\39_rock_monolith_lichen_v2\\stage1\\P03_real_39_rock_monolith_lichen_R\\skin_v3\\P03_real_39_rock_monolith_lichen_R_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 11,
+      "row_ordinal": 11,
+      "cue": "P03 Wing 012",
+      "cue_guid": "0780796E60484341D039F5B00A6008FB",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_33_stone_pillar_ancient_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 367.343,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\33_stone_pillar_ancient_v2\\stage1\\P03_real_33_stone_pillar_ancient_L\\skin_v3\\T_P03_real_33_stone_pillar_ancient_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\33_stone_pillar_ancient_v2\\stage1\\P03_real_33_stone_pillar_ancient_L\\skin_v3\\P03_real_33_stone_pillar_ancient_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 11,
+      "row_ordinal": 11,
+      "cue": "P03 Wing 012",
+      "cue_guid": "0780796E60484341D039F5B00A6008FB",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_43_weathered_wooden_tower_R_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 401.683,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0001,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\43_weathered_wooden_tower_v2\\stage1\\P03_real_43_weathered_wooden_tower_R\\skin_v3\\T_P03_real_43_weathered_wooden_tower_R_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\43_weathered_wooden_tower_v2\\stage1\\P03_real_43_weathered_wooden_tower_R\\skin_v3\\P03_real_43_weathered_wooden_tower_R_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 12,
+      "row_ordinal": 12,
+      "cue": "P03 Wing 013",
+      "cue_guid": "622946E51046353D4D27EF8B20389CE3",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_41_rock_formation_with_L_t5p",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 273.98,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.001,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\41_rock_formation_with_v2\\hf\\skins\\T_P03_real_41_rock_formation_with_L_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\41_rock_formation_with_v2\\stage1\\P03_real_41_rock_formation_with_L\\skin_v3\\P03_real_41_rock_formation_with_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 12,
+      "row_ordinal": 12,
+      "cue": "P03 Wing 013",
+      "cue_guid": "622946E51046353D4D27EF8B20389CE3",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_heavy_oblong_R_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 112.945,
+        "height_above_floor": 770.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9996,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P03_stones_heavy_oblong_R_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 531.9,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P03\\flats\\P03_stones_heavy_oblong_R_v1\\skin_v3\\P03_stones_heavy_oblong_R_v1_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 13,
+      "row_ordinal": 13,
+      "cue": "P03 Wing 014",
+      "cue_guid": "300EDBEC62425BC6687C5E86503FC8E1",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_21_rock_formation_moss_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 484.137,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\21_rock_formation_moss_v2\\stage1\\P03_real_21_rock_formation_moss_L\\skin_v3\\T_P03_real_21_rock_formation_moss_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\21_rock_formation_moss_v2\\stage1\\P03_real_21_rock_formation_moss_L\\skin_v3\\P03_real_21_rock_formation_moss_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 13,
+      "row_ordinal": 13,
+      "cue": "P03 Wing 014",
+      "cue_guid": "300EDBEC62425BC6687C5E86503FC8E1",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_small_burning_R_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 358.447,
+        "height_above_floor": 620.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9875,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P03_pyre_small_burning_R_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 571.4,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P03\\flats\\P03_pyre_small_burning_R_v1\\skin_v3\\P03_pyre_small_burning_R_v1_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 14,
+      "row_ordinal": 14,
+      "cue": "P03 Wing 015",
+      "cue_guid": "65711AE75E4F1BB66477C1A75052C245",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_46_mossy_wooden_shack_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 500.369,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0002,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\46_mossy_wooden_shack_v2\\stage1\\P03_real_46_mossy_wooden_shack_L\\skin_v3\\T_P03_real_46_mossy_wooden_shack_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\46_mossy_wooden_shack_v2\\stage1\\P03_real_46_mossy_wooden_shack_L\\skin_v3\\P03_real_46_mossy_wooden_shack_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 14,
+      "row_ordinal": 14,
+      "cue": "P03 Wing 015",
+      "cue_guid": "65711AE75E4F1BB66477C1A75052C245",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_heavy_oblong_R_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 112.945,
+        "height_above_floor": 770.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9996,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P03_stones_heavy_oblong_R_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 531.9,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P03\\flats\\P03_stones_heavy_oblong_R_v1\\skin_v3\\P03_stones_heavy_oblong_R_v1_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 15,
+      "row_ordinal": 15,
+      "cue": "P03 Wing 016",
+      "cue_guid": "686F7D11CA4DC4681D962CBAF664FAD8",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_36_stone_monolith_with_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 291.314,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.001,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\36_stone_monolith_with_v2\\stage1\\P03_real_36_stone_monolith_with_L\\skin_v3\\T_P03_real_36_stone_monolith_with_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\36_stone_monolith_with_v2\\stage1\\P03_real_36_stone_monolith_with_L\\skin_v3\\P03_real_36_stone_monolith_with_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 15,
+      "row_ordinal": 15,
+      "cue": "P03 Wing 016",
+      "cue_guid": "686F7D11CA4DC4681D962CBAF664FAD8",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_abstract_cluster_R_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 544.726,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9954,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P03_stones_abstract_cluster_R_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 376.0,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P03\\flats\\P03_stones_abstract_cluster_R_v1\\skin_v3\\P03_stones_abstract_cluster_R_v1_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 16,
+      "row_ordinal": 16,
+      "cue": "P03 Wing 017",
+      "cue_guid": "53675A61CE474C46CE0F42890F785DE0",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_48_stone_pillar_ancient_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 367.343,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\48_stone_pillar_ancient_v2\\stage1\\P03_real_48_stone_pillar_ancient_L\\skin_v3\\T_P03_real_48_stone_pillar_ancient_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\48_stone_pillar_ancient_v2\\stage1\\P03_real_48_stone_pillar_ancient_L\\skin_v3\\P03_real_48_stone_pillar_ancient_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 16,
+      "row_ordinal": 16,
+      "cue": "P03 Wing 017",
+      "cue_guid": "53675A61CE474C46CE0F42890F785DE0",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_small_burning_R_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 358.447,
+        "height_above_floor": 620.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9875,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P03_pyre_small_burning_R_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 571.4,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P03\\flats\\P03_pyre_small_burning_R_v1\\skin_v3\\P03_pyre_small_burning_R_v1_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 17,
+      "row_ordinal": 17,
+      "cue": "P03 Wing 018",
+      "cue_guid": "B668CE90914EC39B4A510A9EE1A02F51",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_large_roaring_L_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 356.937,
+        "height_above_floor": 820.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9984,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P03_pyre_large_roaring_L_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 499.5,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P03\\flats\\P03_pyre_large_roaring_L_v1\\skin_v3\\P03_pyre_large_roaring_L_v1_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 17,
+      "row_ordinal": 17,
+      "cue": "P03 Wing 018",
+      "cue_guid": "B668CE90914EC39B4A510A9EE1A02F51",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_abstract_cluster_R_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 544.726,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9954,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P03_stones_abstract_cluster_R_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 376.0,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P03\\flats\\P03_stones_abstract_cluster_R_v1\\skin_v3\\P03_stones_abstract_cluster_R_v1_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 18,
+      "row_ordinal": 18,
+      "cue": "P03 Wing 019",
+      "cue_guid": "1D832ADD2745EC4745DA81B968DAC5A8",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_51_stone_monolith_structure_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 278.674,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0011,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\51_stone_monolith_structure_v2\\stage1\\P03_real_51_stone_monolith_structure_L\\skin_v3\\T_P03_real_51_stone_monolith_structure_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\51_stone_monolith_structure_v2\\stage1\\P03_real_51_stone_monolith_structure_L\\skin_v3\\P03_real_51_stone_monolith_structure_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 18,
+      "row_ordinal": 18,
+      "cue": "P03 Wing 019",
+      "cue_guid": "1D832ADD2745EC4745DA81B968DAC5A8",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_abstract_cluster_R_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 544.726,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9954,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P03_stones_abstract_cluster_R_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 376.0,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P03\\flats\\P03_stones_abstract_cluster_R_v1\\skin_v3\\P03_stones_abstract_cluster_R_v1_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 19,
+      "row_ordinal": 19,
+      "cue": "P03 Wing 020",
+      "cue_guid": "37A6207F3244F31A88BAEC943AAF31C6",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_54_stone_monolith_with_L_t5j",
+      "family": "flat_v3_thick5_realism",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 292.618,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "outward",
+        "inward_area_fraction": 0.0013,
+        "material": "UNCLEAR"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\54_stone_monolith_with_v2\\stage1\\P03_real_54_stone_monolith_with_L\\skin_v3\\T_P03_real_54_stone_monolith_with_L_SkinColor_o2.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 401.6,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Realism_20261007\\P03_stones_coast_sheds\\54_stone_monolith_with_v2\\stage1\\P03_real_54_stone_monolith_with_L\\skin_v3\\P03_real_54_stone_monolith_with_L_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 19,
+      "row_ordinal": 19,
+      "cue": "P03 Wing 020",
+      "cue_guid": "37A6207F3244F31A88BAEC943AAF31C6",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_small_burning_R_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 358.447,
+        "height_above_floor": 620.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9875,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P03_pyre_small_burning_R_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 571.4,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P03\\flats\\P03_pyre_small_burning_R_v1\\skin_v3\\P03_pyre_small_burning_R_v1_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 20,
+      "row_ordinal": 20,
+      "cue": "P03 Wing 021",
+      "cue_guid": "F98DD3DCF845CF8E62CC9B835FC7F8B0",
+      "side": "L",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_pyre_large_roaring_L_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 356.937,
+        "height_above_floor": 820.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9984,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P03_pyre_large_roaring_L_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 499.5,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P03\\flats\\P03_pyre_large_roaring_L_v1\\skin_v3\\P03_pyre_large_roaring_L_v1_flaps.json"
+    },
+    {
+      "passage": "P03",
+      "row_index": 20,
+      "row_ordinal": 20,
+      "cue": "P03 Wing 021",
+      "cue_guid": "F98DD3DCF845CF8E62CC9B835FC7F8B0",
+      "side": "R",
+      "mesh": "/Game/Scenes/Wings/FlatV3/Passage03/StaticMeshes/T5P/SM_FlatV3_P03_stones_abstract_cluster_R_v1_t5p",
+      "family": "flat_v3_thick5_older",
+      "board_thickness_cm": 5.0,
+      "bounds_cm": {
+        "width": 544.726,
+        "height_above_floor": 1020.0,
+        "total_depth": 19.85
+      },
+      "edge": {
+        "winding": "inward",
+        "inward_area_fraction": 0.9954,
+        "material": "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master_v3"
+      },
+      "art": {
+        "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Review_2026-10-05\\holes\\hf\\skins\\T_P03_stones_abstract_cluster_R_v1_SkinColor_o2p.png",
+        "resolution_px": [
+          2048,
+          4096
+        ],
+        "min_source_px_per_m": 376.0,
+        "below_250_px_per_m": false,
+        "mip_pot": "POT source; full-mip policy"
+      },
+      "relief": "SkinNormal; no POM by Flat V3 default",
+      "authored_flap_count": 5,
+      "flap_evidence": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P03\\flats\\P03_stones_abstract_cluster_R_v1\\skin_v3\\P03_stones_abstract_cluster_R_v1_flaps.json"
+    }
+  ],
+  "verified_replacement_inventory": [
+    {
+      "record": "E:\\PussStage\\Saved\\CodexFlatV3\\rzimport\\rzimport_verify_108927fa_LATEST.json",
+      "status": "PASS",
+      "ok": [
+        "S2K_ceiling_C",
+        "S2K_shrine_L",
+        "S2K_shrine_R"
+      ],
+      "owners": [
+        {
+          "count": 3,
+          "rel": "DerivedAssets/FlatV3/KlaraS2/IMPORT_MANIFEST_KlaraS2.json",
+          "run": "S2K-20261008-01",
+          "sha256": "115f74a4f8ffaf40d5394a4e57b2146015cc150acb872560942667b8f263f3bc"
+        }
+      ],
+      "mesh_paths": {
+        "S2K_ceiling_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_S2K_ceiling_C_t5j",
+        "S2K_shrine_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_L_t5p",
+        "S2K_shrine_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_S2K_shrine_R_t5p"
+      }
+    },
+    {
+      "record": "E:\\PussStage\\Saved\\CodexFlatV3\\rzimport\\rzimport_verify_70249bee_LATEST.json",
+      "status": "PASS",
+      "ok": [
+        "P06_rf_10_building_under_construct_R",
+        "P06_rf_1_stone_building_under_L",
+        "P06_rf_25_concrete_wall_with_L",
+        "P06_rf_26_concrete_panel_wood_L",
+        "P06_rf_2_pink_silk_structure_R",
+        "P06_rf_30_rusty_metal_door_L",
+        "P06_rf_33_burnt_furniture_ruin_L",
+        "P06_rf_35_metal_frame_door_L",
+        "P06_rf_38_burnt_wood_concrete_L",
+        "P06_rf_39_burnt_metal_door_L",
+        "P06_rf_3_orange_sail_structure_L",
+        "P06_rf_6_rock_formation_sculpture_L",
+        "P06_rf_7_draped_marble_statue_L",
+        "P06_rf_8_rock_formation_sculpture_R",
+        "P06_rf_9_draped_column_statue_R"
+      ],
+      "owners": [
+        {
+          "count": 15,
+          "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/IMPORT_MANIFEST_v3_P06.json",
+          "run": "FV3RZ-P06-20261007-02",
+          "sha256": "bc4fa330476ad76cbceeca47561198db7048060ea542345593952c9df9831176"
+        }
+      ],
+      "mesh_paths": {
+        "P06_rf_10_building_under_construct_R": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_10_building_under_construct_R_t5j",
+        "P06_rf_1_stone_building_under_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_1_stone_building_under_L_t5p",
+        "P06_rf_25_concrete_wall_with_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p",
+        "P06_rf_26_concrete_panel_wood_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_26_concrete_panel_wood_L_t5p",
+        "P06_rf_2_pink_silk_structure_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_2_pink_silk_structure_R_t5p",
+        "P06_rf_30_rusty_metal_door_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_30_rusty_metal_door_L_t5j",
+        "P06_rf_33_burnt_furniture_ruin_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_33_burnt_furniture_ruin_L_t5j",
+        "P06_rf_35_metal_frame_door_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_35_metal_frame_door_L_t5p",
+        "P06_rf_38_burnt_wood_concrete_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_38_burnt_wood_concrete_L_t5j",
+        "P06_rf_39_burnt_metal_door_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j",
+        "P06_rf_3_orange_sail_structure_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_3_orange_sail_structure_L_t5p",
+        "P06_rf_6_rock_formation_sculpture_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_6_rock_formation_sculpture_L_t5p",
+        "P06_rf_7_draped_marble_statue_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_7_draped_marble_statue_L_t5p",
+        "P06_rf_8_rock_formation_sculpture_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p",
+        "P06_rf_9_draped_column_statue_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P06_rf_9_draped_column_statue_R_t5p"
+      }
+    },
+    {
+      "record": "E:\\PussStage\\Saved\\CodexFlatV3\\rzimport\\rzimport_verify_78573711_LATEST.json",
+      "status": "PASS",
+      "ok": [
+        "VAL_real_15_ornate_gold_red_C",
+        "VAL_real_16_floral_green_drapery_C",
+        "VAL_real_4_red_velvet_curtain_C",
+        "VAL_real_57_ornate_rose_garland_C",
+        "VAL_real_5_black_velvet_curtain_C",
+        "VAL_real_60_velvet_curtain_with_C",
+        "VAL_real_62_velvet_curtain_with_C",
+        "VAL_real_7_dark_gray_draped_C"
+      ],
+      "owners": [
+        {
+          "count": 8,
+          "rel": "DerivedAssets/FlatV3/Realism_20261007/valances_upper_wings/IMPORT_MANIFEST_v2_VAL.json",
+          "run": "FV3RZ-VAL-20261007-02",
+          "sha256": "b882f1abd18f1a736d02a121ee631b5d9997abb215f289069bd6aad2df246cea"
+        }
+      ],
+      "mesh_paths": {
+        "VAL_real_15_ornate_gold_red_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_15_ornate_gold_red_C_t5j",
+        "VAL_real_16_floral_green_drapery_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_16_floral_green_drapery_C_t5j",
+        "VAL_real_4_red_velvet_curtain_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_4_red_velvet_curtain_C_t5j",
+        "VAL_real_57_ornate_rose_garland_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_57_ornate_rose_garland_C_t5j",
+        "VAL_real_5_black_velvet_curtain_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_5_black_velvet_curtain_C_t5j",
+        "VAL_real_60_velvet_curtain_with_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_60_velvet_curtain_with_C_t5j",
+        "VAL_real_62_velvet_curtain_with_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_62_velvet_curtain_with_C_t5j",
+        "VAL_real_7_dark_gray_draped_C": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_VAL_real_7_dark_gray_draped_C_t5j"
+      }
+    },
+    {
+      "record": "E:\\PussStage\\Saved\\CodexFlatV3\\rzimport\\rzimport_verify_887216a0_LATEST.json",
+      "status": "PASS",
+      "ok": [
+        "P02_real_19_moss_covered_driftwood_L",
+        "P02_real_23_moss_covered_rock_L",
+        "P02_real_26_moss_covered_rock_L",
+        "P02_real_28_moss_covered_tree_R",
+        "P02_real_32_entangled_roots_mossy_R",
+        "P02_real_37_wooden_stilt_hut_R",
+        "P02_real_42_rustic_wooden_hut_R",
+        "P02_real_44_moss_covered_stone_L",
+        "P02_real_53_wooden_stilt_house_R",
+        "P02_real_63_jungle_hut_mossy_L",
+        "P03_real_21_rock_formation_moss_L",
+        "P03_real_33_stone_pillar_ancient_L",
+        "P03_real_36_stone_monolith_with_L",
+        "P03_real_39_rock_monolith_lichen_R",
+        "P03_real_40_stonehenge_portal_stone_L",
+        "P03_real_41_rock_formation_with_L",
+        "P03_real_43_weathered_wooden_tower_R",
+        "P03_real_45_rustic_wooden_cottage_R",
+        "P03_real_46_mossy_wooden_shack_L",
+        "P03_real_48_stone_pillar_ancient_L",
+        "P03_real_51_stone_monolith_structure_L",
+        "P03_real_52_rock_monolith_lichen_R",
+        "P03_real_54_stone_monolith_with_L",
+        "P03_real_58_rock_formation_isolated_L",
+        "P03_real_59_rock_formation_with_L"
+      ],
+      "owners": [
+        {
+          "count": 10,
+          "rel": "DerivedAssets/FlatV3/Realism_20261007/P02_jungle/IMPORT_MANIFEST_v2_P02.json",
+          "run": "FV3RZ-P02-20261007-02",
+          "sha256": "07ffcbcc8d4f24bd0feaa2c09c0238ff758619a7c95dc68a1ca0f1a857bae458"
+        },
+        {
+          "count": 15,
+          "rel": "DerivedAssets/FlatV3/Realism_20261007/P03_stones_coast_sheds/IMPORT_MANIFEST_v2_P03.json",
+          "run": "FV3RZ-P03-20261007-02",
+          "sha256": "acdb46ce79a1834bca1026efec29e347b563cb494259523b15fee155a89b788e"
+        }
+      ],
+      "mesh_paths": {
+        "P02_real_19_moss_covered_driftwood_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_19_moss_covered_driftwood_L_t5j",
+        "P02_real_23_moss_covered_rock_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_23_moss_covered_rock_L_t5j",
+        "P02_real_26_moss_covered_rock_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_26_moss_covered_rock_L_t5j",
+        "P02_real_28_moss_covered_tree_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_28_moss_covered_tree_R_t5p",
+        "P02_real_32_entangled_roots_mossy_R": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_32_entangled_roots_mossy_R_t5j",
+        "P02_real_37_wooden_stilt_hut_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_37_wooden_stilt_hut_R_t5p",
+        "P02_real_42_rustic_wooden_hut_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_42_rustic_wooden_hut_R_t5p",
+        "P02_real_44_moss_covered_stone_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P02_real_44_moss_covered_stone_L_t5j",
+        "P02_real_53_wooden_stilt_house_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_53_wooden_stilt_house_R_t5p",
+        "P02_real_63_jungle_hut_mossy_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P02_real_63_jungle_hut_mossy_L_t5p",
+        "P03_real_21_rock_formation_moss_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_21_rock_formation_moss_L_t5j",
+        "P03_real_33_stone_pillar_ancient_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_33_stone_pillar_ancient_L_t5j",
+        "P03_real_36_stone_monolith_with_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_36_stone_monolith_with_L_t5j",
+        "P03_real_39_rock_monolith_lichen_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_39_rock_monolith_lichen_R_t5p",
+        "P03_real_40_stonehenge_portal_stone_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_40_stonehenge_portal_stone_L_t5p",
+        "P03_real_41_rock_formation_with_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_41_rock_formation_with_L_t5p",
+        "P03_real_43_weathered_wooden_tower_R": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_43_weathered_wooden_tower_R_t5j",
+        "P03_real_45_rustic_wooden_cottage_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_45_rustic_wooden_cottage_R_t5p",
+        "P03_real_46_mossy_wooden_shack_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_46_mossy_wooden_shack_L_t5j",
+        "P03_real_48_stone_pillar_ancient_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_48_stone_pillar_ancient_L_t5j",
+        "P03_real_51_stone_monolith_structure_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_51_stone_monolith_structure_L_t5j",
+        "P03_real_52_rock_monolith_lichen_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_52_rock_monolith_lichen_R_t5p",
+        "P03_real_54_stone_monolith_with_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_54_stone_monolith_with_L_t5j",
+        "P03_real_58_rock_formation_isolated_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P03_real_58_rock_formation_isolated_L_t5j",
+        "P03_real_59_rock_formation_with_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P03_real_59_rock_formation_with_L_t5p"
+      }
+    },
+    {
+      "record": "E:\\PussStage\\Saved\\CodexFlatV3\\rzimport\\rzimport_verify_aec07f98_LATEST.json",
+      "status": "INCOMPLETE",
+      "ok": [],
+      "owners": [
+        {
+          "count": 15,
+          "rel": "DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/P06_IMPORT_MANIFEST_v2.json",
+          "run": "FV3RZ-P06-20261007-02",
+          "sha256": "a443347b993a5651a70ba2ade21707f1f818e709767b2a575c4c70eaaeb7b6c5"
+        }
+      ],
+      "mesh_paths": {}
+    },
+    {
+      "record": "E:\\PussStage\\Saved\\CodexFlatV3\\rzimport\\rzimport_verify_d1b67b07_LATEST.json",
+      "status": "PASS",
+      "ok": [
+        "P01_real_12_ancient_stone_arch_L",
+        "P01_real_18_ivory_niche_with_L",
+        "P01_real_20_evergreen_tree_vertical_L",
+        "P01_real_22_topiary_plant_shape_R",
+        "P01_real_3_stone_fountain_architectura_L",
+        "P01_real_8_antique_wooden_fireplace_L",
+        "P04_real_11_gothic_arch_window_R",
+        "P04_real_13_gothic_arch_ruin_R",
+        "P04_real_14_gothic_window_stone_L",
+        "P04_real_25_gnarled_tree_illustration_L",
+        "P04_real_27_weathered_wood_stump_L",
+        "P04_real_29_dead_tree_with_L",
+        "P04_real_30_ancient_dry_tree_L",
+        "P04_real_34_dead_tree_with_L",
+        "P04_real_35_gnarled_tree_stump_R",
+        "P04_real_38_gnarled_tree_stump_L",
+        "P04_real_50_dead_tree_with_L",
+        "P04_real_55_gnarled_tree_sculpture_R",
+        "P04_real_56_gnarled_tree_stump_L"
+      ],
+      "owners": [
+        {
+          "count": 6,
+          "rel": "DerivedAssets/FlatV3/Realism_20261007/P01_classical_garden/IMPORT_MANIFEST_v2_P01.json",
+          "run": "FV3RZ-P01-20261007-02",
+          "sha256": "2443e00c5109bdf9d8670d1458535d3b763e9b342de9e5e63b51f088f070097e"
+        },
+        {
+          "count": 13,
+          "rel": "DerivedAssets/FlatV3/Realism_20261007/P04_gothic_blasted_trees/IMPORT_MANIFEST_v2_P04.json",
+          "run": "FV3RZ-P04-20261007-02",
+          "sha256": "a5c662e1769409b7db2598bebbc7df86ba3b9e4f5b4e8b54c26e1a34db87f5d2"
+        }
+      ],
+      "mesh_paths": {
+        "P01_real_12_ancient_stone_arch_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P01_real_12_ancient_stone_arch_L_t5p",
+        "P01_real_18_ivory_niche_with_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P01_real_18_ivory_niche_with_L_t5p",
+        "P01_real_20_evergreen_tree_vertical_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P01_real_20_evergreen_tree_vertical_L_t5p",
+        "P01_real_22_topiary_plant_shape_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P01_real_22_topiary_plant_shape_R_t5p",
+        "P01_real_3_stone_fountain_architectura_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P01_real_3_stone_fountain_architectura_L_t5j",
+        "P01_real_8_antique_wooden_fireplace_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P01_real_8_antique_wooden_fireplace_L_t5j",
+        "P04_real_11_gothic_arch_window_R": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_11_gothic_arch_window_R_t5j",
+        "P04_real_13_gothic_arch_ruin_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_13_gothic_arch_ruin_R_t5p",
+        "P04_real_14_gothic_window_stone_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_14_gothic_window_stone_L_t5j",
+        "P04_real_25_gnarled_tree_illustration_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_25_gnarled_tree_illustration_L_t5p",
+        "P04_real_27_weathered_wood_stump_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_27_weathered_wood_stump_L_t5j",
+        "P04_real_29_dead_tree_with_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_29_dead_tree_with_L_t5p",
+        "P04_real_30_ancient_dry_tree_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_30_ancient_dry_tree_L_t5p",
+        "P04_real_34_dead_tree_with_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_34_dead_tree_with_L_t5p",
+        "P04_real_35_gnarled_tree_stump_R": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_35_gnarled_tree_stump_R_t5p",
+        "P04_real_38_gnarled_tree_stump_L": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_38_gnarled_tree_stump_L_t5j",
+        "P04_real_50_dead_tree_with_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_50_dead_tree_with_L_t5p",
+        "P04_real_55_gnarled_tree_sculpture_R": "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_P04_real_55_gnarled_tree_sculpture_R_t5j",
+        "P04_real_56_gnarled_tree_stump_L": "/Game/Scenes/Wings/FlatV3/Realism/T5P/SM_FlatV3_P04_real_56_gnarled_tree_stump_L_t5p"
+      }
+    }
+  ],
+  "unclear": [
+    "No rendered/PIE acceptance was performed.",
+    "Industrial meshes have no single front-art px/m metric because their 2K/4K scans tile in metre-space UV1.",
+    "V2 and Industrial edge winding is absent from the thick5 edge probes.",
+    "Current Industrial Unreal mip settings were not present in the saved text readbacks."
+  ]
+}
