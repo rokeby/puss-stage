@@ -67,6 +67,32 @@ bool FInfinityStageVampLoopsUntilReleaseTest::RunTest(const FString& Parameters)
         TestEqual(TEXT("Loop count advances once per seam"), State.LoopCount, Loop);
     }
 
+    // Positive control for C3: UMovieSceneSequencePlayer::PlayTo pauses on its
+    // target before the component can observe that frame. An armed VampEnd must
+    // still win that arrival and replace the older Scene-end PlayTo.
+    State.Reset();
+    State.OnNavigation(90);
+    TestEqual(TEXT("Paused-arrival fixture arms while crossing VampStart"),
+        State.Tick(100, true, false, 1.0f, Ranges, LoopFrame),
+        EInfinityVampPlaybackAction::None);
+    TestTrue(TEXT("Paused-arrival fixture has an active vamp"), State.IsActive());
+    TestEqual(TEXT("A paused PlayTo arrival at VampEnd still loops"),
+        State.Tick(110, false, false, 1.0f, Ranges, LoopFrame),
+        EInfinityVampPlaybackAction::LoopToStart);
+    TestEqual(TEXT("The paused arrival returns to VampStart"), LoopFrame, FFrameNumber(100));
+
+    // Negative control: pausing inside the range is an operator pause, not a
+    // seam. It must remain paused and must not increment the loop count.
+    State.Reset();
+    State.OnNavigation(90);
+    State.Tick(100, true, false, 1.0f, Ranges, LoopFrame);
+    const int32 LoopsBeforeInteriorPause = State.LoopCount;
+    TestEqual(TEXT("A pause before VampEnd does not loop"),
+        State.Tick(109, false, false, 1.0f, Ranges, LoopFrame),
+        EInfinityVampPlaybackAction::None);
+    TestEqual(TEXT("The interior pause does not change loop count"),
+        State.LoopCount, LoopsBeforeInteriorPause);
+
     TestTrue(TEXT("RIGHT releases an active vamp"), State.Release(100, Ranges));
     TestEqual(TEXT("A released vamp plays through its end"),
         State.Tick(110, true, false, 1.0f, Ranges, LoopFrame),

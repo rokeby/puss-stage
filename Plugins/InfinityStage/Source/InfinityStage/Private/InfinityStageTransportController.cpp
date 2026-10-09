@@ -437,6 +437,28 @@ EInfinityVampPlaybackAction FInfinityVampPlaybackState::Tick(
         bHasPreviousFrame = true;
         return EInfinityVampPlaybackAction::None;
     }
+
+    // PlayTo pauses when it reaches its target. Handle an already-armed vamp's
+    // end before the generic paused-player path, otherwise the seam can lose to
+    // the segment-end PlayTo that started the Scene (C3, Gary 8 Oct).
+    if (!bPlaying
+        && !bReversed
+        && !bPlayOnce
+        && Ranges.IsValidIndex(ActiveVampIndex)
+        && CurrentFrame >= Ranges[ActiveVampIndex].EndFrame)
+    {
+        const FInfinityVampRange& Range = Ranges[ActiveVampIndex];
+        const int32 Duration = (Range.EndFrame - Range.StartFrame).Value;
+        const int32 Overshoot = FMath::Max(0, (CurrentFrame - Range.EndFrame).Value);
+        OutLoopFrame = Range.StartFrame + FFrameNumber(Overshoot % Duration);
+        PreviousFrame = OutLoopFrame;
+        ++LoopCount;
+        UE_LOG(LogInfinityStageTransport, Log,
+            TEXT("INFINITY_VAMP_PAUSED_END_LOOP index=%d count=%d from=%d to=%d"),
+            ActiveVampIndex, LoopCount, CurrentFrame.Value, OutLoopFrame.Value);
+        return EInfinityVampPlaybackAction::LoopToStart;
+    }
+
     if (!bPlaying)
     {
         PreviousFrame = CurrentFrame;
@@ -2695,7 +2717,7 @@ bool UInfinityStageTransportController::HandleVampPlayback(const FFrameNumber Cu
     Player->PlayTo(
         FMovieSceneSequencePlaybackParams(EndDisplayFrame, EUpdatePositionMethod::Play),
         PlayToParams);
-    UE_LOG(LogInfinityStageTransport, Verbose,
+    UE_LOG(LogInfinityStageTransport, Log,
         TEXT("INFINITY_VAMP_LOOP index=%d count=%d from=%d to=%d"),
         VampPlaybackState.ActiveVampIndex,
         VampPlaybackState.LoopCount,
