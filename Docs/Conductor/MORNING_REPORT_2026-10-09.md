@@ -33,6 +33,10 @@ Tiers: **measured** = run and read back from Unreal; **inferred** = not verified
 6. Handprints A/B pick; P30 parcan subset (bay-1 practical refused); P33 passages-to-music DRY review; Stylish fire choice; P02 lighting plan.
 7. S3 had **Shore05_M53 missing from the level** (5 of 6 Shore figures placed) — intended?
 
+## New questions (9 Oct morning)
+- **P06 scaffold on the keeper**: Wing 045 R is the sliding keeper of the left domino. Should its side become the real 3D scaffold bay (it would slide with the mechanism), or stay a flat? (W&T does the other 3 scaffold sides.)
+- **P02 fences looked low quality** because their faces use 64×64 placeholder textures [binary-proven, W&T]; W&T is building an industrial tiling master to re-texture them — stills to you.
+
 ## Planned
 - **P37 (Codex, running)**: P06 falls more dramatic + settle dust + a 12-wing RIGHT-side domino ending in a slam at ~122 s before the Void (brief `codex_briefs/p37_p06_domino_finale.md`).
 
