@@ -17,6 +17,8 @@ Tiers: **measured** = run and read back from Unreal; **inferred** = not verified
 | S3 shroud hessian, mostly desaturated | 14 textures (25 % saturation) + M_Shroud_Hessian + 6 MIs; applied to the 5 placed Shore figures | measured (APPLY_OK) — **not yet seen in a render** |
 | Pearl f4 + light 15 % (finishing touches) | done; still reads near-white at 6 cd | option A (light off) is your call |
 | P02 brightness → APPLY1 + stills (finishing touches) | done | see FT stills |
+| S2 V3 wings overlay (W&T) | S2V3OV APPLY_OK + VERIFY_OK; SavedMasterMatchesShow + SceneCutBindingsResolve Success | measured (W&T report) |
+| Paper proscenium (W&T) | 3 pieces imported (RZIMP VERIFY_OK); placement re-run after a false-negative read-back — see W&T | measured import; placement pending at writing |
 | Backups | D:\PussStageBackups and F:\PussStageBackups (152.8 GB, 96,360 files, 0 failed) | measured (robocopy summary) |
 
 ## Needs you
