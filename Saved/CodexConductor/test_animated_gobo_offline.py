@@ -49,7 +49,7 @@ RAW = {
     "atlas_png": str(ATLAS), "manifest": str(MANIFEST),
     "mi_path": "/Game/InfinityStage/Lighting/Gobo/MI_ShadowGobo_P6_TestBird",
     "texture_path": "/Game/InfinityStage/Lighting/Gobo/T_Gobo_P6_TestBird_6x4",
-    "frame_start": 175, "frame_end": 250,
+    "frame_start": 175, "frame_end": 250, "display_fps": 25,
 }
 ARGS = ag.normalized_args(RAW)
 PLAN = ag.plan_from_args(ARGS)
@@ -151,7 +151,10 @@ AFTER = ag.apply_model(BEFORE, PLAN)
 RECORD = {"snapshot_before": BEFORE, "snapshot_after": AFTER}
 check("D01 apply model assigns MI to both spots", all(AFTER["lights"][v] == PLAN["mi"] for v in ARGS["light_labels"]))
 check("D02 apply model adds one named Frame track", AFTER["track"]["name"] == ag.TRACK_NAME and AFTER["track"]["keys"] == PLAN["frame_keys"])
-check("D02b apply model expects section range [start, end+1)", AFTER["track"]["range"] == [175, 251], AFTER["track"]["range"])
+check("D02b section spans the whole playback (handheld Clock runs while lit)", AFTER["track"]["range"] == [0, 2183],
+      AFTER["track"]["range"])
+check("D02c Clock keyed linear in seconds over playback", AFTER["track"]["clock_keys"] == [[0, 0.0], [2182, 2182 / 25.0]],
+      AFTER["track"]["clock_keys"])
 check("D03 exact APPLY snapshot passes", ag.snapshot_diff(AFTER, RECORD["snapshot_after"]) == [])
 check("D04 exact REVERT restores before", ag.revert_model(AFTER, RECORD) == BEFORE)
 drift = copy.deepcopy(AFTER)
@@ -203,7 +206,7 @@ old_counts = cell_counts([[175, 0.0], [250, 23.0]], 24)
 check("F10 -control old Frames-1 end key starves the last cell", old_counts[-1] == 1, old_counts)
 GOOD = {"master": {"domain_ok": True, "atlas_compat": True, "scalars": list(ag.SCALAR_DEFAULTS),
                    "textures": [ag.TEXTURE_PARAMETER]},
-        "mpc": {"scalars": ["Frame"]}, "mpc_referencers": [ag.MASTER]}
+        "mpc": {"scalars": list(ag.MPC_SCALARS)}, "mpc_referencers": [ag.MASTER]}
 check("F11 valid shared assets pass", ag.shared_asset_problems(GOOD) == [])
 check("F11b -control atlas master offered for a no-atlas plan", any("MASTER_ATLAS_COMPAT" in r for r in
       ag.shared_asset_problems(GOOD, ag.MASTER, atlas_compatible=False)))
@@ -219,7 +222,8 @@ bad_cases = [
     ("atlas compat off", lambda d: d["master"].update(atlas_compat=False), "MASTER_ATLAS_COMPAT"),
     ("missing scalar", lambda d: d["master"].update(scalars=list(ag.SCALAR_DEFAULTS)[1:]), "MASTER_SCALARS"),
     ("extra texture param", lambda d: d["master"].update(textures=["FlipbookAtlas", "Other"]), "MASTER_TEXTURES"),
-    ("MPC without Frame", lambda d: d["mpc"].update(scalars=["Other"]), "MPC_FRAME"),
+    ("MPC without Frame", lambda d: d["mpc"].update(scalars=["Other"]), "MPC_SCALARS"),
+    ("MPC without Clock (old run-004 MPC)", lambda d: d["mpc"].update(scalars=["Frame"]), "MPC_SCALARS"),
     ("master without MPC", lambda d: d.update(mpc=None), "MASTER_WITHOUT_MPC"),
     ("master not reading MPC", lambda d: d.update(mpc_referencers=[]), "MASTER_NOT_ON_MPC"),
 ]
@@ -276,7 +280,7 @@ check("G21 17 m image at 30 m: ~17.8 deg at Scale 0.883 vs ~21.8 deg at 0.707",
 check("G22 border shader and Python twin share the formula", "smoothstep(0.0, f, hx - q.x) * smoothstep(0.0, f, hy - q.y)"
       in ag.CODE_BORDER and "rect = smooth(0.0, f, hx - qx) * smooth(0.0, f, hy - qy)" in (HERE / "animated_gobo.py").read_text(encoding="utf-8"))
 check("G23 border multiplies the final output", "* Border;" in ag.CODE_EDGE)
-check("G24 UV maths centring matches the border", "(UV + UVCentre - 0.5)" in ag.CODE_UV and "(UV + UVCentre - 0.5)" in ag.CODE_BORDER)
+check("G24 UV maths centring matches the border", "UV + UVCentre - 0.5" in ag.CODE_UV and "UV + UVCentre - 0.5" in ag.CODE_BORDER)
 
 # H. UE light-function axes (measured 8 Oct, GOBOREVIEW-20261008-175603: portrait border + sideways bird with
 #    SpotAxes absent; offline prediction with U=up, V=right matched the render).
@@ -303,6 +307,44 @@ raises("H07 -control SpotAxes other than 0/1", "BORDER_PARAMS", lambda: ag.plan_
 src = (HERE / "animated_gobo.py").read_text(encoding="utf-8")
 check("H08 both shader nodes carry the remap", ag.CODE_UV.count("2.0 * c - UV.x") == 1 and ag.CODE_BORDER.count("2.0 * c - UV.x") == 1)
 
+# I. Stepped schedule, handheld Clock, Approach, RG defocus (8 Oct evening).
+check("I01 schedule -> CONSTANT keys in display frames", ag.schedule_keys([[0, 0], [0.5, 3], [1.0, 3], [1.04, 5]], 100, 25)
+      == [[100, 0.0], [112, 3.0], [125, 3.0], [126, 5.0]])
+check("I02 a later event wins a shared frame", ag.schedule_keys([[0.0, 1], [0.01, 2]], 0, 25) == [[0, 2.0]])
+check("I03 Clock keys are seconds, exclusive end", ag.clock_keys([0, 2226], 25) == [[0, 0.0], [2225, 89.0]])
+check("I04 channel_param reads suffixed names", ag.channel_param("Clock_12") == "Clock" and ag.channel_param("Frame") == "Frame"
+      and ag.channel_param("Approach_3") == "Approach" and ag.channel_param("Clocks") is None)
+raises("I05 -control display_fps missing", "DISPLAY_FPS", lambda: ag.plan_from_args(ag.normalized_args(
+    {k: v for k, v in RAW.items() if k != "display_fps"})))
+got = ag.preflight_refusals("DRY", ARGS, dict(CLEAN, display_fps=30.0), PLAN)
+check("I06 -control sequence display rate differs from args", any("DISPLAY_FPS_MISMATCH" in r for r in got), got)
+check("I07 matching display rate passes", ag.preflight_refusals("DRY", ARGS, dict(CLEAN, display_fps=25.0), PLAN) == [])
+raises("I08 -control HandShift too large", "HAND_PARAMS", lambda: ag.plan_from_args(ag.normalized_args(
+    dict(RAW, params={"HandShift": 0.2}))))
+raises("I09 -control negative speed", "HAND_PARAMS", lambda: ag.plan_from_args(ag.normalized_args(
+    dict(RAW, params={"HandSpeed": 0.0}))))
+check("I10 linear ramp kept when the manifest has no schedule", PLAN["frame_interp"] == "LINEAR")
+_sch = json.loads(MANIFEST.read_text(encoding="utf-8"))
+_sch["schedule"] = [[0.0, 0], [0.4, 1], [2.0, 23]]
+(_tmp / "manifest_sched.json").write_text(json.dumps(_sch), encoding="utf-8")
+SPLAN = ag.plan_from_args(ag.normalized_args(dict(RAW, manifest=str(_tmp / "manifest_sched.json"))))
+check("I11 schedule manifest -> CONSTANT keys from frame_start", SPLAN["frame_interp"] == "CONSTANT" and
+      SPLAN["frame_keys"] == [[175, 0.0], [185, 1.0], [225, 23.0]], SPLAN["frame_keys"])
+_sch["schedule"] = [[0.0, 0], [0.4, 99]]
+(_tmp / "manifest_bad.json").write_text(json.dumps(_sch), encoding="utf-8")
+raises("I12 -control schedule cell outside the atlas", "SCHEDULE_CELL", lambda: ag.plan_from_args(ag.normalized_args(
+    dict(RAW, manifest=str(_tmp / "manifest_bad.json")))))
+check("I13 both nodes share the identical handheld noise", ag.CODE_UV.count("float n4 =") == 1 and
+      ag.CODE_EDGE.count("float n4 =") == 1 and
+      ag.CODE_UV[ag.CODE_UV.index("float ht"):ag.CODE_UV.index("float n4")] ==
+      ag.CODE_EDGE[ag.CODE_EDGE.index("float ht"):ag.CODE_EDGE.index("float n4")])
+check("I14 border does not wobble (no Clock in the border node)", "Clock" not in ag.CODE_BORDER)
+check("I15 defocus mixes R (sharp) to G (blur)", "lerp(Mask.r, Mask.g, def)" in ag.CODE_EDGE)
+check("I16 MPC carries Frame, Clock, Approach", tuple(ag.MPC_SCALARS) == ("Frame", "Clock", "Approach")
+      and src.count("for name in MPC_SCALARS") == 1)
+check("I17 every Edge input is wired", all(n in src for n in ('"Clock", "Approach") + HAND_NAMES',))
+      and set(ag.EDGE_INPUTS) >= {"Mask", "Border", "Clock", "Approach"} | set(ag.HAND_NAMES))
+
 # E. Static safety contract: cheap but catches accidental erosion of house rules.
 source = (HERE / "animated_gobo.py").read_text(encoding="utf-8")
 runner = (HERE / "animated_gobo_run.py").read_text(encoding="utf-8")
@@ -322,9 +364,9 @@ check("E09 offline import did not load Unreal", ag.unreal is None)
 check("E10 revert refuses external referencers before delete", source.index("REVERT_EXTERNAL_REFERENCERS") < source.index("delete_asset(path)"))
 check("E11 existing make_gobo_flipbook manifest names are accepted", all(name in source for name in
       ("GoboCols", "GoboRows", "GoboFrames", "GoboGutterUV", "GoboCellUV")))
-check("E17 sRGB-off atlas is sampled as LINEAR_GRAYSCALE (2 sampler sites)",
-      source.count("SAMPLERTYPE_LINEAR_GRAYSCALE") == 2 and "SAMPLERTYPE_GRAYSCALE" not in source and
-      'set_editor_property("srgb", False)' in source)
+check("E17 sRGB-off RG atlas: BC7 + LINEAR_COLOR at both sampler sites (no sRGB samplers)",
+      source.count("SAMPLERTYPE_LINEAR_COLOR, group") == 2 and "SAMPLERTYPE_GRAYSCALE" not in source and
+      "SAMPLERTYPE_COLOR," not in source and "TC_BC7" in source and 'set_editor_property("srgb", False)' in source)
 check("E12 no UE5.8-absent master-track API", not any(n in source for n in
       ("get_master_tracks", "add_master_track", "remove_master_track")))
 check("E13 track uses get_tracks/add_track/remove_track", all(n in source for n in
