@@ -1,7 +1,8 @@
 """Offline positive and negative controls for P33 passages_to_music.py.
 
-Run from the repository root:
-  python -X utf8 Saved/CodexConductor/test_passages_to_music.py
+Run from the repository root, optionally naming the args file whose contract
+must also be checked:
+  python -X utf8 Saved/CodexConductor/test_passages_to_music.py [args.json]
 
 No Unreal, MCP, Blender, GPU, source audio, or Content asset is opened.
 """
@@ -29,8 +30,37 @@ def load_tool():
 tool = load_tool()
 assert tool.unreal is None, "offline harness must not load Unreal"
 
-with open(os.path.join(HERE, "passages_to_music_args.json"), "r", encoding="utf-8") as handle:
-    SHIPPED = json.load(handle)
+if len(sys.argv) > 2:
+    raise SystemExit("usage: test_passages_to_music.py [args.json]")
+ARGS_PATH = (os.path.abspath(sys.argv[1]) if len(sys.argv) == 2
+             else os.path.join(HERE, "passages_to_music_args.json"))
+with open(ARGS_PATH, "r", encoding="utf-8") as handle:
+    LIVE_ARGS = json.load(handle)
+
+
+def isolated_dry_fixture():
+    """Own all test inputs; never inherit mutable state from the operator args file."""
+    seconds = {"1": 73.516032, "2": 45.51424, "3": 40.217914,
+               "4": 48.397664, "5": 42.022472}
+    per_passage = {
+        key: {"guid": "fixture-guid-" + key, "music_s": value,
+              "sound": "/Game/Fixture/SW_P%s" % key, "expected": None}
+        for key, value in seconds.items()
+    }
+    per_passage["6"] = {
+        "guid": "fixture-guid-6", "music_s": None, "sound": tool.P06_LIVE_SOUND,
+        "duration_source": "LIVE_SOUNDWAVE", "expected": None}
+    return {
+        "mode": "DRY", "confirm": "DRY PASSAGES TO MUSIC", "run_id": None,
+        "passages": list(tool.VALID_KEYS),
+        "tail_overrides_s": {key: 0.0 for key in tool.VALID_KEYS},
+        "review": {"inventory_sha256": None, "past_end_actions": {}},
+        "per_passage": per_passage,
+        "decided_by": "offline fixture",
+    }
+
+
+FIXTURE = isolated_dry_fixture()
 with open(os.path.join(HERE, "..", "..", "Tools", "MusicAnalysis", "p11_timing_snapshot.json"),
           "r", encoding="utf-8") as handle:
     SNAPSHOT = json.load(handle)
@@ -56,7 +86,7 @@ def test(function):
 
 
 def args(**updates):
-    value = copy.deepcopy(SHIPPED)
+    value = copy.deepcopy(FIXTURE)
     value.update(updates)
     return value
 
@@ -69,14 +99,18 @@ def passage_segment(key):
 
 @test
 def shipped_args_and_negative_controls():
-    check(tool.validate_args(SHIPPED) == [], "shipped DRY args valid")
+    check(tool.validate_args(LIVE_ARGS) == [], "selected live args valid in its own mode")
+    check(tool.validate_args(FIXTURE) == [], "isolated DRY fixture valid")
     check(any("MODE" in x for x in tool.validate_args(args(mode="GO"))), "negative invalid mode")
     check(any("ALL_SIX" in x for x in tool.validate_args(args(passages=["1"]))), "negative partial set")
     bad = args()
     bad["tail_overrides_s"]["5"] = -1
     check(any("TAIL_OVERRIDE" in x for x in tool.validate_args(bad)), "negative tail override")
     bad = args(mode="APPLY", confirm="APPLY PASSAGES TO MUSIC")
-    check(any("EXPECTED" in x for x in tool.validate_args(bad)), "negative APPLY without DRY numbers")
+    errors = tool.validate_args(bad)
+    missing = [row for row in errors if row.startswith("EXPECTED_")]
+    check(len(missing) == len(tool.VALID_KEYS) * 3 and "REVIEW_HASH_MISSING" in errors,
+          "negative APPLY without DRY numbers")
     apply = args(mode="APPLY", confirm="APPLY PASSAGES TO MUSIC")
     apply["review"]["inventory_sha256"] = "abc"
     for key in tool.VALID_KEYS:
@@ -90,7 +124,9 @@ def shipped_args_and_negative_controls():
 def music_targets_are_exact_display_frames():
     expected = {"1": 1764480, "2": 1092480, "3": 965760, "4": 1161600, "5": 1008960, "6": 2654400}
     for key, want in expected.items():
-        got = tool.target_ticks(SHIPPED["per_passage"][key]["music_s"], 0.0, TICK, *FPS)
+        live_duration = 110.561125 if key == "6" else None
+        seconds = tool.selected_music_seconds(key, FIXTURE["per_passage"][key], live_duration)
+        got = tool.target_ticks(seconds, 0.0, TICK, *FPS)
         check(got == want, "P%s selected music target %d == %d" % (key, got, want))
         check(got % 960 == 0, "P%s target on 25 fps frame" % key)
     check(tool.target_ticks(42.022472, 1.0, TICK, *FPS) == 1032960, "positive explicit one-second override")
@@ -166,6 +202,10 @@ def review_actions_are_explicit():
     check(refusals == [] and len(notes) == len(groups), "positive every remaining group explicitly reviewed")
     bad_actions = {group: "PROPORTIONAL_SCALE" for group in groups}
     check(tool.review_refusals(groups, bad_actions)[0], "negative unsupported silent scaling refused")
+    move_actions = {group: ("KEEP_ABSOLUTE" if any(group.endswith(":" + suffix) for suffix in (
+        "masterMarkers", "masterArtistKeys", "masterArtistSections")) else "MOVE_INSIDE") for group in groups}
+    check(tool.review_refusals(groups, move_actions)[0] == [], "positive MOVE_INSIDE requires explicit action")
+    check(tool.review_refusals(groups, {})[0], "negative past-end item left unresolved still refuses")
 
 
 @test
@@ -173,12 +213,41 @@ def p05_resolution_options_are_complete():
     options = tool.p05_height_options(synthetic_inventory(), TICK, 42.022472)
     names = [row["name"] for row in options["options"]]
     check(options["status"] == "hazard" and len(options["lateKeys"]) == 2, "P05 hazard detected")
-    check(names == ["MOVE_RETURN_TO_NEW_END", "PROPORTIONAL_RETIME", "DELETE_LATE_KEYS", "TAIL_OVERRIDE",
-                    "KEEP_UNPLAYED"], "P05 options listed in review order")
+    check(names == ["MOVE_RETURN_TO_NEW_END", "MOVE_INSIDE", "DELETE_LATE_KEYS", "TAIL_OVERRIDE",
+                     "KEEP_UNPLAYED"], "P05 options listed in review order")
     supported = {row["name"]: row["supportedByThisTool"] for row in options["options"]}
     check(supported["TAIL_OVERRIDE"] and supported["KEEP_UNPLAYED"], "non-destructive in-tool options supported")
-    check(not supported["PROPORTIONAL_RETIME"] and not supported["DELETE_LATE_KEYS"],
-          "absolute key scaling/deletion never implicit")
+    check(supported["MOVE_INSIDE"] and not supported["DELETE_LATE_KEYS"],
+          "reviewed MOVE_INSIDE supported and deletion never implicit")
+
+
+@test
+def move_inside_lands_inside_and_revert_values_are_exact():
+    old_len, new_len = 4472727, 1008960
+    key_id = "P05|passage-key|Camera.HeightOffsetCm|4472726|3"
+    section_id = "P06|choreo-section|root/MovieSceneSubTrack/P06 Bee Glints (Effects)|0|0"
+    per = {
+        "5": {"guid": "g5", "plan": {"old_ticks": old_len, "new_ticks": new_len},
+              "inventory": {"pastNewEnd": {"passageChannelKeys": [{"id": key_id,
+                  "channel": "Camera.HeightOffsetCm", "sectionLocalTick": 4472726, "value": 0.0}],
+                  "choreoSections": []}},
+              "reviewGroups": {"P05:passage_channel:Camera.HeightOffsetCm": [key_id]}, "choreo": None},
+        "6": {"guid": "g6", "plan": {"old_ticks": 3024027, "new_ticks": 2654400},
+              "inventory": {"pastNewEnd": {"passageChannelKeys": [], "choreoSections": [{"id": section_id,
+                  "where": "root/MovieSceneSubTrack/P06 Bee Glints (Effects)", "start": 0, "end": 3024000}]}},
+              "reviewGroups": {"P06:choreoSections": [section_id]},
+              "choreo": {"path": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_6"}}}
+    actions = {"P05:passage_channel:Camera.HeightOffsetCm": "MOVE_INSIDE", "P06:choreoSections": "MOVE_INSIDE"}
+    plan = tool.build_move_inside_plan(per, actions)
+    moved_key = plan["passageKeys"][0]
+    moved_section = plan["choreoSections"][0]
+    check(moved_key["newLocal"] < new_len, "MOVE_INSIDE point lands strictly inside")
+    check((moved_key["oldLocal"], moved_section["oldStart"], moved_section["oldEnd"]) ==
+          (4472726, 0, 3024000), "REVERT originals recorded exactly")
+    check(moved_section["newEnd"] <= 2654400 and moved_section["newEnd"] > moved_section["newStart"],
+          "MOVE_INSIDE section lands within shortened Passage")
+    keep = tool.build_move_inside_plan(per, {group: "KEEP_UNPLAYED" for group in actions})
+    check(keep["passageKeys"] == [] and keep["choreoSections"] == [], "KEEP_UNPLAYED is never chosen implicitly")
 
 
 def key_state(start, height=10.0, yaw=1.0):
@@ -216,7 +285,9 @@ def downstream_shift_is_proven():
     deltas = {}
     for key in tool.VALID_KEYS:
         seg = passage_segment(key)
-        target = tool.target_ticks(SHIPPED["per_passage"][key]["music_s"], 0.0, TICK, *FPS)
+        duration = 110.561125 if key == "6" else None
+        selected = tool.selected_music_seconds(key, FIXTURE["per_passage"][key], duration)
+        target = tool.target_ticks(selected, 0.0, TICK, *FPS)
         deltas[tool.label_of(key)] = target - (seg["end"] - seg["start"])
     predicted = tool.base.predict_segments(segments, deltas)
     after = [{"label": row["label"], "start": row["new_start"], "end": row["new_end"]} for row in predicted]
@@ -228,21 +299,22 @@ def downstream_shift_is_proven():
 
 
 @test
-def source_tail_requires_a_decision():
-    row = SHIPPED["per_passage"]["6"]
-    music = {"mode": "START", "sound": row["sound"], "source_in": 0, "source_out": 125 * TICK,
+def p06_live_sound_is_the_default_source():
+    row = FIXTURE["per_passage"]["6"]
+    selected = tool.selected_music_seconds("6", row, 110.561125)
+    music = {"mode": "START", "sound": row["sound"], "source_in": 0, "source_out": int(selected * TICK),
              "offset": 0, "fade_in": 0, "fade_out": TICK, "tick_rate": TICK}
-    refusals, notes, report = tool.source_policy("6", music, row["music_s"], row, {"past_end_actions": {}})
-    check(any("SOURCE_TAIL_UNDECIDED" in x for x in refusals), "negative P06 source tail undecided")
-    review = {"past_end_actions": {"P06:source_tail": "KEEP_UNUSED"}}
-    refusals, notes, report = tool.source_policy("6", music, row["music_s"], row, review)
-    check(refusals == [] and notes and abs(report["unusedSourceTailSeconds"] - 14.438875) < 1e-6,
-          "positive P06 explicit unused tail")
+    refusals, notes, report = tool.source_policy("6", music, selected, row, {"past_end_actions": {}})
+    check(refusals == [] and not notes and report["sound"] == tool.P06_LIVE_SOUND,
+          "positive live P06 sound has no SOUND_CHANGED refusal")
+    changed = dict(music, sound="/Game/Old/Cameron")
+    check(any("SOUND_CHANGED" in x for x in tool.source_policy("6", changed, selected, row, {})[0]),
+          "negative non-live P06 sound still refuses")
     short = dict(music, source_out=100 * TICK)
-    check(any("EXCEEDS_LIVE_RAIL" in x for x in tool.source_policy("6", short, row["music_s"], row, review)[0]),
+    check(any("EXCEEDS_LIVE_RAIL" in x for x in tool.source_policy("6", short, selected, row, {})[0]),
           "negative selection longer than rail")
     offset = dict(music, offset=1)
-    check(any("RAIL_OFFSET" in x for x in tool.source_policy("6", offset, row["music_s"], row, review)[0]),
+    check(any("RAIL_OFFSET" in x for x in tool.source_policy("6", offset, selected, row, {})[0]),
           "negative nonzero rail offset")
 
 

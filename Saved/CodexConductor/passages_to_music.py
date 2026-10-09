@@ -5,17 +5,17 @@ IntervalToNext, and TailFrames.  They are scaled by one factor and the final
 rounding residual is absorbed in TailFrames; see plan_scaled_timing() and
 _write_timing() in passage_retime_to_music.py.
 
-[declaration-proven] The target is the P11 selected music duration, rounded up
-to a whole Show display frame, plus an explicit per-Passage tail override.
-Every shipped override is zero.  The live rail is checked, but P06 deliberately
-uses the measured 110.561125 s interval rather than silently accepting its
-unused 125 s WAV tail.
+[declaration-proven] P01-P05 target the P11 selected music duration. P06 targets
+the duration measured live from its assigned SW_P06_IntoVoid SoundWave. Targets
+round up to a whole Show display frame, plus an explicit per-Passage tail
+override; every shipped override is zero.
 
 [declaration-proven] Passage-section channel keys are not scaled.  The managed
 Master rebuild carries them with their section start; relative_key_carry_gate()
 proves their local ticks and numeric values survive.  DRY lists every absolute
 Passage key, plus every key, section, marker, pin, and Choreo item at or beyond
-the proposed end.  Anything stranded requires an explicit KEEP_UNPLAYED action;
+the proposed end. Anything stranded requires an explicit MOVE_INSIDE or
+KEEP_UNPLAYED action;
 unmanaged Master content requires KEEP_ABSOLUTE.  APPLY must carry the exact DRY
 review hash.  Relative pins cannot be accepted because the rebuild deletes pins
 outside the new range.
@@ -29,6 +29,7 @@ the conductor runs it later through passages_to_music_run.py.
 from __future__ import annotations
 
 import datetime
+import copy
 import hashlib
 import importlib.util
 import json
@@ -64,6 +65,7 @@ RECORD_NAME = "passages_to_music_record.json"
 VALID_KEYS = ("1", "2", "3", "4", "5", "6")
 CONFIRMS = {m: "%s PASSAGES TO MUSIC" % m for m in ("DRY", "APPLY", "REVERT")}
 SONG_TOL_S = 0.002
+P06_LIVE_SOUND = "/Game/InfinityStage/Audio/Passages/SW_P06_IntoVoid"
 
 
 def label_of(key):
@@ -102,7 +104,11 @@ def validate_args(args):
             continue
         if not str(row.get("guid") or "").strip():
             out.append("GUID_MISSING: P%s" % key)
-        if not _number(row.get("music_s"), 0.001):
+        duration_source = str(row.get("duration_source") or "")
+        if duration_source == "LIVE_SOUNDWAVE":
+            if key != "6" or row.get("music_s") is not None:
+                out.append("LIVE_SOUND_DURATION_CONTRACT_INVALID: P%s" % key)
+        elif not _number(row.get("music_s"), 0.001):
             out.append("MUSIC_SECONDS_INVALID: P%s %r" % (key, row.get("music_s")))
         if not str(row.get("sound") or "").startswith("/Game/"):
             out.append("SOUND_INVALID: P%s" % key)
@@ -125,6 +131,27 @@ def validate_args(args):
 
 def target_ticks(music_s, extra_tail_s, tick_rate, fps_num, fps_den):
     return base.target_ticks(music_s, extra_tail_s, tick_rate, fps_num, fps_den)
+
+
+def selected_music_seconds(key, row, live_sound_duration=None):
+    """Resolve P06 from its live SoundWave; every other Passage keeps its reviewed analysis value."""
+    if str(row.get("duration_source") or "") != "LIVE_SOUNDWAVE":
+        return float(row["music_s"])
+    if str(key) != "6" or row.get("sound") != P06_LIVE_SOUND:
+        raise PlanError("P06_LIVE_SOUND_CONTRACT: %r" % row)
+    if not _number(live_sound_duration, 0.001):
+        raise PlanError("P06_LIVE_SOUND_DURATION_UNREADABLE: %r" % live_sound_duration)
+    return float(live_sound_duration)
+
+
+def scale_inside_tick(local_tick, old_len, new_len, endpoint=False):
+    """Nearest proportional tick; point items are clamped strictly inside the new Passage."""
+    local_tick, old_len, new_len = int(local_tick), int(old_len), int(new_len)
+    if old_len <= 0 or new_len <= 0 or local_tick < 0:
+        raise PlanError("MOVE_INSIDE_SCALE_INVALID: %r" % ([local_tick, old_len, new_len],))
+    scaled = (local_tick * new_len + old_len // 2) // old_len
+    limit = new_len if endpoint else new_len - 1
+    return max(0, min(int(scaled), limit))
 
 
 def plan_scaled_timing(lead, intervals, tail, target):
@@ -291,14 +318,61 @@ def review_refusals(groups, actions):
             continue
         absolute = any(group.endswith(":" + suffix) for suffix in (
             "masterMarkers", "masterArtistKeys", "masterArtistSections"))
-        wanted = "KEEP_ABSOLUTE" if absolute else "KEEP_UNPLAYED"
-        if action != wanted:
+        allowed = ("KEEP_ABSOLUTE",) if absolute else ("MOVE_INSIDE", "KEEP_UNPLAYED")
+        if action not in allowed:
             refusals.append("%s PAST_END_UNRESOLVED: %d item(s); set review.past_end_actions[%r] to "
-                            "%s only after Gary reviews the DRY" % (group, len(ids), group, wanted))
+                            "%s only after Gary reviews the DRY" % (group, len(ids), group, " or ".join(allowed)))
         else:
-            effect = "remain at absolute Master time" if absolute else "remain stored but outside the shorter range"
-            notes.append("%s REVIEWED_%s: %d item(s) %s" % (group, wanted, len(ids), effect))
+            effect = ("remain at absolute Master time" if action == "KEEP_ABSOLUTE" else
+                      "remain stored but outside the shorter range" if action == "KEEP_UNPLAYED" else
+                      "scale proportionally into the shorter Passage")
+            notes.append("%s REVIEWED_%s: %d item(s) %s" % (group, action, len(ids), effect))
     return refusals, notes
+
+
+def build_move_inside_plan(per_rows, actions):
+    """Plain-data mutation plan. Unsupported MOVE_INSIDE categories refuse before any write."""
+    plan = {"passageKeys": [], "choreoSections": [], "assets": []}
+    for key, row in sorted(per_rows.items()):
+        old_len, new_len = row["plan"]["old_ticks"], row["plan"]["new_ticks"]
+        inventory = row["inventory"]["pastNewEnd"]
+        for group, ids in sorted(row["reviewGroups"].items()):
+            if (actions or {}).get(group) != "MOVE_INSIDE":
+                continue
+            wanted = set(ids)
+            if ":passage_channel:" in group:
+                hits = [item for item in inventory["passageChannelKeys"] if item["id"] in wanted]
+                if len(hits) != len(wanted):
+                    raise PlanError("MOVE_INSIDE_PASSAGE_KEYS_INCOMPLETE: %s" % group)
+                for item in hits:
+                    plan["passageKeys"].append({
+                        "group": group, "passage": "P0%s" % key, "guid": row["guid"],
+                        "channel": item["channel"], "ordinal": int(item["id"].rsplit("|", 1)[1]),
+                        "oldLocal": int(item["sectionLocalTick"]),
+                        "newLocal": scale_inside_tick(item["sectionLocalTick"], old_len, new_len),
+                        "value": item["value"]})
+            elif group.endswith(":choreoSections"):
+                hits = [item for item in inventory["choreoSections"] if item["id"] in wanted]
+                if len(hits) != len(wanted) or not row.get("choreo"):
+                    raise PlanError("MOVE_INSIDE_CHOREO_SECTIONS_INCOMPLETE: %s" % group)
+                asset = row["choreo"]["path"]
+                if asset not in plan["assets"]:
+                    plan["assets"].append(asset)
+                for item in hits:
+                    if item.get("start") is None or item.get("end") is None:
+                        raise PlanError("MOVE_INSIDE_OPEN_CHOREO_SECTION: %s" % item["id"])
+                    new_start = scale_inside_tick(item["start"], old_len, new_len)
+                    new_end = scale_inside_tick(item["end"], old_len, new_len, endpoint=True)
+                    if new_end <= new_start:
+                        raise PlanError("MOVE_INSIDE_CHOREO_SECTION_COLLAPSES: %s" % item["id"])
+                    plan["choreoSections"].append({
+                        "group": group, "passage": "P0%s" % key, "asset": asset, "where": item["where"],
+                        "oldStart": int(item["start"]), "oldEnd": int(item["end"]),
+                        "newStart": new_start, "newEnd": new_end})
+            else:
+                raise PlanError("MOVE_INSIDE_CATEGORY_UNSUPPORTED: %s" % group)
+    plan["assets"].sort()
+    return plan
 
 
 def p05_height_options(inventory, tick_rate, music_s):
@@ -313,8 +387,8 @@ def p05_height_options(inventory, tick_rate, music_s):
         "options": [
             {"name": "MOVE_RETURN_TO_NEW_END", "supportedByThisTool": False,
              "effect": "author the return at/before the new end in a separate backed-up pass, then rerun DRY"},
-            {"name": "PROPORTIONAL_RETIME", "supportedByThisTool": False,
-             "effect": "scale this absolute curve only after explicit artistic approval; never silent"},
+            {"name": "MOVE_INSIDE", "supportedByThisTool": True,
+             "effect": "scale the reviewed late keys proportionally by new/old Passage length"},
             {"name": "DELETE_LATE_KEYS", "supportedByThisTool": False,
              "effect": "destructive key edit requires a separate record/backup and fresh DRY"},
             {"name": "TAIL_OVERRIDE", "supportedByThisTool": True, "minimumApproxSeconds": min_tail,
@@ -415,11 +489,11 @@ def _stop(run, reason):
     raise RuntimeError(reason)
 
 
-def _backup(run, suffix=""):
+def _backup(run, assets, suffix=""):
     folder = os.path.join(_project(), "Backups", "PrePassagesToMusic%s-%s" % (suffix, run))
     os.makedirs(folder, exist_ok=False)
     rows = []
-    for asset in (SHOW_PATH, MASTER_PATH):
+    for asset in assets:
         source = base._content_file(asset)
         target = os.path.join(folder, os.path.basename(source))
         shutil.copy2(source, target)
@@ -438,8 +512,128 @@ def _backup(run, suffix=""):
     return folder
 
 
+def _target_assets(move_plan):
+    return [SHOW_PATH, MASTER_PATH] + list(move_plan.get("assets") or [])
+
+
+def _passage_section(master, guid):
+    hits = []
+    for owner, track in base._all_tracks(master):
+        if owner != "root" or track.get_class().get_name() != "MovieSceneInfinityPassageTrack":
+            continue
+        for section in track.get_sections():
+            if base._guid(section.get_editor_property("block_guid")) == guid:
+                hits.append(section)
+    if len(hits) != 1:
+        raise PlanError("MOVE_INSIDE_PASSAGE_SECTION_COUNT: %s=%d" % (guid, len(hits)))
+    return hits[0]
+
+
+def _channel(section, name):
+    hits = [channel for channel in section.get_all_channels()
+            if str(channel.get_editor_property("channel_name")) == name]
+    if len(hits) != 1:
+        raise PlanError("MOVE_INSIDE_CHANNEL_COUNT: %s=%d" % (name, len(hits)))
+    return hits[0]
+
+
+def _sorted_keys(channel):
+    return sorted(channel.get_keys(), key=lambda key: int(key.get_time(
+        time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION).frame_number.value))
+
+
+def _choreo_section(sequence, where):
+    hits = []
+    for owner, track in base._all_tracks(sequence):
+        candidate = "%s/%s/%s" % (owner, track.get_class().get_name(), track.get_display_name())
+        if candidate == where:
+            hits += list(track.get_sections())
+    if len(hits) != 1:
+        raise PlanError("MOVE_INSIDE_CHOREO_SECTION_COUNT: %s=%d" % (where, len(hits)))
+    return hits[0]
+
+
+def _move_state(master, move_plan):
+    tick = base._rate(master.get_tick_resolution())
+    out = {"passageKeys": [], "choreoSections": []}
+    for item in move_plan.get("passageKeys") or []:
+        section = _passage_section(master, item["guid"])
+        start = base._section_range(section, tick)[0]
+        keys = _sorted_keys(_channel(section, item["channel"]))
+        if item["ordinal"] >= len(keys):
+            raise PlanError("MOVE_INSIDE_KEY_ORDINAL: %r" % item)
+        key = keys[item["ordinal"]]
+        absolute = int(key.get_time(time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION).frame_number.value)
+        try:
+            value = float(key.get_value())
+        except Exception:  # noqa: BLE001 - non-scalar values are compared as None
+            value = None
+        out["passageKeys"].append({"group": item["group"], "local": absolute - int(start), "value": value})
+    for item in move_plan.get("choreoSections") or []:
+        sequence = unreal.load_asset(item["asset"])
+        if sequence is None:
+            raise PlanError("MOVE_INSIDE_CHOREO_LOAD: %s" % item["asset"])
+        seq_tick = base._rate(sequence.get_tick_resolution())
+        origin = base._ticks(sequence.get_playback_start_seconds(), seq_tick)
+        bounds = base._section_range(_choreo_section(sequence, item["where"]), seq_tick, origin)
+        out["choreoSections"].append({"group": item["group"], "start": bounds[0], "end": bounds[1]})
+    return out
+
+
+def _expected_move_state(move_plan, prefix):
+    return {
+        "passageKeys": [{"group": item["group"], "local": item[prefix + "Local"], "value": item["value"]}
+                        for item in move_plan.get("passageKeys") or []],
+        "choreoSections": [{"group": item["group"], "start": item[prefix + "Start"],
+                            "end": item[prefix + "End"]}
+                           for item in move_plan.get("choreoSections") or []]}
+
+
+def _apply_move_plan(master, move_plan, forward):
+    tick = base._rate(master.get_tick_resolution())
+    source, target = ("old", "new") if forward else ("new", "old")
+    master.modify()
+    for item in move_plan.get("passageKeys") or []:
+        section = _passage_section(master, item["guid"])
+        start = int(base._section_range(section, tick)[0])
+        keys = _sorted_keys(_channel(section, item["channel"]))
+        if item["ordinal"] >= len(keys):
+            raise PlanError("MOVE_INSIDE_KEY_ORDINAL: %r" % item)
+        key = keys[item["ordinal"]]
+        current = int(key.get_time(time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION).frame_number.value) - start
+        if current != item[source + "Local"]:
+            raise PlanError("MOVE_INSIDE_KEY_DRIFT: %s %d != %d" % (item["group"], current, item[source + "Local"]))
+        key.set_time(unreal.FrameNumber(value=start + int(item[target + "Local"])), 0.0,
+                     unreal.MovieSceneTimeUnit.TICK_RESOLUTION)
+    for item in move_plan.get("choreoSections") or []:
+        sequence = unreal.load_asset(item["asset"])
+        if sequence is None:
+            raise PlanError("MOVE_INSIDE_CHOREO_LOAD: %s" % item["asset"])
+        seq_tick = base._rate(sequence.get_tick_resolution())
+        origin = base._ticks(sequence.get_playback_start_seconds(), seq_tick)
+        section = _choreo_section(sequence, item["where"])
+        current = base._section_range(section, seq_tick, origin)
+        expected = (item[source + "Start"], item[source + "End"])
+        if current != expected:
+            raise PlanError("MOVE_INSIDE_CHOREO_DRIFT: %s %r != %r" % (item["group"], current, expected))
+        sequence.modify()
+        section.modify()
+        section.set_range_seconds((origin + item[target + "Start"]) / float(seq_tick),
+                                  (origin + item[target + "End"]) / float(seq_tick))
+
+
 def _plain(snapshot):
     return {k: snapshot[k] for k in ("timing", "segments", "managed", "keys")}
+
+
+def _selected_seconds_live(key, row, music):
+    if str(row.get("duration_source") or "") != "LIVE_SOUNDWAVE":
+        return selected_music_seconds(key, row)
+    sound_path = music.get("sound") if music else None
+    sound = unreal.load_asset(sound_path) if sound_path else None
+    if sound is None or not isinstance(sound, unreal.SoundWave):
+        raise PlanError("P%s LIVE_SOUND_NOT_SOUNDWAVE: %r" % (key, sound_path))
+    return selected_music_seconds(key, row, float(sound.get_editor_property("duration")))
 
 
 def _gather(args):
@@ -470,12 +664,12 @@ def _gather(args):
         compiled = compiled_length(fact["lead"], fact["intervals"], fact["tail"])
         if old_len != compiled:
             refusals.append("P%s COMPILE_MODEL_MISMATCH: %d != %d" % (key, compiled, old_len))
-        selected_s = float(args["per_passage"][key]["music_s"])
+        rail = base._rail(show, fact["music_binding"]["rail"])
+        music = dict(rail, mode=fact["music_binding"]["mode"], offset=fact["music_binding"]["offset"], tick_rate=tick) if rail else None
+        selected_s = _selected_seconds_live(key, args["per_passage"][key], music)
         extra = tail_override_s(args, key)
         target = target_ticks(selected_s, extra, tick, fps[0], fps[1])
         plan = plan_scaled_timing(fact["lead"], fact["intervals"], fact["tail"], target)
-        rail = base._rail(show, fact["music_binding"]["rail"])
-        music = dict(rail, mode=fact["music_binding"]["mode"], offset=fact["music_binding"]["offset"], tick_rate=tick) if rail else None
         source_bad, source_notes, audio = source_policy(key, music, selected_s, args["per_passage"][key], review)
         refusals += source_bad
         warnings += source_notes
@@ -500,7 +694,9 @@ def _gather(args):
         if new_speed.get("bay_max") and new_speed["bay_max"] > threshold:
             warnings.append("P%s SPEED_WARNING: %.3f cm/s > %.3f" % (key, new_speed["bay_max"], threshold))
         music_row = {"selectedSeconds": selected_s, "selectedTicks": int(round(selected_s * tick)),
-                     "targetRoundedTicks": target, "tailOverrideSeconds": extra, "live": audio}
+                      "targetRoundedTicks": target, "tailOverrideSeconds": extra, "live": audio}
+        if args["per_passage"][key].get("duration_source"):
+            music_row["durationSource"] = args["per_passage"][key]["duration_source"]
         row = {"key": key, "label": label, "guid": fact["guid"], "old": {"lenTicks": old_len,
                "lenSeconds": old_len / tick, "lead": fact["lead"], "intervals": fact["intervals"], "tail": fact["tail"]},
                "plan": plan, "music": music_row, "speedsOld": old_speed, "speedsNew": new_speed,
@@ -523,6 +719,7 @@ def _gather(args):
     if stale is None:
         warnings.append("HANDOFF_CHECK_FAILED: %s" % handoff_report)
     review_hash = inventory_sha256(per_rows)
+    move_plan = build_move_inside_plan(per_rows, actions)
     if str(args["mode"]).upper() == "APPLY" and review.get("inventory_sha256") != review_hash:
         refusals.append("REVIEW_HASH_CHANGED: live %s args %r" % (review_hash, review.get("inventory_sha256")))
     report = {"tool": TOOL, "tickRate": tick, "displayRate": list(fps), "per": per_rows, "deltas": deltas,
@@ -530,7 +727,7 @@ def _gather(args):
               "netDeltaSeconds": sum(deltas.values()) / tick, "oldShowEnd": old_end,
               "newShowEnd": old_end + sum(deltas.values()), "reviewInventorySha256": review_hash,
               "absoluteMasterContent": snap["artist"], "masterMarkers": snap["markers"],
-              "handoffStaleBefore": stale, "handoffReport": handoff_report,
+              "handoffStaleBefore": stale, "handoffReport": handoff_report, "moveInsidePlan": move_plan,
               "refusals": refusals, "warnings": warnings}
     return report, snap, show, master, facts
 
@@ -567,12 +764,21 @@ def run_dry(args, run):
         report["reviewInventorySha256"], report["netDeltaSeconds"], output))
 
 
-def _post_gates(report, before, after, show):
+def _relative_gate_with_moves(before_keys, after_keys, spans, move_plan):
+    expected = copy.deepcopy(before_keys)
+    for item in move_plan.get("passageKeys") or []:
+        row = expected[item["guid"]]
+        channel = row["channels"][item["channel"]]
+        channel[item["ordinal"]][0] = int(row["start"]) + int(item["newLocal"])
+    return relative_key_carry_gate(expected, after_keys, spans)
+
+
+def _post_gates(report, before, after, show, master):
     spans = base.retimed_spans(before["segments"], report["deltas"])
     failures = []
     failures += base.segment_shift_gate(before["segments"], after["segments"], report["deltas"])
     failures += base.managed_shift_gate(before["managed"], after["managed"], spans)
-    failures += relative_key_carry_gate(before["keys"], after["keys"], spans)
+    failures += _relative_gate_with_moves(before["keys"], after["keys"], spans, report["moveInsidePlan"])
     if after["dup"]:
         failures.append("MANAGED_BLOCK_DUPLICATED_AFTER: %s" % after["dup"])
     if after["artist"] != before["artist"] or after["markers"] != before["markers"]:
@@ -585,6 +791,8 @@ def _post_gates(report, before, after, show):
         stale, text = base._handoffs(show)
         failures += ["HANDOFF_CHECK_FAILED_AFTER: %s" % text] if stale is None else base.handoff_gate(
             report["handoffStaleBefore"], stale)
+    if _move_state(master, report["moveInsidePlan"]) != _expected_move_state(report["moveInsidePlan"], "new"):
+        failures.append("MOVE_INSIDE_READBACK_FAILED")
     return failures
 
 
@@ -592,14 +800,17 @@ def run_apply(args, run):
     report, before, show, master, facts = _gather(args)
     if report["refusals"]:
         _stop(run, "PLAN_REFUSED|" + " || ".join(report["refusals"]))
+    move_plan = report["moveInsidePlan"]
+    targets = _target_assets(move_plan)
     record_path = os.path.join(_here(), RECORD_NAME)
-    backup = _backup(run)
+    backup = _backup(run, targets)
     timing = {k: {"lead": row["plan"]["lead_frames"], "intervals": row["plan"]["intervals"],
                   "tail": row["plan"]["tail_frames"]} for k, row in report["per"].items()}
     protected = base.protected_view(show)
     record = {"schema": 1, "tool": TOOL, "run": run, "world": EXPECTED_WORLD, "backup": backup, "args": args,
               "passages": list(VALID_KEYS), "decidedBy": args.get("decided_by"), "applied": False,
               "reviewInventorySha256": report["reviewInventorySha256"], "deltas": report["deltas"],
+              "moveInsidePlan": move_plan, "beforeMoveState": _move_state(master, move_plan),
               "plannedTiming": timing, "rowsByKey": {k: {"index": facts[k]["index"], "first": facts[k]["first"],
               "guid": facts[k]["guid"]} for k in VALID_KEYS}, "before": _plain(before), "rebuildCount": 0,
               "protectedView": protected,
@@ -607,6 +818,7 @@ def run_apply(args, run):
     base.write_record_exclusive(record_path, record)
     failures = []
     try:
+        _apply_move_plan(master, move_plan, True)
         base._write_timing(show, record["rowsByKey"], timing)
         if base._read_timing(show, list(VALID_KEYS)) != base.timing_view(timing):
             failures.append("TIMING_READBACK_FAILED")
@@ -624,20 +836,23 @@ def run_apply(args, run):
     if not failures:
         after = base._snapshot(show, master, list(VALID_KEYS))
         record["after"] = _plain(after)
-        failures += _post_gates(report, before, after, show)
+        record["afterMoveState"] = _move_state(master, move_plan)
+        failures += _post_gates(report, before, after, show, master)
     if record["rebuildCount"] != 1:
         failures.append("REBUILD_COUNT: %d" % record["rebuildCount"])
-    failures += exact_census_gate(base._census(), [SHOW_PATH, MASTER_PATH])
+    failures += exact_census_gate(base._census(), targets)
     if failures:
         base.update_record(record_path, dict(record, failed=failures))
         os.rename(record_path, record_path + ".failed-" + run)
         _stop(run, "APPLY_GATES|%r|NOTHING_SAVED|backup=%s" % (failures[:10], backup))
-    for asset in (SHOW_PATH, MASTER_PATH):
+    for asset in targets:
         if not unreal.EditorAssetLibrary.save_asset(asset, only_if_is_dirty=False):
             _stop(run, "SAVE_FAILED|%s|backup=%s|record=%s" % (asset, backup, record_path))
     final = base._snapshot(unreal.load_asset(SHOW_PATH), unreal.load_asset(MASTER_PATH), list(VALID_KEYS))
     readback = ["POST_SAVE_%s_DIFFERS" % field for field in ("timing", "segments", "managed", "keys")
                 if _plain(final)[field] != record["after"][field]]
+    if _move_state(master, move_plan) != record["afterMoveState"]:
+        readback.append("POST_SAVE_MOVE_INSIDE_DIFFERS")
     readback += exact_census_gate(base._census(), [])
     if readback:
         record["postSaveReadbackFailed"] = readback
@@ -646,8 +861,8 @@ def run_apply(args, run):
     record["applied"] = True
     record["postSaveCensus"] = base._census()
     base.update_record(record_path, record)
-    unreal.log("%s_APPLY_OK|run=%s|passages=6|rebuilds=1|net_s=%.6f|saved=%s,%s|backup=%s|record=%s" % (
-        MARK, run, report["netDeltaSeconds"], SHOW_PATH, MASTER_PATH, backup, record_path))
+    unreal.log("%s_APPLY_OK|run=%s|passages=6|rebuilds=1|net_s=%.6f|saved=%s|backup=%s|record=%s" % (
+        MARK, run, report["netDeltaSeconds"], ",".join(targets), backup, record_path))
 
 
 def run_revert(args, run):
@@ -657,15 +872,19 @@ def run_revert(args, run):
     if record.get("world") != EXPECTED_WORLD or not record.get("applied") or not record.get("after"):
         _stop(run, "REVERT_RECORD_CONTEXT")
     show, master = unreal.load_asset(SHOW_PATH), unreal.load_asset(MASTER_PATH)
+    move_plan = record.get("moveInsidePlan") or {"passageKeys": [], "choreoSections": [], "assets": []}
+    targets = _target_assets(move_plan)
     live = base._snapshot(show, master, list(VALID_KEYS))
     drift = base.drift_refusals(_plain(live), record)
     if _plain(live).get("keys") != record["after"].get("keys"):
         drift.append("STATE_DRIFTED_SINCE_APPLY: keys")
     if base.protected_view(show) != record.get("protectedView"):
         drift.append("STATE_DRIFTED_SINCE_APPLY: protected Show fields")
+    if _move_state(master, move_plan) != record.get("afterMoveState"):
+        drift.append("STATE_DRIFTED_SINCE_APPLY: MOVE_INSIDE items")
     if drift:
         _stop(run, "STATE_DRIFTED|%r|original_backup=%s" % (drift, record["backup"]))
-    backup = _backup(run, "Revert")
+    backup = _backup(run, targets, "Revert")
     attempt_path = os.path.join(_here(), "passages_to_music_revert_record_%s.json" % run)
     attempt = {"schema": 1, "tool": TOOL, "mode": "REVERT", "run": run, "backup": backup,
                "sourceRecord": record_path, "beforeRevert": _plain(live), "complete": False, "rebuildCount": 0}
@@ -673,6 +892,7 @@ def run_revert(args, run):
     failures = []
     protected = base.protected_view(show)
     try:
+        _apply_move_plan(master, move_plan, False)
         base._write_timing(show, record["rowsByKey"], record["before"]["timing"])
         if base._read_timing(show, list(VALID_KEYS)) != record["before"]["timing"]:
             failures.append("TIMING_READBACK_FAILED")
@@ -690,19 +910,23 @@ def run_revert(args, run):
     if not failures:
         restored = _plain(base._snapshot(show, master, list(VALID_KEYS)))
         failures += base.revert_exact_gate(restored, record)
+        if _move_state(master, move_plan) != record.get("beforeMoveState"):
+            failures.append("MOVE_INSIDE_REVERT_NOT_EXACT")
         attempt["afterRevert"] = restored
     if attempt["rebuildCount"] != 1:
         failures.append("REBUILD_COUNT: %d" % attempt["rebuildCount"])
-    failures += exact_census_gate(base._census(), [SHOW_PATH, MASTER_PATH])
+    failures += exact_census_gate(base._census(), targets)
     if failures:
         attempt["failed"] = failures
         base.update_record(attempt_path, attempt)
         _stop(run, "REVERT_GATES|%r|NOTHING_SAVED|backup=%s" % (failures[:10], backup))
-    for asset in (SHOW_PATH, MASTER_PATH):
+    for asset in targets:
         if not unreal.EditorAssetLibrary.save_asset(asset, only_if_is_dirty=False):
             _stop(run, "REVERT_SAVE_FAILED|%s|backup=%s" % (asset, backup))
     final = _plain(base._snapshot(unreal.load_asset(SHOW_PATH), unreal.load_asset(MASTER_PATH), list(VALID_KEYS)))
     failures = base.revert_exact_gate(final, record) + exact_census_gate(base._census(), [])
+    if _move_state(master, move_plan) != record.get("beforeMoveState"):
+        failures.append("MOVE_INSIDE_POST_SAVE_REVERT_NOT_EXACT")
     if failures:
         attempt["postSaveReadbackFailed"] = failures
         base.update_record(attempt_path, attempt)
@@ -711,8 +935,8 @@ def run_revert(args, run):
     base.update_record(attempt_path, attempt)
     archived = record_path + ".reverted-" + run
     os.rename(record_path, archived)
-    unreal.log("%s_REVERT_OK|run=%s|passages=6|rebuilds=1|saved=%s,%s|backup=%s|record=%s" % (
-        MARK, run, SHOW_PATH, MASTER_PATH, backup, archived))
+    unreal.log("%s_REVERT_OK|run=%s|passages=6|rebuilds=1|saved=%s|backup=%s|record=%s" % (
+        MARK, run, ",".join(targets), backup, archived))
 
 
 def main():
