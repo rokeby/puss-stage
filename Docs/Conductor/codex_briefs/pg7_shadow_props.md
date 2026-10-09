@@ -70,3 +70,9 @@ spacing > their width (+); all demos de-dup holds (a hold = 1 cell).
 ## Deliver (rule 8)
 Paths, commit or file list, run order, harness counts, per-demo cell budget and min feature widths, preview paths,
 open questions for Gary (e.g. who holds the bucket; whether the page shows the name; boots size vs Puss).
+
+## Addendum (Gary, 9 Oct, after dispatch)
+"no one holds the bucket, it can emerge on a stick and pour onto the boy and animate as different cutouts of splash".
+So the bucket enters on its own stick (from above or the side of the band), tips and pours onto the boy, and the
+water/splash is a sequence of different splash cut-outs (replacement shapes), not a simulated fluid. Review PG7
+against this.
