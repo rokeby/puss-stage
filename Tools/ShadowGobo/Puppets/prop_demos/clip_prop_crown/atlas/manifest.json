@@ -1,0 +1,366 @@
+{
+  "schema_version": 3,
+  "generator": "Tools/ShadowGobo/pack_rig_flipbook.py",
+  "name": "PropCrown",
+  "display_fps": 25.0,
+  "take": {
+    "fps": 25.0,
+    "frames_packed": 64,
+    "frames_rendered": 100,
+    "duration_s": 4.0
+  },
+  "atlas": {
+    "file": "T_Gobo_PropCrown_8x8.png",
+    "px": [
+      8192,
+      8192
+    ],
+    "cols": 8,
+    "rows": 8,
+    "cell_px": 1024,
+    "gutter_px": 8,
+    "order": "row-major from the top-left",
+    "channels": {
+      "R": "SDF: 0.5 + signed_distance_px / (2 * 6.000), positive in light",
+      "G": "SDF: 0.5 + signed_distance_px / (2 * 6.000 * 4.000), same 0.5 edge",
+      "B": "unused"
+    },
+    "inner_px": 1008,
+    "encoding": {
+      "type": "signed_distance",
+      "edge": 0.5,
+      "positive": "light",
+      "spread_px": 6.0,
+      "wide_multiplier": 4.0,
+      "minimum_source_scale": 2.0,
+      "source_px": [
+        2048,
+        2048
+      ]
+    }
+  },
+  "light_function_params": {
+    "Cols": 8.0,
+    "Rows": 8.0,
+    "Frames": 64.0,
+    "GutterUV": 0.0078125,
+    "CellUV": 0.125,
+    "Softness": 0.02,
+    "BlurUV": 0.0
+  },
+  "schedule": [
+    [
+      0.0,
+      0
+    ],
+    [
+      0.04,
+      1
+    ],
+    [
+      0.08,
+      2
+    ],
+    [
+      0.12,
+      3
+    ],
+    [
+      0.16,
+      4
+    ],
+    [
+      0.2,
+      5
+    ],
+    [
+      0.24,
+      6
+    ],
+    [
+      0.28,
+      7
+    ],
+    [
+      0.32,
+      8
+    ],
+    [
+      0.36,
+      9
+    ],
+    [
+      0.4,
+      10
+    ],
+    [
+      0.44,
+      11
+    ],
+    [
+      0.48,
+      12
+    ],
+    [
+      0.52,
+      13
+    ],
+    [
+      0.56,
+      14
+    ],
+    [
+      0.6,
+      15
+    ],
+    [
+      0.64,
+      16
+    ],
+    [
+      0.68,
+      17
+    ],
+    [
+      0.72,
+      18
+    ],
+    [
+      0.76,
+      19
+    ],
+    [
+      0.8,
+      20
+    ],
+    [
+      0.84,
+      21
+    ],
+    [
+      0.88,
+      22
+    ],
+    [
+      0.92,
+      23
+    ],
+    [
+      0.96,
+      24
+    ],
+    [
+      1.0,
+      25
+    ],
+    [
+      1.04,
+      26
+    ],
+    [
+      1.08,
+      27
+    ],
+    [
+      1.12,
+      28
+    ],
+    [
+      1.16,
+      29
+    ],
+    [
+      1.2,
+      30
+    ],
+    [
+      1.24,
+      31
+    ],
+    [
+      1.28,
+      32
+    ],
+    [
+      1.32,
+      33
+    ],
+    [
+      1.36,
+      34
+    ],
+    [
+      1.4,
+      35
+    ],
+    [
+      1.44,
+      36
+    ],
+    [
+      1.48,
+      37
+    ],
+    [
+      1.52,
+      38
+    ],
+    [
+      1.56,
+      39
+    ],
+    [
+      1.6,
+      40
+    ],
+    [
+      1.64,
+      41
+    ],
+    [
+      1.68,
+      42
+    ],
+    [
+      1.72,
+      43
+    ],
+    [
+      1.76,
+      44
+    ],
+    [
+      1.8,
+      45
+    ],
+    [
+      1.84,
+      46
+    ],
+    [
+      1.88,
+      47
+    ],
+    [
+      1.92,
+      48
+    ],
+    [
+      1.96,
+      49
+    ],
+    [
+      2.0,
+      50
+    ],
+    [
+      2.04,
+      51
+    ],
+    [
+      2.08,
+      52
+    ],
+    [
+      2.12,
+      53
+    ],
+    [
+      2.16,
+      54
+    ],
+    [
+      2.2,
+      55
+    ],
+    [
+      2.24,
+      56
+    ],
+    [
+      2.28,
+      57
+    ],
+    [
+      2.32,
+      58
+    ],
+    [
+      2.36,
+      59
+    ],
+    [
+      2.4,
+      60
+    ],
+    [
+      2.44,
+      61
+    ],
+    [
+      2.48,
+      62
+    ],
+    [
+      2.52,
+      63
+    ]
+  ],
+  "cell_budget": {
+    "4096": {
+      "atlas_px": 4096,
+      "cells": 64,
+      "cols": 8,
+      "rows": 8,
+      "cell_px": 512
+    },
+    "8192": {
+      "atlas_px": 8192,
+      "cells": 64,
+      "cols": 8,
+      "rows": 8,
+      "cell_px": 1024
+    }
+  },
+  "texture_settings": {
+    "compression": "TC_BC7",
+    "sRGB": false,
+    "mip_gen": "NoMipmaps",
+    "never_stream": true,
+    "filter": "Bilinear",
+    "address": "Clamp"
+  },
+  "sha256": "d72e2b0e27191318e0b3f253a23773f0c432fdb880ec2cb7a0dad7e803defd7b",
+  "prop_demo": {
+    "name": "crown",
+    "look": {
+      "attach": "boy_head_top",
+      "size_boy_height": 0.18,
+      "restitution": 0.25
+    },
+    "attach_modes": [
+      "world",
+      "boy_near_hand",
+      "boy_far_hand",
+      "boy_head_top",
+      "puss_mouth",
+      "puss_front_paw"
+    ],
+    "quantized_transforms": true,
+    "product_transmissions": true,
+    "minimum_feature_width_px": 5.308,
+    "meets_2px": true,
+    "claims": [
+      {
+        "tier": "measured",
+        "claim": "Frames were rendered, SDF-packed and read back offline.",
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:380"
+      },
+      {
+        "tier": "inferred",
+        "claim": "The proposed scale and staging need Gary's visual approval.",
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:266"
+      }
+    ]
+  }
+}

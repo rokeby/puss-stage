@@ -478,6 +478,25 @@ def hand_world(pose, side):
     return elbow_world + np.array([0.0, HAND_REACH]) @ fore_rotation.T
 
 
+def prop_anchors(pose):
+    """World-space attachment points for separately rendered shadow props.
+
+    This is deliberately read-only: it exposes the existing hand IK result and
+    head card position without changing puppet geometry or pose evaluation.
+    """
+    lean = pose.get("lean", 0.0)
+    root_rotation = rot(lean)
+    base = np.asarray(FEET) + np.asarray(pose.get("offset", (0.0, 0.0)))
+    neck_world = (np.asarray(NECK) - np.asarray(FEET)) @ root_rotation.T + base
+    head_rotation = rot(lean + pose.get("neck", 0.0))
+    head_top = (np.asarray((520.0, 182.0)) - np.asarray(NECK)) @ head_rotation.T + neck_world
+    return {
+        "near_hand": tuple(hand_world(pose, "near")),
+        "far_hand": tuple(hand_world(pose, "far")),
+        "head_top": tuple(head_top),
+    }
+
+
 def hand_target_for_pose(pose, key):
     """Resolve a non-IK arm pose to the equivalent head-local target point."""
     existing = pose.get(key)

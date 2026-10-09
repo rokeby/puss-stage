@@ -1,0 +1,174 @@
+{
+  "schema_version": 3,
+  "generator": "Tools/ShadowGobo/pack_rig_flipbook.py",
+  "name": "PropTurnip",
+  "display_fps": 25.0,
+  "take": {
+    "fps": 25.0,
+    "frames_packed": 13,
+    "frames_rendered": 100,
+    "duration_s": 4.0
+  },
+  "atlas": {
+    "file": "T_Gobo_PropTurnip_4x4.png",
+    "px": [
+      8192,
+      8192
+    ],
+    "cols": 4,
+    "rows": 4,
+    "cell_px": 2048,
+    "gutter_px": 8,
+    "order": "row-major from the top-left",
+    "channels": {
+      "R": "SDF: 0.5 + signed_distance_px / (2 * 6.000), positive in light",
+      "G": "SDF: 0.5 + signed_distance_px / (2 * 6.000 * 4.000), same 0.5 edge",
+      "B": "unused"
+    },
+    "inner_px": 2032,
+    "encoding": {
+      "type": "signed_distance",
+      "edge": 0.5,
+      "positive": "light",
+      "spread_px": 6.0,
+      "wide_multiplier": 4.0,
+      "minimum_source_scale": 2.0,
+      "source_px": [
+        4064,
+        4064
+      ]
+    }
+  },
+  "light_function_params": {
+    "Cols": 4.0,
+    "Rows": 4.0,
+    "Frames": 13.0,
+    "GutterUV": 0.00390625,
+    "CellUV": 0.25,
+    "Softness": 0.02,
+    "BlurUV": 0.0
+  },
+  "schedule": [
+    [
+      0.0,
+      0
+    ],
+    [
+      0.92,
+      1
+    ],
+    [
+      1.08,
+      2
+    ],
+    [
+      1.12,
+      3
+    ],
+    [
+      1.32,
+      0
+    ],
+    [
+      1.52,
+      4
+    ],
+    [
+      1.72,
+      5
+    ],
+    [
+      1.88,
+      6
+    ],
+    [
+      1.92,
+      7
+    ],
+    [
+      2.12,
+      4
+    ],
+    [
+      2.32,
+      8
+    ],
+    [
+      2.52,
+      9
+    ],
+    [
+      2.68,
+      10
+    ],
+    [
+      2.72,
+      11
+    ],
+    [
+      2.92,
+      8
+    ],
+    [
+      3.12,
+      12
+    ]
+  ],
+  "cell_budget": {
+    "4096": {
+      "atlas_px": 4096,
+      "cells": 13,
+      "cols": 4,
+      "rows": 4,
+      "cell_px": 1024
+    },
+    "8192": {
+      "atlas_px": 8192,
+      "cells": 13,
+      "cols": 4,
+      "rows": 4,
+      "cell_px": 2048
+    }
+  },
+  "texture_settings": {
+    "compression": "TC_BC7",
+    "sRGB": false,
+    "mip_gen": "NoMipmaps",
+    "never_stream": true,
+    "filter": "Bilinear",
+    "address": "Clamp"
+  },
+  "sha256": "e06bd73e14338ac62d9021051fe16475abc3d16d75b75c11bdc44e66b87d416a",
+  "prop_demo": {
+    "name": "turnip",
+    "look": {
+      "attach": "boy_near_hand",
+      "size_boy_height": 0.12,
+      "bite_seconds": 0.24
+    },
+    "attach_modes": [
+      "world",
+      "boy_near_hand",
+      "boy_far_hand",
+      "boy_head_top",
+      "puss_mouth",
+      "puss_front_paw"
+    ],
+    "quantized_transforms": true,
+    "product_transmissions": true,
+    "minimum_feature_width_px": 7.134,
+    "meets_2px": true,
+    "claims": [
+      {
+        "tier": "measured",
+        "claim": "Frames were rendered, SDF-packed and read back offline.",
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:380"
+      },
+      {
+        "tier": "inferred",
+        "claim": "The proposed scale and staging need Gary's visual approval.",
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:266"
+      }
+    ]
+  }
+}

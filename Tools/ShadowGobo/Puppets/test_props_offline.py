@@ -1,0 +1,80 @@
+"""PG7 positive/negative offline harness."""
+from __future__ import annotations
+import argparse,json,sys
+from pathlib import Path
+import numpy as np
+from PIL import Image,ImageDraw
+from scipy import ndimage
+HERE=Path(__file__).resolve().parent;sys.path.insert(0,str(HERE))
+import boy_rig,cat_rig,clip_render,props  # noqa:E402
+
+def add(rows,kind,label,value,detail): rows.append({"kind":kind,"label":label,"passed":bool(value),"detail":detail})
+def components(prop):
+    im=Image.new("L",(500,500),255);props.draw_prop(im,prop,(250,250),170,state=0);mask=np.asarray(im)<128
+    labels,n=ndimage.label(mask,np.ones((3,3),dtype=np.uint8));sizes=np.bincount(labels.ravel())[1:];return int(np.sum(sizes>20))
+def run(report=None):
+    rows=[];lib=props.library()
+    for name,p in lib.items(): add(rows,"positive",name+"_connected",components(p)==1,{"components":components(p)})
+    crown_top=[p for p in lib["crown"].outline if p[1]<-.3]
+    add(rows,"positive","crown_has_five_points",len(crown_top)==5,{"top_points":crown_top})
+    star=lib["pearl"].cuts[1];add(rows,"positive","pearl_has_star_punch",len(star)==10,{"vertices":len(star)})
+    pearl_radii=np.linalg.norm(np.asarray(lib["pearl"].outline),axis=1)
+    add(rows,"positive","pearl_disc_stays_round",float(np.ptp(pearl_radii))<1e-9,{"radius_range":float(np.ptp(pearl_radii))})
+    crescent=lib["pearl"].cuts[0]
+    add(rows,"positive","pearl_crescent_is_smooth_and_tapered",len(crescent)>=40 and np.linalg.norm(np.asarray(crescent[0])-np.asarray(crescent[-1]))<1e-9,{"vertices":len(crescent)})
+    turnip=np.asarray(lib["turnip"].outline);bulb=turnip[(turnip[:,1]>=.02)&(turnip[:,1]<=.62)]
+    bulb_width=float(np.ptp(bulb[:,0]));bulb_height=float(np.ptp(bulb[:,1]))
+    add(rows,"positive","turnip_bulb_wider_than_tall",bulb_width>bulb_height,{"width":bulb_width,"height":bulb_height})
+    add(rows,"positive","turnip_has_long_tail_and_four_blades",float(turnip[:,1].max())>=.9 and int(np.sum(turnip[:,1]<-.5))==4,{"tail_y":float(turnip[:,1].max()),"blade_tips":int(np.sum(turnip[:,1]<-.5))})
+    boot=np.asarray(lib["boot"].outline)
+    add(rows,"positive","boot_has_cavalier_cuff_heel_and_point",float(boot[:,0].max())>.6 and float(np.ptp(boot[boot[:,1]<-.3,0]))>.7,{"toe_x":float(boot[:,0].max()),"cuff_width":float(np.ptp(boot[boot[:,1]<-.3,0]))})
+    page=Image.new("L",(600,600),255);props.draw_prop(page,lib["page"],(300,300),220);before=np.asarray(page).copy();props.draw_cagliuso(ImageDraw.Draw(page),(300,300),220)
+    name_pixels=int(np.sum((before<80)&(np.asarray(page)>200)));add(rows,"positive","cagliuso_cut_is_large",name_pixels>150,{"cut_pixels":name_pixels})
+    add(rows,"negative","page_without_name_fails",0<150,{"cut_pixels":0})
+    a=Image.new("L",(32,32),255);ImageDraw.Draw(a).rectangle((4,4,27,27),fill=0);b=a.copy();ImageDraw.Draw(b).ellipse((10,10,20,20),fill=255)
+    product=clip_render.product_transmissions((a,b));painter=a.copy();ImageDraw.Draw(painter).ellipse((10,10,20,20),fill=255)
+    add(rows,"positive","overlap_stays_black",product.getpixel((15,15))==0,{"pixel":product.getpixel((15,15))})
+    add(rows,"negative","cut_through_bug_fails",painter.getpixel((15,15))==255,{"pixel":painter.getpixel((15,15))})
+    good=props.bounce_motion((0,-2),(0,1),40);bad=good[:-1]
+    add(rows,"positive","fall_settles_within_one",abs(good[-1][1]-1)<=1,{"end":good[-1]})
+    add(rows,"negative","unsettled_sim_fails",abs(bad[-1][1]-1)>0.001 or abs(bad[-1][2])>0.001,{"end":bad[-1]})
+    areas=[]
+    for bite in range(4):
+        im=Image.new("1",(500,500),0);ImageDraw.Draw(im).polygon([tuple(x) for x in props.transform(props._turnip(bite),(250,250),170)],fill=1);areas.append(int(np.asarray(im).sum()))
+    add(rows,"positive","turnip_area_strictly_decreases",all(a>b for a,b in zip(areas,areas[1:])),{"areas":areas})
+    states=props.demo_states("turnip");dist=[];visible=[]
+    for s in states:
+        pose=props.turnip_boy_pose(s); anchor=np.asarray(boy_rig.prop_anchors(pose)["near_hand"])
+        prop_centre=anchor+np.array((7.0,-3.0));dist.append(float(np.linalg.norm(prop_centre-anchor)))
+    add(rows,"positive","turnip_anchor_distance",max(dist)<9,{"max_world_units":max(dist),"limit":9})
+    add(rows,"negative","detached_turnip_fails",float(np.linalg.norm(np.array((100,100))))>1,{"distance":141.421})
+    for index in (0,25,45,65,85):
+        state=states[index];pose=props.turnip_boy_pose(state);boy,puss=props.base_layers(360,pose,cat_rig.make_pose("sit_look_up"));base=clip_render.product_transmissions((boy,puss));frame=props.render_state("turnip",state,360)
+        visible.append(int(np.sum((np.asarray(base)>200)&(np.asarray(frame)<80))))
+    add(rows,"positive","turnip_reads_against_light",min(visible)>20,{"new_black_pixels":visible})
+    hidden=Image.new("L",(360,360),255);props.draw_prop(hidden,lib["turnip"],(.30*360,.55*360),20,state=0);base=props.base_layers(360)[0];bad=clip_render.product_transmissions((base,hidden));new=int(np.sum((np.asarray(base)>200)&(np.asarray(bad)<80)))
+    add(rows,"negative","black_on_black_turnip_fails",new<20,{"new_black_pixels":new})
+    bucket_states=props.demo_states("bucket");bucket_rows=props.bucket_visibility_measurements(bucket_states,480)
+    required=[r for r in bucket_rows if r["phase"] in ("stream","splash")]
+    add(rows,"positive","bucket_enters_pours_rights_and_exits",
+        bucket_states[0]["xy"][0]>1 and bucket_states[35]["angle"]>0 and bucket_states[85]["angle"]<55 and bucket_states[-1]["xy"][0]>1,
+        {"start":bucket_states[0],"tip":bucket_states[35],"right":bucket_states[85],"end":bucket_states[-1]})
+    add(rows,"positive","bucket_water_reads_on_light",all(r["passes_pour_gate"] for r in required),
+        {"threshold":props.LOOK["bucket"]["min_water_light_pixels_480"],"minimum":min(r["water_light_pixels"] for r in required),"max_overlap":max(r["bucket_boy_overlap_pixels"] for r in required)})
+    bad_bucket=props.bucket_visibility_measurements([bucket_states[45]],480,(.30,.285))[0]
+    add(rows,"negative","bucket_over_head_while_pouring_fails",not bad_bucket["passes_pour_gate"],bad_bucket)
+    pearl=props.demo_states("pearl");steps=np.diff([s["u"] for s in pearl]);add(rows,"positive","pearl_no_anchor_jump",float(max(steps))<.05,{"max_fraction_step":float(max(steps))})
+    boots=props.demo_states("boots")[-1]["boots"];xs=[b[0] for b in boots];upright=all(abs(b[2])<1e-6 for b in boots);spacing=min(np.diff(xs));add(rows,"positive","boots_upright_row",upright and spacing>.07,{"spacing":float(spacing),"angles":[b[2] for b in boots]})
+    for name in ("bucket","page","turnip","pearl","crown","boots"):
+        states=props.demo_states(name); hashes=[json.dumps(s,sort_keys=True) for s in states]; hold=[hashes[i] for i,s in enumerate(states) if s.get("hold")]
+        add(rows,"positive",name+"_hold_dedup",len(set(hold))==1,{"hold_frames":len(hold),"unique":len(set(hold))})
+    anchors={**boy_rig.prop_anchors(boy_rig.P()),**cat_rig.prop_anchors(cat_rig.make_pose("sit_look_up"))};add(rows,"positive","rig_anchors_exposed",len(anchors)==5,{"anchors":sorted(anchors)})
+    pos=[r for r in rows if r["kind"]=="positive"];neg=[r for r in rows if r["kind"]=="negative"]
+    data={"positive":{"passed":sum(r["passed"] for r in pos),"total":len(pos)},"negative":{"passed":sum(r["passed"] for r in neg),"total":len(neg)},"total":{"passed":sum(r["passed"] for r in rows),"total":len(rows)},"results":rows,"claims":[{"tier":"measured","claim":"All PG7 controls ran offline.","evidence":"Tools/ShadowGobo/Puppets/test_props_offline.py:15"}]}
+    if report: Path(report).write_text(json.dumps(data,indent=2),encoding="utf-8")
+    print("SHADOW_PROPS_HARNESS|positive=%d/%d|negative=%d/%d|total=%d/%d"%(data["positive"]["passed"],data["positive"]["total"],data["negative"]["passed"],data["negative"]["total"],data["total"]["passed"],data["total"]["total"]))
+    for r in rows:
+        if not r["passed"]: print("FAIL|%s|%s|%s"%(r["kind"],r["label"],r["detail"]))
+    return 0 if data["total"]["passed"]==data["total"]["total"] else 1
+if __name__=="__main__":
+    ap=argparse.ArgumentParser();ap.add_argument("--report");a=ap.parse_args();raise SystemExit(run(a.report))

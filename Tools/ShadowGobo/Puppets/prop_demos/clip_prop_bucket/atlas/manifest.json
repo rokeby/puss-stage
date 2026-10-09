@@ -1,0 +1,330 @@
+{
+  "schema_version": 3,
+  "generator": "Tools/ShadowGobo/pack_rig_flipbook.py",
+  "name": "PropBucket",
+  "display_fps": 25.0,
+  "take": {
+    "fps": 25.0,
+    "frames_packed": 49,
+    "frames_rendered": 100,
+    "duration_s": 4.0
+  },
+  "atlas": {
+    "file": "T_Gobo_PropBucket_7x7.png",
+    "px": [
+      8192,
+      8192
+    ],
+    "cols": 7,
+    "rows": 7,
+    "cell_px": 1170,
+    "gutter_px": 8,
+    "order": "row-major from the top-left",
+    "channels": {
+      "R": "SDF: 0.5 + signed_distance_px / (2 * 6.000), positive in light",
+      "G": "SDF: 0.5 + signed_distance_px / (2 * 6.000 * 4.000), same 0.5 edge",
+      "B": "unused"
+    },
+    "inner_px": 1154,
+    "encoding": {
+      "type": "signed_distance",
+      "edge": 0.5,
+      "positive": "light",
+      "spread_px": 6.0,
+      "wide_multiplier": 4.0,
+      "minimum_source_scale": 2.0,
+      "source_px": [
+        2308,
+        2308
+      ]
+    }
+  },
+  "light_function_params": {
+    "Cols": 7.0,
+    "Rows": 7.0,
+    "Frames": 49.0,
+    "GutterUV": 0.006837606837606838,
+    "CellUV": 0.142822265625,
+    "Softness": 0.02,
+    "BlurUV": 0.0
+  },
+  "schedule": [
+    [
+      0.0,
+      0
+    ],
+    [
+      0.04,
+      1
+    ],
+    [
+      0.08,
+      2
+    ],
+    [
+      0.12,
+      3
+    ],
+    [
+      0.16,
+      4
+    ],
+    [
+      0.2,
+      5
+    ],
+    [
+      0.24,
+      6
+    ],
+    [
+      0.28,
+      7
+    ],
+    [
+      0.32,
+      8
+    ],
+    [
+      0.36,
+      9
+    ],
+    [
+      0.4,
+      10
+    ],
+    [
+      0.44,
+      11
+    ],
+    [
+      0.48,
+      12
+    ],
+    [
+      0.52,
+      13
+    ],
+    [
+      0.56,
+      14
+    ],
+    [
+      0.6,
+      15
+    ],
+    [
+      0.64,
+      16
+    ],
+    [
+      0.68,
+      17
+    ],
+    [
+      0.72,
+      18
+    ],
+    [
+      0.76,
+      19
+    ],
+    [
+      1.16,
+      20
+    ],
+    [
+      1.2,
+      21
+    ],
+    [
+      1.24,
+      22
+    ],
+    [
+      1.28,
+      23
+    ],
+    [
+      1.32,
+      24
+    ],
+    [
+      1.36,
+      25
+    ],
+    [
+      1.4,
+      26
+    ],
+    [
+      1.44,
+      27
+    ],
+    [
+      1.48,
+      28
+    ],
+    [
+      1.52,
+      29
+    ],
+    [
+      2.12,
+      30
+    ],
+    [
+      2.28,
+      31
+    ],
+    [
+      2.44,
+      32
+    ],
+    [
+      2.6,
+      33
+    ],
+    [
+      2.76,
+      34
+    ],
+    [
+      3.2,
+      28
+    ],
+    [
+      3.24,
+      35
+    ],
+    [
+      3.28,
+      36
+    ],
+    [
+      3.32,
+      37
+    ],
+    [
+      3.36,
+      38
+    ],
+    [
+      3.4,
+      39
+    ],
+    [
+      3.44,
+      40
+    ],
+    [
+      3.48,
+      41
+    ],
+    [
+      3.52,
+      19
+    ],
+    [
+      3.6,
+      42
+    ],
+    [
+      3.64,
+      43
+    ],
+    [
+      3.68,
+      44
+    ],
+    [
+      3.72,
+      45
+    ],
+    [
+      3.76,
+      46
+    ],
+    [
+      3.8,
+      47
+    ],
+    [
+      3.84,
+      48
+    ],
+    [
+      3.88,
+      0
+    ]
+  ],
+  "cell_budget": {
+    "4096": {
+      "atlas_px": 4096,
+      "cells": 49,
+      "cols": 7,
+      "rows": 7,
+      "cell_px": 585
+    },
+    "8192": {
+      "atlas_px": 8192,
+      "cells": 49,
+      "cols": 7,
+      "rows": 7,
+      "cell_px": 1170
+    }
+  },
+  "texture_settings": {
+    "compression": "TC_BC7",
+    "sRGB": false,
+    "mip_gen": "NoMipmaps",
+    "never_stream": true,
+    "filter": "Bilinear",
+    "address": "Clamp"
+  },
+  "sha256": "442ebdd24b0ead79666645061c9b177766f34610727d9c2c31279725fdbc8453",
+  "prop_demo": {
+    "name": "bucket",
+    "look": {
+      "holder": "world rod",
+      "size_boy_height": 0.24,
+      "enter_seconds": 0.8,
+      "tip_seconds": 0.48,
+      "min_water_light_pixels_480": 120,
+      "stream_width": 0.3,
+      "splash_scale": 2.2,
+      "stop_xy": [
+        0.55,
+        0.03
+      ],
+      "target_xy": [
+        0.402,
+        0.165
+      ]
+    },
+    "attach_modes": [
+      "world",
+      "boy_near_hand",
+      "boy_far_hand",
+      "boy_head_top",
+      "puss_mouth",
+      "puss_front_paw"
+    ],
+    "quantized_transforms": true,
+    "product_transmissions": true,
+    "minimum_feature_width_px": 6.629,
+    "meets_2px": true,
+    "claims": [
+      {
+        "tier": "measured",
+        "claim": "Frames were rendered, SDF-packed and read back offline.",
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:380"
+      },
+      {
+        "tier": "inferred",
+        "claim": "The proposed scale and staging need Gary's visual approval.",
+        "evidence": "Tools/ShadowGobo/Puppets/props.py:266"
+      }
+    ]
+  }
+}

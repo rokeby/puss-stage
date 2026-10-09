@@ -1,0 +1,92 @@
+{
+  "bucket": {
+    "rendered_frames": 100,
+    "unique_cells": 49,
+    "grid": "7x7",
+    "cell_px": 1170,
+    "minimum_feature_width_px": 6.629,
+    "gif_bytes": 1380516,
+    "source_scale": {
+      "actual_unique_before_pack": 49,
+      "source_px": 2308,
+      "required_px": 2308
+    },
+    "frame_strip": "frame_strip_6.png",
+    "pour_visibility": {
+      "required_frames": 31,
+      "minimum_water_light_pixels": 1577,
+      "maximum_bucket_boy_overlap_pixels": 0,
+      "all_pass": true
+    }
+  },
+  "page": {
+    "rendered_frames": 100,
+    "unique_cells": 70,
+    "grid": "9x8",
+    "cell_px": 910,
+    "minimum_feature_width_px": 4.66,
+    "gif_bytes": 1485282,
+    "source_scale": {
+      "actual_unique_before_pack": 70,
+      "source_px": 2048,
+      "required_px": 1788
+    },
+    "frame_strip": "frame_strip_6.png"
+  },
+  "turnip": {
+    "rendered_frames": 100,
+    "unique_cells": 13,
+    "grid": "4x4",
+    "cell_px": 2048,
+    "minimum_feature_width_px": 7.134,
+    "gif_bytes": 1542707,
+    "source_scale": {
+      "actual_unique_before_pack": 13,
+      "source_px": 4064,
+      "required_px": 4064
+    },
+    "frame_strip": "frame_strip_6.png"
+  },
+  "pearl": {
+    "rendered_frames": 100,
+    "unique_cells": 58,
+    "grid": "8x8",
+    "cell_px": 1024,
+    "minimum_feature_width_px": 2.413,
+    "gif_bytes": 1062348,
+    "source_scale": {
+      "actual_unique_before_pack": 58,
+      "source_px": 2048,
+      "required_px": 2016
+    },
+    "frame_strip": "frame_strip_6.png"
+  },
+  "crown": {
+    "rendered_frames": 100,
+    "unique_cells": 64,
+    "grid": "8x8",
+    "cell_px": 1024,
+    "minimum_feature_width_px": 5.308,
+    "gif_bytes": 957219,
+    "source_scale": {
+      "actual_unique_before_pack": 64,
+      "source_px": 2048,
+      "required_px": 2016
+    },
+    "frame_strip": "frame_strip_6.png"
+  },
+  "boots": {
+    "rendered_frames": 100,
+    "unique_cells": 68,
+    "grid": "9x8",
+    "cell_px": 910,
+    "minimum_feature_width_px": 3.317,
+    "gif_bytes": 1491794,
+    "source_scale": {
+      "actual_unique_before_pack": 68,
+      "source_px": 2048,
+      "required_px": 1788
+    },
+    "frame_strip": "frame_strip_6.png"
+  }
+}

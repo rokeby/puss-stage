@@ -515,6 +515,19 @@ def tail_tip_for_pose(pose):
     return pivot
 
 
+def prop_anchors(pose):
+    """World-space mouth/front-paw anchors derived from the current rig pose."""
+    parts, _rods, _whiskers = pose_parts(pose)
+    lookup = {name: np.asarray(outline, dtype=float) for name, outline, _cuts, _z in parts}
+    head = lookup["head"]
+    paw = lookup["front_paw"]
+    # Right-facing mouth edge and distal paw edge are stable card landmarks.
+    mouth_candidates = head[head[:, 0] >= np.percentile(head[:, 0], 88)]
+    mouth = mouth_candidates.mean(axis=0)
+    paw_tip = paw[np.argmax(paw[:, 1])]
+    return {"mouth": tuple(mouth), "front_paw": tuple(paw_tip)}
+
+
 # -------------------------------------------------------------------------------------------------
 # Rendering and SVG
 

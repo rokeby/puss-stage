@@ -1,0 +1,420 @@
+{
+  "positive": {
+    "passed": 30,
+    "total": 30
+  },
+  "negative": {
+    "passed": 6,
+    "total": 6
+  },
+  "total": {
+    "passed": 36,
+    "total": 36
+  },
+  "results": [
+    {
+      "kind": "positive",
+      "label": "bucket_connected",
+      "passed": true,
+      "detail": {
+        "components": 1
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "page_connected",
+      "passed": true,
+      "detail": {
+        "components": 1
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "turnip_connected",
+      "passed": true,
+      "detail": {
+        "components": 1
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "pearl_connected",
+      "passed": true,
+      "detail": {
+        "components": 1
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "crown_connected",
+      "passed": true,
+      "detail": {
+        "components": 1
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "boot_connected",
+      "passed": true,
+      "detail": {
+        "components": 1
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "crown_has_five_points",
+      "passed": true,
+      "detail": {
+        "top_points": [
+          [
+            -0.5,
+            -0.34
+          ],
+          [
+            -0.28,
+            -0.48
+          ],
+          [
+            0.0,
+            -0.55
+          ],
+          [
+            0.28,
+            -0.48
+          ],
+          [
+            0.5,
+            -0.34
+          ]
+        ]
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "pearl_has_star_punch",
+      "passed": true,
+      "detail": {
+        "vertices": 10
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "pearl_disc_stays_round",
+      "passed": true,
+      "detail": {
+        "radius_range": 5.551115123125783e-17
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "pearl_crescent_is_smooth_and_tapered",
+      "passed": true,
+      "detail": {
+        "vertices": 44
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "turnip_bulb_wider_than_tall",
+      "passed": true,
+      "detail": {
+        "width": 1.19,
+        "height": 0.6
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "turnip_has_long_tail_and_four_blades",
+      "passed": true,
+      "detail": {
+        "tail_y": 0.96,
+        "blade_tips": 4
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "boot_has_cavalier_cuff_heel_and_point",
+      "passed": true,
+      "detail": {
+        "toe_x": 0.67,
+        "cuff_width": 0.8200000000000001
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "cagliuso_cut_is_large",
+      "passed": true,
+      "detail": {
+        "cut_pixels": 2276
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "page_without_name_fails",
+      "passed": true,
+      "detail": {
+        "cut_pixels": 0
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "overlap_stays_black",
+      "passed": true,
+      "detail": {
+        "pixel": 0
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "cut_through_bug_fails",
+      "passed": true,
+      "detail": {
+        "pixel": 255
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "fall_settles_within_one",
+      "passed": true,
+      "detail": {
+        "end": [
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "unsettled_sim_fails",
+      "passed": true,
+      "detail": {
+        "end": [
+          0,
+          0.9767,
+          1.5,
+          1.0
+        ]
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "turnip_area_strictly_decreases",
+      "passed": true,
+      "detail": {
+        "areas": [
+          29355,
+          28381,
+          28270,
+          28054
+        ]
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "turnip_anchor_distance",
+      "passed": true,
+      "detail": {
+        "max_world_units": 7.615773105863909,
+        "limit": 9
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "detached_turnip_fails",
+      "passed": true,
+      "detail": {
+        "distance": 141.421
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "turnip_reads_against_light",
+      "passed": true,
+      "detail": {
+        "new_black_pixels": [
+          407,
+          402,
+          391,
+          388,
+          392
+        ]
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "black_on_black_turnip_fails",
+      "passed": true,
+      "detail": {
+        "new_black_pixels": 5
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "bucket_enters_pours_rights_and_exits",
+      "passed": true,
+      "detail": {
+        "start": {
+          "xy": [
+            1.08,
+            0.26904
+          ],
+          "angle": 0.0,
+          "phase": "enter",
+          "splash": 0,
+          "hold": false
+        },
+        "tip": {
+          "xy": [
+            0.55,
+            0.26404
+          ],
+          "angle": 48.059,
+          "phase": "tip",
+          "splash": 0,
+          "hold": false
+        },
+        "right": {
+          "xy": [
+            0.55,
+            0.26404
+          ],
+          "angle": 17.4023,
+          "phase": "right",
+          "splash": 3,
+          "hold": false
+        },
+        "end": {
+          "xy": [
+            1.08,
+            0.26904
+          ],
+          "angle": 0.0,
+          "phase": "off",
+          "splash": 3,
+          "hold": true
+        }
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "bucket_water_reads_on_light",
+      "passed": true,
+      "detail": {
+        "threshold": 120,
+        "minimum": 1577,
+        "max_overlap": 0
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "bucket_over_head_while_pouring_fails",
+      "passed": true,
+      "detail": {
+        "frame": 0,
+        "phase": "stream",
+        "water_light_pixels": 503,
+        "bucket_boy_overlap_pixels": 1272,
+        "passes_pour_gate": false
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "pearl_no_anchor_jump",
+      "passed": true,
+      "detail": {
+        "max_fraction_step": 0.02585181844274065
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "boots_upright_row",
+      "passed": true,
+      "detail": {
+        "spacing": 0.08299999999999996,
+        "angles": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "bucket_hold_dedup",
+      "passed": true,
+      "detail": {
+        "hold_frames": 2,
+        "unique": 1
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "page_hold_dedup",
+      "passed": true,
+      "detail": {
+        "hold_frames": 30,
+        "unique": 1
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "turnip_hold_dedup",
+      "passed": true,
+      "detail": {
+        "hold_frames": 18,
+        "unique": 1
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "pearl_hold_dedup",
+      "passed": true,
+      "detail": {
+        "hold_frames": 28,
+        "unique": 1
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "crown_hold_dedup",
+      "passed": true,
+      "detail": {
+        "hold_frames": 36,
+        "unique": 1
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "boots_hold_dedup",
+      "passed": true,
+      "detail": {
+        "hold_frames": 28,
+        "unique": 1
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "rig_anchors_exposed",
+      "passed": true,
+      "detail": {
+        "anchors": [
+          "far_hand",
+          "front_paw",
+          "head_top",
+          "mouth",
+          "near_hand"
+        ]
+      }
+    }
+  ],
+  "claims": [
+    {
+      "tier": "measured",
+      "claim": "All PG7 controls ran offline.",
+      "evidence": "Tools/ShadowGobo/Puppets/test_props_offline.py:15"
+    }
+  ]
+}
