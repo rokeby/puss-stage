@@ -205,6 +205,10 @@ def validate_config(raw, require_confirm=True):
             if int(timing.get("ordinal", 0)) < 1:
                 raise ReviewError("BAD_ORDINAL|shot=%s" % shot["id"])
             _finite_number(timing.get("offset_seconds", 0.0), "offset_seconds", 0.0)
+            if "from_end_seconds" in timing:
+                _finite_number(timing["from_end_seconds"], "from_end_seconds", 0.0)
+                if "offset_seconds" in timing:
+                    raise ReviewError("OFFSET_AND_FROM_END|shot=%s" % shot["id"])
         camera = shot.get("camera")
         if not isinstance(camera, dict) or camera.get("kind") not in CAMERA_KINDS:
             raise ReviewError("BAD_CAMERA|shot=%s" % shot["id"])
@@ -227,6 +231,18 @@ def validate_config(raw, require_confirm=True):
     config["shots"] = normalized
     config["expected_world"] = str(config.get("expected_world", EXPECTED_WORLD))
     return config
+
+
+def segment_target_frame_from_end(start, end, from_end_seconds):
+    """Frame from_end_seconds before the segment end; refuses one that falls before the start."""
+    start, end = int(start), int(end)
+    if end - start <= END_GUARD_TICKS:
+        raise ReviewError("SEGMENT_TOO_SHORT|%d..%d" % (start, end))
+    frame = end - int(round(float(from_end_seconds) * TICKS_PER_SECOND))
+    if frame < start:
+        raise ReviewError("FROM_END_BEFORE_SEGMENT|from_end=%.3f|duration=%.3f" %
+                          (from_end_seconds, (end - start) / float(TICKS_PER_SECOND)))
+    return max(start, min(frame, end - END_GUARD_TICKS))
 
 
 def segment_target_frame(start, end, offset_seconds):
@@ -974,7 +990,10 @@ def make_unreal_adapter(unreal):
                 timing = shot["time"]
                 if timing["kind"] == "segment_offset":
                     start, end, label = segment_range(timing["cue_type"], timing["ordinal"])
-                    frame = segment_target_frame(start, end, float(timing.get("offset_seconds", 0.0)))
+                    if "from_end_seconds" in timing:   # 9 Oct: end drapes fall in the last seconds of a passage
+                        frame = segment_target_frame_from_end(start, end, float(timing["from_end_seconds"]))
+                    else:
+                        frame = segment_target_frame(start, end, float(timing.get("offset_seconds", 0.0)))
                     facts = {"target_frame": frame, "time_readback": {"method": "live_transport_segment_offset",
                              "segment_label": label, "segment": [start, end],
                              "offset_seconds": float(timing.get("offset_seconds", 0.0))}}

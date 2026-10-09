@@ -1,0 +1,146 @@
+{
+ "mode": "DRY",
+ "confirm": "DRY REVIEW STILLS",
+ "dry_report": "",
+ "profile": "gary_q6",
+ "capture_session": "existing_pie",
+ "expected_world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "required_shot_ids": [
+  "opening_hang",
+  "opening_fall",
+  "opening_held",
+  "p02_end_drape_fall",
+  "p02_end_drape_land",
+  "p03_end_drape_fall",
+  "p03_end_drape_land"
+ ],
+ "params": {
+  "resolution": [
+   1600,
+   900
+  ],
+  "probe_resolution": [
+   256,
+   144
+  ],
+  "repose_seconds": 1.0,
+  "camera_hold_ticks": 24,
+  "settle_min_seconds": 2.0,
+  "settle_max_seconds": 10.0,
+  "probe_interval_seconds": 0.5,
+  "settle_window": 3,
+  "settle_abs_luma": 2.0,
+  "settle_rel_luma": 0.03,
+  "file_timeout_seconds": 45.0,
+  "file_min_bytes": 1000,
+  "file_stable_ticks": 4,
+  "run_timeout_seconds": 480.0,
+  "frame_tolerance_ticks": 1,
+  "contact_columns": 4,
+  "contact_thumb": [
+   400,
+   225
+  ],
+  "contact_gutter": 8
+ },
+ "shots": [
+  {
+   "id": "opening_hang",
+   "note": "Opening ragged curtain hanging (before 2 s release)",
+   "time": {
+    "kind": "segment_offset",
+    "cue_type": "SEQUENCE",
+    "ordinal": 1,
+    "offset_seconds": 1.0
+   },
+   "camera": {
+    "kind": "master"
+   }
+  },
+  {
+   "id": "opening_fall",
+   "note": "Opening ragged curtain mid-fall",
+   "time": {
+    "kind": "segment_offset",
+    "cue_type": "SEQUENCE",
+    "ordinal": 1,
+    "offset_seconds": 4.5
+   },
+   "camera": {
+    "kind": "master"
+   }
+  },
+  {
+   "id": "opening_held",
+   "note": "Opening ragged curtain held pile",
+   "time": {
+    "kind": "segment_offset",
+    "cue_type": "SEQUENCE",
+    "ordinal": 1,
+    "offset_seconds": 9.5
+   },
+   "camera": {
+    "kind": "master"
+   }
+  },
+  {
+   "id": "p02_end_drape_fall",
+   "note": "P02 end drape (ragged) mid-fall, 2.5 s before passage end",
+   "time": {
+    "kind": "segment_offset",
+    "cue_type": "WING_PAIR",
+    "ordinal": 2,
+    "from_end_seconds": 2.5
+   },
+   "camera": {
+    "kind": "master"
+   }
+  },
+  {
+   "id": "p02_end_drape_land",
+   "note": "P02 end drape (ragged) landing, 0.6 s before passage end",
+   "time": {
+    "kind": "segment_offset",
+    "cue_type": "WING_PAIR",
+    "ordinal": 2,
+    "from_end_seconds": 0.6
+   },
+   "camera": {
+    "kind": "master"
+   }
+  },
+  {
+   "id": "p03_end_drape_fall",
+   "note": "P03 end drape (ragged) mid-fall",
+   "time": {
+    "kind": "segment_offset",
+    "cue_type": "WING_PAIR",
+    "ordinal": 3,
+    "from_end_seconds": 2.5
+   },
+   "camera": {
+    "kind": "master"
+   }
+  },
+  {
+   "id": "p03_end_drape_land",
+   "note": "P03 end drape (ragged) landing",
+   "time": {
+    "kind": "segment_offset",
+    "cue_type": "WING_PAIR",
+    "ordinal": 3,
+    "from_end_seconds": 0.6
+   },
+   "camera": {
+    "kind": "master"
+   }
+  }
+ ],
+ "_run_order": [
+  "Execute this file as DRY with confirm DRY REVIEW STILLS; copy its report filename into dry_report.",
+  "Change mode to RUN and confirm to RUN REVIEW STILLS.",
+  "Start exactly one conductor-owned PIE with Saved/CodexConductor/conductor_pie_begin_request.json.",
+  "Execute review_stills_request.json once and wait for REVIEW_STILLS_OK or REVIEW_STILLS_FAILED.",
+  "Only the operator that started PIE executes conductor_pie_end_request.json after the marker."
+ ]
+}

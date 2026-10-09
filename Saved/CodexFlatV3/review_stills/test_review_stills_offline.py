@@ -219,6 +219,14 @@ try:
         FakeAdapter([0.0]), cfg_negative, tmp / "owned", tmp / "owned_b", owner, store=Store()),
         "FOREIGN_PIE_OWNER_ACTIVE")
 
+    # from_end_seconds (9 Oct). +/- controls.
+    _tps = rs.TICKS_PER_SECOND
+    check("POS from_end 2 s before end", rs.segment_target_frame_from_end(0, 100 * _tps, 2.0) == 98 * _tps, "")
+    rejects("NEG from_end before segment start", lambda: rs.segment_target_frame_from_end(0, 10 * _tps, 11.0),
+            "FROM_END_BEFORE_SEGMENT")
+    check("POS from_end 0 clamps inside the end guard",
+          rs.segment_target_frame_from_end(0, 100 * _tps, 0.0) == 100 * _tps - rs.END_GUARD_TICKS, "")
+
     # PIE world prefix (9 Oct RUN refusal: UEDPIE_0_ on the leaf). +/- controls.
     _ok = rs.EXPECTED_WORLD
     _dir, _leaf = _ok.rsplit("/", 1)
