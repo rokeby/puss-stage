@@ -1,7 +1,7 @@
 """Entrypoint for p01_floor.py (Unreal: ExecuteProjectPythonFile, request p01_floor_request.json).
 
 Reads p01_floor_args.json. APPLY/REVERT refuse unless "confirm" is exact (p01_floor.check_args), so a stale args file
-cannot turn a DRY into a write; ADD_UPLIGHTS refuses anything but COUNT/DRY. Cached modules from Saved/CodexConductor
+cannot turn a DRY into a write; ADD_UPLIGHTS uses APPLY/REVERT P0NADDUP for P02-P06 only. Cached modules from Saved/CodexConductor
 are purged first (memory ue58-python-stale-module-cache); runpy executes a fresh copy every call. Outside Unreal only
 COUNT runs (python p01_floor_run.py, or python p01_floor.py <args.json>).
 """

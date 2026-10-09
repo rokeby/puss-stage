@@ -1,4 +1,4 @@
-"""Offline harness for P01 FLOOR (p01_floor_common.py + the p01_floor.py orchestrator on a FAKE editor backend).
+"""Offline harness for P01 FLOOR and P02-P06 ADD_UPLIGHTS (planner + orchestrator on a FAKE editor backend).
 Every positive check has a control that must FAIL the same predicate, so a check that cannot fail is caught.
 
   python test_p01_floor.py   -> PASS/FAIL lines, P01FLOOR_HARNESS_OK|passed=N|failed=0 (exit 0) or exit 1;
@@ -294,8 +294,22 @@ check("E1 ADD_UPLIGHTS P01 proposes 96 (48 bays x 2 sides): every lantern on the
 bad_add = copy.deepcopy(ADD)
 changes(bad_add, "ADD_UPLIGHT")[0][1]["after"]["relative_transform"]["location"][0] = 0.0
 check("E1- control: a proposed uplight moved into its wing panel is caught", any(b[0] == "INSIDE_WING_PANEL" for b in F.add_plan_checks(bad_add)))
-check("E2- control: ADD_UPLIGHTS cannot APPLY (proposal only)",
-      raises(lambda: args_for("APPLY", op="ADD_UPLIGHTS", confirm="APPLY P01FLOOR", plan_sha256="0" * 64), "ADD_UPLIGHTS_IS_PROPOSAL_ONLY"))
+add2_args = args_for("COUNT", op="ADD_UPLIGHTS", passage="P02")
+check("E2 P02-P06 public args default to 4500 K; P02/P03 200 lm and P04/P05/P06 500 lm; rows stay enabled",
+      all(args_for("COUNT", op="ADD_UPLIGHTS", passage=p)["kelvin"] == 4500.0 for p in ("P02", "P03", "P04", "P05", "P06"))
+      and [args_for("COUNT", op="ADD_UPLIGHTS", passage=p)["lumens"] for p in ("P02", "P03", "P04", "P05", "P06")]
+      == [200.0, 200.0, 500.0, 500.0, 500.0] and add2_args["on"] is True)
+check("E2- control: two passages in one run are refused",
+      raises(lambda: args_for("DRY", op="ADD_UPLIGHTS", passage=["P02", "P03"]), "ONE_PASSAGE_PER_RUN"))
+check("E2- control: kelvin and lumens outside their bounded ranges are refused",
+      raises(lambda: args_for("DRY", op="ADD_UPLIGHTS", passage="P02", kelvin=999), "ADD_KELVIN_INVALID")
+      and raises(lambda: args_for("DRY", op="ADD_UPLIGHTS", passage="P02", lumens=5001), "ADD_LUMENS_INVALID"))
+off2_args = args_for("COUNT", op="ADD_UPLIGHTS", passage="P02", on=False)
+off2_state = P["OfflineBackend"]().read_state(off2_args)
+off2 = P["build_add_plan"](off2_state, off2_args)
+check("E2 on=false keeps every Station row enabled at 0 lm so every Structure housing remains ready",
+      changes(off2, "ADD_UPLIGHT") and all(c["after"]["enabled"] is True and c["after"]["lighting"]["intensity"] == 0.0
+                                              for t, c in changes(off2, "ADD_UPLIGHT")) and not off2["checks"])
 st5 = P["OfflineBackend"]().read_state(args_for("COUNT", op="ADD_UPLIGHTS", passage="P05"))
 add5 = P["build_add_plan"](st5, args_for("COUNT", op="ADD_UPLIGHTS", passage="P05"))
 add5b = P["build_add_plan"](st5, args_for("COUNT", op="ADD_UPLIGHTS", passage="P05", add_skip_sides_with_uplights=False))
@@ -391,6 +405,34 @@ class FakeBackend:
         require_(seen == len(values), "ROW_GUIDS_MISSING")
         return (target["cue_guid"], original)
 
+    def add_rows(self, target, planned_rows):
+        rows = self.mem[target["cue_guid"]]
+        original = copy.deepcopy(rows)
+        existing = {r["guid"] for values in self.mem.values() for r in values}
+        minted = []
+        for i, planned in enumerate(planned_rows):
+            seed = {"cue": target["cue_guid"], "label": planned["label"], "ordinal": i, "run": self.n}
+            guid = F.sha(seed)[:32].upper()
+            F.require(guid not in existing and guid.strip("0"), "FAKE_GUID_COLLISION")
+            actual = copy.deepcopy(planned)
+            actual["guid"] = guid
+            if "add_intensity_lie" in self.faults:
+                actual["lighting"]["intensity"] += 1.0
+            P["assert_added_matches"](planned, actual)
+            rows.append(actual)
+            minted.append(copy.deepcopy(actual))
+            existing.add(guid)
+        return (target["cue_guid"], original), minted
+
+    def remove_rows(self, target, guid_texts):
+        rows = self.mem[target["cue_guid"]]
+        original = copy.deepcopy(rows)
+        wanted = set(guid_texts)
+        keep = [r for r in rows if r["guid"] not in wanted]
+        F.require(len(rows) - len(keep) == len(wanted), "REMOVE_COUNT")
+        self.mem[target["cue_guid"]] = keep
+        return target["cue_guid"], original
+
     def rollback(self, tokens):
         for g, original in reversed(tokens):
             self.mem[g] = original
@@ -448,6 +490,12 @@ class FakeBackend:
                 if F.FC.dist(want, acts[0]["loc"]) > P["PLACE_TOL_CM"]:
                     bad.append((c["label"], "PLACE"))
                     continue
+                if c["what"] in ("UPLIGHT_LIGHT_TO_FLOOR", "ADD_UPLIGHT"):
+                    want_class = {"SPOT": "SpotLight", "POINT": "PointLight", "RECT": "RectLight"}[
+                        F.enum_name(c["after"]["lighting"]["type"])]
+                    if acts[0]["cls"] != want_class:
+                        bad.append((c["label"], "CLASS"))
+                        continue
                 ok += 1
         F.require(not bad, "SPAWNED|%s" % bad[:4])
         return ok
@@ -462,7 +510,8 @@ class FakeBackend:
 
 def run_fake(be, tmp, mode, **kw):
     a = args_for(mode, **kw)
-    return P["run"](a, be, out_dir=tmp, relocate_record=os.path.join(tmp, "fixfollow_relocate_record_P01.json"))
+    return P["run"](a, be, out_dir=tmp,
+                    relocate_record=os.path.join(tmp, "fixfollow_relocate_record_%s.json" % a["passage"]))
 
 
 ORIGINAL = F.canonical({c["guid"]: c["attachments"] for c in BASE["all_cues"]})
@@ -572,6 +621,68 @@ with tempfile.TemporaryDirectory() as tmp:
               and not os.path.exists(os.path.join(sub, "p01_floor_record.json"))
               and any(n.startswith("p01_floor_record.json.failed-") for n in os.listdir(sub))
               and any("NOTHING SAVED" in l for l in bf.logs))
+
+    # ADD_UPLIGHTS transaction: named negative controls plus a complete APPLY -> REVERT per P02-P06.
+    p02_args = {"op": "ADD_UPLIGHTS", "passage": "P02"}
+    p02_state = OFF.read_state(args_for("COUNT", **p02_args))
+    p02_be = FakeBackend(p02_state)
+    p02_dir = os.path.join(tmp, "addup_p02_controls")
+    os.makedirs(p02_dir)
+    p02_dry = run_fake(p02_be, p02_dir, "DRY", **p02_args)
+    p02_sha = p02_dry["plan_sha256"]
+    check("B8- control: ADD_UPLIGHTS APPLY without exact APPLY P02ADDUP confirm is refused",
+          raises(lambda: args_for("APPLY", plan_sha256=p02_sha, **p02_args), "CONFIRM_MISSING"))
+    sentinel = os.path.join(p02_dir, "p01_floor_record.json")
+    with open(sentinel, "w", encoding="utf-8") as handle:
+        handle.write('{"sentinel":"P01 FLOOR"}')
+    p02_apply = run_fake(p02_be, p02_dir, "APPLY", confirm="APPLY P02ADDUP", plan_sha256=p02_sha,
+                         expected_rows=46, **p02_args)
+    add_record = os.path.join(p02_dir, "p02_addup_record.json")
+    add_rec = json.load(open(add_record, encoding="utf-8"))
+    check("B8 APPLY records all 46 minted row ids in its own p02_addup record and never clobbers P01 FLOOR record",
+          len(add_rec["created_row_ids"]) == 46 and len(set(add_rec["created_row_ids"])) == 46
+          and json.load(open(sentinel, encoding="utf-8")) == {"sentinel": "P01 FLOOR"}
+          and p02_apply["record"] == add_record)
+    check("B8- control: an active ADD_UPLIGHTS record refuses re-APPLY",
+          raises(lambda: run_fake(p02_be, p02_dir, "APPLY", confirm="APPLY P02ADDUP", plan_sha256=p02_sha,
+                                  **p02_args), "ACTIVE_RECORD_EXISTS"))
+    first_created = add_rec["created_row_ids"][0]
+    first_cue = next(g for g, rows in add_rec["created_rows"].items() if first_created in rows)
+    for store in (p02_be.mem, p02_be.disk):
+        next(r for r in store[first_cue] if r["guid"] == first_created)["lighting"]["intensity"] += 9.0
+    drifted = F.canonical(p02_be.disk)
+    check("B8- control: ADD_UPLIGHTS REVERT refuses a drifted created row and removes nothing",
+          raises(lambda: run_fake(p02_be, p02_dir, "REVERT", confirm="REVERT P02ADDUP", **p02_args), "REVERT_DRIFT")
+          and F.canonical(p02_be.disk) == drifted)
+    for store in (p02_be.mem, p02_be.disk):
+        next(r for r in store[first_cue] if r["guid"] == first_created)["lighting"]["intensity"] -= 9.0
+    check("B8 after drift is undone, REVERT removes exactly the 46 recorded ids and restores the original Show",
+          run_fake(p02_be, p02_dir, "REVERT", confirm="REVERT P02ADDUP", **p02_args)["ok"]
+          and F.canonical(p02_be.disk) == F.canonical({c["guid"]: c["attachments"] for c in p02_state["all_cues"]}))
+
+    expected_counts = {"P02": 46, "P03": 42, "P04": 30, "P05": 105, "P06": 110}
+    expected_housing = {"P02": "SM_Lantern_ParCan", "P03": "SM_Lantern_Fresnel",
+                        "P04": "SM_Lantern_Fresnel", "P05": "SM_Lantern_Fresnel", "P06": "SM_Lantern_ParCan"}
+    for passage, expected_count in expected_counts.items():
+        a_kw = {"op": "ADD_UPLIGHTS", "passage": passage}
+        state = OFF.read_state(args_for("COUNT", **a_kw))
+        original = F.canonical({c["guid"]: c["attachments"] for c in state["all_cues"]})
+        backend = FakeBackend(state)
+        sub = os.path.join(tmp, "addup_roundtrip_" + passage.lower())
+        os.makedirs(sub)
+        dry = run_fake(backend, sub, "DRY", **a_kw)
+        applied = run_fake(backend, sub, "APPLY", confirm="APPLY %sADDUP" % passage,
+                           plan_sha256=dry["plan_sha256"], expected_rows=expected_count, **a_kw)
+        rec = json.load(open(os.path.join(sub, "%s_addup_record.json" % passage.lower()), encoding="utf-8"))
+        after_ids = set(rec["created_row_ids"])
+        enabled_zero_or_lit = [r for rows in backend.disk.values() for r in rows if r["guid"] in after_ids]
+        reverted = run_fake(backend, sub, "REVERT", confirm="REVERT %sADDUP" % passage, **a_kw)
+        check("B9 %s positive APPLY->REVERT: %d enabled rows, %s housing, exact restore" %
+              (passage, expected_count, expected_housing[passage]),
+              applied["ok"] and reverted["ok"] and len(after_ids) == expected_count
+              and all(r["enabled"] is True for r in enabled_zero_or_lit)
+              and rec["housing"]["name"] == expected_housing[passage]
+              and F.canonical(backend.disk) == original)
 
 # ---------------------------------------------------------------- C: loader + backend contract
 src = open(P["FIXFOLLOW_PATH"], encoding="utf-8").read()

@@ -144,11 +144,12 @@ FLOOR_DEFAULTS = {
     # field, InfinityStageTypes.h:439-498; FInfinityStageFixtureSettings neither, InfinityStageStructureActor.h:386-416).
     "uplight_body": "STRUCTURE_CAN",
     "uplight_body_mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Birdie",   # BIRDIE_BODY only
-    # ADD_UPLIGHTS (proposal only): new floor uplights per bay side at the wing feet
+    # ADD_UPLIGHTS: new floor uplights per bay side at the wing feet
     "add_per_side": 1,
     "add_skip_sides_with_uplights": True,
     "add_lumens": 800.0,
-    "add_color": [1.0, 0.72, 0.45, 1.0],
+    "add_on": True,                         # False keeps an enabled 0 lm row, so its Structure lantern still exists
+    "add_color": [1.0, 1.0, 1.0, 1.0],    # temperature supplies the colour; do not double-tint it warm
     "add_temperature_kelvin": 3000.0,
     "add_attenuation_radius_cm": 650.0,
     "add_inner_cone_deg": 18.0,
@@ -181,7 +182,14 @@ def check_opts(opts):
         require(out[k] in allowed, "OPT_INVALID|%s=%s" % (k, out[k]))
     require(out["uplight_body"] != "BIRDIE_BODY", BIRDIE_REFUSAL)
     require(isinstance(out["add_per_side"], int) and 0 <= out["add_per_side"] <= 4, "ADD_PER_SIDE_INVALID")
+    require(isinstance(out["add_on"], bool), "ADD_ON_INVALID")
     require(0.0 < float(out["add_lumens"]) <= 5000.0, "ADD_LUMENS_INVALID")
+    require(1000.0 <= float(out["add_temperature_kelvin"]) <= 15000.0, "ADD_KELVIN_INVALID")
+    require(0.0 < float(out["add_attenuation_radius_cm"]) <= 100000.0, "ADD_RADIUS_INVALID")
+    inner, outer = float(out["add_inner_cone_deg"]), float(out["add_outer_cone_deg"])
+    require(0.0 <= inner <= outer <= 89.0, "ADD_CONE_INVALID")
+    require(isinstance(out["add_color"], (list, tuple)) and len(out["add_color"]) == 4
+            and all(0.0 <= float(v) <= 1.0 for v in out["add_color"]), "ADD_COLOR_INVALID")
     p0, p1 = (float(v) for v in out["pitch_range_deg"])
     require(45.0 <= p0 <= p1 <= 89.0, "PITCH_RANGE_INVALID|%s" % out["pitch_range_deg"])
     require(0.0 <= float(out["tilt_max_deg"]) <= 20.0, "TILT_RANGE_INVALID")
@@ -869,7 +877,7 @@ def item_table(plan):
     return rows
 
 
-# ---- ADD_UPLIGHTS (proposal only: DRY / COUNT, never applied by this tool) ---------------------------------------
+# ---- ADD_UPLIGHTS ------------------------------------------------------------------------------------------------
 def _existing_uplight_sides(rows):
     """Sides (+1/-1) of a bay that already have a floor-level, upward-thrown enabled LIGHT (or an UPLIGHT role)."""
     out = set()
@@ -887,7 +895,8 @@ def add_uplights_plan(cues, ctx_by_cue, lantern, grid, opts, passage, floor_by_g
     """N new Station LIGHT rows per bay side, at the wing foot (in front of the panel, wing_clearance_cm off it), the
     lantern's lowest bounds corner on the floor, throw pitched pitch_range_deg up toward +x (into the wing face),
     evenly spread along the panel's span. Each would get the Structure's lantern (cpp:164-176): that lantern IS the
-    floor uplight's body. Rows are proposals only: nothing is written and no GUID is minted."""
+    floor uplight's body. The planner uses deterministic NEW... placeholder ids; APPLY replaces them with GUIDs minted
+    by Unreal and records every resulting row id before save."""
     opts = check_opts(opts)
     floor_by_guid = floor_by_guid or {}
     n = int(opts["add_per_side"])
@@ -927,21 +936,24 @@ def add_uplights_plan(cues, ctx_by_cue, lantern, grid, opts, passage, floor_by_g
                 x = panel["min"][0] - float(opts["wing_clearance_cm"]) - cmax[0]
                 z = float(fl["z"]) - cmin[2]
                 t = {"location": [float(x), float(y), float(z)], "rotation_xyzw": q, "scale": [1.0, 1.0, 1.0]}
-                row = {"guid": guid, "label": "%s PROPOSED UPLIGHT_%s%d" % (cue["label"], tag, k + 1),
+                row = {"guid": guid, "label": "%s FLOOR UPLIGHT_%s%d" % (cue["label"], tag, k + 1),
                        "kind": "<InfinityAttachmentKind.LIGHT: 1>", "enabled": True,
                        "anchor": "<InfinityAttachmentAnchor.STATION: 0>", "relative_transform": t, "mesh": None,
                        "lighting": {"type": "<InfinityStageLightType.SPOT: 0>",
                                     "intensity_units": "<InfinityStageLightIntensityUnits.LUMENS: 2>",
-                                    "intensity": float(opts["add_lumens"]), "color": list(opts["add_color"]),
+                                    "intensity": float(opts["add_lumens"]) if opts["add_on"] else 0.0,
+                                    "color": list(opts["add_color"]),
                                     "use_temperature": True, "temperature_kelvin": float(opts["add_temperature_kelvin"]),
                                     "attenuation_radius_cm": float(opts["add_attenuation_radius_cm"]),
                                     "inner_cone_angle_degrees": float(opts["add_inner_cone_deg"]),
                                     "outer_cone_angle_degrees": float(opts["add_outer_cone_deg"]),
                                     "cast_shadows": False}}
                 changes.append({"guid": guid, "label": row["label"], "what": "ADD_UPLIGHT", "after": row,
-                                "meta": {"geom": "UPLIGHT", "floor_z": float(fl["z"]), "floor_source": fl["source"],
-                                         "pitch_deg": round(pitch, 4), "before_location": None, "side": tag,
-                                         "panel_y_span": [round(panel["min"][1], 1), round(panel["max"][1], 1)],
+                                 "meta": {"geom": "UPLIGHT", "floor_z": float(fl["z"]), "floor_source": fl["source"],
+                                          "pitch_deg": round(pitch, 4), "before_location": None, "side": tag,
+                                          "on": bool(opts["add_on"]), "requested_lumens": float(opts["add_lumens"]),
+                                          "temperature_kelvin": float(opts["add_temperature_kelvin"]),
+                                          "panel_y_span": [round(panel["min"][1], 1), round(panel["max"][1], 1)],
                                          "lantern": lantern_on_floor(t, ctx, lantern)}})
         if changes:
             targets.append({"cue_guid": cue["guid"], "cue_label": cue["label"], "show_index": cue.get("show_index"),
@@ -950,6 +962,9 @@ def add_uplights_plan(cues, ctx_by_cue, lantern, grid, opts, passage, floor_by_g
             "ctx": {t["cue_guid"]: ctx_by_cue[t["cue_guid"]] for t in targets}, "targets": targets,
             "skipped": skipped, "dead": [], "uplights": [], "left": [], "refused": [], "notes": [],
             "counts": {"cues": len(targets), "proposed_uplights": sum(len(t["changes"]) for t in targets),
+                       "enabled_rows": sum(len(t["changes"]) for t in targets),
+                       "lit_rows": sum(1 for t in targets for c in t["changes"]
+                                       if float(c["after"]["lighting"]["intensity"]) > 0.0),
                        "sides_skipped": len(skipped), "rows": sum(len(t["changes"]) for t in targets)}}
 
 
@@ -963,6 +978,20 @@ def add_plan_checks(plan):
         ctx = plan["ctx"][t["cue_guid"]]
         boxes = []
         for c in t["changes"]:
+            row = c["after"]
+            lighting = row["lighting"]
+            expected_lumens = float(opts["add_lumens"]) if opts["add_on"] else 0.0
+            if row.get("enabled") is not True:
+                bad.append(("ADD_ROW_DISABLED", c["label"], row.get("enabled")))
+            if enum_name(row.get("kind")) != "LIGHT" or enum_name(row.get("anchor")) != "STATION":
+                bad.append(("ADD_ROW_KIND_OR_ANCHOR", c["label"], [row.get("kind"), row.get("anchor")]))
+            if enum_name(lighting.get("type")) != "SPOT" or enum_name(lighting.get("intensity_units")) != "LUMENS":
+                bad.append(("ADD_LIGHT_TYPE_OR_UNITS", c["label"], [lighting.get("type"), lighting.get("intensity_units")]))
+            if abs(float(lighting.get("intensity", -1.0)) - expected_lumens) > 1.0e-4:
+                bad.append(("ADD_LUMENS", c["label"], lighting.get("intensity")))
+            if not lighting.get("use_temperature") or abs(float(lighting.get("temperature_kelvin", 0.0))
+                                                            - float(opts["add_temperature_kelvin"])) > 1.0e-4:
+                bad.append(("ADD_KELVIN", c["label"], lighting.get("temperature_kelvin")))
             geo = lantern_geometry(c["after"]["relative_transform"], ctx["pair_world"], ctx["across_world"], plan["lantern"])
             if not (p0 - 1e-6 <= geo["pitch_deg"] <= p1 + 1e-6) or geo["throw_pair"][0] <= 0:
                 bad.append(("PITCH_OR_AIM", c["label"], round(geo["pitch_deg"], 3)))

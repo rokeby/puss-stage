@@ -29,6 +29,21 @@ COL = {"dead": "#d97706", "light": "#2563eb", "can": "#60a5fa", "body": "#7c3aed
        "working": "#6b7280", "panel": "#d1d5db"}
 
 
+def _kelvin_hex(kelvin):
+    """Approximate black-body sRGB for a schematic preview (the Unreal row still uses exact Kelvin)."""
+    t = max(10.0, min(400.0, float(kelvin) / 100.0))
+    if t <= 66.0:
+        r = 255.0
+        g = 99.4708025861 * math.log(t) - 161.1195681661
+        b = 0.0 if t <= 19.0 else 138.5177312231 * math.log(t - 10.0) - 305.0447927307
+    else:
+        r = 329.698727446 * ((t - 60.0) ** -0.1332047592)
+        g = 288.1221695283 * ((t - 60.0) ** -0.0755148492)
+        b = 255.0
+    rgb = [max(0, min(255, round(v))) for v in (r, g, b)]
+    return "#%02x%02x%02x" % tuple(rgb)
+
+
 def _box_pts(t, lo, hi, pair_world=None):
     pts = F.corners_of(t, lo, hi)
     return pts if pair_world is None else [F.to_pair(pair_world, p) for p in pts]
@@ -48,6 +63,8 @@ def _outline(ax, pts, i, j, **kw):
 
 
 def render(plan, out_dir, tag, stem="p01_floor"):
+    light_col = (_kelvin_hex(plan["opts"]["add_temperature_kelvin"])
+                 if plan["op"] == "ADD_UPLIGHTS" else COL["light"])
     by_cue = {}
     for t in plan["targets"]:
         by_cue[t["cue_guid"]] = t
@@ -94,9 +111,9 @@ def render(plan, out_dir, tag, stem="p01_floor"):
                 if c["what"] == "UPLIGHT_LIGHT_TO_FLOOR":
                     ax.plot(b[0], b[1], "s", mfc="none", mec=COL["light"], ms=4)
                 _outline(ax, _lantern_pts(plan, g, c["after"]["relative_transform"]), 0, 1, color=COL["can"])
-                ax.plot(a[0], a[1], "s", color=COL["light"], ms=3)
+                ax.plot(a[0], a[1], "s", color=light_col, ms=3)
                 ax.annotate("", xy=(a[0] + 40, a[1]), xytext=(a[0], a[1]),
-                            arrowprops=dict(arrowstyle="->", color=COL["light"], lw=0.8))
+                            arrowprops=dict(arrowstyle="->", color=light_col, lw=0.8))
                 ax.annotate("", xy=(a[0], a[1]), xytext=(b[0], b[1]),
                             arrowprops=dict(arrowstyle="->", color=COL["light"], lw=0.5, ls=":"))
             elif c["what"] == "UPLIGHT_BODY_HIDDEN":
@@ -115,8 +132,10 @@ def render(plan, out_dir, tag, stem="p01_floor"):
     nl = chr(10)
     head = ("%s %s plan (%s)" % (plan["passage"], plan["op"], tag))
     if plan["op"] == "ADD_UPLIGHTS":
-        fig.suptitle(head + ": PROPOSED floor uplights, top-down per bay, pair frame (x stretched; lane shaded)." + nl +
-                     "Grey: wing panel bounds. Blue square = proposed light, arrow = aim up into the wing face, light-blue "
+        fig.suptitle(head + ": floor uplights at %.0f K / %.0f lm requested / %s, top-down per bay, pair frame." %
+                     (plan["opts"]["add_temperature_kelvin"], plan["opts"]["add_lumens"],
+                      "ON" if plan["opts"]["add_on"] else "OFF (enabled 0 lm)") + nl +
+                      "Grey: wing panel bounds. Kelvin-coloured square/arrow = light and aim; light-blue "
                      "= the Structure lantern (%s) that would stand on the floor there." % plan["lantern"].get("name"),
                      fontsize=11)
     else:
@@ -165,7 +184,7 @@ def render(plan, out_dir, tag, stem="p01_floor"):
                 _outline(ax, _lantern_pts(plan, t["cue_guid"], c["after"]["relative_transform"]), 0, 2, color=COL["can"])
                 p = math.radians(c["meta"]["pitch_deg"])
                 ax.annotate("", xy=(a[0] + 120 * math.cos(p), a[2] + 120 * math.sin(p)), xytext=(a[0], a[2]),
-                            arrowprops=dict(arrowstyle="->", color=COL["light"]))
+                            arrowprops=dict(arrowstyle="->", color=light_col))
                 b = c["meta"]["before_location"]
                 if b:
                     ax.plot(b[0], b[2], "s", mfc="none", mec=COL["light"])

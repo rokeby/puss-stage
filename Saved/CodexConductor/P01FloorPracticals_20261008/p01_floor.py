@@ -1,5 +1,5 @@
 """P01 FLOOR practicals -- Gary 8 Oct: "floor uplights for the domestic lamps please" (F1 + decision).
-Ops: FLOOR (P01 default; any passage via "passage") and ADD_UPLIGHTS (proposal only: COUNT / DRY). Default
+Ops: FLOOR (P01 default; any passage via "passage") and ADD_UPLIGHTS (P02-P06 COUNT / DRY / APPLY / REVERT). Default
 uplight_body STRUCTURE_CAN: the domestic body row is disabled and the Structure lantern is the floor uplight (see
 p01_floor_common.FLOOR_DEFAULTS for why BIRDIE_BODY is refused). Offline: COUNT (python p01_floor.py [args.json]). Editor: DRY / APPLY / REVERT via
 p01_floor_run.py (ExecuteProjectPythonFile, request p01_floor_request.json). What a plan changes, row by row, and every
@@ -20,17 +20,22 @@ MODES
           bounds, floor actors, lamp mesh bounds, the lantern, the housing ISM, the spawned-actor index), plan_sha256,
           checks, foreign records, PNG if matplotlib exists in the editor (else run p01_floor_preview.py on the report).
           Census and rows proven unchanged.
-  APPLY   confirm "APPLY P01FLOOR" + plan_sha256 (+ expected_rows pin) + ack_records verbatim. Refuses: an active
-          p01_floor_record.json (no re-APPLY over a record), an active FixturesFollow RELOCATE record for P01, any plan
+  APPLY   FLOOR: confirm "APPLY P01FLOOR". ADD_UPLIGHTS: confirm "APPLY P0NADDUP". Both require plan_sha256
+          (+ expected_rows pin) + ack_records verbatim. Refuses: an active
+          per-operation record (no re-APPLY over a record), an active FixturesFollow RELOCATE record for the Passage,
+          any plan
           check, unacknowledged foreign records, a TOPPLE/TURN mechanism on a target cue unless accept_mechanism_risk.
-          Backups/PreP01Floor-<run> (Show + level) and the record (before rows) BEFORE the first write; writes only the
+          FLOOR writes Backups/PreP01Floor-<run>; ADD_UPLIGHTS writes Backups/PreP0NAddUplights-<run>. Both cover Show
+          + level and write the record BEFORE the first mutation; writes only the
           planned fields on the planned GUIDs; scope check (every other row and field identical, Body extension fields
           identical, export of every other cue + passage settings identical) with in-memory rollback; materialize
           Passage 01 + re-fit Structure 01; lanterns = before - disabled, every lantern on its light (8-corner gap
           <= 0.5 cm), hanging lines = before + predicted delta, every moved actor where planned; any failure there ->
           rows rolled back + re-materialized, NOTHING SAVED; narrow save (Show + level only); read back from the saved
           asset; P01FLOOR_APPLY_OK only after all of that.
-  REVERT  confirm "REVERT P01FLOOR". Live target cues must equal the record's after rows (REVERT_DRIFT otherwise),
+  REVERT  confirm "REVERT P01FLOOR" / "REVERT P0NADDUP". FLOOR restores recorded fields. ADD_UPLIGHTS removes exactly
+          the recorded minted row ids and refuses when any created row drifted. Live target cues must equal the
+          record's after rows where owned (REVERT_DRIFT otherwise),
           writes the before values of exactly the recorded fields, same verify/save/read-back chain, lantern count back
           to the recorded before, record archived .reverted-<run>.
 Markers  P01FLOOR_<MODE>_OK|run=..; any stop P01FLOOR_STOPPED|run=..|..|NOTHING SAVED (when nothing was saved).
@@ -78,6 +83,7 @@ PREVIEW_PATH = os.path.join(HERE, "p01_floor_preview.py")
 FIXFOLLOW_PATH = os.path.join(CONDUCTOR, "FixturesFollow", "fixtures_follow.py")
 NOTE_LAMPS_RECORD = os.path.join(CONDUCTOR, "p01_note_lamps_record.json")
 FLATV3 = os.path.join(SAVED, "CodexFlatV3")
+MAIN_TREE_SAVED_READ_ONLY = os.path.normpath("E:/PussStage/Saved")
 MARK = "FLOOR"           # pre-args stops only; every run marks <PASSAGE>FLOOR / <PASSAGE>ADDUP
 OPS = ("FLOOR", "ADD_UPLIGHTS")
 
@@ -93,6 +99,21 @@ PLACE_TOL_CM = 0.5
 AIM_TOL_DEG = 0.5
 EXTRA = {"plan_sha256": None, "expected_rows": None, "ack_records": [], "allow_dirty": [],
          "accept_mechanism_risk": False}
+ADD_PUBLIC_ARGS = {
+    "kelvin": "add_temperature_kelvin",
+    "lumens": "add_lumens",
+    "on": "add_on",
+    "radius_cm": "add_attenuation_radius_cm",
+    "inner_cone_deg": "add_inner_cone_deg",
+    "outer_cone_deg": "add_outer_cone_deg",
+}
+ADD_PASSAGE_DEFAULTS = {
+    "P02": {"kelvin": 4500.0, "lumens": 200.0, "on": True},
+    "P03": {"kelvin": 4500.0, "lumens": 200.0, "on": True},
+    "P04": {"kelvin": 4500.0, "lumens": 500.0, "on": True},
+    "P05": {"kelvin": 4500.0, "lumens": 500.0, "on": True},
+    "P06": {"kelvin": 4500.0, "lumens": 500.0, "on": True},
+}
 
 F = None    # p01_floor_common namespace (fresh per run)
 FF = None   # fixtures_follow.py definitions (no guards)
@@ -147,11 +168,12 @@ def check_args(raw):
     raw = dict(raw or {})
     out = copy.deepcopy(F.FLOOR_DEFAULTS)
     out.update(copy.deepcopy(EXTRA))
-    allowed = set(out) | {"mode", "confirm", "passage", "op"}
+    allowed = set(out) | set(ADD_PUBLIC_ARGS) | {"mode", "confirm", "passage", "op"}
     unknown = sorted(set(raw) - allowed)
     require(not unknown, "ARGS_UNKNOWN|%s" % unknown)
     for k, v in raw.items():
         out[k] = copy.deepcopy(v)
+    require(isinstance(raw.get("passage", "P01"), str), "ONE_PASSAGE_PER_RUN|passage must be one P0N string")
     out["passage"] = str(raw.get("passage", "P01")).upper()
     require(out["passage"] in F.FC.PASSAGES, "PASSAGE_INVALID|%s" % out["passage"])
     out["op"] = str(raw.get("op", "FLOOR")).upper()
@@ -159,9 +181,25 @@ def check_args(raw):
     out["mode"] = str(raw.get("mode", "DRY")).upper()
     require(out["mode"] in MODES, "MODE_INVALID|%s" % out["mode"])
     if out["op"] == "ADD_UPLIGHTS":
-        require(out["mode"] in ("COUNT", "DRY"), "ADD_UPLIGHTS_IS_PROPOSAL_ONLY|COUNT or DRY (no APPLY yet)")
+        if out["mode"] in ("APPLY", "REVERT"):
+            require(out["passage"] in ADD_PASSAGE_DEFAULTS, "ADD_UPLIGHTS_APPLY_P02_P06_ONLY")
+        defaults = ADD_PASSAGE_DEFAULTS.get(out["passage"], {
+            "kelvin": F.FLOOR_DEFAULTS["add_temperature_kelvin"],
+            "lumens": F.FLOOR_DEFAULTS["add_lumens"],
+            "on": F.FLOOR_DEFAULTS["add_on"],
+        })
+        public_defaults = dict(defaults, radius_cm=F.FLOOR_DEFAULTS["add_attenuation_radius_cm"],
+                               inner_cone_deg=F.FLOOR_DEFAULTS["add_inner_cone_deg"],
+                               outer_cone_deg=F.FLOOR_DEFAULTS["add_outer_cone_deg"])
+        for public, internal in ADD_PUBLIC_ARGS.items():
+            require(not (public in raw and internal in raw), "ARGS_CONFLICT|%s|%s" % (public, internal))
+            value = raw.get(public, raw.get(internal, public_defaults[public]))
+            out[public] = copy.deepcopy(value)
+            out[internal] = copy.deepcopy(value)
+    else:
+        require(not (set(raw) & set(ADD_PUBLIC_ARGS)), "ADD_ARGS_REQUIRE_ADD_UPLIGHTS")
     if out["mode"] in ("APPLY", "REVERT"):
-        want = "%s %s" % (out["mode"], mark(out["passage"]))
+        want = "%s %s" % (out["mode"], mark(out["passage"], out["op"]))
         require(raw.get("confirm") == want, "CONFIRM_MISSING|need='%s'" % want)
     if out["mode"] == "APPLY":
         require(isinstance(out["plan_sha256"], str) and len(out["plan_sha256"]) == 64, "APPLY_NEEDS_PLAN_SHA256")
@@ -169,6 +207,11 @@ def check_args(raw):
         require(isinstance(out[k], list) and all(isinstance(v, str) for v in out[k]), k.upper() + "_INVALID")
     F.check_opts(plan_opts(out))
     return out
+
+
+def record_path(out_dir, passage, op):
+    suffix = "floor" if op == "FLOOR" else "addup"
+    return os.path.join(out_dir, "%s_%s_record.json" % (passage.lower(), suffix))
 
 
 def plan_opts(args):
@@ -241,8 +284,11 @@ def build_add_plan(state, args):
     n = plan["counts"]["proposed_uplights"]
     lb = state["structure"].get("fixture_body_count")
     plan["predicted"] = {"lanterns_added": n, "lanterns": [lb, None if lb is None else lb + n],
-                         "note": "every proposed Station LIGHT gets the Structure lantern (cpp:164-176): that lantern is "
+                         "note": "every enabled Station LIGHT gets the Structure lantern (cpp:164-176): that lantern is "
                                  "the uplight's body (%s)" % state["lantern"].get("name")}
+    plan["housing"] = {"source": "PASSAGE_STRUCTURE_CAN", "name": state["lantern"].get("name"),
+                       "mesh": state["lantern"].get("path") or state["structure"].get("body_mesh"),
+                       "rows_stay_enabled": True, "per_attachment_opt_out": False, "swap_attempted": False}
     plan["structure_before"] = state["structure"]
     plan["live_checks"] = state.get("live_checks", {})
     return plan
@@ -310,6 +356,105 @@ def write_values(plan, rows_by_guid, source):
     return out
 
 
+def expected_with_added(before_all, plan):
+    """Exact full-Show model for ADD_UPLIGHTS after actual Unreal GUIDs have replaced planner placeholders."""
+    out = copy.deepcopy(before_all)
+    existing = {r["guid"] for rows in out.values() for r in rows}
+    for target in plan["targets"]:
+        require(target["cue_guid"] in out, "ADD_CUE_MISSING|" + target["cue_guid"])
+        for change in target["changes"]:
+            row = copy.deepcopy(change["after"])
+            require(row["guid"] == change["guid"] and row["guid"] not in existing,
+                    "ADD_GUID_COLLISION|" + str(row["guid"]))
+            out[target["cue_guid"]].append(row)
+            existing.add(row["guid"])
+    return out
+
+
+def expected_without_created(current_all, created_rows):
+    """Remove only record-owned GUIDs from the current Show; every unrelated/intervening row stays byte-for-byte."""
+    out = copy.deepcopy(current_all)
+    wanted = {g for rows in created_rows.values() for g in rows}
+    seen = set()
+    for cue_guid, rows in out.items():
+        keep = []
+        for row in rows:
+            if row["guid"] in wanted:
+                require(cue_guid in created_rows and row["guid"] in created_rows[cue_guid],
+                        "REVERT_CREATED_ROW_MOVED_CUE|%s|%s" % (row["guid"], cue_guid))
+                require(row["guid"] not in seen, "REVERT_CREATED_ROW_DUPLICATE|" + row["guid"])
+                seen.add(row["guid"])
+            else:
+                keep.append(row)
+        out[cue_guid] = keep
+    require(seen == wanted, "REVERT_CREATED_ROWS_MISSING|%s" % sorted(wanted - seen))
+    return out
+
+
+def assert_created_unchanged(current_all, created_rows):
+    by_cue = {g: {r["guid"]: r for r in rows} for g, rows in current_all.items()}
+    expected_ids = {g for rows in created_rows.values() for g in rows}
+    actual_locations = {}
+    for cue_guid, rows in by_cue.items():
+        for guid in expected_ids & set(rows):
+            actual_locations.setdefault(guid, []).append(cue_guid)
+    for cue_guid, rows in created_rows.items():
+        for guid, expected in rows.items():
+            require(actual_locations.get(guid) == [cue_guid],
+                    "REVERT_DRIFT|created row %s location=%s want=%s" % (guid, actual_locations.get(guid), cue_guid))
+            diffs = F.M.row_differences(expected, by_cue[cue_guid][guid])
+            require(not diffs, "REVERT_DRIFT|%s|%s" % (guid, F.canonical(diffs)[:1200]))
+
+
+def apply_minted_rows(plan, minted_by_cue):
+    """Return a plan whose placeholder ids/rows are replaced by the backend's full read-back rows, preserving order."""
+    out = copy.deepcopy(plan)
+    for target in out["targets"]:
+        minted = minted_by_cue[target["cue_guid"]]
+        require(len(minted) == len(target["changes"]), "MINTED_ROW_COUNT|%s" % target["cue_label"])
+        for change, row in zip(target["changes"], minted):
+            require(row["label"] == change["label"], "MINTED_LABEL|%s|%s" % (row["label"], change["label"]))
+            change["guid"] = row["guid"]
+            change["after"] = copy.deepcopy(row)
+    return out
+
+
+def assert_added_matches(planned, actual):
+    """Float32-aware read-back gate for a newly minted light row (house rule: 0.01 cm / 0.001 deg)."""
+    problems = []
+    for key in ("label", "enabled"):
+        if actual.get(key) != planned.get(key):
+            problems.append((key, planned.get(key), actual.get(key)))
+    for key in ("kind", "anchor"):
+        if F.enum_name(actual.get(key)) != F.enum_name(planned.get(key)):
+            problems.append((key, F.enum_name(planned.get(key)), F.enum_name(actual.get(key))))
+    pt, at = planned["relative_transform"], actual["relative_transform"]
+    if max(abs(float(a) - float(b)) for a, b in zip(pt["location"], at["location"])) > 0.01:
+        problems.append(("location", pt["location"], at["location"]))
+    if max(abs(float(a) - float(b)) for a, b in zip(pt["scale"], at["scale"])) > 1.0e-4:
+        problems.append(("scale", pt["scale"], at["scale"]))
+    q0, q1 = F.FC.quat_norm(pt["rotation_xyzw"]), F.FC.quat_norm(at["rotation_xyzw"])
+    angle = math.degrees(2.0 * math.acos(max(-1.0, min(1.0, abs(F.FC.dot(q0, q1))))))
+    if angle > 0.001:
+        problems.append(("rotation_deg", 0.0, angle))
+    pl, al = planned["lighting"], actual["lighting"]
+    for key in ("type", "intensity_units"):
+        if F.enum_name(al.get(key)) != F.enum_name(pl.get(key)):
+            problems.append(("lighting." + key, F.enum_name(pl.get(key)), F.enum_name(al.get(key))))
+    for key in ("intensity", "temperature_kelvin", "attenuation_radius_cm", "inner_cone_angle_degrees",
+                "outer_cone_angle_degrees"):
+        if abs(float(al.get(key, -1.0)) - float(pl[key])) > 1.0e-4:
+            problems.append(("lighting." + key, pl[key], al.get(key)))
+    for key in ("use_temperature", "cast_shadows"):
+        if bool(al.get(key)) != bool(pl[key]):
+            problems.append(("lighting." + key, pl[key], al.get(key)))
+    actual_color = al.get("color") or []
+    if len(actual_color) != len(pl["color"]) or max(abs(float(a) - float(b))
+                                                      for a, b in zip(pl["color"], actual_color)) > 1.0e-4:
+        problems.append(("lighting.color", pl["color"], al.get("color")))
+    require(not problems, "ADDED_ROW_READBACK|%s|%s" % (planned["label"], F.canonical(problems)[:1600]))
+
+
 def flash_report(plan):
     rows = []
     for u in plan["uplights"]:
@@ -353,7 +498,7 @@ def run(args, be, out_dir=HERE, relocate_record=None):
     MARK = mark(passage, op)
     relocate_record = relocate_record or relocate_record_for(passage)
     stem = "%s_%s" % (passage.lower(), "floor" if op == "FLOOR" else "addup")
-    rpath = os.path.join(out_dir, "%s_floor_record.json" % passage.lower())
+    rpath = record_path(out_dir, passage, op)
     report = {"ok": False, "op": op, "mode": mode, "run": run_id, "passage": passage, "args": args, "saved": False}
     report_path = os.path.join(out_dir, "%s_report_%s_%s.json" % (stem, mode, run_id))
 
@@ -370,20 +515,176 @@ def run(args, be, out_dir=HERE, relocate_record=None):
         census_before = be.census()
         state = be.read_state(args)
         before_all = {c["guid"]: c["attachments"] for c in state["all_cues"]}
-        if op == "ADD_UPLIGHTS":                       # proposal only (check_args refuses APPLY / REVERT)
+        if op == "ADD_UPLIGHTS":
             plan = build_add_plan(state, args)
             sha = F.plan_sha(plan)
-            report.update({"plan": plan, "plan_sha256": sha})
-            report["outputs"] = write_outputs(plan, mode, run_id, out_dir, stem)
-            if mode == "DRY":
-                require(be.census() == census_before, "DRY_CENSUS_CHANGED")
-                require(F.canonical(be.rows_now()) == F.canonical(before_all), "DRY_SHOW_ROWS_CHANGED")
-            require(not plan["checks"], "PLAN_CHECKS|%s" % plan["checks"][:6])
-            return finish("plan_sha256=%s|proposed_uplights=%d|bays=%d|sides_skipped=%d|lantern=%s|lanterns=%s->%s|"
-                          "checks=0|proposal_only=1|mutated=0"
-                          % (sha, plan["counts"]["proposed_uplights"], plan["counts"]["cues"],
-                             plan["counts"]["sides_skipped"], state["lantern"].get("name"),
-                             plan["predicted"]["lanterns"][0], plan["predicted"]["lanterns"][1]))
+            nrows = plan["counts"]["rows"]
+            targets = sorted({t["cue_guid"] for t in plan["targets"]})
+            guids = sorted(set(targets) | {r["guid"] for cue_guid, rows in before_all.items()
+                                           if cue_guid in set(targets) for r in rows})
+            foreign = be.foreign(guids, [rpath])
+            unacked = sorted({h["path"] for h in foreign} - set(args["ack_records"]))
+            relocate_active = os.path.exists(relocate_record)
+            report.update({"plan": plan, "plan_sha256": sha, "housing": plan["housing"],
+                           "foreign_records": foreign, "unacknowledged_foreign_records": unacked,
+                           "relocate_record_active": relocate_active})
+            summary = ("plan_sha256=%s|uplights=%d|bays=%d|sides_skipped=%d|kelvin=%g|lumens=%g|on=%d|"
+                       "housing=%s|lanterns=%s->%s|checks=%d|unacked=%d"
+                       % (sha, nrows, plan["counts"]["cues"], plan["counts"]["sides_skipped"], args["kelvin"],
+                          args["lumens"], int(args["on"]), state["lantern"].get("name"),
+                          plan["predicted"]["lanterns"][0], plan["predicted"]["lanterns"][1],
+                          len(plan["checks"]), len(unacked)))
+            if mode in ("COUNT", "DRY"):
+                report["outputs"] = write_outputs(plan, mode, run_id, out_dir, stem)
+                if mode == "DRY":
+                    require(be.census() == census_before, "DRY_CENSUS_CHANGED")
+                    require(F.canonical(be.rows_now()) == F.canonical(before_all), "DRY_SHOW_ROWS_CHANGED")
+                require(not plan["checks"], "PLAN_CHECKS|%s" % plan["checks"][:6])
+                return finish(summary + "|mutated=0")
+
+            if mode == "APPLY":
+                require(not os.path.exists(rpath), "ACTIVE_RECORD_EXISTS|%s (REVERT it first)" % rpath)
+                require(sha == args["plan_sha256"], "PLAN_SHA_MISMATCH|live=%s|args=%s" % (sha, args["plan_sha256"]))
+                if args["expected_rows"] is not None:
+                    require(nrows == int(args["expected_rows"]), "PIN_ROWS|plan=%d|pinned=%s" % (nrows, args["expected_rows"]))
+                require(nrows > 0, "NOTHING_TO_DO")
+                require(not plan["checks"], "PLAN_CHECKS|%s" % plan["checks"][:6])
+                require(not relocate_active, "FIXFOLLOW_RELOCATE_ACTIVE_FOR_%s|%s" % (passage, relocate_record))
+                require(not unacked, "FOREIGN_ACTIVE_RECORDS_OVERLAP|" + ";".join(unacked))
+                export_before = be.export_hash(targets)
+                backup = be.backup("Pre%sAddUplights-" % passage, run_id)
+                record = {"schema_version": 1, "status": "prepared", "op": op, "run": run_id,
+                          "passage": passage, "backup": backup, "args": args, "plan_sha256": sha, "plan": plan,
+                          "before_rows": {g: before_all[g] for g in targets}, "created_rows": {},
+                          "created_row_ids": [], "export_hash_before": export_before,
+                          "structure_before": plan["structure_before"],
+                          "acknowledged_records": list(args["ack_records"]), "housing": plan["housing"]}
+                write_json(rpath, record, exclusive=True)
+                be.log("%s_RECORD_WRITTEN|run=%s|path=%s" % (MARK, run_id, rpath))
+                tokens, minted_by_cue = [], {}
+
+                def rollback_add(rematerialize):
+                    be.rollback(tokens)
+                    if rematerialize:
+                        be.materialize()
+                    F.check_scope(before_all, be.rows_now(), "add_rollback")
+
+                try:
+                    for target in plan["targets"]:
+                        token, minted = be.add_rows(target, [c["after"] for c in target["changes"]])
+                        tokens.append(token)
+                        minted_by_cue[target["cue_guid"]] = minted
+                        record["created_rows"][target["cue_guid"]] = {r["guid"]: r for r in minted}
+                        record["created_row_ids"] = sorted(g for rows in record["created_rows"].values() for g in rows)
+                        record["status"] = "mutating"
+                        write_json(rpath, record)
+                    applied_plan = apply_minted_rows(plan, minted_by_cue)
+                    want_all = expected_with_added(before_all, applied_plan)
+                    live = be.rows_now()
+                    F.check_scope(want_all, live, "add_after")
+                    require(be.export_hash(targets) == export_before, "EXPORT_OUTSIDE_SCOPE_CHANGED")
+                except Exception:
+                    rollback_add(False)
+                    record["status"] = "failed_rolled_back_in_memory"
+                    write_json(rpath, record)
+                    os.replace(rpath, rpath + ".failed-" + run_id)
+                    raise
+                record.update({"status": "mutated_verified", "applied_plan": applied_plan,
+                               "after_rows": {g: live[g] for g in targets}})
+                write_json(rpath, record)
+                try:
+                    materialized = be.materialize()
+                    st = be.structure_now()
+                    want_lanterns = int(plan["structure_before"]["fixture_body_count"]) + nrows
+                    require(st["fixture_body_count"] == want_lanterns,
+                            "LANTERN_COUNT|want=%d|got=%d" % (want_lanterns, st["fixture_body_count"]))
+                    hc = be.housing_check()
+                    require(hc["count_matches"] and hc["stale"] == 0, "LANTERNS_NOT_ON_LIGHTS|%s" % F.canonical(hc)[:400])
+                    if plan["structure_before"].get("hanging_line_count") is not None:
+                        require(st["hanging_line_count"] == plan["structure_before"]["hanging_line_count"],
+                                "ADD_UPLIGHTS_CHANGED_HANGING_LINES")
+                    require(st.get("current", True), "STRUCTURE_NOT_CURRENT_AFTER_REFIT")
+                    spawned = be.verify_spawned(applied_plan)
+                except Exception:
+                    rollback_add(True)
+                    record["status"] = "failed_rolled_back_in_memory"
+                    write_json(rpath, record)
+                    os.replace(rpath, rpath + ".failed-" + run_id)
+                    raise
+                be.save_narrow()
+                report["saved"] = True
+                read = be.readback_rows()
+                F.check_scope(want_all, read, "add_readback")
+                require(be.export_hash(targets, readback=True) == export_before, "READBACK_EXPORT_OUTSIDE_SCOPE_CHANGED")
+                created_read = {g: {r["guid"]: r for r in read[g] if r["guid"] in set(record["created_row_ids"])}
+                                for g in targets}
+                require(sorted(g for rows in created_read.values() for g in rows) == record["created_row_ids"],
+                        "READBACK_CREATED_ROWS_MISSING")
+                assert_created_unchanged(read, created_read)
+                record.update({"status": "saved_readback_verified", "materialized": materialized,
+                               "structure_after": st, "housing_check_after": hc, "spawned_verified": spawned,
+                               "after_rows": {g: read[g] for g in targets}, "created_rows": created_read,
+                               "saved_census": be.census()})
+                write_json(rpath, record)
+                report.update({"backup": backup, "record": rpath, "created_row_ids": record["created_row_ids"]})
+                return finish(summary + "|created=%d|spawned_ok=%d|show_saved=1|level_saved=1|readback=1|record=%s"
+                              % (nrows, spawned, rpath))
+
+            # ADD_UPLIGHTS REVERT: created rows are immutable ownership. Remove those ids only; preserve every other row.
+            require(os.path.isfile(rpath), "REVERT_RECORD_ABSENT|" + rpath)
+            record = json.load(open(rpath, encoding="utf-8"))
+            require(record.get("status") == "saved_readback_verified" and record.get("op") == op
+                    and record.get("passage") == passage, "REVERT_RECORD_STATE|%s" % record.get("status"))
+            created_rows = record.get("created_rows") or {}
+            require(created_rows and sorted(g for rows in created_rows.values() for g in rows)
+                    == sorted(record.get("created_row_ids") or []), "REVERT_RECORD_CREATED_ROWS_INVALID")
+            assert_created_unchanged(before_all, created_rows)
+            created_ids = sorted(record["created_row_ids"])
+            revert_targets = sorted(created_rows)
+            unacked = sorted({h["path"] for h in be.foreign(sorted(set(revert_targets) | set(created_ids)), [rpath])}
+                             - set(args["ack_records"]))
+            require(not unacked, "FOREIGN_ACTIVE_RECORDS_OVERLAP|" + ";".join(unacked))
+            want_all = expected_without_created(before_all, created_rows)
+            export_before = be.export_hash(revert_targets)
+            structure_before_revert = be.structure_now()
+            backup = be.backup("Pre%sAddUplightsRevert-" % passage, run_id)
+            tokens = []
+            try:
+                by_target = {t["cue_guid"]: t for t in record["applied_plan"]["targets"]}
+                for cue_guid in revert_targets:
+                    tokens.append(be.remove_rows(by_target[cue_guid], sorted(created_rows[cue_guid])))
+                live = be.rows_now()
+                F.check_scope(want_all, live, "add_revert")
+                require(be.export_hash(revert_targets) == export_before, "REVERT_EXPORT_OUTSIDE_SCOPE_CHANGED")
+                materialized = be.materialize()
+                st = be.structure_now()
+                require(st["fixture_body_count"] == structure_before_revert["fixture_body_count"] - len(created_ids),
+                        "REVERT_LANTERN_COUNT|before=%d|removed=%d|after=%d"
+                        % (structure_before_revert["fixture_body_count"], len(created_ids), st["fixture_body_count"]))
+                hc = be.housing_check()
+                require(hc["count_matches"] and hc["stale"] == 0, "REVERT_LANTERNS_NOT_ON_LIGHTS")
+                if structure_before_revert.get("hanging_line_count") is not None:
+                    require(st["hanging_line_count"] == structure_before_revert["hanging_line_count"],
+                            "REVERT_HANGING_LINES")
+            except Exception:
+                be.rollback(tokens)
+                if tokens:
+                    be.materialize()
+                raise
+            be.save_narrow()
+            report["saved"] = True
+            read = be.readback_rows()
+            F.check_scope(want_all, read, "add_revert_readback")
+            require(be.export_hash(revert_targets, readback=True) == export_before,
+                    "REVERT_READBACK_EXPORT_OUTSIDE_SCOPE_CHANGED")
+            archived = rpath + ".reverted-" + run_id
+            record.update({"status": "reverted", "reverted_run": run_id, "revert_backup": backup,
+                           "revert_materialized": materialized, "revert_structure_after": st})
+            write_json(rpath, record)
+            os.replace(rpath, archived)
+            report.update({"backup": backup, "record_archived": archived, "removed_row_ids": created_ids})
+            return finish("removed=%d|lanterns=%d|show_saved=1|level_saved=1|readback=1|archived=%s"
+                          % (len(created_ids), st["fixture_body_count"], archived))
         if mode in ("COUNT", "DRY", "APPLY"):
             plan = build_plan(state, args)
             sha = F.plan_sha(plan)
@@ -585,16 +886,16 @@ LAMP_BOUNDS_OFFLINE = {   # inferred: sizes measured (lighting_looks_practical_a
 PANEL_X_OFFLINE = None
 
 
-def offline_panels(bay_guids, passage="P01"):
+def offline_panels(bay_guids, passage="P01", flatv3_root=FLATV3):
     """Pair-frame panel AABBs from Saved/CodexFlatV3 (measured offline): y from hf_preflight local_transform, width
     from GAP_AUDIT front_width_cm (left = -y: [y, y+w]; right: [y-w, y]); x from edge_x_probe (Flap x_min .. Timber
     x_max over P01's FBXs); z 0 .. 900 (height not needed). Sides with no V3 record: the same side's median span
     (inferred; the live DRY reads every panel's ISM bounds)."""
     import glob
-    pres = sorted(glob.glob(os.path.join(FLATV3, "swapkit", "hf_preflight_FV3HF-*-%s.json" % passage)))
+    pres = sorted(glob.glob(os.path.join(flatv3_root, "swapkit", "hf_preflight_FV3HF-*-%s.json" % passage)))
     pre = json.load(open(pres[-1], encoding="utf-8")) if pres else {"rows": []}
-    gap = json.load(open(os.path.join(FLATV3, "floorgap", "GAP_AUDIT.json"), encoding="utf-8"))
-    probe = json.load(open(os.path.join(FLATV3, "edge", "edge_x_probe_t5j_all.json"), encoding="utf-8"))
+    gap = json.load(open(os.path.join(flatv3_root, "floorgap", "GAP_AUDIT.json"), encoding="utf-8"))
+    probe = json.load(open(os.path.join(flatv3_root, "edge", "edge_x_probe_t5j_all.json"), encoding="utf-8"))
     xs_lo, xs_hi = [], []
     for entry in probe:
         if "/%s/" % passage not in entry["fbx"]:
@@ -655,8 +956,14 @@ def _plain_rows(scores, tool, show):
 class OfflineBackend:
     """COUNT: everything from files. Never writes; any write call is a bug."""
 
-    def __init__(self):
+    def __init__(self, evidence_saved_root=None):
         self.logs = []
+        if evidence_saved_root is None:
+            local_gap = os.path.join(SAVED, "CodexFlatV3", "floorgap", "GAP_AUDIT.json")
+            evidence_saved_root = SAVED if os.path.isfile(local_gap) else MAIN_TREE_SAVED_READ_ONLY
+        self.evidence_saved_root = os.path.abspath(evidence_saved_root)
+        self.evidence_conductor = os.path.join(self.evidence_saved_root, "CodexConductor")
+        self.evidence_flatv3 = os.path.join(self.evidence_saved_root, "CodexFlatV3")
 
     def now(self):
         return datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -680,11 +987,16 @@ class OfflineBackend:
 
     def read_state(self, args):
         passage = args["passage"]
-        cues, meta = F.FC.snapshot_passage(passage)
+        old_meshy_dir = F.FC.MESHY_DIR
+        F.FC.MESHY_DIR = os.path.join(self.evidence_conductor, "MeshyFixtures_20261007")
+        try:
+            cues, meta = F.FC.snapshot_passage(passage, conductor=self.evidence_conductor)
+        finally:
+            F.FC.MESHY_DIR = old_meshy_dir
         by_guid = {c["guid"]: c for c in cues}
         flash_hits, note_run = 0, None
         if passage == "P01":           # the note-lamp record holds the P01 route order and the flash fields
-            note = json.load(open(NOTE_LAMPS_RECORD, encoding="utf-8"))
+            note = json.load(open(os.path.join(self.evidence_conductor, "p01_note_lamps_record.json"), encoding="utf-8"))
             bay_guids = [w["cue_guid"] for w in note["plan"]["route"]["wings"]]
             route_cm = {w["cue_guid"]: w["distance_cm"] for w in note["plan"]["route"]["wings"]}
         else:                          # snapshot order (show index); WingPair bays only (they carry attachments)
@@ -693,12 +1005,13 @@ class OfflineBackend:
         require(all(g in by_guid for g in bay_guids), "OFFLINE_BAY_MISSING")
         cues = [copy.deepcopy(by_guid[g]) for g in bay_guids]
         if passage == "P01":
-            flash_hits, note_run = merge_flash(cues)
-        panels, pmeta = offline_panels(bay_guids, passage)
+            flash_hits, note_run = merge_flash(cues, os.path.join(self.evidence_conductor, "p01_note_lamps_record.json"))
+        panels, pmeta = offline_panels(bay_guids, passage, self.evidence_flatv3)
         ident = F.xf([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0])
         ctx_by_cue = {g: {"pair_world": ident, "station_world": ident, "across_world": [0.0, 1.0, 0.0],
                           "panels": panels[g], "route_cm": route_cm[g]} for g in bay_guids}
-        swap = json.load(open(os.path.join(F.FC.MESHY_DIR, "meshy_swap_record_%s.json" % passage), encoding="utf-8"))
+        swap = json.load(open(os.path.join(self.evidence_conductor, "MeshyFixtures_20261007",
+                                           "meshy_swap_record_%s.json" % passage), encoding="utf-8"))
         sa = swap["structure_after"]
         table = F.M.load_fixture_table(check_files=False)
         lantern_name = sa["body_mesh"].rsplit("/", 1)[-1]
@@ -726,7 +1039,8 @@ class OfflineBackend:
         return {c["guid"]: c["attachments"] for c in self.state["all_cues"]}
 
     def foreign(self, guids, exclude):
-        roots = [os.path.join(SAVED, n) for n in sorted(os.listdir(SAVED)) if n.startswith("Codex")]
+        roots = [os.path.join(self.evidence_saved_root, n) for n in sorted(os.listdir(self.evidence_saved_root))
+                 if n.startswith("Codex")]
         return scan_foreign_records(roots, guids, exclude)
 
     def __getattr__(self, name):
@@ -994,6 +1308,127 @@ class LiveBackend:
         self.tool._set_pair_attachments(self.show, index, attachments)
         return index, original
 
+    def _blank_light(self):
+        row = unreal.InfinityCueAttachment()
+        row.set_editor_property("label", unreal.Text("P0N ADDUP GUID SCRATCH"))
+        row.set_editor_property("kind", self.tool._enum_member(unreal.InfinityAttachmentKind, "LIGHT"))
+        row.set_editor_property("enabled", False)
+        row.set_editor_property("anchor", self.tool._enum_member(unreal.InfinityAttachmentAnchor, "STATION"))
+        return row
+
+    @staticmethod
+    def _runtime_is_light(row):
+        return "LIGHT" in str(row.get_editor_property("kind")).upper()
+
+    def _author_added_light(self, vessel, row):
+        """Overwrite every attachment field except the read-only GUID, using a fresh default struct as the source."""
+        template = unreal.InfinityCueAttachment()
+        template.set_editor_property("label", unreal.Text(row["label"]))
+        template.set_editor_property("kind", self.tool._enum_member(unreal.InfinityAttachmentKind, "LIGHT"))
+        template.set_editor_property("enabled", True)  # even 0 lm: the Structure lantern is required
+        template.set_editor_property("anchor", self.tool._enum_member(unreal.InfinityAttachmentAnchor, "STATION"))
+        transform = template.get_editor_property("relative_transform")
+        t = row["relative_transform"]
+        transform.set_editor_property("translation", unreal.Vector(*[float(v) for v in t["location"]]))
+        transform.set_editor_property("rotation", unreal.Quat(*[float(v) for v in t["rotation_xyzw"]]))
+        transform.set_editor_property("scale3d", unreal.Vector(*[float(v) for v in t["scale"]]))
+        template.set_editor_property("relative_transform", transform)
+        lighting = unreal.InfinityStageLightSettings()
+        src = row["lighting"]
+        lighting.set_editor_property("type", self.tool._enum_member(unreal.InfinityStageLightType,
+                                                                     F.enum_name(src["type"])))
+        lighting.set_editor_property("intensity_units", self.tool._enum_member(unreal.InfinityStageLightIntensityUnits,
+                                                                                F.enum_name(src["intensity_units"])))
+        lighting.set_editor_property("intensity", float(src["intensity"]))
+        rgb = src["color"]
+        lighting.set_editor_property("color", unreal.LinearColor(*[float(v) for v in rgb]))
+        lighting.set_editor_property("use_temperature", bool(src["use_temperature"]))
+        lighting.set_editor_property("temperature_kelvin", float(src["temperature_kelvin"]))
+        lighting.set_editor_property("attenuation_radius_cm", float(src["attenuation_radius_cm"]))
+        lighting.set_editor_property("inner_cone_angle_degrees", float(src["inner_cone_angle_degrees"]))
+        lighting.set_editor_property("outer_cone_angle_degrees", float(src["outer_cone_angle_degrees"]))
+        lighting.set_editor_property("cast_shadows", bool(src["cast_shadows"]))
+        template.set_editor_property("lighting", lighting)
+        minted = self.tool._guid_text(vessel.get_editor_property("attachment_guid"))
+        for field in ("label", "kind", "enabled", "actor_class", "mesh", "anchor", "relative_transform", "lighting",
+                      "effect", "trigger_distance_cm", "body", "mover"):
+            vessel.set_editor_property(field, template.get_editor_property(field))
+        require(self.tool._guid_text(vessel.get_editor_property("attachment_guid")) == minted,
+                "MINTED_GUID_CHANGED|" + minted)
+        return vessel
+
+    def add_rows(self, target, planned_rows):
+        """Mint fresh GUIDs through ReplicateLightAttachments, then append exactly the authored light vessels."""
+        cues = list(self.show.get_editor_property("cues"))
+        hits = [i for i, c in enumerate(cues)
+                if self.tool._guid_text(c.get_editor_property("cue_guid")) == target["cue_guid"]]
+        require(len(hits) == 1, "CUE_RESOLVE|%s|%d" % (target["cue_guid"], len(hits)))
+        ti = hits[0]
+        require(str(cues[ti].get_editor_property("label")) == target["cue_label"], "CUE_LABEL_DRIFT")
+        candidates = [(i, c) for i, c in enumerate(cues) if i != ti and "WING_PAIR" in str(c.get_editor_property("type")).upper()]
+        require(candidates, "GUID_SCRATCH_CUE_MISSING")
+        si, unused = max(candidates, key=lambda pair: sum(1 for a in self.tool._pair_attachments(pair[1])
+                                                          if self._runtime_is_light(a)))
+        target_original = self.tool._pair_attachments(cues[ti])
+        scratch_original = self.tool._pair_attachments(cues[si])
+        target_light_guids = [self.tool._guid_text(a.get_editor_property("attachment_guid")) for a in target_original
+                              if self._runtime_is_light(a)]
+        preexisting = {self.tool._guid_text(a.get_editor_property("attachment_guid"))
+                       for cue in cues for a in self.tool._pair_attachments(cue)}
+        needed = len(target_light_guids) + len(planned_rows)
+        scratch_lights = sum(1 for a in scratch_original if self._runtime_is_light(a))
+        padding = max(0, needed - scratch_lights)
+        result = None
+        try:
+            self.tool._set_pair_attachments(self.show, si, scratch_original + [self._blank_light() for unused_i in range(padding)])
+            fresh = list(self.show.get_editor_property("cues"))
+            changed = self.show.replicate_light_attachments(fresh[si].get_editor_property("cue_guid"),
+                                                             [fresh[ti].get_editor_property("cue_guid")])
+            require(int(changed) == 1, "REPLICATION_TARGET_COUNT|%s" % changed)
+            replicated = self.tool._pair_attachments(list(self.show.get_editor_property("cues"))[ti])
+            vessels = [a for a in replicated if self._runtime_is_light(a)]
+            require(len(vessels) >= needed, "MINTED_SLOT_COUNT|need=%d|got=%d" % (needed, len(vessels)))
+            kept = [self.tool._guid_text(v.get_editor_property("attachment_guid"))
+                    for v in vessels[:len(target_light_guids)]]
+            require(kept == target_light_guids, "REPLICATE_DID_NOT_KEEP_LIGHT_GUIDS")
+            added = vessels[len(target_light_guids):needed]
+            actual_guids = [self.tool._guid_text(v.get_editor_property("attachment_guid")) for v in added]
+            for guid in actual_guids:
+                compact = "".join(ch for ch in guid.upper() if ch in "0123456789ABCDEF")
+                require(len(compact) == 32 and compact.strip("0") and guid not in preexisting,
+                        "MINTED_GUID_INVALID_OR_NOT_FRESH|" + guid)
+            authored = [self._author_added_light(v, row) for v, row in zip(added, planned_rows)]
+            self.tool._set_pair_attachments(self.show, ti, target_original + authored)
+            all_rows = self.rows_now()
+            by_guid = {r["guid"]: r for r in all_rows[target["cue_guid"]]}
+            minted = [copy.deepcopy(by_guid[g]) for g in actual_guids]
+            for planned, actual in zip(planned_rows, minted):
+                assert_added_matches(planned, actual)
+            result = (ti, target_original), minted
+        except Exception:
+            self.tool._set_pair_attachments(self.show, ti, target_original)
+            raise
+        finally:
+            try:
+                self.tool._set_pair_attachments(self.show, si, scratch_original)
+            except Exception:
+                self.tool._set_pair_attachments(self.show, ti, target_original)
+                raise
+        return result
+
+    def remove_rows(self, target, guid_texts):
+        cues = list(self.show.get_editor_property("cues"))
+        hits = [i for i, c in enumerate(cues)
+                if self.tool._guid_text(c.get_editor_property("cue_guid")) == target["cue_guid"]]
+        require(len(hits) == 1, "CUE_RESOLVE|%s|%d" % (target["cue_guid"], len(hits)))
+        index = hits[0]
+        original = self.tool._pair_attachments(cues[index])
+        wanted = set(guid_texts)
+        keep = [a for a in original if self.tool._guid_text(a.get_editor_property("attachment_guid")) not in wanted]
+        require(len(original) - len(keep) == len(wanted), "REMOVE_COUNT|%s" % target["cue_guid"])
+        self.tool._set_pair_attachments(self.show, index, keep)
+        return index, original
+
     def rollback(self, tokens):
         for index, original in reversed(tokens):
             self.tool._set_pair_attachments(self.show, index, original)
@@ -1035,7 +1470,7 @@ class LiveBackend:
                 if F.FC.dist(want, got) > PLACE_TOL_CM:
                     bad.append({"label": c["label"], "problem": "PLACE", "want": want, "got": got})
                     continue
-                if c["what"] == "UPLIGHT_LIGHT_TO_FLOOR":
+                if c["what"] in ("UPLIGHT_LIGHT_TO_FLOOR", "ADD_UPLIGHT"):
                     want_class = {"SPOT": "SpotLight", "POINT": "PointLight", "RECT": "RectLight"}[F.enum_name(row["lighting"]["type"])]
                     throw = F.quat_rotate(F.xf_compose(row["relative_transform"], w)["rotation_xyzw"], [1.0, 0.0, 0.0])
                     fwd = FF._v(a.get_actor_forward_vector())
