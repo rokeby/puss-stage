@@ -1,0 +1,53 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp
+index d449a31..6fb6726 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp
+@@ -267,13 +267,22 @@ void FormatLines(const FInfinityDirectorHudState& State, FString& OutTop, FStrin
+     {
+         OutTop += FString::Printf(TEXT("   BAY %d/%d"), State.Bay, State.BayCount);
+     }
+-    if (!State.LastGo.IsEmpty())
++    if (State.bHold && !State.LastGo.IsEmpty())
+     {
+-        OutTop += TEXT("   ") + State.LastGo;
++        // A hold arms when the playhead crosses a HOLD GO, so the held GO is the last one crossed. Say so plainly:
++        // "next GO 30" during a hold at GO 20 read as the wrong cue (Gary's I2 note, 9 Oct).
++        OutTop += TEXT("   HOLDING at ") + State.LastGo + TEXT(" (press GO)");
+     }
+-    if (!State.NextGo.IsEmpty())
++    else
+     {
+-        OutTop += TEXT("   next ") + State.NextGo;
++        if (!State.LastGo.IsEmpty())
++        {
++            OutTop += TEXT("   ") + State.LastGo;
++        }
++        if (!State.NextGo.IsEmpty())
++        {
++            OutTop += TEXT("   next ") + State.NextGo;
++        }
+     }
+ 
+     const TCHAR* Status = State.bHold
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageDirectorHudTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageDirectorHudTests.cpp
+index de4cde9..c5cc7b7 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageDirectorHudTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageDirectorHudTests.cpp
+@@ -162,6 +162,17 @@ bool FInfinityStageDirectorHudPureTest::RunTest(const FString& Parameters)
+     State.bHold = true;
+     FormatLines(State, Top, Bottom);
+     TestTrue(TEXT("A GO hold prints HOLD"), Bottom.StartsWith(TEXT("HOLD")));
++
++    // I2 note (9 Oct): during a hold the top line names the held GO, not the next one.
++    State.LastGo = TEXT("GO 20 HOLD 'curtain'");
++    State.NextGo = TEXT("GO 30 HOLD 'curtain' @ 1:07.0");
++    FormatLines(State, Top, Bottom);
++    TestTrue(TEXT("A hold names the GO it is holding at"), Top.Contains(TEXT("HOLDING at GO 20 HOLD 'curtain' (press GO)")));
++    TestFalse(TEXT("A hold does not advertise the next GO"), Top.Contains(TEXT("GO 30")));
++    State.bHold = false;
++    FormatLines(State, Top, Bottom);
++    TestTrue(TEXT("Control: without a hold the next GO is shown"), Top.Contains(TEXT("next GO 30")));
++    TestFalse(TEXT("Control: without a hold nothing says HOLDING"), Top.Contains(TEXT("HOLDING")));
+     return true;
+ }
+ 
