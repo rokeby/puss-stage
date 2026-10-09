@@ -1016,7 +1016,9 @@ def run_revert(ops, core, args, orig_doc, run, here):
     os.replace(orig_path, orig_path.replace(".json", "_reverted.json"))
     active = os.path.join(here, ACTIVE_NAME)
     if os.path.exists(active):
-        os.remove(active)
+        # Preserve the pointer as evidence.  Project rule: no permanent deletion;
+        # a later APPLY only checks the exact ACTIVE name, so an archive is safe.
+        os.replace(active, active + ".reverted-" + run)
     ops.log("%s_REVERT_OK|run=%s|reverted=%s|rows=%d|foreign_edits_kept=%d|saved=show,level|census=clean" % (
         core.MARK, run, orig_doc["run_id"], len(orig_doc["rows"]), len(foreign)))
 

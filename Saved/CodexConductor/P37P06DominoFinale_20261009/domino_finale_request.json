@@ -1,0 +1,7 @@
+{
+  "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+  "tool_name": "ExecuteProjectPythonFile",
+  "arguments": {
+    "relativeSavedPath": "CodexConductor/P37P06DominoFinale_20261009/domino_finale_run.py"
+  }
+}
