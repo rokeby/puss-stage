@@ -530,6 +530,32 @@ def web_merge(baseline, web_docs, work_rows):
     web_keys = dict(baseline.get('web_keys', {}))
     base_rows = baseline.get('rows', {})
     new_base = {}
+
+    # Three-way merge the order before the field merge. Baseline dict order is the page order recorded by the
+    # previous pull; web_docs is the current page order; rows is Gary's current order. New page cues are handled
+    # below and do not participate until their first baseline has been written.
+    page_to_work = {}
+    for page_key in base_rows:
+        work_key = web_keys.get(page_key, page_key)
+        if work_key not in by_key and page_key[:1] == 'W' and page_key[1:] in by_key:
+            work_key = page_key[1:]
+        if work_key in by_key:
+            page_to_work[page_key] = work_key
+    base_order = [key for key in base_rows if key in page_to_work]
+    current_page_keys = [doc.get('key') or doc.get('id') for doc in sorted(web_docs, key=lambda d: d.get('ord', 0))]
+    page_order = [key for key in current_page_keys if key in page_to_work]
+    work_to_page = {work_key: page_key for page_key, work_key in page_to_work.items()}
+    work_order = [work_to_page[row['Key']] for row in rows if row['Key'] in work_to_page]
+    comparable = set(base_order) == set(page_order) == set(work_order)
+    if comparable and page_order != base_order:
+        if work_order == base_order:
+            reordered = iter([by_key[page_to_work[key]] for key in page_order])
+            slots = set(page_to_work.values())
+            rows = [next(reordered) if row['Key'] in slots else row for row in rows]
+            moved = [key for index, key in enumerate(page_order) if base_order[index] != key]
+            log.append('cue order: page move applied (%s)' % ', '.join(moved))
+        elif work_order != page_order:
+            conflicts.append(('_order', 'cue order changed on both the page and in the working copy (kept the working order)'))
     for doc in sorted(web_docs, key=lambda d: d.get('ord', 0)):
         page_key = doc.get('key') or doc.get('id')
         now = web_fields(doc)

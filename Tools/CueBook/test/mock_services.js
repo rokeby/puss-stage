@@ -65,8 +65,9 @@
       setTimeout(function () {
         window.MOCK_CALLS++;
         if (window.MOCK_OFFLINE) return reject(Object.assign(new Error('offline'), { code: 'network' }));
+        if (window.MOCK_OLD_DEPLOYMENT && req.action === 'move') return resolve({ ok: false, code: 'bad_request', message: 'Unknown action move' });
         var out = JSON.parse(doPost({ postData: { contents: JSON.stringify(req) } }).text);
-        if (window.MOCK_OLD_DEPLOYMENT && req.action === 'list') delete out.surtitles;
+        if (window.MOCK_OLD_DEPLOYMENT && req.action === 'list') { delete out.surtitles; delete out.actions; }
         resolve(out);
       }, 120);
     });

@@ -12,6 +12,8 @@ segment, with stills, and edit it. No accounts. Built 8 Oct 2026 for Gary.
 - **Surtitles:** each segment has a light time-coded line view (In, Out, Speaker, Text, Notes). Empty Text with an
   In time is a clear-screen row. `cue_sync.py export <backup.json>` writes the Unreal CSV and merge base; if Unreal
   changed the CSV, export writes a previewable `kind: "changes"` file and refuses to overwrite that edit.
+- **Order:** each cue can move one step or after a named cue key. Only that cue's fractional `ord` changes, and a
+  stale move becomes a conflict. The header's read-only Running order view shows the complete show on one page.
 - **Stills:** `segment_map.json` is the ordered Cue Book-name to Show-key map. Cueing copies
   `unreal/cuebook_stills_driver.py` to `Saved/CodexCueing/`; the Conductor runs DRY and then confirmed APPLY inside
   an already-running PIE. The driver imports the Conductor's `scene_stills.py`, never starts or ends PIE, and emits
@@ -29,6 +31,7 @@ segment, with stills, and edit it. No accounts. Built 8 Oct 2026 for Gary.
 | Typing in an open cue is kept on the device until Save | closing the tab mid-edit |
 | Writes carry an id; the server ignores a repeat | a retry saving twice |
 | A field someone else changed since you opened it comes back as a conflict, both versions shown | two people overwriting each other |
+| A move carries its old `ord` and neighbour keys | two people reordering the same area into an accidental shuffle |
 | "Mark as cut" instead of delete | losing a cue |
 | `log` sheet: append-only record of every change (who, when, before, after) | any mistake: the old text is always there |
 | Google Sheets File > Version history | the sheet itself being damaged |
@@ -66,8 +69,9 @@ in the browser on a fake spreadsheet (`test/mock_services.js`), so the whole flo
 connection.
 
 `python Tools/CueBook/test/build_test_site.py --browser-harness` also injects the automated browser runner. Serve
-`test/_build` and open it in a browser: it finishes with `CUEBOOK_BROWSER_HARNESS_OK 5/5` after line add, edit,
-field-conflict, offline-reload and old-deployment controls. The normal build remains the interactive mock.
+`test/_build` and open it in a browser: it finishes with `CUEBOOK_BROWSER_HARNESS_OK 10/10` after running-order,
+move/audit, move-conflict, offline move, line add/edit/conflict, offline line, and both old-deployment controls. The
+normal build remains the interactive mock.
 
 Checked 8 Oct in the browser against the real `Code.gs` on the fake spreadsheet:
 - seed: 96 cues round-trip field for field; a second seed is refused; a wrong passcode is refused;

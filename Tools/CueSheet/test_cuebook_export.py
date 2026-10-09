@@ -49,6 +49,39 @@ class CueBookExportHarness(unittest.TestCase):
                          ("1:14.5", "20 PASS"))
         self.assertEqual((len(log), conflicts), (2, []))
 
+    def test_web_merge_applies_page_only_reorder(self):
+        empty = {field: "" for field in CUE.WEB_FIELDS}
+        baseline = {"rows": {key: dict(empty) for key in ("R1", "R2", "R3")}, "web_keys": {}}
+        work = [{"Key": key, "Origin": "shared", CUE.DIRECTOR: ""} for key in ("R1", "R2", "R3")]
+        docs = [{"key": key, "ord": order, "cut": False}
+                for key, order in (("R2", 10), ("R3", 20), ("R1", 30))]
+        merged, _new_base, log, conflicts = CUE.web_merge(baseline, docs, work)
+        self.assertEqual([row["Key"] for row in merged], ["R2", "R3", "R1"])
+        self.assertTrue(any("page move applied" in entry for entry in log))
+        self.assertEqual(conflicts, [])
+
+    def test_web_merge_both_side_reorder_keeps_working_and_conflicts(self):
+        empty = {field: "" for field in CUE.WEB_FIELDS}
+        baseline = {"rows": {key: dict(empty) for key in ("R1", "R2", "R3")}, "web_keys": {}}
+        work = [{"Key": key, "Origin": "shared", CUE.DIRECTOR: ""} for key in ("R1", "R3", "R2")]
+        docs = [{"key": key, "ord": order, "cut": False}
+                for key, order in (("R2", 10), ("R1", 20), ("R3", 30))]
+        merged, _new_base, _log, conflicts = CUE.web_merge(baseline, docs, work)
+        self.assertEqual([row["Key"] for row in merged], ["R1", "R3", "R2"])
+        self.assertTrue(any(key == "_order" for key, _message in conflicts))
+
+    def test_web_merge_edited_but_not_moved_keeps_row(self):
+        empty = {field: "" for field in CUE.WEB_FIELDS}
+        baseline = {"rows": {key: dict(empty) for key in ("R1", "R2", "R3")}, "web_keys": {}}
+        work = [{"Key": key, "Origin": "shared", "Light": "", CUE.DIRECTOR: ""}
+                for key in ("R1", "R2", "R3")]
+        docs = [{"key": key, "ord": order, "light": "edited" if key == "R2" else "", "cut": False}
+                for key, order in (("R1", 10), ("R2", 20), ("R3", 30))]
+        merged, _new_base, _log, conflicts = CUE.web_merge(baseline, docs, work)
+        self.assertEqual([row["Key"] for row in merged], ["R1", "R2", "R3"])
+        self.assertEqual(merged[1]["Light"], "edited")
+        self.assertEqual(conflicts, [])
+
     def _sandbox(self, root):
         docs = root / "Docs" / "CueSheet"
         content = root / "Content" / "InfinityStage" / "CueSheet"
