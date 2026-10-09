@@ -23,6 +23,8 @@ from PIL import Image, ImageDraw, ImageFilter
 
 sys.path.insert(0, str(Path(__file__).parent))
 from puppet_cut import chain, slit, punch  # noqa: E402
+from clip_render import (DEFAULT_DISPLAY_FPS, clip_frames as shared_clip_frames,
+                         render_clip as shared_render_clip)  # noqa: E402
 
 # ------------------------------------------------------------------------------------------------ head (local)
 NECK = (520.0, 740.0)
@@ -435,42 +437,75 @@ SOB = {"eyes": "squint", "brows": "worried", "mouth": "blubber"}
 
 
 def rubbing_eyes_clip():
-    keys = [(0.0, P(), 1),
-            (1.0, P(face={"brows": "worried", "mouth": "sad"}), 2),
-            (2.0, P(neck=8.0, face=dict(SOB)), 3),
-            (3.0, P(**RUB_A, face=dict(SOB, eyes="shut")), 3)]
+    """The established nine-second beat sheet, now with real-time move durations."""
+    keys = [(0.0, P(), 0.0, "snap"),
+            (1.0, P(face={"brows": "worried", "mouth": "sad"}), 2.0 / 8.0, "ease_in_out"),
+            (2.0, P(neck=8.0, face=dict(SOB)), 3.0 / 8.0, "ease_in_out"),
+            (3.0, P(**RUB_A, face=dict(SOB, eyes="shut")), 3.0 / 8.0, "ease_in_out")]
     t = 3.5
     for k in range(8):                                  # rub, rub, rub...
-        keys.append((t, P(**(RUB_B if k % 2 == 0 else RUB_A), face=dict(SOB, eyes="shut")), 2))
+        keys.append((t, P(**(RUB_B if k % 2 == 0 else RUB_A), face=dict(SOB, eyes="shut")),
+                     2.0 / 8.0, "ease_in_out"))
         t += 0.25
-    keys += [(5.5, P(neck=10.0, face=dict(SOB, eyes="shut", tears=[0.0])), 3),
-             (7.6, P(neck=14.0, face={"eyes": "shut", "brows": "worried", "mouth": "sad"}), 3)]
+    keys += [(5.5, P(neck=10.0, face=dict(SOB, eyes="shut", tears=[0.0])), 3.0 / 8.0, "ease_in_out"),
+             (7.6, P(neck=14.0, face={"eyes": "shut", "brows": "worried", "mouth": "sad"}),
+              3.0 / 8.0, "ease_in_out")]
     return keys, 9.0
 
 
-def clip_frames(keys, length, fps=8, tear_rate=0.45, tear_step=0.125):
-    poses = []
-    for i in range(int(round(length * fps))):
-        t = i / fps
-        k = max(j for j in range(len(keys)) if keys[j][0] <= t + 1e-9)
-        a = keys[k - 1][1] if k > 0 else keys[0][1]
-        b, mf = keys[k][1], keys[k][2]
-        u = min(1.0, (round((t - keys[k][0]) * fps) + 1) / float(mf)) if k > 0 else 1.0
-        pose = lerp_pose(a, b, u)
-        if pose["face"].get("tears"):
-            held = t - keys[k][0]
-            pose["face"] = dict(pose["face"])
-            pose["face"]["tears"] = [min(1.0, math.floor((tt + held * tear_rate) / tear_step) * tear_step)
-                                     for tt in pose["face"]["tears"]]
-        poses.append(pose)
-    return poses
+def hand_world(pose, side):
+    """Return the mitten centre for a pose, including point-target IK when active."""
+    lean = pose.get("lean", 0.0)
+    root_rotation = rot(lean)
+    base = np.asarray(FEET) + np.asarray(pose.get("offset", (0.0, 0.0)))
+    to_world = lambda point: (np.asarray(point) - np.asarray(FEET)) @ root_rotation.T + base  # noqa: E731
+    shoulder = SHOULDER_NEAR if side == "near" else SHOULDER_FAR
+    shoulder_world = to_world(shoulder)
+    shoulder_angle = lean + pose.get(side + "_shoulder", 0.0)
+    elbow_relative = pose.get(side + "_elbow", 0.0)
+    target = pose.get(side + "_hand_on_head")
+    if target is not None:
+        neck_world = to_world(NECK)
+        head_rotation = rot(lean + pose.get("neck", 0.0))
+        target_world = (np.asarray(target) - NECK) @ head_rotation.T + neck_world
+        upper_absolute, fore_absolute = ik(shoulder_world, target_world)
+        shoulder_angle = upper_absolute
+        elbow_relative = fore_absolute - upper_absolute
+    upper_rotation = rot(shoulder_angle)
+    elbow_world = shoulder_world + np.array([0.0, UPPER_ARM_LEN]) @ upper_rotation.T
+    fore_rotation = rot(shoulder_angle + elbow_relative)
+    return elbow_world + np.array([0.0, HAND_REACH]) @ fore_rotation.T
 
 
-def render_clip(keys, length, out, fps=8, window=(540.0, 560.0, 1450.0), cell_px=640):
+def hand_target_for_pose(pose, key):
+    """Resolve a non-IK arm pose to the equivalent head-local target point."""
+    existing = pose.get(key)
+    if existing is not None:
+        return tuple(existing)
+    side = key.split("_", 1)[0]
+    lean = pose.get("lean", 0.0)
+    root_rotation = rot(lean)
+    base = np.asarray(FEET) + np.asarray(pose.get("offset", (0.0, 0.0)))
+    neck_world = (np.asarray(NECK) - np.asarray(FEET)) @ root_rotation.T + base
+    head_rotation = rot(lean + pose.get("neck", 0.0))
+    local = (hand_world(pose, side) - neck_world) @ head_rotation + np.asarray(NECK)
+    return tuple(local)
+
+
+def clip_frames(keys, length, fps=DEFAULT_DISPLAY_FPS, tear_speed=0.45, face_swap=0.5):
+    return shared_clip_frames(
+        keys, length, fps=fps, tear_speed=tear_speed, face_swap=face_swap,
+        point_keys=("near_hand_on_head", "far_hand_on_head"), point_resolver=hand_target_for_pose,
+    ).poses
+
+
+def render_clip(keys, length, out, fps=DEFAULT_DISPLAY_FPS, window=(540.0, 560.0, 1450.0),
+                cell_px=640, max_cells=None, tear_speed=0.45, face_swap=0.5):
     """Sharp transmission frames (white = light passes) of a square world window, one PNG per clip frame."""
     cx, cy, size = window
     view = dict(x0=cx - size / 2, y0=cy - size / 2, scale=cell_px / size, w=cell_px, h=cell_px)
-    out.mkdir(parents=True, exist_ok=True)
-    for i, pose in enumerate(clip_frames(keys, length, fps)):
-        render_pose(pose, ss=2, view=view).save(out / ("f%04d.png" % i))
-    return fps
+    return shared_render_clip(
+        keys, length, Path(out), lambda pose: render_pose(pose, ss=2, view=view), fps=fps,
+        max_cells=max_cells, tear_speed=tear_speed, face_swap=face_swap,
+        point_keys=("near_hand_on_head", "far_hand_on_head"), point_resolver=hand_target_for_pose,
+    )

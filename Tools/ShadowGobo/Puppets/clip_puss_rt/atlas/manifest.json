@@ -1,0 +1,210 @@
+{
+  "schema_version": 3,
+  "generator": "Tools/ShadowGobo/pack_rig_flipbook.py",
+  "name": "PussRT",
+  "display_fps": 25.0,
+  "take": {
+    "fps": 25.0,
+    "frames_packed": 30,
+    "frames_rendered": 108,
+    "duration_s": 4.32
+  },
+  "atlas": {
+    "file": "T_Gobo_PussRT_6x5.png",
+    "px": [
+      8192,
+      8192
+    ],
+    "cols": 6,
+    "rows": 5,
+    "cell_px": 1365,
+    "gutter_px": 8,
+    "order": "row-major from the top-left",
+    "channels": {
+      "R": "sharp",
+      "G": "blur sigma 16.19 px",
+      "B": "unused"
+    }
+  },
+  "light_function_params": {
+    "Cols": 6.0,
+    "Rows": 5.0,
+    "Frames": 30.0,
+    "GutterUV": 0.005860805860805861,
+    "CellUV": 0.1666259765625
+  },
+  "schedule": [
+    [
+      0.0,
+      0
+    ],
+    [
+      0.8,
+      1
+    ],
+    [
+      0.84,
+      2
+    ],
+    [
+      0.88,
+      3
+    ],
+    [
+      0.92,
+      4
+    ],
+    [
+      0.96,
+      5
+    ],
+    [
+      1.0,
+      6
+    ],
+    [
+      1.04,
+      7
+    ],
+    [
+      1.08,
+      8
+    ],
+    [
+      1.12,
+      9
+    ],
+    [
+      1.16,
+      10
+    ],
+    [
+      2.0,
+      11
+    ],
+    [
+      2.04,
+      12
+    ],
+    [
+      2.08,
+      13
+    ],
+    [
+      2.12,
+      14
+    ],
+    [
+      2.16,
+      15
+    ],
+    [
+      2.2,
+      16
+    ],
+    [
+      2.24,
+      17
+    ],
+    [
+      2.28,
+      18
+    ],
+    [
+      3.12,
+      19
+    ],
+    [
+      3.16,
+      20
+    ],
+    [
+      3.2,
+      21
+    ],
+    [
+      3.24,
+      22
+    ],
+    [
+      3.28,
+      23
+    ],
+    [
+      3.32,
+      24
+    ],
+    [
+      3.36,
+      25
+    ],
+    [
+      3.4,
+      26
+    ],
+    [
+      3.44,
+      27
+    ],
+    [
+      3.48,
+      28
+    ],
+    [
+      3.52,
+      29
+    ],
+    [
+      3.56,
+      0
+    ]
+  ],
+  "cell_budget": {
+    "4096": {
+      "atlas_px": 4096,
+      "cells": 30,
+      "cols": 6,
+      "rows": 5,
+      "cell_px": 682
+    },
+    "8192": {
+      "atlas_px": 8192,
+      "cells": 30,
+      "cols": 6,
+      "rows": 5,
+      "cell_px": 1365
+    }
+  },
+  "texture_settings": {
+    "compression": "TC_BC7",
+    "sRGB": false,
+    "mip_gen": "NoMipmaps",
+    "never_stream": true,
+    "filter": "Bilinear",
+    "address": "Clamp"
+  },
+  "sha256": "031094ceeae91cd05ce0ca222abc310d9ce53a109fbdf1c247008d8b37a7ebc3",
+  "clip_render": {
+    "display_fps": 25.0,
+    "move_frames": {
+      "0": 0,
+      "1": 10,
+      "2": 8,
+      "3": 12
+    },
+    "original_move_frames": {
+      "0": 0,
+      "1": 10,
+      "2": 8,
+      "3": 12
+    },
+    "max_cells": 196,
+    "reductions": [],
+    "quantization": {
+      "angles_and_targets": 0.01
+    },
+    "face_swap": 0.5,
+    "tear_speed": null,
+    "handheld_wobble_baked": false
+  }
+}

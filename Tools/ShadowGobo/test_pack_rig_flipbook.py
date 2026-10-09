@@ -40,6 +40,13 @@ check("P05 gutter replicates the cell edge (no bleed)", np.array_equal(r_tile[:g
 check("P06 unused cells pass light (255)", atlas[-1, -1, 0] == 255 and atlas[-1, -1, 1] == 255)
 check("P07 manifest names the atlas file it wrote and its sha", (tmp / "out" / m["atlas"]["file"]).is_file()
       and len(m["sha256"]) == 64)
+check("P10 manifest declares display fps", m["display_fps"] == 8.0, m.get("display_fps"))
+budget_196 = pk.atlas_budget(196, 8192)
+budget_197 = pk.atlas_budget(197, 8192)
+check("P11 8192 supports about 200 cells at at least 560 px",
+      budget_196["cols"] == 14 and budget_196["cell_px"] >= 560, budget_196)
+check("P12 8192 support boundary is explicit",
+      budget_197["cols"] == 15 and budget_197["cell_px"] < 560, budget_197)
 # -control: a non-square frame must be refused
 bad = tmp / "bad"
 bad.mkdir()

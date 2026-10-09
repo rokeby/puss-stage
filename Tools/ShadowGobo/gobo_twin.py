@@ -111,24 +111,19 @@ def linear_value(keys, t):
     return keys[-1][1]
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("manifest")
-    ap.add_argument("out")
-    ap.add_argument("--params", default="{}")
-    ap.add_argument("--approach", default="[[0,0]]")
-    ap.add_argument("--fps", type=float, default=25.0)
-    ap.add_argument("--px", type=int, default=520)
-    ap.add_argument("--clock0", type=float, default=7.0)
-    a = ap.parse_args()
-    man = json.loads(Path(a.manifest).read_text(encoding="utf-8"))
-    R, G = load_atlas(Path(a.manifest).parent / man["atlas"]["file"])
+def render_images(manifest_path, *, params=None, approach=None, fps=None, px=520, clock0=7.0, times=None):
+    """Render all twin frames, or only the requested absolute ``times``."""
+    manifest_path = Path(manifest_path)
+    man = json.loads(manifest_path.read_text(encoding="utf-8"))
+    R, G = load_atlas(manifest_path.parent / man["atlas"]["file"])
     P = dict(ag.SCALAR_DEFAULTS)
     P.update({k: float(v) for k, v in man["light_function_params"].items() if k in P})
-    P.update({k: float(v) for k, v in json.loads(a.params).items()})
-    keys = ag.schedule_keys(man["schedule"], 0, a.fps)
-    approach = json.loads(a.approach)
-    N = a.px
+    P.update({k: float(v) for k, v in (params or {}).items()})
+    display_fps = float(man.get("display_fps", man["take"]["fps"]))
+    output_fps = display_fps if fps is None else float(fps)
+    keys = ag.schedule_keys(man["schedule"], 0, display_fps)
+    approach = [[0, 0]] if approach is None else approach
+    N = int(px)
     s = (np.arange(N) + 0.5) / N
     SX, SY = np.meshgrid(s, s)
     UV = np.stack([1.0 - SY, SX], -1)
@@ -136,19 +131,39 @@ def main():
     y0 = max(0, (N - band) // 2)
     frames = []
     total = man["take"]["duration_s"]
-    for i in range(int(total * a.fps)):
-        t = i / a.fps
-        lf = light_function(R, G, P, UV, step_value(keys, t, a.fps), a.clock0 + t, linear_value(approach, t))
+    sample_times = ([i / output_fps for i in range(int(round(total * output_fps)))]
+                    if times is None else [float(value) for value in times])
+    for t in sample_times:
+        lf = light_function(R, G, P, UV, step_value(keys, t, display_fps), clock0 + t,
+                            linear_value(approach, t))
         warm = np.array([255, 196, 120]) / 255.0
         img = (lf[..., None] * warm[None, None, :] * 0.95 + 0.03) ** (1 / 1.4)
         frames.append(Image.fromarray((np.clip(img, 0, 1) * 255).astype(np.uint8)[y0:y0 + band]))
-    frames[0].save(a.out, save_all=True, append_images=frames[1:], duration=int(1000 / a.fps), loop=0)
-    stills = [frames[int(x * a.fps)] for x in (0.5, 2.5, 3.7, 4.1, 6.0, 8.5) if int(x * a.fps) < len(frames)]
+    return frames, band, output_fps
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("manifest")
+    ap.add_argument("out")
+    ap.add_argument("--params", default="{}")
+    ap.add_argument("--approach", default="[[0,0]]")
+    ap.add_argument("--fps", type=float)
+    ap.add_argument("--px", type=int, default=520)
+    ap.add_argument("--clock0", type=float, default=7.0)
+    a = ap.parse_args()
+    frames, band, output_fps = render_images(
+        a.manifest, params=json.loads(a.params), approach=json.loads(a.approach),
+        fps=a.fps, px=a.px, clock0=a.clock0,
+    )
+    frames[0].save(a.out, save_all=True, append_images=frames[1:], duration=int(round(1000 / output_fps)), loop=0)
+    stills = [frames[int(x * output_fps)] for x in (0.5, 2.5, 3.7, 4.1, 6.0, 8.5)
+              if int(x * output_fps) < len(frames)]
     sheet = Image.new("RGB", (stills[0].width * 3, stills[0].height * 2))
     for k, im in enumerate(stills):
         sheet.paste(im, ((k % 3) * im.width, (k // 3) * im.height))
     sheet.save(Path(a.out).with_suffix(".png"))
-    print("TWIN|frames=%d|band=%d|out=%s" % (len(frames), band, a.out))
+    print("TWIN|frames=%d|display_fps=%g|band=%d|out=%s" % (len(frames), output_fps, band, a.out))
 
 
 if __name__ == "__main__":

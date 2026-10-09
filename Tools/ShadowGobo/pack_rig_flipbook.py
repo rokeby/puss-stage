@@ -9,7 +9,7 @@ Atlas channels: R = the sharp frame, G = the same frame pre-blurred (defocus), B
 edge-replicated gutter so bilinear taps never read the neighbouring cell; blur is computed per cell (padded by edge
 replication) for the same reason.
 
-    python pack_rig_flipbook.py <frames_dir> <out_dir> --name boy_rub --fps 8 [--atlas 4096] [--blur 0.012]
+    python pack_rig_flipbook.py <frames_dir> <out_dir> --name boy_rub --fps 25 [--atlas 8192] [--blur 0.012]
 """
 import argparse
 import hashlib
@@ -19,6 +19,15 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageFilter
+
+
+def atlas_budget(cell_count, atlas_px):
+    if cell_count < 1:
+        raise ValueError("cell_count must be positive")
+    cols = int(math.ceil(math.sqrt(cell_count)))
+    rows = int(math.ceil(cell_count / float(cols)))
+    return {"atlas_px": int(atlas_px), "cells": int(cell_count), "cols": cols, "rows": rows,
+            "cell_px": int(atlas_px) // cols}
 
 
 def pack(frames_dir, out_dir, name, fps, atlas_px=4096, gutter_px=8, blur_frac=0.012, preview=True):
@@ -38,12 +47,13 @@ def pack(frames_dir, out_dir, name, fps, atlas_px=4096, gutter_px=8, blur_frac=0
         if not schedule or schedule[-1][1] != cell:
             schedule.append([round(i / float(fps), 6), cell])
     n = len(cells)
-    cols = int(math.ceil(math.sqrt(n)))
-    rows = int(math.ceil(n / float(cols)))
-    cell_px = atlas_px // cols
+    budget = atlas_budget(n, atlas_px)
+    cols, rows, cell_px = budget["cols"], budget["rows"], budget["cell_px"]
     if rows * cell_px > atlas_px:
         raise SystemExit("grid does not fit")
     inner = cell_px - 2 * gutter_px
+    if inner < 1:
+        raise SystemExit("gutter leaves no cell interior")
     sigma = max(0.5, blur_frac * inner)
     pad = int(math.ceil(3 * sigma))
     atlas = np.zeros((atlas_px, atlas_px, 3), dtype=np.uint8)
@@ -63,7 +73,8 @@ def pack(frames_dir, out_dir, name, fps, atlas_px=4096, gutter_px=8, blur_frac=0
     sha = hashlib.sha256((out / atlas_name).read_bytes()).hexdigest()
     duration = len(files) / float(fps)
     manifest = {
-        "schema_version": 2, "generator": "Tools/ShadowGobo/pack_rig_flipbook.py", "name": name,
+        "schema_version": 3, "generator": "Tools/ShadowGobo/pack_rig_flipbook.py", "name": name,
+        "display_fps": float(fps),
         "take": {"fps": float(fps), "frames_packed": n, "frames_rendered": len(files), "duration_s": duration},
         "atlas": {"file": atlas_name, "px": [atlas_px, atlas_px], "cols": cols, "rows": rows, "cell_px": cell_px,
                   "gutter_px": gutter_px, "order": "row-major from the top-left",
@@ -71,6 +82,7 @@ def pack(frames_dir, out_dir, name, fps, atlas_px=4096, gutter_px=8, blur_frac=0
         "light_function_params": {"Cols": float(cols), "Rows": float(rows), "Frames": float(n),
                                   "GutterUV": gutter_px / float(cell_px), "CellUV": cell_px / float(atlas_px)},
         "schedule": schedule,
+        "cell_budget": {str(size): atlas_budget(n, size) for size in (4096, 8192)},
         "texture_settings": {"compression": "TC_BC7", "sRGB": False, "mip_gen": "NoMipmaps", "never_stream": True,
                              "filter": "Bilinear", "address": "Clamp"},
         "sha256": sha,

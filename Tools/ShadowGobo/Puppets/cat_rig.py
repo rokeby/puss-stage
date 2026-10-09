@@ -22,6 +22,8 @@ from PIL import Image, ImageDraw, ImageFilter
 
 sys.path.insert(0, str(Path(__file__).parent))
 from puppet_cut import chain, punch, slit  # noqa: E402
+from clip_render import (DEFAULT_DISPLAY_FPS, clip_frames as shared_clip_frames,
+                         render_clip as shared_render_clip)  # noqa: E402
 
 
 # -------------------------------------------------------------------------------------------------
@@ -603,6 +605,33 @@ def interpolate_pose(a, b, amount):
         result["face"] = copy.deepcopy(b["face"])
         result["paw_target"] = copy.deepcopy(b["paw_target"])
     return result
+
+
+def realtime_clip():
+    """Short shared-renderer proof: upright, look up, meow, upright."""
+    return [
+        (0.0, make_pose("sit_upright"), 0.0, "snap"),
+        (0.8, make_pose("sit_look_up"), 0.4, "ease_in_out"),
+        (2.0, make_pose("meow"), 0.32, "ease_out"),
+        (3.1, make_pose("sit_upright"), 0.48, "ease_in_out"),
+    ], 4.3
+
+
+def realtime_clip_frames(keys, length, fps=DEFAULT_DISPLAY_FPS, face_swap=0.5):
+    return shared_clip_frames(keys, length, fps=fps, face_swap=face_swap).poses
+
+
+def render_realtime_clip(keys, length, out, fps=DEFAULT_DISPLAY_FPS,
+                         window=(520.0, 520.0, 1000.0), cell_px=640,
+                         max_cells=None, face_swap=0.5):
+    cx, cy, size = window
+    view = dict(x0=cx - size / 2, y0=cy - size / 2,
+                scale=cell_px / size, w=cell_px, h=cell_px)
+    return shared_render_clip(
+        keys, length, Path(out),
+        lambda pose: render_pose(pose, view=view, ss=2),
+        fps=fps, max_cells=max_cells, face_swap=face_swap,
+    )
 
 
 def stepped_demo_poses(hold_frames=8, move_frames=3):
