@@ -1,0 +1,16 @@
+{
+  "mode": "DRY",
+  "confirm": null,
+  "passage_label": "Passage 1",
+  "target_actor_label": "Swinging Candle Chandelier",
+  "length_cm": 300.0,
+  "damping_ratio": 0.12,
+  "fixed_step_hz": 120.0,
+  "idle_yaw_degrees": 2.5,
+  "idle_pitch_degrees": 1.5,
+  "idle_period_seconds": 7.0,
+  "idle_phase_cycles": 0.0,
+  "max_angle_degrees": 35.0,
+  "decimation_error_degrees": 0.08,
+  "allow_dirty": []
+}

@@ -1,0 +1,10 @@
+{
+  "passed": 10,
+  "failed": 0,
+  "total": 10,
+  "positive_controls": 5,
+  "negative_controls": 5,
+  "offline_only": true,
+  "unreal_started": false,
+  "blender_started": false
+}
