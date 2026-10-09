@@ -1,0 +1,213 @@
+"""Offline positive/negative harness for P79.  No Unreal or Blender imports."""
+
+import copy
+import json
+import os
+import tempfile
+
+import nap_interlude as n
+
+
+S4 = "11111111111111111111111111111111"
+P05 = "55555555555555555555555555555555"
+
+
+def fixture():
+    segments = [
+        {"guid": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "label": "Passage 4", "type": "WingPair",
+         "start": 0, "end": 1000, "first_show_index": 0},
+        {"guid": S4, "label": "Scene 4", "type": "Scene",
+         "start": 1000, "end": 2000, "first_show_index": 40},
+        {"guid": "44444444444444444444444444444444", "label": "Interaction 4", "type": "Sequence",
+         "start": 2000, "end": 2400, "first_show_index": 41},
+        {"guid": P05, "label": "Passage 05", "type": "WingPair",
+         "start": 2400, "end": 3400, "first_show_index": 42},
+        {"guid": "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", "label": "Scene 5", "type": "Scene",
+         "start": 3400, "end": 4100, "first_show_index": 70},
+    ]
+    keys = {
+        "P04": {"section_start_tick": 0, "channels": {"Camera.Speed": [[100, 1.0], [900, 1.0]]}},
+        "P05": {"section_start_tick": 2400, "channels": {"Camera.Speed": [[2500, 1.0], [3300, 0.8]]}},
+    }
+    return {"segments": segments, "passage_keys": keys, "asset_exists": False,
+            "actor_labels": ["Existing Actor"], "tick_resolution": 25.0}
+
+
+def args(expected=True):
+    return {"expected_scene4_guid": S4 if expected else "",
+            "expected_passage5_guid": P05 if expected else "",
+            "loop_seconds": 20.0, "wake_tail_seconds": 1.0,
+            "breath_period_seconds": 4.0, "breath_amplitude_cm": 1.5}
+
+
+class FakeBackend(object):
+    def __init__(self):
+        self.original = fixture()
+        self.state = copy.deepcopy(self.original)
+        self.dirty = {"content": [], "maps": []}
+        self.logs = []
+        self.args = None
+
+    def log(self, text):
+        self.logs.append(text)
+
+    def stop(self, text):
+        self.logs.append(text)
+
+    def census(self):
+        return copy.deepcopy(self.dirty)
+
+    def preflight(self, params, unused_mode):
+        self.args = params
+        if self.dirty != {"content": [], "maps": []}:
+            raise n.PlanError("DIRTY")
+
+    def inspect(self, params, plan=None):
+        if plan is None:
+            return copy.deepcopy(self.state)
+        return {"segments": copy.deepcopy(self.state["segments"]),
+                "passage_keys": copy.deepcopy(self.state["passage_keys"]),
+                "markers": copy.deepcopy(self.state["markers"]),
+                "breathing_z_keys": copy.deepcopy(self.state["breathing_z_keys"]),
+                "owned_actor_labels": copy.deepcopy(self.state["owned_actor_labels"]),
+                "sequence_package": params["sequence_package"],
+                "camera_cut_range": [0, plan["total_frames"]],
+                "asset_exists": True, "actor_labels": list(self.state["owned_actor_labels"]),
+                "tick_resolution": 25.0}
+
+    def backup(self, run, packages, prefix="PreNapInterlude"):
+        return {"root": "%s-%s" % (prefix, run), "files": list(packages)}
+
+    def apply(self, plan, params):
+        self.state["segments"] = copy.deepcopy(plan["segments_expected_after"])
+        shifted = copy.deepcopy(plan["passage_keys_before"])
+        for row in shifted.values():
+            if row["section_start_tick"] >= plan["downstream_threshold_tick"]:
+                row["section_start_tick"] += plan["delta_ticks"]
+                for keys in row["channels"].values():
+                    for key in keys:
+                        key[0] += plan["delta_ticks"]
+        self.state["passage_keys"] = shifted
+        self.state.update({"markers": copy.deepcopy(plan["markers"]),
+                           "breathing_z_keys": copy.deepcopy(plan["breathing_z_keys"]),
+                           "owned_actor_labels": copy.deepcopy(plan["actor_labels"]),
+                           "asset_exists": True, "actor_labels": copy.deepcopy(plan["actor_labels"])})
+        self.dirty = {"content": sorted([x for x in plan["named_packages"] if x != params["level_package"]]),
+                      "maps": [params["level_package"]]}
+
+    def save(self, packages):
+        self.dirty = {"content": [], "maps": []}
+        return list(packages)
+
+    def revert(self, record, params):
+        self.state = copy.deepcopy(self.original)
+        archive = "/Game/InfinityStage/Dev/Sequences/_Reverted/LS_Nap_BatteryChange_%s" % record["run_id"]
+        self.dirty = {"content": sorted([params["show_package"], params["master_package"], archive]),
+                      "maps": [params["level_package"]]}
+        return {"archived_sequence": archive}
+
+
+class Counts(object):
+    def __init__(self):
+        self.pos = self.neg = self.checks = 0
+
+    def check(self, condition, label):
+        self.checks += 1
+        if not condition:
+            raise AssertionError(label)
+
+    def positive(self):
+        self.pos += 1
+
+    def negative(self):
+        self.neg += 1
+
+
+def refused(fn, token, counts):
+    try:
+        fn()
+    except (n.PlanError, n.Stop) as exc:
+        counts.check(token in str(exc), "refusal %s not in %s" % (token, exc))
+        counts.negative()
+        return
+    raise AssertionError("expected refusal " + token)
+
+
+def main():
+    c = Counts()
+    plan = n.build_plan(fixture(), args())
+    c.check(plan["anchors"]["scene4_guid"] == S4, "S4 anchor")
+    c.check(plan["anchors"]["passage5_guid"] == P05, "P05 anchor")
+    c.check(plan["loop_frames"] == 500 and plan["wake_tail_frames"] == 25, "length")
+    c.check(plan["markers"][0][1] == n.MARK_VAMP_START and plan["markers"][1][1] == n.MARK_VAMP_END, "vamp markers")
+    c.check(" HOLD " in plan["markers"][2][1] and plan["markers"][2][0] > plan["markers"][1][0], "wake outside vamp")
+    c.check(not n.seam_failures(plan["breathing_z_keys"], plan["loop_frames"]), "seam")
+    c.check(not n.downstream_timing_failures(plan["segments_before"], plan["segments_expected_after"], 1,
+                                             plan["nap"]["guid"], plan["delta_ticks"]), "timing")
+    c.positive()
+
+    with tempfile.TemporaryDirectory() as root:
+        backend = FakeBackend()
+        dry_raw = {"mode": "DRY", "run_id": "NAP-DRY", "confirm": "DRY NAP NAP-DRY", "params": args(False)}
+        n.main(dry_raw, backend, root)
+        c.check(any(x.startswith("P79_NAP_DRY_OK") for x in backend.logs), "dry marker")
+        apply_raw = {"mode": "APPLY", "run_id": "NAP-APPLY", "confirm": "APPLY NAP NAP-APPLY", "params": args(True)}
+        rec = n.main(apply_raw, backend, root)
+        c.check(rec["status"] == "saved_readback_verified", "apply status")
+        c.check(any(x.startswith("P79_NAP_APPLY_OK") for x in backend.logs), "apply marker")
+        c.check(not n.verify_after(rec["plan"], backend.inspect(backend.args, rec["plan"])), "apply readback")
+        revert_raw = {"mode": "REVERT", "run_id": "NAP-REVERT", "source_run_id": "NAP-APPLY",
+                      "confirm": "REVERT NAP NAP-APPLY", "params": args(True)}
+        n.main(revert_raw, backend, root)
+        c.check(backend.state == backend.original, "round trip")
+        c.check(any(x.startswith("P79_NAP_REVERT_OK") for x in backend.logs), "revert marker")
+        c.positive()
+
+    with tempfile.TemporaryDirectory() as root:
+        path = n.write_preview(plan, os.path.join(root, "preview.png"))
+        data = open(path, "rb").read()
+        c.check(data.startswith(b"\x89PNG") and len(data) > 1000, "preview png")
+        c.positive()
+
+    bad = copy.deepcopy(plan["breathing_z_keys"]); bad[-1][1] += 0.5
+    c.check("SEAM_VALUE" in n.seam_failures(bad, plan["loop_frames"]), "negative seam control")
+    c.negative()
+
+    facts = {"markers": plan["markers"][:-1], "breathing_z_keys": plan["breathing_z_keys"],
+             "segments": plan["segments_expected_after"], "passage_keys": copy.deepcopy(plan["passage_keys_before"]),
+             "owned_actor_labels": plan["actor_labels"], "sequence_package": n.NAP_SEQUENCE,
+             "camera_cut_range": [0, plan["total_frames"]]}
+    c.check(any(x.startswith("MARKER|") for x in n.verify_after(plan, facts)), "negative marker control")
+    c.negative()
+
+    shifted = copy.deepcopy(plan["segments_expected_after"]); shifted[-1]["start"] += 1
+    c.check(any(x.startswith("SHIFT|") for x in n.downstream_timing_failures(
+        plan["segments_before"], shifted, 1, plan["nap"]["guid"], plan["delta_ticks"])), "negative timing control")
+    c.negative()
+
+    refused(lambda: n.build_plan(fixture(), dict(args(), expected_scene4_guid="99999999999999999999999999999999")),
+            "S4_GUID_DRIFT", c)
+    refused(lambda: n.build_plan(fixture(), dict(args(), expected_passage5_guid="99999999999999999999999999999999")),
+            "P05_GUID_DRIFT", c)
+    snap = fixture(); snap["asset_exists"] = True
+    refused(lambda: n.build_plan(snap, args()), "NAP_SEQUENCE_ASSET_EXISTS", c)
+    snap = fixture(); snap["actor_labels"].append("P79_Nap_Puss")
+    refused(lambda: n.build_plan(snap, args()), "ACTOR_LABEL_COLLISION", c)
+    refused(lambda: n.build_plan(fixture(), dict(args(), breath_period_seconds=4.8)), "LOOP_NOT_WHOLE", c)
+
+    backend = FakeBackend()
+    refused(lambda: n.main({"mode": "DRY", "run_id": "BAD", "confirm": "wrong", "params": args()},
+                           backend, tempfile.mkdtemp()), "CONFIRM_MISMATCH", c)
+
+    c.check(c.pos == 3, "positive count")
+    c.check(c.neg == 9, "negative count")
+    result = {"tool": n.TOOL, "positive": {"passed": c.pos, "total": 3},
+              "negative": {"passed": c.neg, "total": 9}, "checks": c.checks, "status": "passed"}
+    out = os.path.join(os.path.dirname(__file__), "harness_result.json")
+    with open(out, "w", encoding="utf-8") as handle:
+        json.dump(result, handle, indent=2, sort_keys=True); handle.write("\n")
+    print("P79_NAP_HARNESS_OK|positive=%d/3|negative=%d/9|checks=%d" % (c.pos, c.neg, c.checks))
+
+
+if __name__ == "__main__":
+    main()

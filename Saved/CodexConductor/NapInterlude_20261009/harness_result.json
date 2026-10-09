@@ -1,0 +1,13 @@
+{
+  "checks": 25,
+  "negative": {
+    "passed": 9,
+    "total": 9
+  },
+  "positive": {
+    "passed": 3,
+    "total": 3
+  },
+  "status": "passed",
+  "tool": "P79_NAP"
+}
