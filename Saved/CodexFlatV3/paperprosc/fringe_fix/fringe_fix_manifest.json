@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "tool": "fix_paperprosc_fringe",
+  "operation": "new-file narrow edge despill, topology-following keyed-residue despill, and under-alpha colour dilation",
+  "parameters": {
+    "despill_width_px": 32,
+    "dilate_px": 32,
+    "alpha_erode_px": 0,
+    "green_excess_threshold": 8
+  },
+  "alpha_policy": "unchanged",
+  "contact_sheet": "C:\\Users\\Administrator\\.codex\\worktrees\\0121\\PussStage\\Saved\\CodexFlatV3\\paperprosc\\fringe_fix\\crops\\PAPERPROSC_FRINGE_BEFORE_AFTER.png",
+  "rows": [
+    {
+      "owner": "PRO_side_L",
+      "source": "E:\\PussStage\\DerivedAssets\\StageFront_PaperProscenium\\Build\\PaperProsc_Side_L\\skin\\T_PaperProsc_Side_L_SkinColor.png",
+      "source_sha256": "de292eec115b9137ef857155ce3d05412c19178e52b50413cd1aaf946c67764e",
+      "output": "C:\\Users\\Administrator\\.codex\\worktrees\\0121\\PussStage\\Saved\\CodexFlatV3\\paperprosc\\fringe_fix\\textures\\T_PaperProsc_Side_L_SkinColor_FringeFix_v1.png",
+      "output_sha256": "d8b5a617d719f674c34fc834100ec30048c0d87e27781139d04f01fddf2e5603",
+      "size_px": [
+        2048,
+        4096
+      ],
+      "crop_center_px": [
+        1442,
+        1425
+      ],
+      "before_crop": "C:\\Users\\Administrator\\.codex\\worktrees\\0121\\PussStage\\Saved\\CodexFlatV3\\paperprosc\\fringe_fix\\crops\\PRO_side_L_BEFORE.png",
+      "after_crop": "C:\\Users\\Administrator\\.codex\\worktrees\\0121\\PussStage\\Saved\\CodexFlatV3\\paperprosc\\fringe_fix\\crops\\PRO_side_L_AFTER.png",
+      "pair_crop": "C:\\Users\\Administrator\\.codex\\worktrees\\0121\\PussStage\\Saved\\CodexFlatV3\\paperprosc\\fringe_fix\\crops\\PRO_side_L_BEFORE_AFTER.png",
+      "before": {
+        "band_width_px": 32,
+        "band_texels": 558898,
+        "green_excess_gt_8_texels": 236498,
+        "green_excess_gt_20_texels": 231653,
+        "green_excess_gt_20_percent": 41.448171,
+        "green_excess_mean": 25.538143,
+        "green_excess_p99": 119.0,
+        "global_green_excess_gt_20_texels": 231941
+      },
+      "after": {
+        "band_width_px": 32,
+        "band_texels": 558898,
+        "green_excess_gt_8_texels": 0,
+        "green_excess_gt_20_texels": 0,
+        "green_excess_gt_20_percent": 0.0,
+        "green_excess_mean": -11.946513,
+        "green_excess_p99": 2.0,
+        "global_green_excess_gt_20_texels": 0
+      },
+      "source_diagnosis": {
+        "alpha_unique_values": [
+          0,
+          255
+        ],
+        "partial_alpha_texels": 0,
+        "near_edge_transparent_nonblack_rgb_texels": 0
+      },
+      "despilled_texels": 236807,
+      "edge_connected_despilled_texels": 236775,
+      "padded_transparent_texels": 486194,
+      "alpha_eroded_texels": 0
+    },
+    {
+      "owner": "PRO_side_R",
+      "source": "E:\\PussStage\\DerivedAssets\\StageFront_PaperProscenium\\Build\\PaperProsc_Side_R\\skin\\T_PaperProsc_Side_R_SkinColor.png",
+      "source_sha256": "2571b83b589082da9504c7b4998bbca4f0dd680e7b35061c2b5e5b3640c681fe",
+      "output": "C:\\Users\\Administrator\\.codex\\worktrees\\0121\\PussStage\\Saved\\CodexFlatV3\\paperprosc\\fringe_fix\\textures\\T_PaperProsc_Side_R_SkinColor_FringeFix_v1.png",
+      "output_sha256": "bb2bfff67e12afa188f8c750835ef4d81624b7846b4b48967b27b68cb6fb5f3c",
+      "size_px": [
+        2048,
+        4096
+      ],
+      "crop_center_px": [
+        545,
+        2050
+      ],
+      "before_crop": "C:\\Users\\Administrator\\.codex\\worktrees\\0121\\PussStage\\Saved\\CodexFlatV3\\paperprosc\\fringe_fix\\crops\\PRO_side_R_BEFORE.png",
+      "after_crop": "C:\\Users\\Administrator\\.codex\\worktrees\\0121\\PussStage\\Saved\\CodexFlatV3\\paperprosc\\fringe_fix\\crops\\PRO_side_R_AFTER.png",
+      "pair_crop": "C:\\Users\\Administrator\\.codex\\worktrees\\0121\\PussStage\\Saved\\CodexFlatV3\\paperprosc\\fringe_fix\\crops\\PRO_side_R_BEFORE_AFTER.png",
+      "before": {
+        "band_width_px": 32,
+        "band_texels": 562425,
+        "green_excess_gt_8_texels": 247673,
+        "green_excess_gt_20_texels": 241872,
+        "green_excess_gt_20_percent": 43.005201,
+        "green_excess_mean": 25.530574,
+        "green_excess_p99": 127.0,
+        "global_green_excess_gt_20_texels": 242119
+      },
+      "after": {
+        "band_width_px": 32,
+        "band_texels": 562425,
+        "green_excess_gt_8_texels": 0,
+        "green_excess_gt_20_texels": 0,
+        "green_excess_gt_20_percent": 0.0,
+        "green_excess_mean": -12.440581,
+        "green_excess_p99": 2.0,
+        "global_green_excess_gt_20_texels": 0
+      },
+      "source_diagnosis": {
+        "alpha_unique_values": [
+          0,
+          255
+        ],
+        "partial_alpha_texels": 0,
+        "near_edge_transparent_nonblack_rgb_texels": 0
+      },
+      "despilled_texels": 247936,
+      "edge_connected_despilled_texels": 247936,
+      "padded_transparent_texels": 498327,
+      "alpha_eroded_texels": 0
+    },
+    {
+      "owner": "PRO_valance_C",
+      "source": "E:\\PussStage\\DerivedAssets\\StageFront_PaperProscenium\\Build\\PaperProsc_Valance_C\\skin\\T_PaperProsc_Valance_C_SkinColor.png",
+      "source_sha256": "cc6dcc281cb5586ab91204676985ce5b09f4748a44dd1f95a7e015b88e77a73e",
+      "output": "C:\\Users\\Administrator\\.codex\\worktrees\\0121\\PussStage\\Saved\\CodexFlatV3\\paperprosc\\fringe_fix\\textures\\T_PaperProsc_Valance_C_SkinColor_FringeFix_v1.png",
+      "output_sha256": "805fe8797ac7891f9468463ea5c0189cd87e5e15af09de54acdde62ee0da2512",
+      "size_px": [
+        2048,
+        4096
+      ],
+      "crop_center_px": [
+        1647,
+        2539
+      ],
+      "before_crop": "C:\\Users\\Administrator\\.codex\\worktrees\\0121\\PussStage\\Saved\\CodexFlatV3\\paperprosc\\fringe_fix\\crops\\PRO_valance_C_BEFORE.png",
+      "after_crop": "C:\\Users\\Administrator\\.codex\\worktrees\\0121\\PussStage\\Saved\\CodexFlatV3\\paperprosc\\fringe_fix\\crops\\PRO_valance_C_AFTER.png",
+      "pair_crop": "C:\\Users\\Administrator\\.codex\\worktrees\\0121\\PussStage\\Saved\\CodexFlatV3\\paperprosc\\fringe_fix\\crops\\PRO_valance_C_BEFORE_AFTER.png",
+      "before": {
+        "band_width_px": 32,
+        "band_texels": 1295706,
+        "green_excess_gt_8_texels": 355031,
+        "green_excess_gt_20_texels": 338278,
+        "green_excess_gt_20_percent": 26.10762,
+        "green_excess_mean": -3.715496,
+        "green_excess_p99": 112.0,
+        "global_green_excess_gt_20_texels": 350817
+      },
+      "after": {
+        "band_width_px": 32,
+        "band_texels": 1295706,
+        "green_excess_gt_8_texels": 0,
+        "green_excess_gt_20_texels": 0,
+        "green_excess_gt_20_percent": 0.0,
+        "green_excess_mean": -25.31337,
+        "green_excess_p99": 2.0,
+        "global_green_excess_gt_20_texels": 44
+      },
+      "source_diagnosis": {
+        "alpha_unique_values": [
+          0,
+          255
+        ],
+        "partial_alpha_texels": 0,
+        "near_edge_transparent_nonblack_rgb_texels": 0
+      },
+      "despilled_texels": 368399,
+      "edge_connected_despilled_texels": 368078,
+      "padded_transparent_texels": 743671,
+      "alpha_eroded_texels": 0
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "passed": 27,
+  "failed": 0,
+  "results": [
+    {
+      "check": "POS green rim clamped",
+      "ok": true
+    },
+    {
+      "check": "POS opaque interior preserved",
+      "ok": true
+    },
+    {
+      "check": "POS default alpha byte-identical",
+      "ok": true
+    },
+    {
+      "check": "POS transparent padding receives colour",
+      "ok": true
+    },
+    {
+      "check": "POS operation counts nonzero",
+      "ok": true
+    },
+    {
+      "check": "POS optional one-pixel erosion works",
+      "ok": true
+    },
+    {
+      "check": "NEG non-RGBA refused",
+      "ok": true
+    },
+    {
+      "check": "NEG negative parameters refused",
+      "ok": true
+    },
+    {
+      "check": "POS DRY needs no confirm",
+      "ok": true
+    },
+    {
+      "check": "NEG IMPORT wrong confirm refused",
+      "ok": true
+    },
+    {
+      "check": "NEG IMPORT without decision refused",
+      "ok": true
+    },
+    {
+      "check": "POS exact IMPORT confirm accepted",
+      "ok": true
+    },
+    {
+      "check": "POS exactly three new texture targets",
+      "ok": true
+    },
+    {
+      "check": "POS exactly six MI targets",
+      "ok": true
+    },
+    {
+      "check": "NEG old and new assets disjoint",
+      "ok": true
+    },
+    {
+      "check": "POS no Save All",
+      "ok": true
+    },
+    {
+      "check": "POS no permanent asset deletion",
+      "ok": true
+    },
+    {
+      "check": "POS exact dirty census gates present",
+      "ok": true
+    },
+    {
+      "check": "POS read-back gates both mutation modes",
+      "ok": true
+    },
+    {
+      "check": "POS texture settings and source are read back",
+      "ok": true
+    },
+    {
+      "check": "POS backups precede Unreal mutation calls",
+      "ok": true
+    },
+    {
+      "check": "POS generated manifest passes import plan",
+      "ok": true
+    },
+    {
+      "check": "POS generated outputs are new filenames",
+      "ok": true
+    },
+    {
+      "check": "POS measured fringe removed",
+      "ok": true
+    },
+    {
+      "check": "POS global keyed residue reduced to negligible",
+      "ok": true
+    },
+    {
+      "check": "POS generated alpha byte-identical to sources",
+      "ok": true
+    },
+    {
+      "check": "POS immutable source hashes still match manifest",
+      "ok": true
+    }
+  ],
+  "tier": "measured offline pixel, pure-contract, generated-output and static safety checks; Unreal behavior unproven"
+}
