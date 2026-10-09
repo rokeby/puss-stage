@@ -2,7 +2,7 @@
 
 Modes, read from ``chandelier_import_args.json``:
   DRY       read-only source/API/target/dirty census.
-  IMPORT    create-only import of two FBXs and five textures, one import call each.
+  IMPORT    create-only import of exactly one selected FBX or texture per execution.
   MAT_CHECK read-only compatible-master search and parameter/sampler report.
   APPLY     create/reuse the aged master, create MI, bind both meshes, targeted save.
   REVERT    explicit-confirm deletion of packages recorded as created by this tool.
@@ -181,7 +181,8 @@ def _socket_names(mesh):
 def _texture_readback(tex):
     return {"srgb": bool(tex.get_editor_property("srgb")),
             "compression": str(tex.get_editor_property("compression_settings")).split(".")[-1],
-            "flip_green_channel": bool(tex.get_editor_property("flip_green_channel"))}
+            "flip_green_channel": bool(tex.get_editor_property("flip_green_channel")),
+            "max_texture_size": int(tex.get_editor_property("max_texture_size"))}
 
 
 def _source_gate(c, plan):
@@ -209,50 +210,77 @@ def run_dry(c, plan, rec):
           % (C.MARK, "OK" if not blockers else "REFUSED", c.run, len(plan["hashes"]), existing, before, blockers))
 
 
-def run_import(c, plan):
+def run_import(c, plan, rec, values):
     _guard(c)
-    _source_gate(c, plan)
+    row = C.select_import_asset(plan, values["asset"])
+    if row["kind"] == "mesh":
+        source = row["source"]
+    else:
+        c.require(len(row["matches"]) == 1, "SOURCE_SET|%s|matches=%d" %
+                  (row["selector"], len(row["matches"])))
+        source = row["matches"][0]
+    c.require(os.path.isfile(source), "SOURCE_SET|%s" % row["selector"])
+    if row["kind"] == "mesh":
+        c.require(not plan["manifest_problems"] and os.path.isfile(plan["chain_manifest"]),
+                  "CHAIN_MANIFEST|%s" % plan["manifest_problems"])
     eal = c.u.EditorAssetLibrary
-    c.require(not [p for p in plan["apply_packages"] if eal.does_asset_exist(p)], "REFUSE_OVERWRITE")
-    backup = _backup(c, "ChandelierImport", plan["apply_packages"], {"source_hashes": plan["hashes"]})
-    facts = {"meshes": {}, "textures": {}, "pipeline": {}}
-    for row in plan["meshes"]:
+    c.require(not eal.does_asset_exist(row["dest"]), "REFUSE_OVERWRITE|" + row["dest"])
+    imported = dict((rec or {}).get("imported_assets", {}))
+    c.require(row["selector"] not in imported, "ASSET_ALREADY_RECORDED|" + row["selector"])
+    source_rel = os.path.relpath(source, PROJECT)
+    backup = _backup(c, "ChandelierImport", [row["dest"]],
+                     {"asset": row["selector"], "source_hash": plan["hashes"].get(source_rel)})
+    facts = {}
+    if row["kind"] == "mesh":
         options, pipe = _pipeline(c, row["name"])
         mesh = _import_one(c, row["source"], row["dest"], options)
         c.require(isinstance(mesh, c.u.StaticMesh), "MESH_CLASS|" + row["dest"])
         sockets = _socket_names(mesh)
         if row["name"] == C.BODY_NAME:
             c.require(not C.socket_problems(sockets), "SOCKETS|%s" % C.socket_problems(sockets))
-        facts["meshes"][row["name"]] = {"sockets": sockets, "lods": int(mesh.get_num_lods())}
-        facts["pipeline"][row["name"]] = pipe
-    for row in plan["textures"]:
+        facts = {"kind": "mesh", "sockets": sockets, "lods": int(mesh.get_num_lods()), "pipeline": pipe}
+    else:
         tex = _import_one(c, row["matches"][0], row["dest"])
         c.require(isinstance(tex, c.u.Texture2D), "TEXTURE_CLASS|" + row["dest"])
         tex.modify()
         tex.set_editor_property("srgb", row["srgb"])
         tex.set_editor_property("compression_settings", getattr(c.u.TextureCompressionSettings, row["compression"]))
+        tex.set_editor_property("max_texture_size", values["max_texture_size"])
         if row["parameter"] == "NormalTexture":
             tex.set_editor_property("flip_green_channel", False)
         got = _texture_readback(tex)
         c.require(not C.texture_settings_problems(row, got), "TEXTURE_SETTINGS|%s|%s" % (row["dest"], got))
-        facts["textures"][row["parameter"]] = got
-    want = set(plan["imported_packages"])
+        c.require(got["max_texture_size"] == values["max_texture_size"], "MAX_TEXTURE_SIZE|%s" % got)
+        facts = {"kind": "texture", "settings": got}
+    # The prior live run exhausted memory because seven imports accumulated in one execution.
+    # Release transient importer state between the now-independent one-asset executions.
+    c.u.SystemLibrary.collect_garbage()
     dirty = census(c.u)
-    c.require(not dirty["maps"] and set(dirty["content"]) == want, "DIRTY_SCOPE|%s" % dirty)
-    for path in plan["imported_packages"]:
-        c.require(eal.save_asset(path, only_if_is_dirty=False), "SAVE|" + path)
+    c.require(not dirty["maps"] and dirty["content"] == [row["dest"]], "DIRTY_SCOPE|%s" % dirty)
+    c.require(eal.save_asset(row["dest"], only_if_is_dirty=False), "SAVE|" + row["dest"])
     c.require(census(c.u) == {"content": [], "maps": []}, "DIRTY_AFTER_SAVE|%s" % census(c.u))
-    # Saved-state read-back, after all imports/configuration are complete.
-    body = eal.load_asset(C.DEST + "/" + C.BODY_NAME)
-    c.require(not C.socket_problems(_socket_names(body)), "SAVED_SOCKET_READBACK")
-    for row in plan["textures"]:
-        got = _texture_readback(eal.load_asset(row["dest"]))
+    saved = eal.load_asset(row["dest"])
+    if row["kind"] == "mesh":
+        if row["name"] == C.BODY_NAME:
+            c.require(not C.socket_problems(_socket_names(saved)), "SAVED_SOCKET_READBACK")
+        saved_facts = {"kind": "mesh", "sockets": _socket_names(saved), "lods": int(saved.get_num_lods())}
+    else:
+        got = _texture_readback(saved)
         c.require(not C.texture_settings_problems(row, got), "SAVED_TEXTURE_READBACK|%s" % row["dest"])
-    doc = {"run": c.run, "state": "imported", "backup": backup, "source_hashes": plan["hashes"],
-           "created_packages": list(plan["imported_packages"]), "master": None, "facts": facts}
-    _write_json(RECORD, doc, exclusive=True)
-    c.log("%s_IMPORT_OK|run=%s|packages=7|body_sockets=45|candles=44|chain_attach=1|normal=DirectX_no_flip|dirty_after=0+0|record=%s"
-          % (C.MARK, c.run, RECORD))
+        c.require(got["max_texture_size"] == values["max_texture_size"], "SAVED_MAX_TEXTURE_SIZE|%s" % got)
+        saved_facts = {"kind": "texture", "settings": got}
+    imported[row["selector"]] = {"package": row["dest"], "run": c.run, "backup": backup,
+                                  "source_hash": plan["hashes"].get(source_rel), "facts": saved_facts}
+    complete = len(imported) == len(C.IMPORT_ASSETS) and set(imported) == set(C.IMPORT_ASSETS)
+    doc = dict(rec or {})
+    doc.update({"run": doc.get("run", c.run), "latest_import_run": c.run,
+                "state": "imported" if complete else "importing", "imported_assets": imported,
+                "created_packages": [imported[name]["package"] for name in C.IMPORT_ASSETS if name in imported],
+                "master": None, "facts": dict((rec or {}).get("facts", {}), **{row["selector"]: facts})})
+    _write_json(RECORD, doc, exclusive=rec is None)
+    c.log("%s_IMPORT_OK|run=%s|asset=%s|package=%s|completed=%d/7|state=%s|gc=1|saved=1|dirty_after=0+0|max_texture_size=%s|record=%s"
+          % (C.MARK, c.run, row["selector"], row["dest"], len(imported), doc["state"],
+             values["max_texture_size"] if row["kind"] == "texture" else "n/a", RECORD))
 
 
 def _sampler_name(tex):
@@ -514,7 +542,7 @@ def main():
         if mode == "DRY":
             run_dry(c, plan, rec)
         elif mode == "IMPORT":
-            run_import(c, plan)
+            run_import(c, plan, rec, values)
         elif mode == "MAT_CHECK":
             run_mat_check(c, plan, rec)
         elif mode == "APPLY":

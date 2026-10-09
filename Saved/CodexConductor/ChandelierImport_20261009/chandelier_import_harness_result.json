@@ -1,7 +1,7 @@
 {
  "blender_processes_started": 0,
  "fail": 0,
- "pass": 27,
+ "pass": 37,
  "production_input_refusals": [],
  "production_inputs_present_in_this_worktree": true,
  "status": "PASS",

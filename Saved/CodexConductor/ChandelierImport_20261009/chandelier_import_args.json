@@ -1,5 +1,7 @@
 {
   "mode": "DRY",
+  "asset": "SM_Chandelier_Iron3",
+  "max_texture_size": 4096,
   "dust_strength": 1.0,
   "soot_strength": 1.0,
   "peel_strength": 1.0,

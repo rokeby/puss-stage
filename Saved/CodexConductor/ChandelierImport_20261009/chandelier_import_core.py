@@ -23,11 +23,21 @@ SOURCE_MESH_REL = os.path.join("DerivedAssets", "ChandelierBuild", "Output", "Ir
 SOURCE_TEX_REL = os.path.join("DerivedAssets", "StageFrontBuild", "BakedStageFront")
 
 TEXTURE_SPECS = (
-    ("BaseColorDusty", "BaseColor_Dusty", "T_Chandelier_Iron3_BaseColor_Dusty", True, "TC_DEFAULT", "SAMPLERTYPE_COLOR"),
-    ("BaseColorClean", "BaseColor_Clean", "T_Chandelier_Iron3_BaseColor_Clean", True, "TC_DEFAULT", "SAMPLERTYPE_COLOR"),
     ("MasksTexture", "Masks", "T_Chandelier_Iron3_Masks", False, "TC_MASKS", "SAMPLERTYPE_MASKS"),
     ("NormalTexture", "_N", "T_Chandelier_Iron3_N", False, "TC_NORMALMAP", "SAMPLERTYPE_NORMAL"),
     ("RoughnessTexture", "Roughness", "T_Chandelier_Iron3_Roughness", False, "TC_GRAYSCALE", "SAMPLERTYPE_LINEAR_GRAYSCALE"),
+    ("BaseColorDusty", "BaseColor_Dusty", "T_Chandelier_Iron3_BaseColor_Dusty", True, "TC_DEFAULT", "SAMPLERTYPE_COLOR"),
+    ("BaseColorClean", "BaseColor_Clean", "T_Chandelier_Iron3_BaseColor_Clean", True, "TC_DEFAULT", "SAMPLERTYPE_COLOR"),
+)
+
+IMPORT_ASSETS = (
+    BODY_NAME,
+    CHAIN_NAME,
+    "T_Chandelier_Iron3_Masks",
+    "T_Chandelier_Iron3_N",
+    "T_Chandelier_Iron3_Roughness",
+    "T_Chandelier_Iron3_BaseColor_Dusty",
+    "T_Chandelier_Iron3_BaseColor_Clean",
 )
 
 TEXTURE_PARAMS = tuple(row[0] for row in TEXTURE_SPECS)
@@ -176,6 +186,21 @@ def build_plan(project: str) -> dict:
             "normal_convention": normal_convention()}
 
 
+def select_import_asset(plan: dict, value) -> dict:
+    """Resolve exactly one public IMPORT selector to its mesh/texture plan row."""
+    if not isinstance(value, str) or not value.strip():
+        raise PlanError("ASSET_ONE_REQUIRED|allowed=%s" % list(IMPORT_ASSETS))
+    name = value.strip()
+    if "," in name or name not in IMPORT_ASSETS:
+        raise PlanError("ASSET_UNKNOWN_OR_MANY|got=%r|allowed=%s" % (value, list(IMPORT_ASSETS)))
+    rows = [dict(row, kind="mesh", selector=row["name"]) for row in plan["meshes"]]
+    rows += [dict(row, kind="texture", selector=row["dest_name"]) for row in plan["textures"]]
+    matches = [row for row in rows if row["selector"] == name]
+    if len(matches) != 1:
+        raise PlanError("ASSET_PLAN_COUNT|asset=%s|count=%d" % (name, len(matches)))
+    return matches[0]
+
+
 def master_contract_problems(info: dict) -> list[str]:
     problems = []
     for kind, want in (("textures", TEXTURE_PARAMS), ("scalars", SCALAR_PARAMS), ("switches", SWITCH_PARAMS)):
@@ -202,11 +227,17 @@ def validate_args(args: dict, record_state: str | None = None) -> tuple[str, dic
         raise PlanError("MODE|%s" % mode)
     if mode in CONFIRMS and args.get("confirm") != CONFIRMS[mode]:
         raise PlanError("CONFIRM|want %s" % CONFIRMS[mode])
-    if mode == "IMPORT" and record_state is not None:
-        raise PlanError("RECORD_EXISTS|state=%s" % record_state)
+    if mode == "IMPORT":
+        asset = args.get("asset")
+        if not isinstance(asset, str) or not asset.strip():
+            raise PlanError("ASSET_ONE_REQUIRED|allowed=%s" % list(IMPORT_ASSETS))
+        if "," in asset or asset.strip() not in IMPORT_ASSETS:
+            raise PlanError("ASSET_UNKNOWN_OR_MANY|got=%r|allowed=%s" % (asset, list(IMPORT_ASSETS)))
+        if record_state not in (None, "importing"):
+            raise PlanError("IMPORT_STATE|state=%s" % record_state)
     if mode in ("MAT_CHECK", "APPLY") and record_state != "imported":
         raise PlanError("IMPORT_RECORD_REQUIRED")
-    if mode == "REVERT" and record_state not in ("imported", "applied"):
+    if mode == "REVERT" and record_state not in ("importing", "imported", "applied"):
         raise PlanError("REVERT_RECORD_REQUIRED")
     values = dict(DEFAULTS)
     values.update({k: args[k] for k in DEFAULTS if k in args})
@@ -218,4 +249,11 @@ def validate_args(args: dict, record_state: str | None = None) -> tuple[str, dic
         if not 0.0 <= values[key] <= 2.0:
             raise PlanError("RANGE|%s|0..2" % key)
     values["use_clean"] = bool(values["use_clean"])
+    try:
+        values["max_texture_size"] = int(args.get("max_texture_size", 4096))
+    except (TypeError, ValueError):
+        raise PlanError("VALUE|max_texture_size")
+    if values["max_texture_size"] < 1 or values["max_texture_size"] > 16384:
+        raise PlanError("RANGE|max_texture_size|1..16384")
+    values["asset"] = args.get("asset")
     return mode, values

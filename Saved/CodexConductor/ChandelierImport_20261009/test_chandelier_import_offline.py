@@ -76,13 +76,14 @@ def main():
     # Texture profiles: BaseColor sRGB; masks/normal/roughness linear; normal stays DirectX/no flip.
     rows = [{"parameter": r[0], "srgb": r[3], "compression": r[4],
              "flip_green_channel": False if r[0] == "NormalTexture" else None} for r in C.TEXTURE_SPECS]
+    by_parameter = {row["parameter"]: row for row in rows}
     check("POS texture profiles", all(C.texture_settings_problems(r, dict(r)) == [] for r in rows))
-    bad_mask = dict(rows[2], srgb=True)
-    check("NEG mask sRGB refused", any("srgb" in p for p in C.texture_settings_problems(rows[2], bad_mask)))
-    bad_normal = dict(rows[3], flip_green_channel=True)
-    check("NEG normal green flip refused", any("flip_green" in p for p in C.texture_settings_problems(rows[3], bad_normal)))
-    bad_rough = dict(rows[4], srgb=True)
-    check("NEG roughness sRGB refused", bool(C.texture_settings_problems(rows[4], bad_rough)))
+    bad_mask = dict(by_parameter["MasksTexture"], srgb=True)
+    check("NEG mask sRGB refused", any("srgb" in p for p in C.texture_settings_problems(by_parameter["MasksTexture"], bad_mask)))
+    bad_normal = dict(by_parameter["NormalTexture"], flip_green_channel=True)
+    check("NEG normal green flip refused", any("flip_green" in p for p in C.texture_settings_problems(by_parameter["NormalTexture"], bad_normal)))
+    bad_rough = dict(by_parameter["RoughnessTexture"], srgb=True)
+    check("NEG roughness sRGB refused", bool(C.texture_settings_problems(by_parameter["RoughnessTexture"], bad_rough)))
     nc = C.normal_convention()
     check("POS DirectX equals UE convention", nc["conversion"] == "none" and nc["flip_green_channel"] is False)
 
@@ -103,9 +104,23 @@ def main():
 
     check("POS DRY needs no confirm", C.validate_args({"mode": "DRY"})[0] == "DRY")
     check("NEG IMPORT lacks confirm", raises(C.validate_args, {"mode": "IMPORT"}, None, contains="CONFIRM"))
-    check("POS IMPORT exact confirm", C.validate_args({"mode": "IMPORT", "confirm": C.CONFIRMS["IMPORT"]})[0] == "IMPORT")
+    one = {"mode": "IMPORT", "confirm": C.CONFIRMS["IMPORT"], "asset": C.BODY_NAME}
+    mode, import_values = C.validate_args(one)
+    check("POS one-asset IMPORT call", mode == "IMPORT" and import_values["asset"] == C.BODY_NAME)
+    check("POS texture cap defaults to 4096", import_values["max_texture_size"] == 4096)
+    check("POS partial record permits next one-asset IMPORT", C.validate_args(one, "importing")[0] == "IMPORT")
+    check("NEG IMPORT no asset refused", raises(C.validate_args,
+          {"mode": "IMPORT", "confirm": C.CONFIRMS["IMPORT"]}, None, contains="ASSET_ONE_REQUIRED"))
+    check("NEG IMPORT two assets refused", raises(C.validate_args,
+          {"mode": "IMPORT", "confirm": C.CONFIRMS["IMPORT"], "asset": [C.BODY_NAME, C.CHAIN_NAME]},
+          None, contains="ASSET_ONE_REQUIRED"))
+    check("NEG IMPORT unknown asset refused", raises(C.validate_args,
+          {"mode": "IMPORT", "confirm": C.CONFIRMS["IMPORT"], "asset": "T_Not_Chandelier"},
+          None, contains="ASSET_UNKNOWN_OR_MANY"))
     check("NEG APPLY before import record", raises(C.validate_args,
           {"mode": "APPLY", "confirm": C.CONFIRMS["APPLY"]}, None, contains="IMPORT_RECORD"))
+    check("POS confirmed REVERT permits partial import record", C.validate_args(
+          {"mode": "REVERT", "confirm": C.CONFIRMS["REVERT"]}, "importing")[0] == "REVERT")
     check("NEG creative value out of range", raises(C.validate_args,
           {"mode": "DRY", "dust_strength": 9}, None, contains="RANGE"))
 
@@ -114,6 +129,11 @@ def main():
         plan = C.build_plan(temp)
         check("POS synthetic source plan complete", plan["missing"] == [] and plan["manifest_problems"] == []
               and len(plan["hashes"]) == 8)
+        selected = C.select_import_asset(plan, "T_Chandelier_Iron3_Masks")
+        check("POS selector resolves exactly one asset", selected["kind"] == "texture" and
+              selected["dest"].endswith("/T_Chandelier_Iron3_Masks"))
+        check("NEG comma-separated two assets refused", raises(C.select_import_asset, plan,
+              "%s,%s" % (C.BODY_NAME, C.CHAIN_NAME), contains="ASSET_UNKNOWN_OR_MANY"))
         os.remove(plan["meshes"][0]["source"])
         check("NEG missing FBX refused", bool(C.build_plan(temp)["missing"]))
 
@@ -129,6 +149,11 @@ def main():
     check("POS live tool imports without Unreal", module.C.MARK == C.MARK)
     source = open(os.path.join(os.path.dirname(__file__), "chandelier_import.py"), encoding="utf-8").read()
     check("POS one import task per call", "import_asset_tasks([task])" in source and "replace_existing\", False" in source)
+    run_import_source = source[source.index("def run_import("):source.index("\ndef _sampler_name")]
+    check("POS IMPORT has no seven-asset loops", 'for row in plan["meshes"]' not in run_import_source and
+          'for row in plan["textures"]' not in run_import_source)
+    check("POS IMPORT collects garbage before targeted save", run_import_source.index("collect_garbage()") <
+          run_import_source.index("save_asset(row[\"dest\"]"))
     check("POS modify-before texture setters", source.index("tex.modify()") < source.index("tex.set_editor_property(\"srgb\""))
 
     status = "PASS" if FAIL == 0 else "FAIL"
