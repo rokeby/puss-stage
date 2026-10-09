@@ -21,6 +21,17 @@ sys.path.insert(0, os.environ.get("GOBO_TOOL_DIR") or
 import animated_gobo as ag  # noqa: E402
 
 
+# Creative preview values stay exposed here and on the CLI for Gary's review.
+CURTAIN_DEFAULTS = {
+    "pleat_period_px": 86.0,
+    "pleat_depth": 0.24,
+    "spot_strength": 0.82,
+    "haze": 0.075,
+    "warm_rgb": (246.0, 178.0, 104.0),
+    "ambient_rgb": (62.0, 37.0, 30.0),
+}
+
+
 def load_atlas(path):
     a = np.asarray(Image.open(path).convert("RGB"), dtype=np.float64) / 255.0
     return a[..., 0], a[..., 1]
@@ -111,8 +122,39 @@ def linear_value(keys, t):
     return keys[-1][1]
 
 
-def render_images(manifest_path, *, params=None, approach=None, fps=None, px=520, clock0=7.0, times=None):
-    """Render all twin frames, or only the requested absolute ``times``."""
+def curtain_look(light_value, sx, sy, width_px, values=None):
+    """Warm projected light on a softly pleated, slightly hazy curtain."""
+    values = dict(CURTAIN_DEFAULTS, **(values or {}))
+    period = max(4.0, float(values["pleat_period_px"])) / float(width_px)
+    depth = max(0.0, float(values["pleat_depth"]))
+    phase = 2.0 * math.pi * (sx - 0.5) / period
+
+    # A periodic cloth normal under a light slightly camera-left.  A second
+    # harmonic keeps troughs from reading as graphic stripes.
+    slope = depth * (np.cos(phase) + 0.22 * np.cos(2.0 * phase + 0.6))
+    normal_z = 1.0 / np.sqrt(1.0 + slope * slope)
+    normal_x = -slope * normal_z
+    lambert = np.clip(normal_x * -0.28 + normal_z * 0.96, 0.48, 1.0)
+    trough = 1.0 - depth * 0.32 * (0.5 + 0.5 * np.cos(phase + math.pi))
+    pleats = np.clip(lambert * trough, 0.42, 1.08)
+
+    radius = ((sx - 0.49) / 0.48) ** 2 + ((sy - 0.50) / 0.39) ** 2
+    spot = np.exp(-1.65 * radius)
+    spot = (1.0 - float(values["spot_strength"])) + float(values["spot_strength"]) * spot
+    warm = np.asarray(values["warm_rgb"], dtype=np.float64) / 255.0
+    ambient = np.asarray(values["ambient_rgb"], dtype=np.float64) / 255.0
+    illumination = np.clip((0.18 + 0.82 * light_value) * spot * pleats, 0.0, 1.15)
+    rgb = ambient[None, None, :] + illumination[..., None] * warm[None, None, :]
+
+    haze = min(1.0, max(0.0, float(values["haze"])))
+    haze_field = haze * (0.45 + 0.55 * spot)
+    rgb = rgb * (1.0 - haze_field[..., None]) + warm[None, None, :] * 0.42 * haze_field[..., None]
+    return np.clip(rgb, 0.0, 1.0) ** (1.0 / 1.55)
+
+
+def prepare_render(manifest_path, *, params=None, approach=None, fps=None, px=520, clock0=7.0,
+                   curtain=False, curtain_params=None):
+    """Load one atlas and prepare a reusable spatial render state."""
     manifest_path = Path(manifest_path)
     man = json.loads(manifest_path.read_text(encoding="utf-8"))
     R, G = load_atlas(manifest_path.parent / man["atlas"]["file"])
@@ -124,22 +166,47 @@ def render_images(manifest_path, *, params=None, approach=None, fps=None, px=520
     keys = ag.schedule_keys(man["schedule"], 0, display_fps)
     approach = [[0, 0]] if approach is None else approach
     N = int(px)
-    s = (np.arange(N) + 0.5) / N
-    SX, SY = np.meshgrid(s, s)
-    UV = np.stack([1.0 - SY, SX], -1)
     band = int(N / P["BorderAspect"] * P["Scale"] * 1.12) if P["BorderDepth"] > 0 else N
     y0 = max(0, (N - band) // 2)
-    frames = []
-    total = man["take"]["duration_s"]
-    sample_times = ([i / output_fps for i in range(int(round(total * output_fps)))]
-                    if times is None else [float(value) for value in times])
-    for t in sample_times:
-        lf = light_function(R, G, P, UV, step_value(keys, t, display_fps), clock0 + t,
-                            linear_value(approach, t))
+    sx = (np.arange(N) + 0.5) / N
+    sy = (np.arange(y0, y0 + band) + 0.5) / N
+    SX, SY = np.meshgrid(sx, sy)
+    UV = np.stack([1.0 - SY, SX], -1)
+    return {"manifest": man, "R": R, "G": G, "P": P, "display_fps": display_fps,
+            "output_fps": output_fps, "keys": keys, "approach": approach,
+            "N": N, "band": band, "SX": SX, "SY": SY, "UV": UV,
+            "clock0": float(clock0), "curtain": bool(curtain),
+            "curtain_params": curtain_params}
+
+
+def render_prepared(prepared, time_s):
+    """Render one frame from ``prepare_render`` without reloading the atlas."""
+    t = float(time_s)
+    lf = light_function(
+        prepared["R"], prepared["G"], prepared["P"], prepared["UV"],
+        step_value(prepared["keys"], t, prepared["display_fps"]), prepared["clock0"] + t,
+        linear_value(prepared["approach"], t),
+    )
+    if prepared["curtain"]:
+        img = curtain_look(lf, prepared["SX"], prepared["SY"], prepared["N"],
+                           prepared["curtain_params"])
+    else:
         warm = np.array([255, 196, 120]) / 255.0
         img = (lf[..., None] * warm[None, None, :] * 0.95 + 0.03) ** (1 / 1.4)
-        frames.append(Image.fromarray((np.clip(img, 0, 1) * 255).astype(np.uint8)[y0:y0 + band]))
-    return frames, band, output_fps
+    return Image.fromarray((np.clip(img, 0, 1) * 255).astype(np.uint8))
+
+
+def render_images(manifest_path, *, params=None, approach=None, fps=None, px=520, clock0=7.0, times=None,
+                  curtain=False, curtain_params=None):
+    """Render all twin frames, or only the requested absolute ``times``."""
+    prepared = prepare_render(manifest_path, params=params, approach=approach, fps=fps, px=px,
+                              clock0=clock0, curtain=curtain, curtain_params=curtain_params)
+    total = prepared["manifest"]["take"]["duration_s"]
+    output_fps = prepared["output_fps"]
+    sample_times = ([i / output_fps for i in range(int(round(total * output_fps)))]
+                    if times is None else [float(value) for value in times])
+    frames = [render_prepared(prepared, value) for value in sample_times]
+    return frames, prepared["band"], output_fps
 
 
 def main():
@@ -149,12 +216,21 @@ def main():
     ap.add_argument("--params", default="{}")
     ap.add_argument("--approach", default="[[0,0]]")
     ap.add_argument("--fps", type=float)
-    ap.add_argument("--px", type=int, default=520)
+    ap.add_argument("--px", type=int)
     ap.add_argument("--clock0", type=float, default=7.0)
+    ap.add_argument("--curtain", action="store_true")
+    ap.add_argument("--pleat-period", type=float, default=CURTAIN_DEFAULTS["pleat_period_px"])
+    ap.add_argument("--pleat-depth", type=float, default=CURTAIN_DEFAULTS["pleat_depth"])
+    ap.add_argument("--spot-strength", type=float, default=CURTAIN_DEFAULTS["spot_strength"])
+    ap.add_argument("--haze", type=float, default=CURTAIN_DEFAULTS["haze"])
     a = ap.parse_args()
+    px = a.px if a.px is not None else (1920 if a.curtain else 520)
+    curtain_params = {"pleat_period_px": a.pleat_period, "pleat_depth": a.pleat_depth,
+                      "spot_strength": a.spot_strength, "haze": a.haze}
     frames, band, output_fps = render_images(
         a.manifest, params=json.loads(a.params), approach=json.loads(a.approach),
-        fps=a.fps, px=a.px, clock0=a.clock0,
+        fps=a.fps, px=px, clock0=a.clock0, curtain=a.curtain,
+        curtain_params=curtain_params,
     )
     frames[0].save(a.out, save_all=True, append_images=frames[1:], duration=int(round(1000 / output_fps)), loop=0)
     stills = [frames[int(x * output_fps)] for x in (0.5, 2.5, 3.7, 4.1, 6.0, 8.5)
@@ -163,7 +239,8 @@ def main():
     for k, im in enumerate(stills):
         sheet.paste(im, ((k % 3) * im.width, (k // 3) * im.height))
     sheet.save(Path(a.out).with_suffix(".png"))
-    print("TWIN|frames=%d|display_fps=%g|band=%d|out=%s" % (len(frames), output_fps, band, a.out))
+    print("TWIN|frames=%d|display_fps=%g|band=%d|curtain=%s|out=%s" %
+          (len(frames), output_fps, band, a.curtain, a.out))
 
 
 if __name__ == "__main__":

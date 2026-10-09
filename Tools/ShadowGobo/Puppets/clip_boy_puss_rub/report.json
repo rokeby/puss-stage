@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "claims": [
+    {
+      "tier": "measured",
+      "claim": "PG5 composite was rendered, SDF-packed, read back and tested offline.",
+      "evidence": "Tools/ShadowGobo/Puppets/clip_boy_puss_rub/report.json"
+    },
+    {
+      "tier": "inferred",
+      "claim": "Curtain pleat, haze and spot defaults are a review proposal, not rendered UE acceptance.",
+      "evidence": "Gary must judge curtain_preview_defocus025.gif and the three stills."
+    }
+  ],
+  "rendered_frames": 225,
+  "unique_cells": 113,
+  "atlas": {
+    "file": "T_Gobo_BoyPussRub_11x11.png",
+    "px": [
+      8192,
+      8192
+    ],
+    "cols": 11,
+    "rows": 11,
+    "cell_px": 744,
+    "gutter_px": 8,
+    "order": "row-major from the top-left",
+    "channels": {
+      "R": "SDF: 0.5 + signed_distance_px / (2 * 6.000), positive in light",
+      "G": "SDF: 0.5 + signed_distance_px / (2 * 6.000 * 4.000), same 0.5 edge",
+      "B": "unused"
+    },
+    "inner_px": 728,
+    "encoding": {
+      "type": "signed_distance",
+      "edge": 0.5,
+      "positive": "light",
+      "spread_px": 6.0,
+      "wide_multiplier": 4.0,
+      "minimum_source_scale": 2.0,
+      "source_px": [
+        1456,
+        1456
+      ]
+    }
+  },
+  "cell_budget": {
+    "4096": {
+      "atlas_px": 4096,
+      "cells": 113,
+      "cols": 11,
+      "rows": 11,
+      "cell_px": 372
+    },
+    "8192": {
+      "atlas_px": 8192,
+      "cells": 113,
+      "cols": 11,
+      "rows": 11,
+      "cell_px": 744
+    }
+  },
+  "framing": {
+    "visible_band_cell": {
+      "aspect": 1.88,
+      "top": 0.23404255319148937,
+      "bottom": 0.7659574468085106
+    },
+    "boy": {
+      "placement": {
+        "anchor_world": [
+          540.0,
+          182.0
+        ],
+        "anchor_cell": [
+          0.3,
+          0.2765957446808511
+        ],
+        "scale": 0.00046382181847159134
+      },
+      "head_top_cell_y": 0.2765957446808511,
+      "head_inset_fraction_of_band": 0.08,
+      "declared_knee_source_y": 1250.0,
+      "knee_cell_y": 0.7719574468085106,
+      "visible_height_cell": 0.48936170212765956,
+      "visible_extent_factor_vs_current_full_puppet": 0.5776876044227629,
+      "source_scale_factor_vs_current_window": 0.6725416367838075,
+      "centre_cell_x": 0.3
+    },
+    "puss": {
+      "placement": {
+        "anchor_world": [
+          500.0,
+          1029.99005309
+        ],
+        "anchor_cell": [
+          0.75,
+          0.7659574468085106
+        ],
+        "scale": 0.0002358556647707479
+      },
+      "head_top_cell_y": 0.5457446808505642,
+      "boy_halfway_cell_y": 0.5212765957446809,
+      "visible_height_ratio_to_boy": 0.4500000000010211,
+      "centre_cell_x": 0.75
+    },
+    "claims": [
+      {
+        "tier": "declaration-proven",
+        "claim": "The authored visible band is the middle 1/1.88 of a square cell.",
+        "evidence": "Tools/ShadowGobo/Puppets/build_boy_puss_composite.py:43-47"
+      },
+      {
+        "tier": "measured",
+        "claim": "Boy head, knee and Puss head positions are transformed from rig geometry.",
+        "evidence": "Tools/ShadowGobo/Puppets/build_boy_puss_composite.py:157-194"
+      }
+    ]
+  },
+  "minimum_feature_widths": {
+    "inner_px": 728,
+    "minimum_px": 2.0,
+    "features": {
+      "boy_rod": {
+        "world_width": 5.0,
+        "cell_px": 1.6883114192365924,
+        "meets_2px": false,
+        "warning": "MIN_FEATURE_WIDTH|boy_rod=1.688px|required=2.000px",
+        "proposed_world_width_if_failed": 5.923077867068933
+      },
+      "boy_narrowest_slit": {
+        "world_width": 4.0,
+        "cell_px": 1.350649135389274,
+        "meets_2px": false,
+        "warning": "MIN_FEATURE_WIDTH|boy_narrowest_slit=1.351px|required=2.000px",
+        "proposed_world_width_if_failed": 5.923077867068933
+      }
+    },
+    "claims": [
+      {
+        "tier": "declaration-proven",
+        "claim": "Boy rod width is 5 world units and the narrowest active slit is 4.",
+        "evidence": "Tools/ShadowGobo/Puppets/boy_rig.py:295,94,103"
+      },
+      {
+        "tier": "measured",
+        "claim": "Feature widths are projected through PG5's boy placement into atlas-cell pixels.",
+        "evidence": "Tools/ShadowGobo/Puppets/build_boy_puss_composite.py:197-216"
+      }
+    ]
+  },
+  "curtain_preview": {
+    "width_px": 1920,
+    "fps": 25.0,
+    "look": {
+      "pleat_period_px": 86.0,
+      "pleat_depth": 0.24,
+      "spot_strength": 0.82,
+      "haze": 0.075,
+      "warm_rgb": [
+        246.0,
+        178.0,
+        104.0
+      ],
+      "ambient_rgb": [
+        62.0,
+        37.0,
+        30.0
+      ]
+    },
+    "defocus_demo": 0.25,
+    "still_defocus": [
+      0.15,
+      0.25,
+      0.35
+    ]
+  },
+  "harness_stdout": "BOY_PUSS_HARNESS|positive=7/7|negative=2/2|total=9/9"
+}

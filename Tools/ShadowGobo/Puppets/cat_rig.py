@@ -197,6 +197,10 @@ REST = {
     "shoulder": 4.0,
     "wrist": -3.0,
     "paw_target": None,
+    "far_leg": False,
+    "far_leg_root": (-82.0, -272.0),
+    "far_shoulder": 105.0,
+    "far_wrist": 2.0,
     "tail": (88.0, 40.0, 75.0),
     "jaw": 0.0,
     "face": {"eyes": "open", "ears": "up", "mouth": "closed"},
@@ -221,6 +225,16 @@ POSE_TABLE = {
              "face": {"eyes": "half", "ears": "up", "mouth": "meow"}},
     "tail_flick": {"tail": (115.0, -100.0, -100.0),
                    "face": {"eyes": "wide", "ears": "one_swivelled"}},
+    # Classic cat stretch: the tall sitting body rotates into a long arch,
+    # both forelegs reach forward into negative space, the rump and tail rise,
+    # and the chin stays low and forward.  These are reviewable look values.
+    "stretch": {"body_lean": -62.0, "body_scale": (1.05, 0.92),
+                "offset": (50.0, 80.0), "neck": 72.0,
+                "shoulder": 112.0, "wrist": 5.0,
+                "far_leg": True, "far_leg_root": (-82.0, -272.0),
+                "far_shoulder": 100.0, "far_wrist": -2.0,
+                "tail": (-28.0, 15.0, 10.0),
+                "face": {"eyes": "half", "ears": "up", "mouth": "closed"}},
 }
 
 TAIL_FLICK_FRAMES = (
@@ -461,6 +475,21 @@ def pose_parts(pose):
                   [place(cut, paw_rotation, wrist) for cut in cuts], 9))
     paw_tip = wrist + np.array([0.0, RIG["paw_length"]]) @ paw_rotation.T
 
+    if pose.get("far_leg", False):
+        # A second card sits behind the near foreleg.  Its changed root and
+        # angle leave a light wedge between the two legs while both overlap the
+        # chest, keeping the complete stretch silhouette connected.
+        far_shoulder = body_world(pose["far_leg_root"])
+        far_upper_rotation = rot(body_angle + pose["far_shoulder"])
+        outline, cuts = upper_leg_part()
+        parts.append(("far_front_leg", place(outline, far_upper_rotation, far_shoulder),
+                      [place(cut, far_upper_rotation, far_shoulder) for cut in cuts], 5))
+        far_wrist = far_shoulder + np.array([0.0, RIG["upper_leg_length"]]) @ far_upper_rotation.T
+        far_paw_rotation = rot(body_angle + pose["far_shoulder"] + pose["far_wrist"])
+        outline, cuts = paw_part()
+        parts.append(("far_front_paw", place(outline, far_paw_rotation, far_wrist),
+                      [place(cut, far_paw_rotation, far_wrist) for cut in cuts], 5))
+
     whiskers = []
     for start, end in zip(WHISKERS["roots"], WHISKERS["ends"]):
         whiskers.append([place([start], head_matrix, neck)[0], place([end], head_matrix, neck)[0]])
@@ -575,7 +604,8 @@ def _label(image, text):
 
 def pose_sheet(out_dir, blur, rod_width, whisker_width):
     tile_size = (VIEW["w"], VIEW["h"])
-    sheet = Image.new("RGB", (tile_size[0] * 4, tile_size[1] * 2), "white")
+    rows = int(math.ceil(len(POSE_TABLE) / 4.0))
+    sheet = Image.new("RGB", (tile_size[0] * 4, tile_size[1] * rows), "white")
     for index, name in enumerate(POSE_TABLE):
         image = projected(render_pose(make_pose(name), rod_width=rod_width,
                                       whisker_width=whisker_width), blur)

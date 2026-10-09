@@ -45,6 +45,34 @@ class ClipResult:
     unique_cells: int | None = None
 
 
+@dataclass
+class CompositeTrack:
+    """One independently timed puppet in a shared transmission cell.
+
+    ``render_pose`` must return a full-cell L-mode transmission image.  Its
+    placement is deliberately an ordinary dictionary so framing remains a
+    reviewable look choice rather than hidden renderer state.
+    """
+
+    name: str
+    keys: list
+    render_pose: Callable[[dict, dict], Image.Image]
+    placement: dict
+    face_swap: float = DEFAULT_FACE_SWAP
+    tear_speed: float = 0.45
+    point_keys: tuple[str, ...] = ()
+    point_resolver: Callable[[dict, str], tuple[float, float]] | None = None
+
+
+@dataclass
+class CompositeClipResult:
+    track_results: dict[str, ClipResult]
+    display_frames: list[int]
+    reductions: list[dict]
+    rendered_frames: int
+    unique_cells: int
+
+
 def display_frame(seconds: float, fps: float) -> int:
     return int(math.floor(float(seconds) * float(fps) + 0.5))
 
@@ -77,6 +105,9 @@ def _quantize(value, quantum: float):
 
 
 def _lerp_value(start, end, amount: float):
+    # Bools are replacement-card switches, not the numbers 0 and 1.
+    if isinstance(start, bool) or isinstance(end, bool):
+        return copy.deepcopy(end if amount >= DEFAULT_FACE_SWAP else start)
     if isinstance(start, (int, float, np.number)) and isinstance(end, (int, float, np.number)):
         return float(start) + (float(end) - float(start)) * amount
     if isinstance(start, (tuple, list)) and isinstance(end, (tuple, list)) and len(start) == len(end):
@@ -270,3 +301,111 @@ def render_clip(
     result.unique_cells = unique
     result.reductions = all_reductions
     return result
+
+
+def product_transmissions(images: Iterable[Image.Image]) -> Image.Image:
+    """Multiply puppet transmissions, matching overlapping cut-paper cards."""
+    images = [image.convert("L") for image in images]
+    if not images:
+        raise ValueError("composite has no puppet images")
+    size = images[0].size
+    if any(image.size != size for image in images):
+        raise ValueError("composite puppet images must have identical dimensions")
+    transmission = np.ones((size[1], size[0]), dtype=np.float64)
+    for image in images:
+        transmission *= np.asarray(image, dtype=np.float64) / 255.0
+    return Image.fromarray(np.rint(transmission * 255.0).astype(np.uint8), "L")
+
+
+def _composite_results(tracks: list[CompositeTrack], length: float, fps: float,
+                       move_frames: dict[str, dict[int, int]] | None,
+                       quantum: float) -> dict[str, ClipResult]:
+    results = {}
+    for track in tracks:
+        results[track.name] = clip_frames(
+            track.keys, length, fps=fps, face_swap=track.face_swap,
+            tear_speed=track.tear_speed, point_keys=track.point_keys,
+            point_resolver=track.point_resolver, quantum=quantum,
+            move_frames=None if move_frames is None else move_frames[track.name],
+        )
+    return results
+
+
+def _reduce_composite_longest(move_frames: dict[str, dict[int, int]], amount: int):
+    """Reduce the longest moves across all puppets, with a stable tie-break."""
+    result = {name: dict(counts) for name, counts in move_frames.items()}
+    before = {name: dict(counts) for name, counts in move_frames.items()}
+    for _ in range(max(0, int(amount))):
+        eligible = [
+            (count, name, index)
+            for name, counts in result.items()
+            for index, count in counts.items()
+            if index > 0 and count > MIN_BUDGET_MOVE_FRAMES
+        ]
+        if not eligible:
+            break
+        _count, name, index = min(eligible, key=lambda item: (-item[0], item[1], item[2]))
+        result[name][index] -= 1
+    reductions = [
+        {"track": name, "key_index": index, "from": before[name][index],
+         "to": result[name][index]}
+        for name in sorted(result)
+        for index in sorted(result[name])
+        if result[name][index] != before[name][index]
+    ]
+    return result, reductions
+
+
+def render_composite_clip(
+    tracks: Iterable[CompositeTrack],
+    length: float,
+    out_dir: Path,
+    *,
+    fps: float = DEFAULT_DISPLAY_FPS,
+    max_cells: int | None = None,
+    quantum: float = DEFAULT_QUANTUM,
+) -> CompositeClipResult:
+    """Render independently keyed puppets into shared product-transmission cells."""
+    tracks = list(tracks)
+    if not tracks:
+        raise ValueError("composite clip has no tracks")
+    names = [track.name for track in tracks]
+    if len(names) != len(set(names)):
+        raise ValueError("composite track names must be unique")
+
+    results = _composite_results(tracks, length, fps, None, quantum)
+    move_frames = {name: dict(result.move_frames) for name, result in results.items()}
+    all_reductions = []
+    while True:
+        images = []
+        for frame in range(len(next(iter(results.values())).poses)):
+            layers = [
+                track.render_pose(results[track.name].poses[frame], track.placement)
+                for track in tracks
+            ]
+            images.append(product_transmissions(layers))
+        hashes = [hashlib.sha256(image.tobytes()).hexdigest() for image in images]
+        unique = len(set(hashes))
+        if max_cells is None or unique <= max_cells:
+            break
+        adjusted, reductions = _reduce_composite_longest(move_frames, unique - max_cells)
+        if not reductions:
+            raise ValueError(
+                "max_cells=%d cannot be met; %d unique composite cells remain with every move at floor %d" %
+                (max_cells, unique, MIN_BUDGET_MOVE_FRAMES)
+            )
+        move_frames = adjusted
+        all_reductions.extend(reductions)
+        results = _composite_results(tracks, length, fps, move_frames, quantum)
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for frame, image in enumerate(images):
+        image.save(out_dir / ("f%04d.png" % frame))
+    return CompositeClipResult(
+        track_results=results,
+        display_frames=list(range(len(images))),
+        reductions=all_reductions,
+        rendered_frames=len(images),
+        unique_cells=unique,
+    )

@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "positive": {
+    "passed": 7,
+    "total": 7
+  },
+  "negative": {
+    "passed": 2,
+    "total": 2
+  },
+  "total": {
+    "passed": 9,
+    "total": 9
+  },
+  "results": [
+    {
+      "kind": "positive",
+      "label": "composite_is_product",
+      "passed": true,
+      "detail": {
+        "overlap_cut_pixel": 0
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "painter_overwrite_punches_hole",
+      "passed": true,
+      "detail": {
+        "overlap_cut_pixel": 255
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "boy_head_inside_band_and_knees_cut",
+      "passed": true,
+      "detail": {
+        "band": {
+          "aspect": 1.88,
+          "top": 0.23404255319148937,
+          "bottom": 0.7659574468085106
+        },
+        "head_y": 0.2765957446808511,
+        "knee_y": 0.7719574468085106
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "puss_head_not_above_boy_halfway",
+      "passed": true,
+      "detail": {
+        "puss_head_y": 0.5457446808505642,
+        "boy_halfway_y": 0.5212765957446809
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "mis_scaled_puss_fails_halfway_limit",
+      "passed": true,
+      "detail": {
+        "bad_head_y": 0.44664893616948814,
+        "boy_halfway_y": 0.5212765957446809,
+        "scale_multiplier": 1.45
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "stretch_is_one_connected_silhouette",
+      "passed": true,
+      "detail": {
+        "material_components": 1,
+        "largest_component_px": 14303,
+        "leg_light_gap_px": 7
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "stretch_legs_have_light_between_them",
+      "passed": true,
+      "detail": {
+        "material_components": 1,
+        "largest_component_px": 14303,
+        "leg_light_gap_px": 7
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "two_puppet_hold_is_one_cell",
+      "passed": true,
+      "detail": {
+        "cells": [
+          0
+        ]
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "sdf_8192_and_bluruv_zero",
+      "passed": true,
+      "detail": {
+        "atlas_px": [
+          8192,
+          8192
+        ],
+        "encoding": "signed_distance",
+        "BlurUV": 0.0
+      }
+    }
+  ],
+  "claims": [
+    {
+      "tier": "measured",
+      "claim": "All positive and negative PG5 controls below ran offline.",
+      "evidence": "Tools/ShadowGobo/Puppets/test_boy_puss_composite_offline.py:24-135"
+    },
+    {
+      "tier": "inferred",
+      "claim": "Silhouette connectivity and leg-gap metrics support readability; Gary's eye remains the look authority.",
+      "evidence": "Tools/ShadowGobo/Puppets/clip_boy_puss_rub/stretch_pose_preview.png"
+    }
+  ]
+}
