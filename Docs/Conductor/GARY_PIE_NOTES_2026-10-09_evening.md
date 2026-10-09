@@ -1,0 +1,19 @@
+# Gary's PIE notes — 9 Oct evening (Conductor 5)
+
+| # | Where | Note (Gary) | Route |
+|---|---|---|---|
+| E1 | S3 figures | underwear colour unchanged; feet sunk in dune; hessian shrouds BLACK/shiny/untextured; one figure without shroud; T-shirts white; a figure looks translucent | read-only diag (blocked by PIE; rerun) |
+| E2 | S3 pearl | disappears at ~3:25 with a brief ghost — must fade over 2 s | diag + fix |
+| E3 | Opening | curtain falls twice → ONE fall at 00:37:50 then hold; dark before except subtle lighting; camera wider then slow move-in after the fall; flashes first, add stage-front uplights; bulbs scattered randomly on floor | Codex 87 (done, review) |
+| E4 | Proscenium | greenscreen fringe on new front-stage wings | Codex 88 |
+| E5 | I1 | curtain must be hung before the shadow spot fades up (also I3/I4/I5) | Codex 89 (done, review) |
+| E6 | I1 / P02 entry | camera too zoomed on curtain (just fill frame); lighting jump at ~0:50 sleight cut; 20 s camera lowering into P02 | Codex 90 |
+| E7 | I2 (reference) | ~0:50 zooms in too close then out; after curtain drop the camera doesn't travel through the curtain plane into P03's opening frame | Codex 90b |
+| E8 | P02 | lighting should start = P01 (tool ready, Q7/Q10); practicals dangling + old domestic lamps not removed (P01 floor tool has a passage arg) | live runs after PIE |
+| E9 | P02 | Top wings look backwards | Codex 91 (diag) |
+| E10 | S2 | raise the rig + hangar height AND widen so Klara's S2 scene fits fully, not cutting our ceiling | Codex 92 |
+| E11 | P03 | wings: interleave the 3 old square wings with the green ones along depth; P03 lacks the shiny floor | Codex 93 |
+| E12 | P03→S3 | hangar behind the ragged curtain lit/visible → must be DARK; fires/smoke visible early → spawn only when the scene is dark and become visible when brought in at scene start; S3 arrival is dim not dark — figures visible, more pop in; lighting brightens before the spawn completes | Codex 94 |
+| E13 | Passage end → Scene start | detectable rig-position jump even with dog view at default (also: free dog view should ease back to default over a few seconds before) | Codex 95 (see memory puss-gait-bob-biased) |
+| E14 | Cue Desk | rehearsal bar timeline (job 86) ready for a 20–30 min build window | after PIE |
+| E15 | Interlude | Unreal Nap label → "Interlude: Puss Sleep/Wet Tennis Ball/Battery" | small rename, after diag |
