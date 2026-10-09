@@ -1,0 +1,10 @@
+{
+  "name": "call_tool",
+  "arguments": {
+    "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+    "tool_name": "ExecuteProjectPythonFile",
+    "arguments": {
+      "relativeSavedPath": "CodexConductor/I2Polish_20261009/i2_boundary_probe.py"
+    }
+  }
+}
