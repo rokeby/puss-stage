@@ -425,3 +425,53 @@ if __name__ == "__main__":
     small = [f.resize((350, 450), Image.LANCZOS) for f in frames]
     small[0].save(out / "boy_demo.gif", save_all=True, append_images=small[1:], duration=125, loop=0)
     print("frames", len(frames), "->", out)
+
+
+# ------------------------------------------------------------------------------------------------ clips for the gobo
+# A clip = list of (seconds, pose, move_frames).  Rendered at the clip fps WITHOUT wobble (the wobble is live in UE);
+# identical frames are de-duplicated by the packer, so holds and repeated rub poses cost one atlas cell each.
+RUB_A = dict(HEAD_IN_HANDS, near_hand_on_head=(772.0, 462.0), far_hand_on_head=(756.0, 512.0))
+RUB_B = dict(HEAD_IN_HANDS, near_hand_on_head=(766.0, 486.0), far_hand_on_head=(762.0, 496.0))
+SOB = {"eyes": "squint", "brows": "worried", "mouth": "blubber"}
+
+
+def rubbing_eyes_clip():
+    keys = [(0.0, P(), 1),
+            (1.0, P(face={"brows": "worried", "mouth": "sad"}), 2),
+            (2.0, P(neck=8.0, face=dict(SOB)), 3),
+            (3.0, P(**RUB_A, face=dict(SOB, eyes="shut")), 3)]
+    t = 3.5
+    for k in range(8):                                  # rub, rub, rub...
+        keys.append((t, P(**(RUB_B if k % 2 == 0 else RUB_A), face=dict(SOB, eyes="shut")), 2))
+        t += 0.25
+    keys += [(5.5, P(neck=10.0, face=dict(SOB, eyes="shut", tears=[0.0])), 3),
+             (7.6, P(neck=14.0, face={"eyes": "shut", "brows": "worried", "mouth": "sad"}), 3)]
+    return keys, 9.0
+
+
+def clip_frames(keys, length, fps=8, tear_rate=0.45, tear_step=0.125):
+    poses = []
+    for i in range(int(round(length * fps))):
+        t = i / fps
+        k = max(j for j in range(len(keys)) if keys[j][0] <= t + 1e-9)
+        a = keys[k - 1][1] if k > 0 else keys[0][1]
+        b, mf = keys[k][1], keys[k][2]
+        u = min(1.0, (round((t - keys[k][0]) * fps) + 1) / float(mf)) if k > 0 else 1.0
+        pose = lerp_pose(a, b, u)
+        if pose["face"].get("tears"):
+            held = t - keys[k][0]
+            pose["face"] = dict(pose["face"])
+            pose["face"]["tears"] = [min(1.0, math.floor((tt + held * tear_rate) / tear_step) * tear_step)
+                                     for tt in pose["face"]["tears"]]
+        poses.append(pose)
+    return poses
+
+
+def render_clip(keys, length, out, fps=8, window=(540.0, 560.0, 1450.0), cell_px=640):
+    """Sharp transmission frames (white = light passes) of a square world window, one PNG per clip frame."""
+    cx, cy, size = window
+    view = dict(x0=cx - size / 2, y0=cy - size / 2, scale=cell_px / size, w=cell_px, h=cell_px)
+    out.mkdir(parents=True, exist_ok=True)
+    for i, pose in enumerate(clip_frames(keys, length, fps)):
+        render_pose(pose, ss=2, view=view).save(out / ("f%04d.png" % i))
+    return fps

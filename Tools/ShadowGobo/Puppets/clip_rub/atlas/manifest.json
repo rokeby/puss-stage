@@ -1,0 +1,162 @@
+{
+  "schema_version": 2,
+  "generator": "Tools/ShadowGobo/pack_rig_flipbook.py",
+  "name": "BoyRub",
+  "take": {
+    "fps": 8.0,
+    "frames_packed": 22,
+    "frames_rendered": 72,
+    "duration_s": 9.0
+  },
+  "atlas": {
+    "file": "T_Gobo_BoyRub_5x5.png",
+    "px": [
+      4096,
+      4096
+    ],
+    "cols": 5,
+    "rows": 5,
+    "cell_px": 819,
+    "gutter_px": 8,
+    "order": "row-major from the top-left",
+    "channels": {
+      "R": "sharp",
+      "G": "blur sigma 9.64 px",
+      "B": "unused"
+    }
+  },
+  "light_function_params": {
+    "Cols": 5.0,
+    "Rows": 5.0,
+    "Frames": 22.0,
+    "GutterUV": 0.009768009768009768,
+    "CellUV": 0.199951171875
+  },
+  "schedule": [
+    [
+      0.0,
+      0
+    ],
+    [
+      1.0,
+      1
+    ],
+    [
+      2.0,
+      2
+    ],
+    [
+      2.125,
+      3
+    ],
+    [
+      2.25,
+      4
+    ],
+    [
+      3.0,
+      5
+    ],
+    [
+      3.125,
+      6
+    ],
+    [
+      3.25,
+      7
+    ],
+    [
+      3.5,
+      8
+    ],
+    [
+      3.75,
+      7
+    ],
+    [
+      4.0,
+      8
+    ],
+    [
+      4.25,
+      7
+    ],
+    [
+      4.5,
+      8
+    ],
+    [
+      4.75,
+      7
+    ],
+    [
+      5.0,
+      8
+    ],
+    [
+      5.25,
+      7
+    ],
+    [
+      5.5,
+      9
+    ],
+    [
+      5.625,
+      10
+    ],
+    [
+      5.75,
+      11
+    ],
+    [
+      5.875,
+      12
+    ],
+    [
+      6.125,
+      13
+    ],
+    [
+      6.375,
+      14
+    ],
+    [
+      6.625,
+      15
+    ],
+    [
+      7.0,
+      16
+    ],
+    [
+      7.25,
+      17
+    ],
+    [
+      7.5,
+      18
+    ],
+    [
+      7.625,
+      19
+    ],
+    [
+      7.75,
+      20
+    ],
+    [
+      7.875,
+      21
+    ]
+  ],
+  "texture_settings": {
+    "compression": "TC_BC7",
+    "sRGB": false,
+    "mip_gen": "NoMipmaps",
+    "never_stream": true,
+    "filter": "Bilinear",
+    "address": "Clamp"
+  },
+  "sha256": "de71bdb725cedbc133d0150c9cb4e2434e8f94cb072826c01bdb14719fa406bd"
+}
