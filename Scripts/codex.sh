@@ -102,6 +102,9 @@ echo "final message -> $LAST" >&2
 # "enabled=false" alone made a url-less server entry and codex refused to start ("invalid transport in
 # mcp_servers.unreal-mcp", Cueing cb1 launch 9 Oct 23:19; read-only runs were unaffected).
 [ "$LABEL" != "unreal" ] && EXTRA+=(-c 'mcp_servers.unreal-mcp.url="http://127.0.0.1:8010/mcp"' -c mcp_servers.unreal-mcp.enabled=false)
+# Reasoning effort: Gary 9 Oct "drop reasoning to medium" (usage). ~/.codex/config.toml keeps "high"; this launcher
+# overrides it for every stream. For a genuinely hard job: CODEX_EFFORT=high Scripts/codex.sh --worktree "...".
+EXTRA+=(-c "model_reasoning_effort=\"${CODEX_EFFORT:-medium}\"")
 T0=$(date +%s)
 set +e
 "$EXE" exec -C "$REPO" ${SANDBOX:+-s "$SANDBOX"} ${MODE:+$MODE} \
