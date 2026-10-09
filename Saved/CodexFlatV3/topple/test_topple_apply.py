@@ -137,6 +137,7 @@ class FakeOps:
         self.zz = []
         self.lying_setter = False
         self.extra_dirty_on_materialize = None
+        self.write_excluded_guid = None  # harness fault: mutate a row the plan explicitly excludes
         self.snapshots = {}
         self.posed = None
         self.restore_also = None      # harness fault: restore_rows also edits "attachment" (a target) or "nontarget"
@@ -247,6 +248,8 @@ class FakeOps:
                 if s.get("top_follows_mechanism") is False:
                     m["bTopFollowsMechanism"] = False
                 c["WingPair"]["LocalOverrideMask"] |= bits
+        if self.write_excluded_guid:
+            self._cue(self.write_excluded_guid)["WingPair"]["GapToNextCm"] += 1.0
         self.dirty["content"] = sorted(set(self.dirty["content"]) | {core.SHOW_PATH})
 
     def restore_rows(self, rows):
@@ -561,6 +564,91 @@ def t_make_plan():
     m2["api_probe"] = {"pass": False, "failures": ["CURVE_ROUNDTRIP"]}
     check(raises(lambda: mk.build(m2, slam_s=SLAM), "API_PROBE_NOT_PASSED"), "-control failed API probe")
     check(raises(lambda: mk.build(meas, slam_s=SLAM, lead_cm=3000.0), "GIVE_ONE_OF"), "-control both timings")
+    shutil.rmtree(here, ignore_errors=True)
+
+
+@test
+def t_excluded_rows_plan_dry_apply():
+    """Chain-B record excludes its R side as a whole row; A neither stills nor chains it and fingerprints it."""
+    here, show = fresh("tp_exclude")
+    excluded_guid = show.cues[2]["CueGuid"]
+    record_path = os.path.join(here, "chain_b_apply.json")
+    with open(record_path, "w", encoding="utf-8") as fh:
+        json.dump({"rows": [{"cue_guid": excluded_guid, "side": "R"}]}, fh)
+    dry_ops = FakeOps(show, here)
+    meas = app.run_dry(dry_ops, core, {"mode": "DRY", "exclude_from_record": record_path}, "EXDRY", here)
+    check(meas["exclude_rows"] == [excluded_guid] and meas["excluded_rows"][0]["requested_sides"] == ["R"],
+          "+control excluded whole row is listed in DRY with chain-B side provenance")
+    check(meas["still_preview"]["counts"]["exclude"] == 1 and
+          any("excluded=['P06 Wing 015:A0000002']" in x for x in dry_ops.logs),
+          "DRY preview/log explicitly lists one excluded row")
+    plan = mk.build(meas, slam_s=SLAM, sunset=SUNSET, exclude_from_record=record_path, exclude_base_dir=here)
+    carried = mk.build(meas, slam_s=SLAM, sunset=SUNSET)
+    check(carried["exclude_rows"] == [excluded_guid] and carried["inputs_hash"] == plan["inputs_hash"],
+          "make_keys carries the exclusions listed by DRY when no exclusion args are repeated")
+    with open(os.path.join(here, app.PLAN_NAME), "w", encoding="utf-8") as fh:
+        json.dump(plan, fh)
+    check(plan["exclude_rows"] == [excluded_guid] and plan["inputs"]["exclude_rows"] == [excluded_guid],
+          "plan and signed inputs carry the canonical exclude list")
+    check([x["action"] for x in plan["still"] if x["cue_guid"] == excluded_guid] == ["exclude"],
+          "excluded row is neither STILL nor chain")
+    before = show.cue_text(show.cues[2])
+    ops, _ = _apply(here, show, args={"exclude_from_record": record_path}, plan=plan, run="EXAPPLY")
+    check(show.cue_text(show.cues[2]) == before, "+control excluded row untouched by APPLY")
+    originals = json.load(open(json.load(open(os.path.join(here, app.ACTIVE_NAME)))["originals"]))
+    check(excluded_guid not in {r["cue_guid"] for r in originals["rows"]}, "excluded row absent from originals/write set")
+    rec = json.load(open(os.path.join(here, "topple_apply_EXAPPLY.json")))
+    fps = rec["excluded_row_fingerprints"]
+    check(fps["before"] == fps["after_write"] == fps["before_save"] == fps["after_save"] and
+          excluded_guid in fps["before"],
+          "excluded full-cue fingerprint unchanged after write, pre-save and post-save read-back")
+    check(any("excluded=1 fingerprint=unchanged" in x for x in ops.logs if "_APPLY_OK" in x),
+          "APPLY_OK reports excluded fingerprint success")
+    shutil.rmtree(here, ignore_errors=True)
+
+
+@test
+def t_excluded_rows_controls():
+    here, show = fresh("tp_exclude_controls")
+    _, meas, legacy = dry_and_plan(here, show)
+    explicit_empty = mk.build(meas, slam_s=SLAM, sunset=SUNSET, exclude_rows=[])
+    explicit_empty["made"] = legacy["made"]  # isolate the payload from its wall-clock provenance field
+    check(json.dumps(explicit_empty, separators=(",", ":")) == json.dumps(legacy, separators=(",", ":")),
+          "+control legacy run and explicit empty excludes produce byte-identical plan JSON")
+    safe_guid = show.cues[2]["CueGuid"]
+    excluded = mk.build(meas, slam_s=SLAM, sunset=SUNSET, exclude_rows=[safe_guid])
+    check(excluded["inputs_hash"] != legacy["inputs_hash"] and
+          excluded["confirm_token"] != legacy["confirm_token"],
+          "+control exclude list changes the plan digest and confirm token")
+    chain_guid = legacy["chain"]["rows"][0]["cue_guid"]
+    keeper_guid = legacy["keeper"]["cue_guid"]
+    check(raises(lambda: mk.build(meas, slam_s=SLAM, sunset=SUNSET, exclude_rows=[chain_guid]),
+                 "EXCLUDED_ROW_CONFLICT"), "-control chain-A window/exclude conflict refused")
+    check(raises(lambda: mk.build(meas, slam_s=SLAM, sunset=SUNSET, exclude_rows=[keeper_guid]),
+                 "EXCLUDED_ROW_CONFLICT"), "-control keeper/exclude conflict refused")
+    check(raises(lambda: mk.build(meas, slam_s=SLAM, sunset=SUNSET,
+                                 exclude_rows=["FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"]),
+                 "EXCLUDED_ROW_UNKNOWN"), "-control unknown excluded GUID refused")
+    bad_record = os.path.join(here, "bad_chain_b.json")
+    with open(bad_record, "w", encoding="utf-8") as fh:
+        json.dump({"rows": [{"cue_guid": safe_guid, "side": "TOP"}]}, fh)
+    check(raises(lambda: core.resolve_exclusions(None, bad_record, here), "EXCLUDED_ROW_SIDE_INVALID"),
+          "-control chain-B record side outside L/R refused")
+    with open(os.path.join(here, app.PLAN_NAME), "w", encoding="utf-8") as fh:
+        json.dump(excluded, fh)
+    mismatch_ops = FakeOps(show, here)
+    check(raises(lambda: _apply(here, show, mismatch_ops, args={"exclude_rows": []}, plan=excluded,
+                                run="EXMISMATCH"), "EXCLUDED_ROWS_MISMATCH"),
+          "-control APPLY exclusion args must match the signed plan")
+    check("write" not in mismatch_ops.calls and "backup" not in mismatch_ops.calls,
+          "APPLY exclusion mismatch stops before backup or write")
+    ops = FakeOps(show, here)
+    ops.write_excluded_guid = safe_guid
+    check(raises(lambda: _apply(here, show, ops, args={"exclude_rows": [safe_guid]}, plan=excluded,
+                                run="EXFAULT"), "READBACK_FAILED"),
+          "-control an excluded-row write is caught before save")
+    check(any("EXCLUDED_ROW_CHANGED" in x for x in ops.errors) and "save_show" not in ops.calls,
+          "excluded-row fingerprint names the fault and nothing is saved")
     shutil.rmtree(here, ignore_errors=True)
 
 

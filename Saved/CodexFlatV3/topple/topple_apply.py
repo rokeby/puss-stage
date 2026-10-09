@@ -6,11 +6,13 @@ sliding towards the back"; the fall "just before sun goes dusk and be dusk lit" 
 
 Run only through topple_run.py (purges cached Saved modules, then runs this file) with topple_args.json:
   DRY     {"mode": "DRY", "confirm": "DRY TOPPLE P06"}                                          read-only, CLEAN census
+          Optional "exclude_rows": ["<cue-guid>"] and/or "exclude_from_record": "<chain-B.json>" excludes whole rows.
           FIRST every Passage's MechanismSound set -> topple_mechanism_sounds_<run>.json, then P06 ->
           topple_measurements.json (+ topple_dry_<run>.json). FLATV3_TOPPLE_MECHSOUND_DONE / FLATV3_TOPPLE_DRY_OK|run=..
   offline python make_keys.py --slam-s <P06 s> [...]   -> topple_plan.json (STILL + CHAIN) + the exact APPLY confirm
   APPLY   {"mode": "APPLY", "confirm": "APPLY TOPPLE <token>", "decided_by": "Gary ..."} (+ "pose_probe": false to
-          skip the in-editor pose probe; + "ack_next_row_intersection": true for --end floor)   Show + level write
+          skip the in-editor pose probe; + "ack_next_row_intersection": true for --end floor; exclusions may be
+          repeated or carried from the signed plan)                                                Show + level write
   REVERT  {"mode": "REVERT", "confirm": "REVERT TOPPLE <apply run id>"}   restores every written row from the originals
           (FIELD-SCOPED since 7 Oct: only Mechanism + LocalOverrideMask are restored and compared; see run_revert)
 One APPLY carries both parts (make_keys --parts still,chain | still | chain); a second APPLY is refused until REVERT,
@@ -20,7 +22,8 @@ Markers: FLATV3_TOPPLE_<MODE>_OK|run=<id>|..  /  FLATV3_TOPPLE_STOPPED|run=<id>|
 Tiers per claim: [decl] header/source we can read (cited), [bin] installed DLL strings, [prec] in-repo precedent call,
 [meas] read back from a live run (cited), [inf] inferred (why).
 
-STILL: PlaybackMode=Static, PhaseOffsetCycles=0 on every P06 row except the keeper and the chain rows. Static evaluates
+STILL: PlaybackMode=Static, PhaseOffsetCycles=0 on every P06 row except the keeper, chain rows and whole-row exclusions.
+  Static evaluates
   each side's curve at Phase = PhaseOffsetCycles (+ the section's Wing.PhaseBiasCycles), no time term [decl
   InfinityStagePassageActor.cpp:1410-1428]; the curve value is then the slide / angle fraction (:1459-1475). So
   "Static" alone is NOT rest: the live rows carry offsets like 0.333 on the undulation curve, i.e. a held 75 % slide
@@ -626,6 +629,17 @@ def _guard_start(ops, core, run, need_clean=True):
         _stop(ops, core, run, "DIRTY_CENSUS (another stream's unsaved work? refused) %s" % json.dumps(c))
 
 
+def _resolve_exclusions(ops, core, args, run, here, fallback=None):
+    """Resolve explicit/record exclusions, or carry the plan's signed list when APPLY args omit both fields."""
+    supplied = "exclude_rows" in args or bool(args.get("exclude_from_record"))
+    direct = args.get("exclude_rows") if supplied else list(fallback or ())
+    record = args.get("exclude_from_record") if supplied else None
+    try:
+        return core.resolve_exclusions(direct, record, here)
+    except core.PlanError as exc:
+        _stop(ops, core, run, str(exc))
+
+
 def run_dry(ops, core, args, run, here):
     _guard_start(ops, core, run)
     # FIRST: every Passage's mechanism-sound set, written to its own file before any P06 work can fail
@@ -646,19 +660,26 @@ def run_dry(ops, core, args, run, here):
     meas = dict([("mechanism_sounds", sounds)] + list(meas.items()))
     if not meas["rows"]:
         _stop(ops, core, run, "P06_NO_ROWS")
+    exclusions = _resolve_exclusions(ops, core, args, run, here)
+    try:
+        excluded_guids = core.validate_excluded_rows(exclusions, meas["rows"])
+    except core.PlanError as exc:
+        _stop(ops, core, run, str(exc))
     probe = ops.api_probe(meas["rows"][0]["mechanism_export"])
     tick = meas["tick"]
     keeper = core.default_keeper(meas["rows"], tick)
     keeper_guid = keeper["cue_guid"] if keeper else None
     wins, refusal_counts = core.eligible_windows(meas["rows"], core.N_ROWS, keeper_guid)
-    still, still_ref = core.still_plan(meas["rows"], keeper_guid, set())
+    still, still_ref = core.still_plan(meas["rows"], keeper_guid, set(), excluded_guids)
+    still_counts = {a: sum(1 for x in still if x["action"] == a) for a in ("still", "already_still", "keep")}
+    if excluded_guids:
+        still_counts["exclude"] = sum(1 for x in still if x["action"] == "exclude")
     meas.update({"run_id": run, "made": datetime.datetime.now().isoformat(timespec="seconds"), "api_probe": probe,
                  "proposed_keeper": None if keeper is None else {
                      "cue_guid": keeper_guid, "label": keeper["label"], "ordinal": keeper["ordinal"],
                      "pass_s": round(keeper["pass_frame"] / tick, 2)},
                  "candidates": wins, "eligible_windows": len(wins), "window_refusal_counts": refusal_counts,
-                 "still_preview": {"counts": {a: sum(1 for x in still if x["action"] == a)
-                                              for a in ("still", "already_still", "keep")}, "refusals": still_ref},
+                 "still_preview": {"counts": still_counts, "refusals": still_ref},
                  "table": [{"ordinal": r["ordinal"], "show_index": r["show_index"], "label": r["label"],
                             "L": r["sides"]["L"].get("mesh"), "R": r["sides"]["R"].get("mesh"),
                             "L_h_t_cm": [round(r["sides"]["L"].get("height_cm", 0), 1), round(r["sides"]["L"].get("thickness_cm", 0), 1)],
@@ -667,6 +688,13 @@ def run_dry(ops, core, args, run, here):
                             "offset": r["mechanism"].get("phase_offset_cycles"), "curve_at0": r.get("curve_at0"),
                             "station_cm": round(r["station_cm"], 1), "pass_s": round(r["pass_frame"] / tick, 3)}
                            for r in meas["rows"]]})
+    if excluded_guids:
+        by_guid = {r["cue_guid"]: r for r in meas["rows"]}
+        meas["exclude_rows"] = sorted(excluded_guids)
+        meas["excluded_rows"] = [{"cue_guid": e["cue_guid"], "label": by_guid[e["cue_guid"]]["label"],
+                                  "ordinal": by_guid[e["cue_guid"]]["ordinal"],
+                                  "requested_sides": e["sides"], "mechanism_sha": by_guid[e["cue_guid"]]["mechanism_sha"]}
+                                 for e in exclusions]
     end = ops.census()
     meas["dry_ok"] = bool(probe["pass"]) and end == {"content": [], "maps": []}
     _write_json(os.path.join(here, "topple_dry_%s.json" % run), meas)
@@ -676,9 +704,11 @@ def run_dry(ops, core, args, run, here):
     if not probe["pass"]:
         _stop(ops, core, run, "API_PROBE_FAILED %s (curve keys cannot be written from Python this way: STOP, see "
                               "topple_dry_%s.json api_probe)" % (probe["failures"], run))
-    ops.log("%s_DRY_OK|run=%s|rows=%d|eligible_windows=%d|keeper=%s|still=%s|probe=PASS|path=%s" % (
+    ops.log("%s_DRY_OK|run=%s|rows=%d|eligible_windows=%d|keeper=%s|still=%s|excluded=%s|probe=PASS|path=%s" % (
         core.MARK, run, len(meas["rows"]), len(wins), None if keeper is None else keeper["label"],
-        meas["still_preview"]["counts"], os.path.join(here, MEAS_NAME)))
+        meas["still_preview"]["counts"],
+        ["%s:%s" % (r["label"], r["cue_guid"][:8]) for r in meas.get("excluded_rows", [])],
+        os.path.join(here, MEAS_NAME)))
     return meas
 
 
@@ -689,6 +719,12 @@ def _live_window(core, meas, plan):
         return None, keeper
     start = [r["cue_guid"] for r in meas["rows"]].index(c["rows"][0]["cue_guid"])
     return core.window_report(meas["rows"], start, c["side"], c["n"], keeper), keeper
+
+
+def _excluded_fingerprints(core, excluded_guids, measured_rows, cue_texts):
+    """Full-cue SHA256 by GUID.  This is deliberately wider than Mechanism so exclusion means no row write at all."""
+    by_guid = {r["cue_guid"]: r for r in measured_rows}
+    return {g: _sha(cue_texts[by_guid[g]["show_index"]]) for g in sorted(excluded_guids)}
 
 
 def _check_rows(ops, core, write_rows, before_rows, override_bits):
@@ -792,15 +828,33 @@ def run_apply(ops, core, args, plan, run, here):
     if os.path.exists(os.path.join(here, ACTIVE_NAME)):
         _stop(ops, core, run, "UNREVERTED_APPLY_EXISTS %s (REVERT it first)" % _read_json(os.path.join(here, ACTIVE_NAME)))
     meas = ops.measure()
+    try:
+        planned_exclusions = core.resolve_exclusions(plan.get("exclude_rows"), None, here)
+        plan_excluded_guids = core.validate_excluded_rows(planned_exclusions, meas["rows"])
+    except core.PlanError as exc:
+        _stop(ops, core, run, str(exc))
+    requested_exclusions = _resolve_exclusions(ops, core, args, run, here, plan_excluded_guids)
+    try:
+        requested_excluded_guids = core.validate_excluded_rows(requested_exclusions, meas["rows"])
+    except core.PlanError as exc:
+        _stop(ops, core, run, str(exc))
+    if requested_excluded_guids != plan_excluded_guids:
+        _stop(ops, core, run, "EXCLUDED_ROWS_MISMATCH: APPLY=%s plan=%s" % (
+            sorted(requested_excluded_guids), sorted(plan_excluded_guids)))
     win, keeper = _live_window(core, meas, plan)
     if win is not None and win["refusals"]:
         _stop(ops, core, run, "WINDOW_REFUSED_LIVE %s" % win["refusals"])
-    live_inputs = core.inputs_for(meas, win, keeper)
+    chain_guids = [r["cue_guid"] for r in (plan.get("chain") or {"rows": []})["rows"]]
+    try:
+        core.require_no_excluded_conflict(plan_excluded_guids, keeper, chain_guids)
+    except core.PlanError as exc:
+        _stop(ops, core, run, str(exc))
+    live_inputs = core.inputs_for(meas, win, keeper, plan_excluded_guids)
     if core.inputs_hash(live_inputs) != plan["inputs_hash"]:
         _stop(ops, core, run, "PLAN_STALE: live measurement hash differs from topple_plan.json (re-run DRY + make_keys)")
     if any(meas["modulation"].get(k) for k in ("wing_modulation", "speed_shaped", "longitudinal_offset")):
         _stop(ops, core, run, "MODULATION_LIVE %s" % json.dumps(meas["modulation"]))
-    still_live, still_ref = (core.still_plan(meas["rows"], keeper, {r["cue_guid"] for r in (plan.get("chain") or {"rows": []})["rows"]})
+    still_live, still_ref = (core.still_plan(meas["rows"], keeper, set(chain_guids), plan_excluded_guids)
                              if "still" in plan["parts"] else ([], []))
     if still_ref:
         _stop(ops, core, run, "STILL_REFUSED_LIVE %s" % still_ref[:4])
@@ -810,13 +864,18 @@ def run_apply(ops, core, args, plan, run, here):
     if not probe["pass"]:
         _stop(ops, core, run, "API_PROBE_FAILED %s" % probe["failures"])
     write = [x for x in plan["still"] if x["action"] == "still"] + list((plan.get("chain") or {"rows": []})["rows"])
+    by_guid = {r["cue_guid"]: r for r in meas["rows"]}
+    texts_before = ops.cue_texts()
+    excluded_before = _excluded_fingerprints(core, plan_excluded_guids, meas["rows"], texts_before)
     if not write:
-        ops.log("%s_APPLY_NOOP|run=%s|nothing to write" % (core.MARK, run))
+        excluded_after = _excluded_fingerprints(core, plan_excluded_guids, meas["rows"], ops.cue_texts())
+        if excluded_after != excluded_before:
+            _stop(ops, core, run, "EXCLUDED_ROW_READBACK: %s" % sorted(plan_excluded_guids))
+        ops.log("%s_APPLY_NOOP|run=%s|nothing to write|excluded=%d fingerprint=unchanged" % (
+            core.MARK, run, len(plan_excluded_guids)))
         return {}
     guids = [r["cue_guid"] for r in write]
-    by_guid = {r["cue_guid"]: r for r in meas["rows"]}
     bits = (core.OVERRIDE_MECHANISM_RATE | core.OVERRIDE_MECHANISM_PHASE) if args.get("override_flags") else 0
-    texts_before = ops.cue_texts()
     before_rows = {g: ops.read_row(g) for g in guids}
     for r in write:   # the read-back comparison must be computable BEFORE anything is written
         core.cue_text_outside_mechanism(texts_before[by_guid[r["cue_guid"]]["show_index"]])
@@ -847,6 +906,10 @@ def run_apply(ops, core, args, plan, run, here):
                 bad.append("TARGET_CUE_CHANGED_OUTSIDE_MECHANISM index %d" % i)
         elif a != b:
             bad.append("NONTARGET_CUE_CHANGED index %d" % i)
+    excluded_after_write = _excluded_fingerprints(core, plan_excluded_guids, meas["rows"], texts_after)
+    if excluded_after_write != excluded_before:
+        bad.append("EXCLUDED_ROW_CHANGED %s" % sorted(g for g in plan_excluded_guids
+                                                      if excluded_after_write.get(g) != excluded_before.get(g)))
     bad += _check_rows(ops, core, write, before_rows, bits)
     if bad:
         try:
@@ -889,6 +952,10 @@ def run_apply(ops, core, args, plan, run, here):
         _stop(ops, core, run, "DIRTY_SCOPE %s (expected Show (+ level) only)" % json.dumps(cen))
     if ops.zz_actors():
         _stop(ops, core, run, "ZZ_ACTORS_APPEARED %s" % ops.zz_actors())
+    excluded_before_save = _excluded_fingerprints(core, plan_excluded_guids, meas["rows"], ops.cue_texts())
+    if excluded_before_save != excluded_before:
+        _stop(ops, core, run, "PRE_SAVE_EXCLUDED_ROW_READBACK %s" % sorted(
+            g for g in plan_excluded_guids if excluded_before_save.get(g) != excluded_before.get(g)))
     if not ops.save_show():
         _stop(ops, core, run, "SHOW_SAVE_FALSE")
     if not ops.save_level():
@@ -899,17 +966,26 @@ def run_apply(ops, core, args, plan, run, here):
     bad = _check_rows(ops, core, write, before_rows, bits)
     if bad:
         _stop(ops, core, run, "POST_SAVE_READBACK %s" % bad[:6])
+    excluded_after_save = _excluded_fingerprints(core, plan_excluded_guids, meas["rows"], ops.cue_texts())
+    if excluded_after_save != excluded_before:
+        _stop(ops, core, run, "POST_SAVE_EXCLUDED_ROW_READBACK %s" % sorted(
+            g for g in plan_excluded_guids if excluded_after_save.get(g) != excluded_before.get(g)))
     after = {g: _sha(ops.read_row(g)["mech_text"]) for g in guids}
     after_mask = {g: int(ops.read_row(g)["mask"]) for g in guids}   # REVERT's DRIFT check (field-scoped, 7 Oct)
-    _write_json(os.path.join(here, "topple_apply_%s.json" % run),
-                {"run_id": run, "originals": orig_path, "backup_dir": backup_dir, "parts": plan["parts"],
-                 "rows": [r["label"] for r in write], "after_mech_sha": after, "after_mask": after_mask,
-                 "census_after": cen,
-                 "pose_probe": pose, "rest_after_materialize": rest,
-                 "chain_timing": (c or {}).get("timing"), "saved": [core.SHOW_PATH, core.WORLD_PATH]})
-    ops.log("%s_APPLY_OK|run=%s|parts=%s|still=%d|chain=%s|saved=show,level|census=clean|originals=%s" % (
+    apply_record = {"run_id": run, "originals": orig_path, "backup_dir": backup_dir, "parts": plan["parts"],
+                    "rows": [r["label"] for r in write], "after_mech_sha": after, "after_mask": after_mask,
+                    "census_after": cen, "pose_probe": pose, "rest_after_materialize": rest,
+                    "chain_timing": (c or {}).get("timing"), "saved": [core.SHOW_PATH, core.WORLD_PATH]}
+    if plan_excluded_guids:
+        apply_record["exclude_rows"] = sorted(plan_excluded_guids)
+        apply_record["excluded_row_fingerprints"] = {"before": excluded_before, "after_write": excluded_after_write,
+                                                     "before_save": excluded_before_save,
+                                                     "after_save": excluded_after_save}
+    _write_json(os.path.join(here, "topple_apply_%s.json" % run), apply_record)
+    ops.log("%s_APPLY_OK|run=%s|parts=%s|still=%d|chain=%s|excluded=%d fingerprint=unchanged|saved=show,level|census=clean|originals=%s" % (
         core.MARK, run, "+".join(plan["parts"]), sum(1 for r in write if r["action"] == "still"),
-        "none" if not c else "%s:%s" % (c["side"], ",".join(r["label"] for r in c["rows"])), orig_path))
+        "none" if not c else "%s:%s" % (c["side"], ",".join(r["label"] for r in c["rows"])),
+        len(plan_excluded_guids), orig_path))
     return after
 
 

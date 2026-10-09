@@ -4,6 +4,7 @@
                       [--lead-min-m 25] [--lead-max-m 35] [--keeper <ordinal>|none] [--parts still,chain]
   python make_keys.py --lead-m 30 --candidate <k> ...          (time by camera lead instead of slam time)
   python make_keys.py --parts still                              (STILL only, no chain)
+  python make_keys.py ... --exclude-rows <cue-guid> [...] [--exclude-from-record <chain-B.json>]
 
 Inputs: topple_measurements.json (topple_apply.py DRY, live). Solver: topple_chain.py (N slabs, measured per-row
 heights, per-gap spacing and contact thickness; extends the 7 Oct topple_solver.py). Sunset: the daylight timeline in
@@ -91,7 +92,8 @@ def window_eval(meas, win, end, slam_s=None, lead_cm=None, sunset=None):
 
 
 def build(meas, slam_s=None, lead_cm=None, candidate="auto", n=core.N_ROWS, end="braced", side=None,
-          lead_min_cm=2500.0, lead_max_cm=3500.0, keeper="default", parts=("still", "chain"), sunset=None):
+          lead_min_cm=2500.0, lead_max_cm=3500.0, keeper="default", parts=("still", "chain"), sunset=None,
+          exclude_rows=None, exclude_from_record=None, exclude_base_dir=None):
     core.require(meas.get("dry_ok") is True, "DRY_NOT_OK")
     probe = meas.get("api_probe") or {}
     core.require(probe.get("pass") is True, "API_PROBE_NOT_PASSED: %s" % probe.get("failures"))
@@ -99,6 +101,15 @@ def build(meas, slam_s=None, lead_cm=None, candidate="auto", n=core.N_ROWS, end=
     core.require(parts, "NO_PARTS")
     rows, tick = meas["rows"], float(meas["tick"])
     by = {r["cue_guid"]: r for r in rows}
+    if exclude_rows is None and not exclude_from_record and meas.get("exclude_rows"):
+        exclude_rows = meas["exclude_rows"]
+    exclusions = core.resolve_exclusions(exclude_rows, exclude_from_record, exclude_base_dir or HERE)
+    excluded_guids = core.validate_excluded_rows(exclusions, rows)
+    if "exclude_rows" in meas:
+        dry_exclusions = core.resolve_exclusions(meas.get("exclude_rows"), None, exclude_base_dir or HERE)
+        dry_excluded_guids = core.validate_excluded_rows(dry_exclusions, rows)
+        core.require(excluded_guids == dry_excluded_guids, "EXCLUDED_ROWS_MISMATCH: plan=%s DRY=%s" % (
+            sorted(excluded_guids), sorted(dry_excluded_guids)))
     if keeper == "default":
         k = core.default_keeper(rows, tick)
         keeper_guid = k["cue_guid"] if k else None
@@ -173,14 +184,19 @@ def build(meas, slam_s=None, lead_cm=None, candidate="auto", n=core.N_ROWS, end=
                      "contact_deg": res["contact_deg"], "timing": tm, "flags": w["flags"]}
             refusals += tm["refusals"]
     chain_guids = [r["cue_guid"] for r in chain["rows"]] if chain else []
-    still, still_ref = (core.still_plan(rows, keeper_guid, set(chain_guids)) if "still" in parts else ([], []))
+    core.require_no_excluded_conflict(excluded_guids, keeper_guid, chain_guids)
+    still, still_ref = (core.still_plan(rows, keeper_guid, set(chain_guids), excluded_guids)
+                        if "still" in parts else ([], []))
     refusals += still_ref
     inputs = core.inputs_for(meas, ({"side": chain["side"], "cue_guids": chain_guids, "brace": chain["brace"]}
-                                    if chain else None), keeper_guid)
+                                    if chain else None), keeper_guid, excluded_guids)
     h = core.inputs_hash(inputs)
     with open(SOLVER, "rb") as fh:
         solver_sha = hashlib.sha256(fh.read()).hexdigest()
     keeper_row = by.get(keeper_guid)
+    counts = {a: sum(1 for x in still if x["action"] == a) for a in ("still", "already_still", "keep", "chain")}
+    if excluded_guids:
+        counts["exclude"] = sum(1 for x in still if x["action"] == "exclude")
     doc = {"tool": "make_keys.py", "made": datetime.datetime.now().isoformat(timespec="seconds"),
            "dry_run_id": meas["run_id"], "parts": list(parts), "inputs": inputs, "inputs_hash": h,
            "confirm_token": core.confirm_token(parts, chain["side"] if chain else None, chain_guids, h),
@@ -189,13 +205,18 @@ def build(meas, slam_s=None, lead_cm=None, candidate="auto", n=core.N_ROWS, end=
                "pass_s": round(keeper_row["pass_frame"] / tick, 2), "station_cm": round(keeper_row["station_cm"], 1),
                "mechanism": keeper_row["mechanism"],
                "meshes": [keeper_row["sides"][s].get("mesh") for s in core.SIDES]},
-           "still": still, "still_counts": {a: sum(1 for x in still if x["action"] == a)
-                                            for a in ("still", "already_still", "keep", "chain")},
+           "still": still, "still_counts": counts,
            "chain": chain, "window_table": table, "solver": {"path": SOLVER, "sha256": solver_sha,
                                                              "extension": os.path.join(HERE, "topple_chain.py")},
            "request": {"slam_s": slam_s, "lead_cm": lead_cm, "n": n, "end": end, "side": side,
                        "candidate": candidate, "lead_range_cm": [lead_min_cm, lead_max_cm]},
            "refusals": refusals, "gates_ok": not refusals}
+    if excluded_guids:
+        doc["exclude_rows"] = sorted(excluded_guids)
+        doc["excluded"] = [{"cue_guid": e["cue_guid"], "label": by[e["cue_guid"]]["label"],
+                            "ordinal": by[e["cue_guid"]]["ordinal"], "requested_sides": e["sides"]}
+                           for e in exclusions]
+        doc["request"]["exclude_rows"] = sorted(excluded_guids)
     return doc
 
 
@@ -213,6 +234,10 @@ def main(argv=None):
     ap.add_argument("--lead-max-m", type=float, default=35.0)
     ap.add_argument("--keeper", default="default")
     ap.add_argument("--parts", default="still,chain")
+    ap.add_argument("--exclude-rows", nargs="*", default=None,
+                    help="whole-row cue GUID exclusions (Mechanism is shared by L/R)")
+    ap.add_argument("--exclude-from-record", default=None,
+                    help="chain-B JSON containing rows[{cue_guid, side}]")
     a = ap.parse_args(argv)
     with open(a.measurements, "r", encoding="utf-8") as fh:
         meas = json.load(fh)
@@ -221,7 +246,8 @@ def main(argv=None):
         with open(SUNSET_DRY, "r", encoding="utf-8") as fh:
             sunset = json.load(fh).get("timeline")
     doc = build(meas, a.slam_s, None if a.lead_m is None else a.lead_m * 100.0, a.candidate, a.n, a.end, a.side,
-                a.lead_min_m * 100.0, a.lead_max_m * 100.0, a.keeper, tuple(a.parts.split(",")), sunset)
+                a.lead_min_m * 100.0, a.lead_max_m * 100.0, a.keeper, tuple(a.parts.split(",")), sunset,
+                a.exclude_rows, a.exclude_from_record, HERE)
     with open(a.out, "w", encoding="utf-8") as fh:
         json.dump(doc, fh, indent=1)
     print("TOPPLE_PLAN|out=%s|parts=%s|gates_ok=%s|still=%s" % (a.out, "+".join(doc["parts"]), doc["gates_ok"],
@@ -229,6 +255,9 @@ def main(argv=None):
     if doc["keeper"]:
         print("  keeper: %s (ordinal %d, camera passes %.1f s) %s" % (doc["keeper"]["label"], doc["keeper"]["ordinal"],
                                                                      doc["keeper"]["pass_s"], doc["keeper"]["meshes"]))
+    for r in doc.get("excluded", []):
+        print("  EXCLUDED whole row: %s ordinal %d guid=%s requested_sides=%s" % (
+            r["label"], r["ordinal"], r["cue_guid"], r["requested_sides"] or "explicit GUID"))
     for r in doc["window_table"]:
         print("  window %s%02d lead %6.1f m creak %6.2f s impact %6.2f s share %.3f%s %s" % (
             r["side"], r["start_ordinal"], r["lead_m_at_creak"], r["creak_s"], r["final_impact_s"],

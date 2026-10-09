@@ -32,6 +32,7 @@ Facts this file encodes
 import hashlib
 import json
 import math
+import os
 
 MARK = "FLATV3_TOPPLE"
 SHOW_PATH = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"              # p6_ceiling_off.py:11 [prec, ran 4 Oct]
@@ -109,6 +110,75 @@ def validate_args(args, plan_doc=None, originals_doc=None):
         if hits and not args.get("ack_next_row_intersection"):
             raise PlanError("NEXT_ROW_INTERSECTION_NOT_ACKED: %s" % json.dumps(hits))
     return mode
+
+
+def _canonical_guid(value):
+    guid = str(value or "").strip().strip("{}").replace("-", "").upper()
+    require(len(guid) == 32 and all(c in "0123456789ABCDEF" for c in guid),
+            "EXCLUDED_ROW_GUID_INVALID: %r" % value)
+    return guid
+
+
+def resolve_exclusions(exclude_rows=None, exclude_from_record=None, base_dir=None):
+    """Canonical whole-row exclusions from explicit GUIDs and/or a chain-B record.
+
+    A record must contain rows[{cue_guid, side}].  Side is retained for reporting only: Mechanism is one struct per
+    WingPair row, so either side excludes the whole row.  The return order is GUID-sorted so plan digests do not depend
+    on argument or record ordering.
+    """
+    require(exclude_rows is None or isinstance(exclude_rows, (list, tuple)),
+            "EXCLUDE_ROWS_NOT_LIST: %r" % type(exclude_rows).__name__)
+    found = {}
+
+    def add(guid_value, side, source):
+        guid = _canonical_guid(guid_value)
+        item = found.setdefault(guid, {"cue_guid": guid, "sides": [], "sources": []})
+        if side is not None:
+            side = str(side).strip().upper()
+            require(side in SIDES, "EXCLUDED_ROW_SIDE_INVALID: %s side=%r" % (guid, side))
+            if side not in item["sides"]:
+                item["sides"].append(side)
+        if source not in item["sources"]:
+            item["sources"].append(source)
+
+    for value in exclude_rows or []:
+        require(not isinstance(value, dict), "EXCLUDE_ROWS_EXPECT_GUIDS: %r" % value)
+        add(value, None, "exclude_rows")
+    if exclude_from_record:
+        path = os.fspath(exclude_from_record)
+        if not os.path.isabs(path):
+            path = os.path.join(base_dir or os.getcwd(), path)
+        path = os.path.abspath(path)
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                record = json.load(fh)
+        except Exception as exc:  # noqa: BLE001 -- convert transport/file errors into a refusal with the exact path
+            raise PlanError("EXCLUDE_RECORD_READ_FAILED: %s: %s" % (path, exc))
+        rows = record.get("rows") if isinstance(record, dict) else None
+        require(isinstance(rows, list), "EXCLUDE_RECORD_ROWS_INVALID: %s" % path)
+        for i, row in enumerate(rows):
+            require(isinstance(row, dict) and row.get("cue_guid") and row.get("side") is not None,
+                    "EXCLUDE_RECORD_ROW_INVALID: %s rows[%d]" % (path, i))
+            add(row["cue_guid"], row["side"], "exclude_from_record")
+    for item in found.values():
+        item["sides"].sort()
+        item["sources"].sort()
+    return [found[g] for g in sorted(found)]
+
+
+def validate_excluded_rows(exclusions, rows):
+    """Require every exclusion to identify exactly one measured P06 row; return the canonical GUID set."""
+    known = [r["cue_guid"] for r in rows]
+    require(len(known) == len(set(known)), "P06_CUE_GUIDS_NOT_UNIQUE")
+    out = {e["cue_guid"] for e in exclusions}
+    unknown = sorted(out - set(known))
+    require(not unknown, "EXCLUDED_ROW_UNKNOWN: %s" % unknown)
+    return out
+
+
+def require_no_excluded_conflict(excluded_guids, keeper_guid=None, chain_guids=()):
+    conflicts = sorted(set(excluded_guids) & ({keeper_guid} | set(chain_guids)))
+    require(not conflicts, "EXCLUDED_ROW_CONFLICT: %s" % conflicts)
 
 
 def confirm_token(parts, side, guids, inputs_hash):
@@ -518,13 +588,16 @@ def default_keeper(rows, tick, dark_s=52.0):
     return best
 
 
-def still_plan(rows, keeper_guid, chain_guids):
-    """Per P06 row: still (Static + PhaseOffsetCycles 0), keep (keeper), chain, or already_still.
+def still_plan(rows, keeper_guid, chain_guids, excluded_guids=None):
+    """Per P06 row: still, keep, chain, exclude, or already_still.
     Refuses a row whose curves are not ~0 at phase 0 (it would hold a pose)."""
     plan, refusals = [], []
+    excluded_guids = set(excluded_guids or ())
     for r in rows:
         g = r["cue_guid"]
-        if g == keeper_guid:
+        if g in excluded_guids:
+            plan.append({"cue_guid": g, "label": r["label"], "action": "exclude"})
+        elif g == keeper_guid:
             plan.append({"cue_guid": g, "label": r["label"], "action": "keep"})
         elif g in chain_guids:
             plan.append({"cue_guid": g, "label": r["label"], "action": "chain"})
@@ -543,7 +616,7 @@ def _r(x, nd=3):
     return round(float(x), nd)
 
 
-def inputs_for(meas, window=None, keeper_guid=None):
+def inputs_for(meas, window=None, keeper_guid=None, excluded_guids=None):
     """Everything the plan was computed from; APPLY recomputes it live and compares the hash. Every P06 row's
     mechanism hash is included, so any edit anywhere in P06 after DRY makes the plan stale."""
     out = {"passage_guid": meas["passage_guid"], "tick": _r(meas["tick"], 6), "keeper": keeper_guid,
@@ -565,6 +638,9 @@ def inputs_for(meas, window=None, keeper_guid=None):
                                 "mesh": s["mesh"], "has_hinge_socket": bool(s["has_hinge_socket"]),
                                 "lateral_min_cm": _r(s["lateral_min_cm"]), "lateral_max_cm": _r(s["lateral_max_cm"])})
         out["brace"] = window.get("brace")
+    excluded_guids = sorted(set(excluded_guids or ()))
+    if excluded_guids:
+        out["exclude_rows"] = excluded_guids
     return out
 
 
