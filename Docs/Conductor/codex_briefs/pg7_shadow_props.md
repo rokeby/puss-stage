@@ -76,3 +76,5 @@ open questions for Gary (e.g. who holds the bucket; whether the page shows the n
 So the bucket enters on its own stick (from above or the side of the band), tips and pours onto the boy, and the
 water/splash is a sequence of different splash cut-outs (replacement shapes), not a simulated fluid. Review PG7
 against this.
+- Gary, 9 Oct: "the boots are little, the size for puss's shadow's feet" — each boot is sized to fit Puss's own
+  paw/leg in the composite (boot height ~ Puss's foreleg length, foot ~ his paw), NOT human-sized cavalier boots.
