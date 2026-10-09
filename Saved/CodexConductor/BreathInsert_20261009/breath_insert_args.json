@@ -1,0 +1,23 @@
+{
+  "mode": "DRY",
+  "run_id": "BREATH-CHOOSE-UNIQUE-RUN",
+  "confirm": "DRY BREATH BREATH-CHOOSE-UNIQUE-RUN",
+  "params": {
+    "passage_guid": "REPLACE_WITH_EXACT_PASSAGE_GUID",
+    "passage_offset_frame": 0,
+    "insert_frames": 0,
+    "audio_apply_record": "E:/PussStage/Saved/CodexBreath/REPLACE/apply_record.json",
+    "look_yaw_degrees": 0.0,
+    "look_pitch_degrees": 0.0,
+    "ease_frames": 24000,
+    "changed_choreo_policy": "RIPPLE_CLASSIFIED",
+    "show_package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
+    "master_package": "/Game/InfinityStage/Dev/LS_InfinityStage_Master",
+    "level_package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+    "choreo_package": "/Game/REPLACE_WITH_CHANGED_PASSAGE_CHOREO",
+    "music_package": "/Game/REPLACE_WITH_REANALYSED_MUSIC_MAP",
+    "render_wrapper_package": "/Game/REPLACE_WITH_NAMED_RENDER_WRAPPER",
+    "rendered_sound_path": "/Game/REPLACE_WITH_IMPORTED_RENDERED_SOUNDWAVE",
+    "analysis_map_path": "/Game/REPLACE_WITH_REANALYSED_MUSIC_MAP"
+  }
+}

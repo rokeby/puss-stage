@@ -1,0 +1,59 @@
+{
+  "negative": {
+    "passed": 9,
+    "total": 9
+  },
+  "positive": {
+    "passed": 2,
+    "total": 2
+  },
+  "proof": "measured-offline fake backend; no Unreal/editor/rendered acceptance",
+  "results": [
+    {
+      "name": "+ synthetic 90s Passage, F=40%, D=6s plans exactly",
+      "status": "PASS"
+    },
+    {
+      "name": "+ DRY -> APPLY -> REVERT fake round trip is exact",
+      "status": "PASS"
+    },
+    {
+      "name": "- PIE running refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- dirty census refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- F outside Passage refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- D mismatch refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- straddling sub-section refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- existing breath overlap refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- unknown holder refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- locked marker refuses",
+      "status": "PASS"
+    },
+    {
+      "name": "- wrong confirm refuses",
+      "status": "PASS"
+    }
+  ],
+  "schema_version": 1,
+  "tool": "P36_BREATH"
+}
