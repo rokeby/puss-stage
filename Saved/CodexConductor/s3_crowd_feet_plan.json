@@ -1,0 +1,123 @@
+{
+ "level": {
+  "S3 Crowd 01 (from Shore04_F55)": {
+   "root_z": 90.9,
+   "new_z": 128.5,
+   "dz": 37.6,
+   "feet_off": -34.7
+  },
+  "S3 Crowd 02 (from Shore06_F25)": {
+   "root_z": 63.8,
+   "new_z": 135.8,
+   "dz": 72.0,
+   "feet_off": -34.2
+  },
+  "S3 Crowd 03 (from Shore04_F55)": {
+   "root_z": 104.3,
+   "new_z": 145.2,
+   "dz": 40.9,
+   "feet_off": -35.2
+  },
+  "S3 Crowd 04 (from Shore06_F25)": {
+   "root_z": 66.2,
+   "new_z": 116.1,
+   "dz": 49.9,
+   "feet_off": -34.5
+  },
+  "S3 Crowd 05 (from Shore06_F25)": {
+   "root_z": 82.0,
+   "new_z": 134.7,
+   "dz": 52.7,
+   "feet_off": -33.1
+  },
+  "S3 Crowd 06 (from Shore06_F25)": {
+   "root_z": 110.7,
+   "new_z": 176.0,
+   "dz": 65.3,
+   "feet_off": -33.8
+  },
+  "S3 Crowd 07 (from Shore04_F55)": {
+   "root_z": 149.6,
+   "new_z": 186.7,
+   "dz": 37.1,
+   "feet_off": -35.0
+  },
+  "S3 Crowd 08 (from Shore06_F25)": {
+   "root_z": -9.1,
+   "new_z": 40.7,
+   "dz": 49.8,
+   "feet_off": -33.9
+  },
+  "S3 Crowd 09 (from Shore03_M59)": {
+   "root_z": 5.6,
+   "new_z": 0.3,
+   "dz": -5.3,
+   "feet_off": 5.7
+  },
+  "S3 Crowd 10 (from Shore06_F25)": {
+   "root_z": -8.2,
+   "new_z": 42.7,
+   "dz": 50.9,
+   "feet_off": -35.1
+  },
+  "S3 Crowd 11 (from Shore06_F25)": {
+   "root_z": 6.3,
+   "new_z": 51.5,
+   "dz": 45.2,
+   "feet_off": -35.0
+  },
+  "S3 Crowd 12 (from Shore04_F55)": {
+   "root_z": 39.6,
+   "new_z": 69.4,
+   "dz": 29.8,
+   "feet_off": -34.4
+  },
+  "S3 Crowd 13 (from Shore06_F25)": {
+   "root_z": -3.0,
+   "new_z": 50.5,
+   "dz": 53.5,
+   "feet_off": -35.4
+  },
+  "S3 Crowd 14 (from Shore06_F25)": {
+   "root_z": 38.7,
+   "new_z": 92.8,
+   "dz": 54.1,
+   "feet_off": -34.5
+  },
+  "S3 Crowd 15 (from Shore04_F55)": {
+   "root_z": 66.6,
+   "new_z": 97.5,
+   "dz": 30.9,
+   "feet_off": -35.0
+  }
+ },
+ "ocean": {
+  "S3 Crowd 01 (from Shore04_F55)": {
+   "new_z": 38.8
+  },
+  "S3 Crowd 03 (from Shore04_F55)": {
+   "new_z": 53.0
+  },
+  "S3 Crowd 05 (from Shore06_F25)": {
+   "new_z": 75.1
+  },
+  "S3 Crowd 07 (from Shore04_F55)": {
+   "new_z": 37.4
+  },
+  "S3 Crowd 08 (from Shore06_F25)": {
+   "new_z": 26.9
+  },
+  "S3 Crowd 10 (from Shore06_F25)": {
+   "new_z": 35.0
+  },
+  "S3 Crowd 12 (from Shore04_F55)": {
+   "new_z": 27.4
+  },
+  "S3 Crowd 13 (from Shore06_F25)": {
+   "new_z": 39.1
+  },
+  "S3 Crowd 15 (from Shore04_F55)": {
+   "new_z": 28.0
+  }
+ }
+}
