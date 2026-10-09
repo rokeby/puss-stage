@@ -129,7 +129,7 @@ def t_material_spec():
     check("roughness wet lowers and soot raises via two lerps", U.ROUGH_CODE.count("lerp") == 2)
     check("normal strength is parameterised", "max(S,0.0)" in U.NORMAL_CODE)
     connected = {(e[0], e[2], e[3]) for e in spec["edges"]}
-    for expected in (("WeaveUV", "WeaveBase", "Coordinates"), ("StainUV", "StainTint", "Coordinates"),
+    for expected in (("WeaveUV", "WeaveBase", "UVs"), ("StainUV", "StainTint", "UVs"),
                      ("StainMask", "RoughOut", "M"), ("WeaveNormal", "NormalOut", "N")):
         check("graph edge " + "/".join(expected), expected in connected)
     check("master defaults match brief roughness", U.SCALAR_DEFAULTS["RoughnessDry"] == 0.85 and

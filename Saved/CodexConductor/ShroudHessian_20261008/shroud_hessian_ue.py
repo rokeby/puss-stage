@@ -158,8 +158,8 @@ def material_spec():
         ("UV0", "", "WeaveUV", "UV"), ("WeaveTiling", "", "WeaveUV", "S"),
         ("UV0", "", "StainUV", "UV"), ("StainOffset", "", "StainUV", "O"),
         ("StainRotate", "", "StainUV", "R"),
-        ("WeaveUV", "", "WeaveBase", "Coordinates"), ("WeaveUV", "", "WeaveNormal", "Coordinates"),
-        ("StainUV", "", "StainTint", "Coordinates"), ("StainUV", "", "StainMask", "Coordinates"),
+        ("WeaveUV", "", "WeaveBase", "UVs"), ("WeaveUV", "", "WeaveNormal", "UVs"),
+        ("StainUV", "", "StainTint", "UVs"), ("StainUV", "", "StainMask", "UVs"),
         ("WeaveBase", "RGB", "BaseOut", "W"), ("StainTint", "RGB", "BaseOut", "T"),
         ("WeaveTint", "", "BaseOut", "C"), ("StainTintStrength", "", "BaseOut", "S"),
         ("WeaveNormal", "RGB", "NormalOut", "N"), ("NormalStrength", "", "NormalOut", "S"),
@@ -606,7 +606,7 @@ def _template(bp_path):
     for handle in handles:
         obj = u.SubobjectDataBlueprintFunctionLibrary.get_object(
             u.SubobjectDataBlueprintFunctionLibrary.get_data(handle))
-        if obj is not None and str(obj.get_name()) == CLOTH_COMPONENT:
+        if obj is not None and str(obj.get_name()) in (CLOTH_COMPONENT, CLOTH_COMPONENT + "_GEN_VARIABLE"):  # [meas SHROUDBP 9 Oct] BP templates carry _GEN_VARIABLE
             objects.append(obj)
     unique = {_full(o): o for o in objects}
     require(len(unique) == 1, "TEMPLATE_COUNT|%s|%d" % (bp_path, len(unique)))
