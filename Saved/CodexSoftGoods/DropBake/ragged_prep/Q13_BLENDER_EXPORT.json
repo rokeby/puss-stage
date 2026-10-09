@@ -1,0 +1,108 @@
+{
+  "schema": "pussstage.q13_blender_export.v1",
+  "blender_version": "4.4.0",
+  "factory_startup": true,
+  "process_contract": "single Blender process imported source, exported held cache, and read it back; no rendering",
+  "rendering_performed": false,
+  "source_signature": {
+    "object_name": "Curtain_ragged_proscenium_p02",
+    "mesh_name": "Curtain_ragged_proscenium_p02",
+    "vertices": 43183,
+    "polygons": 42350,
+    "uv_layers": [
+      "UVMap"
+    ],
+    "attributes": [
+      {
+        "name": "position",
+        "domain": "POINT",
+        "data_type": "FLOAT_VECTOR"
+      },
+      {
+        "name": ".edge_verts",
+        "domain": "EDGE",
+        "data_type": "INT32_2D"
+      },
+      {
+        "name": "material_index",
+        "domain": "FACE",
+        "data_type": "INT"
+      },
+      {
+        "name": ".corner_vert",
+        "domain": "CORNER",
+        "data_type": "INT"
+      },
+      {
+        "name": ".corner_edge",
+        "domain": "CORNER",
+        "data_type": "INT"
+      },
+      {
+        "name": "UVMap",
+        "domain": "CORNER",
+        "data_type": "FLOAT2"
+      }
+    ],
+    "materials": [
+      "M_Curtain_ragged_proscenium_p02"
+    ]
+  },
+  "output_signature": {
+    "object_name": "Curtain_ragged_proscenium_p02",
+    "mesh_name": "Curtain_ragged_proscenium_p02",
+    "vertices": 43183,
+    "polygons": 42350,
+    "uv_layers": [
+      "UVMap"
+    ],
+    "attributes": [
+      {
+        "name": "position",
+        "domain": "POINT",
+        "data_type": "FLOAT_VECTOR"
+      },
+      {
+        "name": ".edge_verts",
+        "domain": "EDGE",
+        "data_type": "INT32_2D"
+      },
+      {
+        "name": "material_index",
+        "domain": "FACE",
+        "data_type": "INT"
+      },
+      {
+        "name": ".corner_vert",
+        "domain": "CORNER",
+        "data_type": "INT"
+      },
+      {
+        "name": ".corner_edge",
+        "domain": "CORNER",
+        "data_type": "INT"
+      },
+      {
+        "name": "UVMap",
+        "domain": "CORNER",
+        "data_type": "FLOAT2"
+      }
+    ],
+    "materials": [
+      "M_Curtain_ragged_proscenium_p02"
+    ]
+  },
+  "source_stream_max_error_m_at_450": 0.0,
+  "readback_max_error_m": {
+    "450": 0.0,
+    "665": 0.0,
+    "695": 0.0,
+    "1080": 0.0
+  },
+  "frame_range": [
+    450,
+    1080
+  ],
+  "fps": 30,
+  "success_marker": "Q13_BLENDER_EXPORT_READBACK_OK"
+}
