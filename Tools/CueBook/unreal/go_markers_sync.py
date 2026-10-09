@@ -49,7 +49,7 @@ EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 ARGS_NAME = "go_markers_sync_args.json"
 FLOAT_TOLERANCE = 1e-4
 GO_RE = re.compile(r"^\s*GO\s+([0-9]+(?:\.[0-9]+)?)(?:\s+(HOLD|PASS)\b)?(?:\s+(.*))?$")
-GO_FIELD_RE = re.compile(r"^([0-9]+(?:\.[0-9]+)?)(?:\s+(HOLD|PASS))?$")
+GO_FIELD_RE = re.compile(r"^([0-9]+(?:\.[0-9]+)?)(?:\s+(HOLD|PASS|BREATH))?$")
 TIME_FIELD_RE = re.compile(r"^[+]?(?:\d+(?:\.\d*)?|\.\d+)$")
 MARKER_FIELDS = ("frame", "label", "comment", "color", "use_custom_color", "fence", "inclusive")
 MARKER_DEFAULTS = {"comment": "", "color": [0.0, 0.0, 0.0, 0.0], "use_custom_color": False,
@@ -115,6 +115,10 @@ def cuebook_go_rows(payload):
         if not segment:
             raise PlanError("GO_WITHOUT_SEGMENT|cue=%s" % (cue.get("key") or ordinal))
         number, mode, label = parse_go_field(go)
+        if mode == "BREATH":
+            # A breath-pause point (design 0d2ae74). The transport parser only knows HOLD/PASS, so a BREATH
+            # marker would be read as a default HOLD: never written until the transport has a BREATH state.
+            continue
         if number in seen:
             raise PlanError("DUPLICATE_CUEBOOK_GO|%s" % number)
         seen.add(number)

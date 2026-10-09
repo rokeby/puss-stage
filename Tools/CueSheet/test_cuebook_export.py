@@ -91,15 +91,15 @@ class CueBookExportHarness(unittest.TestCase):
             with contextlib.redirect_stdout(stdout):
                 result = CUE.cuebook_export(str(source))
             fields, rows = CUE.load_csv(CUE.WORKING)
-            self.assertEqual(fields[-2:], ["At", "GO"])
+            self.assertEqual(fields[-3:], ["At", "GO", "Pause possible"])
             for field in old_fields:
                 self.assertEqual(rows[0].get(field, "").encode("utf-8"), old_row.get(field, "").encode("utf-8"),
                                  msg="old column changed: %s" % field)
             self.assertEqual((rows[0]["At"], rows[0]["GO"]), ("1:14.5", "20 PASS"))
             with open(CUE.EXPORT, encoding="utf-8", newline="") as handle:
                 export_rows = list(csv.reader(handle))
-            self.assertEqual(export_rows[0][-2:], ["At", "GO"])
-            self.assertEqual(export_rows[2][-2:], ["1:14.5", "20 PASS"])
+            self.assertEqual(export_rows[0][-3:], ["At", "GO", "Pause possible"])
+            self.assertEqual(export_rows[2][-3:-1], ["1:14.5", "20 PASS"])
             self.assertIn("CUE_SYNC_EXPORT_OK|cues=1|surtitles=0|changed_files=", stdout.getvalue())
             self.assertIn("Docs/CueSheet/working.csv", result["changed_files"])
 

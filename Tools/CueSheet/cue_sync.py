@@ -59,6 +59,7 @@ EXPORT = os.path.join(ROOT, 'Content', 'InfinityStage', 'CueSheet', 'Puss_Master
 DIRECTOR = 'Director notes'
 AT = 'At'
 GO = 'GO'
+PAUSE = 'Pause possible'   # 'yes' = an ambience moment where a pause is possible (Gary 9 Oct)
 WEB_BASELINE = os.path.join(DIR, 'web_baseline.json')
 WEB_REPORT = os.path.join(DIR, 'web_report.md')
 SURTITLES_EXPORT = os.path.join(ROOT, 'Content', 'InfinityStage', 'CueSheet', 'Puss_Surtitles.csv')
@@ -67,10 +68,12 @@ SEGMENT_MAP = os.path.join(ROOT, 'Tools', 'CueBook', 'segment_map.json')
 # page field -> working.csv column
 WEB_FIELDS = {'light': 'Light', 'soundTech': 'Sound tech', 'action': 'Action', 'soundCue': 'Sound cue',
               'videoCue': 'Video Cue', 'klara': 'Speaker: Klara', 'gary': 'Speaker: Gary',
-              'cameron': 'Speaker: Cameron', 'beats': 'Beats', 'notes': 'Notes', 'at': AT, 'go': GO}
+              'cameron': 'Speaker: Cameron', 'beats': 'Beats', 'notes': 'Notes', 'at': AT, 'go': GO,
+              'pause': PAUSE}
 CUT_MARK = '[CUT on the Cue Book]'
 TIME_FIELD = re.compile(r'^[+]?(?:\d+(?:\.\d*)?|\.\d+)$')
-GO_FIELD = re.compile(r'^([0-9]+(?:\.[0-9]+)?)(?:\s+(HOLD|PASS))?$')
+# BREATH = a breath-pause point (design 0d2ae74); the transport has no BREATH yet, so marker sync skips it.
+GO_FIELD = re.compile(r'^([0-9]+(?:\.[0-9]+)?)(?:\s+(HOLD|PASS|BREATH))?$')
 SURTITLE_FIELDS = ('segment', 'in', 'out', 'speaker', 'text', 'notes')
 SURTITLE_HEADERS = ('Segment', 'In', 'Out', 'Speaker', 'Text', 'Notes', 'Key')
 
@@ -102,7 +105,7 @@ def parse_go(text):
     raw = str(text).strip()
     match = GO_FIELD.fullmatch(raw)
     if match is None:
-        raise ValueError('bad GO %r (expected "<number> [HOLD|PASS]")' % text)
+        raise ValueError('bad GO %r (expected "<number> [HOLD|PASS|BREATH]")' % text)
     number, mode = match.groups()
     return number, mode, number + ((' ' + mode) if mode else '')
 
@@ -239,6 +242,8 @@ def validate_cuebook_docs(docs):
                 parse_go(go)
             if go and not at:
                 problems.append('%s: GO has no At time' % key)
+            if str(doc.get('pause') or '') not in ('', 'yes'):
+                problems.append('%s: pause must be yes or empty' % key)
         except ValueError as error:
             problems.append('%s: %s' % (key, error))
     if problems:
@@ -247,7 +252,7 @@ def validate_cuebook_docs(docs):
 
 def with_cuebook_fields(fields):
     """At/GO are Cue Book-only columns and are always appended, never inserted into the Sheet layout."""
-    return list(fields) + [name for name in (AT, GO) if name not in fields]
+    return list(fields) + [name for name in (AT, GO, PAUSE) if name not in fields]
 
 
 # ---------------------------------------------------------------- reading the Sheet
