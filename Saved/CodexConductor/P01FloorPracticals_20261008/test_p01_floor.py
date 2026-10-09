@@ -497,6 +497,17 @@ with tempfile.TemporaryDirectory() as tmp:
     rep = run_fake(be, tmp, "APPLY", confirm="APPLY P01FLOOR", plan_sha256=sha, expected_rows=174)
     rpath = os.path.join(tmp, "p01_floor_record.json")
     rec = json.load(open(rpath, encoding="utf-8"))
+    check("B3c APPLY record carries acked_overlap (Conductor 5's ack condition, 8 Oct)", isinstance(rec.get("acked_overlap"), dict))
+    # positive: an ACKED foreign record that mentions two of our rows + one foreign row lists exactly our two
+    _ours = sorted(planned)[:2]
+    _tmp_a = tempfile.mkdtemp()
+    be_a = FakeBackend(BASE, foreign=[{"path": "X/meshy_swap_record_P01.json", "guids": _ours + ["NOT_OURS_GUID"]}])
+    run_fake(be_a, _tmp_a, "APPLY", confirm="APPLY P01FLOOR", plan_sha256=sha, expected_rows=174,
+             ack_records=["X/meshy_swap_record_P01.json"])
+    _rec_a = json.load(open(os.path.join(_tmp_a, "p01_floor_record.json"), encoding="utf-8"))
+    _ov = (_rec_a.get("acked_overlap") or {}).get("X/meshy_swap_record_P01.json", {})
+    check("B3d acked_overlap lists exactly the acked record's rows that WE changed (2), never its other rows",
+          sorted(_ov.get("rows_we_changed", [])) == _ours, _ov)
     want = F.expected_after(json.loads(ORIGINAL), PLAN)
     disk_probs = F.scope_problems(json.loads(ORIGINAL), be.disk)
     check("B3 APPLY: record saved_readback_verified, saved rows == planned rows exactly, only the 174 planned rows "

@@ -435,6 +435,15 @@ def run(args, be, out_dir=HERE, relocate_record=None):
                       "fields": {g: {k: v[1] for k, v in vals.items()} for g, vals in values.items()},
                       "before_rows": {g: before_all[g] for g in targets}, "export_hash_before": export_before,
                       "structure_before": plan["structure_before"], "acknowledged_records": list(args["ack_records"])}
+            # Conductor 5's condition for acking (8 Oct): per acknowledged record, exactly which of OUR changed rows (row
+            # GUIDs) and cues it also mentions, so a later REVERT of that tool can see our drift on its rows.
+            changed_rows = {rg for vals in values.values() for rg in vals}
+            changed_cues = set(values)
+            record["acked_overlap"] = {
+                h["path"]: {"rows_we_changed": sorted(set(h.get("guids") or []) & changed_rows),
+                            "cues_we_touched": sorted(set(h.get("guids") or []) & changed_cues),
+                            "structure_level": bool(h.get("needles")), "status": h.get("status")}
+                for h in foreign if h["path"] in set(args["ack_records"])}
             write_json(rpath, record, exclusive=True)
             be.log("%s_RECORD_WRITTEN|run=%s|path=%s" % (MARK, run_id, rpath))
             want_all = F.expected_after(before_all, plan)
