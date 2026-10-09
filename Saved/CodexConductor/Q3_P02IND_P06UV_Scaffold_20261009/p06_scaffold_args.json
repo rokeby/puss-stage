@@ -1,1 +1,23 @@
-{"mode":"DRY","confirm":"","variant":"2bay","allow_oversize_3bay":false,"allow_permanent_asset_delete":false}
+{
+ "allow_oversize_3bay": false,
+ "allow_permanent_asset_delete": false,
+ "confirm": "",
+ "held_sides": [],
+ "mode": "DRY",
+ "replace": {
+  "A9E0E66B074D5EA45E23BE93ADA0F8CE": {
+   "label": "P06 Wing 033",
+   "left": "/Game/Scenes/Wings/StageOpeningV2/StaticMeshes/SM_SteelScaffold_01_L",
+   "right": "/Game/Scenes/Wings/StageOpeningV2/StaticMeshes/SM_SteelScaffold_01_R"
+  },
+  "CC3403E5418809B2A1D9328EFC64C048": {
+   "label": "P06 OLD 23 - steel_scaffold",
+   "right": "/Game/Scenes/Wings/StageOpeningV2/StaticMeshes/SM_SteelScaffold_01_R"
+  },
+  "3F1CEC91DE4164DCF2F0698A885CBD14": {
+   "label": "P06 Wing 045",
+   "right": "/Game/Scenes/Wings/StageOpeningV2/StaticMeshes/SM_SteelScaffold_01_R"
+  }
+ },
+ "variant": "2bay"
+}

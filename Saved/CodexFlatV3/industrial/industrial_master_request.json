@@ -1,0 +1,7 @@
+{
+  "arguments": {
+    "relativeSavedPath": "CodexFlatV3/industrial/industrial_master_run.py"
+  },
+  "tool_name": "ExecuteProjectPythonFile",
+  "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset"
+}

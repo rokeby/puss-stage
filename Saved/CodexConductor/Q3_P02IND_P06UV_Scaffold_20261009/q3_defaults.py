@@ -69,9 +69,11 @@ SHOW = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SCAFFOLD_EXPECTED = {
     "A9E0E66B074D5EA45E23BE93ADA0F8CE": {"label": "P06 Wing 033", "left": "/Game/Scenes/Wings/StageOpeningV2/StaticMeshes/SM_SteelScaffold_01_L", "right": "/Game/Scenes/Wings/StageOpeningV2/StaticMeshes/SM_SteelScaffold_01_R"},
-    "3F1CEC91DE4164DCF2F0698A885CBD14": {"label": "P06 Wing 045", "right": "/Game/Scenes/Wings/StageOpeningV2/StaticMeshes/SM_SteelScaffold_01_R"},
     "CC3403E5418809B2A1D9328EFC64C048": {"label": "P06 OLD 23 - steel_scaffold", "right": "/Game/Scenes/Wings/StageOpeningV2/StaticMeshes/SM_SteelScaffold_01_R"},
+    # Gary 9 Oct (via Conductor 5): "wing 45's right side could be one of the real 3D scaffold bays" (keeper slides; mesh-only)
+    "3F1CEC91DE4164DCF2F0698A885CBD14": {"label": "P06 Wing 045", "right": "/Game/Scenes/Wings/StageOpeningV2/StaticMeshes/SM_SteelScaffold_01_R"},
 }
+SCAFFOLD_HELD = []  # Wing 045 R released by Gary 9 Oct
 SCAFFOLD_DEFAULTS = {
     "mode": "DRY", "confirm": "", "variant": "2bay",
     "fbx_2bay": "E:/PussStage/DerivedAssets/FlatV3/BlenderTest/Export/SM_FlatV3_P06_Scaffold_2Bay.fbx",
@@ -81,7 +83,7 @@ SCAFFOLD_DEFAULTS = {
                   "Flap": "/Game/Scenes/Wings/FlatV3/Passage06/Scaffold/Materials/MI_Scaffold_NetBaked",
                   "Timber": "/Game/Scenes/Wings/FlatV3/Passage06/Scaffold/Materials/MI_Scaffold_Timber",
                   "Edge": "/Game/Scenes/Wings/FlatV3/Passage06/Scaffold/Materials/MI_Scaffold_BulbEmissive"},
-    "allow_oversize_3bay": False, "replace": SCAFFOLD_EXPECTED,
+    "allow_oversize_3bay": False, "replace": SCAFFOLD_EXPECTED, "held_sides": SCAFFOLD_HELD,
     "allow_permanent_asset_delete": False,
 }
 
@@ -92,6 +94,10 @@ def validate_scaffold(raw):
     require(a["variant"] != "3bay" or a.get("allow_oversize_3bay") is True,
             "THREE_BAY_EXCEEDS_650CM_SLOT")
     require(a["replace"] == SCAFFOLD_EXPECTED, "TARGET_ROWS_DRIFT")
+    require(a["held_sides"] == SCAFFOLD_HELD, "HELD_SIDES_DRIFT")
+    active = {(guid, side) for guid, spec in a["replace"].items() for side in ("left", "right") if side in spec}
+    held = {(item["guid"], item["side"]) for item in a["held_sides"]}
+    require(not (active & held), "ACTIVE_HELD_OVERLAP")
     return a
 
 

@@ -62,6 +62,31 @@ class Harness(unittest.TestCase):
     def test_22_blender_scripts_import_offline(self): self.assertTrue(callable(B.main) and callable(E.main))
     def test_23_bake_apply_confirmation_negative(self):
         with self.assertRaisesRegex(RuntimeError, "CONFIRM"): B.parse(["--mode", "APPLY"])
+    def test_24_scaffold_active_sides_positive(self):
+        args = D.validate_scaffold({}); got = set()
+        for guid, spec in args["replace"].items():
+            for side in ("left", "right"):
+                if side in spec: got.add((guid, side))
+        self.assertEqual(got, {("A9E0E66B074D5EA45E23BE93ADA0F8CE", "left"),
+                               ("A9E0E66B074D5EA45E23BE93ADA0F8CE", "right"),
+                               ("CC3403E5418809B2A1D9328EFC64C048", "right"),
+                           ("3F1CEC91DE4164DCF2F0698A885CBD14", "right")})
+    def test_25_scaffold_keeper_hold_positive(self):
+        held = D.validate_scaffold({})["held_sides"]
+        self.assertEqual(held, [])  # Gary 9 Oct released Wing 045 R
+        self.assertIn("3F1CEC91DE4164DCF2F0698A885CBD14", D.validate_scaffold({})["replace"])
+    def test_26_scaffold_keeper_hold_drift_negative(self):
+        with self.assertRaisesRegex(D.ConfigError, "HELD_SIDES_DRIFT"):
+            D.validate_scaffold({"held_sides": [{"guid": "X", "side": "right"}]})
+    def test_27_p02_masks_use_grayscale_compression(self):
+        text = open(os.path.join(HERE, "p02_industrial_retexture.py"), encoding="utf-8").read()
+        self.assertIn('row["map"] in ("Roughness", "AO")', text)
+        self.assertIn("TextureCompressionSettings.TC_GRAYSCALE", text)
+    def test_28_scaffold_args_declare_exact_scope(self):
+        raw = json.load(open(os.path.join(HERE, "p06_scaffold_args.json"), encoding="utf-8"))
+        args = D.validate_scaffold(raw)
+        self.assertEqual(args["replace"], D.SCAFFOLD_EXPECTED)
+        self.assertEqual(args["held_sides"], D.SCAFFOLD_HELD)
 
 
 if __name__ == "__main__":

@@ -111,7 +111,10 @@ def _import_texture(row):
     unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks([task]); tex = unreal.load_asset(row["asset"]); require(tex is not None, "IMPORT_FAILED|" + row["asset"])
     tex.set_editor_property("mip_gen_settings", unreal.TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP)
     tex.set_editor_property("srgb", row["map"] == "Color")
-    tex.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_NORMALMAP if row["map"] == "NormalDX" else unreal.TextureCompressionSettings.TC_DEFAULT)
+    compression = (unreal.TextureCompressionSettings.TC_NORMALMAP if row["map"] == "NormalDX" else
+                   unreal.TextureCompressionSettings.TC_GRAYSCALE if row["map"] in ("Roughness", "AO") else
+                   unreal.TextureCompressionSettings.TC_DEFAULT)
+    tex.set_editor_property("compression_settings", compression)
     return tex
 
 

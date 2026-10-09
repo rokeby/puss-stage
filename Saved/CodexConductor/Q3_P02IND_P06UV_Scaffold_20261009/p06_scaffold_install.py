@@ -70,15 +70,31 @@ def _targets(show, args, expect_new=False):
     return cues, rows
 
 
+def _held_rows(show, args):
+    """Read and list explicit HOLD sides. They are never returned by _targets or written."""
+    cues = list(show.get_editor_property("cues")); rows = []
+    for spec in args["held_sides"]:
+        index, cue = C.cue_by_identity(cues, spec["label"], spec["guid"])
+        pair = cue.get_editor_property("wing_pair"); panel = pair.get_editor_property(spec["side"])
+        actual = C.asset_id(panel.get_editor_property("mesh"))
+        require(actual == spec["expected_mesh"],
+                "HELD_MESH_DRIFT|%s|%s|expected=%s|actual=%s" %
+                (spec["label"], spec["side"], spec["expected_mesh"], actual))
+        rows.append({"guid": spec["guid"], "label": spec["label"], "index": index,
+                     "side": spec["side"], "reason": spec["reason"], "panel": panel_plain(panel)})
+    return cues, rows
+
+
 def dry(args):
     require(unreal is not None, "UNREAL_REQUIRED_FOR_EDITOR_DRY"); C.editor_guard(); before = C.require_clean("PRE")
     fbx = args["fbx_2bay"] if args["variant"] == "2bay" else args["fbx_3bay"]; require(os.path.isfile(fbx), "FBX_MISSING|" + fbx)
     asset = target_asset(args); require(not unreal.EditorAssetLibrary.does_asset_exist(asset), "CREATE_ONLY_EXISTS|" + asset)
     for slot, path in args["materials"].items(): require(unreal.EditorAssetLibrary.does_asset_exist(path), "MATERIAL_MISSING|%s|%s" % (slot, path))
-    show, _ = C.show_and_cues(); _, rows = _targets(show, args)
+    show, _ = C.show_and_cues(); _, rows = _targets(show, args); _, held = _held_rows(show, args)
     require(C.census() == before, "DRY_CENSUS")
     return {"mode": "DRY", "run": "P06SCAFFOLD-DRY-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"), "marker": "P06SCAFFOLD_DRY_OK", "variant": args["variant"], "fbx": fbx, "asset": asset, "replace_rows": rows, "materials": args["materials"],
-            "show": D.SHOW, "level": D.WORLD, "lights_imported": False, "creative_default": "two-bay 560cm; three-bay 840cm is blocked unless explicitly allowed"}
+            "held_sides": held, "show": D.SHOW, "level": D.WORLD, "lights_imported": False,
+            "creative_default": "two-bay 560cm; three-bay 840cm is blocked unless explicitly allowed"}
 
 
 def _import(args):
@@ -125,21 +141,27 @@ def apply(args):
     applied = []
     for row in rows:
         value = dict(row["panel"]); value["mesh"] = plan["asset"]; value["material_overrides"] = []; applied.append(dict(row, applied_panel=value))
-    record = {"run": run, "args": args, "backup": backup, "rows": applied, "created_asset": plan["asset"]}; write(record_path, record, exclusive=True)
+    record = {"run": run, "args": args, "backup": backup, "rows": applied,
+              "held_sides": plan["held_sides"], "created_asset": plan["asset"]}; write(record_path, record, exclusive=True)
     _import(args); _write_panels(show, cues, rows, plan["asset"]); require(C.p06_actor(show).materialize_passage(), "MATERIALIZE")
     got = C.census(); require(set(got["content"]) <= {D.SHOW} and set(got["maps"]) <= {D.WORLD}, "DIRTY_SCOPE|" + json.dumps(got))
-    C.save_show_level(); readback = _readback(unreal.load_asset(D.SHOW), args, True)
-    report = {"mode": "APPLY", "run": run, "asset": plan["asset"], "backup": backup, "readback": readback, "census_after": C.census(), "marker": "P06SCAFFOLD_APPLY_OK"}; write(os.path.join(HERE, "p06_scaffold_report.json"), report); unreal.log("P06SCAFFOLD_APPLY_OK|run=" + run); return report
+    C.save_show_level(); saved_show = unreal.load_asset(D.SHOW); readback = _readback(saved_show, args, True)
+    _, held_after = _held_rows(saved_show, args); require(held_after == plan["held_sides"], "HELD_SIDE_CHANGED_DURING_APPLY")
+    report = {"mode": "APPLY", "run": run, "asset": plan["asset"], "backup": backup,
+              "readback": readback, "held_sides": held_after, "census_after": C.census(),
+              "marker": "P06SCAFFOLD_APPLY_OK"}; write(os.path.join(HERE, "p06_scaffold_report.json"), report); unreal.log("P06SCAFFOLD_APPLY_OK|run=" + run); return report
 
 
 def revert(args):
     C.editor_guard(); C.require_clean("PRE_REVERT"); path = os.path.join(HERE, "p06_scaffold_record.json"); require(os.path.isfile(path), "NO_ACTIVE_RECORD"); record = read(path); require(record["args"] == args, "ARGS_DRIFT")
     show, _ = C.show_and_cues(); cues, current = _targets(show, args, expect_new=True)
+    _, held_before = _held_rows(show, args); require(held_before == record["held_sides"], "HELD_SIDE_DRIFT_BEFORE_REVERT")
     by = {(r["guid"], r["side"]): r for r in record["rows"]}
     for row in current: require(panel_plain(row_to_panel(cues, row)) == by[(row["guid"], row["side"])]["applied_panel"], "OWNED_FIELD_DRIFT|%s|%s" % (row["label"], row["side"]))
     run = "P06SCAFFOLD-REVERT-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"); C.backup("PreP06ScaffoldRevert", run, [D.SHOW, D.WORLD], "before scaffold placement revert")
     originals = [dict(r, panel=r["panel"]) for r in record["rows"]]; _write_panels(show, cues, originals, record["created_asset"], originals=True); require(C.p06_actor(show).materialize_passage(), "REVERT_MATERIALIZE"); C.save_show_level()
-    archived = path + ".reverted-" + run; os.replace(path, archived); report = {"mode": "REVERT", "run": run, "created_asset_retained": record["created_asset"], "record": archived, "marker": "P06SCAFFOLD_REVERT_OK"}; write(os.path.join(HERE, "p06_scaffold_revert_report.json"), report); unreal.log(report["marker"]); return report
+    _, held_after = _held_rows(unreal.load_asset(D.SHOW), args); require(held_after == record["held_sides"], "HELD_SIDE_CHANGED_DURING_REVERT")
+    archived = path + ".reverted-" + run; os.replace(path, archived); report = {"mode": "REVERT", "run": run, "created_asset_retained": record["created_asset"], "held_sides": held_after, "record": archived, "marker": "P06SCAFFOLD_REVERT_OK"}; write(os.path.join(HERE, "p06_scaffold_revert_report.json"), report); unreal.log(report["marker"]); return report
 
 
 def row_to_panel(cues, row):
