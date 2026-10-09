@@ -1,5 +1,5 @@
-"""RZSWAP -- DRY / APPLY / REVERT for P02 / P03 realism mesh swaps (7 Oct, offline-written, NEVER RUN IN UNREAL BY ITS
-AUTHOR).  Pure decisions live in rzswap_core.py; the plan is made OFFLINE by make_swap_plan.py from a DRY.
+"""RZSWAP -- DRY / APPLY / REVERT for realism mesh swaps (7 Oct; P01/P04/Top extension 9 Oct, offline-written,
+NEVER RUN IN UNREAL BY ITS AUTHOR). Pure decisions live in rzswap_core.py; make_swap_plan.py plans from a fresh DRY.
 7 Oct (later): P06 accepted; REMAP plans (make_swap_plan.py P06 --remap <json>) apply through the SAME APPLY/REVERT
 path.  APPLY and REVERT additionally assert every cue's WingPair.Mechanism + LocalOverrideMask text unchanged
 (core.mechanism_drift) after the write and again after the save.
@@ -95,7 +95,7 @@ def active_name(P):
     return "rzswap_originals_%s_ACTIVE.json" % P
 
 
-def candidate_meshes(project, manifests, P, rzc):
+def candidate_meshes(project, manifests, P, rzc, top_border=False):
     """Realism wing meshes intended for passage P, named exactly as rzimport creates them (rzimport_core.MESH_FOLDERS
     + asset -- the single source of truth)."""
     out = {}
@@ -104,7 +104,11 @@ def candidate_meshes(project, manifests, P, rzc):
         if not m:
             raise RuntimeError("MANIFEST_MISSING %s" % rel)
         for e in m.get("meshes", []):
-            if e.get("intended_passage") != P or (e.get("mount") or "wing") != "wing":
+            mount = e.get("mount") or "wing"
+            if top_border:
+                if mount != "top-border":
+                    continue
+            elif e.get("intended_passage") != P or mount != "wing":
                 continue
             asset = str(e["asset"])
             variant = asset.rsplit("_", 1)[-1]
@@ -248,26 +252,86 @@ class UnrealOps:
         for ref in actor.get_editor_property("materialized_panels"):
             g = self._guid(ref.get_editor_property("cue_guid"))
             s = str(ref.get_editor_property("side")).upper()
-            side = "L" if "LEFT" in s else "R" if "RIGHT" in s else None
+            side = "L" if "LEFT" in s else "R" if "RIGHT" in s else "T" if "TOP" in s else None
             if side is None or (guids is not None and g not in guids):
                 continue
             base = ref.get_editor_property("base_world_transform")
             mesh = ref.get_editor_property("component").get_editor_property("static_mesh")
             box = mesh.get_bounding_box()
-            lat = []
+            lat, zs = [], []
             for x in (box.min.x, box.max.x):
                 for y in (box.min.y, box.max.y):
-                    p = base.transform_location(unreal.Vector(x, y, box.min.z))
-                    d = float(spline.get_distance_along_spline_at_location(p, space))
-                    o = spline.get_location_at_distance_along_spline(d, space)
-                    rv = spline.get_right_vector_at_distance_along_spline(d, space)
-                    lat.append((p.x - o.x) * rv.x + (p.y - o.y) * rv.y + (p.z - o.z) * rv.z)
+                    for z in (box.min.z, box.max.z):
+                        p = base.transform_location(unreal.Vector(x, y, z))
+                        d = float(spline.get_distance_along_spline_at_location(p, space))
+                        o = spline.get_location_at_distance_along_spline(d, space)
+                        rv = spline.get_right_vector_at_distance_along_spline(d, space)
+                        lat.append((p.x - o.x) * rv.x + (p.y - o.y) * rv.y + (p.z - o.z) * rv.z)
+                        zs.append(float(p.z))
             key = "%s|%s" % (g, side)
             if key in out:
                 out[key]["error"] = "DUPLICATE_REF"
                 continue
-            out[key] = {"inner_cm": max(lat) if side == "L" else min(lat), "mesh": self._mesh_path(mesh)}
+            out[key] = ({"top_cm": max(zs), "center_y_cm": (min(lat) + max(lat)) * 0.5,
+                         "mesh": self._mesh_path(mesh)} if side == "T" else
+                        {"inner_cm": max(lat) if side == "L" else min(lat), "mesh": self._mesh_path(mesh)})
         return out
+
+    def route_geometry(self, P):
+        """Fresh materialized route intervals for panels and PROP actors, used only by the P04 clearance gate."""
+        actor = self._actor(P)
+        spline = actor.get_editor_property("route")
+        space = unreal.SplineCoordinateSpace.WORLD
+        panels, props = {}, {}
+
+        def interval_for_points(points):
+            vals = [float(spline.get_distance_along_spline_at_location(p, space)) for p in points]
+            return [min(vals), max(vals)] if vals else None
+
+        for ref in actor.get_editor_property("materialized_panels"):
+            g = self._guid(ref.get_editor_property("cue_guid"))
+            enum = str(ref.get_editor_property("side")).upper()
+            side = "L" if "LEFT" in enum else "R" if "RIGHT" in enum else "T" if "TOP" in enum else None
+            comp = ref.get_editor_property("component")
+            mesh = comp.get_editor_property("static_mesh") if comp else None
+            if side is None or mesh is None:
+                continue
+            t = comp.get_instance_transform(int(ref.get_editor_property("instance_index")), True)
+            b = mesh.get_bounding_box()
+            faces = {}
+            pts = []
+            for face, x in (("front_s_cm", b.min.x), ("back_s_cm", b.max.x)):
+                face_pts = [t.transform_location(unreal.Vector(x, y, z))
+                            for y in (b.min.y, b.max.y) for z in (b.min.z, b.max.z)]
+                pts += face_pts
+                vals = [float(spline.get_distance_along_spline_at_location(p, space)) for p in face_pts]
+                faces[face] = sum(vals) / len(vals)
+            panels["%s|%s" % (g, side)] = {"interval_cm": interval_for_points(pts), **faces}
+        for spawned in actor.get_editor_property("managed_attachment_actors"):
+            tags = [str(t) for t in spawned.get_editor_property("tags")]
+            ident = next((t.split("InfinityStage.Attachment.", 1)[1] for t in tags
+                          if t.startswith("InfinityStage.Attachment.") and "|" in t), None)
+            if not ident:
+                continue
+            cue_guid, attachment_guid = ident.split("|", 1)
+            origin, extent = spawned.get_actor_bounds(False, True)
+            if max(abs(float(extent.x)), abs(float(extent.y)), abs(float(extent.z))) <= 1e-6:
+                continue
+            pts = [unreal.Vector(origin.x + sx * extent.x, origin.y + sy * extent.y, origin.z + sz * extent.z)
+                   for sx in (-1, 1) for sy in (-1, 1) for sz in (-1, 1)]
+            props.setdefault(cue_guid.replace("-", "").upper(), []).append(
+                {"attachment_guid": attachment_guid.replace("-", "").upper(), "label": str(spawned.get_actor_label()),
+                 "interval_cm": interval_for_points(pts)})
+        return panels, props
+
+    def _top_anchor(self, panel, box):
+        if not box:
+            return None
+        t = panel.get_editor_property("local_transform")
+        pts = [t.transform_location(unreal.Vector(x, y, z)) for x in (box["min"][0], box["max"][0])
+               for y in (box["min"][1], box["max"][1]) for z in (box["min"][2], box["max"][2])]
+        return {"center_y_cm": (min(float(p.y) for p in pts) + max(float(p.y) for p in pts)) * 0.5,
+                "top_z_cm": max(float(p.z) for p in pts)}
 
     def materialized_count(self, P):
         return int(self._actor(P).get_editor_property("materialized_wing_pair_count"))
@@ -285,8 +349,10 @@ class UnrealOps:
         by_mesh = self._library_by_mesh(show)
         pins = set(self.master_pins(P))
         edges = self.world_edges(P, set(guids))
+        route_panels, route_props = self.route_geometry(P)
         lead = int(st.get_editor_property("lead_in_frames").value)
         frame = lead
+        station_cm = float(st.get_editor_property("lead_in_distance_cm"))
         rows = []
         for o, g in enumerate(guids):
             if g not in index:
@@ -296,31 +362,40 @@ class UnrealOps:
             mech = pair.get_editor_property("mechanism")
             atts = []
             for a in pair.get_editor_property("attachments"):
-                atts.append({"label": str(a.get_editor_property("label")), "kind": str(a.get_editor_property("kind")),
-                             "text": a.export_text()})
+                atts.append({"guid": self._guid(a.get_editor_property("attachment_guid")),
+                             "label": str(a.get_editor_property("label")), "kind": str(a.get_editor_property("kind")),
+                             "enabled": bool(a.get_editor_property("enabled")), "text": a.export_text()})
             text = cue.export_text()
             row = {"ordinal": o, "cue_guid": g, "label": str(cue.get_editor_property("label")), "show_index": index[g],
                    "enabled": bool(cue.get_editor_property("enabled")), "has_top": bool(pair.get_editor_property("has_top")),
                    "interval_ticks": int(pair.get_editor_property("interval_to_next").value),
                    "gap_cm": float(pair.get_editor_property("gap_to_next_cm")),
-                   "pass_frame_rel": frame, "pass_s": frame / tick,
+                   "pass_frame_rel": frame, "pass_s": frame / tick, "station_cm": station_cm,
                    "mechanism": {"kind": str(mech.get_editor_property("kind")),
                                  "playback_mode": str(mech.get_editor_property("playback_mode"))},
                    "local_override_mask": int(pair.get_editor_property("local_override_mask")),
                    "master_pinned": g in pins,
-                   "attachments": [{"label": a["label"], "kind": a["kind"]} for a in atts],
+                   "attachments": [{"guid": a["guid"], "label": a["label"], "kind": a["kind"],
+                                    "enabled": a["enabled"]} for a in atts],
+                   "prop_route_intervals": [],
                    "text_sha": _sha(text), "panel_text_fields": {}, "sides": {}}
             frame += row["interval_ticks"]
-            for s in ("L", "R"):
+            station_cm += row["gap_cm"]
+            prop_kind = {a["guid"]: a for a in atts if a["enabled"] and "PROP" in a["kind"].upper()}
+            for prop in route_props.get(g, []):
+                if prop["attachment_guid"] in prop_kind:
+                    row["prop_route_intervals"].append(prop)
+            for s in (("L", "R", "T") if row["has_top"] else ("L", "R")):
                 panel = pair.get_editor_property(core.SIDE_PROP[s])
                 plain = common.panel_plain(panel)
                 box = self._box(plain["mesh"])
-                try:
-                    ob = common.side_bounds(plain, by_mesh)
-                    old_bounds = {"min_y_cm": ob["min_y_cm"], "max_y_cm": ob["max_y_cm"], "facing": ob["facing"]}
-                except Exception as exc:  # noqa: BLE001 -- recorded; the side is then not a candidate
-                    old_bounds = None
-                    plain["_bounds_error"] = str(exc)[:200]
+                old_bounds = None
+                if s != "T":
+                    try:
+                        ob = common.side_bounds(plain, by_mesh)
+                        old_bounds = {"min_y_cm": ob["min_y_cm"], "max_y_cm": ob["max_y_cm"], "facing": ob["facing"]}
+                    except Exception as exc:  # noqa: BLE001 -- recorded; the side is then not a candidate
+                        plain["_bounds_error"] = str(exc)[:200]
                 mesh = plain["mesh"]
                 row["sides"][s] = {
                     "panel": {k: plain[k] for k in ("mesh", "material_overrides", "local_transform", "facing_policy",
@@ -330,6 +405,10 @@ class UnrealOps:
                     "thickness_cm": (box["max"][0] - box["min"][0]) if box else None,
                     "width_cm": (box["max"][1] - box["min"][1]) if box else None,
                     "old_bounds": old_bounds,
+                    "placement_anchor": self._top_anchor(panel, box) if s == "T" else None,
+                    "route_interval_cm": (route_panels.get("%s|%s" % (g, s)) or {}).get("interval_cm"),
+                    "route_faces_cm": ({k: v for k, v in (route_panels.get("%s|%s" % (g, s)) or {}).items()
+                                        if k != "interval_cm"} or None),
                     "attachment_refs_mesh": bool(mesh) and any(mesh in a["text"] for a in atts),
                     "edge_baseline": edges.get("%s|%s" % (g, s)),
                     "bounds_error": plain.get("_bounds_error")}
@@ -365,14 +444,20 @@ class UnrealOps:
         out = {}
         for s in swaps:
             pair = cues[index[s["cue_guid"]]].get_editor_property("wing_pair")
-            old = common.side_bounds(common.panel_plain(pair.get_editor_property(core.SIDE_PROP[s["side"]])), by_mesh)
-            zero = common.side_bounds(core.planned_panel(s["new_mesh"], 0.0), by_mesh)
-            y = core.inner_edge_y(s["side"], old, zero)
-            planned = core.planned_panel(s["new_mesh"], y)
-            new = common.side_bounds(planned, by_mesh)
-            k = "max_y_cm" if s["side"] == "L" else "min_y_cm"
-            if abs(new[k] - old[k]) > core.PLACE_TOL_CM:
-                raise core.PlanError("INNER_EDGE_PLAN_FAIL %s %.3f %.3f" % (s["key"], old[k], new[k]))
+            old_panel = pair.get_editor_property(core.SIDE_PROP[s["side"]])
+            if s["side"] == "T":
+                old_plain = common.panel_plain(old_panel)
+                planned = core.planned_top_panel(s["new_mesh"], self._box(s["new_mesh"]),
+                                                 self._top_anchor(old_panel, self._box(old_plain["mesh"])))
+            else:
+                old = common.side_bounds(common.panel_plain(old_panel), by_mesh)
+                zero = common.side_bounds(core.planned_panel(s["new_mesh"], 0.0), by_mesh)
+                y = core.inner_edge_y(s["side"], old, zero)
+                planned = core.planned_panel(s["new_mesh"], y)
+                new = common.side_bounds(planned, by_mesh)
+                k = "max_y_cm" if s["side"] == "L" else "min_y_cm"
+                if abs(new[k] - old[k]) > core.PLACE_TOL_CM:
+                    raise core.PlanError("INNER_EDGE_PLAN_FAIL %s %.3f %.3f" % (s["key"], old[k], new[k]))
             out[s["key"]] = planned
         return out
 
@@ -479,7 +564,7 @@ def dry_refusals(core, meas):
     if not meas["rows"]:
         ref.append("NO_ROWS")
     for r in meas["rows"]:
-        for s in ("L", "R"):
+        for s in core.row_sides(r):
             if "Mesh" not in r["panel_text_fields"].get(s, []):
                 ref.append("PANEL_TEXT_HAS_NO_Mesh_FIELD %s %s %s (the read-back blanking would be blind)" % (
                     r["label"], s, r["panel_text_fields"].get(s)))
@@ -532,7 +617,8 @@ def run_apply(ops, core, tc, args, plan, run, here):
         _stop(ops, core, run, P, "DRY_RECORD_MISSING %s" % plan["dry_run_id"])
     live_doc = dict(meas, candidates={m: dry["candidates"][m] for m in dry["candidates"]})
     for m in cand:                       # the candidates the plan uses must still read the same live
-        if m not in dry["candidates"] or meas["candidates"].get(m, {}).get("zero_bounds") != dry["candidates"][m]["zero_bounds"]:
+        if m not in dry["candidates"] or any(meas["candidates"].get(m, {}).get(k) != dry["candidates"][m].get(k)
+                                             for k in ("zero_bounds", "box_cm")):
             _stop(ops, core, run, P, "CANDIDATE_CHANGED_SINCE_DRY %s" % m)
     if core.state_hash(live_doc) != plan["dry_state_hash"]:
         _stop(ops, core, run, P, "PLAN_STALE (the passage changed since DRY %s: re-run DRY + make_swap_plan)" % plan["dry_run_id"])
@@ -544,7 +630,7 @@ def run_apply(ops, core, tc, args, plan, run, here):
         if not core.panel_matches(live_place[s["key"]], s["planned_panel"]) or \
                 abs(live_place[s["key"]]["local_transform"]["location"][1] - s["planned_panel"]["local_transform"]["location"][1]) > core.PLACE_TOL_CM:
             _stop(ops, core, run, P, "PLACEMENT_DIFFERS_FROM_PLAN %s" % s["key"])
-    keys_all = ["%s|%s" % (r["cue_guid"], s) for r in meas["rows"] for s in ("L", "R")]
+    keys_all = ["%s|%s" % (r["cue_guid"], s) for r in meas["rows"] for s in core.row_sides(r)]
     swapped = {s["key"] for s in plan["swaps"]}
     edges_before = meas["edges"]
     seg_before = ops.segments()
@@ -699,7 +785,7 @@ def run_revert(ops, core, tc, args, orig, run, here):
     if not ops.materialize(P):
         _stop(ops, core, run, P, "MATERIALIZE_FAILED (Show dirty, unsaved: relaunch with Don't Save)")
     edges_after = ops.world_edges(P)
-    expect = {s["key"]: s["edge_before"]["inner_cm"] for s in orig["swaps"] if s.get("edge_before")}
+    expect = {s["key"]: s["edge_before"] for s in orig["swaps"] if s.get("edge_before")}
     probe, bad = core.edge_verdict(sorted(edges_pre), set(expect), edges_pre, edges_after, expect=expect)
     if bad:
         _stop(ops, core, run, P, "REVERT_WORLD_EDGE_PROBE %s (Show dirty, unsaved: relaunch with Don't Save)" % bad[:6])
@@ -746,7 +832,8 @@ def main():
         _stop(ops, core, run, P, "ARGS|%s" % exc)
     try:
         if mode == "DRY":
-            run_dry(ops, core, args, run, here, candidate_meshes(ops.project_dir(), args["manifests"], P, rzc))
+            run_dry(ops, core, args, run, here,
+                    candidate_meshes(ops.project_dir(), args["manifests"], P, rzc, bool(args.get("top_border"))))
         elif mode == "APPLY":
             run_apply(ops, core, tc, args, plan, run, here)
         else:

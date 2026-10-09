@@ -1,0 +1,6 @@
+REM This task did not run Blender. First bake and review the four ScaffoldBake PNGs:
+"C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" --background "E:\PussStage\DerivedAssets\FlatV3\BlenderTest\FlatV3_ScaffoldBay.blend" --python "E:\PussStage\Saved\CodexConductor\Q3_P02IND_P06UV_Scaffold_20261009\scaffold_bake.py" -- --mode DRY
+REM Then change DRY to: --mode APPLY --confirm "APPLY P06SCAFFOLDBAKE"
+REM After visual approval of baked maps, export:
+"C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" --background "E:\PussStage\DerivedAssets\FlatV3\BlenderTest\FlatV3_ScaffoldBay.blend" --python "E:\PussStage\Saved\CodexConductor\Q3_P02IND_P06UV_Scaffold_20261009\scaffold_export.py" -- --mode DRY
+REM Then change DRY to: --mode APPLY --confirm "APPLY P06SCAFFOLDEXPORT"

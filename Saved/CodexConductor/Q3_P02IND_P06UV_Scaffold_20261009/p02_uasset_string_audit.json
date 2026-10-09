@@ -1,0 +1,214 @@
+{
+  "mode": "DRY",
+  "run": "P02UASSET-DRY-20261009-015033",
+  "tier": "binary-proven",
+  "assets": [
+    {
+      "asset": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceTarp_L",
+      "file": "E:/PussStage/Content/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceTarp_L.uasset",
+      "bytes": 1032950,
+      "strings": [
+        "\"contentImportPath\": \"/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes\",",
+        "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceTarp_L",
+        "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceTarp_L.SM_FlatV3_P02_IND_FenceTarp_L",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+        "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+        "Front,'/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front.MI_Billboard_Front'>Flap,'/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap.MI_Billboard_Flap'>Timber,'/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master.M_Wing_CanvasEdge_Master'>Edge,'/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master.M_Wing_CanvasEdge_Master'>",
+        "INTERCHANGE.SM_FlatV3_P02_IND_FenceTarp_L_LODGroup.fbx_type",
+        "MI_Billboard_Flap",
+        "MI_Billboard_Front",
+        "M_Wing_CanvasEdge_Master",
+        "UserDefined_SM_FlatV3_P02_IND_FenceTarp_L_LODGroup.fbx_type_Value",
+        "[{ \"RelativeFilename\" : \"../../../../../../DerivedAssets/FlatV3/Overnight/P02Industrial/SM_FlatV3_P02_IND_FenceTarp_L.fbx\", \"Timestamp\" : \"1790966437\", \"FileMD5\" : \"1a990c5ccf44785dad6adb3f5f246e61\", \"DisplayLabelName\" : \"\" }]"
+      ]
+    },
+    {
+      "asset": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceTarp_R",
+      "file": "E:/PussStage/Content/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceTarp_R.uasset",
+      "bytes": 1033617,
+      "strings": [
+        "\"contentImportPath\": \"/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes\",",
+        "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceTarp_R",
+        "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceTarp_R.SM_FlatV3_P02_IND_FenceTarp_R",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+        "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+        "Front,'/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front.MI_Billboard_Front'>Flap,'/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap.MI_Billboard_Flap'>Timber,'/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master.M_Wing_CanvasEdge_Master'>Edge,'/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master.M_Wing_CanvasEdge_Master'>",
+        "INTERCHANGE.SM_FlatV3_P02_IND_FenceTarp_R_LODGroup.fbx_type",
+        "MI_Billboard_Flap",
+        "MI_Billboard_Front",
+        "M_Wing_CanvasEdge_Master",
+        "UserDefined_SM_FlatV3_P02_IND_FenceTarp_R_LODGroup.fbx_type_Value",
+        "[{ \"RelativeFilename\" : \"../../../../../../DerivedAssets/FlatV3/Overnight/P02Industrial/SM_FlatV3_P02_IND_FenceTarp_R.fbx\", \"Timestamp\" : \"1790966443\", \"FileMD5\" : \"da1b3327ce232c1351e4e0a2912f2dbe\", \"DisplayLabelName\" : \"\" }]"
+      ]
+    },
+    {
+      "asset": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_L",
+      "file": "E:/PussStage/Content/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_L.uasset",
+      "bytes": 941648,
+      "strings": [
+        "\"contentImportPath\": \"/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes\",",
+        "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_L",
+        "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_L.SM_FlatV3_P02_IND_FenceOpen_L",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+        "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+        "Front,'/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front.MI_Billboard_Front'>Flap,'/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap.MI_Billboard_Flap'>Timber,'/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master.M_Wing_CanvasEdge_Master'>Edge,'/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master.M_Wing_CanvasEdge_Master'>",
+        "INTERCHANGE.SM_FlatV3_P02_IND_FenceOpen_L_LODGroup.fbx_type",
+        "MI_Billboard_Flap",
+        "MI_Billboard_Front",
+        "M_Wing_CanvasEdge_Master",
+        "UserDefined_SM_FlatV3_P02_IND_FenceOpen_L_LODGroup.fbx_type_Value",
+        "[{ \"RelativeFilename\" : \"../../../../../../DerivedAssets/FlatV3/Overnight/P02Industrial/SM_FlatV3_P02_IND_FenceOpen_L.fbx\", \"Timestamp\" : \"1790966449\", \"FileMD5\" : \"82cb06dfcf3d536363520a5a72a04922\", \"DisplayLabelName\" : \"\" }]"
+      ]
+    },
+    {
+      "asset": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_R",
+      "file": "E:/PussStage/Content/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_R.uasset",
+      "bytes": 941452,
+      "strings": [
+        "\"contentImportPath\": \"/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes\",",
+        "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_R",
+        "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceOpen_R.SM_FlatV3_P02_IND_FenceOpen_R",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+        "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+        "Front,'/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front.MI_Billboard_Front'>Flap,'/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap.MI_Billboard_Flap'>Timber,'/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master.M_Wing_CanvasEdge_Master'>Edge,'/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master.M_Wing_CanvasEdge_Master'>",
+        "INTERCHANGE.SM_FlatV3_P02_IND_FenceOpen_R_LODGroup.fbx_type",
+        "MI_Billboard_Flap",
+        "MI_Billboard_Front",
+        "M_Wing_CanvasEdge_Master",
+        "UserDefined_SM_FlatV3_P02_IND_FenceOpen_R_LODGroup.fbx_type_Value",
+        "[{ \"RelativeFilename\" : \"../../../../../../DerivedAssets/FlatV3/Overnight/P02Industrial/SM_FlatV3_P02_IND_FenceOpen_R.fbx\", \"Timestamp\" : \"1790966455\", \"FileMD5\" : \"e0f71b8612b5ae15aac5f2a2c169d683\", \"DisplayLabelName\" : \"\" }]"
+      ]
+    },
+    {
+      "asset": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_L",
+      "file": "E:/PussStage/Content/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_L.uasset",
+      "bytes": 111284,
+      "strings": [
+        "\"contentImportPath\": \"/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes\",",
+        "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_L",
+        "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_L.SM_FlatV3_P02_IND_RollerShutter_L",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+        "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+        "Front,'/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front.MI_Billboard_Front'>Flap,'/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap.MI_Billboard_Flap'>Timber,'/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master.M_Wing_CanvasEdge_Master'>Edge,'/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master.M_Wing_CanvasEdge_Master'>",
+        "INTERCHANGE.SM_FlatV3_P02_IND_RollerShutter_L_LODGroup.fbx_type",
+        "MI_Billboard_Flap",
+        "MI_Billboard_Front",
+        "M_Wing_CanvasEdge_Master",
+        "UserDefined_SM_FlatV3_P02_IND_RollerShutter_L_LODGroup.fbx_type_Value",
+        "[{ \"RelativeFilename\" : \"../../../../../../DerivedAssets/FlatV3/Overnight/P02Industrial/SM_FlatV3_P02_IND_RollerShutter_L.fbx\", \"Timestamp\" : \"1790966455\", \"FileMD5\" : \"74a235199993e634eb60ad3b47553546\", \"DisplayLabelName\" : \"\" }]"
+      ]
+    },
+    {
+      "asset": "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_R",
+      "file": "E:/PussStage/Content/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_R.uasset",
+      "bytes": 112627,
+      "strings": [
+        "\"contentImportPath\": \"/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes\",",
+        "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_R",
+        "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_RollerShutter_R.SM_FlatV3_P02_IND_RollerShutter_R",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+        "/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master",
+        "Front,'/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front.MI_Billboard_Front'>Flap,'/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap.MI_Billboard_Flap'>Timber,'/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master.M_Wing_CanvasEdge_Master'>Edge,'/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master.M_Wing_CanvasEdge_Master'>",
+        "INTERCHANGE.SM_FlatV3_P02_IND_RollerShutter_R_LODGroup.fbx_type",
+        "MI_Billboard_Flap",
+        "MI_Billboard_Front",
+        "M_Wing_CanvasEdge_Master",
+        "UserDefined_SM_FlatV3_P02_IND_RollerShutter_R_LODGroup.fbx_type_Value",
+        "[{ \"RelativeFilename\" : \"../../../../../../DerivedAssets/FlatV3/Overnight/P02Industrial/SM_FlatV3_P02_IND_RollerShutter_R.fbx\", \"Timestamp\" : \"1790966455\", \"FileMD5\" : \"cd76005e91e5a00b40507ebb42142aa9\", \"DisplayLabelName\" : \"\" }]"
+      ]
+    },
+    {
+      "asset": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+      "file": "E:/PussStage/Content/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front.uasset",
+      "bytes": 9622,
+      "strings": [
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/M_Wing_Billboard_Master",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Colour",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Mask",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Normal",
+        "/Script/Engine.Material'/Game/Scenes/Wings/PaintedSurface/Billboard/M_Wing_Billboard_Master.M_Wing_Billboard_Master'",
+        "MI_Billboard_Front",
+        "MI_Billboard_FrontEditorOnlyData",
+        "M_Wing_Billboard_Master"
+      ]
+    },
+    {
+      "asset": "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+      "file": "E:/PussStage/Content/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap.uasset",
+      "bytes": 9755,
+      "strings": [
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/M_Wing_Billboard_Master",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Colour",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Mask",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Normal",
+        "/Script/Engine.Material'/Game/Scenes/Wings/PaintedSurface/Billboard/M_Wing_Billboard_Master.M_Wing_Billboard_Master'",
+        "MI_Billboard_Flap",
+        "MI_Billboard_FlapEditorOnlyData",
+        "M_Wing_Billboard_Master"
+      ]
+    },
+    {
+      "asset": "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Colour",
+      "file": "E:/PussStage/Content/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Colour.uasset",
+      "bytes": 11399,
+      "strings": [
+        "\"contentImportPath\": \"/Game/Scenes/Wings/PaintedSurface/Billboard/Textures\",",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Colour",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Colour.T_BB_Colour",
+        "E:/PussStage/DerivedAssets/WingMateriality/BillboardPlaceholders/T_BB_Colour.png",
+        "Factory_E:/PussStage/DerivedAssets/WingMateriality/BillboardPlaceholders/T_BB_Colour.png",
+        "[{ \"RelativeFilename\" : \"../../../../../../DerivedAssets/WingMateriality/BillboardPlaceholders/T_BB_Colour.png\", \"Timestamp\" : \"1790867742\", \"FileMD5\" : \"99949a0e46603e90607bbeb87d1f2e4e\", \"DisplayLabelName\" : \"\" }]"
+      ],
+      "source_png": "E:/PussStage/DerivedAssets/WingMateriality/BillboardPlaceholders/T_BB_Colour.png",
+      "source_pixels": [
+        64,
+        64
+      ]
+    },
+    {
+      "asset": "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Mask",
+      "file": "E:/PussStage/Content/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Mask.uasset",
+      "bytes": 10833,
+      "strings": [
+        "\"contentImportPath\": \"/Game/Scenes/Wings/PaintedSurface/Billboard/Textures\",",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Mask",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Mask.T_BB_Mask",
+        "E:/PussStage/DerivedAssets/WingMateriality/BillboardPlaceholders/T_BB_Mask.png",
+        "Factory_E:/PussStage/DerivedAssets/WingMateriality/BillboardPlaceholders/T_BB_Mask.png",
+        "[{ \"RelativeFilename\" : \"../../../../../../DerivedAssets/WingMateriality/BillboardPlaceholders/T_BB_Mask.png\", \"Timestamp\" : \"1790867742\", \"FileMD5\" : \"27e2074e9604724b7af0536c03a8b3cb\", \"DisplayLabelName\" : \"\" }]"
+      ],
+      "source_png": "E:/PussStage/DerivedAssets/WingMateriality/BillboardPlaceholders/T_BB_Mask.png",
+      "source_pixels": [
+        64,
+        64
+      ]
+    },
+    {
+      "asset": "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Normal",
+      "file": "E:/PussStage/Content/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Normal.uasset",
+      "bytes": 11723,
+      "strings": [
+        "\"contentImportPath\": \"/Game/Scenes/Wings/PaintedSurface/Billboard/Textures\",",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Normal",
+        "/Game/Scenes/Wings/PaintedSurface/Billboard/Textures/T_BB_Normal.T_BB_Normal",
+        "E:/PussStage/DerivedAssets/WingMateriality/BillboardPlaceholders/T_BB_Normal.png",
+        "Factory_E:/PussStage/DerivedAssets/WingMateriality/BillboardPlaceholders/T_BB_Normal.png",
+        "[{ \"RelativeFilename\" : \"../../../../../../DerivedAssets/WingMateriality/BillboardPlaceholders/T_BB_Normal.png\", \"Timestamp\" : \"1790867742\", \"FileMD5\" : \"8e2bb514402c78dbac4568c51db3a33c\", \"DisplayLabelName\" : \"\" }]"
+      ],
+      "source_png": "E:/PussStage/DerivedAssets/WingMateriality/BillboardPlaceholders/T_BB_Normal.png",
+      "source_pixels": [
+        64,
+        64
+      ]
+    }
+  ],
+  "marker": "P02_UASSET_STRING_AUDIT_OK"
+}

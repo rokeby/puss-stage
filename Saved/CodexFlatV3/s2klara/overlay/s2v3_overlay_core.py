@@ -17,7 +17,7 @@ import struct
 TOOL = "s2v3_overlay"
 MARK = "S2V3OV"
 CONFIRM_WORD = "S2V3OVERLAY"
-MODES = ("DRY", "APPLY", "VARIANT", "RESYNC", "VERIFY", "REVERT")
+MODES = ("DRY", "APPLY", "VARIANT", "REPOSE", "RESYNC", "VERIFY", "REVERT")
 READ_ONLY = ("DRY", "VERIFY")
 VARIANTS = ("A", "B")
 
@@ -79,7 +79,7 @@ def validate_args(a):
         p.append("MODE: %r not in %s" % (a.get("mode"), MODES))
     if mode not in READ_ONLY and a.get("confirm") != confirm_for(mode):
         p.append("CONFIRM: want %r" % confirm_for(mode))
-    if mode in ("APPLY", "VARIANT", "RESYNC", "REVERT") and not str(a.get("decided_by") or "").strip():
+    if mode in ("APPLY", "VARIANT", "REPOSE", "RESYNC", "REVERT") and not str(a.get("decided_by") or "").strip():
         p.append("NOT_DECIDED: decided_by is empty")
     v = str(a.get("variant") or DEFAULTS["variant"]).upper()
     if v not in VARIANTS:
@@ -95,6 +95,8 @@ def validate_args(a):
         p.append("COVERAGE: %r not in %s" % (a.get("coverage"), COVERAGES))
     if str(a.get("pre_section_pose") or DEFAULTS["pre_section_pose"]) not in PRE_POSES:
         p.append("PRE_SECTION_POSE: %r not in %s" % (a.get("pre_section_pose"), PRE_POSES))
+    if str(a.get("revert_scope") or "overlay") not in ("overlay", "repose"):
+        p.append("REVERT_SCOPE: 'overlay' or 'repose'")
     for t in TYPES:
         row = types.get(t) or {}
         if row.get("pivot_frame", "her_local_world_cm") not in PIVOT_FRAMES:
@@ -329,6 +331,35 @@ def with_hold(keys, pre_ticks, hold_pose):
     for i in (4, 5, 6):                                   # Euler continuity with the first fall key
         hold[i] = unwrap_near(hold[i], shifted[0][i])
     return [hold] + shifted, ["RCIM_CONSTANT"] + ["RCIM_LINEAR"] * len(shifted)
+
+
+def replace_hold(keys, interps, hold_pose):
+    """Return a copy with ONLY the six values on the local-tick-0 hold changed."""
+    req(len(hold_pose) == 6, "REPOSE_POSE_SIZE")
+    req(keys and len(keys[0]) == 7 and int(keys[0][0]) == 0, "REPOSE_NO_TICK0_HOLD")
+    req(len(keys) == len(interps) and interps[0] == "RCIM_CONSTANT", "REPOSE_HOLD_NOT_CONSTANT")
+    out = [list(row) for row in keys]
+    out[0] = [0] + [float(value) for value in hold_pose]
+    for i in (4, 5, 6):
+        if len(out) > 1:
+            out[0][i] = unwrap_near(out[0][i], out[1][i])
+    return out, list(interps)
+
+
+def hold_scope_problems(before_keys, before_interps, after_keys, after_interps):
+    """Fingerprint gate for REPOSE: only row 0 values may differ."""
+    p = []
+    if list(before_interps) != list(after_interps):
+        p.append("INTERPS_CHANGED")
+    if len(before_keys) != len(after_keys):
+        return p + ["KEY_COUNT_CHANGED"]
+    if [int(k[0]) for k in before_keys] != [int(k[0]) for k in after_keys]:
+        p.append("TICKS_CHANGED")
+    if any(list(a) != list(b) for a, b in zip(before_keys[1:], after_keys[1:])):
+        p.append("NON_HOLD_KEYS_CHANGED")
+    if before_keys and after_keys and (int(before_keys[0][0]) != 0 or int(after_keys[0][0]) != 0):
+        p.append("HOLD_NOT_TICK0")
+    return p
 
 
 # ===================================================================================================== rotator maths
@@ -822,7 +853,7 @@ def check_mode(args, in_pie, sequencer_open, record):
     applied = bool(record and record.get("applied"))
     if mode == "APPLY" and record is not None:
         p.append("RECORD_EXISTS (REVERT first, or rename a .failed record)")
-    if mode in ("VARIANT", "RESYNC", "REVERT") and not applied:
+    if mode in ("VARIANT", "REPOSE", "RESYNC", "REVERT") and not applied:
         p.append("NO_APPLIED_RECORD")
     return p
 

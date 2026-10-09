@@ -1,0 +1,57 @@
+{
+ "schema": "Q2 swap preparation only. Conductor copies exactly one dry_args object into rzswap_args.json, runs the fresh DRY, then runs the listed offline plan command. No APPLY template contains a confirm because the reviewed plan hash does not exist yet.",
+ "common_run": "python Saved/CodexMocap/mcp_request.py tools/call --params-file Saved/CodexFlatV3/rzswap/rzswap_request.json --timeout 600",
+ "p03_exact_seven": {
+  "dry_args": {
+   "mode": "DRY",
+   "passage": "P03",
+   "confirm": "DRY RZSWAP P03",
+   "manifests": ["DerivedAssets/FlatV3/Realism_20261007/P03_stones_coast_sheds/IMPORT_MANIFEST_v2_P03.json"]
+  },
+  "offline_plan": "python Saved/CodexFlatV3/rzswap/make_swap_plan.py P03 --targets-from Saved/CodexFlatV3/p02p03_audit/audit.json --pair-mode side",
+  "expected": "Exactly seven swaps: P03 Wing 001 L/R, 002 L/R, 003 L/R, 004 L. P03 has no matched-pair rule; max two uses and no adjacent same-side repeats still apply."
+ },
+ "p01_realism_review": {
+  "dry_args": {
+   "mode": "DRY",
+   "passage": "P01",
+   "confirm": "DRY RZSWAP P01",
+   "manifests": ["DerivedAssets/FlatV3/Realism_20261007/P01_classical_garden/IMPORT_MANIFEST_v2_P01.json"]
+  },
+  "offline_plan": "python Saved/CodexFlatV3/rzswap/make_swap_plan.py P01 --pair-mode side",
+  "expected": "Review rzswap_sheet_P01.png before any APPLY."
+ },
+ "p04_realism_review": {
+  "dry_args": {
+   "mode": "DRY",
+   "passage": "P04",
+   "confirm": "DRY RZSWAP P04",
+   "manifests": ["DerivedAssets/FlatV3/Realism_20261007/P04_gothic_blasted_trees/IMPORT_MANIFEST_v2_P04.json"]
+  },
+  "offline_plan": "python Saved/CodexFlatV3/rzswap/make_swap_plan.py P04 --pair-mode side",
+  "expected": "Plan gates require front growth <=6 cm and no overlap with materialized panels or measured PROP bounds on either adjacent fresh-DRY row. Review rzswap_sheet_P04.png before APPLY."
+ },
+ "p04_valance_review": {
+  "dry_args": {
+   "mode": "DRY",
+   "passage": "P04",
+   "confirm": "DRY RZSWAP P04",
+   "top_border": true,
+   "manifests": ["DerivedAssets/FlatV3/Realism_20261007/valances_upper_wings/IMPORT_MANIFEST_v2_VAL.json"]
+  },
+  "offline_plan": "python Saved/CodexFlatV3/rzswap/make_swap_plan.py P04 --top-border",
+  "expected": "Only rows with bHasTop are candidates. The review sheet is rzswap_sheet_P04_TOP.png; every proposal is centred in Y and keeps the existing Top upper-edge Z."
+ },
+ "apply_after_review": {
+  "mode": "APPLY",
+  "passage": "<P01|P03|P04>",
+  "plan": "<rzswap_plan_P01.json|rzswap_plan_P03.json|rzswap_plan_P04.json|rzswap_plan_P04_TOP.json>",
+  "confirm": "APPLY RZSWAP <P> #<hash8 from the reviewed plan>",
+  "decided_by": "Gary <date and exact approval words>"
+ },
+ "revert_after_apply": {
+  "mode": "REVERT",
+  "passage": "<P>",
+  "confirm": "REVERT RZSWAP <P> <apply run id>"
+ }
+}

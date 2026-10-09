@@ -1,0 +1,55 @@
+{
+  "passed": 12,
+  "failed": 0,
+  "results": [
+    {
+      "check": "POS exactly six unique owned targets",
+      "ok": true
+    },
+    {
+      "check": "POS Front and Flap for all three owners",
+      "ok": true
+    },
+    {
+      "check": "POS destination is KlaraS2 Materials only",
+      "ok": true
+    },
+    {
+      "check": "NEG Klara packages are never targets",
+      "ok": true
+    },
+    {
+      "check": "POS DRY needs no confirm",
+      "ok": true
+    },
+    {
+      "check": "NEG APPLY bad confirm refused",
+      "ok": true
+    },
+    {
+      "check": "NEG write without decision refused",
+      "ok": true
+    },
+    {
+      "check": "POS saved state contract",
+      "ok": true
+    },
+    {
+      "check": "NEG wrong PaperMap caught",
+      "ok": true
+    },
+    {
+      "check": "NEG missing package caught",
+      "ok": true
+    },
+    {
+      "check": "POS no Save All or map save",
+      "ok": true
+    },
+    {
+      "check": "POS source and parent constants are never write targets",
+      "ok": true
+    }
+  ],
+  "tier": "measured offline pure-contract and static checks; Unreal behavior unproven"
+}

@@ -24,6 +24,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 from socket_contract import make_socket_payload
+from pole_clip import art_full_segments, with_buried_feet
 
 
 MATERIAL_SLOTS = ["Front", "Flap", "Timber", "Edge"]
@@ -140,6 +141,13 @@ def blender_args() -> argparse.Namespace:
         type=float,
         default=5.0,
         help="art-clip only: clearance below the local art top edge (default 5 cm).",
+    )
+    parser.add_argument(
+        "--pole-clip",
+        choices=("none", "art-full"),
+        default="none",
+        help=("Baked-pole visibility rule. 'none' is the unchanged default. 'art-full' splits each pole into "
+              "mask-covered segments, including base notches and internal holes; requires --bake-poles."),
     )
     parser.add_argument(
         "--pole-y-m",
@@ -1835,7 +1843,8 @@ def art_clip_pole_tops(silhouette: "Silhouette", pole_y: list[float], margin_m: 
 def create_baked_poles(pole_y: list[float], height_m: float,
                        materials: list[bpy.types.Material], lod_label: str,
                        extension_cm: float = 100.0,
-                       tops_m: list[float] | None = None) -> tuple[list[bpy.types.Object], list[dict]]:
+                       tops_m: list[float] | None = None,
+                       segments_m: list[list[list[float]]] | None = None) -> tuple[list[bpy.types.Object], list[dict]]:
     """Create deterministic, joined-card copies of the shared pole profile.
 
     The shared pole is authored as a one-metre module whose normalized bounds
@@ -1849,30 +1858,35 @@ def create_baked_poles(pole_y: list[float], height_m: float,
     poles = []
     records = []
     for index, y in enumerate(pole_y, start=1):
-        if tops_m is not None:   # opt-in --pole-top art-clip; default path keeps the shared values above
-            top_m = float(tops_m[index - 1])
-            span_m = top_m - bottom_m
-            translation_z = bottom_m - POLE_UNIT_BOTTOM_M * span_m
-        pole = create_pole(materials)
-        pole.name = f"BakedPole_{lod_label}_{index}"
-        pole.location = (0.0, y, translation_z)
-        pole.scale.z = span_m
-        bpy.ops.object.select_all(action="DESELECT")
-        pole.select_set(True)
-        bpy.context.view_layer.objects.active = pole
-        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
-        pole.data.calc_loop_triangles()
-        poles.append(pole)
+        intervals = segments_m[index - 1] if segments_m is not None else [[bottom_m,
+            float(tops_m[index - 1]) if tops_m is not None else height_m + 0.2]]
+        made = []
+        for segment_index, (segment_bottom, segment_top) in enumerate(intervals, start=1):
+            span_m = float(segment_top) - float(segment_bottom)
+            if span_m <= 0:
+                raise RuntimeError(f"Pole {index} segment {segment_index} has non-positive span")
+            translation_z = float(segment_bottom) - POLE_UNIT_BOTTOM_M * span_m
+            pole = create_pole(materials)
+            pole.name = f"BakedPole_{lod_label}_{index}_S{segment_index}"
+            pole.location = (0.0, y, translation_z)
+            pole.scale.z = span_m
+            bpy.ops.object.select_all(action="DESELECT")
+            pole.select_set(True)
+            bpy.context.view_layer.objects.active = pole
+            bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+            pole.data.calc_loop_triangles()
+            poles.append(pole); made.append(pole)
         records.append({
-            "name": pole.name,
+            "name": f"BakedPole_{lod_label}_{index}",
             "socket": f"SOCKET_Pole_{index}",
             "axis_m": [0.0, float(y)],
             "bottom_z_m": bottom_m,
-            "top_z_m": top_m,
+            "top_z_m": max(float(b) for _a, b in intervals),
+            "segments_z_m": [[float(a), float(b)] for a, b in intervals],
             "shaft_diameter_m": POLE_DIAMETER_M,
             "material_slot": "Timber",
             "vertex_colour_red": 1.0,
-            "triangles": len(pole.data.loop_triangles),
+            "triangles": sum(len(pole.data.loop_triangles) for pole in made),
         })
     return poles, records
 
@@ -2178,15 +2192,27 @@ def build(args: argparse.Namespace) -> None:
     if args.bake_poles and is_pole_free_mount:
         raise RuntimeError("--bake-poles is valid only for wing-mounted flats")
     art_clip = args.pole_top == "art-clip"
+    art_full = args.pole_clip == "art-full"
     if art_clip and not args.bake_poles:
         raise RuntimeError("--pole-top art-clip requires --bake-poles")
+    if art_full and not args.bake_poles:
+        raise RuntimeError("--pole-clip art-full requires --bake-poles")
+    if art_full and art_clip:
+        raise RuntimeError("--pole-clip art-full and --pole-top art-clip are mutually exclusive")
     pole_tops_m, pole_top_rows = (art_clip_pole_tops(silhouette, pole_y, args.pole_top_margin_cm / 100.0)
                                   if art_clip else (None, None))
+    pole_segments_m, pole_segment_rows = (art_full_segments(
+        lambda points: silhouette.inside(np.asarray(points, dtype=np.float64)), pole_y, silhouette.height_m,
+        POLE_DIAMETER_M, args.pole_top_margin_cm / 100.0)
+                                           if art_full else (None, None))
+    if art_full:
+        pole_segments_m = with_buried_feet(pole_segments_m, -float(args.pole_extension_cm) / 100.0)
+        pole_tops_m = [max(segment[1] for segment in pole) for pole in pole_segments_m]
     baked_lod0, baked_pole_records = (create_baked_poles(
-        pole_y, silhouette.height_m, materials, "LOD0", args.pole_extension_cm, pole_tops_m)
+        pole_y, silhouette.height_m, materials, "LOD0", args.pole_extension_cm, pole_tops_m, pole_segments_m)
                                       if args.bake_poles else ([], []))
     baked_lod1, _ = (create_baked_poles(
-        pole_y, silhouette.height_m, materials, "LOD1", args.pole_extension_cm, pole_tops_m)
+        pole_y, silhouette.height_m, materials, "LOD1", args.pole_extension_cm, pole_tops_m, pole_segments_m)
                      if args.bake_poles else ([], []))
     flat, triangle_counts = consolidate_flat(flat_name + "_LOD0", board, flap_objects + parts + baked_lod0, materials)
     if baked_lod1:
@@ -2230,6 +2256,11 @@ def build(args: argparse.Namespace) -> None:
         flat["PoleTopZM"] = max(pole_tops_m)
         flat["PoleTopMode"] = "art-clip"
         flat["PoleTopsZM"] = json.dumps(pole_tops_m)
+    if art_full:
+        flat["PoleTopZM"] = max(pole_tops_m)
+        flat["PoleTopMode"] = "art-full"
+        flat["PoleTopsZM"] = json.dumps(pole_tops_m)
+        flat["PoleSegmentsZM"] = json.dumps(pole_segments_m)
     lod1["BakedPoles"] = bool(args.bake_poles)
     lod1["PoleCount"] = len(pole_y)
     lod1["FrameStileSearchMode"] = visibility["stile_search_mode"]
@@ -2239,6 +2270,11 @@ def build(args: argparse.Namespace) -> None:
         lod1["PoleTopZM"] = max(pole_tops_m)
         lod1["PoleTopMode"] = "art-clip"
         lod1["PoleTopsZM"] = json.dumps(pole_tops_m)
+    if art_full:
+        lod1["PoleTopZM"] = max(pole_tops_m)
+        lod1["PoleTopMode"] = "art-full"
+        lod1["PoleTopsZM"] = json.dumps(pole_tops_m)
+        lod1["PoleSegmentsZM"] = json.dumps(pole_segments_m)
     flat["LODContract"] = ("LOD0 board flaps frame hardware baked poles" if args.bake_poles else
                            "LOD0 board flaps frame hardware")
     lod1["LODContract"] = ("LOD1 board plus baked poles; no frame hardware flaps" if args.bake_poles else
@@ -2300,6 +2336,8 @@ def build(args: argparse.Namespace) -> None:
         pole_positions_y_m=pole_y,
         pole_extension_cm=args.pole_extension_cm if args.bake_poles else None,
         **({"pole_top_z_cm": [top * 100.0 for top in pole_tops_m]} if art_clip else {}),
+        **({"pole_segments_z_cm": [[[a * 100.0, b * 100.0] for a, b in pole]
+                                     for pole in pole_segments_m]} if art_full else {}),
     )
     socket_sidecar.write_text(json.dumps(socket_payload, indent=2) + "\n", encoding="utf-8")
     lod1.hide_render = True
@@ -2365,6 +2403,10 @@ def build(args: argparse.Namespace) -> None:
             **({"top_mode": "art-clip", "top_margin_cm": float(args.pole_top_margin_cm),
                 "top_z_m": max(pole_tops_m), "top_z_m_per_pole": pole_tops_m, "art_clip_rows": pole_top_rows}
                if art_clip else {}),
+            **({"top_mode": "art-full", "clip_margin_cm": float(args.pole_top_margin_cm),
+                "top_z_m": max(pole_tops_m), "top_z_m_per_pole": pole_tops_m,
+                "segments_z_m_per_pole": pole_segments_m, "art_full_rows": pole_segment_rows}
+               if art_full else {}),
         },
         "sockets": [socket.name for socket in sockets],
         "frame_members": members,
@@ -2429,7 +2471,8 @@ def material_bounds(obj: bpy.types.Object, slots: list[str], slot_name: str) -> 
 
 def validate_baked_poles(obj: bpy.types.Object, slots: list[str], socket_objects: dict[str, bpy.types.Object],
                          expected_height_m: float, expected_bottom_m: float,
-                         recorded_tops_m: list[float] | None = None) -> dict:
+                         recorded_tops_m: list[float] | None = None,
+                         recorded_segments_m: list[list[list[float]]] | None = None) -> dict:
     layer = vertex_color_layer(obj)
     timber_index = slots.index("Timber") if "Timber" in slots else -1
     pole_sockets = sorted(name for name in socket_objects if name.startswith("SOCKET_Pole_"))
@@ -2467,9 +2510,21 @@ def validate_baked_poles(obj: bpy.types.Object, slots: list[str], socket_objects
                     any(abs(float(z) - recorded_top) <= 0.002 for _, _, z in samples)
                     and recorded_top <= expected_height_m + 0.2 + 0.002
                 )
+            segment_ok = True
+            pole_index = int(socket_name.rsplit("_", 1)[1]) - 1
+            segments = (recorded_segments_m[pole_index]
+                        if recorded_segments_m is not None and 0 <= pole_index < len(recorded_segments_m) else None)
+            if recorded_segments_m is not None:
+                segment_ok = bool(segments) and all(
+                    any(float(a) - 0.002 <= float(z) <= float(b) + 0.002 for a, b in segments)
+                    for _x, _y, z in samples)
+                segment_ok = segment_ok and all(
+                    any(abs(float(z) - float(edge)) <= 0.002 for _x, _y, z in samples)
+                    for segment in segments for edge in segment)
             detail_pass = bool(
                 abs(float(lower[2]) - expected_bottom_m) <= 0.002
                 and top_ok
+                and segment_ok
                 and abs(axis_x - float(socket_location.x)) <= 0.002
                 and abs(axis_y - float(socket_location.y)) <= 0.002
                 and min(red_values) >= 0.97
@@ -2488,6 +2543,9 @@ def validate_baked_poles(obj: bpy.types.Object, slots: list[str], socket_objects
             if recorded_tops_m is not None:
                 details[socket_name]["recorded_top_m"] = recorded_top
                 details[socket_name]["top_rule"] = "art-clip: reaches its recorded top (+-2 mm), recorded <= card + 0.2 m"
+            if recorded_segments_m is not None:
+                details[socket_name]["segments_z_m"] = segments
+                details[socket_name]["segment_rule"] = "art-full: every pole sample is inside a recorded segment; every segment edge is present (+-2 mm)"
         else:
             detail_pass = False
             details[socket_name] = {"pass": False, "reason": "no Timber VC.R=1 pole geometry on socket axis"}
@@ -2925,7 +2983,9 @@ def validate(args: argparse.Namespace) -> None:
         baked_poles = bool(flat.get("BakedPoles", False))
         expected_pole_bottom_m = float(flat.get("PoleFootZM", -1.0 if baked_poles else 0.0))
         recorded_pole_tops = (json.loads(str(flat["PoleTopsZM"]))
-                              if str(flat.get("PoleTopMode", "")) == "art-clip" else None)
+                              if str(flat.get("PoleTopMode", "")) in ("art-clip", "art-full") else None)
+        recorded_pole_segments = (json.loads(str(flat["PoleSegmentsZM"]))
+                                  if str(flat.get("PoleTopMode", "")) == "art-full" else None)
         required_sockets = set() if is_wave_row else {"SOCKET_Pole_1", "SOCKET_Hinge", "SOCKET_Pivot"}
         sparse_single_pole = "single_stile_sparse_second_band" in str(flat.get("FrameStileSearchMode", ""))
         if not is_wave_row and float(dims[1]) > 4.0 and not sparse_single_pole:
@@ -2973,10 +3033,12 @@ def validate(args: argparse.Namespace) -> None:
         measured_edge_thickness = (float(edge_bounds[1][0] - edge_bounds[0][0])
                                    if edge_bounds else 0.0)
         baked_lod0_check = (validate_baked_poles(
-            flat, slots, socket_objects, expected_h, expected_pole_bottom_m, recorded_pole_tops)
+            flat, slots, socket_objects, expected_h, expected_pole_bottom_m, recorded_pole_tops,
+            recorded_pole_segments)
                             if baked_poles else {"pass": True, "enabled": False})
         baked_lod1_check = (validate_baked_poles(
-            lod1, lod1_slots, socket_objects, expected_h, expected_pole_bottom_m, recorded_pole_tops)
+            lod1, lod1_slots, socket_objects, expected_h, expected_pole_bottom_m, recorded_pole_tops,
+            recorded_pole_segments)
                             if baked_poles and lod1 else {"pass": not baked_poles, "enabled": False})
         triangles_by_slot = {name: 0 for name in MATERIAL_SLOTS}
         for triangle in flat.data.loop_triangles:

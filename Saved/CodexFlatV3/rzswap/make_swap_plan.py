@@ -65,12 +65,16 @@ def imported_owners(verify_paths):
     return out
 
 
-def designs_for(P, manifests, dry, verified):
+def designs_for(P, manifests, dry, verified, top_border=False):
     out = []
     for rel in manifests:
         m = jload(_abs(rel))
         for e in m.get("meshes", []):
-            if e.get("intended_passage") != P:
+            mount = e.get("mount") or "wing"
+            if top_border:
+                if mount != "top-border":
+                    continue
+            elif e.get("intended_passage") != P or mount != "wing":
                 continue
             asset = str(e["asset"])
             variant = asset.rsplit("_", 1)[-1]
@@ -80,13 +84,43 @@ def designs_for(P, manifests, dry, verified):
             mesh = "%s/%s" % (rzc.MESH_FOLDERS[variant], asset)
             c = (dry.get("candidates") or {}).get(mesh, {})
             vm = verified.get(owner, "MISSING")
-            out.append({"owner": owner, "side": e.get("side"), "mount": e.get("mount") or "wing", "passage": P,
+            out.append({"owner": owner, "side": "T" if top_border else e.get("side"), "mount": mount, "passage": P,
                         "mesh": mesh, "height_cm": float(e.get("height_cm") or 0.0),
                         "width_cm": round(float((e.get("dimensions_m") or {}).get("width") or 0.0) * 100.0, 1),
                         "skin_png": (e.get("textures") or {}).get("SkinColor", {}).get("path"),
                         "imported": vm != "MISSING" and (vm is None or vm == mesh),
-                        "exists": bool(c.get("exists")), "zero_bounds": c.get("zero_bounds"), "manifest": rel})
+                        "exists": bool(c.get("exists")), "zero_bounds": c.get("zero_bounds"),
+                        "box_cm": c.get("box_cm"), "manifest": rel})
     return out
+
+
+def targets_from(path, P, dry):
+    """Resolve audit low_quality_ranking rows to fresh-DRY cue GUIDs; retain expected mesh as a stale-data guard."""
+    full = _abs(path)
+    doc = jload(full)
+    rows = doc.get("low_quality_ranking") if isinstance(doc, dict) else None
+    core.require(isinstance(rows, list) and rows, "TARGETS_FILE_HAS_NO_low_quality_ranking %s" % path)
+    by_label = {r["label"]: r for r in dry["rows"]}
+    keys, expected, records = [], {}, []
+    for rec in rows:
+        label, side = str(rec.get("cue") or ""), str(rec.get("side") or "").upper()
+        if not label.startswith(P + " "):
+            continue
+        core.require(side in ("L", "R", "T"), "TARGET_SIDE_INVALID %r" % side)
+        core.require(label in by_label and side in by_label[label].get("sides", {}), "TARGET_NOT_IN_FRESH_DRY %s|%s" % (label, side))
+        key = "%s|%s" % (by_label[label]["cue_guid"], side)
+        core.require(key not in keys, "TARGET_DUPLICATE %s" % key)
+        keys.append(key)
+        expected[key] = rec.get("mesh")
+        records.append({"rank": rec.get("rank"), "label": label, "side": side, "key": key,
+                        "expected_mesh": rec.get("mesh"), "reason": rec.get("reason")})
+    core.require(keys, "TARGETS_FILE_HAS_NO_ROWS_FOR %s" % P)
+    try:
+        rel = os.path.relpath(full, PROJECT).replace("\\", "/")
+    except ValueError:  # target file on another drive (e.g. a temp fixture): keep the absolute path
+        rel = str(full).replace("\\", "/")
+    return {"path": rel, "sha256": rzc.sha_file(full),
+            "records": records, "keys": keys, "expected": expected}
 
 
 # =====================================================================================================================
@@ -204,7 +238,8 @@ def contact_sheet(plan, dry, out_png):
     colw = TW * 2 + PAD * 3
     per = 12                                   # rows per band (the strip wraps)
     bands = max(1, (len(rows) + per - 1) // per)
-    bandh = 2 * (TH + 34 + PAD) + 40
+    sheet_sides = tuple(plan.get("sides") or ("L", "R"))
+    bandh = len(sheet_sides) * (TH + 34 + PAD) + 40
     W = PAD + min(len(rows), per) * colw
     H = 22 + bands * bandh + 70
     img = Image.new("RGB", (W, H), (34, 34, 38))
@@ -215,9 +250,9 @@ def contact_sheet(plan, dry, out_png):
     except OSError:
         font = small = ImageFont.load_default()
     cache = {}
-    title = "%s  %s  plan #%s  DRY %s  swaps %d  pair_mode %s  (top: L, bottom: R; each cell = CURRENT | PROPOSED)" % (
+    title = "%s  %s  plan #%s  DRY %s  swaps %d  pair_mode %s  (sides: %s; each cell = CURRENT | PROPOSED)" % (
         plan["passage"], "PREVIEW - NOT APPLIABLE" if dry.get("mode") == "PREVIEW" else "", plan["hash8"],
-        plan["dry_run_id"], len(plan["swaps"]), plan["pair_mode"])
+        plan["dry_run_id"], len(plan["swaps"]), plan["pair_mode"], "/".join(sheet_sides))
     d.text((PAD, 4), title, fill=(240, 240, 240), font=font)
     for i, r in enumerate(rows):
         x0 = PAD + (i % per) * colw
@@ -226,7 +261,9 @@ def contact_sheet(plan, dry, out_png):
         d.text((x0, by), "%s" % r["label"].replace("Wing ", "W"), fill=(250, 220, 120), font=font)
         d.text((x0, by + 15), ("%.1f s" % ps) if ps is not None and dry.get("mode") != "PREVIEW" else "#%d" % (i + 1),
                fill=(200, 200, 200), font=small)
-        for k, s in enumerate(("L", "R")):
+        for k, s in enumerate(sheet_sides):
+            if s not in r.get("sides", {}):
+                continue
             y0 = by + 32 + k * (TH + 34 + PAD)
             key = "%s|%s" % (r["cue_guid"], s)
             f = facts.get(key, {})
@@ -274,14 +311,20 @@ def main(argv=None):
     ap.add_argument("--no-sheet", action="store_true")
     ap.add_argument("--remap", help="JSON {old mesh path: new mesh path} (or {\"remap\": {...}}): deterministic 1:1 "
                                     "REMAP plan -- every side showing an old mesh gets its new mesh; no scoring")
+    ap.add_argument("--targets-from", help="audit JSON with low_quality_ranking; resolve exact cue+side+mesh targets "
+                                            "against the fresh DRY and refuse a stale/incomplete target set")
+    ap.add_argument("--top-border", action="store_true", help="plan only bHasTop Top panels (side T), using top-border "
+                                                              "manifest entries centred at the existing top-border Z")
     a = ap.parse_args(argv)
     P = a.passage
     protect = jload(a.protect)
-    opts = {"pair_mode": a.pair_mode, "end_rows": a.end_rows, "exclude": sorted(a.exclude)}
+    opts = {"pair_mode": a.pair_mode, "end_rows": a.end_rows, "exclude": sorted(a.exclude),
+            "sides": ["T"] if a.top_border else ["L", "R"]}
     if a.max_swaps is not None:
         opts["max_swaps"] = a.max_swaps
     if a.remap:
-        core.require(not a.preview_gap_audit, "REMAP_NEEDS_A_LIVE_DRY (no --preview-gap-audit)")
+        core.require(not a.preview_gap_audit and not a.top_border and not a.targets_from,
+                     "REMAP_NEEDS_A_LIVE_LR_DRY (no preview/top/targets)")
         core.require(a.pair_mode == "side" and a.max_swaps is None and not a.exclude,
                      "REMAP_OPTION_NOT_SUPPORTED (--pair-mode/--max-swaps/--exclude; edit the remap instead)")
         dry_path = a.dry or os.path.join(HERE, "rzswap_dry_%s_LATEST.json" % P)
@@ -296,6 +339,7 @@ def main(argv=None):
                               "sha256": rzc.sha_file(remap_path)}
         tag = P          # rzswap_plan_<P>.json = the file APPLY reads by default (rzswap.py main)
     elif a.preview_gap_audit:
+        core.require(not a.top_border and not a.targets_from, "PREVIEW_GAP_AUDIT_IS_LR_UNTARGETED")
         dry = preview_dry(P)
         manifests = a.manifests or sorted(glob.glob(os.path.join(PROJECT, "DerivedAssets", "FlatV3", "Realism_20261007", "**",
                                                                  "IMPORT_MANIFEST*.json"), recursive=True))
@@ -315,9 +359,16 @@ def main(argv=None):
         core.require(dry.get("passage") == P, "DRY_IS_FOR %s" % dry.get("passage"))
         manifests = a.manifests or dry.get("manifests") or []
         verify = a.verify if a.verify is not None else glob.glob(os.path.join(HERE, "..", "rzimport", "rzimport_verify_*_LATEST.json"))
-        designs = designs_for(P, manifests, dry, imported_owners(verify))
+        designs = designs_for(P, manifests, dry, imported_owners(verify), a.top_border)
+        if a.targets_from:
+            target = targets_from(a.targets_from, P, dry)
+            opts.update({"target_keys": target["keys"], "target_expected_meshes": target["expected"],
+                         "target_source": {"path": target["path"], "sha256": target["sha256"],
+                                           "count": len(target["keys"])}})
         plan = core.make_plan(dry, designs, protect, opts)
-        tag = P
+        if a.targets_from:
+            plan["target_filter"] = target
+        tag = "%s_TOP" % P if a.top_border else P
     plan["made"] = datetime.datetime.now().isoformat(timespec="seconds")
     plan["manifests"] = manifests
     plan["foreign_records_naming_target_cues"] = foreign_records({s["cue_guid"] for s in plan["swaps"]})
@@ -333,7 +384,7 @@ def main(argv=None):
     print("RZSWAP_PLAN|passage=%s|swaps=%d|gates_ok=%s|hash=%s|confirm=%s|plan=%s|sheet=%s" % (
         P, len(plan["swaps"]), plan["gates_ok"], plan["hash8"], plan["confirm"], out_json, sheet))
     for s in plan["swaps"]:
-        extra = (" front+%.2f dy %.3f" % (s["geometry"]["front_growth_cm"], s["local_y_shift_cm"])) if "geometry" in s else ""
+        extra = (" front+%.2f" % s["geometry"]["front_growth_cm"]) if s.get("geometry") else ""
         print("  %-14s %s  %-28s -> %-44s score %4d  y %.1f%s" % (s["label"], s["side"], (core.mesh_name(s["old_panel"]["mesh"]) or "")[:28],
                                                                   s["new_owner"], s["score"],
                                                                   s["planned_panel"]["local_transform"]["location"][1], extra))

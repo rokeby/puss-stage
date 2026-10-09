@@ -56,10 +56,17 @@ def load(name, path):
 
 C = load("s2v3_core_test", os.path.join(HERE, "s2v3_overlay_core.py"))
 PROJECT = os.path.normpath(os.path.join(HERE, "..", "..", "..", ".."))
-REAL_KIT = {k: os.path.join(PROJECT, v) for k, v in C.KIT.items()}
+FIXTURE_PROJECT = PROJECT
+if not os.path.isfile(os.path.join(FIXTURE_PROJECT, C.KIT["manifest_path"])):
+    candidate = os.environ.get("PUSS_FIXTURE_PROJECT", r"E:\PussStage")
+    if os.path.isfile(os.path.join(candidate, C.KIT["manifest_path"])):
+        FIXTURE_PROJECT = candidate
+REAL_KIT = {k: os.path.join(FIXTURE_PROJECT, v) for k, v in C.KIT.items()}
 KIT_JSON = {k: json.load(open(v, encoding="utf-8")) for k, v in REAL_KIT.items()}
-CENSUS = json.load(open(os.path.join(S2K, "her_wings_census.json"), encoding="utf-8"))
-DECODE = json.load(open(os.path.join(S2K, "her_seq_decode.json"), encoding="utf-8"))
+FIXTURE_S2K = S2K if os.path.isfile(os.path.join(S2K, "her_wings_census.json")) else os.path.join(
+    FIXTURE_PROJECT, "Saved", "CodexFlatV3", "s2klara")
+CENSUS = json.load(open(os.path.join(FIXTURE_S2K, "her_wings_census.json"), encoding="utf-8"))
+DECODE = json.load(open(os.path.join(FIXTURE_S2K, "her_seq_decode.json"), encoding="utf-8"))
 
 # her world sizes (PROPOSAL.md table [meas]): local half-widths and heights of her meshes
 HER_LOCAL_BOX = {"L": [[-2.5, -212.7, 0.0], [2.5, 212.7, 1000.0]], "R": [[-2.5, -207.6, 0.0], [2.5, 207.6, 1000.0]],
@@ -463,6 +470,10 @@ class Key:
     def get_value(self):
         return self.value
 
+    def set_value(self, value):
+        self.value = f32(value)
+        self.channel._d()
+
     def get_interpolation_mode(self):
         return Enum(self.interp)
 
@@ -499,6 +510,8 @@ class Channel(Obj):
         return self.channel_name
 
     def get_keys(self):
+        for key in self.keys:
+            key.channel = self
         return list(self.keys)
 
     def add_key(self, time, new_value, sub_frame=0.0, time_unit=None, interpolation=None):
@@ -513,6 +526,7 @@ class Channel(Obj):
             new_value = f32(new_value)
         k = Key(time.value, new_value, {"LINEAR": "RCIM_LINEAR", "CONSTANT": "RCIM_CONSTANT"}.get(
             interpolation.name if interpolation else "", "RCIM_CUBIC"))
+        k.channel = self
         self.keys.append(k)
         self.keys.sort(key=lambda k: k.tick)
         self._d()
@@ -1093,7 +1107,7 @@ def tool_for(U, tmp):
     shutil.copy2(os.path.join(HERE, "s2v3_overlay_core.py"), here)
     T.HERE, T.PROJECT = here, tmp
     T.RECORD, T.ORIGINALS = os.path.join(here, "s2v3_overlay_record.json"), os.path.join(here, "s2v3_overlay_originals.json")
-    T.CENSUS_JSON = os.path.join(S2K, "her_wings_census.json")
+    T.CENSUS_JSON = os.path.join(FIXTURE_S2K, "her_wings_census.json")
     return T
 
 
@@ -1331,6 +1345,25 @@ def part_b():
 
         r3, ok, new, err = run(T, U, args, "VERIFY")
         check("B6+ VERIFY ok after APPLY (a later call)", bool(ok) and err is None, (err, new[-2:]))
+        before_hold = [[channel.keys[0].value for channel in b.tracks[-1].sections[0].channels[:6]] for b in ours]
+        before_nonhold = [[[(id(key), key.tick, key.value, key.interp) for key in channel.keys[1:]]
+                           for channel in b.tracks[-1].sections[0].channels[:6]] for b in ours]
+        rr, ok, new, err = run(T, U, args, "REPOSE", pre_section_pose="first")
+        after_hold = [[channel.keys[0].value for channel in b.tracks[-1].sections[0].channels[:6]] for b in ours]
+        after_nonhold = [[[(id(key), key.tick, key.value, key.interp) for key in channel.keys[1:]]
+                          for channel in b.tracks[-1].sections[0].channels[:6]] for b in ours]
+        check("B6r+ REPOSE first: exactly 15 tick-0 hold poses changed; non-hold key objects/values untouched",
+              bool(ok) and all(a != b for a, b in zip(before_hold, after_hold)) and before_nonhold == after_nonhold,
+              (err, new[-2:]))
+        rr, ok, new, err = run(T, U, args, "REPOSE", pre_section_pose="auto")
+        check("B6r- REPOSE auto refuses before mutation", err and "REPOSE_POSE" in str(err), err)
+        rr, ok, new, err = run(T, U, args, "REVERT", revert_scope="repose")
+        restored = [[channel.keys[0].value for channel in b.tracks[-1].sections[0].channels[:6]] for b in ours]
+        check("B6r+ REVERT scope repose restores the previous 15 holds and keeps non-hold keys untouched",
+              bool(ok) and all(C.keys_equal([[0]+a], [[0]+b]) for a,b in zip(before_hold, restored)) and
+              before_nonhold == [[[(id(key), key.tick, key.value, key.interp) for key in channel.keys[1:]]
+                                  for channel in wing.tracks[-1].sections[0].channels[:6]] for wing in ours],
+              (err, new[-2:]))
         hides[3].actor = U.world.actors[0] if U.world.actors[0] is not hides[3].actor else U.world.actors[1]
         r3, ok, new, err = run(T, U, args, "VERIFY")
         check("B6- VERIFY fails when a hide binding resolves to the wrong actor", marker(new, "_VERIFY_FAILED|") and
@@ -1615,6 +1648,20 @@ def part_d():
     nz[0][4] = 0.0
     check("D7+ -0.0 vs 0.0 hash alike", C.keys_sha(rd, interps) == C.keys_sha(nz, interps))
     check("D7- keys_sha still sees an interpolation change", C.keys_sha(rd, interps) != C.keys_sha(rd, ["RCIM_LINEAR"] * 3))
+    base = [[0, 1, 2, 3, 4, 5, 6], [100, 11, 12, 13, 14, 15, 16]]
+    ims = ["RCIM_CONSTANT", "RCIM_LINEAR"]
+    reposed, rims = C.replace_hold(base, ims, [21, 22, 23, 24, 25, 26])
+    check("D8+ REPOSE changes only the tick-0 hold pose",
+          reposed[0][1:4] == [21, 22, 23] and reposed[1:] == base[1:] and rims == ims and
+          C.hold_scope_problems(base, ims, reposed, rims) == [])
+    damaged = _copy.deepcopy(reposed); damaged[1][1] += 1
+    check("D8- hold fingerprint catches a non-hold key change",
+          "NON_HOLD_KEYS_CHANGED" in C.hold_scope_problems(base, ims, damaged, rims))
+    try:
+        C.replace_hold(base, ["RCIM_LINEAR", "RCIM_LINEAR"], [1, 2, 3, 4, 5, 6]); refused = False
+    except C.PlanError:
+        refused = True
+    check("D9- REPOSE refuses a non-CONSTANT tick-0 key", refused)
 
 # ===================================================================================================== PART C
 FORBIDDEN = ("save_map", "save_dirty_packages", "save_packages", "reload_packages", "get_bound_objects",

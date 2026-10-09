@@ -55,6 +55,9 @@ MODES (args.mode; confirm '<MODE> S2V3OVERLAY'; decided_by for writes)
   VARIANT  args.variant A|B: rewrite ONLY our 15 templates' override_materials (every material must load first, else
            nothing changes); census {overlay}; save overlay.  B's MIs are made by a later Unreal step (manifest
            'who_writes_it'), so DRY only WARNS when the variant not being applied is missing.
+  REPOSE   args.pre_section_pose rest|first: rewrite ONLY the local-tick-0 CONSTANT hold pose on each of our 15
+           transform tracks; backup, float32-tolerant numeric read-back, census {overlay}. REVERT with
+           revert_scope=repose restores the immediately previous holds; default REVERT retains its old meaning.
   RESYNC   re-ingest detected (copy key hashes != record): re-copy keys into our 15 transform tracks; census {overlay}.
            Equal hashes -> S2V3OV_RESYNC_NOOP (nothing saved).  A moved hookin section needs REVERT + APPLY.
   VERIFY   read-only, a LATER call: LS_DevScene_02 vs record, our track/section, bindings resolve to her actors
@@ -802,6 +805,19 @@ def _read_our_keys(C, section):
     return C.keys_from_channels(chans)
 
 
+def _set_hold_values(C, section, pose):
+    """Mutate only the six existing local-tick-0 keys; never rebuild the transform channels."""
+    cm = _chan_map(section)
+    for index, name in enumerate(C.CHANNELS):
+        channel = cm[C.UE_CHANNEL[name]]
+        keys = [key for key in channel.get_keys()
+                if int(key.get_time(time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION).frame_number.value) == 0]
+        if len(keys) != 1 or _enum(keys[0].get_interpolation_mode()) != "RCIM_CONSTANT":
+            raise RuntimeError("REPOSE_HOLD_KEY|%s|count=%d" % (name, len(keys)))
+        keys[0].set_value(float(pose[index]))
+    return _read_our_keys(C, section)
+
+
 def _add_ours(C, ov, w, trow, mats, rng):
     b = ov.add_spawnable_from_class(unreal.StaticMeshActor)
     if b is None or not b.is_valid():
@@ -985,7 +1001,7 @@ def run_apply(C, args, run, world):
            "coverage": plan["coverage"], "overlay_playback": plan["overlay_playback"],
            "copy": plan["copy"], "copy_rates": plan["copy_rates"], "types": plan["types"], "kit": plan["kit"],
            "wings": [{k: w.get(k) for k in ("label", "type", "her_actor_path", "copy_binding", "source_hashes",
-                                             "keys_sha", "pre_pose", "pre_pose_measured", "rest")}
+                                             "keys_sha", "pre_pose", "pre_pose_measured", "fall_first", "rest")}
                      for w in plan["wings"]],
            "originals": ORIGINALS, "written": datetime.datetime.now().isoformat(timespec="seconds")}
     _write(RECORD, rec, exclusive=True)
@@ -1108,6 +1124,100 @@ def run_variant(C, args, run, world):
     rec.setdefault("variant_history", []).append([run, variant])
     _write(RECORD, rec)
     return {"variant": variant, "templates": changed, "backup": backup}
+
+
+def _repose_sections(C, ov, rec):
+    by = {str(b.get_display_name()): b for b in ov.get_bindings()}
+    out = {}
+    for w in rec["wings"]:
+        b = by.get(C.OURS_PREFIX + w["label"])
+        tr = [t for t in b.get_tracks() if _cls(t) == "MovieScene3DTransformTrack"] if b else []
+        secs = [s for t in tr for s in t.get_sections()]
+        if len(secs) != 1:
+            raise C.PlanError("REPOSE_SHAPE|%s|sections=%d" % (w["label"], len(secs)))
+        out[w["label"]] = secs[0]
+    if len(out) != 15:
+        raise C.PlanError("REPOSE_BINDING_COUNT|%d" % len(out))
+    return out
+
+
+def _apply_repose_values(C, ov, rec, wanted):
+    sections = _repose_sections(C, ov, rec)
+    previous, expected = {}, {}
+    for w in rec["wings"]:
+        label = w["label"]
+        before, bi = _read_our_keys(C, sections[label])
+        previous[label] = {"hold": list(before[0][1:]), "keys_sha": C.keys_sha(before, bi)}
+        after, ai = C.replace_hold(before, bi, wanted[label])
+        got, gi = _set_hold_values(C, sections[label], after[0][1:])
+        scope = C.hold_scope_problems(before, bi, got, gi)
+        cmp_ = C.keys_compare(after, ai, got, gi)
+        if scope or not cmp_["ok"]:
+            raise RuntimeError("REPOSE_READBACK|%s|scope=%s|%s|NOTHING SAVED; Don't-Save restart" % (
+                label, scope, C.keys_compare_text(cmp_)))
+        expected[label] = {"keys": got, "interps": gi, "keys_sha": C.keys_sha(got, gi)}
+    return previous, expected
+
+
+def run_repose(C, args, run, world):
+    rec = _read(RECORD)
+    target = str(args.get("pre_section_pose") or "")
+    if target not in ("rest", "first"):
+        raise C.PlanError("REPOSE_POSE|pre_section_pose must be rest|first")
+    # Re-plan read-only so FIRST is her current first key composed with the recorded pivot-child transform.
+    a2 = dict(args, overlay_asset=rec["overlay_asset"], variant=rec["variant"], pre_section_pose=target)
+    plan, _h = _plan(C, a2, world, run)
+    ref = [r for r in plan["refusals"] if not r.startswith(("OVERLAY_ASSET_EXISTS", "OVERLAY_TRACK_ALREADY_IN_SCENE"))]
+    if ref:
+        raise C.PlanError("REPOSE_PLAN_REFUSED|" + " || ".join(ref[:12]))
+    planned = {w["label"]: w for w in plan["wings"]}
+    if sorted(planned) != sorted(w["label"] for w in rec["wings"]):
+        raise C.PlanError("REPOSE_WING_SET_CHANGED")
+    wanted = {label: list((row["rest"] if target == "rest" else row["fall_first"])[1:])
+              for label, row in planned.items()}
+    ov = _load(rec["overlay_asset"], "overlay")
+    backup = _backup(C, run, "-REPOSE", [_content_file(rec["overlay_asset"]), RECORD])
+    previous, expected = _apply_repose_values(C, ov, rec, wanted)
+    _save(C, [rec["overlay_asset"]], [rec["overlay_asset"]])
+    post = _overlay_state(C, _load(rec["overlay_asset"], "overlay"))["ours"]
+    previous_pre_pose = {w["label"]: w.get("pre_pose") for w in rec["wings"]}
+    for w in rec["wings"]:
+        label = w["label"]
+        got = post[label]
+        cmp_ = C.keys_compare(expected[label]["keys"], expected[label]["interps"], got["keys"], got["interps"])
+        if not cmp_["ok"]:
+            raise RuntimeError("REPOSE_POST_SAVE|%s|%s" % (label, C.keys_compare_text(cmp_)))
+        w["keys_sha_readback"] = got["keys_sha"]
+        w["pre_pose"] = target
+    rec.setdefault("reposes", []).append({"run": run, "target": target, "previous": previous,
+                                           "previous_pre_pose": previous_pre_pose,
+                                           "backup": backup, "reverted": False})
+    _write(RECORD, rec)
+    return {"target": target, "holds": 15, "backup": backup,
+            "fingerprint_scope": "15 tick-0 hold poses only"}
+
+
+def run_repose_revert(C, args, run, world):
+    rec = _read(RECORD)
+    item = next((row for row in reversed(rec.get("reposes") or []) if not row.get("reverted")), None)
+    if item is None:
+        raise C.PlanError("NO_REPOSE_TO_REVERT")
+    wanted = {label: row["hold"] for label, row in item["previous"].items()}
+    ov = _load(rec["overlay_asset"], "overlay")
+    backup = _backup(C, run, "-REPOSE-REVERT", [_content_file(rec["overlay_asset"]), RECORD])
+    _previous, expected = _apply_repose_values(C, ov, rec, wanted)
+    _save(C, [rec["overlay_asset"]], [rec["overlay_asset"]])
+    post = _overlay_state(C, _load(rec["overlay_asset"], "overlay"))["ours"]
+    for w in rec["wings"]:
+        label = w["label"]
+        cmp_ = C.keys_compare(expected[label]["keys"], expected[label]["interps"], post[label]["keys"], post[label]["interps"])
+        if not cmp_["ok"]:
+            raise RuntimeError("REPOSE_REVERT_POST_SAVE|%s|%s" % (label, C.keys_compare_text(cmp_)))
+        w["keys_sha_readback"] = post[label]["keys_sha"]
+        w["pre_pose"] = (item.get("previous_pre_pose") or {}).get(label, w.get("pre_pose"))
+    item.update(reverted=True, revert_run=run, revert_backup=backup)
+    _write(RECORD, rec)
+    return {"restored_holds": 15, "reposed_run": item["run"], "backup": backup}
 
 
 def run_resync(C, args, run, world):
@@ -1250,6 +1360,8 @@ def run_verify(C, args, run, world, census0):
 
 
 def run_revert(C, args, run, world):
+    if str(args.get("revert_scope") or "overlay") == "repose":
+        return run_repose_revert(C, args, run, world)
     rec = _read(RECORD)
     scene = _load(C.SCENE_SEQ, "scene")
     fp_now = _fingerprint(C, scene)
@@ -1325,6 +1437,9 @@ def main():
         elif mode == "VARIANT":
             r = run_variant(C, args, run, world)
             unreal.log("%s_VARIANT_OK|run=%s|%s" % (C.MARK, run, json.dumps(r)))
+        elif mode == "REPOSE":
+            r = run_repose(C, args, run, world)
+            unreal.log("%s_REPOSE_OK|run=%s|%s" % (C.MARK, run, json.dumps(r)))
         elif mode == "RESYNC":
             r = run_resync(C, args, run, world)
             if r is None:

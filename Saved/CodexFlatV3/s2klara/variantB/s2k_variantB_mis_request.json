@@ -1,0 +1,13 @@
+{
+ "method": "tools/call",
+ "params": {
+  "name": "execute_tool",
+  "arguments": {
+   "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+   "tool_name": "ExecuteProjectPythonFile",
+   "arguments": {
+    "relativeSavedPath": "CodexFlatV3/s2klara/variantB/s2k_variantB_mis_run.py"
+   }
+  }
+ }
+}

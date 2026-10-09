@@ -161,6 +161,16 @@ def height_gate(mount, bounds_cm, height_cm, pole):
         if not pole:
             return "HEIGHT_NO_POLE_GEOMETRY"
         want_min = float(pole["bottom_z_cm"])
+        segments = pole.get("pole_segments_z_cm")
+        if pole.get("top_mode") == "art-full":
+            if not isinstance(segments, list) or not segments or any(
+                    not isinstance(per_pole, list) or not per_pole or any(
+                        not isinstance(segment, list) or len(segment) != 2 or float(segment[1]) <= float(segment[0])
+                        for segment in per_pole) for per_pole in segments):
+                return "ARTFULL_SEGMENTS_INVALID"
+            if any(abs(min(float(a) for a, _b in per_pole) - want_min) > BOUNDS_TOL_CM
+                   for per_pole in segments):
+                return "ARTFULL_FOOT_VS_MANIFEST"
         tops = pole.get("pole_top_z_cm")
         if tops:
             # opt-in art-clip sidecar (socket_contract pole_top_z_cm, KlaraS2 8 Oct): every recorded pole top must sit

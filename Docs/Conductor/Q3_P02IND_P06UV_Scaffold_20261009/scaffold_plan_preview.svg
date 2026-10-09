@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <rect width="1200" height="700" fill="#111820"/>
+  <style>text{font-family:Segoe UI,Arial;fill:#e9eef3}.h{font-size:30px;font-weight:700}.s{font-size:18px}.d{font-size:15px;fill:#9fb1c3}.steel{stroke:#9aa7b2;stroke-width:12}.brace{stroke:#667887;stroke-width:7}.net{fill:#547080;fill-opacity:.30;stroke:#7793a3;stroke-dasharray:8 8}.lamp{fill:#ff9d42;stroke:#ffd098;stroke-width:3}.dim{stroke:#f0c674;stroke-width:2;marker-start:url(#a);marker-end:url(#a)}</style>
+  <defs><marker id="a" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#f0c674"/></marker></defs>
+  <text x="55" y="55" class="h">P06 real scaffold — dormant export/placement plan</text>
+  <text x="55" y="88" class="d">Measured source: 3 bays × 4 lifts, 8.4 m × 1.5 m × 10 m. Default placement: 2 bays / 5.6 m.</text>
+  <g transform="translate(100 155)">
+    <rect x="0" y="0" width="420" height="400" class="net"/>
+    <path d="M0 0V400M210 0V400M420 0V400M0 0H420M0 100H420M0 200H420M0 300H420M0 400H420" class="steel" fill="none"/>
+    <path d="M0 0L210 100M210 0L0 100M210 100L420 200M420 100L210 200M0 200L210 300M210 200L0 300M210 300L420 400M420 300L210 400" class="brace" fill="none"/>
+    <circle cx="105" cy="120" r="10" class="lamp"/><circle cx="315" cy="220" r="10" class="lamp"/>
+    <path d="M0 445H420" class="dim"/><text x="145" y="480" class="s">5.6 m — APPLY default</text>
+    <text x="0" y="520" class="d">Front −X • width +Y • up +Z • floor-centre origin</text>
+  </g>
+  <g transform="translate(650 155)">
+    <rect x="0" y="0" width="450" height="400" class="net"/>
+    <path d="M0 0V400M150 0V400M300 0V400M450 0V400M0 0H450M0 100H450M0 200H450M0 300H450M0 400H450" class="steel" fill="none"/>
+    <path d="M0 0L150 100M150 0L0 100M150 100L300 200M300 100L150 200M300 200L450 300M450 200L300 300" class="brace" fill="none"/>
+    <circle cx="75" cy="120" r="10" class="lamp"/><circle cx="225" cy="220" r="10" class="lamp"/><circle cx="375" cy="320" r="10" class="lamp"/>
+    <path d="M0 445H450" class="dim"/><text x="105" y="480" class="s">8.4 m — explicit oversize only</text>
+    <text x="0" y="520" class="d">12 source point lights excluded; Rig owns real lights.</text>
+  </g>
+  <text x="55" y="655" class="s">Slots: Front aged steel · Flap baked dark gauze · Timber boards · Edge emissive bulbs · LOD1 ≥ 15 m</text>
+</svg>

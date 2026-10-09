@@ -2,12 +2,12 @@
 UNREAL).  No `unreal` import.
 
 7 Oct (later): REMAP mode (make_remap_plan, below the scoring code) -- a deterministic 1:1 {old mesh -> new mesh} swap
-for any passage in PASSAGES (P06 added for the 12-flap v3 rebuilds); scoring (make_plan) stays P02/P03 only.  Every
+for any passage in PASSAGES (P06 added for the 12-flap v3 rebuilds); scoring (make_plan) supports P01-P04.  Every
 cue's mechanism text is asserted unchanged by rzswap.py in BOTH modes (mechanism_drift).
 
-SCOPE (caller 7 Oct): mesh swaps ONLY -- the L/R panel of an existing row gets a realism mesh and its placement.  No
-gaps, no row count, no timing, no mechanisms, no lights, no Top panels (P02 was straightened + retimed by the conductor
-tonight).  The ONLY fields ever written: WingPair.Left / WingPair.Right -> Mesh, MaterialOverrides, LocalTransform,
+SCOPE (extended 9 Oct): mesh swaps ONLY -- an existing L/R panel, or an explicitly planned T (Top) panel, gets a
+realism mesh and its placement.  No gaps, no row count, no timing, no mechanisms or lights.  The ONLY fields ever
+written: WingPair.Left / WingPair.Right / WingPair.Top -> Mesh, MaterialOverrides, LocalTransform,
 FacingPolicy, bFlipImageHorizontally of the target sides (exactly what swapkit common.set_panel writes,
 swapkit/common.py:230-254 [prec, ran in every swapkit APPLY and the P06 relayout P06RL-20261007-081048]).
 bCastShadow / bVisibleInMainPass / Collision of the panel are NOT written (InfinityStageTypes.h:630-637 [decl]) and
@@ -68,17 +68,19 @@ UMAP_FILE_REL = "Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.
 
 # Passage GUIDs [meas Saved/CodexConductor/dead_bulbs_warm_record.json, a live read 7 Oct 02:46]; actor label prefix
 # [prec swapkit/run_p02.json / run_p03.json passage_actor_label_prefix]; the DRY asserts both live.
-PASSAGES = {"P02": {"guid": "7FF34BBDA744E406C264A7B7E4DD61D9", "actor_prefix": "Passage 02"},
+PASSAGES = {"P01": {"guid": "659D5386D64DA7742A351B9499ECCE4C", "actor_prefix": "Passage 01"},
+            "P02": {"guid": "7FF34BBDA744E406C264A7B7E4DD61D9", "actor_prefix": "Passage 02"},
             "P03": {"guid": "49F93D652B46B99C10116EBAE927A3C6", "actor_prefix": "Passage 03"},
+            "P04": {"guid": "0067B5F57142956FB5B80EA31B1210B5", "actor_prefix": "Passage 04"},
             # P06 (added 7 Oct for REMAP mode): guid = relayout_core.py:39 P06_GUID [decl; ran in P06RL-20261007-081048];
             # actor label prefix = swapkit/run_p06.json passage_actor_label_prefix [prec]; the DRY asserts both live.
             "P06": {"guid": "9BFC29C45D47911FF7836BB8537230D2", "actor_prefix": "Passage 06"}}
 
-SCORING_PASSAGES = ("P02", "P03")          # make_plan (scored) stays where it was reviewed; P06 only via make_remap_plan
+SCORING_PASSAGES = ("P01", "P02", "P03", "P04")
 
 WRITTEN_PANEL_FIELDS = ("Mesh", "MaterialOverrides", "LocalTransform", "FacingPolicy", "bFlipImageHorizontally")
-SIDE_FIELD = {"L": "Left", "R": "Right"}
-SIDE_PROP = {"L": "left", "R": "right"}
+SIDE_FIELD = {"L": "Left", "R": "Right", "T": "Top"}
+SIDE_PROP = {"L": "left", "R": "right", "T": "top"}
 REALISM_ROOT = "/Game/Scenes/Wings/FlatV3/Realism/"
 V3_ROOT = "/Game/Scenes/Wings/FlatV3/"
 IND_TOKEN = "_IND_"
@@ -89,6 +91,15 @@ CONTROL_TOL_CM = 0.05        # relayout_apply.py:60 [prec]
 PLACE_TOL_CM = 0.01          # relayout placements INNER_EDGE_PLAN_FAIL tolerance [prec]
 PLAIN_TOL = 0.01
 SCORE_V2, SCORE_REPEAT, SCORE_ADJ = 1000, 100, 50
+P04_FRONT_GROWTH_MAX_CM = 6.0
+
+
+def row_sides(row):
+    """Panel sides actually present in a DRY row.  Top is real only when bHasTop and the DRY measured it."""
+    out = [s for s in ("L", "R") if s in row.get("sides", {})]
+    if row.get("has_top") and "T" in row.get("sides", {}):
+        out.append("T")
+    return out
 
 
 class PlanError(Exception):
@@ -177,12 +188,14 @@ def effect_sides(attachments):
         if "EFFECT" not in str(a.get("kind", "")).upper():
             continue
         lab = str(a.get("label", "")).strip()
-        if lab.endswith(" L"):
+        if lab.endswith(" T") or lab.upper().endswith(" TOP"):
+            out.add("T")
+        elif lab.endswith(" L"):
             out.add("L")
         elif lab.endswith(" R"):
             out.add("R")
         else:
-            out |= {"L", "R"}
+            out |= {"L", "R", "T"}
     return out
 
 
@@ -196,10 +209,14 @@ def state_for_hash(dry):
     rows = []
     for r in dry["rows"]:
         rows.append([r["cue_guid"], r["enabled"], r["mechanism"], bool(r.get("master_pinned")),
-                     sorted(effect_sides(r.get("attachments", []))),
-                     {s: [r["sides"][s]["panel"], r["sides"][s].get("attachment_refs_mesh", False),
-                          r["sides"][s].get("old_bounds")] for s in ("L", "R")}])
-    cands = {m: [c.get("exists"), c.get("zero_bounds")] for m, c in sorted(dry.get("candidates", {}).items())}
+                      sorted(effect_sides(r.get("attachments", []))),
+                      {s: [r["sides"][s]["panel"], r["sides"][s].get("attachment_refs_mesh", False),
+                           r["sides"][s].get("old_bounds"), r["sides"][s].get("box_cm"),
+                           r["sides"][s].get("route_interval_cm"), r["sides"][s].get("route_faces_cm"),
+                           r["sides"][s].get("placement_anchor")]
+                       for s in row_sides(r)}, r.get("prop_route_intervals", [])])
+    cands = {m: [c.get("exists"), c.get("zero_bounds"), c.get("box_cm")]
+             for m, c in sorted(dry.get("candidates", {}).items())}
     return {"passage": dry["passage"], "passage_guid": dry["passage_guid"], "rows": rows,
             "first": dry["settings"]["first_cue_guid"], "last": dry["settings"]["last_cue_guid"], "candidates": cands}
 
@@ -219,17 +236,17 @@ def side_facts(dry, protect, opts):
     first, last = dry["settings"]["first_cue_guid"], dry["settings"]["last_cue_guid"]
     fam_rows = {}
     for r in rows:
-        for s in ("L", "R"):
+        for s in row_sides(r):
             f = family_of(r["sides"][s]["panel"]["mesh"])
             if f:
                 fam_rows.setdefault(f, set()).add(r["ordinal"])
     out = []
     for i, r in enumerate(rows):
         eff = effect_sides(r.get("attachments", []))
-        for s in ("L", "R"):
+        for s in row_sides(r):
             sd = r["sides"][s]
             mesh = sd["panel"]["mesh"]
-            cls = classify(mesh, sd.get("thickness_cm"))
+            cls = "TOP_BORDER" if s == "T" and r.get("has_top") else classify(mesh, sd.get("thickness_cm"))
             fam = family_of(mesh)
             why = []
             if not r["enabled"]:
@@ -260,15 +277,19 @@ def side_facts(dry, protect, opts):
                 why.append("EMPTY_PANEL")
             elif cls == "LEGACY_THICK_OR_UNMEASURED":
                 why.append("LEGACY_THICK_OR_UNMEASURED %s cm" % sd.get("thickness_cm"))
-            if not plain_transform(sd["panel"]["local_transform"]):
+            if s == "T":
+                if not sd.get("placement_anchor"):
+                    why.append("NO_TOP_PLACEMENT_ANCHOR")
+            elif not plain_transform(sd["panel"]["local_transform"]):
                 why.append("OLD_LOCAL_TRANSFORM_NOT_PLAIN %s" % sd["panel"]["local_transform"])
-            if not sd.get("old_bounds"):
+            if s != "T" and not sd.get("old_bounds"):
                 why.append("NO_OLD_BOUNDS")
             if not sd.get("edge_baseline"):
                 why.append("NO_WORLD_EDGE_BASELINE (not materialized?)")
             adj = False
             for j in (i - 1, i + 1):
-                if 0 <= j < n and fam and family_of(rows[j]["sides"][s]["panel"]["mesh"]) == fam:
+                if 0 <= j < n and s in rows[j].get("sides", {}) and fam and \
+                        family_of(rows[j]["sides"][s]["panel"]["mesh"]) == fam:
                     adj = True
             reps = len(fam_rows.get(fam, ())) if fam else 0
             score = (SCORE_V2 if cls == "V2_CARD" else 0) + SCORE_REPEAT * max(0, reps - 1) + (SCORE_ADJ if adj else 0)
@@ -295,6 +316,79 @@ def planned_panel(mesh_path, y):
     return {"mesh": mesh_path, "material_overrides": [],
             "local_transform": {"location": [0.0, float(y), 0.0], "rotation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0]},
             "facing_policy": "PRESERVE_ASSET", "flip_image_horizontally": False}
+
+
+def planned_top_panel(mesh_path, box, anchor):
+    """Centred valance whose upper edge stays on the existing Top panel's local top-border Z."""
+    require(box and anchor, "TOP_PLACEMENT_NEEDS_BOX_AND_ANCHOR")
+    y = float(anchor["center_y_cm"]) - (float(box["min"][1]) + float(box["max"][1])) * 0.5
+    z = float(anchor["top_z_cm"]) - float(box["max"][2])
+    panel = planned_panel(mesh_path, y)
+    panel["local_transform"]["location"][2] = z
+    return panel
+
+
+def _interval_gap(a, b):
+    """Positive separation, zero for touch, negative overlap (cm)."""
+    if float(a[1]) < float(b[0]):
+        return float(b[0]) - float(a[1])
+    if float(b[1]) < float(a[0]):
+        return float(a[0]) - float(b[1])
+    return -min(float(a[1]), float(b[1])) + max(float(a[0]), float(b[0]))
+
+
+def p04_clearance(dry, row, side, new_box):
+    """Analytical longitudinal gate from the fresh DRY.
+
+    The materialized current panel supplies its route-distance interval.  Candidate min/max X moves that interval's
+    front/back faces.  Every L/R/T panel and measured PROP actor on the immediately adjacent rows is an obstacle.
+    """
+    sd = row["sides"][side]
+    old_box, old_iv, faces = sd.get("box_cm"), sd.get("route_interval_cm"), sd.get("route_faces_cm")
+    if not old_box or not new_box or not old_iv or not faces:
+        return {}, ["P04_CLEARANCE_UNMEASURED %s %s" % (row["label"], side)]
+    front = float(old_box["min"][0]) - float(new_box["min"][0])
+    back = float(new_box["max"][0]) - float(old_box["max"][0])
+    old_x_span = float(old_box["max"][0]) - float(old_box["min"][0])
+    require(abs(old_x_span) > 1e-6, "P04_OLD_BOX_ZERO_DEPTH %s %s" % (row["label"], side))
+    route_per_x = (float(faces["back_s_cm"]) - float(faces["front_s_cm"])) / old_x_span
+    new_front_s = float(faces["front_s_cm"]) + (float(new_box["min"][0]) - float(old_box["min"][0])) * route_per_x
+    new_back_s = float(faces["back_s_cm"]) + (float(new_box["max"][0]) - float(old_box["max"][0])) * route_per_x
+    old_face_iv = sorted((float(faces["front_s_cm"]), float(faces["back_s_cm"])))
+    new_face_iv = sorted((new_front_s, new_back_s))
+    proposed = [new_face_iv[0] - (old_face_iv[0] - float(old_iv[0])),
+                new_face_iv[1] + (float(old_iv[1]) - old_face_iv[1])]
+    obstacles = []
+    rows = {int(r["ordinal"]): r for r in dry["rows"]}
+    for o in (int(row["ordinal"]) - 1, int(row["ordinal"]) + 1):
+        nr = rows.get(o)
+        if nr is None:
+            continue
+        for ns in row_sides(nr):
+            iv = nr["sides"][ns].get("route_interval_cm")
+            if iv:
+                obstacles.append({"kind": "panel", "row": nr["label"], "side": ns, "interval_cm": iv})
+        for prop in nr.get("prop_route_intervals", []):
+            if prop.get("interval_cm"):
+                obstacles.append({"kind": "prop", "row": nr["label"], "label": prop.get("label"),
+                                  "interval_cm": prop["interval_cm"]})
+    bad = []
+    if front > P04_FRONT_GROWTH_MAX_CM + 1e-6:
+        bad.append("P04_FRONT_GROWTH_OVER %.3f cm > %.1f" % (front, P04_FRONT_GROWTH_MAX_CM))
+    if not obstacles:
+        bad.append("P04_CLEARANCE_NO_NEIGHBOUR_OBSTACLES %s %s" % (row["label"], side))
+    gaps = []
+    for ob in obstacles:
+        gap = _interval_gap(proposed, ob["interval_cm"])
+        gaps.append(dict(ob, clearance_cm=round(gap, 3)))
+        if gap < -1e-6:
+            bad.append("P04_CLEARANCE_INTERSECTION %s %s with %s %s by %.3f cm" % (
+                row["label"], side, ob["row"], ob.get("side") or ob.get("label"), -gap))
+    return {"front_growth_cm": round(front, 3), "back_delta_cm": round(back, 3),
+            "route_cm_per_local_x_cm": round(route_per_x, 6),
+            "proposed_route_interval_cm": [round(x, 3) for x in proposed],
+            "minimum_clearance_cm": min([g["clearance_cm"] for g in gaps] or [None]),
+            "obstacles": gaps}, bad
 
 
 def close_transform(actual, expected, tol=0.001):
@@ -327,7 +421,7 @@ def _allowed(design, side_fact, assigned, rows_by_ord, uses):
         if assigned.get((j, s)) == design["mesh"]:
             return "ADJACENT_SAME_SIDE"
         row = rows_by_ord.get(j)
-        if row is not None and row["sides"][s]["panel"]["mesh"] == design["mesh"]:
+        if row is not None and s in row.get("sides", {}) and row["sides"][s]["panel"]["mesh"] == design["mesh"]:
             return "ADJACENT_SAME_SIDE_STANDING"
     return ""
 
@@ -353,36 +447,75 @@ def make_plan(dry, designs, protect, opts=None):
     refusals = []
     require(dry.get("mode") == "DRY" and dry.get("status") == "PASS", "DRY_NOT_PASSING (%s)" % dry.get("status"))
     P = dry["passage"]
-    require(P in SCORING_PASSAGES, "PASSAGE_UNSUPPORTED %s (scoring mode is P02/P03 only; P06 = --remap)" % P)
+    require(P in SCORING_PASSAGES, "PASSAGE_UNSUPPORTED %s (scoring mode supports P01-P04; P06 = --remap)" % P)
     pair_mode = opts.get("pair_mode", "side")
     require(pair_mode in ("side", "row"), "PAIR_MODE %r" % pair_mode)
+    selected_sides = tuple(opts.get("sides") or ("L", "R"))
+    require(selected_sides and set(selected_sides) <= {"L", "R", "T"}, "SIDES %r" % (selected_sides,))
+    require(pair_mode != "row" or set(selected_sides) == {"L", "R"}, "PAIR_MODE_ROW_NEEDS_LR")
     excl = set(opts.get("exclude") or [])
     facts = side_facts(dry, protect, opts)
+    target_keys = set(opts.get("target_keys") or [])
+    target_expected = dict(opts.get("target_expected_meshes") or {})
+    fact_keys = {f["key"] for f in facts}
+    for key in sorted(target_keys - fact_keys):
+        refusals.append("TARGET_NOT_IN_FRESH_DRY %s" % key)
     for f in facts:
+        f["protections_waived"] = []
+        if f["side"] not in selected_sides:
+            f["protected"].append("SIDE_NOT_SELECTED")
+        if target_keys and f["key"] not in target_keys:
+            f["protected"].append("NOT_IN_TARGET_FILTER")
+        if f["key"] in target_keys:
+            want = target_expected.get(f["key"])
+            if want and want != f["mesh"]:
+                f["protected"].append("TARGET_MESH_STALE expected %s live %s" % (want, f["mesh"]))
+            # Gary's exact seven-side direction includes P03 Wing 001.  Only the broad end-row heuristic is waived;
+            # pins, mechanisms, effects, records, authored transforms and missing measurements remain hard guards.
+            keep = []
+            for reason in f["protected"]:
+                if reason.startswith("END_ROW"):
+                    f["protections_waived"].append(reason)
+                else:
+                    keep.append(reason)
+            f["protected"] = keep
+        if f["side"] == "T" and "T" in selected_sides:
+            # A Top-border plan is explicit placement review, not an accidental replacement of a legacy side card.
+            keep = []
+            for reason in f["protected"]:
+                if reason.startswith("END_ROW"):
+                    f["protections_waived"].append(reason)
+                else:
+                    keep.append(reason)
+            f["protected"] = keep
+        f["eligible"] = not f["protected"]
         if "%s|%s" % (f["label"], f["side"]) in excl:
             f["protected"].append("EXCLUDED_BY_REVIEW")
             f["eligible"] = False
     usable, unusable = [], []
     for d in designs:
         why = []
-        if d.get("passage") != P:
+        if d.get("passage") != P and d.get("mount") != "top-border":
             why.append("OTHER_PASSAGE %s" % d.get("passage"))
-        if d.get("mount", "wing") != "wing":
-            why.append("MOUNT %s (import only)" % d.get("mount"))
+        want_mount = "top-border" if d.get("side") == "T" else "wing"
+        if d.get("mount", "wing") != want_mount:
+            why.append("MOUNT %s (wanted %s)" % (d.get("mount"), want_mount))
+        if d.get("side") not in selected_sides:
+            why.append("SIDE_NOT_SELECTED %s" % d.get("side"))
         if not d.get("imported"):
             why.append("NOT_VERIFIED_IMPORTED (no rzimport VERIFY lists it)")
         if not d.get("exists"):
             why.append("NOT_IN_EDITOR (DRY)")
-        if not d.get("zero_bounds"):
+        if not d.get("zero_bounds") and d.get("side") != "T":
             why.append("NO_LIVE_BOUNDS (DRY)")
-        if d.get("side") not in ("L", "R"):
+        if d.get("side") not in ("L", "R", "T"):
             why.append("SIDE %r" % d.get("side"))
         (unusable if why else usable).append(dict(d, unusable=why))
     usable.sort(key=lambda d: d["owner"])
     rows_by_ord = {r["ordinal"]: r for r in dry["rows"]}
     uses = {}
     for r in dry["rows"]:                      # realism already standing counts toward the 2x limit
-        for s in ("L", "R"):
+        for s in row_sides(r):
             m = r["sides"][s]["panel"]["mesh"]
             if m and REALISM_ROOT in m:
                 uses[m] = uses.get(m, 0) + 1
@@ -396,13 +529,24 @@ def make_plan(dry, designs, protect, opts=None):
         uses[d["mesh"]] = uses.get(d["mesh"], 0) + 1
         row = rows_by_ord[f["ordinal"]]
         sd = row["sides"][f["side"]]
-        y = inner_edge_y(f["side"], sd["old_bounds"], d["zero_bounds"])
-        new = {"min_y_cm": d["zero_bounds"]["min_y_cm"] + y, "max_y_cm": d["zero_bounds"]["max_y_cm"] + y}
-        k = "max_y_cm" if f["side"] == "L" else "min_y_cm"
-        o = "min_y_cm" if f["side"] == "L" else "max_y_cm"
-        if abs(new[k] - sd["old_bounds"][k]) > PLACE_TOL_CM:
-            refusals.append("INNER_EDGE_PLAN_FAIL %s %s" % (f["label"], f["side"]))
-        outer_shift = (new[o] - sd["old_bounds"][o]) * (1.0 if f["side"] == "L" else -1.0)   # + = onstage (narrower)
+        if f["side"] == "T":
+            new_box = (dry.get("candidates", {}).get(d["mesh"]) or {}).get("box_cm")
+            planned = planned_top_panel(d["mesh"], new_box, sd.get("placement_anchor"))
+            y = planned["local_transform"]["location"][1]
+            new_inner, old_inner, outer_shift = None, None, 0.0
+        else:
+            y = inner_edge_y(f["side"], sd["old_bounds"], d["zero_bounds"])
+            new = {"min_y_cm": d["zero_bounds"]["min_y_cm"] + y, "max_y_cm": d["zero_bounds"]["max_y_cm"] + y}
+            k = "max_y_cm" if f["side"] == "L" else "min_y_cm"
+            o = "min_y_cm" if f["side"] == "L" else "max_y_cm"
+            if abs(new[k] - sd["old_bounds"][k]) > PLACE_TOL_CM:
+                refusals.append("INNER_EDGE_PLAN_FAIL %s %s" % (f["label"], f["side"]))
+            outer_shift = (new[o] - sd["old_bounds"][o]) * (1.0 if f["side"] == "L" else -1.0)
+            planned, old_inner, new_inner = planned_panel(d["mesh"], y), sd["old_bounds"][k], new[k]
+        geometry = None
+        if P == "P04" and f["side"] in ("L", "R"):
+            geometry, gbad = p04_clearance(dry, row, f["side"], (dry.get("candidates", {}).get(d["mesh"]) or {}).get("box_cm"))
+            refusals.extend("%s %s" % (reason, f["key"]) for reason in gbad)
         swaps.append({"key": f["key"], "cue_guid": f["cue_guid"], "label": f["label"], "ordinal": f["ordinal"],
                       "side": f["side"], "pass_s": f["pass_s"], "score": f["score"], "class": f["class"],
                       "family": f["family"], "family_rows": f["family_rows"],
@@ -410,8 +554,9 @@ def make_plan(dry, designs, protect, opts=None):
                       "old_panel": sd["panel"], "old_height_cm": f["height_cm"], "old_thickness_cm": f["thickness_cm"],
                       "new_owner": d["owner"], "new_mesh": d["mesh"], "new_height_cm": d.get("height_cm"),
                       "new_width_cm": d.get("width_cm"), "new_skin_png": d.get("skin_png"),
-                      "planned_panel": planned_panel(d["mesh"], y), "old_inner_cm": sd["old_bounds"][k],
-                      "new_inner_cm": new[k], "outer_edge_onstage_shift_cm": round(outer_shift, 3)})
+                      "planned_panel": planned, "old_inner_cm": old_inner,
+                      "new_inner_cm": new_inner, "outer_edge_onstage_shift_cm": round(outer_shift, 3),
+                      "geometry": geometry, "protections_waived": list(f["protections_waived"])})
 
     if pair_mode == "side":
         for f in order:
@@ -446,7 +591,8 @@ def make_plan(dry, designs, protect, opts=None):
     swapped_rows = {}
     for s in swaps:
         swapped_rows.setdefault(s["cue_guid"], []).append(s["side"])
-    mixed = sorted(rows_by_ord[by_key[g + "|L"]["ordinal"]]["label"] for g, sides in swapped_rows.items() if len(sides) == 1)
+    mixed = sorted(rows_by_ord[by_key[g + "|L"]["ordinal"]]["label"] for g, sides in swapped_rows.items()
+                   if set(sides) < {"L", "R"} and any(x in sides for x in ("L", "R")) and g + "|L" in by_key)
     flags = []
     if mixed and P == "P02":
         flags.append("MIXED_PAIR_ROWS %s: P02's matched-pair rule (P02_LAYOUT_DRAFT_v2.json rules[0], Gary 2 Oct) -- "
@@ -458,6 +604,23 @@ def make_plan(dry, designs, protect, opts=None):
               if s.get("new_height_cm") and s.get("old_height_cm") and float(s["new_height_cm"]) > float(s["old_height_cm"]) + 50]
     if taller:
         flags.append("TALLER_THAN_OLD by > 50 cm (check Top borders / masking): %s" % taller)
+    if target_keys:
+        got = {s["key"] for s in swaps}
+        if got != target_keys:
+            refusals.append("TARGET_SET_NOT_EXACT missing=%s unexpected=%s" % (sorted(target_keys - got), sorted(got - target_keys)))
+        waived = sorted({p.split(" ", 1)[0] for s in swaps for p in s.get("protections_waived", [])})
+        if waived:
+            flags.append("TARGET_FILTER_PROTECTIONS_WAIVED %s (exact user-directed target set; all other guards remain)" % waived)
+    if selected_sides == ("T",):
+        flags.append("TOP_BORDER_PLACEMENT canonical identity rotation/scale; centred on existing Top centre Y; upper "
+                     "edge held at existing Top local Z (the old Top rotation is measured, not preserved)")
+    if P == "P04":
+        gs = [s["geometry"] for s in swaps if s.get("geometry")]
+        clearances = [g["minimum_clearance_cm"] for g in gs if g.get("minimum_clearance_cm") is not None]
+        if clearances:
+            flags.append("P04_CLEARANCE_GATE front growth <= %.1f cm; candidate route interval tested against every "
+                         "materialized panel and measured PROP bounds on adjacent DRY rows; minimum %.3f cm" % (
+                             P04_FRONT_GROWTH_MAX_CM, min(clearances)))
     for m, c in uses.items():
         if c > MAX_USES:
             refusals.append("USES_OVER_%d %s x%d" % (MAX_USES, m, c))
@@ -470,7 +633,7 @@ def make_plan(dry, designs, protect, opts=None):
               "swaps": [[s["key"], s["new_mesh"], s["planned_panel"]] for s in swaps], "opts": opts}
     h = sha(inputs)
     plan = {"mark": MARK, "passage": P, "passage_guid": dry["passage_guid"], "dry_run_id": dry["run_id"],
-            "dry_state_hash": inputs["dry_state_hash"], "opts": opts, "pair_mode": pair_mode,
+            "dry_state_hash": inputs["dry_state_hash"], "opts": opts, "pair_mode": pair_mode, "sides": list(selected_sides),
             "scoring": {"V2_card": SCORE_V2, "per_extra_family_row": SCORE_REPEAT, "adjacent_same_family": SCORE_ADJ,
                         "max_uses_per_design": MAX_USES, "tie_break": "pass time, then L before R"},
             "swaps": swaps, "facts": facts, "designs_usable": [d["owner"] for d in usable],
@@ -783,22 +946,30 @@ def verify_texts(tc, before, after, targets):
 
 
 def edge_verdict(keys, swapped, before, after, tol=EDGE_TOL_CM, ctl_tol=CONTROL_TOL_CM, expect=None):
-    """World-edge probe (relayout_apply.py:660-681 [prec, ran]).  Pre-registered prediction: every swapped side's
-    world inner edge is unchanged (delta 0 within tol); every other side of the passage is a CONTROL (delta 0 within
-    ctl_tol).  expect: {key: inner_cm} overrides 'before' for swapped keys (REVERT compares to the originals)."""
+    """World placement probe.  L/R hold inner edge; T holds centre-Y and upper Z.  Non-targets are controls."""
     probe, bad = [], []
     for key in keys:
         b, a = before.get(key), after.get(key)
         if expect and key in expect:
-            b = {"inner_cm": expect[key]}
+            b = expect[key] if isinstance(expect[key], dict) else {"inner_cm": expect[key]}
         if not b or not a or "error" in a:
             bad.append("EDGE_MISSING %s" % key)
             continue
-        d = float(a["inner_cm"]) - float(b["inner_cm"])
         ctl = key not in swapped
-        probe.append({"key": key, "control": ctl, "inner_delta_cm": d, "mesh": a.get("mesh")})
-        if abs(d) > (ctl_tol if ctl else tol):
-            bad.append("INNER_EDGE_MOVED %s %.3f cm%s" % (key, d, " (CONTROL)" if ctl else ""))
+        limit = ctl_tol if ctl else tol
+        if key.endswith("|T"):
+            dz = float(a["top_cm"]) - float(b["top_cm"])
+            dy = float(a["center_y_cm"]) - float(b["center_y_cm"])
+            probe.append({"key": key, "control": ctl, "top_delta_cm": dz, "center_y_delta_cm": dy,
+                          "inner_delta_cm": max(abs(dz), abs(dy)), "mesh": a.get("mesh")})
+            if max(abs(dz), abs(dy)) > limit:
+                bad.append("TOP_PLACEMENT_MOVED %s top %.3f cm centreY %.3f cm%s" % (
+                    key, dz, dy, " (CONTROL)" if ctl else ""))
+        else:
+            d = float(a["inner_cm"]) - float(b["inner_cm"])
+            probe.append({"key": key, "control": ctl, "inner_delta_cm": d, "mesh": a.get("mesh")})
+            if abs(d) > limit:
+                bad.append("INNER_EDGE_MOVED %s %.3f cm%s" % (key, d, " (CONTROL)" if ctl else ""))
     return probe, bad
 
 

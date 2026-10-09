@@ -2,9 +2,9 @@
 
   python test_rzswap_offline.py   -> PASS/FAIL per check, writes test_rzswap_offline_report.json
 
-The fake Show is built from REAL cue export texts (the 64 P06 cue texts the relayout saved before its APPLY,
-p06relayout/relayout_originals_P06RL-20261007-081048.json [meas]), so the struct-text parser, the blanking of the
-written panel fields and the byte-identity checks run on the real text format.  The fake treats 14 of those cues as
+When the local runtime record exists, the fake Show uses the 64 P06 cue export texts the relayout saved before APPLY.
+In a clean worktree it builds the same required Unreal export-text fields synthetically, so the harness is standalone.
+The struct-text parser, panel-field blanking and byte-identity checks run in either case.  The fake treats 14 cues as
 "passage P02"; panel geometry is self-consistent (side bounds = mesh zero bounds + local y; world inner edge = local
 inner + a per-row offset), so a correct swap keeps every world inner edge and a mirrored one moves it.
 What it CANNOT prove [inf]: common.side_bounds / set_panel / panel_plain on live structs, the passage actor's world
@@ -34,8 +34,31 @@ core = _load("rzswap_core_t", os.path.join(HERE, "rzswap_core.py"))
 app = _load("rzswap_app_t", os.path.join(HERE, "rzswap.py"))
 tc = _load("topple_core_rzswap_t", os.path.join(HERE, "..", "topple", "topple_core.py"))
 msp = _load("make_swap_plan_t", os.path.join(HERE, "make_swap_plan.py"))
-REAL = json.load(open(os.path.join(HERE, "..", "p06relayout", "relayout_originals_P06RL-20261007-081048.json"),
-                      encoding="utf-8"))["p06_cue_texts"]
+
+
+def _synthetic_panel(mesh, y=0.0, z=0.0):
+    name = mesh.rsplit("/", 1)[-1]
+    return '(Mesh="%s.%s",MaterialOverrides=,LocalTransform=(Rotation=(X=0.000000,Y=0.000000,Z=0.000000,W=1.000000),' \
+           'Translation=(X=0.000000,Y=%.6f,Z=%.6f),Scale3D=(X=1.000000,Y=1.000000,Z=1.000000)),' \
+           'FacingPolicy=PreserveAsset,bFlipImageHorizontally=False,bCastShadow=True,bVisibleInMainPass=True,' \
+           'Collision=NoCollision)' % (mesh, name, y, z)
+
+
+def _synthetic_cue(i):
+    left = _synthetic_panel("/Game/Test/SM_Test_%02d_L" % i, -500.0)
+    right = _synthetic_panel("/Game/Test/SM_Test_%02d_R" % i, 500.0)
+    top = _synthetic_panel("/Game/Test/SM_Test_%02d_C" % i, 0.0, 650.0)
+    mech = "(Kind=Slide,PlaybackMode=ContinuousLoop,PhaseOffsetCycles=0.000000,bTopFollowsMechanism=True)"
+    return "(CueGuid=%032X,Type=WingPair,Label=P06_Wing_%03d,bEnabled=True,WingPair=(Left=%s,Right=%s," \
+           "bHasTop=False,Top=%s,IntervalToNext=(Value=48000),GapToNextCm=500.000000,Mechanism=%s," \
+           "LocalOverrideMask=0,Attachments=,bMuteMechanismSound=False))" % (i + 1, i + 1, left, right, top, mech)
+
+
+_fixture = os.path.join(HERE, "..", "p06relayout", "relayout_originals_P06RL-20261007-081048.json")
+if os.path.isfile(_fixture):
+    REAL = json.load(open(_fixture, encoding="utf-8"))["p06_cue_texts"]
+else:
+    REAL = [_synthetic_cue(i) for i in range(64)]
 RESULTS = []
 
 
@@ -563,12 +586,14 @@ def remap_checks(tmp):
                 "REMAP_OPTION_NOT_SUPPORTED")
     expect_stop("RM21 NEG scoring mode on P06 -> PASSAGE_UNSUPPORTED (P06 only via REMAP)",
                 lambda: core.make_plan(dry, designs06(dry), PROTECT06), "PASSAGE_UNSUPPORTED")
-    check("RM22 NEG the shipped P06 remap file loads 1:1 (15 pairs, sides match, no refusals)",
-          (lambda r: len(r[0]) == 15 and not r[1] and all(core.built_side(o) == core.built_side(n) for o, n in r[0].items()))(
-              core.load_remap(json.load(open(os.path.join(HERE, "p06_remap_v2_to_v3.json"), encoding="utf-8")))))
+    remap_fixture = os.path.join(HERE, "p06_remap_v2_to_v3.json")
+    remap_doc = json.load(open(remap_fixture, encoding="utf-8")) if os.path.isfile(remap_fixture) else {"remap": REMAP06}
+    check("RM22 POS remap document loads 1:1, sides match, no refusals (runtime file or standalone fixture)",
+          (lambda r: len(r[0]) == (15 if os.path.isfile(remap_fixture) else 3) and not r[1] and
+           all(core.built_side(o) == core.built_side(n) for o, n in r[0].items()))(core.load_remap(remap_doc)))
     # ---- mechanism drift (real texts)
     t = list(REAL)
-    check("MD0 MEAS every real cue text carries WingPair.Mechanism + LocalOverrideMask",
+    check("MD0 DECL every export-text fixture carries WingPair.Mechanism + LocalOverrideMask",
           all(core.mechanism_fields(tc, x) and all(v is not None for v in core.mechanism_fields(tc, x)) for x in t))
     t_mesh = list(t)
     t_mesh[3] = tc.replace_field(t[3], "WingPair", tc.replace_field(tc.get_field(t[3], "WingPair"), "Left", tc.replace_field(
@@ -639,7 +664,7 @@ def main():
 def _main(tmp):
     # ---------------------------------------------------------------- T: real export text
     t0 = REAL[0]
-    check("T1 MEAS real cue text: the Left panel carries every written field name (Mesh, MaterialOverrides, "
+    check("T1 DECL export-text fixture: Left carries every written field name (Mesh, MaterialOverrides, "
           "LocalTransform, FacingPolicy, bFlipImageHorizontally) + bCastShadow",
           set(core.WRITTEN_PANEL_FIELDS) | {"bCastShadow"} <= set(core.panel_text_fields(tc, t0, "L")),
           core.panel_text_fields(tc, t0, "L"))
@@ -674,9 +699,10 @@ def _main(tmp):
           core.special_mechanism({"kind": "InfinityMechanismKind.SLIDE", "playback_mode": "InfinityMotionPlaybackMode.CAMERA_GUST"}) and
           core.special_mechanism({"kind": "SLIDE", "playback_mode": "ONE_SHOT"}) and
           not core.special_mechanism({"kind": "InfinityMechanismKind.SLIDE", "playback_mode": "InfinityMotionPlaybackMode.CONTINUOUS_LOOP"}))
-    check("C4 effect sides from labels ('FX SMOKE P03 B08 L' -> L; no suffix -> both; lights ignored)",
+    check("C4 effect sides from labels ('... L' -> L; '... TOP' -> T; no suffix -> all panels; lights ignored)",
           core.effect_sides([{"kind": "InfinityAttachmentKind.EFFECT", "label": "FX SMOKE P03 B08 L"}]) == {"L"} and
-          core.effect_sides([{"kind": "EFFECT", "label": "FX"}]) == {"L", "R"} and
+          core.effect_sides([{"kind": "EFFECT", "label": "FX TOP"}]) == {"T"} and
+          core.effect_sides([{"kind": "EFFECT", "label": "FX"}]) == {"L", "R", "T"} and
           core.effect_sides([{"kind": "LIGHT", "label": "x L"}]) == set())
     # ---------------------------------------------------------------- S: scoring / assignment (pure)
     spec = [(V3 % (1, "L"), V3 % (1, "R")), (V3 % (2, "L"), V3 % (2, "R")), (V2 % "L", V2 % "R"), (V3 % (2, "L"), V3 % (3, "R")),
@@ -911,24 +937,121 @@ def _main(tmp):
     check("R2 NEG ... in-memory restore exact, no new save", ops3.texts == pre and ops3.saved == ["show", "level"])
     expect_stop("R3 NEG REVERT confirm of another run", lambda: core.validate_args(
         {"mode": "REVERT", "passage": P, "confirm": "REVERT RZSWAP P02 OTHER"}, None, {"run_id": "RZSW-X"}), "CONFIRM_MISMATCH")
-    # ---------------------------------------------------------------- P: real-data preview (GAP_AUDIT snapshot)
-    pv = msp.main(["P02", "--preview-gap-audit", "--out-dir", tmp, "--no-sheet"])
-    keys = {s["label"] + "|" + s["side"] for s in pv["swaps"]}
-    pf = {f["label"] + "|" + f["side"]: f for f in pv["facts"]}
-    check("P1 PREVIEW P02 (6 Oct snapshot): never appliable", not pv["gates_ok"] and
-          any("PREVIEW_NOT_APPLIABLE" in r for r in pv["refusals"]))
-    check("P2 PREVIEW P02: Wing 003 (record keep_old, V2) protected; every IND side protected; first/last rows protected",
-          any("RECORD_KEEP" in p for p in pf["P02 Wing 003|L"]["protected"]) and
-          all(not f["eligible"] for f in pv["facts"] if f["class"] == "IND_3D") and
-          any("END_ROW" in p for p in pf["P02 Wing 001|L"]["protected"]) and
-          any("END_ROW" in p for p in pf["P02 Wing 023|R"]["protected"]))
-    check("P3 PREVIEW P02: swaps only on L (both v1 realism designs are L-built), each design <= 2x, no adjacency",
-          all(k.endswith("|L") for k in keys) and all(v <= 2 for v in pv["design_uses"].values()), sorted(keys))
-    pv3 = msp.main(["P03", "--preview-gap-audit", "--out-dir", tmp, "--no-sheet"])
-    p3 = {f["label"] + "|" + f["side"]: f for f in pv3["facts"]}
-    check("P4 PREVIEW P03: the 4 kept convent rows (7 sides) and the 3 pyre families protected by record",
-          sum(1 for f in pv3["facts"] if any("RECORD_KEEP" in p for p in f["protected"])) == 7 and
-          all(any("RECORD_FAMILY" in p for p in f["protected"]) for f in pv3["facts"] if (f["family"] or "").startswith("P03_pyre")))
+    # ---------------------------------------------------------------- Q: 9 Oct exact targets / P04 clearance / Top-border extension
+    td = synth_dry([(V2 % "L", V2 % "R") for _ in range(6)])
+    td["passage"], td["passage_guid"] = "P03", core.PASSAGES["P03"]["guid"]
+    for o, row in enumerate(td["rows"]):
+        row["label"] = "P03 Wing %03d" % (o + 1)
+    target_keys = ["G00|L", "G00|R", "G01|L", "G01|R", "G02|L", "G02|R", "G03|L"]
+    target_opts = {"sides": ["L", "R"], "target_keys": target_keys,
+                   "target_expected_meshes": {k: td["rows"][int(k[1:3])]["sides"][k[-1]]["panel"]["mesh"] for k in target_keys}}
+    target_fixture = os.path.join(tmp, "audit_targets.json")
+    with open(target_fixture, "w", encoding="utf-8") as fh:
+        json.dump({"low_quality_ranking": [
+            {"rank": i + 1, "cue": td["rows"][int(k[1:3])]["label"], "side": k[-1],
+             "mesh": target_opts["target_expected_meshes"][k], "reason": "fixture"}
+            for i, k in enumerate(target_keys)]}, fh)
+    parsed_targets = msp.targets_from(target_fixture, "P03", td)
+    check("Q0 POS audit target parser resolves seven cue labels/sides to fresh-DRY GUID keys and hashes the source",
+          parsed_targets["keys"] == target_keys and len(parsed_targets["sha256"]) == 64)
+    with open(target_fixture, "w", encoding="utf-8") as fh:
+        json.dump({"low_quality_ranking": [{"cue": "P03 Wing 999", "side": "L", "mesh": "/Game/X"}]}, fh)
+    try:
+        msp.targets_from(target_fixture, "P03", td)
+        q0_neg = "did not stop"
+    except Exception as exc:  # separate path-loaded core has its own PlanError class
+        q0_neg = str(exc)
+    check("Q0 NEG audit target absent from fresh DRY is refused", "TARGET_NOT_IN_FRESH_DRY" in q0_neg, q0_neg)
+    tdes = syn_designs(5, 4)
+    for dsg in tdes:
+        dsg["passage"] = "P03"
+        dsg["owner"] = dsg["owner"].replace("P02", "P03")
+    tp = core.make_plan(td, tdes, {"P03": {"sides": [], "families": []}}, target_opts)
+    check("Q1 POS P03 target filter swaps exactly the seven audit sides, including first-row END_ROW waiver",
+          tp["gates_ok"] and {s["key"] for s in tp["swaps"]} == set(target_keys) and
+          any("TARGET_FILTER_PROTECTIONS_WAIVED" in f and "END_ROW" in f for f in tp["flags"]), tp["refusals"])
+    check("Q2 POS P03 has no matched-pair requirement: odd seven-side target is side mode and produces no P02 mixed flag",
+          tp["pair_mode"] == "side" and not any("MIXED_PAIR_ROWS" in f for f in tp["flags"]))
+    stale = copy.deepcopy(target_opts); stale["target_expected_meshes"]["G00|L"] = "/Game/Stale"
+    tsp = core.make_plan(td, tdes, {"P03": {"sides": [], "families": []}}, stale)
+    check("Q3 NEG stale audit mesh is refused and exact-target gate fails", not tsp["gates_ok"] and
+          any("TARGET_SET_NOT_EXACT" in x for x in tsp["refusals"]))
+    guarded = copy.deepcopy(td); guarded["rows"][1]["master_pinned"] = True
+    tgp = core.make_plan(guarded, tdes, {"P03": {"sides": [], "families": []}}, target_opts)
+    check("Q4 NEG target filtering does not waive MASTER_PIN", not tgp["gates_ok"] and
+          any("TARGET_SET_NOT_EXACT" in x for x in tgp["refusals"]))
+
+    pd = synth_dry([(V3 % (i + 1, "L"), V3 % (i + 1, "R")) for i in range(5)])
+    pd["passage"], pd["passage_guid"] = "P04", core.PASSAGES["P04"]["guid"]
+    pdes = syn_designs(3, 3)
+    for dsg in pdes:
+        dsg["passage"] = "P04"
+        dsg["box_cm"] = {"min": [-20.0, dsg["zero_bounds"]["min_y_cm"], -100.0],
+                         "max": [5.0, dsg["zero_bounds"]["max_y_cm"], 1000.0]}
+    pd["candidates"] = {d["mesh"]: {"exists": True, "zero_bounds": d["zero_bounds"], "box_cm": d["box_cm"]} for d in pdes}
+    for o, row in enumerate(pd["rows"]):
+        row["label"] = "P04 Wing %03d" % (o + 1)
+        row["prop_route_intervals"] = []
+        for side in ("L", "R"):
+            row["sides"][side]["box_cm"] = {"min": [-15.0, -500.0, -100.0], "max": [5.0, 500.0, 1000.0]}
+            row["sides"][side]["route_interval_cm"] = [o * 500.0 - 15.0, o * 500.0 + 5.0]
+            row["sides"][side]["route_faces_cm"] = {"front_s_cm": o * 500.0 - 15.0,
+                                                      "back_s_cm": o * 500.0 + 5.0}
+    pd["rows"][2]["sides"]["R"]["route_faces_cm"] = {"front_s_cm": 1005.0, "back_s_cm": 985.0}
+    pp = core.make_plan(pd, pdes, {"P04": {"sides": [], "families": []}})
+    check("Q5 POS P04 candidate front growth is 5 cm and every swap clears adjacent panels",
+          pp["gates_ok"] and pp["swaps"] and all(s["geometry"]["front_growth_cm"] == 5.0 and
+          s["geometry"]["minimum_clearance_cm"] > 0 for s in pp["swaps"]), pp["refusals"])
+    deep = copy.deepcopy(pdes); deep[0]["box_cm"]["min"][0] = -22.0
+    pddeep = copy.deepcopy(pd); pddeep["candidates"][deep[0]["mesh"]]["box_cm"] = deep[0]["box_cm"]
+    dp = core.make_plan(pddeep, deep, {"P04": {"sides": [], "families": []}}, {"max_swaps": 1})
+    check("Q6 NEG P04 front growth over 6 cm refuses the plan", not dp["gates_ok"] and
+          any("P04_FRONT_GROWTH_OVER" in x for x in dp["refusals"]), dp["refusals"])
+    blocked = copy.deepcopy(pd); blocked["rows"][2]["prop_route_intervals"] = [
+        {"label": "Neighbour prop", "interval_cm": [485.0, 515.0]}]
+    bp = core.make_plan(blocked, pdes, {"P04": {"sides": [], "families": []}}, {"max_swaps": 3})
+    check("Q7 NEG P04 intersection with an adjacent-row measured PROP refuses the plan", not bp["gates_ok"] and
+          any("P04_CLEARANCE_INTERSECTION" in x and "Neighbour prop" in x for x in bp["refusals"]), bp["refusals"])
+
+    topd = synth_dry([(V3 % (i + 1, "L"), V3 % (i + 1, "R")) for i in range(5)])
+    topd["passage"], topd["passage_guid"] = "P04", core.PASSAGES["P04"]["guid"]
+    topmesh = "/Game/Scenes/Wings/MiscOriginal/StaticMeshes/SM_Ceiling_rose"
+    for o, row in enumerate(topd["rows"]):
+        row["label"] = "P04 Wing %03d" % (o + 1)
+        row["has_top"] = o in (0, 2, 4)
+        row["prop_route_intervals"] = []
+        if row["has_top"]:
+            row["sides"]["T"] = {"panel": core.planned_panel(topmesh, 0.0), "box_cm": {"min": [-15, -600, -426], "max": [5, 600, 0]},
+                                      "height_cm": 426.0, "thickness_cm": 20.0, "old_bounds": None,
+                                      "placement_anchor": {"center_y_cm": 0.0, "top_z_cm": 650.0},
+                                      "route_interval_cm": [o * 500.0 - 15, o * 500.0 + 5],
+                                      "route_faces_cm": {"front_s_cm": o * 500.0 - 15, "back_s_cm": o * 500.0 + 5},
+                                      "edge_baseline": {"top_cm": 650.0, "center_y_cm": 0.0}}
+            row["sides"]["T"]["panel"]["local_transform"]["location"][2] = 650.0
+    topd["rows"][0]["sides"]["T"]["panel"]["local_transform"]["rotation"][2] = 180.0
+    vals = []
+    for i in range(2):
+        mesh = core.REALISM_ROOT + "T5J/SM_FlatV3_VAL_real_%d_curtain_C_t5j" % i
+        box = {"min": [-20, 0, 0], "max": [5, 800, 400]}
+        topd["candidates"][mesh] = {"exists": True, "zero_bounds": {"min_y_cm": 0, "max_y_cm": 800}, "box_cm": box}
+        vals.append({"owner": "VAL_%d_C" % i, "side": "T", "mount": "top-border", "passage": "P04", "mesh": mesh,
+                     "height_cm": 400.0, "width_cm": 800.0, "imported": True, "exists": True,
+                     "zero_bounds": {"min_y_cm": 0, "max_y_cm": 800}, "box_cm": box})
+    topplan = core.make_plan(topd, vals, {"P04": {"sides": [], "families": []}}, {"sides": ["T"]})
+    check("Q8 POS Top plan targets the three bHasTop slots (including a rotated old Top); centres Y and holds upper Z",
+          topplan["gates_ok"] and len(topplan["swaps"]) == 3 and all(s["side"] == "T" and
+          s["planned_panel"]["local_transform"]["location"][1:] == [-400.0, 250.0] for s in topplan["swaps"]),
+          topplan["refusals"])
+    topbad = copy.deepcopy(topd); topbad["rows"][2]["sides"]["T"]["placement_anchor"] = None
+    topbadp = core.make_plan(topbad, vals, {"P04": {"sides": [], "families": []}}, {"sides": ["T"]})
+    check("Q9 NEG Top with no measured placement anchor is not swapped", len(topbadp["swaps"]) == 2 and
+          any("NO_TOP_PLACEMENT_ANCHOR" in p for p in next(f for f in topbadp["facts"] if f["key"] == "G02|T")["protected"]))
+    ep, eb = core.edge_verdict(["G00|T"], {"G00|T"}, {"G00|T": {"top_cm": 650, "center_y_cm": 0}},
+                               {"G00|T": {"top_cm": 650.5, "center_y_cm": 0.5}})
+    check("Q10 POS Top read-back probe accepts <=1 cm top/centre drift", not eb and ep[0]["inner_delta_cm"] == 0.5)
+    _ep, eb = core.edge_verdict(["G00|T"], {"G00|T"}, {"G00|T": {"top_cm": 650, "center_y_cm": 0}},
+                                {"G00|T": {"top_cm": 652, "center_y_cm": 0}})
+    check("Q11 NEG Top read-back probe rejects >1 cm drift", any("TOP_PLACEMENT_MOVED" in x for x in eb))
     remap_checks(tmp)
     # ---------------------------------------------------------------- static
     import ast

@@ -1,0 +1,8 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "run": "",
+ "decided_by": "Gary 9 Oct: compare lacquered-wet Variant B with A",
+ "dry_report": "",
+ "_confirms": "APPLY S2KVARIANTB | REVERT S2KVARIANTB"
+}

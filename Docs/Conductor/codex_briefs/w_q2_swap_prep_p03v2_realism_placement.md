@@ -1,0 +1,9 @@
+# W&T brief Q2: swap prep — P03 V2 cards out, P01/P04/valance realism placement plans, P04 clearance (offline)
+Read _house_rules.md (rules 1-9). NO Blender, NO Unreal. Offline only.
+Tools: Saved/CodexFlatV3/rzswap/ (make_swap_plan.py, rzswap_core.py, rzswap.py; remap mode exists; harness). Imports verified: Saved/CodexFlatV3/rzimport/rzimport_verify_*_LATEST.json and verify reports RZIMP-20261008-105828 (P01 6 + P04 13, 12-flap), RZIMP-20261008-110031 (valances 8, top-border), P02/P03 (RZIMP-20261007-101101). Audit: Saved/CodexFlatV3/p02p03_audit/ (audit.json lists the 7 P03 V2 card sides below 250 px/m).
+Gary 9 Oct: replace the 7 P03 V2 cards with V3 realism; place P01/P04/valance realism wings AFTER review sheets; P04 12-flap flats are 0.249 m deep (front growth ~5 cm), so a clearance check is needed.
+TASKS:
+1. rzswap: add a target filter to make_swap_plan (e.g. --only-family v2card or --targets-from audit.json) so P03's plan replaces exactly the 7 V2 card sides with imported P03 realism designs (handedness, max 2 uses, no adjacent repeats, matched-pair rule if P03 uses it — check). It needs a fresh live DRY at run time; make the plan step consume it. Harness +/- controls.
+2. P01 and P04: plan generation with the existing scoring rules (needs live DRY; prepare args + review-sheet generation). P04: add a clearance gate for deeper flats: front growth at most 6 cm and no intersection with neighbouring wing planes/props given row spacing (from DRY data) — report the method.
+3. Valances (top-border, 8 imported): find how the Show places top/upper wings (pair cue Top panel, 'has_top' in DRY; FInfinityPanelDesign Top) and whether rzswap can swap Top panels; if not, spec and implement offline the minimal extension (side 'T') with placement rules (centred, top-border Z), with harness.
+Deliver plans/args templates + code + harness; final message per house rules.

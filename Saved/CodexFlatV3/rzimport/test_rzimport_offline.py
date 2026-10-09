@@ -28,6 +28,10 @@ PROJECT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 RZ = "DerivedAssets/FlatV3/Realism_20261007"
 P06_MANIFEST = RZ + "/P06_backrooms/P06_IMPORT_MANIFEST_v2.json"
 V1_MANIFEST = RZ + "/IMPORT_MANIFEST.json"
+if not os.path.isfile(os.path.join(PROJECT, P06_MANIFEST)):
+    candidate = os.environ.get("PUSS_FIXTURE_PROJECT", r"E:\PussStage")
+    if os.path.isfile(os.path.join(candidate, P06_MANIFEST)):
+        PROJECT = candidate
 
 
 def _load(name, path):
@@ -642,6 +646,13 @@ def _main(tmp):
     r = core.height_gate("wing", zb(-1.5, 2247.3), 2250.0, legacy)
     check("PT6 NEG legacy sidecar (no per-pole tops) with clipped geometry still refused -> HEIGHT_VS_MANIFEST",
           r.startswith("HEIGHT_VS_MANIFEST z"), r)
+    full = dict(clip, top_mode="art-full", pole_top_z_cm=[2226.6],
+                pole_segments_z_cm=[[[-1.5, 0.0], [12.0, 48.0], [60.0, 2226.6]]])
+    check("PT6b POS art-full segment contract passes the same height gate",
+          core.height_gate("wing", zb(-1.5, 2247.3), 2250.0, full) == "")
+    broken = dict(full, pole_segments_z_cm=[[[1.0, 0.0]]])
+    check("PT6c NEG reversed art-full segment refused",
+          core.height_gate("wing", zb(-1.5, 2247.3), 2250.0, broken) == "ARTFULL_SEGMENTS_INVALID")
 
     def artclip(top_cm):
         def mut(d):

@@ -1,0 +1,27 @@
+{
+  "mode": "DRY",
+  "run": "FBXWIND-DRY-20261009-015032",
+  "marker": "FBXWIND_DRY_OK",
+  "source": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\SM_FlatV3_P02_IND_RollerShutter_L.fbx",
+  "sections": [
+    {
+      "geometry": "Cylinder.009",
+      "material_index": 3,
+      "polygons": 28,
+      "nondegenerate": 28,
+      "outward": 17,
+      "inward": 11,
+      "verdict": "mixed_or_unclear"
+    },
+    {
+      "geometry": "Cylinder.015",
+      "material_index": 3,
+      "polygons": 6,
+      "nondegenerate": 6,
+      "outward": 5,
+      "inward": 1,
+      "verdict": "mixed_or_unclear"
+    }
+  ],
+  "criterion": "geometric winding is outward when cross(edge01,edge02) dot (face_centroid-mesh_centroid) is positive for every nondegenerate material polygon"
+}
