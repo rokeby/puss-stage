@@ -189,20 +189,39 @@ def section_covers(section, frame):
 
 def blend_name(section):
     raw = str(section.get_blend_type()).upper()
+    if "ADDITIVE_FROM_BASE" in raw:
+        raise Stop("CAMERA_BLEND_UNSUPPORTED|ADDITIVE_FROM_BASE")
     if "ADDITIVE" in raw:
         return "ADDITIVE"
+    if "RELATIVE" in raw:
+        return "RELATIVE"
     if "ABSOLUTE" in raw or raw in ("NONE", ""):
         return "ABSOLUTE"
     raise Stop("CAMERA_BLEND_UNSUPPORTED|%s" % raw)
 
 
-def compose_camera_layers(layers, label):
-    """Compose [X,Y,Yaw] from one absolute section and additive shake sections."""
+def compose_camera_layers(layers, label, initial=None):
+    """Compose unit-weight X/Y/Yaw layers against the spawnable's initial transform.
+
+    MovieScene treats an exclusively additive channel as initial + additive and
+    a relative channel as initial + channel value.  We deliberately continue to
+    refuse multiple absolute/relative owners: reproducing their weighted/eased
+    average by reading raw channels would not be an exact Sequencer evaluation.
+    """
+    initial = list(initial or [0.0, 0.0, 0.0])
     absolute = [row for row in layers if row[0] == "ABSOLUTE"]
     additive = [row for row in layers if row[0] == "ADDITIVE"]
-    require(len(absolute) == 1, "CAMERA_ABSOLUTE_SECTION_COUNT|%s|%d" % (label, len(absolute)))
-    require(len(absolute) + len(additive) == len(layers), "CAMERA_BLEND_SET|%s" % label)
-    return [absolute[0][1][i] + sum(row[1][i] for row in additive) for i in range(3)]
+    relative = [row for row in layers if row[0] == "RELATIVE"]
+    owners = absolute + relative
+    require(len(owners) <= 1, "CAMERA_BASE_SECTION_COUNT|%s|%d" % (label, len(owners)))
+    require(len(owners) + len(additive) == len(layers), "CAMERA_BLEND_SET|%s" % label)
+    if absolute:
+        base = absolute[0][1]
+    elif relative:
+        base = [initial[i] + relative[0][1][i] for i in range(3)]
+    else:
+        base = initial
+    return [base[i] + sum(row[1][i] for row in additive) for i in range(3)]
 
 
 def camera_samples(sequence):
@@ -223,6 +242,11 @@ def camera_samples(sequence):
         base = {"Location.X": float(loc.x), "Location.Y": float(loc.y), "Rotation.Z": float(rotation.yaw)}
         transform_tracks = [t for t in binding.get_tracks()
                             if str(t.get_class().get_name()) == "MovieScene3DTransformTrack"]
+        attach_tracks = [t for t in binding.get_tracks()
+                         if str(t.get_class().get_name()) == "MovieScene3DAttachTrack"]
+        require(not attach_tracks, "CAMERA_ATTACHMENT_UNEVALUATED|%s|tracks=%d|raw channels are relative to a "
+                "constraint parent; skip only with a separately measured world-space margin" %
+                (label, len(attach_tracks)))
         if len(transform_tracks) > 1:
             raise Stop("CAMERA_TRANSFORM_TRACKS|%s|%d" % (label, len(transform_tracks)))
         section_rows = []
@@ -246,13 +270,16 @@ def camera_samples(sequence):
                     values = [value_at(sequence, channels.get(key), frame, fallback[i])
                               for i, key in enumerate(("Location.X", "Location.Y", "Rotation.Z"))]
                     layers.append((blend_name(section), values))
-                pose = compose_camera_layers(layers, "%s|frame=%d" % (label, frame))
+                pose = compose_camera_layers(layers, "%s|frame=%d" % (label, frame),
+                                             [base["Location.X"], base["Location.Y"], base["Rotation.Z"]])
+                pose_source = "spawnable_sequence_transform" if layers else "spawnable_template_initial"
             else:
                 pose = [base["Location.X"], base["Location.Y"], base["Rotation.Z"]]
+                pose_source = "spawnable_template_transform"
             rows.append({"label": label, "frame": frame,
                          "xy": pose[:2], "yaw_deg": pose[2],
-                         "source": "spawnable_sequence_transform" if transform_tracks else "spawnable_template_transform",
-                         "active_transform_sections": len(section_rows),
+                         "source": pose_source,
+                         "active_transform_sections": len(layers) if section_rows else 0,
                          "key_counts": [{k: len(channel_key_frames(v)) for k, v in channels.items() if k in base}
                                         for _section, channels in section_rows]})
     expected = ["S3 Shot B%02d" % number for number in range(2, 13)]

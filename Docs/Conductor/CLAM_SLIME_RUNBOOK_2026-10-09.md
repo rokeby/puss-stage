@@ -14,6 +14,32 @@ the absent actor, binding, and apply record are expected until import succeeds.
 Do not synthesize the actor, binding, or apply record to bypass IMPORT. `NOT_IMPORTED`,
 `TARGETS_EXIST`, source/curve mismatch, or a non-empty census is a stop condition.
 
+## Batch 1f LID_PIVOT correction (job 63)
+
+- **[measured]** Batch 1f imported `SK_PearlClam_Slime` and
+  `A_PearlClam_SlimeOpen`, then reported the animation bone `lid` at every
+  sampled frame as `[0.0, -0.479, 0.300]`. The old gate compared that result to
+  `[0.0, -47.86, 30.02]` and therefore refused by exactly 100x. Evidence:
+  `E:/PussStage/Saved/Logs/PussStage-backup-2026.10.09-13.14.57.log:5403-5425`.
+- **[declaration-proven]** The design pivot is Blender centimetres
+  `[0.0, 47.86, 30.02]`; the build converts its bone matrices from centimetres
+  to a metre-authored Blender scene, then exports with Y flipped into Unreal.
+  The AnimationLibrary gate must therefore expect local animation metres
+  `[0.0, -0.4786, 0.3002]`. Mesh bounds remain a separate centimetre gate.
+  Evidence: `Saved/CodexConductor/ClamSlime_20261008/build_slime.py:19-23,60-85`;
+  `Saved/CodexConductor/ClamSlime_20261008/slime_apply_ue.py:127-135,235-257`.
+- **[declaration-proven]** This pivot belongs to the generated slime skeletal
+  mesh/animation, whose actor label is `S3 PearlClam Slime`. APPLY attaches that
+  actor to the existing `S3 PearlClam` bottom actor identified by the
+  `S3Millstone` apply record; it is not the separate `S3 PearlClam Lid` actor's
+  mesh pivot. Evidence:
+  `Saved/CodexConductor/ClamSlime_20261008/slime_apply_ue.py:103-119,691-696,1032-1065`.
+- **[inferred]** No asset rebuild is indicated: measured axes/signs and all
+  sampled-frame translations match the metre expectation. After a conductor-
+  owned Don't-Save restart has discarded batch 1f's seven dirty transient
+  packages, repeat the normal DRY -> IMPORT -> DRY -> APPLY sequence. A changed
+  sign or more than 0.05 cm equivalent pivot drift still refuses.
+
 Proof boundary: the ordering and confirm strings are declaration-proven by
 `Saved/CodexConductor/ClamSlime_20261008/slime_apply_ue.py`; run-51c measured only
 the missing-import state. No rendered or PIE acceptance is claimed here.

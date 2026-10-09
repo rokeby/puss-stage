@@ -5,6 +5,7 @@ named reason.  Run:  python test_slime_apply_ue.py   -> CLAMSLIME_HARNESS|pass=n
 The fake's live lid keys are the REAL read-back keys of the applied opening (ClamOpen_20261008/clam_open_record.json
 after_roll, CLAMOPEN-20261008-032251) and the fake anim's lid curve is the REAL design curve (build/slime_design.json),
 mirrored to UE as Roll = -deg (the [inf] the tool gates).  Records, backups and the dry output go to a temp folder.
+When gitignored build fixtures are absent from the worktree, set CLAMSLIME_FIXTURE_DIR to the read-only live folder.
 """
 import copy
 import importlib.util
@@ -16,6 +17,7 @@ import tempfile
 import types
 
 HERE = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/") + "/"
+FIXTURES = os.environ.get("CLAMSLIME_FIXTURE_DIR", HERE).replace("\\", "/").rstrip("/") + "/"
 RESULTS = []
 SCENE = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03"
 WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
@@ -35,8 +37,8 @@ def load_tool():
 
 
 T = load_tool()
-DESIGN = json.load(open(HERE + "build/slime_design.json", encoding="utf-8"))
-CLAMOPEN = json.load(open(HERE + "../ClamOpen_20261008/clam_open_record.json", encoding="utf-8"))
+DESIGN = json.load(open(FIXTURES + "build/slime_design.json", encoding="utf-8"))
+CLAMOPEN = json.load(open(FIXTURES + "../ClamOpen_20261008/clam_open_record.json", encoding="utf-8"))
 
 
 # =====================================================================================================================
@@ -516,7 +518,7 @@ def fake_unreal():
     def pose(anim, bone, frame, root_motion):
         deg = want.get(int(frame), 0.0)
         roll = -deg * E.anim_sign + (0.5 if E.anim_offset_at == int(frame) else 0.0)
-        return types.SimpleNamespace(rotation=Rot(roll), translation=V(*T.LID_PIVOT_UE))
+        return types.SimpleNamespace(rotation=Rot(roll), translation=V(*T.LID_PIVOT_ANIM_M))
     u.AnimationLibrary = types.SimpleNamespace(get_bone_pose_for_frame=pose, get_num_frames=lambda a: 4795)
     u.log = lambda m: E.saved.append("LOG|" + m)
     u.log_error = lambda m: E.saved.append("ERR|" + m)
@@ -589,12 +591,23 @@ def pure_checks():
     check("bounds_100x_refused(-)", any(x.startswith("BOUNDS") for x in
                                         T.bounds_problems([o * 100 for o in org], [e * 100 for e in ext], DESIGN)))
     want = T.design_want(DESIGN)
-    rows = [(f, r, T.LID_PIVOT_UE) for f, r in want.items()]
+    rows = [(f, r, T.LID_PIVOT_ANIM_M) for f, r in want.items()]
     check("lid_curve_ok", T.lid_curve_problems(rows, want) == [])
-    rows_f = [(f, -r, T.LID_PIVOT_UE) for f, r in want.items()]
+    rows_f = [(f, -r, T.LID_PIVOT_ANIM_M) for f, r in want.items()]
     check("lid_curve_sign_flip_named(-)", T.lid_curve_problems(rows_f, want)[:1] == ["LID_SIGN_FLIPPED"])
-    rows_p = [(f, r, [0.0, 47.86, 30.02]) for f, r in want.items()]
-    check("lid_pivot_unflipped_refused(-)", any(x.startswith("LID_PIVOT") for x in T.lid_curve_problems(rows_p, want)))
+    # Batch 1f regression triplet: the old centimetre expectation refused the
+    # measured rows, the unit-correct expectation passes, and real axis drift
+    # remains a refusal.
+    logged = [(f, r, [0.0, -0.4786, 0.3002]) for f, r in want.items()]
+    check("lid_pivot_logged_old_cm_gate_refuses(-)", any(
+        abs(a - b) > T.TOL_CM for a, b in zip(logged[0][2], T.flip_y(T.LID_PIVOT_BLENDER_CM))))
+    check("lid_pivot_logged_metres_passes", T.lid_curve_problems(logged, want) == [])
+    rows_p = [(f, r, [0.0, 0.4786, 0.3002]) for f, r in want.items()]
+    check("lid_pivot_unflipped_refused(-)", any(x.startswith("LID_PIVOT_M") for x in
+                                                  T.lid_curve_problems(rows_p, want)))
+    rows_d = [(f, r, [0.0, -0.4686, 0.3002]) for f, r in want.items()]
+    check("lid_pivot_real_1cm_drift_refused(-)", any(x.startswith("LID_PIVOT_M") for x in
+                                                       T.lid_curve_problems(rows_d, want)))
     live = CLAMOPEN["after_roll"]["keys"]
     check("anim_vs_live_ok", T.anim_vs_lid_problems(rows, live, DESIGN, 1446) == [])
     live_bad = copy.deepcopy(live)
@@ -633,8 +646,8 @@ def pure_checks():
     wa = T.interchange_wanted("A_PearlClam_SlimeOpen", "anim", T.SKELETON)
     check("interchange_anim_only", wa[("common_skeletal", "import_only_animations")] is True and
           wa[("mesh", "import_skeletal_meshes")] is False and wa[("common_skeletal", "skeleton")] == T.SKELETON)
-    b = json.load(open(HERE + "build/slime_build.json", encoding="utf-8"))
-    v = json.load(open(HERE + "validate_slime_report.json", encoding="utf-8"))
+    b = json.load(open(FIXTURES + "build/slime_build.json", encoding="utf-8"))
+    v = json.load(open(FIXTURES + "validate_slime_report.json", encoding="utf-8"))
     check("sources_ok", T.source_problems(DESIGN, b, v, True) == [], T.source_problems(DESIGN, b, v, True))
     v2 = dict(v, failures=["SEAM_UPPER|55|0.9"])
     check("sources_validation_failed_refused(-)", any(x.startswith("VALIDATION_FAILED") for x in

@@ -78,11 +78,34 @@ def camera_multisection_regression():
     layers = [("ABSOLUTE", [100.0, 200.0, 30.0]), ("ADDITIVE", [0.25, -0.5, 1.0])]
     assert len(layers) != 1  # old run-51c guard refused the logged B06 state
     assert E.compose_camera_layers(layers, "B06|frame=3200") == [100.25, 199.5, 31.0]
-    raises("CAMERA_ABSOLUTE_SECTION_COUNT", lambda: E.compose_camera_layers(
+    raises("CAMERA_BASE_SECTION_COUNT", lambda: E.compose_camera_layers(
         [("ABSOLUTE", [0, 0, 0]), ("ABSOLUTE", [1, 1, 1])], "B06|frame=3200"))
 
 
 case("camera_two_sections_old_refuses_new_composes_real_drift_refuses", "REGRESSION", camera_multisection_regression)
+
+
+def camera_no_absolute_regression():
+    initial = [15484.4, 160169.5, -22.0]
+    # Batch 1f B07 had no section covering frame 0.  The old composer refused
+    # zero absolute sections; MovieScene leaves the spawnable at its initial pose.
+    def old_compose(layers):
+        absolute = [row for row in layers if row[0] == "ABSOLUTE"]
+        if len(absolute) != 1:
+            raise C.PlanError("CAMERA_ABSOLUTE_SECTION_COUNT|S3 Shot B07|frame=0|%d" % len(absolute))
+
+    raises("CAMERA_ABSOLUTE_SECTION_COUNT", lambda: old_compose([]))
+    assert E.compose_camera_layers([], "S3 Shot B07|frame=0", initial) == initial
+    assert E.compose_camera_layers([("ADDITIVE", [10.0, -5.0, 2.0])], "B07", initial) == \
+        [15494.4, 160164.5, -20.0]
+    assert E.compose_camera_layers([("RELATIVE", [100.0, 20.0, 5.0])], "B07", initial) == \
+        [15584.4, 160189.5, -17.0]
+    raises("CAMERA_BASE_SECTION_COUNT", lambda: E.compose_camera_layers(
+        [("ABSOLUTE", [1, 2, 3]), ("RELATIVE", [4, 5, 6])], "B07", initial))
+
+
+case("camera_zero_absolute_logged_passes_relative_passes_real_drift_refuses", "REGRESSION",
+     camera_no_absolute_regression)
 
 
 def placement_zero_extra():

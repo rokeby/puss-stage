@@ -77,6 +77,11 @@
       "passed": true
     },
     {
+      "control": "REGRESSION",
+      "name": "camera_zero_absolute_logged_passes_relative_passes_real_drift_refuses",
+      "passed": true
+    },
+    {
       "control": "POSITIVE",
       "name": "placement_mandatory_shore05",
       "passed": true
@@ -167,13 +172,13 @@
       "passed": true
     }
   ],
-  "negative_passed": 19,
-  "negative_total": 19,
-  "passed": 33,
+  "negative_passed": 20,
+  "negative_total": 20,
+  "passed": 34,
   "positive_passed": 14,
   "positive_total": 14,
   "result": "PASS",
   "schema": "p40_shore05_settle/1",
-  "total": 33,
+  "total": 34,
   "unreal_started": false
 }

@@ -124,7 +124,13 @@ ROLL = "Rotation.X"
 BONES_FIXED = ["root", "lid", "lig_1", "lig_2", "lig_3"]
 STRANDS, STATIONS = 5, 6
 BONES = BONES_FIXED + ["s%d_%s%d" % (i, h, k) for i in range(STRANDS) for h in ("lo", "up") for k in range(STATIONS)]
-LID_PIVOT_UE = [0.0, -47.86, 30.02]                    # Blender (0, 47.86, 30.02) with Y flipped
+LID_PIVOT_BLENDER_CM = [0.0, 47.86, 30.02]
+# AnimationLibrary.get_bone_pose_for_frame returned the imported local bone
+# translation in authored Blender metres during batch 1f.  Mesh bounds remain
+# centimetres.  Keep the units explicit so the two gates cannot be conflated.
+LID_PIVOT_ANIM_M = [LID_PIVOT_BLENDER_CM[0] / 100.0,
+                    -LID_PIVOT_BLENDER_CM[1] / 100.0,
+                    LID_PIVOT_BLENDER_CM[2] / 100.0]
 
 TOL_CM, TOL_DEG, TOL_REL = 0.05, 1e-3, 1e-3
 BOUNDS_TOL_CM = 0.5
@@ -227,8 +233,13 @@ def bone_tree_problems(tree):
 
 
 def lid_curve_problems(rows, want, tol=TOL_DEG):
-    """rows [(anim_frame, roll_deg, translation[3])] from the anim's lid bone; want {anim_frame: roll_deg} (live keys or
-    design, roll convention: negative = open).  Names a flipped sign."""
+    """Validate AnimationLibrary lid rows; translations are authored metres.
+
+    ``rows`` are ``(anim_frame, roll_deg, local_translation_m)``.  The FBX was
+    built on a metre scene from a centimetre design, and batch 1f measured
+    ``[0,-0.479,0.300]`` at every sampled frame.  That is the expected
+    ``(x,-y,z)/100`` pivot, not a 100x-short mesh.
+    """
     p = []
     if not rows:
         return ["LID_CURVE_EMPTY"]
@@ -240,8 +251,9 @@ def lid_curve_problems(rows, want, tol=TOL_DEG):
             continue
         if abs(r - want[f]) > tol:
             p.append("LID_CURVE|f=%d|anim %.5f|want %.5f" % (f, r, want[f]))
-        if any(abs(a - b) > TOL_CM for a, b in zip(t, LID_PIVOT_UE)):
-            p.append("LID_PIVOT|f=%d|%s" % (f, [round(x, 3) for x in t]))
+        if any(abs(a - b) > TOL_CM / 100.0 for a, b in zip(t, LID_PIVOT_ANIM_M)):
+            p.append("LID_PIVOT_M|f=%d|got=%s|want=%s" %
+                     (f, [round(x, 4) for x in t], [round(x, 4) for x in LID_PIVOT_ANIM_M]))
     if flipped:
         p.insert(0, "LID_SIGN_FLIPPED")
     return p[:8]
