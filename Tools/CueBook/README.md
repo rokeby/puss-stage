@@ -14,6 +14,11 @@ segment, with stills, and edit it. No accounts. Built 8 Oct 2026 for Gary.
   changed the CSV, export writes a previewable `kind: "changes"` file and refuses to overwrite that edit.
 - **Order:** each cue can move one step or after a named cue key. Only that cue's fractional `ord` changes, and a
   stale move becomes a conflict. The header's read-only Running order view shows the complete show on one page.
+- **Print / PDF:** the header's **Print…** panel offers Full, Stage manager, Klara, Gary, Cameron, Lighting and
+  Sound presets, an optional segment range and an include-cut control. Its preview is the print layout; use the
+  browser print dialog's **Save as PDF**. The same definitions live in `site/print_presets.json` and drive the
+  offline command: `python Tools/CueSheet/cue_sync.py print stage-manager --from "Passage 1" --to "Passage 2"`.
+  Output goes to `Docs/CueSheet/print/` as a self-contained HTML file to open and print in any browser.
 - **Stills:** `segment_map.json` is the ordered Cue Book-name to Show-key map. Cueing copies
   `unreal/cuebook_stills_driver.py` to `Saved/CodexCueing/`; the Conductor runs DRY and then confirmed APPLY inside
   an already-running PIE. The driver imports the Conductor's `scene_stills.py`, never starts or ends PIE, and emits
@@ -69,7 +74,8 @@ in the browser on a fake spreadsheet (`test/mock_services.js`), so the whole flo
 connection.
 
 `python Tools/CueBook/test/build_test_site.py --browser-harness` also injects the automated browser runner. Serve
-`test/_build` and open it in a browser: it finishes with `CUEBOOK_BROWSER_HARNESS_OK 10/10` after running-order,
+`test/_build` and open it in a browser: it finishes with `CUEBOOK_BROWSER_HARNESS_OK 13/13` after print presets,
+include-cut, running-order,
 move/audit, move-conflict, offline move, line add/edit/conflict, offline line, and both old-deployment controls. The
 normal build remains the interactive mock.
 

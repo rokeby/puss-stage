@@ -7,6 +7,7 @@ import json
 import pathlib
 import tempfile
 import unittest
+from html.parser import HTMLParser
 
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -83,6 +84,7 @@ class CueBookExportHarness(unittest.TestCase):
         self.assertEqual(conflicts, [])
 
     def _sandbox(self, root):
+        preset_text = (HERE.parent / "CueBook" / "site" / "print_presets.json").read_text(encoding="utf-8")
         docs = root / "Docs" / "CueSheet"
         content = root / "Content" / "InfinityStage" / "CueSheet"
         docs.mkdir(parents=True)
@@ -99,6 +101,10 @@ class CueBookExportHarness(unittest.TestCase):
         CUE.SURTITLES_EXPORT = str(content / "Puss_Surtitles.csv")
         CUE.SURTITLES_BASE = str(docs / "surtitles_base.csv")
         CUE.SEGMENT_MAP = str(root / "Tools" / "CueBook" / "segment_map.json")
+        CUE.PRINT_PRESETS = str(root / "Tools" / "CueBook" / "site" / "print_presets.json")
+        CUE.PRINT_DIR = str(docs / "print")
+        pathlib.Path(CUE.PRINT_PRESETS).parent.mkdir(parents=True)
+        pathlib.Path(CUE.PRINT_PRESETS).write_text(preset_text, encoding="utf-8")
         fields = ["Key", "Origin", "#", "Light", "Video Cue", "Speaker: Klara", "Notes", CUE.DIRECTOR]
         rows = [{"Key": "R1", "Origin": "shared", "#": "1", "Light": "warm, then dark",
                  "Video Cue": "Passage 1", "Speaker: Klara": "café \"line\"", "Notes": "keep\nline break",
@@ -239,6 +245,66 @@ class CueBookExportHarness(unittest.TestCase):
         self.assertEqual(adds, [])
         self.assertEqual(changes, [{"key": "TABC1", "field": "in", "from": "1", "to": "1.25"}])
         self.assertNotEqual(current[0]["in"], changes[0]["from"])
+
+    def _print_fixture(self):
+        blank = {field: "" for field in CUE.PRINT_COLUMNS}
+        def cue(key, order, **values):
+            row = dict(blank, key=key, ord=order, cut=False)
+            row.update(values)
+            return row
+        return [
+            cue("R1", 10, num="1", videoCue="Passage 1", klara="Klara line", light="Warm"),
+            cue("R2", 20, num="2", gary="Gary line", soundCue="Rumble", action="Listen", go="2 HOLD"),
+            cue("R3", 30, num="3", cameron="Cut Cameron line", cut=True),
+            cue("R4", 40, num="4", videoCue="Passage 2", soundTech="Fade", pause="yes",
+                notes="A note long enough to prove that stage-manager output is shortened after sixty characters exactly."),
+            cue("R5", 50, num="5", cameron="Cameron line"),
+        ]
+
+    def test_print_presets_select_fields_and_hide_empty_or_cut_cues(self):
+        preset_path = HERE.parent / "CueBook" / "site" / "print_presets.json"
+        presets = CUE.load_print_presets(str(preset_path))
+        cues = self._print_fixture()
+        expected = {"full": 4, "stage-manager": 4, "klara": 1, "gary": 2,
+                    "cameron": 1, "lighting": 3, "sound": 2}
+        for name, count in expected.items():
+            with self.subTest(preset=name):
+                selected = CUE.select_print_segments(cues, presets[name])
+                rows = [item for segment in selected for item in segment["cues"]]
+                self.assertEqual(len(rows), count)
+                self.assertFalse(any(cue["key"] == "R3" for cue, _context in rows))
+        full_with_cut = CUE.select_print_segments(cues, presets["full"], include_cut=True)
+        self.assertEqual(sum(len(segment["cues"]) for segment in full_with_cut), 5)
+
+    def test_print_negative_control_does_not_leak_unselected_fields(self):
+        preset_path = HERE.parent / "CueBook" / "site" / "print_presets.json"
+        presets = CUE.load_print_presets(str(preset_path))
+        lighting = CUE.render_print_html(self._print_fixture(), "lighting", presets, printed_date="2026-10-09")
+        sound = CUE.render_print_html(self._print_fixture(), "sound", presets, printed_date="2026-10-09")
+        gary = CUE.render_print_html(self._print_fixture(), "gary", presets, printed_date="2026-10-09")
+        self.assertNotIn("Klara line", lighting)
+        self.assertNotIn("Warm", sound)
+        self.assertNotIn("Warm", gary)
+        self.assertNotIn("Cut Cameron line", gary)
+
+    def test_print_html_is_well_formed_and_byte_stable(self):
+        preset_path = HERE.parent / "CueBook" / "site" / "print_presets.json"
+        presets = CUE.load_print_presets(str(preset_path))
+        first = CUE.render_print_html(self._print_fixture(), "stage-manager", presets, printed_date="2026-10-09")
+        second = CUE.render_print_html(self._print_fixture(), "stage-manager", presets, printed_date="2026-10-09")
+        self.assertEqual(first.encode("utf-8"), second.encode("utf-8"))
+        self.assertIn("A note long enough to prove that stage-manager output is sh…", first)
+
+        class Balanced(HTMLParser):
+            void = {"meta", "link", "br", "hr", "img", "input"}
+            def __init__(self):
+                super().__init__(); self.stack = []
+            def handle_starttag(self, tag, attrs):
+                if tag not in self.void: self.stack.append(tag)
+            def handle_endtag(self, tag):
+                if not self.stack or self.stack.pop() != tag: self.stack.append("BROKEN:" + tag)
+        parser = Balanced(); parser.feed(first); parser.close()
+        self.assertEqual(parser.stack, [])
 
     def test_existing_selftest_remains_23_of_23(self):
         output = io.StringIO()

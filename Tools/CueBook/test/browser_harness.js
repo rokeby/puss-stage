@@ -40,6 +40,10 @@
       click('Show cues');
       await wait(() => !document.querySelector('.movebtn'), 'old deployment move buttons hidden');
       checks.push('old deployment hides move buttons instead of sending unsupported actions');
+      window.__cuebook.renderPrintView('stage-manager');
+      if (document.querySelectorAll('.print-cue').length !== 4) throw new Error('old deployment print failed');
+      document.querySelector('.print-actions .btn:not(.primary)').click();
+      checks.push('old deployment still renders the stage-manager print view');
       report(true, checks);
       return;
     }
@@ -49,7 +53,7 @@
       await wait(() => window.__cuebook && window.__cuebook.outbox.length === 0, 'offline move sent after reload');
       const listAfterMove = await api({ action: 'list' });
       const order = listAfterMove.cues.slice().sort((a, b) => a.ord - b.ord).map(cue => cue.key);
-      if (order.join(',') !== 'R0001,R0002,R0003,R0004') throw new Error('offline move order wrong: ' + order.join(','));
+      if (order.join(',') !== 'R0001,R0002,R0003,R0004,R0005') throw new Error('offline move order wrong: ' + order.join(','));
       checks.push('offline cue move survived reload and was sent');
 
       click('Surtitles');
@@ -93,20 +97,40 @@
     window.mockReset();
     ['cuebook.who', 'cuebook.pass', 'cuebook.outbox', 'cuebook.conflicts', 'cuebook.drafts', 'cuebook.lineDrafts', 'cuebook.showSurtitles', 'cuebook.runningOrder'].forEach(key => localStorage.removeItem(key));
     await api({ action: 'seed', op: 'browser-seed', cues: [
-      { key: 'R0001', ord: 10, version: 1, cut: false, num: '1', origin: 'shared', director: '', after: '', videoCue: 'S5 Mountains', klara: 'A mountain speaks' },
-      { key: 'R0002', ord: 20, version: 1, cut: false, num: '2', origin: 'shared', director: '', after: '', soundCue: 'Rumble' },
-      { key: 'R0003', ord: 30, version: 1, cut: false, num: '3', origin: 'shared', director: '', after: '', videoCue: 'Passage 6', pause: 'yes' },
-      { key: 'R0004', ord: 40, version: 1, cut: true, num: '4', origin: 'shared', director: '', after: '', at: '2', go: '9 HOLD', cameron: 'Cut line' }
+      { key: 'R0001', ord: 10, version: 1, cut: false, num: '1', origin: 'shared', director: '', after: '', videoCue: 'S5 Mountains', klara: 'A mountain speaks', light: 'Warm state' },
+      { key: 'R0002', ord: 20, version: 1, cut: false, num: '2', origin: 'shared', director: '', after: '', soundCue: 'Rumble', gary: 'Listen', at: '1', go: '2 HOLD' },
+      { key: 'R0003', ord: 30, version: 1, cut: false, num: '3', origin: 'shared', director: '', after: '', videoCue: 'Passage 6', pause: 'yes', soundTech: 'Fade' },
+      { key: 'R0004', ord: 40, version: 1, cut: true, num: '4', origin: 'shared', director: '', after: '', at: '2', go: '9 HOLD', cameron: 'Cut line' },
+      { key: 'R0005', ord: 50, version: 1, cut: false, num: '5', origin: 'shared', director: '', after: '', cameron: 'Cameron line' }
     ] });
     document.querySelector('#gName').value = 'Gary';
     document.querySelector('#gPass').value = 'test-pass';
     document.querySelector('#gateForm').requestSubmit();
     const checks = [];
-    await wait(() => document.querySelector('#gate').hidden && button('Running order') && document.querySelector('[aria-label="Move R0002 up one cue"]'), 'sign in');
+    await wait(() => document.querySelector('#gate').hidden && button('Running order') && document.querySelector('[aria-label="Move R0002 up one cue"]') && document.querySelectorAll('#printPreset option').length === 7, 'sign in');
+    window.print = () => {};
+    click('Print…');
+    if (document.querySelector('#printPanel').hidden) throw new Error('print panel did not open');
+    click('Cancel');
+    const printCounts = { full: 4, 'stage-manager': 4, klara: 1, gary: 2, cameron: 1, lighting: 3, sound: 2 };
+    for (const [preset, expected] of Object.entries(printCounts)) {
+      window.__cuebook.renderPrintView(preset);
+      const actual = document.querySelectorAll('.print-cue').length;
+      if (actual !== expected) throw new Error(`print ${preset}: expected ${expected}, got ${actual}`);
+      if ([...document.querySelectorAll('.print-cue')].some(row => row.dataset.key === 'R0004')) throw new Error(`print ${preset} included cut cue`);
+      document.querySelector('.print-actions .btn:not(.primary)').click();
+    }
+    checks.push('all seven print presets match expected visible-cue counts and hide cut cues');
+    document.querySelector('#printCuts').checked = true;
+    window.__cuebook.renderPrintView('full');
+    if (document.querySelectorAll('.print-cue').length !== 5) throw new Error('include-cut control did not reveal cut cue');
+    document.querySelector('.print-actions .btn:not(.primary)').click();
+    document.querySelector('#printCuts').checked = false;
+    checks.push('include-cut control reveals cut cues only when selected');
     click('Running order');
-    await wait(() => document.querySelectorAll('.run-cue').length === 4, 'running order');
+    await wait(() => document.querySelectorAll('.run-cue').length === 5, 'running order');
     const runKeys = [...document.querySelectorAll('.run-cue')].map(row => row.dataset.key);
-    if (new Set(runKeys).size !== 4) throw new Error('running order duplicates: ' + runKeys.join(','));
+    if (new Set(runKeys).size !== 5) throw new Error('running order duplicates: ' + runKeys.join(','));
     checks.push('running order lists every seed cue exactly once');
     click('Running order');
 

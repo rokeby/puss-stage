@@ -19,6 +19,8 @@ Usage:
   python Tools/CueSheet/cue_sync.py cuebook                       fetch the online Cue Book and merge it (needs CUEBOOK_PASS)
   python Tools/CueSheet/cue_sync.py webpull <dir or .json>        merge a saved Cue Book export / backup file
   python Tools/CueSheet/cue_sync.py export <cuebook.json>         webpull, render, then cb3 surtitles when present
+  python Tools/CueSheet/cue_sync.py print <preset> [--from SEG --to SEG] [--include-cut]
+                                                               write a compact browser-to-PDF cue list
   python Tools/CueSheet/cue_sync.py webbase                       record working.csv as the page's merge base (after seeding)
   python Tools/CueSheet/cue_sync.py tocuebook                     write a changes file for the Cue Book (pull does this too)
 
@@ -42,6 +44,7 @@ working version and is listed as a CONFLICT with the Sheet's version beside it. 
 import csv
 import difflib
 import hashlib
+import html
 import io
 import itertools
 import json
@@ -65,6 +68,8 @@ WEB_REPORT = os.path.join(DIR, 'web_report.md')
 SURTITLES_EXPORT = os.path.join(ROOT, 'Content', 'InfinityStage', 'CueSheet', 'Puss_Surtitles.csv')
 SURTITLES_BASE = os.path.join(DIR, 'surtitles_base.csv')
 SEGMENT_MAP = os.path.join(ROOT, 'Tools', 'CueBook', 'segment_map.json')
+PRINT_PRESETS = os.path.join(ROOT, 'Tools', 'CueBook', 'site', 'print_presets.json')
+PRINT_DIR = os.path.join(DIR, 'print')
 # page field -> working.csv column
 WEB_FIELDS = {'light': 'Light', 'soundTech': 'Sound tech', 'action': 'Action', 'soundCue': 'Sound cue',
               'videoCue': 'Video Cue', 'klara': 'Speaker: Klara', 'gary': 'Speaker: Gary',
@@ -887,6 +892,183 @@ def web_seed_baseline():
     print('CUE_SYNC_WEBBASE_OK rows=%d' % len(rows))
 
 
+# ---------------------------------------------------------------- printable cue lists (P54)
+PRINT_LABELS = {
+    'num': '#', 'key': 'Key', 'segment': 'Segment', 'at': 'At', 'klara': 'Klara', 'gary': 'Gary',
+    'cameron': 'Cameron', 'light': 'Light', 'soundTech': 'Sound tech', 'soundCue': 'Sound cue',
+    'videoCue': 'Video cue', 'action': 'Action', 'beats': 'Beats', 'go': 'GO', 'pause': 'Pause',
+    'notes': 'Notes', 'director': 'Director notes'
+}
+PRINT_COLUMNS = {
+    'num': '#', 'key': 'Key', 'klara': 'Speaker: Klara', 'gary': 'Speaker: Gary',
+    'cameron': 'Speaker: Cameron', 'light': 'Light', 'soundTech': 'Sound tech',
+    'soundCue': 'Sound cue', 'videoCue': 'Video Cue', 'action': 'Action', 'beats': 'Beats',
+    'notes': 'Notes', 'director': DIRECTOR, 'at': AT, 'go': GO, 'pause': PAUSE
+}
+PRINT_SPEAKERS = ('klara', 'gary', 'cameron')
+
+
+def load_print_presets(path=None):
+    with open(path or PRINT_PRESETS, encoding='utf-8') as handle:
+        data = json.load(handle)
+    presets = data.get('presets') if isinstance(data, dict) else None
+    if not isinstance(presets, dict) or not presets:
+        raise ValueError('print preset file has no presets')
+    for name, preset in presets.items():
+        if not isinstance(preset.get('fields'), list) or not preset.get('label'):
+            raise ValueError('bad print preset %r' % name)
+    return presets
+
+
+def print_cues_from_working(path=None):
+    """Translate working.csv rows to the same field names used by the Cue Book page."""
+    _fields, rows = load_csv(path or WORKING)
+    cues = []
+    for index, row in enumerate(rows):
+        cue = {field: str(row.get(column) or '') for field, column in PRINT_COLUMNS.items()}
+        cue.update({'ord': index + 1, 'cut': CUT_MARK in str(row.get(DIRECTOR) or '')})
+        cues.append(cue)
+    return cues
+
+
+def print_segments(cues):
+    """Group cues exactly like the page: a live Video cue begins and belongs to a segment."""
+    segments = [{'label': 'Prologue', 'cues': []}]
+    current = segments[0]
+    for cue in sorted(cues, key=lambda item: float(item.get('ord') or 0)):
+        label = str(cue.get('videoCue') or '').strip().split('\n', 1)[0]
+        if label and not cue.get('cut'):
+            current = {'label': label, 'cues': []}
+            segments.append(current)
+        current['cues'].append(cue)
+    if segments and not segments[0]['cues']:
+        segments.pop(0)
+    return segments
+
+
+def select_print_segments(cues, preset, include_cut=False, from_segment=None, to_segment=None):
+    """Pure print selection shared in behaviour with the page renderer."""
+    segments = print_segments(cues)
+    labels = [segment['label'] for segment in segments]
+    try:
+        first = labels.index(from_segment) if from_segment else 0
+        last = labels.index(to_segment) if to_segment else len(segments) - 1
+    except ValueError as error:
+        raise ValueError('unknown print segment %r' % error.args[0])
+    if first > last:
+        raise ValueError('print segment range is backwards')
+    relevance = preset.get('relevance', [])
+    result = []
+    for segment in segments[first:last + 1]:
+        eligible = [cue for cue in segment['cues'] if include_cut or not cue.get('cut')]
+        if preset.get('hide_empty') is False:
+            chosen = [(cue, False) for cue in eligible]
+        else:
+            primary = {i for i, cue in enumerate(eligible)
+                       if any(str(cue.get(field) or '').strip() for field in relevance)}
+            context = set()
+            if preset.get('previous_speaker_context'):
+                for index in primary:
+                    before = index - 1
+                    if before >= 0 and any(str(eligible[before].get(field) or '').strip()
+                                           for field in PRINT_SPEAKERS):
+                        context.add(before)
+            chosen = [(cue, index in context and index not in primary)
+                      for index, cue in enumerate(eligible) if index in primary or index in context]
+        if chosen:
+            result.append({'label': segment['label'], 'cues': chosen})
+    return result
+
+
+def _print_short(value, limit=None):
+    text = re.sub(r'\s+', ' ', str(value or '')).strip()
+    if limit and len(text) > limit:
+        return text[:max(1, limit - 1)].rstrip() + '\u2026'
+    return text
+
+
+def _print_context(cue):
+    lines = ['%s: %s' % (PRINT_LABELS[field], _print_short(cue.get(field), 60))
+             for field in PRINT_SPEAKERS if str(cue.get(field) or '').strip()]
+    return ' / '.join(lines)
+
+
+def render_print_html(cues, preset_name, presets=None, include_cut=False, from_segment=None,
+                      to_segment=None, printed_date=None):
+    """Return a deterministic, dependency-free printable HTML document."""
+    import datetime
+    presets = presets or load_print_presets()
+    if preset_name not in presets:
+        raise ValueError('unknown print preset %r (choose %s)' % (preset_name, ', '.join(presets)))
+    preset = presets[preset_name]
+    selected = select_print_segments(cues, preset, include_cut, from_segment, to_segment)
+    date_text = printed_date or datetime.date.today().isoformat()
+    title = 'Puss cue list - %s' % preset['label']
+    classes = 'print-list columns-%d' % int(preset.get('columns') or 1)
+    out = ['<!doctype html>', '<html lang="en">', '<head>', '<meta charset="utf-8">',
+           '<meta name="viewport" content="width=device-width,initial-scale=1">',
+           '<title>%s</title>' % html.escape(title), '<style>',
+           '@page { size: A4 portrait; margin: 11mm 10mm 14mm; }',
+           '* { box-sizing: border-box; } body { margin: 0; color: #000; background: #fff; font: 9pt/1.25 Arial,sans-serif; }',
+           'h1 { margin: 0 0 3mm; font-size: 15pt; } .print-list { column-gap: 7mm; }',
+           '.columns-2 { column-count: 2; } .segment { break-inside: auto; }',
+           '.segment h2 { break-after: avoid; margin: 3mm 0 1mm; padding-bottom: .8mm; border-bottom: .35mm solid #000; font-size: 11pt; }',
+           '.cue { break-inside: avoid; border-bottom: .2mm solid #aaa; padding: 1.2mm 0; }',
+           '.cue.cut { opacity: .6; text-decoration: line-through; } .cue.context { color: #444; font-style: italic; }',
+           '.cue-id { font-weight: 700; margin-right: 2mm; } .field { display: block; } .field b { font-size: 7.5pt; text-transform: uppercase; }',
+           '.print-footer { position: fixed; left: 0; right: 0; bottom: -9mm; border-top: .2mm solid #777; padding-top: 1mm; font-size: 7.5pt; }',
+           '.print-footer .page::after { content: counter(page); }',
+           '@media screen { body { max-width: 210mm; margin: 0 auto; padding: 14px; } .print-footer { position: static; margin-top: 12px; } }',
+           '@media screen and (max-width: 600px) { .columns-2 { column-count: 1; } body { padding: 10px; font-size: 10pt; } }',
+           '</style>', '</head>', '<body>', '<h1>%s</h1>' % html.escape(title), '<main class="%s">' % classes]
+    truncate = preset.get('truncate', {})
+    for segment in selected:
+        out.append('<section class="segment"><h2>%s</h2>' % html.escape(segment['label']))
+        for cue, is_context in segment['cues']:
+            cue_classes = 'cue' + (' context' if is_context else '') + (' cut' if cue.get('cut') else '')
+            out.append('<article class="%s" data-key="%s">' %
+                       (cue_classes, html.escape(str(cue.get('key') or ''), quote=True)))
+            identity = str(cue.get('num') or '\u00b7')
+            if 'key' in preset['fields'] and cue.get('key'):
+                identity += ' ' + str(cue['key'])
+            out.append('<span class="cue-id">%s</span>' % html.escape(identity))
+            if is_context:
+                out.append('<span class="field context-line"><b>Context</b> %s</span>' % html.escape(_print_context(cue)))
+            else:
+                for field in preset['fields']:
+                    if field in ('num', 'key', 'segment'):
+                        continue
+                    value = cue.get(field)
+                    if field == 'pause':
+                        value = 'PAUSE POSSIBLE' if str(value or '').strip() == 'yes' else ''
+                    value = _print_short(value, truncate.get(field))
+                    if value:
+                        out.append('<span class="field field-%s"><b>%s</b> %s</span>' %
+                                   (field, html.escape(PRINT_LABELS[field]), html.escape(value)))
+            out.append('</article>')
+        out.append('</section>')
+    if not selected:
+        out.append('<p>No cues match this preset and range.</p>')
+    out.extend(['</main>', '<footer class="print-footer">Puss cue list \u00b7 %s \u00b7 printed %s \u00b7 page <span class="page"></span></footer>' %
+                (html.escape(preset['label']), html.escape(date_text)), '</body>', '</html>', ''])
+    return '\n'.join(out)
+
+
+def print_cue_list(preset_name, from_segment=None, to_segment=None, include_cut=False):
+    import datetime
+    presets = load_print_presets()
+    text = render_print_html(print_cues_from_working(), preset_name, presets, include_cut,
+                             from_segment, to_segment)
+    date_text = datetime.date.today().isoformat()
+    filename = 'PussCueList_%s_%s.html' % (preset_name.replace('-', '_'), date_text)
+    output = os.path.join(PRINT_DIR, filename)
+    atomic_write(output, text)
+    relative = os.path.relpath(output, ROOT).replace('\\', '/')
+    count = text.count('<article class="cue')
+    print('CUE_SYNC_PRINT_OK|preset=%s|cues=%d|file=%s' % (preset_name, count, relative))
+    return output
+
+
 def selftest():
     cols = ['#', 'Light', 'Speaker: Klara']
     def rows(*specs):
@@ -992,6 +1174,22 @@ if __name__ == '__main__':
         web_seed_baseline()
     elif command == 'selftest':
         sys.exit(selftest())
+    elif command == 'print' and len(sys.argv) >= 3:
+        args = sys.argv[3:]
+        values = {'--from': None, '--to': None}
+        include_cut = False
+        while args:
+            option = args.pop(0)
+            if option == '--include-cut':
+                include_cut = True
+            elif option in values and args:
+                values[option] = args.pop(0)
+            else:
+                raise SystemExit('bad print option %r' % option)
+        try:
+            print_cue_list(sys.argv[2], values['--from'], values['--to'], include_cut)
+        except ValueError as error:
+            raise SystemExit(str(error))
     else:
         print(__doc__)
         sys.exit(2)
