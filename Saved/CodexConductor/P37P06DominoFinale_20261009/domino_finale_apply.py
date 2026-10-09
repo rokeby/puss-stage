@@ -17,6 +17,7 @@ assets/records.  REVERT empties and retains the owned sequence asset.
 """
 from __future__ import annotations
 
+import copy
 import datetime
 import hashlib
 import importlib.util
@@ -339,10 +340,202 @@ def _mechanism_hashes(ops, guids):
     return {guid: hashlib.sha256(ops.read_row(guid)["mech_text"].encode("utf-8")).hexdigest() for guid in guids}
 
 
+_ROW_FIELDS = ("cue_guid", "label", "action", "chain_mode", "side", "other_side", "final_deg", "set", "keys",
+               "other_keys", "curve_text", "other_curve_text", "samples", "timing")
+_SET_FIELDS = ("kind", "playback_mode", "phase_origin", "cycle_rate_hz", "phase_offset_cycles", "max_angle_deg")
+_KEY_TEXT_FIELDS = ("InterpMode", "TangentMode", "TangentWeightMode")
+_KEY_NUMBER_FIELDS = ("Time", "Value", "ArriveTangent", "ArriveTangentWeight", "LeaveTangent",
+                      "LeaveTangentWeight")
+_ROW_TIMING_FIELDS = ("creak_s", "start_s", "impact_s", "rest_s", "creak_frame_rel", "impact_frame_rel",
+                      "rest_frame_rel", "pass_frame_rel", "CycleRateHz", "PhaseOffsetCycles")
+_CHAIN_TIMING_FIELDS = ("creak_s", "creak_frame_rel", "first_impact_s", "final_impact_s", "rest_s",
+                        "segment_end_s")
+
+
+def _is_number(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def _legacy_chain_row(row, tick):
+    """Copy one choreographed B row into the complete legacy writer/read-back contract."""
+    out = {field: copy.deepcopy(row[field]) for field in _ROW_FIELDS if field != "timing" and field in row}
+    timing = copy.deepcopy(row.get("timing") or {})
+    for name, source in (("creak_frame_rel", "creak_s"), ("impact_frame_rel", "impact_s"),
+                         ("rest_frame_rel", "rest_s")):
+        if _is_number(timing.get(source)) and _is_number(tick):
+            timing[name] = float(timing[source]) * float(tick)
+    out["timing"] = timing
+    return out
+
+
 def _legacy_chain_plan(plan):
-    """Present Chain B through the field-scoped legacy writer's exact plan contract."""
-    return {"parts": ["chain"], "still": [], "keeper": None, "chain": plan["chain_b"],
-            "inputs": plan["inputs"], "inputs_hash": plan["inputs_hash"]}
+    """Build and validate Chain B against the field-scoped legacy writer's complete contract."""
+    inputs = plan.get("inputs") if isinstance(plan, dict) else None
+    tick = inputs.get("tick") if isinstance(inputs, dict) else None
+    source = plan.get("chain_b") if isinstance(plan, dict) else None
+    if not isinstance(source, dict):
+        source = {}
+    chain = {key: copy.deepcopy(value) for key, value in source.items() if key not in ("rows", "timing")}
+    rows = source.get("rows") if isinstance(source.get("rows"), list) else []
+    chain["rows"] = [_legacy_chain_row(row, tick) for row in rows if isinstance(row, dict)]
+    timing = copy.deepcopy(source.get("timing") or {})
+    if _is_number(timing.get("creak_s")) and _is_number(tick):
+        timing["creak_frame_rel"] = float(timing["creak_s"]) * float(tick)
+    chain["timing"] = timing
+    legacy = {"parts": ["chain"], "still": [], "keeper": None, "chain": chain,
+              "inputs": copy.deepcopy(inputs), "inputs_hash": plan.get("inputs_hash") if isinstance(plan, dict) else None}
+    _validate_legacy_chain_plan(legacy)
+    return legacy
+
+
+def _validate_legacy_chain_plan(plan):
+    """Refuse an incomplete legacy plan before its backend can create records, back up, or mutate the Show."""
+    errors = []
+    if not isinstance(plan, dict):
+        errors.append("plan: object required")
+        plan = {}
+    chain = plan.get("chain")
+    inputs = plan.get("inputs")
+    tick = inputs.get("tick") if isinstance(inputs, dict) else None
+    if plan.get("parts") != ["chain"] or plan.get("still") != [] or plan.get("keeper") is not None:
+        errors.append("legacy envelope: parts=[chain], still=[], keeper=null required")
+    if not isinstance(plan.get("inputs_hash"), str) or not plan.get("inputs_hash"):
+        errors.append("inputs_hash: non-empty string required")
+    if not _is_number(tick) or float(tick) <= 0:
+        errors.append("inputs.tick: positive number required")
+    if not isinstance(inputs, dict) or not isinstance(inputs.get("segment_end"), int) or isinstance(
+            inputs.get("segment_end"), bool) or inputs.get("segment_end") < 0:
+        errors.append("inputs.segment_end: non-negative integer required")
+    if not isinstance(chain, dict):
+        errors.append("chain: object required")
+        chain = {}
+    rows = chain.get("rows")
+    if not isinstance(rows, list) or not rows:
+        errors.append("chain.rows: non-empty list required")
+        rows = []
+    if not isinstance(chain.get("n"), int) or isinstance(chain.get("n"), bool) or chain.get("n") != len(rows):
+        errors.append("chain.n: integer equal to row count required")
+    side = chain.get("side")
+    if side not in ("L", "R"):
+        errors.append("chain.side: L or R required")
+    chain_timing = chain.get("timing")
+    if not isinstance(chain_timing, dict):
+        errors.append("chain.timing: object required")
+        chain_timing = {}
+    for field in _CHAIN_TIMING_FIELDS:
+        if not _is_number(chain_timing.get(field)):
+            errors.append("chain.timing.%s: number required" % field)
+    if _is_number(tick) and _is_number(chain_timing.get("creak_s")) and _is_number(
+            chain_timing.get("creak_frame_rel")):
+        want = float(chain_timing["creak_s"]) * float(tick)
+        if abs(float(chain_timing["creak_frame_rel"]) - want) > 1e-4:
+            errors.append("chain.timing.creak_frame_rel: does not map creak_s at inputs.tick")
+
+    seen = set()
+    for index, row in enumerate(rows):
+        prefix = "chain.rows[%d]" % index
+        if not isinstance(row, dict):
+            errors.append("%s: object required" % prefix)
+            continue
+        for field in _ROW_FIELDS:
+            if field not in row:
+                errors.append("%s.%s: required" % (prefix, field))
+        for field in ("cue_guid", "label", "action", "side", "other_side", "curve_text", "other_curve_text"):
+            if not isinstance(row.get(field), str) or not row.get(field):
+                errors.append("%s.%s: non-empty string required" % (prefix, field))
+        if row.get("action") != "chain":
+            errors.append("%s.action: chain required" % prefix)
+        if row.get("chain_mode") not in ("contact", "choreographed"):
+            errors.append("%s.chain_mode: contact or choreographed required" % prefix)
+        if row.get("side") != side or row.get("other_side") != ({"L": "R", "R": "L"}.get(side)):
+            errors.append("%s.side/other_side: must match chain side and its opposite" % prefix)
+        if not _is_number(row.get("final_deg")):
+            errors.append("%s.final_deg: number required" % prefix)
+        guid = row.get("cue_guid")
+        if guid in seen:
+            errors.append("%s.cue_guid: duplicate" % prefix)
+        seen.add(guid)
+
+        settings = row.get("set")
+        if not isinstance(settings, dict):
+            errors.append("%s.set: object required" % prefix)
+            settings = {}
+        for field in _SET_FIELDS[:3]:
+            if not isinstance(settings.get(field), str) or not settings.get(field):
+                errors.append("%s.set.%s: non-empty string required" % (prefix, field))
+        for field in _SET_FIELDS[3:]:
+            if not _is_number(settings.get(field)):
+                errors.append("%s.set.%s: number required" % (prefix, field))
+        if settings.get("top_follows_mechanism") is not None and not isinstance(
+                settings.get("top_follows_mechanism"), bool):
+            errors.append("%s.set.top_follows_mechanism: bool or null required" % prefix)
+
+        for list_name in ("keys", "other_keys"):
+            keys = row.get(list_name)
+            if not isinstance(keys, list) or not keys:
+                errors.append("%s.%s: non-empty list required" % (prefix, list_name))
+                continue
+            for key_index, key in enumerate(keys):
+                key_prefix = "%s.%s[%d]" % (prefix, list_name, key_index)
+                if not isinstance(key, dict):
+                    errors.append("%s: object required" % key_prefix)
+                    continue
+                for field in _KEY_TEXT_FIELDS:
+                    if not isinstance(key.get(field), str) or not key.get(field):
+                        errors.append("%s.%s: non-empty string required" % (key_prefix, field))
+                for field in _KEY_NUMBER_FIELDS:
+                    if not _is_number(key.get(field)):
+                        errors.append("%s.%s: number required" % (key_prefix, field))
+
+        samples = row.get("samples")
+        if not isinstance(samples, list) or not samples or any(
+                not isinstance(sample, (list, tuple)) or len(sample) != 2 or
+                not all(_is_number(value) for value in sample) for sample in (samples or [])):
+            errors.append("%s.samples: non-empty list of numeric pairs required" % prefix)
+        timing = row.get("timing")
+        if not isinstance(timing, dict):
+            errors.append("%s.timing: object required" % prefix)
+            timing = {}
+        for field in _ROW_TIMING_FIELDS:
+            if not _is_number(timing.get(field)):
+                errors.append("%s.timing.%s: number required" % (prefix, field))
+        if all(_is_number(timing.get(field)) for field in ("creak_s", "impact_s", "rest_s")) and not (
+                float(timing["creak_s"]) <= float(timing["impact_s"]) <= float(timing["rest_s"])):
+            errors.append("%s.timing: creak_s <= impact_s <= rest_s required" % prefix)
+        if _is_number(tick):
+            for frame_field, seconds_field in (("creak_frame_rel", "creak_s"),
+                                               ("impact_frame_rel", "impact_s"),
+                                               ("rest_frame_rel", "rest_s")):
+                if _is_number(timing.get(frame_field)) and _is_number(timing.get(seconds_field)):
+                    want = float(timing[seconds_field]) * float(tick)
+                    if abs(float(timing[frame_field]) - want) > 1e-4:
+                        errors.append("%s.timing.%s: does not map %s at inputs.tick" %
+                                      (prefix, frame_field, seconds_field))
+        if all(_is_number(timing.get(field)) for field in ("CycleRateHz", "PhaseOffsetCycles")) and all(
+                _is_number(settings.get(field)) for field in ("cycle_rate_hz", "phase_offset_cycles")):
+            if abs(float(settings["cycle_rate_hz"]) - float(timing["CycleRateHz"])) > 1e-9:
+                errors.append("%s.set.cycle_rate_hz: does not match timing.CycleRateHz" % prefix)
+            if abs(float(settings["phase_offset_cycles"]) - float(timing["PhaseOffsetCycles"])) > 1e-9:
+                errors.append("%s.set.phase_offset_cycles: does not match timing.PhaseOffsetCycles" % prefix)
+    if rows and all(isinstance(row, dict) and isinstance(row.get("timing"), dict) for row in rows):
+        row_timings = [row["timing"] for row in rows]
+        comparisons = (("creak_s", min, "creak_s"), ("first_impact_s", min, "impact_s"),
+                       ("final_impact_s", max, "impact_s"), ("rest_s", max, "rest_s"))
+        for chain_field, operation, row_field in comparisons:
+            values = [timing.get(row_field) for timing in row_timings]
+            if _is_number(chain_timing.get(chain_field)) and all(_is_number(value) for value in values):
+                if abs(float(chain_timing[chain_field]) - float(operation(values))) > 1e-9:
+                    errors.append("chain.timing.%s: does not match choreographed row %s values" %
+                                  (chain_field, row_field))
+    if errors:
+        raise LiveError("LEGACY_CHAIN_SCHEMA_INVALID|" + " || ".join(errors))
+    return True
+
+
+def _validated_legacy_run_apply(legacy, ops, core, args, plan, run, records):
+    """Last-line schema gate used by production and by the zero-write negative harness."""
+    _validate_legacy_chain_plan(plan)
+    return legacy.run_apply(ops, core, args, plan, run, records)
 
 
 def run_dry(args, plan, run):
@@ -406,6 +599,8 @@ def run_apply(args, plan, run):
         raise LiveError("CUEING_ACK_REQUIRED")
     if not args.get("ack_floor_intersection"):
         raise LiveError("FLOOR_INTERSECTION_ACK_REQUIRED")
+    # Complete schema preflight precedes mkdir, backup, record writes, and every backend mutation.
+    legacy_plan = _legacy_chain_plan(plan)
     records = os.path.join(HERE, "records", C.CHAIN_B)
     os.makedirs(records, exist_ok=True)
     pointer = os.path.join(records, C.active_record_name(C.CHAIN_B))
@@ -424,10 +619,10 @@ def run_apply(args, plan, run):
     ops = legacy.UnrealOps(top_core)
     a_guids = plan["chain_a"]["row_guids"]
     a_before = _mechanism_hashes(ops, a_guids)
-    legacy_plan = _legacy_chain_plan(plan)
     unreal.log("%s_B_POST_A_PLAN|run=%s|finale_hash=%s|legacy_hash=%s|rows=%d" % (
         MARK, run, plan["inputs_hash"], legacy_plan["inputs_hash"], len(legacy_plan["chain"]["rows"])))
-    b_after = legacy.run_apply(
+    b_after = _validated_legacy_run_apply(
+        legacy,
         ops, top_core, {"override_flags": True, "pose_probe": args.get("pose_probe", True),
                         "decided_by": args["decided_by"]}, legacy_plan, run, records)
     b_guids = [r["cue_guid"] for r in plan["chain_b"]["rows"]]

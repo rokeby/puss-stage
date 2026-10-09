@@ -5,6 +5,7 @@ import copy
 import importlib.util
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 import domino_finale_core as D
@@ -231,11 +232,224 @@ legacy_view = A._legacy_chain_plan(production)
 check("live adapter +: B uses the exact legacy chain-only plan schema",
       set(legacy_view) == {"parts", "still", "keeper", "chain", "inputs", "inputs_hash"} and
       legacy_view["parts"] == ["chain"] and legacy_view["still"] == [] and
-      legacy_view["keeper"] is None and legacy_view["chain"] is production["chain_b"])
+      legacy_view["keeper"] is None and legacy_view["chain"] is not production["chain_b"] and
+      all(row is not source for row, source in zip(legacy_view["chain"]["rows"], production["chain_b"]["rows"])))
 check("live adapter +: post-A legacy and finale input hashes match and B rows are present",
       legacy_view["inputs_hash"] == production["inputs_hash"] and
       [r["cue_guid"] for r in legacy_view["chain"]["rows"]] ==
       [r["cue_guid"] for r in production["chain_b"]["rows"]])
+check("live adapter +: every committed row maps creak/impact/rest seconds to legacy relative frames",
+      all(abs(row["timing"][frame] - row["timing"][seconds] * production["inputs"]["tick"]) < 1e-4
+          for row in legacy_view["chain"]["rows"]
+          for frame, seconds in (("creak_frame_rel", "creak_s"), ("impact_frame_rel", "impact_s"),
+                                 ("rest_frame_rel", "rest_s"))) and
+      abs(legacy_view["chain"]["timing"]["creak_frame_rel"] -
+          legacy_view["chain"]["timing"]["creak_s"] * production["inputs"]["tick"]) < 1e-4)
+
+
+class ProductionCoreProxy:
+    """Use the real legacy contract helpers, pinning only the already-committed live measurement/hash."""
+    def __getattr__(self, name):
+        return getattr(T, name)
+
+    @staticmethod
+    def window_report(rows, start, side_name, n, keeper):
+        selected = rows[start:start + n]
+        return {"start_ordinal": start, "side": side_name, "n": n,
+                "cue_guids": [row["cue_guid"] for row in selected],
+                "labels": [row["label"] for row in selected], "refusals": [], "flags": [],
+                "brace": copy.deepcopy(production["inputs"].get("brace"))}
+
+    @staticmethod
+    def inputs_for(measurement, window, keeper, excluded):
+        return copy.deepcopy(production["inputs"])
+
+
+class ProductionFakeOps:
+    """Small stateful backend that exercises the real legacy run_apply orchestration offline."""
+    def __init__(self, here):
+        self.here = here
+        self.calls, self.logs, self.errors, self.written_rows = [], [], [], []
+        self.dirty = {"content": [], "maps": []}
+        self.rows = []
+        labels = {row["cue_guid"]: row["label"] for row in legacy_view["chain"]["rows"]}
+        for index, (guid_value, mechanism_hash) in enumerate(production["inputs"]["all_rows"]):
+            self.rows.append({"cue_guid": guid_value, "label": labels.get(guid_value, "untouched %02d" % index),
+                              "show_index": index, "mechanism_sha": mechanism_hash, "mask": 0,
+                              "kind": "SLIDE", "playback_mode": "CONTINUOUS_LOOP",
+                              "phase_origin": "PASSAGE_START", "cycle_rate_hz": .2,
+                              "phase_offset_cycles": 0.0, "max_angle_deg": 90.0,
+                              "top_follows_mechanism": True,
+                              "curves": {"L": T.flat_keys(), "R": T.flat_keys(), "T": T.flat_keys()}})
+
+    def _row(self, guid_value):
+        return next(row for row in self.rows if row["cue_guid"] == guid_value)
+
+    @staticmethod
+    def _curve_text(keys):
+        return T.curve_text(keys)
+
+    def _mech_text(self, row):
+        return ("(Kind=%s,PlaybackMode=%s,CycleRateHz=%.17g,PhaseOrigin=%s,PhaseOffsetCycles=%.17g,"
+                "MaxAngleDeg=%.17g,InwardTravelCm=75,LeftNormalizedCurve=%s,RightNormalizedCurve=%s,"
+                "TopNormalizedCurve=%s,bTopFollowsMechanism=%s,CameraGust=(GroupSize=1))") % (
+                    row["kind"], row["playback_mode"], row["cycle_rate_hz"], row["phase_origin"],
+                    row["phase_offset_cycles"], row["max_angle_deg"], self._curve_text(row["curves"]["L"]),
+                    self._curve_text(row["curves"]["R"]), self._curve_text(row["curves"]["T"]),
+                    "True" if row["top_follows_mechanism"] else "False")
+
+    def _cue_text(self, row):
+        return '(CueGuid=%s,Label="%s",WingPair=(Mechanism=%s,LocalOverrideMask=%d))' % (
+            row["cue_guid"], row["label"], self._mech_text(row), row["mask"])
+
+    def guard_context(self):
+        self.calls.append("guard")
+
+    def zz_actors(self):
+        return []
+
+    def census(self):
+        return copy.deepcopy(self.dirty)
+
+    def measure(self):
+        self.calls.append("measure")
+        input_by_guid = {row["cue_guid"]: row for row in production["inputs"]["rows"]}
+        measured = []
+        for row in self.rows:
+            source = input_by_guid.get(row["cue_guid"], {})
+            side = {"mesh": source.get("mesh", "/Game/Test/Untouched"), "materialized": True, "upright": True,
+                    "external_curve": None, "height_cm": source.get("height_cm", 1000.0),
+                    "thickness_cm": source.get("thickness_cm", 10.0), "axis_dot_tangent": 0.0,
+                    "hinge_route_cm": source.get("hinge_route_cm", row["show_index"] * 500.0),
+                    "lateral_min_cm": source.get("lateral_min_cm", 400.0),
+                    "lateral_max_cm": source.get("lateral_max_cm", 1000.0), "has_hinge_socket": False,
+                    "pivot_local": [0.0, 0.0, 0.0]}
+            measured.append({"cue_guid": row["cue_guid"], "label": row["label"],
+                             "show_index": row["show_index"], "ordinal": row["show_index"], "enabled": True,
+                             "has_top": source.get("has_top", False), "station_cm": source.get("station_cm", 0.0),
+                             "pass_frame": source.get("pass_frame", 0), "mechanism_sha": row["mechanism_sha"],
+                             "mechanism_export": self._mech_text(row), "curve_at0": {"L": 0, "R": 0, "T": 0},
+                             "mechanism": {"kind": row["kind"], "playback_mode": row["playback_mode"]},
+                             "sides": {"L": copy.deepcopy(side), "R": copy.deepcopy(side)}})
+        return {"passage_guid": T.P06_GUID, "tick": production["inputs"]["tick"], "rows": measured,
+                "law": {"points": production["inputs"]["law_points"],
+                        "segment_end": production["inputs"]["segment_end"]},
+                "modulation": copy.deepcopy(production["inputs"]["modulation"])}
+
+    def api_probe(self, unused_text):
+        return {"pass": True, "failures": []}
+
+    def cue_texts(self):
+        return [self._cue_text(row) for row in self.rows]
+
+    def read_row(self, guid_value):
+        row = self._row(guid_value)
+        return {"mech_text": self._mech_text(row), "mask": row["mask"], "kind": row["kind"],
+                "playback_mode": row["playback_mode"], "phase_origin": row["phase_origin"],
+                "cycle_rate_hz": row["cycle_rate_hz"], "phase_offset_cycles": row["phase_offset_cycles"],
+                "max_angle_deg": row["max_angle_deg"], "top_follows_mechanism": row["top_follows_mechanism"],
+                "has_top": False, "curves": {side: self._curve_text(row["curves"][side])
+                                               for side in ("L", "R", "T")}}
+
+    def curve_eval(self, guid_value, side_name, phases):
+        keys = self._row(guid_value)["curves"][side_name]
+        return [T.hermite(keys, phase) for phase in phases]
+
+    def write_rows(self, rows, bits):
+        self.calls.append("write")
+        self.written_rows.extend(copy.deepcopy(rows))
+        for planned in rows:
+            row = self._row(planned["cue_guid"])
+            settings = planned["set"]
+            row.update(kind=settings["kind"], playback_mode=settings["playback_mode"],
+                       phase_origin=settings["phase_origin"], cycle_rate_hz=settings["cycle_rate_hz"],
+                       phase_offset_cycles=settings["phase_offset_cycles"], max_angle_deg=settings["max_angle_deg"])
+            row["curves"][planned["side"]] = T.parse_curve_keys(planned["curve_text"])
+            row["curves"][planned["other_side"]] = T.parse_curve_keys(planned["other_curve_text"])
+            if settings.get("top_follows_mechanism") is False:
+                row["top_follows_mechanism"] = False
+            row["mask"] |= bits
+        self.dirty["content"] = [T.SHOW_PATH]
+
+    def backup(self, name):
+        self.calls.append("backup")
+        return str(Path(self.here) / "Backups" / name), ["show.uasset", "level.umap"]
+
+    def materialize(self):
+        self.calls.append("materialize")
+        self.dirty["maps"] = [T.WORLD_PATH]
+        return True
+
+    def materialized_pivots(self, guids, unused_side):
+        return {guid_value: [[0.0, 0.0, 0.0]] for guid_value in guids}
+
+    def pose_probe(self, guids, frames):
+        self.calls.append("pose_probe")
+        final = {row["cue_guid"]: row for row in legacy_view["chain"]["rows"]}
+        after_rest = max(frames)
+        out = {}
+        for frame in frames:
+            panels = {}
+            for guid_value in guids:
+                for side_name in ("L", "R"):
+                    state = {"dev_cm": 0.0, "tilt_deg": 0.0, "top_route_shift_cm": 0.0}
+                    if frame == after_rest and guid_value in final and side_name == final[guid_value]["side"]:
+                        state = {"dev_cm": 1000.0, "tilt_deg": abs(final[guid_value]["final_deg"]),
+                                 "top_route_shift_cm": 1000.0}
+                    panels["%s|%s" % (guid_value, side_name)] = state
+            out[str(int(frame))] = {"evaluated": True, "panels": panels}
+        return out
+
+    def instance_state(self, guids):
+        return {"%s|%s" % (guid_value, side_name):
+                {"dev_cm": 0.0, "tilt_deg": 0.0, "top_route_shift_cm": 0.0}
+                for guid_value in guids for side_name in ("L", "R")}
+
+    def save_show(self):
+        self.calls.append("save_show")
+        self.dirty["content"] = []
+        return True
+
+    def save_level(self):
+        self.calls.append("save_level")
+        self.dirty["maps"] = []
+        return True
+
+    def log(self, message):
+        self.logs.append(message)
+
+    def log_error(self, message):
+        self.errors.append(message)
+
+
+with tempfile.TemporaryDirectory(prefix="p37b_contract_") as fake_here:
+    fake_ops = ProductionFakeOps(fake_here)
+    fake_result = A._validated_legacy_run_apply(
+        TA, fake_ops, ProductionCoreProxy(), {"override_flags": True, "pose_probe": True,
+                                             "decided_by": "offline schema harness"},
+        legacy_view, "P37B-CONTRACT-POS", fake_here)
+check("legacy run_apply +: committed Chain B passes schema and fake backend writes exactly 11 rows",
+      len(fake_result) == 11 and len(fake_ops.written_rows) == 11 and
+      [row["cue_guid"] for row in fake_ops.written_rows] ==
+      [row["cue_guid"] for row in production["chain_b"]["rows"]])
+
+
+class RefusalSpyLegacy:
+    def __init__(self):
+        self.calls = 0
+
+    def run_apply(self, *unused_args):
+        self.calls += 1
+        return {}
+
+
+missing_creak = copy.deepcopy(legacy_view)
+del missing_creak["chain"]["rows"][0]["timing"]["creak_frame_rel"]
+refusal_spy = RefusalSpyLegacy()
+check("legacy schema -: row missing creak_frame_rel refuses before the fake backend sees any write",
+      raises(lambda: A._validated_legacy_run_apply(refusal_spy, None, None, {}, missing_creak,
+                                                   "P37B-CONTRACT-NEG", "unused"),
+             "LEGACY_CHAIN_SCHEMA_INVALID") and refusal_spy.calls == 0)
 
 thick_refusals = [
     "P06 Wing 016 R: TOO_THICK_FOR_SLAB: 72.0 cm",
@@ -271,8 +485,11 @@ apply_b_source = live_source[live_source.index("def run_apply(args, plan, run):"
 apply_a_source = live_source[live_source.index("def run_apply_restyle(args, plan, run):"):
                              live_source.index("def run_apply(args, plan, run):")]
 check("live safety +: record and backup occur before legacy mutation",
-      apply_b_source.index("_write(overall_path, record, exclusive=True)") < apply_b_source.index("legacy.run_apply(") and
-      apply_b_source.index("backup = _backup(run") < apply_b_source.index("legacy.run_apply(") and
+      apply_b_source.index("legacy_plan = _legacy_chain_plan(plan)") < apply_b_source.index("os.makedirs(records") and
+      apply_b_source.index("legacy_plan = _legacy_chain_plan(plan)") < apply_b_source.index("backup = _backup(run") and
+      apply_b_source.index("_write(overall_path, record, exclusive=True)") <
+      apply_b_source.index("_validated_legacy_run_apply(") and
+      apply_b_source.index("backup = _backup(run") < apply_b_source.index("_validated_legacy_run_apply(") and
       apply_a_source.index("_write(overall, record, exclusive=True)") < apply_a_source.index("legacy.run_apply("))
 check("live safety +: exact targeted saves and no Save All/permanent asset deletion",
       "save_dirty_packages" not in live_source and "delete_asset" not in live_source and
@@ -283,7 +500,7 @@ check("live FX +: dust is tagged, non-auto, shadowless, and particle-triggered",
 check("live records +: B and A_RESTYLE route to separate record directories",
       '"records", C.CHAIN_B' in live_source and '"records", C.CHAIN_A_RESTYLE' in live_source)
 check("live proof +: post-A matching hashes and exact B write set are logged/checked",
-      "B_POST_A_PLAN" in apply_b_source and "b_after = legacy.run_apply" in apply_b_source and
+      "B_POST_A_PLAN" in apply_b_source and "b_after = _validated_legacy_run_apply" in apply_b_source and
       "CHAIN_B_WRITE_SET_MISMATCH" in apply_b_source and "B_LEGACY_APPLY_OK" in apply_b_source)
 
 from PIL import Image
