@@ -357,6 +357,9 @@ MOVED["track"]["keys"][1][1] = 23.0
 check("J03 -control a real key change on a v1 run is still drift", bool(ag.snapshot_diff(ag.comparable(MOVED, OLD), OLD)))
 check("J04 comparable() leaves a missing track alone", ag.comparable({"track": None}, OLD) == {"track": None})
 
+check("I18 stepped schedules get no false speed warning", "speed_vs_take" not in ag.timing_report(SPLAN, 25.0))
+check("I19 -control linear ramps still report speed", "speed_vs_take" in ag.timing_report(PLAN, 25.0))
+
 # E. Static safety contract: cheap but catches accidental erosion of house rules.
 source = (HERE / "animated_gobo.py").read_text(encoding="utf-8")
 runner = (HERE / "animated_gobo_run.py").read_text(encoding="utf-8")

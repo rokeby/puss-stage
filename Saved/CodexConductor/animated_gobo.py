@@ -328,6 +328,9 @@ def timing_report(plan: dict, display_fps: float) -> dict:
     """Compare the keyed range with the flipbook's own frame rate (report only; never refuses)."""
     start, end = plan["sequence_range_requested"]
     frames, fps = plan["atlas"]["frames"], plan.get("take_fps")
+    if plan.get("frame_interp") == "CONSTANT":
+        # Stepped schedule: key times come straight from the manifest's seconds; cell count is not duration.
+        return {"display_fps": display_fps, "stepped_keys": len(plan["frame_keys"]), "range": [start, end]}
     out = {"display_fps": display_fps, "requested_frames": end - start,
            "display_frames_per_cell": (end - start) / float(frames)}
     if fps:
