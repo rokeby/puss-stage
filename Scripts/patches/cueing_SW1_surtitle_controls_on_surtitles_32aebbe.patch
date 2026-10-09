@@ -1,0 +1,209 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp
+index 323c70e..2a0cf21 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageRehearsalBar.cpp
+@@ -7,6 +7,7 @@
+ #include "InfinityStageShowAsset.h"
+ #include "InfinityStageShowGameMode.h"
+ #include "InfinityStageShowRoot.h"
++#include "InfinityStageSurtitles.h"
+ #include "InfinityStageTransportController.h"
+ #include "Styling/CoreStyle.h"
+ #include "Framework/MultiBox/MultiBoxBuilder.h"
+@@ -237,6 +238,52 @@ void Command(UWorld* World, const ECommand Which)
+ }
+ }
+ 
++namespace InfinityStageRehearsal
++{
++FInfinitySurtitleCall PlanSurtitleAction(const ESurtitleAction Action)
++{
++    FInfinitySurtitleCall Call;
++    using EKind = FInfinitySurtitleCall::EKind;
++    switch (Action)
++    {
++    case ESurtitleAction::Previous:   Call.Kind = EKind::Step;  Call.Delta = -1; break;
++    case ESurtitleAction::Next:       Call.Kind = EKind::Step;  Call.Delta = 1; break;
++    case ESurtitleAction::StampIn:    Call.Kind = EKind::Stamp; Call.bOut = false; break;
++    case ESurtitleAction::StampOut:   Call.Kind = EKind::Stamp; Call.bOut = true; break;
++    case ESurtitleAction::InEarlier:  Call.Kind = EKind::Nudge; Call.bOut = false; Call.Seconds = -SurtitleNudgeSeconds; break;
++    case ESurtitleAction::InLater:    Call.Kind = EKind::Nudge; Call.bOut = false; Call.Seconds = SurtitleNudgeSeconds; break;
++    case ESurtitleAction::OutEarlier: Call.Kind = EKind::Nudge; Call.bOut = true;  Call.Seconds = -SurtitleNudgeSeconds; break;
++    case ESurtitleAction::OutLater:   Call.Kind = EKind::Nudge; Call.bOut = true;  Call.Seconds = SurtitleNudgeSeconds; break;
++    }
++    return Call;
++}
++
++FString SurtitleAction(UWorld* World, const ESurtitleAction Action)
++{
++    UInfinityStageSurtitleSubsystem* Surtitles = World ? World->GetSubsystem<UInfinityStageSurtitleSubsystem>() : nullptr;
++    if (!Surtitles)
++    {
++        return TEXT("Not done: no surtitles here (start PIE; the sheet lives in the game world).");
++    }
++    const FInfinitySurtitleCall Call = PlanSurtitleAction(Action);
++    bool bOk = false;
++    switch (Call.Kind)
++    {
++    case FInfinitySurtitleCall::EKind::Step:  bOk = Surtitles->StepLine(Call.Delta); break;
++    case FInfinitySurtitleCall::EKind::Stamp: bOk = Surtitles->StampAtPlayhead(Call.bOut); break;
++    case FInfinitySurtitleCall::EKind::Nudge: bOk = Surtitles->Nudge(Call.bOut, Call.Seconds); break;
++    }
++    // A refusal (outside the line's segment, Out <= In, changed on disk, interlock) is shown, never forced.
++    return bOk ? Surtitles->DescribeSelected() : TEXT("Not done: ") + Surtitles->GetLastMessage();
++}
++
++FString DescribeSurtitle(UWorld* World)
++{
++    const UInfinityStageSurtitleSubsystem* Surtitles = World ? World->GetSubsystem<UInfinityStageSurtitleSubsystem>() : nullptr;
++    return Surtitles ? Surtitles->DescribeSelected() : FString();
++}
++}
++
+ const FInfinityRehearsalState& SInfinityStageRehearsalBar::State() const
+ {
+     // Gathered once per engine frame however many text bindings ask.
+@@ -254,6 +301,18 @@ void SInfinityStageRehearsalBar::Construct(const FArguments& InArgs)
+     GetWorldFn = InArgs._World;
+     const FSlateFontInfo Big = FCoreStyle::GetDefaultFontStyle("Bold", 16);
+     const FSlateFontInfo Mid = FCoreStyle::GetDefaultFontStyle("Regular", 13);
++    const auto SurtitleButton = [this](const FText& Label, const FText& Tip, const ESurtitleAction Which)
++    {
++        return SNew(SButton)
++            .IsFocusable(false)   // Space / RIGHT stay the show keys
++            .Text(Label)
++            .ToolTipText(Tip)
++            .OnClicked_Lambda([this, Which]()
++            {
++                SurtitleMessage = SurtitleAction(GetWorldFn ? GetWorldFn() : nullptr, Which);
++                return FReply::Handled();
++            });
++    };
+     const auto Button = [this](const FText& Label, const FText& Tip, const ECommand Which)
+     {
+         return SNew(SButton)
+@@ -376,6 +435,37 @@ void SInfinityStageRehearsalBar::Construct(const FArguments& InArgs)
+                 SNew(STextBlock).Font(Mid).AutoWrapText(true)
+                 .Text_Lambda([this]() { return FText::FromString(State().Script); })
+             ]
++            + SVerticalBox::Slot().AutoHeight().Padding(0.0f, 3.0f, 0.0f, 0.0f)
++            [
++                // Surtitles: step between lines, stamp In/Out at the playhead, nudge by 0.25 s. Hidden without them.
++                SNew(SHorizontalBox)
++                .Visibility_Lambda([this]()
++                {
++                    UWorld* World = GetWorldFn ? GetWorldFn() : nullptr;
++                    return World && World->GetSubsystem<UInfinityStageSurtitleSubsystem>() ? EVisibility::Visible : EVisibility::Collapsed;
++                })
++                + SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(2.0f, 0.0f, 6.0f, 0.0f)
++                [ SNew(STextBlock).Font(Mid).Text(LOCTEXT("SurtitlesLabel", "SURTITLE")) ]
++                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ SurtitleButton(LOCTEXT("SurPrev", "< prev"), LOCTEXT("SurPrevTip", "Jump to the previous surtitle line (pauses there)"), ESurtitleAction::Previous) ]
++                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ SurtitleButton(LOCTEXT("SurNext", "next >"), LOCTEXT("SurNextTip", "Jump to the next surtitle line (pauses there)"), ESurtitleAction::Next) ]
++                + SHorizontalBox::Slot().AutoWidth().Padding(8.0f, 2.0f, 2.0f, 2.0f)[ SurtitleButton(LOCTEXT("SurStampIn", "Stamp In"), LOCTEXT("SurStampInTip", "Set the selected line's In to the playhead"), ESurtitleAction::StampIn) ]
++                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ SurtitleButton(LOCTEXT("SurStampOut", "Stamp Out"), LOCTEXT("SurStampOutTip", "Set the selected line's Out to the playhead"), ESurtitleAction::StampOut) ]
++                + SHorizontalBox::Slot().AutoWidth().Padding(8.0f, 2.0f, 2.0f, 2.0f)[ SurtitleButton(LOCTEXT("SurInEarlier", "In -"), LOCTEXT("SurInEarlierTip", "In 0.25 s earlier"), ESurtitleAction::InEarlier) ]
++                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ SurtitleButton(LOCTEXT("SurInLater", "In +"), LOCTEXT("SurInLaterTip", "In 0.25 s later"), ESurtitleAction::InLater) ]
++                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ SurtitleButton(LOCTEXT("SurOutEarlier", "Out -"), LOCTEXT("SurOutEarlierTip", "Out 0.25 s earlier"), ESurtitleAction::OutEarlier) ]
++                + SHorizontalBox::Slot().AutoWidth().Padding(2.0f)[ SurtitleButton(LOCTEXT("SurOutLater", "Out +"), LOCTEXT("SurOutLaterTip", "Out 0.25 s later"), ESurtitleAction::OutLater) ]
++                + SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center).Padding(10.0f, 0.0f)
++                [
++                    SNew(STextBlock).Font(Mid).AutoWrapText(true)
++                    .Text_Lambda([this]()
++                    {
++                        // A refusal stays up until the next action; otherwise the selected line.
++                        return FText::FromString(SurtitleMessage.StartsWith(TEXT("Not done"))
++                            ? SurtitleMessage
++                            : DescribeSurtitle(GetWorldFn ? GetWorldFn() : nullptr));
++                    })
++                ]
++            ]
+         ]
+     ];
+ }
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h
+index 0956b90..f45f1db 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageRehearsalBar.h
+@@ -62,6 +62,28 @@ enum class ECommand : uint8 { Back, PlayPause, Go, PreviousLine, NextLine };
+ /** Same as the keys: Back = LEFT, PlayPause = Space, Go = RIGHT (GO at a hold), lines = PageUp/Down. */
+ INFINITYSTAGE_API void Command(UWorld* World, ECommand Command);
+ 
++/** Surtitle rehearsal controls (Gary 9 Oct: "part of the cue director interface to be adjustable and rehearsable").
++ *  They call UInfinityStageSurtitleSubsystem; nothing here writes the Show or the level. */
++enum class ESurtitleAction : uint8 { Previous, Next, StampIn, StampOut, InEarlier, InLater, OutEarlier, OutLater };
++
++/** What one action calls: StepLine(Delta), StampAtPlayhead(bOut) or Nudge(bOut, Seconds). Pure, for tests. */
++struct FInfinitySurtitleCall
++{
++    enum class EKind : uint8 { Step, Stamp, Nudge };
++    EKind Kind = EKind::Step;
++    int32 Delta = 0;
++    bool bOut = false;
++    double Seconds = 0.0;
++};
++inline constexpr double SurtitleNudgeSeconds = 0.25;
++INFINITYSTAGE_API FInfinitySurtitleCall PlanSurtitleAction(ESurtitleAction Action);
++
++/** Runs the action on the world's surtitle subsystem; returns the line it now describes, or why it refused. */
++INFINITYSTAGE_API FString SurtitleAction(UWorld* World, ESurtitleAction Action);
++
++/** "S5 row 12 [T3k] 1:14.00-1:25.00 West: ...", or empty when the world has no surtitle subsystem. */
++INFINITYSTAGE_API FString DescribeSurtitle(UWorld* World);
++
+ /** "m:ss.s". */
+ INFINITYSTAGE_API FString Clock(double Seconds);
+ 
+@@ -94,4 +116,6 @@ private:
+     TFunction<UWorld*()> GetWorldFn;
+     mutable FInfinityRehearsalState Cached;
+     mutable uint64 CachedFrame = MAX_uint64;
++    /** The last surtitle action's result (a refusal stays on screen until the next action). */
++    FString SurtitleMessage;
+ };
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp
+index da7fbfe..8b694d1 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageRehearsalTests.cpp
+@@ -130,4 +130,42 @@ bool FInfinityStageFastForwardSkimTest::RunTest(const FString& Parameters)
+     return true;
+ }
+ 
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageSurtitleButtonsTest,
++    "InfinityStage.CueDirector.SurtitleButtonsCallTheRightThing",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++// Gary 9 Oct: surtitles "part of the cue director interface to be adjustable and rehearsable".
++bool FInfinityStageSurtitleButtonsTest::RunTest(const FString& Parameters)
++{
++    using namespace InfinityStageRehearsal;
++    using EKind = FInfinitySurtitleCall::EKind;
++    const FInfinitySurtitleCall Prev = PlanSurtitleAction(ESurtitleAction::Previous);
++    const FInfinitySurtitleCall Next = PlanSurtitleAction(ESurtitleAction::Next);
++    TestTrue(TEXT("prev steps back one line"), Prev.Kind == EKind::Step && Prev.Delta == -1);
++    TestTrue(TEXT("next steps on one line"), Next.Kind == EKind::Step && Next.Delta == 1);
++    const FInfinitySurtitleCall StampIn = PlanSurtitleAction(ESurtitleAction::StampIn);
++    const FInfinitySurtitleCall StampOut = PlanSurtitleAction(ESurtitleAction::StampOut);
++    TestTrue(TEXT("Stamp In stamps the In"), StampIn.Kind == EKind::Stamp && !StampIn.bOut);
++    TestTrue(TEXT("Stamp Out stamps the Out"), StampOut.Kind == EKind::Stamp && StampOut.bOut);
++    const FInfinitySurtitleCall InEarlier = PlanSurtitleAction(ESurtitleAction::InEarlier);
++    const FInfinitySurtitleCall OutLater = PlanSurtitleAction(ESurtitleAction::OutLater);
++    TestTrue(TEXT("In - nudges the In 0.25 s earlier"),
++        InEarlier.Kind == EKind::Nudge && !InEarlier.bOut && FMath::IsNearlyEqual(InEarlier.Seconds, -0.25));
++    TestTrue(TEXT("Out + nudges the Out 0.25 s later"),
++        OutLater.Kind == EKind::Nudge && OutLater.bOut && FMath::IsNearlyEqual(OutLater.Seconds, 0.25));
++    // Control: the four nudges are four different calls (a copy-paste slip would collapse two of them).
++    TSet<FString> Distinct;
++    for (const ESurtitleAction A : {ESurtitleAction::InEarlier, ESurtitleAction::InLater, ESurtitleAction::OutEarlier, ESurtitleAction::OutLater})
++    {
++        const FInfinitySurtitleCall C = PlanSurtitleAction(A);
++        Distinct.Add(FString::Printf(TEXT("%d/%.2f"), C.bOut ? 1 : 0, C.Seconds));
++    }
++    TestEqual(TEXT("Control: four distinct nudges"), Distinct.Num(), 4);
++    // Negative control: without a game world nothing is called and the bar says why.
++    TestTrue(TEXT("Control: no world -> refused, with a reason"), SurtitleAction(nullptr, ESurtitleAction::Next).StartsWith(TEXT("Not done")));
++    TestTrue(TEXT("Control: no world -> nothing to describe"), DescribeSurtitle(nullptr).IsEmpty());
++    return true;
++}
++
+ #endif
