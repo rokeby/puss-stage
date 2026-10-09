@@ -1,0 +1,7 @@
+{
+  "label": "P02_P01STYLE_POST_APPLY",
+  "seconds": 60.0,
+  "skip_frames": 30,
+  "max_p95_ms": 33.4,
+  "max_p99_ms": 50.0
+}

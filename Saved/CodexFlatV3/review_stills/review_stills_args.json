@@ -1,0 +1,120 @@
+{
+ "mode": "DRY",
+ "confirm": "DRY REVIEW STILLS",
+ "dry_report": "",
+ "profile": "gary_q6",
+ "capture_session": "existing_pie",
+ "expected_world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "required_shot_ids": [
+  "s2_wide",
+  "s2_fall",
+  "s2_ceiling",
+  "p02_row002",
+  "p02_row005",
+  "p02_row007",
+  "p06_wing045_mid_slide",
+  "paper_prosc_stalls"
+ ],
+ "params": {
+  "resolution": [1600, 900],
+  "probe_resolution": [256, 144],
+  "repose_seconds": 1.0,
+  "camera_hold_ticks": 24,
+  "settle_min_seconds": 2.0,
+  "settle_max_seconds": 10.0,
+  "probe_interval_seconds": 0.5,
+  "settle_window": 3,
+  "settle_abs_luma": 2.0,
+  "settle_rel_luma": 0.03,
+  "file_timeout_seconds": 45.0,
+  "file_min_bytes": 1000,
+  "file_stable_ticks": 4,
+  "run_timeout_seconds": 480.0,
+  "frame_tolerance_ticks": 1,
+  "contact_columns": 4,
+  "contact_thumb": [400, 225],
+  "contact_gutter": 8
+ },
+ "shots": [
+  {
+   "id": "s2_wide",
+   "note": "Scene 2 wide, approximately S2 +5 s",
+   "time": {"kind": "segment_offset", "cue_type": "SCENE", "ordinal": 2, "offset_seconds": 5.0},
+   "camera": {"kind": "master"}
+  },
+  {
+   "id": "s2_fall",
+   "note": "Scene 2 Klara wing fall, approximately S2 +20 s",
+   "time": {"kind": "segment_offset", "cue_type": "SCENE", "ordinal": 2, "offset_seconds": 20.0},
+   "camera": {"kind": "master"}
+  },
+  {
+   "id": "s2_ceiling",
+   "note": "Klara ceiling wing overlay close view; ceiling-flip regression check",
+   "time": {"kind": "segment_offset", "cue_type": "SCENE", "ordinal": 2, "offset_seconds": 5.0},
+   "subject": {
+    "kind": "actors",
+    "minimum_matches": 5,
+    "selectors": [
+     {"actor_label_regex": "^SM_S2_ceiling_wing[1-5]?$"},
+     {"mesh_name_regex": "S2K_ceiling_C"}
+    ]
+   },
+   "camera": {"kind": "subject_close", "distance_cm": 1600.0, "fov_deg": 55.0}
+  },
+  {
+   "id": "p02_row002",
+   "note": "P02 Wing 002 IND fence close",
+   "time": {"kind": "panel_pass", "passage": "P02", "cue_label": "P02 Wing 002", "side": "BOTH", "camera_samples": 97},
+   "subject": {"kind": "panel", "passage": "P02", "cue_label": "P02 Wing 002", "side": "BOTH"},
+   "camera": {"kind": "subject_close", "distance_cm": 900.0, "fov_deg": 55.0}
+  },
+  {
+   "id": "p02_row005",
+   "note": "P02 Wing 005 IND fence close",
+   "time": {"kind": "panel_pass", "passage": "P02", "cue_label": "P02 Wing 005", "side": "BOTH", "camera_samples": 97},
+   "subject": {"kind": "panel", "passage": "P02", "cue_label": "P02 Wing 005", "side": "BOTH"},
+   "camera": {"kind": "subject_close", "distance_cm": 900.0, "fov_deg": 55.0}
+  },
+  {
+   "id": "p02_row007",
+   "note": "P02 Wing 007 IND fence close",
+   "time": {"kind": "panel_pass", "passage": "P02", "cue_label": "P02 Wing 007", "side": "BOTH", "camera_samples": 97},
+   "subject": {"kind": "panel", "passage": "P02", "cue_label": "P02 Wing 007", "side": "BOTH"},
+   "camera": {"kind": "subject_close", "distance_cm": 900.0, "fov_deg": 55.0}
+  },
+  {
+   "id": "p06_wing045_mid_slide",
+   "note": "P06 Wing 045 right-side sliding keeper at measured motion midpoint",
+   "time": {
+    "kind": "panel_mid_motion",
+    "passage": "P06",
+    "cue_label": "P06 Wing 045",
+    "side": "RIGHT",
+    "camera_samples": 97,
+    "motion_window_seconds": 6.0,
+    "motion_samples": 49
+   },
+   "subject": {"kind": "panel", "passage": "P06", "cue_label": "P06 Wing 045", "side": "RIGHT"},
+   "camera": {"kind": "subject_close", "distance_cm": 900.0, "fov_deg": 55.0}
+  },
+  {
+   "id": "paper_prosc_stalls",
+   "note": "Paper proscenium from Gary's Opening stalls camera",
+   "time": {"kind": "segment_offset", "cue_type": "WING_PAIR", "ordinal": 1, "offset_seconds": 0.5},
+   "required_subject": {
+    "kind": "actors",
+    "minimum_matches": 3,
+    "selectors": [{"actor_tag": "PussStage.PaperProscenium"}]
+   },
+   "camera": {"kind": "actor_camera", "actor_label": "Opening — Stalls Camera"}
+  }
+ ],
+ "_run_order": [
+  "Execute this file as DRY with confirm DRY REVIEW STILLS; copy its report filename into dry_report.",
+  "Change mode to RUN and confirm to RUN REVIEW STILLS.",
+  "Start exactly one conductor-owned PIE with Saved/CodexConductor/conductor_pie_begin_request.json.",
+  "Execute review_stills_request.json once and wait for REVIEW_STILLS_OK or REVIEW_STILLS_FAILED.",
+  "Only the operator that started PIE executes conductor_pie_end_request.json after the marker."
+ ]
+}

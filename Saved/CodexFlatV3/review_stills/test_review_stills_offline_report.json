@@ -1,0 +1,132 @@
+{
+ "tool": "review_stills",
+ "passed": 25,
+ "failed": 0,
+ "results": [
+  {
+   "name": "POS config validates eight required shots",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "POS default ids exact",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "POS absolute frames absent",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "NEG wrong confirm",
+   "ok": true,
+   "detail": "CONFIRM_REQUIRED|expected=DRY REVIEW STILLS"
+  },
+  {
+   "name": "NEG duplicate shot id",
+   "ok": true,
+   "detail": "DUPLICATE_SHOT_IDS"
+  },
+  {
+   "name": "NEG baked absolute frame",
+   "ok": true,
+   "detail": "ABSOLUTE_FRAME_FORBIDDEN|shot=s2_wide|fields=['master_frame']"
+  },
+  {
+   "name": "NEG missing required review shot",
+   "ok": true,
+   "detail": "REQUIRED_SHOTS_MISSING|['paper_prosc_stalls']"
+  },
+  {
+   "name": "NEG refuses to own a new PIE",
+   "ok": true,
+   "detail": "CAPTURE_SESSION|only existing_pie is supported for timed Master shots"
+  },
+  {
+   "name": "POS DRY report readback",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "POS RUN passed",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "POS eight PNGs",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "POS later-call re-pose every shot",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "POS contact sheet",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "POS contact sheet has eight cells",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "POS runtime restored and PIE untouched",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "POS manifest readback passed",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "POS exact census recorded",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "POS no exposure command",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "POS success marker",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "POS REVERT restores without deleting",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "NEG RUN without PIE",
+   "ok": true,
+   "detail": "RUN_NEEDS_EXISTING_PIE"
+  },
+  {
+   "name": "NEG RUN wrong world",
+   "ok": true,
+   "detail": "WRONG_WORLD|actual=/Wrong|expected=/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "name": "NEG active foreign owner",
+   "ok": true,
+   "detail": "FOREIGN_PIE_OWNER_ACTIVE|C:/Users/Administrator/AppData/Local/Temp/review_stills_mtiohado/active_owner.json"
+  },
+  {
+   "name": "NEG source contains no PIE/save/exposure authority",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "POS request uses guarded project Python",
+   "ok": true,
+   "detail": ""
+  }
+ ]
+}

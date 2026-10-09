@@ -1,0 +1,59 @@
+{
+  "run_id": "Q8PROOF-20261009-01",
+  "proof_tier": "measured offline",
+  "blender_used": false,
+  "unreal_used": false,
+  "p01_pick_9": {
+    "reported_failure": "skincolor_outside_130cm_cluster_unions_byte_identical=false",
+    "pilot_vs_isotropic_outside_130cm_different_pixels": 12,
+    "pilot_vs_isotropic_max_channel_delta": 1,
+    "same_profile_pilot_replay_different_pixels": 33,
+    "same_profile_pilot_replay_max_channel_delta": 1,
+    "diagnosis": "byte-exact comparison is observing sparse one-byte RGB replay drift outside the intended edit region",
+    "minimal_fix_proposed": "copy the approved pilot SkinColor bytes outside the existing 130 cm cluster-union mask into the isotropic SkinColor before validation; keep the gate and mask unchanged",
+    "implemented": false
+  },
+  "p03_pick_64": {
+    "rule": "test base+n in ascending integer order, starting n=1; select the first seed with longest_seam_run_cm <= 40",
+    "base_seed": 20301663,
+    "base_longest_seam_run_cm": 40.52734375,
+    "selected_seed": 20301664,
+    "selected_longest_seam_run_cm": 35.644531,
+    "maximum_seam_run_cm": 40.0,
+    "pass": true
+  },
+  "valances": [
+    {
+      "pick": 2,
+      "owner": "VAL_real_2_black_velvet_curtain_C",
+      "skin_color_size_px": [4096, 2048],
+      "texel_aspect_x_over_y": 1.4737142857142858,
+      "pass": true
+    },
+    {
+      "pick": 10,
+      "owner": "VAL_real_10_ornate_curtain_valance_C",
+      "skin_color_size_px": [4096, 2048],
+      "texel_aspect_x_over_y": 1.627878787878788,
+      "pass": true
+    },
+    {
+      "pick": 61,
+      "owner": "VAL_real_61_purple_velvet_curtain_C",
+      "skin_color_size_px": [4096, 2048],
+      "texel_aspect_x_over_y": 1.4659090909090908,
+      "pass": true
+    }
+  ],
+  "full_skin_stage": {
+    "cases_passed": 4,
+    "cases_failed": 0,
+    "isotropic_validation_passed": 4,
+    "record": "Saved/CodexConductor/Q8_FailedPicks_20261009/proof/Q8PROOF-20261009-01/Q8_SKIN_STAGE_RECORD.json"
+  },
+  "offline_harness": {
+    "passed": 13,
+    "failed": 0,
+    "report": "Saved/CodexConductor/Q8_FailedPicks_20261009/offline_harness_report.json"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "mode": "DRY",
+  "confirm": "",
+  "expected_plan_sha256": "",
+  "source_passage": "P01",
+  "target_passage": "P02",
+  "source_ordinal_policy": "same_ordinal_no_wrap",
+  "colour_policy": "target_role_then_dominant",
+  "aim_policy": "own_side_wing",
+  "density": "half",
+  "preserve_nonlights": true,
+  "expected_target_bays": 23,
+  "expected_added_lights": 207,
+  "max_added_lights": 207,
+  "own_side_aim_x_cm": 0.0,
+  "own_side_aim_height_cm": 600.0,
+  "match_source_atmosphere": true,
+  "special_label_tokens": [
+    "car", "moving", "move", "event", "fx", "smoke", "haze", "fire",
+    "rain", "spark", "mote", "pyro", "polaroid", "flash", "meshy", "dead"
+  ],
+  "atmosphere": {
+    "source_tag": "P01ATMOS",
+    "target_tag": "P02ATMOS",
+    "beam_tag": "InfinityStage.BeamLook",
+    "smoke_tag": "InfinityStage.SmokeTest",
+    "footprint_x_cm": [-2000.0, 20000.0],
+    "footprint_half_y_cm": 6000.0,
+    "footprint_half_z_cm": 6000.0
+  },
+  "perf_probe": {
+    "relative_saved_path": "CodexFlatV3/p02lighting/passage_lighting_perf_probe.py",
+    "seconds": 60.0,
+    "skip_frames": 30,
+    "max_p95_ms": 33.4,
+    "max_p99_ms": 50.0
+  },
+  "ack_records": []
+}

@@ -1,0 +1,85 @@
+{
+  "failed": 0,
+  "passed": 13,
+  "rows": [
+    {
+      "control": "NEGATIVE",
+      "detail": 40.52734375,
+      "name": "p03_negative_base_seed_fails",
+      "pass": true
+    },
+    {
+      "control": "POSITIVE",
+      "detail": 35.64453125,
+      "name": "p03_positive_first_increment_passes",
+      "pass": true
+    },
+    {
+      "control": "NEGATIVE",
+      "detail": 5.894857142857143,
+      "name": "VAL_real_2_black_velvet_curtain_C_negative_portrait_aspect",
+      "pass": true
+    },
+    {
+      "control": "POSITIVE",
+      "detail": 1.4737142857142858,
+      "name": "VAL_real_2_black_velvet_curtain_C_positive_landscape_aspect",
+      "pass": true
+    },
+    {
+      "control": "NEGATIVE",
+      "detail": 6.511515151515152,
+      "name": "VAL_real_10_ornate_curtain_valance_C_negative_portrait_aspect",
+      "pass": true
+    },
+    {
+      "control": "POSITIVE",
+      "detail": 1.627878787878788,
+      "name": "VAL_real_10_ornate_curtain_valance_C_positive_landscape_aspect",
+      "pass": true
+    },
+    {
+      "control": "NEGATIVE",
+      "detail": 5.863636363636363,
+      "name": "VAL_real_61_purple_velvet_curtain_C_negative_portrait_aspect",
+      "pass": true
+    },
+    {
+      "control": "POSITIVE",
+      "detail": 1.4659090909090908,
+      "name": "VAL_real_61_purple_velvet_curtain_C_positive_landscape_aspect",
+      "pass": true
+    },
+    {
+      "control": "NEGATIVE",
+      "detail": false,
+      "name": "p01_negative_current_o2_fails_exact_outside_contract",
+      "pass": true
+    },
+    {
+      "control": "POSITIVE",
+      "detail": true,
+      "name": "p01_positive_baseline_composite_preserves_exact_outside_contract",
+      "pass": true
+    },
+    {
+      "control": "POSITIVE",
+      "detail": true,
+      "name": "p01_positive_composite_keeps_o2_inside_changes",
+      "pass": true
+    },
+    {
+      "control": "POSITIVE",
+      "detail": "APPLY_Q8_FAILED_PICKS_SKINS",
+      "name": "apply_confirm_is_explicit",
+      "pass": true
+    },
+    {
+      "control": "NEGATIVE",
+      "detail": "REVERT_Q8_FAILED_PICKS_SKINS",
+      "name": "revert_confirm_is_distinct",
+      "pass": true
+    }
+  ],
+  "total": 13
+}
