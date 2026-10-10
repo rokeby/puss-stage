@@ -1,0 +1,9 @@
+{
+  "mode": "PROBE",
+  "weave_tiling": 8.0,
+  "print_texture_kind": "tint",
+  "print_color": [1.0, 1.0, 1.0, 1.0],
+  "print_strength": 1.0,
+  "confirm": ""
+}
+

@@ -1,0 +1,79 @@
+{
+  "blender_started": false,
+  "cases": [
+    {
+      "control": "POSITIVE",
+      "name": "twelve_exact_targets",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "args_probe",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "args_apply",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "layer_a_ready",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "layer_b_ready",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "stains_are_one_to_one",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "reject_apply_confirm",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "reject_record_collision",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "reject_bad_tiling",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "reject_missing_switch_evidence",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "c_layer_refuses_missing_detail_path",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "missing_masks_channel_refuses",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "editor_scope_and_readback_guards",
+      "passed": true
+    }
+  ],
+  "negative_passed": 6,
+  "negative_total": 6,
+  "passed": 13,
+  "positive_passed": 7,
+  "positive_total": 7,
+  "result": "PASS",
+  "schema": "j122_s3_garment_hessian/1",
+  "total": 13,
+  "unreal_started": false
+}

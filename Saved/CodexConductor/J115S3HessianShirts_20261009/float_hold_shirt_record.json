@@ -1,0 +1,31 @@
+[
+ {
+  "label": "S3 Hangar Float Hold: Shore05_M53 Clam",
+  "slots": [
+   1,
+   3,
+   5,
+   7
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1"
+  ]
+ }
+]
