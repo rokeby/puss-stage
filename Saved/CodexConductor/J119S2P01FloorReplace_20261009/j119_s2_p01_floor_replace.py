@@ -1,10 +1,11 @@
 """Job 119: replace the four persistent S2 floor slabs with P01-floor duplicates.
 
 Offline-authored only.  The conductor runs this later through ExecuteProjectPythonFile.
-DRY plans and audits every LevelSequence.  APPLY duplicates the P01 actor, fits one
-duplicate to each S2 slab, attaches it to the original actor, then moves only the old
-StaticMeshComponent below stage.  This preserves actor/ancestor transform and AActor::
-bHidden tracks without rebinding.  Component-bound transform/visibility is a hard stop.
+DRY plans and audits every LevelSequence.  The unchanged S2 path attaches each fitted
+duplicate to its original actor.  P02 attaches each duplicate to the LIVE materialized
+Passage root, never the original slab's deliberately sunk REST frame, then moves only
+the old StaticMeshComponent below stage. Component/direct-slab transform or visibility
+bindings that the chosen attachment cannot inherit are a hard stop.
 REVERT restores recorded component transforms and destroys only record-owned duplicates.
 """
 from __future__ import annotations
@@ -98,6 +99,90 @@ def v3(value):
     return [float(value[0]), float(value[1]), float(value[2])]
 
 
+def _yaw_point(transform, local):
+    """Compose a point through a translation/yaw/scale transform."""
+    rotation = [float(x) for x in transform["rotation"]]
+    if abs(rotation[0]) > 1e-4 or abs(rotation[1]) > 1e-4:
+        raise ValueError("pitched/rolled live root is unsupported")
+    scale = [float(x) for x in transform["scale"]]
+    if min(abs(x) for x in scale) <= 1e-6:
+        raise ValueError("degenerate live root scale")
+    yaw = math.radians(rotation[2])
+    c, s = math.cos(yaw), math.sin(yaw)
+    scaled = [float(local[i]) * scale[i] for i in range(3)]
+    rotated = [c * scaled[0] - s * scaled[1], s * scaled[0] + c * scaled[1], scaled[2]]
+    return [float(transform["location"][i]) + rotated[i] for i in range(3)]
+
+
+def _yaw_inverse_point(transform, world):
+    """Map a world point into the live root frame; inverse of _yaw_point."""
+    rotation = [float(x) for x in transform["rotation"]]
+    if abs(rotation[0]) > 1e-4 or abs(rotation[1]) > 1e-4:
+        raise ValueError("pitched/rolled live root is unsupported")
+    scale = [float(x) for x in transform["scale"]]
+    if min(abs(x) for x in scale) <= 1e-6:
+        raise ValueError("degenerate live root scale")
+    delta = [float(world[i]) - float(transform["location"][i]) for i in range(3)]
+    yaw = math.radians(rotation[2])
+    c, s = math.cos(yaw), math.sin(yaw)
+    unrotated = [c * delta[0] + s * delta[1], -s * delta[0] + c * delta[1], delta[2]]
+    return [unrotated[i] / scale[i] for i in range(3)]
+
+
+def live_root_relative_transform(world_transform, live_root):
+    """Express a desired world transform against the LIVE materialized Passage root."""
+    root_rotation = [float(x) for x in live_root["rotation"]]
+    root_scale = [float(x) for x in live_root["scale"]]
+    if abs(root_rotation[0]) > 1e-4 or abs(root_rotation[1]) > 1e-4:
+        raise ValueError("pitched/rolled live root is unsupported")
+    if min(abs(x) for x in root_scale) <= 1e-6:
+        raise ValueError("degenerate live root scale")
+    world_rotation = [float(x) for x in world_transform["rotation"]]
+    if abs(world_rotation[0]) > 1e-4 or abs(world_rotation[1]) > 1e-4:
+        raise ValueError("pitched/rolled floor is unsupported")
+    return {
+        "location": _yaw_inverse_point(live_root, world_transform["location"]),
+        "rotation": [0.0, 0.0, world_rotation[2] - root_rotation[2]],
+        "scale": [float(world_transform["scale"][i]) / root_scale[i] for i in range(3)],
+    }
+
+
+def live_root_world_transform(relative_transform, live_root):
+    """Compose a live-root-relative floor pose back to world for placement/read-back."""
+    return {
+        "location": _yaw_point(live_root, relative_transform["location"]),
+        "rotation": [0.0, 0.0, float(relative_transform["rotation"][2]) + float(live_root["rotation"][2])],
+        "scale": [float(relative_transform["scale"][i]) * float(live_root["scale"][i]) for i in range(3)],
+    }
+
+
+def _box_in_frame(world_bounds, frame):
+    corners = [[world_bounds[x][0], world_bounds[y][1], world_bounds[z][2]]
+               for x in ("min", "max") for y in ("min", "max") for z in ("min", "max")]
+    points = [_yaw_inverse_point(frame, point) for point in corners]
+    return {"min": [min(point[i] for point in points) for i in range(3)],
+            "max": [max(point[i] for point in points) for i in range(3)]}
+
+
+def _box_union(boxes):
+    return {"min": [min(box["min"][i] for box in boxes) for i in range(3)],
+            "max": [max(box["max"][i] for box in boxes) for i in range(3)]}
+
+
+def inside_box(inner, outer, tolerance_cm):
+    return all(float(inner["min"][i]) >= float(outer["min"][i]) - float(tolerance_cm) and
+               float(inner["max"][i]) <= float(outer["max"][i]) + float(tolerance_cm) for i in range(3))
+
+
+def floor_world_z_issue(original_world_z, replacement_world_z, tolerance_cm=1.0):
+    delta = float(replacement_world_z) - float(original_world_z)
+    if abs(delta) <= float(tolerance_cm):
+        return None
+    return {"kind": "FLOOR_WORLD_Z_MISMATCH", "tolerance_cm": float(tolerance_cm),
+            "original_world_z": float(original_world_z), "replacement_world_z": float(replacement_world_z),
+            "delta_cm": delta}
+
+
 def fit_transform(source, target):
     """Fit source local mesh bounds to target local mesh bounds under target rotation.
 
@@ -154,7 +239,7 @@ def actor_transform_for_component_world(component_world, component_relative, com
             "rotation": rotation, "scale": actor_scale}
 
 
-def sequence_binding_policy(rows):
+def sequence_binding_policy(rows, direct_actor_blocks=False):
     """Return hard blockers and the actor/ancestor tracks preserved by attachment."""
     blockers, inherited = [], []
     for row in rows:
@@ -162,7 +247,7 @@ def sequence_binding_policy(rows):
                        for word in ("transform", "visibility", "bhidden"))
         if not relevant:
             continue
-        if row.get("object_kind") == "component":
+        if row.get("object_kind") == "component" or (direct_actor_blocks and row.get("object_kind") == "actor"):
             blockers.append(row)
         else:
             inherited.append(row)
@@ -533,7 +618,15 @@ def _p02_plan(args, world):
         if _level(actor) != WORLD:
             raise Refused("ACTOR_NOT_PERSISTENT|label=%s|level=%s" % (actor.get_actor_label(), _level(actor)))
     source = _snapshot(source_actor, component_world=True)
+    passage = _p02_passage_actor()
+    passage_rotation = passage.get_actor_rotation()
+    live_root = {"actor_path": _path(passage), "label": str(passage.get_actor_label()),
+                 "location": v3(passage.get_actor_location()),
+                 "rotation": [float(passage_rotation.roll), float(passage_rotation.pitch),
+                              float(passage_rotation.yaw)],
+                 "scale": v3(passage.get_actor_scale3d())}
     segments = _p02_segments(targets)
+    live_guard = _box_union([_box_in_frame(segment["world_bounds"], live_root) for segment in segments])
     replacements = []
     for index, segment in enumerate(segments):
         fitted = fit_transform(source, segment)
@@ -544,14 +637,23 @@ def _p02_plan(args, world):
         if not _bounds_close(predicted_bounds, segment["world_bounds"], float(args["bounds_tolerance_cm"])):
             raise Refused("P02_PREFLIGHT_FOOTPRINT|%s|got=%s|want=%s" %
                           (segment["target_label"], json.dumps(predicted_bounds), json.dumps(segment["world_bounds"])))
+        live_relative = live_root_relative_transform(actor_transform, live_root)
+        live_composed = live_root_world_transform(live_relative, live_root)
+        if max(abs(live_composed[field][axis] - actor_transform[field][axis])
+               for field in ("location", "rotation", "scale") for axis in range(3)) > 1e-4:
+            raise Refused("P02_LIVE_ROOT_COMPOSE_MISMATCH|" + segment["target_label"])
+        expected_local_box = _box_in_frame(predicted_bounds, live_root)
+        if not inside_box(expected_local_box, live_guard, float(args["bounds_tolerance_cm"])):
+            raise Refused("P02_LIVE_ROOT_INSIDE_BOX_PREFLIGHT|%s|got=%s|guard=%s" %
+                          (segment["target_label"], json.dumps(expected_local_box), json.dumps(live_guard)))
         replacements.append({"segment": segment,
                              "new_label": "J129 P01 route segment %03d - %s" % (index + 1, segment["target_label"]),
-                             "new_transform": actor_transform, "expected_component_world_transform": fitted,
+                             "new_transform": actor_transform, "live_root_relative_transform": live_relative,
+                             "expected_component_world_transform": fitted,
                              "scale_ratio_vs_p01_component_world":
                                  [fitted["scale"][i] / source["scale"][i] for i in range(3)]})
     sequence_rows, unclear = _sequence_audit_p02(world, targets)
-    blockers, inherited = sequence_binding_policy(sequence_rows)
-    passage = _p02_passage_actor()
+    blockers, inherited = sequence_binding_policy(sequence_rows, direct_actor_blocks=True)
     plan = {
         "schema": 2, "target": "P02", "world": WORLD, "source": source,
         "target_actor_labels": list(P02_TARGET_LABELS), "route_segments": len(segments),
@@ -563,13 +665,15 @@ def _p02_plan(args, world):
         "sequence_component_blockers": blockers, "sequence_inherited_tracks": inherited,
         "passage_materialization": {"actor": _path(passage), "label": str(passage.get_actor_label()),
                                     "apply_and_revert_required": True},
+        "live_root": live_root, "live_root_local_guard": live_guard,
+        "placement_contract": "compose and attach every replacement against the LIVE materialized Passage root; the shifted old slab is reference-only",
         "save_allowlist": [WORLD], "klara_packages_forbidden": list(KLARA_PACKAGES),
         "texel_density": {"status": "inferred", "basis": "same P01 mesh/material per route segment; live mapping and stills pending",
                           "apply_ack_required": True},
         "stills_plan": [
             "Matched P01/P02 grazing-angle stills with identical exposure and camera height.",
             "P02 full route stills proving every Near/Left/Right/Far segment is covered without a corridor-spanning plane.",
-            "Every P02 floor visibility section before/during/after; replacements must inherit AActor::bHidden.",
+            "Every P02 floor visibility section before/during/after; direct target-actor bHidden tracks are an APPLY blocker.",
             "Passage 02 start/mid/end after materialize_passage; route joins and any curve must remain aligned.",
             "Collision walk/trace across every segment join after visual approval.",
         ],
@@ -630,8 +734,9 @@ def _verify_p02_saved(record, args, targets, initial, here):
             if _level(actor) != WORLD:
                 actor_issues.append({"kind": "LEVEL_MISMATCH", "expected": WORLD, "got": _level(actor)})
             parent = _path(actor.get_attach_parent_actor())
-            if parent != row["target_actor_path"]:
-                actor_issues.append({"kind": "ATTACHMENT_MISMATCH", "expected": row["target_actor_path"],
+            expected_parent = row.get("live_root_actor_path", row["target_actor_path"])
+            if parent != expected_parent:
+                actor_issues.append({"kind": "ATTACHMENT_MISMATCH", "expected": expected_parent,
                                      "got": parent})
             got = _snapshot(actor, component_world=True)
             replacement = replacements.get(row["target_actor_path"], {})
@@ -765,14 +870,21 @@ def _main_p02(args, here):
     offset = float(plan["component_below_offset_cm"])
     component_map = _p02_component_map(targets)
     subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
-    target_by_path = {_path(actor): actor for actor in targets}
+    live_root_actor = passage
+    live_root_now_rotation = live_root_actor.get_actor_rotation()
+    live_root_now = {"location": v3(live_root_actor.get_actor_location()),
+                     "rotation": [float(live_root_now_rotation.roll), float(live_root_now_rotation.pitch),
+                                  float(live_root_now_rotation.yaw)],
+                     "scale": v3(live_root_actor.get_actor_scale3d())}
+    if max(abs(live_root_now[field][axis] - plan["live_root"][field][axis])
+           for field in ("location", "rotation", "scale") for axis in range(3)) > 1e-4:
+        raise Refused("P02_LIVE_ROOT_DRIFT_BEFORE_APPLY")
     created_by_path = {}
     for item in plan["replacements"]:
-        target_actor = target_by_path[item["segment"]["target_actor_path"]]
         duplicate = subsystem.duplicate_actor(source_actor, world, unreal.Vector(0, 0, 0))
         if duplicate is None or _level(duplicate) != WORLD:
             raise Refused("DUPLICATE_FAILED_OR_NOT_PERSISTENT|NOTHING_SAVED_DONT_SAVE_RESTART")
-        transform = item["new_transform"]
+        transform = live_root_world_transform(item["live_root_relative_transform"], live_root_now)
         duplicate.set_actor_label(item["new_label"])
         duplicate.tags = list(_prop(duplicate, "tags", ()) or ()) + [unreal.Name(P02_TAG)]
         duplicate.set_actor_location(unreal.Vector(*transform["location"]), False, True)
@@ -782,6 +894,7 @@ def _main_p02(args, here):
         created_by_path[_path(duplicate)] = duplicate
         record["actors"].append({"created_actor_path": _path(duplicate), "created_label": item["new_label"],
                                  "target_actor_path": item["segment"]["target_actor_path"],
+                                 "live_root_actor_path": _path(live_root_actor),
                                  "expected_world_bounds": item["segment"]["world_bounds"]})
         _write_json(record_path, record)
         got = _snapshot(duplicate, component_world=True)
@@ -802,12 +915,12 @@ def _main_p02(args, here):
                                      "shifted_relative_location": shifted})
         component.set_editor_property("relative_location", unreal.Vector(*shifted))
         _write_json(record_path, record)
-    # Attach only after the target root components have moved. KEEP_WORLD now
-    # computes the replacement's relative transform in the final parent frame;
-    # attaching earlier made the later -100000 cm parent shift drag the new floor.
+    # The old slab roots are deliberately shifted -100000 cm. They are reference
+    # geometry, never a placement frame. Parent each replacement to the LIVE
+    # materialized Passage root so a saved reload cannot inherit that REST shift.
     for row in record["actors"]:
         duplicate = created_by_path[row["created_actor_path"]]
-        duplicate.attach_to_actor(target_by_path[row["target_actor_path"]], "", unreal.AttachmentRule.KEEP_WORLD,
+        duplicate.attach_to_actor(live_root_actor, "", unreal.AttachmentRule.KEEP_WORLD,
                                   unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, False)
         got = _snapshot(duplicate, component_world=True)
         item = next(value for value in plan["replacements"]
@@ -838,6 +951,13 @@ def _main_p02(args, here):
                     "world_bounds": row["expected_world_bounds"],
                     "component_world_transform": item["expected_component_world_transform"]}
         issues = segment_diagnostics(expected, got, float(args["bounds_tolerance_cm"]))
+        z_issue = floor_world_z_issue(item["segment"]["location"][2], got["location"][2], 1.0)
+        if z_issue:
+            issues.append(z_issue)
+        got_local_box = _box_in_frame(got["world_bounds"], live_root_now)
+        if not inside_box(got_local_box, plan["live_root_local_guard"], float(args["bounds_tolerance_cm"])):
+            issues.append({"kind": "LIVE_ROOT_INSIDE_BOX_MISMATCH", "got": got_local_box,
+                           "guard": plan["live_root_local_guard"]})
         if issues:
             raise Refused("P02_POST_MATERIALIZE_SEGMENT_READBACK|%s|%s|NOTHING_SAVED_DONT_SAVE_RESTART" %
                           (row["created_actor_path"], json.dumps(issues)))
@@ -849,7 +969,7 @@ def _main_p02(args, here):
         raise Refused("POST_SAVE_OWNERSHIP_READBACK")
     for row in record["actors"]:
         actor = owned[row["created_actor_path"]]
-        if _level(actor) != WORLD or _path(actor.get_attach_parent_actor()) != row["target_actor_path"]:
+        if _level(actor) != WORLD or _path(actor.get_attach_parent_actor()) != row["live_root_actor_path"]:
             raise Refused("POST_SAVE_LEVEL_OR_ATTACHMENT_READBACK|" + row["created_actor_path"])
         got = _snapshot(actor, component_world=True)
         item = next(value for value in plan["replacements"]

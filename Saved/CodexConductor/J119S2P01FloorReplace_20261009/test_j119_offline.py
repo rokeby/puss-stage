@@ -80,6 +80,23 @@ class Geometry(unittest.TestCase):
         with self.assertRaises(ValueError):
             tool.actor_transform_for_component_world(desired, relative)
 
+    def test_live_root_composition_reproduces_and_avoids_sunk_rest_offset(self):
+        desired = {"location": [1200.0, 3400.0, 12.5], "rotation": [0.0, 0.0, 15.0],
+                   "scale": [2.0, 3.0, 0.25]}
+        live_root = {"location": [1000.0, 3000.0, 0.0], "rotation": [0.0, 0.0, 0.0],
+                     "scale": [1.0, 1.0, 1.0]}
+        sunk_rest = dict(live_root, location=[1000.0, 3000.0, -100000.0])
+        relative = tool.live_root_relative_transform(desired, live_root)
+        self.assertEqual(tool.live_root_world_transform(relative, live_root), desired)
+        wrong = tool.live_root_world_transform(relative, sunk_rest)
+        self.assertEqual(wrong["location"][2] - desired["location"][2], -100000.0)
+
+    def test_floor_world_z_gate_positive_and_negative(self):
+        self.assertIsNone(tool.floor_world_z_issue(12.5, 13.49, 1.0))
+        issue = tool.floor_world_z_issue(12.5, -99987.5, 1.0)
+        self.assertEqual(issue["kind"], "FLOOR_WORLD_Z_MISMATCH")
+        self.assertEqual(issue["delta_cm"], -100000.0)
+
 
 class Gates(unittest.TestCase):
     def test_confirm_positive_and_negative(self):
@@ -161,6 +178,12 @@ class Gates(unittest.TestCase):
         self.assertEqual(blockers, [row])
         self.assertEqual(inherited, [])
 
+    def test_p02_direct_actor_track_is_blocker_negative(self):
+        row = {"track_class": "MovieScene3DTransformTrack", "property": "", "object_kind": "actor"}
+        blockers, inherited = tool.sequence_binding_policy([row], direct_actor_blocks=True)
+        self.assertEqual(blockers, [row])
+        self.assertEqual(inherited, [])
+
     def test_digest_detects_drift(self):
         self.assertEqual(tool.digest({"a": 1}), tool.digest({"a": 1}))
         self.assertNotEqual(tool.digest({"a": 1}), tool.digest({"a": 2}))
@@ -211,12 +234,20 @@ class StaticSafety(unittest.TestCase):
         self.assertLess(apply_body.index("P02_SEGMENT_FOOTPRINT_READBACK"),
                         apply_body.index('component.set_editor_property("relative_location"'))
 
-    def test_p02_attaches_after_parent_root_shift(self):
+    def test_p02_attaches_to_live_root_after_old_floor_shift(self):
         p02 = self.text[self.text.index("def _main_p02("):self.text.index("def main():")]
         self.assertLess(p02.index('component.set_editor_property("relative_location"'),
                         p02.index("duplicate.attach_to_actor"))
+        self.assertIn('duplicate.attach_to_actor(live_root_actor', p02)
+        self.assertNotIn('duplicate.attach_to_actor(target_by_path', p02)
         self.assertIn("P02_POST_SHIFT_ATTACHMENT_READBACK", p02)
         self.assertIn("P02_POST_MATERIALIZE_SEGMENT_READBACK", p02)
+
+    def test_p02_pre_save_world_z_and_inside_box_guards(self):
+        p02 = self.text[self.text.index("def _main_p02("):self.text.index("def main():")]
+        before_save = p02[:p02.index('record["state"] = "save_attempted"')]
+        self.assertIn("floor_world_z_issue", before_save)
+        self.assertIn("LIVE_ROOT_INSIDE_BOX_MISMATCH", before_save)
 
     def test_bhidden_contract_and_no_inert_property(self):
         self.assertIn('"bhidden"', self.text.lower())
@@ -245,8 +276,8 @@ if __name__ == "__main__":
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     report = {"tests": result.testsRun, "failures": len(result.failures), "errors": len(result.errors),
-              "positive_controls": 25, "negative_controls": 18, "passed": result.wasSuccessful()}
+              "positive_controls": 28, "negative_controls": 22, "passed": result.wasSuccessful()}
     (HERE / "harness_result.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print("J119_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=25|negative_controls=18" %
+    print("J119_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=28|negative_controls=22" %
           (result.testsRun, len(result.failures), len(result.errors)))
     raise SystemExit(0 if result.wasSuccessful() else 1)

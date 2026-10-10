@@ -11,11 +11,12 @@ Selecting `S2` preserves job 119's existing confirmations, markers, record path 
    `J129_P02_P01_FLOOR_REPLACE_DRY_OK`, unchanged dirty census, four target actors, one route replacement per
    static-mesh component or ISM instance, zero component-binding blockers, and review every uncertain sequence row.
 2. Review `j129_p02_dry_<run>.json`: construction methods, every fitted footprint, scale ratios, P02 Passage
-   actor, sequence audit, and stills plan. The tool never makes one corridor-spanning plane.
+   live-root transform/inside-box guard, sequence audit, and stills plan. The tool never makes one corridor-spanning plane.
 3. Copy `plan_sha256` into args. Set the two acknowledgement fields only after their named uncertainties are reviewed.
 4. Set `mode=APPLY`, `confirm=APPLY J129P02P01FLOOR`. APPLY records and backs up first, creates one P01-derived
-   actor per route segment/instance, attaches it to the unchanged original route actor, lowers only the old mesh
-   component(s), materializes Passage 02, reads back, and saves only the persistent map.
+   actor per route segment/instance, composes and attaches it against the LIVE materialized Passage root, lowers only
+   the old mesh component(s), materializes Passage 02, then refuses before save unless every copy remains inside the
+   live-root-local floor box and its component world Z matches the original slab within 1 cm. It saves only the persistent map.
 5. Capture the planned grazing, full-route, visibility, passage-timing and collision stills. Rendered acceptance is Gary's.
 6. To undo, use `mode=REVERT`, `confirm=REVERT J129P02P01FLOOR`. REVERT restores every recorded component,
    destroys only tagged/recorded P02 replacements, materializes Passage 02, saves only the persistent map, and archives the record.
