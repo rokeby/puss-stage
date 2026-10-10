@@ -167,3 +167,5 @@ Stills are in `Saved/CodexConductor/ApplyPass_20261010/stills/`. Verdicts are by
 - **Tonight (Gary, 10 Oct)**: Puss SATURDAY FILMING gets the machine first (Tools/Fallbacks/saturday_night_film.ps1). Metamall: its 3-min UBT build in the gap after the current Puss slot; its 6-8 h soak only after filming, or another night.
 
 - 18:20 Job 175 (S3 hair+fires, Job171 tool): APPLY_OK + read-back, clean census (measured; 2 Don't-Save recoveries). Conductor eye on 175_09/175_10: shrouds cover most heads, hair barely readable; no fire in frame, so blue-grey is unverified (inferred: fire is out of these camera views). VISUAL: unconfirmed. Job 176 launched: I2/I3 back walls, P56 candles + P52 swing, job 169 S1 fire ending.
+
+- 19:00 Gary: S6-prep particle cloud = ignore (not candles); 3D stage front needs its own uplights; P06 sun disc sized to fit the passage end window (job 178, after 177).
