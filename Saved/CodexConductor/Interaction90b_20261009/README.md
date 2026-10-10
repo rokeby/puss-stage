@@ -23,6 +23,11 @@ still and does not establish the look.
    travel, then blackout clears while both shadow spots fade to I2's live
    reference intensities. Curtain sections, cuts, playback end, and the
    mouth-camera end are not mutation targets.
+   If live I3 has no bindings containing both `shadow` and `spot` with an
+   Intensity channel, DRY now stops with `DECISION_REQUIRED`. Gary must either
+   keep the fail-closed default and author/name the two shadow spots, or set
+   `i3_missing_spots_policy` to `blackout_only`, which clears the black fade
+   into the existing I3 lighting and deliberately creates no lights.
 5. Inspect all five lighting audit rows. Each contains the authored twin-shadow
    comparison plus job-39 F17's live world/spawned-light, PP exposure and fog
    census, ranked differences, and proposals. For every reported pop, copy the

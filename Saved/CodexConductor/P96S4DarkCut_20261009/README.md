@@ -77,3 +77,12 @@ LS_DevScene_04, reads back, and archives (does not delete) the record.
 ## Offline verification
 
 `python test_p96.py` -> `P96_HARNESS_OK|passed=18|total=18|positive=3|negative=10|trap=5`.
+# P04-tail Master darkness bridge (Job 140)
+
+`p96_master_tail.py` is the narrow DRY/APPLY/REVERT companion for the pre-S4
+acceptance gap. It reads the original P96 record and refuses unless that record
+contains exactly the reviewed 67 `hangar_lights_and_emissives` targets. It adds
+Master-owned `bHidden` sections only over the last two rounded-up Master frames
+of P04 through the first S4 frame, plus one owned linear black fade at the cut.
+It saves only `LS_InfinityStage_V1Master`; the existing S4-local P96 sections
+remain authoritative after the one-frame bridge releases.

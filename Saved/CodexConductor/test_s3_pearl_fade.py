@@ -18,11 +18,13 @@ current = {
 results = []
 results.append(("two-second fade ends at retained vanish frame",
                 tool.F1 == 5040 and tool.F1 - tool.F0 == 48 and tool.FADE_SECONDS == 2))
+results.append(("visibility cuts one frame before reviewed frame to guarantee frame 5040 hidden",
+                tool.VIS_OFF == 5039 and tool._expected_twin_vis()[-1] == (5039, False)))
 results.append(("old existing-track guard refuses logged state", len(current["material_fade"]) != 0))
 plan = tool.adoption_plan(current)
 results.append(("new plan adopts exact existing tracks", plan["twin_visibility"] == "reuse" and
                 plan["material_fade"] == "reuse" and plan["twin_bind_bHidden"] and plan["solid_bind_bHidden"] and
-                plan["twin_retime_legacy"] and plan["material_retime_legacy"] and plan["solid_remove_legacy_f0"]))
+                plan["twin_rewrite"] and plan["material_retime_legacy"] and plan["solid_remove_legacy_f0"]))
 after = tool.expected_state_after(current)
 results.append(("post-edit state is exact before save",
                 after["solid_visibility"][0]["property"] == "bHidden" and

@@ -161,6 +161,23 @@ def texture_facts(tex):
             "flip_green_channel": bool(tex.get_editor_property("flip_green_channel"))}
 
 
+def nanite_facts(mesh):
+    """Read the persisted StaticMesh Nanite contract (UE 5.8 editor property)."""
+    settings = mesh.get_editor_property("nanite_settings")
+    return {"enabled": bool(settings.get_editor_property("enabled"))}
+
+
+def enable_nanite(c, mesh):
+    """Enable Nanite after Interchange import, then read it back before any save."""
+    mesh.modify()
+    settings = mesh.get_editor_property("nanite_settings")
+    settings.set_editor_property("enabled", True)
+    mesh.set_editor_property("nanite_settings", settings)
+    got = nanite_facts(mesh)
+    c.require(got == {"enabled": True}, "NANITE_IN_MEMORY_READBACK|%s" % got)
+    return got
+
+
 def master_info(u, mat):
     mel = u.MaterialEditingLibrary
     return {"path": _pkg(mat),
@@ -257,7 +274,9 @@ def run_import(c, plan, rec, values):
     asset = import_one(c, row, options)
     if row["kind"] == "mesh":
         c.require(isinstance(asset, c.u.StaticMesh), "MESH_CLASS")
-        facts = {"kind": "mesh", "lods": int(asset.get_num_lods()), "bounds": str(asset.get_bounding_box()), "pipeline": pipe}
+        nanite = enable_nanite(c, asset)
+        facts = {"kind": "mesh", "lods": int(asset.get_num_lods()), "bounds": str(asset.get_bounding_box()),
+                 "pipeline": pipe, "nanite": nanite}
     else:
         c.require(isinstance(asset, c.u.Texture2D), "TEXTURE_CLASS")
         asset.modify(); asset.set_editor_property("srgb", row["srgb"])
@@ -272,6 +291,9 @@ def run_import(c, plan, rec, values):
     c.require(eal.save_asset(row["dest"], only_if_is_dirty=False), "SAVE|" + row["dest"])
     c.require(census(c.u) == {"content": [], "maps": []}, "DIRTY_AFTER_SAVE|%s" % census(c.u))
     saved = eal.load_asset(row["dest"]); c.require(saved is not None, "SAVED_READBACK")
+    if row["kind"] == "mesh":
+        c.require(nanite_facts(saved) == {"enabled": True},
+                  "NANITE_SAVED_READBACK|%s" % nanite_facts(saved))
     imported[row["selector"]] = {"run": c.run, "package": row["dest"], "source": row["source"],
                                   "sha256": C.sha256(row["source"]), "facts": facts, "backup": backup_dir}
     pending.update({"pending": None, "imported": imported,
@@ -339,6 +361,8 @@ def run_verify(c, plan, rec):
         asset = eal.load_asset(path)
         if row is None: problems.append("UNKNOWN_RECORDED_SELECTOR|" + selector)
         elif row["kind"] == "mesh" and not isinstance(asset, c.u.StaticMesh): problems.append("MESH_CLASS|" + path)
+        elif row["kind"] == "mesh" and nanite_facts(asset) != {"enabled": True}:
+            problems.append("NANITE_DRIFT|%s|%s" % (path, nanite_facts(asset)))
         elif row["kind"] == "texture":
             got = texture_facts(asset)
             if got["srgb"] != row["srgb"] or got["compression"] != row["compression"] or got["max_texture_size"] > 4096:

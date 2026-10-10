@@ -3,7 +3,7 @@ A TRANSLUCENT twin "S3 PearlClam Pearl Fade"
 (finishing touches, patch 2026-10-08_pearl_fade_twin: MI_PearlClam_Pearl_Fade, scalar "Fade" -> Opacity, slot 0,
 hidden in game by default, attached to S3 PearlClam).  Writes in LS_DevScene_03:
   * a False key at 4992 on the SOLID pearl's existing Visibility track (float-hold binding; earlier keys untouched);
-  * twin: Visibility track False from 0, True at 4992, False at 5040;
+  * twin: Visibility track False from 0, True at 4992, False at 5039;
   * twin: component-material track slot 0, scalar "Fade": 1 until 4992, linear to 0 at 5040 (2 seconds).
 The halo light was keyed separately (S3KM-20261008-023655halo).
 DRY additionally probes the Python API names this needs and prints which exist (MovieSceneComponentMaterialTrack,
@@ -23,6 +23,7 @@ TWIN = "S3 PearlClam Pearl Fade"
 PARAM = "Fade"
 FPS = 24
 F1 = 5040                # Keep the reviewed/current vanish frame (~3:30).
+VIS_OFF = F1 - 1         # Hide one frame early so frame 5040 cannot render the last translucent sample.
 FADE_SECONDS = 2
 F0 = F1 - FPS * FADE_SECONDS  # 48 frames: 4992 -> 5040 at 24 fps.
 LEGACY_F0 = 4944          # Pass-1/live four-second fade start; migrate narrowly.
@@ -30,8 +31,8 @@ TRACK_NAME = "S3.Pearl.Fade"
 RUN = {"run": "?"}
 
 
-def _expected_twin_vis(start=F0):
-    return [(0, False), (start, True), (F1, False)]
+def _expected_twin_vis(start=F0, off=VIS_OFF):
+    return [(0, False), (start, True), (off, False)]
 
 
 def _expected_fade(start=F0):
@@ -88,7 +89,9 @@ def adoption_plan(state):
         if (row.get("property"), row.get("path")) not in (("bHidden", "bHidden"),
                                                            ("None", "None"), ("", "")):
             errors.append("TWIN_VISIBILITY_PROPERTY|%s|%s" % (row.get("property"), row.get("path")))
-        if row.get("active_sections") != 1 or row.get("keys") not in (_expected_twin_vis(), _expected_twin_vis(LEGACY_F0)):
+        accepted_twin = (_expected_twin_vis(), _expected_twin_vis(LEGACY_F0),
+                         _expected_twin_vis(F0, F1), _expected_twin_vis(LEGACY_F0, F1))
+        if row.get("active_sections") != 1 or row.get("keys") not in accepted_twin:
             errors.append("TWIN_VISIBILITY_SHAPE|sections=%s|keys=%s" %
                           (row.get("active_sections"), row.get("keys")))
     if len(material) > 1:
@@ -107,7 +110,7 @@ def adoption_plan(state):
                                            for frame, value in solid[0]["keys"]),
             "twin_visibility": "reuse" if twin else "create",
             "twin_bind_bHidden": not twin or twin[0]["property"] != "bHidden",
-            "twin_retime_legacy": bool(twin and twin[0]["keys"] == _expected_twin_vis(LEGACY_F0)),
+            "twin_rewrite": bool(twin and twin[0]["keys"] != _expected_twin_vis()),
             "material_fade": "reuse" if material else "create",
             "material_retime_legacy": bool(material and material[0]["keys"] == _expected_fade(LEGACY_F0))}
 
@@ -250,12 +253,13 @@ def main():
         if plan["twin_bind_bHidden"]:
             tv.set_property_name_and_path("bHidden", "bHidden")
         tch = [s for s in tv.get_sections() if s.is_active()][0].get_all_channels()[0]
-        if plan["twin_retime_legacy"]:
-            for key in tch.get_keys():
-                if int(key.get_time(time_unit=DR).frame_number.value) == LEGACY_F0:
-                    key.set_time(unreal.FrameNumber(F0), time_unit=DR)
+        if plan["twin_rewrite"]:
+            for key in list(tch.get_keys()):
+                tch.remove_key(key)
+            for fr, value in _expected_twin_vis():
+                tch.add_key(unreal.FrameNumber(fr), value, time_unit=DR)
     tk = sorted((int(k.get_time(time_unit=DR).frame_number.value), bool(k.get_value())) for k in tch.get_keys())
-    if tk != [(0, False), (F0, True), (F1, False)]:
+    if tk != _expected_twin_vis():
         raise RuntimeError("TWIN_VIS_READBACK|%s|NOTHING SAVED; Don't-Save restart" % tk)
     fade_track = t if plan["material_fade"] == "create" else mat_rows[0]["track"]
     fade_sections = [section for section in fade_track.get_sections() if section.is_active()]
@@ -289,7 +293,8 @@ def main():
         raise RuntimeError("CENSUS|%s|NOTHING SAVED; Don't-Save restart" % (dirty(),))
     if not unreal.EditorAssetLibrary.save_asset(SCENE, only_if_is_dirty=False) or dirty() != ([], []):
         raise RuntimeError("SAVE")
-    unreal.log("S3PFADE_APPLY_OK|run=%s|fade=%d->%d|vis_off=%d" % (run, F0, F1, F1))
+    unreal.log("S3PFADE_APPLY_OK|run=%s|fade=%d->%d|vis_off=%d|frame_%d_guaranteed_hidden=1" %
+               (run, F0, F1, VIS_OFF, F1))
 
 
 if __name__ in ("__main__", "<run_path>"):

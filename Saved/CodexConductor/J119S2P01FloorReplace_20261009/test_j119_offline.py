@@ -67,6 +67,12 @@ class Geometry(unittest.TestCase):
         self.assertEqual(got["rotation"], [0, 0, 90])
         self.assertEqual(got["scale"], [3, 2, 2])
 
+    def test_root_component_transform_is_not_composed_twice(self):
+        desired = {"location": [100, 200, 3], "rotation": [0, 0, 90], "scale": [6, 8, 1]}
+        actor_encoded_as_relative = {"location": [50, 60, 3], "rotation": [0, 0, 0], "scale": [2, 4, .5]}
+        self.assertEqual(tool.actor_transform_for_component_world(
+            desired, actor_encoded_as_relative, component_is_root=True), desired)
+
     def test_rotated_source_component_still_refused_negative(self):
         desired = {"location": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1]}
         relative = {"location": [0, 0, 0], "rotation": [0, 0, 1], "scale": [1, 1, 1]}
@@ -165,6 +171,16 @@ class StaticSafety(unittest.TestCase):
         self.assertNotIn("component_world=True", s2)
         self.assertIn("source = _snapshot(source_actor, component_world=True)", p02)
         self.assertIn("actor_transform_for_component_world", p02)
+        self.assertIn('source["component_is_root"]', p02)
+
+    def test_p02_footprints_verify_before_old_floor_mutation(self):
+        p02 = self.text[self.text.index("def _main_p02("):self.text.index("def main():")]
+        apply_body = p02[p02.index('record = {"schema": 2'):]
+        self.assertLess(self.text.index("P02_PREFLIGHT_FOOTPRINT"),
+                        self.text.index('component.set_editor_property("relative_location"',
+                                        self.text.index('record = {"schema": 2')))
+        self.assertLess(apply_body.index("P02_SEGMENT_FOOTPRINT_READBACK"),
+                        apply_body.index('component.set_editor_property("relative_location"'))
 
     def test_bhidden_contract_and_no_inert_property(self):
         self.assertIn('"bhidden"', self.text.lower())
@@ -187,8 +203,8 @@ if __name__ == "__main__":
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     report = {"tests": result.testsRun, "failures": len(result.failures), "errors": len(result.errors),
-              "positive_controls": 18, "negative_controls": 15, "passed": result.wasSuccessful()}
+              "positive_controls": 20, "negative_controls": 15, "passed": result.wasSuccessful()}
     (HERE / "harness_result.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print("J119_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=18|negative_controls=15" %
+    print("J119_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=20|negative_controls=15" %
           (result.testsRun, len(result.failures), len(result.errors)))
     raise SystemExit(0 if result.wasSuccessful() else 1)

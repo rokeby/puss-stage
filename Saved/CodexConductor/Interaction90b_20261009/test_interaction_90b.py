@@ -74,6 +74,21 @@ class Planner(unittest.TestCase):
         self.assertGreater(plan["spot_start"], plan["settle"])
         self.assertEqual(plan["spots"][0]["after"][2][1], 2000.0)
 
+    def test_missing_i3_spots_requires_gary_decision(self):
+        s = snap(3); s["spots"] = []
+        for row in s["hangar_transform"]["channels"]:
+            row["keys"][-1][1] = row["keys"][1][1]
+        with self.assertRaisesRegex(T.PlanError, "DECISION_REQUIRED"):
+            T.plan_i3(s, {}, 2, 25)
+
+    def test_gary_can_choose_blackout_only_without_synthesised_spots(self):
+        s = snap(3); s["spots"] = []
+        for row in s["hangar_transform"]["channels"]:
+            row["keys"][-1][1] = row["keys"][1][1]
+        plan = T.plan_i3(s, {}, 2, 25, "blackout_only")
+        self.assertEqual(plan["spots"], [])
+        self.assertIn("existing I3 lighting", plan["creative_decision"])
+
     def test_negative_i3_no_move(self):
         s = snap(3)
         for row in s["hangar_transform"]["channels"]: row["keys"] = [[0, row["keys"][0][1]]]

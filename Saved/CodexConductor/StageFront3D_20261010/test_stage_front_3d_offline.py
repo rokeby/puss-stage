@@ -78,6 +78,10 @@ def main():
     check("POS live import module loads offline", import_without_run("stage_front_3d_import.py").C.MARK == C.MARK)
     check("POS live place module loads offline", import_without_run("stage_front_3d_place.py").C.MARK == C.MARK)
     check("POS Interchange not FbxImportUI", "InterchangeGenericAssetsPipeline" in main_import and "FbxImportUI()" not in main_import)
+    check("POS every mesh import enables and reads back Nanite before save",
+          "enable_nanite(c, asset)" in main_import and "NANITE_IN_MEMORY_READBACK" in main_import and
+          "NANITE_SAVED_READBACK" in main_import and "NANITE_DRIFT" in main_import and
+          main_import.index("enable_nanite(c, asset)") < main_import.index("save_asset(row[\"dest\"]"))
     section = main_import[main_import.index("def run_import("):main_import.index("\ndef run_material(")]
     check("POS one import task call", "import_asset_tasks([task])" in main_import and "replace_existing\", False" in main_import)
     check("POS GC before targeted save", section.index("collect_garbage()") < section.index("save_asset(row[\"dest\"]"))

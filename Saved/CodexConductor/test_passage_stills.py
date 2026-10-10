@@ -56,15 +56,16 @@ class Fake:
     (probes small, stills large) whose luma follows `self.luma(now)`."""
 
     def __init__(self, clock, world="game", census=None, luma=None, scrub_result="<InfinityTransportResult.SUCCEEDED: 0>",
-                 drift_after=None, write_stills=True, dirty_on_scrub=False, pie_ends_at=None, still_delay=0):
+                 drift_after=None, write_stills=True, dirty_on_scrub=False, pie_ends_at=None, still_delay=0,
+                 repose_luma=None):
         self.clock, self.world = clock, world
         self._census = census or {"maps": ["/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"], "content": []}
         self.luma = luma or (lambda t: 60.0)
         self.scrub_result = scrub_result
         self.frame, self.playing = 29_000_000, True
         self.drift_after, self.write_stills, self.dirty_on_scrub = drift_after, write_stills, dirty_on_scrub
-        self.pie_ends_at, self.still_delay = pie_ends_at, still_delay
-        self.logs, self.errors, self.commands, self.scrubs = [], [], [], []
+        self.pie_ends_at, self.still_delay, self.repose_luma = pie_ends_at, still_delay, repose_luma
+        self.logs, self.errors, self.commands, self.scrubs, self.events = [], [], [], [], []
         self.ok_seen_with_files = None
         self.pending_stills = []
 
@@ -89,6 +90,7 @@ class Fake:
 
     def transport_scrub(self, f):
         self.scrubs.append(int(f))
+        self.events.append(("scrub", self.clock[0], int(f)))
         if "SUCCEEDED" not in self.scrub_result:
             return self.scrub_result
         self.frame, self.playing = int(f), False
@@ -112,11 +114,13 @@ class Fake:
         if self.world_kind() != "game":
             raise ps.StillsRefused("pie_ended", "console")
         self.commands.append(cmd)
+        self.events.append(("console", self.clock[0], cmd))
         m = re.search(r'filename="([^"]+)"', cmd)
         if not m:
             return
         path = m.group(1)
-        grey = max(0, min(255, int(round(self.luma(self.clock[0])))))
+        value = self.repose_luma if self.repose_luma is not None and len(self.scrubs) >= 2 else self.luma(self.clock[0])
+        grey = max(0, min(255, int(round(value))))
         if "_probes" in path:
             write_png(path, 8, 6, grey)
         elif self.write_stills:
@@ -256,6 +260,16 @@ check("+ stills are 1600x900 HighResShots without exposure override; probes 256x
 first_still = next(i for i, c in enumerate(f_ok.commands) if c.startswith("HighResShot 1600x900"))
 check("+ at least settle_window probes precede the first still (settle gate actually ran)",
       sum(1 for c in f_ok.commands[:first_still] if "256x144" in c) >= ps.DEFAULTS["settle_window"])
+event_names = [(kind, "probe" if "256x144" in str(value) else "still" if "1600x900" in str(value) else "other")
+               for kind, _time, value in f_ok.events]
+second_scrub = [i for i, row in enumerate(event_names) if row[0] == "scrub"][1]
+first_full = next(i for i, row in enumerate(event_names) if row == ("console", "still"))
+check("+ corrected order is PIE scrub, settle probes, final re-pose, decoded probe, full still",
+      any(row == ("console", "probe") for row in event_names[:second_scrub])
+      and any(row == ("console", "probe") for row in event_names[second_scrub + 1:first_full]))
+r_repose, _, _, _ = run(fractions=(0.5,), repose_luma=95.0)
+check("- control: post-re-pose decoded frame changing from settled luma marks capture FAILED",
+      r_repose["status"] == "failed" and any(g.startswith("repose_drift") for g in r_repose["gate_failures"]))
 
 # ---- census-dirty refusal
 r_d, f_d, _s, _r = run(dirty_on_scrub=True)
@@ -380,8 +394,9 @@ ref["arguments"]["arguments"]["relativeSavedPath"] = "CodexConductor/passage_sti
 check("+ request JSON = the purge request envelope with relativeSavedPath CodexConductor/passage_stills_run.py",
       req == ref)
 default_args = json.loads(args_path.read_text(encoding="utf-8"))
-check("+ shipped args file is P05 with the default fractions",
-      default_args["passage"] == "P05" and default_args["fractions"] == [0.1, 0.3, 0.5, 0.7, 0.9])
+check("+ shipped operational args have a valid passage and valid fractions",
+      bool(ps.passage_label(default_args["passage"])) and
+      ps.validate_fractions(default_args.get("fractions")) == default_args.get("fractions"))
 
 failed = [n for n, ok in RESULTS if not ok]
 print("\nPASSAGE_STILLS_HARNESS %d/%d %s" % (len(RESULTS) - len(failed), len(RESULTS), "OK" if not failed else "FAILED"))

@@ -83,14 +83,18 @@ def fit_transform(source, target):
             "rotation": list(target["rotation"]), "scale": scale}
 
 
-def actor_transform_for_component_world(component_world, component_relative):
+def actor_transform_for_component_world(component_world, component_relative, component_is_root=False):
     """Solve an actor transform for a duplicated component's desired world transform.
 
-    P01's floor component is intentionally scaled relative to its actor.  Duplication
-    preserves that relative transform, so treating it as identity compounds the scale.
+    A root component's relative transform *is* the actor transform in Unreal; it must
+    not be composed a second time. Non-root components still require the inverse solve.
     The representation is exact for the current zero-rotation component contract and
     refuses rotations/shear rather than silently approximating them.
     """
+    if component_is_root:
+        return {"location": [float(x) for x in component_world["location"]],
+                "rotation": [float(x) for x in component_world["rotation"]],
+                "scale": [float(x) for x in component_world["scale"]]}
     rel_rotation = [float(x) for x in component_relative["rotation"]]
     if max(abs(x) for x in rel_rotation) > 1e-4:
         raise ValueError("unsupported source component rotation")
@@ -215,7 +219,8 @@ def _snapshot(actor, component_world=False):
                          "max": [v3(origin)[i] + v3(extent)[i] for i in range(3)]},
         "component_relative_location": relative_location,
         "component_relative_transform": {"location": relative_location, "rotation": relative_rotation,
-                                         "scale": relative_scale},
+                                          "scale": relative_scale},
+        "component_is_root": _path(actor.get_root_component()) == _path(component),
         "component_settings": {
             name: _plain(_prop(component, name)) for name in
             ("mobility", "collision_profile_name", "collision_enabled", "cast_shadow", "visible", "hidden_in_game")
@@ -492,7 +497,13 @@ def _p02_plan(args, world):
     replacements = []
     for index, segment in enumerate(segments):
         fitted = fit_transform(source, segment)
-        actor_transform = actor_transform_for_component_world(fitted, source["component_relative_transform"])
+        actor_transform = actor_transform_for_component_world(
+            fitted, source["component_relative_transform"], source["component_is_root"])
+        predicted = dict(fitted, bbox_min=source["bbox_min"], bbox_max=source["bbox_max"])
+        predicted_bounds = _bounds_for_row(predicted)
+        if not _bounds_close(predicted_bounds, segment["world_bounds"], float(args["bounds_tolerance_cm"])):
+            raise Refused("P02_PREFLIGHT_FOOTPRINT|%s|got=%s|want=%s" %
+                          (segment["target_label"], json.dumps(predicted_bounds), json.dumps(segment["world_bounds"])))
         replacements.append({"segment": segment,
                              "new_label": "J129 P01 route segment %03d - %s" % (index + 1, segment["target_label"]),
                              "new_transform": actor_transform, "expected_component_world_transform": fitted,
@@ -506,7 +517,7 @@ def _p02_plan(args, world):
         "target_actor_labels": list(P02_TARGET_LABELS), "route_segments": len(segments),
         "construction_methods": sorted(set(row["construction"] for row in segments)),
         "construction_contract": "duplicate the P01 floor actor once per existing P02 route component/ISM instance; never one corridor plane",
-        "source_component_transform_contract": "preserve P01 component-relative location/scale; solve actor transform from desired component world transform; refuse any component-relative rotation",
+        "source_component_transform_contract": "root component transform is the actor transform (never compose twice); inverse-solve only a non-root component; refuse unsupported rotation",
         "replacements": replacements, "component_below_offset_cm": float(args["component_below_offset_cm"]),
         "sequence_bindings": sequence_rows, "sequence_scan_unclear": unclear,
         "sequence_component_blockers": blockers, "sequence_inherited_tracks": inherited,
@@ -610,13 +621,6 @@ def _main_p02(args, here):
     _write_json(record_path, record, True)
     offset = float(plan["component_below_offset_cm"])
     component_map = _p02_component_map(targets)
-    for component_path, component in sorted(component_map.items()):
-        old = v3(_prop(component, "relative_location"))
-        shifted = [old[0], old[1], old[2] - offset]
-        record["components"].append({"component_path": component_path, "old_relative_location": old,
-                                     "shifted_relative_location": shifted})
-        component.set_editor_property("relative_location", unreal.Vector(*shifted))
-        _write_json(record_path, record)
     subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     target_by_path = {_path(actor): actor for actor in targets}
     for item in plan["replacements"]:
@@ -645,6 +649,16 @@ def _main_p02(args, here):
         if not _bounds_close(got["world_bounds"], item["segment"]["world_bounds"], float(args["bounds_tolerance_cm"])):
             raise Refused("P02_SEGMENT_FOOTPRINT_READBACK|%s|got=%s|want=%s|NOTHING_SAVED_DONT_SAVE_RESTART" %
                           (item["new_label"], json.dumps(got["world_bounds"]), json.dumps(item["segment"]["world_bounds"])))
+    # Only hide the old floors after every duplicate has passed mesh/material/settings
+    # and footprint read-back. A duplicate failure now leaves the four live P02 floor
+    # components untouched, while the durable record still identifies our new actors.
+    for component_path, component in sorted(component_map.items()):
+        old = v3(_prop(component, "relative_location"))
+        shifted = [old[0], old[1], old[2] - offset]
+        record["components"].append({"component_path": component_path, "old_relative_location": old,
+                                     "shifted_relative_location": shifted})
+        component.set_editor_property("relative_location", unreal.Vector(*shifted))
+        _write_json(record_path, record)
     if not bool(passage.materialize_passage()):
         raise Refused("P02_MATERIALIZE_FAILED|NOTHING_SAVED_DONT_SAVE_RESTART")
     for row in record["components"]:

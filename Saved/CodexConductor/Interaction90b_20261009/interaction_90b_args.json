@@ -7,6 +7,7 @@
     "i3_enabled": true,
     "i3_reveal_gap_frames": 2,
     "i3_spot_fade_frames": 100,
+    "i3_missing_spots_policy": "refuse",
     "s3_black_fade_frames": 25,
     "lighting_audit_interactions": [1, 2, 3, 4, 5],
     "lighting_fix_steps": [],

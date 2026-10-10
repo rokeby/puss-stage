@@ -24,9 +24,10 @@ with the time-keyed lighting cues active, and no actor is moved. The look bench'
 measured PIE clips show the Passage camera travelling the route at eye height
 (LookBench/20261005-062436/capture_20261005-064434_capture: y 240000, z 180, yaw 0).
 
-Per still: scrub -> wait repose_seconds -> re-scrub (a jump's first frame can be
-stale) -> luma settle gate (small HighResShot probes until stable; copied from
-look_bench.py:1026-1107) -> master-frame gate (still on target) -> HighResShot ->
+Per still: scrub -> luma settle gate (small HighResShot probes until stable;
+copied from look_bench.py:1026-1107) -> re-scrub to the same Master frame -> wait
+repose_seconds and verify one decoded probe (a jump's first frame can be stale) ->
+master-frame gate (still on target) -> HighResShot ->
 wait until the file is non-trivial and stable -> one post-capture probe (picture
 must not have moved) -> record pose, master frame and luma.
 
@@ -269,7 +270,7 @@ def write_verified(path, data):
 # --------------------------------------------------------------------------
 
 class StillsMachine:
-    """Phases per still: jump -> repose -> settle -> capture -> wait_file -> post_probe -> next.
+    """Phases per still: jump -> settle -> repose -> capture -> wait_file -> post_probe -> next.
     Gate failures (settle timeout, frame drift, post-capture drift) are recorded and the run goes
     on (every still is still useful to look at) but they turn the result into FAILED. Hard errors
     (scrub refused, PIE gone, file timeout) stop the run; finish() always runs."""
@@ -345,13 +346,8 @@ class StillsMachine:
             a.transport_pause()
             self._scrub(still, now)
             still["phase"] = "settling"
-            st.update(phase="repose", t0=now, reposed=False, samples=[], settle_ticks=0, pending=None,
+            st.update(phase="settle", t0=now, samples=[], settle_ticks=0, pending=None,
                       last_issue=None)
-            return
-        if phase == "repose":
-            if now - st["t0"] >= float(p["repose_seconds"]):
-                self._scrub(still, now)          # re-pose: a jump's first frame can be stale
-                st["phase"] = "settle"
             return
         if phase == "settle":
             st["settle_ticks"] += 1
@@ -371,6 +367,24 @@ class StillsMachine:
             if verdict != "stable":
                 self._fail("settle i=%d: picture still changing after %.1f s" % (still["i"], el))
             st["pending"] = None
+            self._scrub(still, now)              # final re-pose follows settling, never precedes it
+            st.update(phase="repose", repose_t0=now, pending=None, last_issue=None)
+            return
+        if phase == "repose":
+            if now - st["repose_t0"] < float(p["repose_seconds"]):
+                return
+            got = self._read_pending(now)
+            if got is None and st.get("pending") is None:
+                self._issue_probe(now, "repose") # force a decoded frame after the final jump
+                return
+            if got is None:
+                return
+            ref = (still.get("settle") or {}).get("luma")
+            still["luma_after_repose"] = None if got == "timeout" else round(got, 3)
+            if got == "timeout":
+                self._fail("repose_probe i=%d: probe never readable" % still["i"])
+            elif ref is not None and abs(got - ref) > luma_tol(p, ref):
+                self._fail("repose_drift i=%d: %.1f vs settled %.1f" % (still["i"], got, ref))
             st["phase"] = "capture"
             return
         if phase == "capture":

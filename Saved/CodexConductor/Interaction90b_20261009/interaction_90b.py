@@ -38,6 +38,7 @@ DEFAULTS = {
     "lighting_fix_steps": [],
     "i3_reveal_gap_frames": 2,
     "i3_spot_fade_frames": 100,
+    "i3_missing_spots_policy": "refuse",
     "s3_black_fade_frames": 25,
     "through_plane_margin_cm": 1.0,
     "numeric_tolerance": 1.0e-4,
@@ -176,7 +177,7 @@ def plan_i2(snapshot, target, margin=1.0):
             "track": snapshot["mouth_transform"]["locator"]}
 
 
-def plan_i3(snapshot, reference, gap, fade_frames):
+def plan_i3(snapshot, reference, gap, fade_frames, missing_spots_policy="refuse"):
     cut = snapshot["cut"]
     camera_rows = snapshot["hangar_transform"]["channels"]
     moving_frames = sorted({int(k[0]) for row in camera_rows for k in row["keys"] if int(k[0]) < cut})
@@ -200,9 +201,14 @@ def plan_i3(snapshot, reference, gap, fade_frames):
         keys += [[int(f), float(v)] for f, v in row["keys"] if int(f) > spot_end]
         spots.append({"locator": row["locator"], "side": side, "before": row["keys"], "after": keys})
     if not spots:
-        raise PlanError("I3_SHADOW_SPOTS_NOT_FOUND")
+        if missing_spots_policy != "blackout_only":
+            raise PlanError("I3_SHADOW_SPOTS_NOT_FOUND|DECISION_REQUIRED|"
+                            "Gary must choose i3_missing_spots_policy=blackout_only or author named hangar+mouth shadow spots")
     return {"settle": settle, "movement_cm": movement, "spot_start": spot_start, "spot_end": spot_end,
-            "blackout": [[0, 1.0], [settle, 1.0], [spot_end, 0.0]], "spots": spots}
+            "blackout": [[0, 1.0], [settle, 1.0], [spot_end, 0.0]], "spots": spots,
+            "missing_spots_policy": missing_spots_policy,
+            "creative_decision": ("blackout_only: reveal uses existing I3 lighting; no shadow spots are created"
+                                  if not spots else "authored shadow spots")}
 
 
 def lighting_audit(snapshot, tolerance=0.05):
@@ -237,6 +243,8 @@ def merged_params(raw):
     out["s3_black_fade_frames"] = int(out["s3_black_fade_frames"])
     out["through_plane_margin_cm"] = float(out["through_plane_margin_cm"])
     out["numeric_tolerance"] = float(out["numeric_tolerance"])
+    if out["i3_missing_spots_policy"] not in ("refuse", "blackout_only"):
+        raise PlanError("I3_MISSING_SPOTS_POLICY|%s" % out["i3_missing_spots_policy"])
     if any(v not in SEQS for v in out["lighting_audit_interactions"]):
         raise PlanError("INTERACTION_RANGE")
     for step in out["lighting_fix_steps"]:
@@ -495,7 +503,8 @@ class UnrealBackend(object):
         target = self.passage_pose(3)
         i2 = plan_i2(snaps[2], target, params["through_plane_margin_cm"]) if params["i2_enabled"] else None
         ref = {r["side"]: r["max_intensity"] for r in snaps[2]["spots"] if r["side"]}
-        i3 = plan_i3(snaps[3], ref, params["i3_reveal_gap_frames"], params["i3_spot_fade_frames"]) if params["i3_enabled"] else None
+        i3 = plan_i3(snaps[3], ref, params["i3_reveal_gap_frames"], params["i3_spot_fade_frames"],
+                     params["i3_missing_spots_policy"]) if params["i3_enabled"] else None
         scene3 = self.scene_sequence(3) if i3 else None
         if scene3:
             i3_seq = self.u.load_asset(SEQS[3])

@@ -1,5 +1,10 @@
 # Job 131 stage-front 3D tools
 
+Mesh IMPORT enables `StaticMesh.nanite_settings.enabled` after Interchange,
+checks it before save, reloads and checks it after the targeted save, and makes
+VERIFY reject persisted Nanite drift. This applies to all six meshes, including
+the roughly two-million-triangle Crest and Cat assets.
+
 Offline-authored only. The author did not run Unreal or Blender. The conductor
 runs each request through `MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset`
 tool `ExecuteProjectPythonFile` after editing the appropriate args JSON.
