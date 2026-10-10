@@ -1,0 +1,157 @@
+{
+  "passed": 25,
+  "failed": 0,
+  "total": 25,
+  "cases": [
+    {
+      "name": "P.identity tag parses",
+      "control": "+",
+      "passed": true,
+      "detail": "True"
+    },
+    {
+      "name": "P.non identity ignored",
+      "control": "+",
+      "passed": true,
+      "detail": "True"
+    },
+    {
+      "name": "P.bay ordinal",
+      "control": "+",
+      "passed": true,
+      "detail": "True"
+    },
+    {
+      "name": "P.unique latest near-final target",
+      "control": "+",
+      "passed": true,
+      "detail": "'FX SMOKE P04 B18 L'"
+    },
+    {
+      "name": "P.confirm strings distinct",
+      "control": "+",
+      "passed": true,
+      "detail": "True"
+    },
+    {
+      "name": "P.apply state is component-only hidden",
+      "control": "+",
+      "passed": true,
+      "detail": "{'visible': False, 'hidden_in_game': True, 'static_mesh': None}"
+    },
+    {
+      "name": "P.bad identity syntax ignored",
+      "control": "+",
+      "passed": true,
+      "detail": "True"
+    },
+    {
+      "name": "N.missing target",
+      "control": "-",
+      "passed": true,
+      "detail": "Refused('TARGET_LABEL_COUNT|FX SMOKE P04 B18 L|0')"
+    },
+    {
+      "name": "N.duplicate target",
+      "control": "-",
+      "passed": true,
+      "detail": "Refused('DUPLICATE_P04_SMOKE_LABEL')"
+    },
+    {
+      "name": "N.target not latest",
+      "control": "-",
+      "passed": true,
+      "detail": "Refused('TARGET_NOT_LATEST_SMOKE|target=18|latest=19')"
+    },
+    {
+      "name": "N.too far from final",
+      "control": "-",
+      "passed": true,
+      "detail": "Refused('FINAL_WING_GAP|target=18|final=22|max=3')"
+    },
+    {
+      "name": "N.wrong class",
+      "control": "-",
+      "passed": true,
+      "detail": "Refused('TARGET_CLASS|StaticMeshActor')"
+    },
+    {
+      "name": "N.identity missing",
+      "control": "-",
+      "passed": true,
+      "detail": "Refused('TARGET_IDENTITY_TAG_MISSING')"
+    },
+    {
+      "name": "N.no apparatus",
+      "control": "-",
+      "passed": true,
+      "detail": "Refused('APPARATUS_COUNT|0')"
+    },
+    {
+      "name": "N.multiple apparatus",
+      "control": "-",
+      "passed": true,
+      "detail": "Refused('APPARATUS_COUNT|2')"
+    },
+    {
+      "name": "N.no plume refuses destructive actor ambiguity",
+      "control": "-",
+      "passed": true,
+      "detail": "Refused('PLUME_COUNT|0')"
+    },
+    {
+      "name": "N.label without bay",
+      "control": "-",
+      "passed": true,
+      "detail": "Refused('LABEL_HAS_NO_BAY|FX SMOKE P04 FINAL L')"
+    },
+    {
+      "name": "P.source saves current level only",
+      "control": "+",
+      "passed": true,
+      "detail": "True"
+    },
+    {
+      "name": "P.source records before mutation",
+      "control": "+",
+      "passed": true,
+      "detail": "True"
+    },
+    {
+      "name": "P.source preserves actor bHidden",
+      "control": "+",
+      "passed": true,
+      "detail": "True"
+    },
+    {
+      "name": "P.source verifies plume unchanged",
+      "control": "+",
+      "passed": true,
+      "detail": "True"
+    },
+    {
+      "name": "P.source has backup before apply",
+      "control": "+",
+      "passed": true,
+      "detail": "True"
+    },
+    {
+      "name": "P.source clears mesh against BeginPlay reset",
+      "control": "+",
+      "passed": true,
+      "detail": "True"
+    },
+    {
+      "name": "P.success markers",
+      "control": "+",
+      "passed": true,
+      "detail": "True"
+    },
+    {
+      "name": "P.guarded project-Python request",
+      "control": "+",
+      "passed": true,
+      "detail": "True"
+    }
+  ]
+}

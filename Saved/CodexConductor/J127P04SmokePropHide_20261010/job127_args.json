@@ -1,0 +1,9 @@
+{
+  "mode": "DRY",
+  "confirm": "DRY JOB127 P04 SMOKE PROP",
+  "target_label": "FX SMOKE P04 B18 L",
+  "max_final_wing_gap": 3,
+  "max_final_wing_world_distance_cm": 2000.0,
+  "plan_sha256": "PASTE_FROM_DRY",
+  "ack_clear_apparatus_mesh_for_pie": false
+}
