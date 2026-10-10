@@ -1,0 +1,9 @@
+{
+ "label": "FX SMOKE P04 B18 L",
+ "components": [
+  {
+   "name": "Apparatus",
+   "mesh": "/Engine/BasicShapes/Cube.Cube"
+  }
+ ]
+}
