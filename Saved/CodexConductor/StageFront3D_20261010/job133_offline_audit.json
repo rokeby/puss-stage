@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "job": 133,
+  "observed_utc": "2026-10-10T04:56:49Z",
+  "worktree_root": "E:/PussStage/Worktrees/job133",
+  "hero_audit": {
+    "pass": 13,
+    "fail": 0,
+    "pieces": ["Crest", "Column", "CatCandelabra"],
+    "fresh_blender_reimport_passes": 3,
+    "all_six_inventory_import_ready": true
+  },
+  "job131_tool_plan": {
+    "imports": 36,
+    "missing": 0,
+    "actors": 8,
+    "existing_authority_inputs_hardlinked_into_worktree": 33
+  },
+  "job131_guard_harness": {
+    "pass": 41,
+    "fail": 0,
+    "note": "The unchanged harness's production assertion targets E:/PussStage and therefore still observes the main checkout's three hero gaps; the worktree-rooted build_plan check above is the Job 133 completion proof."
+  },
+  "scope_guards": {
+    "unreal_processes_started": 0,
+    "render_operator_absent_from_exporter": true,
+    "bake_operator_absent_from_exporter": true,
+    "unreal_import_absent_from_exporter": true,
+    "blender_gui_started": false,
+    "one_piece_per_blender_process": true
+  }
+}

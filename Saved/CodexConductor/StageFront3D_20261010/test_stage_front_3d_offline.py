@@ -92,8 +92,8 @@ def main():
     check("POS readback includes transforms and materials", all(x in main_place for x in ("location_cm", "rotation_rpy_deg", "materials", "MESH_MATERIALS")))
     check("POS backups precede mutations", main_place.index("map_backup(c, \"StageFront3DPlace\"") < main_place.index("spawn_actor_from_class"))
     production = C.build_plan(r"E:\PussStage")
-    expected_missing = sorted("DerivedAssets/StageFrontBuild/BakedStageFront/" + C.PIECES[k]["fbx"] for k in ("cat", "column", "crest"))
-    check("POS production has only three known FBX gaps", production["missing"] == expected_missing)
+    expected_missing = []  # job 133 exported cat/column/crest (10 Oct)
+    check("POS production has no FBX gaps (job 133)", production["missing"] == expected_missing)
     status = "PASS" if FAIL == 0 else "FAIL"
     result = {"status": status, "pass": PASS, "fail": FAIL, "unreal_processes_started": 0, "blender_processes_started": 0,
               "production_import_count": len(production["imports"]), "production_missing": production["missing"]}
