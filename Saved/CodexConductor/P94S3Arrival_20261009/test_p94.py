@@ -58,6 +58,29 @@ def test_channel_suffixes():
     assert mod.canonical_channel_name("Rotation.X 3") == "rotation.x"
 
 
+def test_unreal_none_property_sentinel():
+    mod = load()
+    class Sentinel:
+        def __str__(self):
+            return "None"
+    class Track:
+        def get_property_name(self):
+            return Sentinel()
+        def get_property_path(self):
+            return Sentinel()
+    assert mod._track_property(Track()) == ("", "")
+
+
+def test_inert_visibility_property_not_normalised():
+    mod = load()
+    class Track:
+        def get_property_name(self):
+            return "bHiddenInGame"
+        def get_property_path(self):
+            return "bHiddenInGame"
+    assert mod._track_property(Track()) == ("bHiddenInGame", "bHiddenInGame")
+
+
 def test_parent_child():
     mod = load()
     assert mod.root_to_child(372) == 465 and mod.root_to_child(444) == 555
@@ -150,6 +173,8 @@ def main():
         ("+ UE enum string normalises", test_enum_normalise),
         ("+ enum accessor normalises", test_enum_member),
         ("+ channel suffixes normalise", test_channel_suffixes),
+        ("+ Unreal None property sentinel becomes unbound", test_unreal_none_property_sentinel),
+        ("- inert bHiddenInGame remains rejectable", test_inert_visibility_property_not_normalised),
         ("+ 24-to-30 fps mapping", test_parent_child),
         ("- non-integral frame mapping refuses", test_nonintegral_parent_child),
         ("+ two-key dim rig ramp retimes", test_two_key_retime),

@@ -24,6 +24,9 @@ SHOW = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 MASTER = "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master"
 LEVEL = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SEQUENCE = "/Game/InfinityStage/Dev/Sequences/LS_Ending_OpeningStage"
+OPENING_SEQUENCE = "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked"
+OPENING_CURTAIN_BINDING = "Opening Drape (baked)"
+ENDING_CURTAIN_BINDING = "E25 Opening Drape (from Opening Drape (baked))"
 CUE_LABEL = "Ending — Opening Stage"
 OWNER_TAG = "E25_ENDING_OWNED"
 REQUIRED_TESTS = (
@@ -104,6 +107,7 @@ def normalise_args(raw):
     p.setdefault("expected_camera_path", "")
     p.setdefault("expected_stage_actor_paths", [])
     p.setdefault("expected_hidden_actor_paths", [])
+    p.setdefault("expected_curtain_source", {})
     p.setdefault("display_rate", 25)
     p.setdefault("black_seconds", 2.0)
     p.setdefault("arrival_seconds", 10.0)
@@ -143,6 +147,7 @@ def normalise_args(raw):
     p["expected_camera_path"] = str(p["expected_camera_path"])
     p["expected_stage_actor_paths"] = sorted(set(map(str, p["expected_stage_actor_paths"])))
     p["expected_hidden_actor_paths"] = sorted(set(map(str, p["expected_hidden_actor_paths"])))
+    p["expected_curtain_source"] = copy.deepcopy(p["expected_curtain_source"])
     if set(p["expected_stage_actor_paths"]) & set(p["expected_hidden_actor_paths"]):
         raise PlanError("ACTOR_ROLE_OVERLAP")
     p.pop("ending_cue_guid", None)  # engine-minted, read only after rebuild
@@ -177,8 +182,6 @@ def _discover_actors(snapshot, p):
                     and a["path"] not in stage)
     if not stage:
         raise PlanError("NO_STAGE_ACTORS_DISCOVERED")
-    if not any("curtain" in a["label"].lower() for a in stage_rows):
-        raise PlanError("NO_OPENING_CURTAIN_IN_STAGE_CENSUS")
     if not any("passage 01" in a["label"].lower() or "p01" in a["label"].lower() for a in stage_rows):
         raise PlanError("NO_P01_STAGE_LIGHTING_IN_STAGE_CENSUS")
     if not any("sky" in a["label"].lower() for a in actors if a["path"] in hidden):
@@ -204,7 +207,8 @@ def expected_segments(before, after_index, ending, delta):
 
 def build_plan(snapshot, raw_args):
     p = normalise_args(raw_args)
-    for key in ("segments", "actors", "asset_exists", "owned_mask_exists", "tick_resolution", "opening_end_pose"):
+    for key in ("segments", "actors", "asset_exists", "owned_mask_exists", "tick_resolution", "opening_end_pose",
+                "opening_curtain_source"):
         if key not in snapshot:
             raise PlanError("SNAPSHOT_MISSING|%s" % key)
     segments = copy.deepcopy(snapshot["segments"])
@@ -225,15 +229,22 @@ def build_plan(snapshot, raw_args):
     if snapshot["asset_exists"] or snapshot["owned_mask_exists"]:
         raise PlanError("ENDING_ARTIFACT_EXISTS")
     camera, stage, hidden = _discover_actors(snapshot, p)
+    curtain = copy.deepcopy(snapshot["opening_curtain_source"])
+    if curtain.get("sequence") != OPENING_SEQUENCE or curtain.get("binding") != OPENING_CURTAIN_BINDING or \
+            curtain.get("template_class") != "GeometryCacheActor" or not curtain.get("geometry_cache"):
+        raise PlanError("OPENING_CURTAIN_SOURCE|%s" % curtain)
     for name, supplied, found in (
             ("CAMERA", p["expected_camera_path"], camera),
             ("STAGE", p["expected_stage_actor_paths"], stage),
             ("HIDDEN", p["expected_hidden_actor_paths"], hidden)):
         if supplied and supplied != found:
             raise PlanError("%s_CENSUS_DRIFT|expected=%s|got=%s" % (name, supplied, found))
+    if p["expected_curtain_source"] and p["expected_curtain_source"] != curtain:
+        raise PlanError("CURTAIN_SOURCE_DRIFT|expected=%s|got=%s" % (p["expected_curtain_source"], curtain))
     # Canonicalise discovery so an APPLY with pinned DRY identities hashes identically.
     p["expected_scene6_guid"], p["expected_closing_guid"] = s6g, cg
     p["expected_camera_path"], p["expected_stage_actor_paths"], p["expected_hidden_actor_paths"] = camera, stage, hidden
+    p["expected_curtain_source"] = curtain
     fps = p["display_rate"]
     black_frames = int(round(p["black_seconds"] * fps))
     arrival_frames = int(round(p["arrival_seconds"] * fps))
@@ -261,6 +272,7 @@ def build_plan(snapshot, raw_args):
         "arrival_frames": arrival_frames, "total_frames": total_frames, "delta_ticks": delta,
         "camera_actor_path": camera, "camera_keys": camera_keys,
         "stage_actor_paths": stage, "hidden_actor_paths": hidden,
+        "opening_curtain_source": curtain,
         "visibility": {"stage": [[0, False], [black_frames, True], [total_frames, True]],
                        "hidden": [[0, False], [total_frames, False]],
                        "mask": [[0, True], [total_frames, True]]},
@@ -321,6 +333,8 @@ def verify_after(plan, facts):
         failures.append("VISIBILITY_KEYS")
     if facts.get("mask_label") != plan["mask"]["label"]:
         failures.append("MASK")
+    if facts.get("ending_curtain_source") != plan["opening_curtain_source"]:
+        failures.append("OPENING_CURTAIN_CLONE")
     got_camera = facts.get("camera_keys", [])
     if len(got_camera) != len(plan["camera_keys"]):
         failures.append("CAMERA_KEY_COUNT")
@@ -466,14 +480,36 @@ class UnrealBackend(object):
         ue = self.ue
         show = ue.load_asset(args["show_package"])
         actors = self._actor_rows()
+        opening = ue.load_asset(OPENING_SEQUENCE)
+        curtain_bindings = [] if opening is None else [b for b in opening.get_bindings()
+                                                       if str(b.get_display_name()) == OPENING_CURTAIN_BINDING]
+        if len(curtain_bindings) != 1:
+            raise PlanError("OPENING_CURTAIN_BINDING_COUNT|%d" % len(curtain_bindings))
+        curtain_template = curtain_bindings[0].get_object_template()
+        curtain_component = None if curtain_template is None else curtain_template.get_editor_property("geometry_cache_component")
+        curtain_cache = None if curtain_component is None else curtain_component.get_editor_property("geometry_cache")
+        curtain_source = {"sequence": OPENING_SEQUENCE, "binding": OPENING_CURTAIN_BINDING,
+                          "binding_guid": self._guid(curtain_bindings[0].get_id()),
+                          "template_class": "" if curtain_template is None else curtain_template.get_class().get_name(),
+                          "geometry_cache": "" if curtain_cache is None else str(curtain_cache.get_path_name()).split(".")[0],
+                          "provenance": "sequence_spawnable; q17 ragged-opening swap owns the cache"}
         base = {"segments": self._segments(show), "actors": actors,
                 "asset_exists": ue.EditorAssetLibrary.does_asset_exist(args["sequence_package"]),
                 "owned_mask_exists": any(a["label"] == args["mask_label"] for a in actors),
                 "tick_resolution": float(show.get_editor_property("tick_resolution").numerator) /
                                    show.get_editor_property("tick_resolution").denominator,
-                "opening_end_pose": self._opening_end_pose(show, args)}
+                "opening_end_pose": self._opening_end_pose(show, args),
+                "opening_curtain_source": curtain_source}
         if plan is None or not base["asset_exists"]: return base
         seq = ue.load_asset(args["sequence_package"])
+        ending_curtains = [b for b in seq.get_bindings() if str(b.get_display_name()) == ENDING_CURTAIN_BINDING]
+        ending_curtain_source = None
+        if len(ending_curtains) == 1:
+            template = ending_curtains[0].get_object_template()
+            component = None if template is None else template.get_editor_property("geometry_cache_component")
+            cache = None if component is None else component.get_editor_property("geometry_cache")
+            if template is not None and template.get_class().get_name() == "GeometryCacheActor" and cache is not None:
+                ending_curtain_source = copy.deepcopy(curtain_source)
         cuts = [s for t in seq.find_tracks_by_type(ue.MovieSceneCameraCutTrack) for s in t.get_sections()]
         camera_path = None
         if len(cuts) == 1:
@@ -499,6 +535,7 @@ class UnrealBackend(object):
                     stage_actor_paths=sorted(k for k, v in stage_keys.items() if v),
                     hidden_actor_paths=sorted(k for k, v in hidden_keys.items() if v),
                     visibility=actual_visibility, mask_label=mask_label,
+                    ending_curtain_source=ending_curtain_source,
                     camera_keys=self._read_camera_keys(seq, plan))
 
     def _binding_for_path(self, seq, path):
@@ -634,6 +671,25 @@ class UnrealBackend(object):
         camera_binding = self._binding(seq, camera)
         self._transform(camera_binding, plan["camera_keys"], plan["total_frames"])
         self._focal(seq, camera_binding, camera, plan["camera_keys"], plan["total_frames"])
+        opening = ue.load_asset(plan["opening_curtain_source"]["sequence"])
+        source_rows = [b for b in opening.get_bindings()
+                       if str(b.get_display_name()) == plan["opening_curtain_source"]["binding"]]
+        if len(source_rows) != 1: raise PlanError("OPENING_CURTAIN_BINDING_COUNT|%d" % len(source_rows))
+        source_template = source_rows[0].get_object_template()
+        if source_template is None: raise PlanError("OPENING_CURTAIN_TEMPLATE_MISSING")
+        curtain_binding = seq.add_spawnable_from_instance(source_template)
+        if curtain_binding is None: raise PlanError("ENDING_CURTAIN_CLONE")
+        curtain_binding.set_display_name(ENDING_CURTAIN_BINDING)
+        cloned_template = curtain_binding.get_object_template()
+        cloned_component = cloned_template.get_editor_property("geometry_cache_component")
+        cloned_cache = cloned_component.get_editor_property("geometry_cache")
+        if str(cloned_cache.get_path_name()).split(".")[0] != plan["opening_curtain_source"]["geometry_cache"]:
+            raise PlanError("ENDING_CURTAIN_CACHE_MISMATCH")
+        spawn_tracks = [t for t in curtain_binding.get_tracks() if t.get_class().get_name() == "MovieSceneSpawnTrack"]
+        if not spawn_tracks:
+            spawn_track = curtain_binding.add_track(ue.MovieSceneSpawnTrack)
+            spawn_section = spawn_track.add_section(); spawn_section.set_range(0, plan["total_frames"])
+            list(spawn_section.get_all_channels())[0].set_default(True)
         for path in plan["stage_actor_paths"]:
             self._visibility(self._binding(seq, self._actor_by_path(path)), plan["visibility"]["stage"], plan["total_frames"])
         for path in plan["hidden_actor_paths"]:

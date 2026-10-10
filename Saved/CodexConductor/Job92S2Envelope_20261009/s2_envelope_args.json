@@ -13,10 +13,10 @@
   "wall_thickness_cm": 50.0
  },
  "new": {
-  "half_width_cm": 2500.0,
-  "height_cm": 4500.0,
-  "lattice_landed_z_cm": 2800.0,
-  "lattice_rest_z_cm": 4200.0,
+  "half_width_cm": 8500.0,
+  "height_cm": 16000.0,
+  "lattice_landed_z_cm": 14100.0,
+  "lattice_rest_z_cm": 15700.0,
   "door_height_cm": 450.0,
   "door_width_cm": 300.0,
   "wall_thickness_cm": 50.0
@@ -27,5 +27,5 @@
   "round_up_cm": 100.0
  },
  "approved_by": "PENDING conductor review of the live BOUNDS probe and stills",
- "note": "2500/4500/2800/4200 cm are conservative offline defaults. APPLY refuses unless the live content bounds plus margins fit and its digest matches the preceding DRY."
+ "note": "Pass-1 measured bounds min [-2931.0353,-7868.0349,-1207.9905], max [13059.0352,8122.0356,13711]. Values preserve 300 cm side/top clearance, the existing 1600 cm lattice travel, and 200 cm roof plus 51 cm rail clearance. APPLY still requires a matching fresh DRY digest."
 }

@@ -16,5 +16,7 @@
   "sun_source_angle_deg": 1.22,
   "arrival_window_s": 6.0,
   "dry_report": "",
-  "dry_report_sha256": ""
+  "dry_report_sha256": "",
+  "pie_probe_report": "",
+  "pie_probe_report_sha256": ""
 }

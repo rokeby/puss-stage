@@ -21,6 +21,7 @@ import p87_opening_common as C
 SHOW = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 LEVEL = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 OPENING = "Opening — Curtain"
+P01_PASSAGE = "Passage 1"
 CAMERA = "Opening — Stalls Camera"
 P87_TRACK = "P87 Opening Camera"
 P87_PREFIX = "P87 Stage Front Uplight "
@@ -127,9 +128,20 @@ class P87UnrealBackend:
             raise C.P87Error("OPENING_SEQUENCE_NULL")
         self.sequence_path = self.sequence.get_path_name().split(".")[0]
         self.cues = cues
-        p01 = [(i, c) for i, c in enumerate(cues) if str(c.get_editor_property("label")) == "Passage 1"]
+        # "Passage 1" is a PassageSettings label, not a live cue label.  Live
+        # P01 cues are the individual wing-pair rows (for example P01 Wing
+        # 001).  Resolve the owning PassageSettings row, then select its
+        # engine-minted first cue GUID.  Keep the uniqueness guard on both
+        # hops; only the selector was wrong in the pass-1 tool.
+        passages = [p for p in self.show.get_editor_property("passages")
+                    if str(p.get_editor_property("label")) == P01_PASSAGE]
+        if len(passages) != 1:
+            raise C.P87Error("P01_PASSAGE_COUNT|%d" % len(passages))
+        first_guid = _guid(passages[0].get_editor_property("first_cue_guid"))
+        p01 = [(i, c) for i, c in enumerate(cues)
+               if _guid(c.get_editor_property("cue_guid")) == first_guid]
         if len(p01) != 1:
-            raise C.P87Error("P01_CUE_COUNT|%d" % len(p01))
+            raise C.P87Error("P01_FIRST_CUE_COUNT|%d" % len(p01))
         self.p01_index, self.p01 = p01[0]
 
     def context(self):

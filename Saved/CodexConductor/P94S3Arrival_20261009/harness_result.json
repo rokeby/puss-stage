@@ -1,7 +1,7 @@
 {
-  "passed": 22,
+  "passed": 24,
   "failed": 0,
-  "total": 22,
+  "total": 24,
   "results": [
     {
       "name": "+ default darkness/settle/rise frames",
@@ -17,6 +17,14 @@
     },
     {
       "name": "+ channel suffixes normalise",
+      "status": "PASS"
+    },
+    {
+      "name": "+ Unreal None property sentinel becomes unbound",
+      "status": "PASS"
+    },
+    {
+      "name": "- inert bHiddenInGame remains rejectable",
       "status": "PASS"
     },
     {

@@ -25,8 +25,10 @@ base=json.load(open(os.path.join(HERE,"p99_args.json"),encoding="utf-8"))
 check("dry args",C.validate_args(base)["mode"]=="DRY")
 check("apply confirm negative",raises(lambda:C.validate_args(dict(base,mode="APPLY")),"APPLY_CONFIRM"))
 good=dict(base,mode="APPLY",confirm="APPLY P99 S6 ARRIVAL SUN",dry_report="x",dry_report_sha256="a"*64,
+          pie_probe_report="y",pie_probe_report_sha256="b"*64,
           obstruction_action="HIDE_ACTOR_S6",obstruction_actor_label="ParCan")
 check("apply hide",C.validate_args(good)["obstruction_action"]=="HIDE_ACTOR_S6")
+check("apply missing PIE probe negative",raises(lambda:C.validate_args(dict(good,pie_probe_report="")),"PIE_PROBE_REPORT_REQUIRED"))
 check("apply unset negative",raises(lambda:C.validate_args(dict(good,obstruction_action="UNSET")),"CHOOSE_OBSTRUCTION_ACTION"))
 move=dict(good,obstruction_action="MOVE_SHOW_ATTACHMENT",obstruction_cue_guid="1"*32,obstruction_attachment_guid="2"*32,obstruction_move_delta_cm=[0,300,0])
 check("apply move",C.validate_args(move)["obstruction_action"]=="MOVE_SHOW_ATTACHMENT")
@@ -41,6 +43,8 @@ check("no editor control",not any(x in source for x in ("editor_request_end_play
 check("normalizers used","C.guid32" in source and "C.enum_name" in source)
 check("backup before writes",source.index("pre=backup(run,packages)") < source.index("spawn_actor_from_class", source.index("def apply")))
 check("success markers",all(x in source for x in ("P99_S6_DRY_OK","P99_S6_APPLY_OK","P99_S6_REVERT_OK")))
+check("non-PIE DRY and separate PIE probe",'def dry_editor' in source and 'def pie_probe' in source and
+      'if args["mode"]=="DRY": return dry_editor' in source and "P99_S6_PIE_PROBE_OK" in source)
 check("save narrow","save_asset(p,only_if_is_dirty=True)" in source and "save_dirty_packages" not in source)
 check("structure exact ids",all(x in source for x in ("cue_guid","attachment_guid","instance_index")))
 print("P99_HARNESS|pass=%d|fail=%d"%(passed,failed))

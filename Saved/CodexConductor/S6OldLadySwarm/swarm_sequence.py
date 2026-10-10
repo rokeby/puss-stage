@@ -11,6 +11,7 @@ import math
 import os
 import re
 import shutil
+import sys
 import time
 
 import unreal
@@ -21,6 +22,9 @@ SOURCE = "/Game/InfinityStage/KlaraHookin/LS_Void_S6"
 TARGET = "/Game/InfinityStage/KlaraHookin/LS_Void_S6_SwarmDriven"
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+import swarm_pipeline as PIPE
 ARGS_PATH = os.path.join(HERE, "swarm_sequence_args.json")
 RECORD_PATH = os.path.join(HERE, "swarm_sequence_record.json")
 CURVES_PATH = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir()),
@@ -134,7 +138,10 @@ def counts(run, sequence):
 
 
 def load_curves(run):
-    if not os.path.isfile(CURVES_PATH): stop(run, "CURVES_MISSING|" + CURVES_PATH)
+    if not os.path.isfile(CURVES_PATH):
+        state = PIPE.pipeline_state(os.path.isfile(PIPE.HAND_SAMPLES), False)
+        stop(run, "CURVES_MISSING|%s|next=%s|run_order=%s" %
+             (CURVES_PATH, state["next_step"], " -> ".join(PIPE.STEP_IDS)))
     with open(CURVES_PATH,"r",encoding="utf-8") as handle: record=json.load(handle)
     if record.get("schema") != "pussstage.s6-old-lady-swarm-drive.v1": stop(run,"CURVE_SCHEMA")
     keys=record.get("keys") or []

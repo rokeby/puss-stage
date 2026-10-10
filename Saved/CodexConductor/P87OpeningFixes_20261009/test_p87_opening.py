@@ -9,6 +9,8 @@ import tempfile
 import p87_opening_common as C
 import p87_opening_fixes as T
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+
 
 PASS = 0
 FAIL = 0
@@ -127,6 +129,13 @@ def request(mode, frame=950, parts=None):
 
 
 def main():
+    adapter_source = open(os.path.join(HERE, "p87_unreal_adapter.py"), encoding="utf-8").read()
+    check("P01 selector uses PassageSettings first GUID",
+          'get_editor_property("passages")' in adapter_source and
+          'get_editor_property("first_cue_guid")' in adapter_source and
+          'P01_FIRST_CUE_COUNT' in adapter_source)
+    check("P01 selector does not treat Passage label as cue label",
+          'c.get_editor_property("label")) == "Passage 1"' not in adapter_source)
     # Args negative controls.
     rejects("unknown arg", lambda: C.merge_args({"surprise": 1}), "UNKNOWN_ARGS")
     rejects("duplicate parts", lambda: C.merge_args({"parts": ["CAMERA", "CAMERA"]}), "PARTS")

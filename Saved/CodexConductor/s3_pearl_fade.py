@@ -1,10 +1,10 @@
-"""Pearl disappears at the take (Gary 8 Oct: "it should disappear with a fade over 4s, leaving 1s of a glow halo").
-REVISED 8 Oct (Gary: "like a slow alpha channel disappearance"): a TRANSLUCENT twin "S3 PearlClam Pearl Fade"
+"""Pearl disappears at the take with Gary's revised two-second fade.
+A TRANSLUCENT twin "S3 PearlClam Pearl Fade"
 (finishing touches, patch 2026-10-08_pearl_fade_twin: MI_PearlClam_Pearl_Fade, scalar "Fade" -> Opacity, slot 0,
 hidden in game by default, attached to S3 PearlClam).  Writes in LS_DevScene_03:
-  * a False key at 4800 on the SOLID pearl's existing Visibility track (float-hold binding; earlier keys untouched);
-  * twin: Visibility track False from 0, True at 4800, False at 4896;
-  * twin: component-material track slot 0, scalar "Fade": 1 until 4800, linear to 0 at 4896 (3:20 -> 3:24).
+  * a False key at 4992 on the SOLID pearl's existing Visibility track (float-hold binding; earlier keys untouched);
+  * twin: Visibility track False from 0, True at 4992, False at 5040;
+  * twin: component-material track slot 0, scalar "Fade": 1 until 4992, linear to 0 at 5040 (2 seconds).
 The halo light was keyed separately (S3KM-20261008-023655halo).
 DRY additionally probes the Python API names this needs and prints which exist (MovieSceneComponentMaterialTrack,
 set_material_index / material_index property, add_scalar_parameter_key or channel access) [inferred until DRY].
@@ -20,17 +20,21 @@ UASSET = "E:/PussStage/Content/InfinityStage/Dev/Sequences/LS_DevScene_03.uasset
 PEARL = "S3 PearlClam Pearl"
 TWIN = "S3 PearlClam Pearl Fade"
 PARAM = "Fade"
-F0, F1 = 4944, 5040     # 8 Oct ~05:40: Gary - the pearl dims at the take (3:20) and LATER disappears: fade 3:26-3:30
+FPS = 24
+F1 = 5040                # Keep the reviewed/current vanish frame (~3:30).
+FADE_SECONDS = 2
+F0 = F1 - FPS * FADE_SECONDS  # 48 frames: 4992 -> 5040 at 24 fps.
+LEGACY_F0 = 4944          # Pass-1/live four-second fade start; migrate narrowly.
 TRACK_NAME = "S3.Pearl.Fade"
 RUN = {"run": "?"}
 
 
-def _expected_twin_vis():
-    return [(0, False), (F0, True), (F1, False)]
+def _expected_twin_vis(start=F0):
+    return [(0, False), (start, True), (F1, False)]
 
 
-def _expected_fade():
-    return [(0, 1.0), (F0, 1.0), (F1, 0.0)]
+def _expected_fade(start=F0):
+    return [(0, 1.0), (start, 1.0), (F1, 0.0)]
 
 
 def adoption_plan(state):
@@ -56,7 +60,7 @@ def adoption_plan(state):
         if (row.get("property"), row.get("path")) not in (("bHidden", "bHidden"),
                                                            ("None", "None"), ("", "")):
             errors.append("TWIN_VISIBILITY_PROPERTY|%s|%s" % (row.get("property"), row.get("path")))
-        if row.get("active_sections") != 1 or row.get("keys") != _expected_twin_vis():
+        if row.get("active_sections") != 1 or row.get("keys") not in (_expected_twin_vis(), _expected_twin_vis(LEGACY_F0)):
             errors.append("TWIN_VISIBILITY_SHAPE|sections=%s|keys=%s" %
                           (row.get("active_sections"), row.get("keys")))
     if len(material) > 1:
@@ -64,16 +68,20 @@ def adoption_plan(state):
     elif material:
         row = material[0]
         if row.get("class") != "MovieSceneComponentMaterialTrack" or row.get("active_sections") != 1 or \
-                row.get("keys") != _expected_fade():
+                row.get("keys") not in (_expected_fade(), _expected_fade(LEGACY_F0)):
             errors.append("MATERIAL_FADE_SHAPE|class=%s|sections=%s|keys=%s" %
                           (row.get("class"), row.get("active_sections"), row.get("keys")))
     if errors:
         raise RuntimeError("ADOPTION_REFUSED|" + ";".join(errors))
     return {"solid": "reuse", "solid_bind_bHidden": solid[0]["property"] != "bHidden",
             "solid_add_f0": not any(int(frame) == F0 for frame, _value in solid[0]["keys"]),
+            "solid_remove_legacy_f0": any(int(frame) == LEGACY_F0 and value is False
+                                           for frame, value in solid[0]["keys"]),
             "twin_visibility": "reuse" if twin else "create",
             "twin_bind_bHidden": not twin or twin[0]["property"] != "bHidden",
-            "material_fade": "reuse" if material else "create"}
+            "twin_retime_legacy": bool(twin and twin[0]["keys"] == _expected_twin_vis(LEGACY_F0)),
+            "material_fade": "reuse" if material else "create",
+            "material_retime_legacy": bool(material and material[0]["keys"] == _expected_fade(LEGACY_F0))}
 
 
 def main():
@@ -191,6 +199,10 @@ def main():
     if plan["solid_bind_bHidden"]:
         solid_rows[0]["track"].set_property_name_and_path("bHidden", "bHidden")
     vch = [s for s in solid_rows[0]["track"].get_sections() if s.is_active()][0].get_all_channels()[0]
+    if plan["solid_remove_legacy_f0"]:
+        for key in list(vch.get_keys()):
+            if int(key.get_time(time_unit=DR).frame_number.value) == LEGACY_F0:
+                key.remove()
     if plan["solid_add_f0"]:
         vch.add_key(unreal.FrameNumber(F0), False, time_unit=DR)                  # solid pearl off at the take
     vk = sorted((int(k.get_time().frame_number.value), bool(k.get_value())) for k in vch.get_keys())
@@ -209,11 +221,19 @@ def main():
         if plan["twin_bind_bHidden"]:
             tv.set_property_name_and_path("bHidden", "bHidden")
         tch = [s for s in tv.get_sections() if s.is_active()][0].get_all_channels()[0]
+        if plan["twin_retime_legacy"]:
+            for key in tch.get_keys():
+                if int(key.get_time(time_unit=DR).frame_number.value) == LEGACY_F0:
+                    key.set_time(unreal.FrameNumber(F0), time_unit=DR)
     tk = sorted((int(k.get_time().frame_number.value), bool(k.get_value())) for k in tch.get_keys())
     if tk != [(0, False), (F0, True), (F1, False)]:
         raise RuntimeError("TWIN_VIS_READBACK|%s|NOTHING SAVED; Don't-Save restart" % tk)
     fade_track = t if plan["material_fade"] == "create" else mat_rows[0]["track"]
     fade_sections = [section for section in fade_track.get_sections() if section.is_active()]
+    if plan["material_retime_legacy"] and len(fade_sections) == 1:
+        for key in fade_sections[0].get_all_channels()[0].get_keys():
+            if int(key.get_time(time_unit=DR).frame_number.value) == LEGACY_F0:
+                key.set_time(unreal.FrameNumber(F0), time_unit=DR)
     fade_keys = [] if len(fade_sections) != 1 else sorted(
         (int(k.get_time().frame_number.value), round(float(k.get_value()), 3))
         for k in fade_sections[0].get_all_channels()[0].get_keys())

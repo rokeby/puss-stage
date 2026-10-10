@@ -45,7 +45,6 @@ def fixture():
         "actors": [
             {"path": "/Game/Map.PersistentLevel.OpeningCamera", "label": "Opening — Stalls Camera", "class": "CineCameraActor", "hidden": False},
             {"path": "/Game/Map.PersistentLevel.P01", "label": "Passage 01 - Structure", "class": "InfinityStagePassageActor", "hidden": False},
-            {"path": "/Game/Map.PersistentLevel.Curtain", "label": "Opening — Curtain", "class": "GeometryCacheActor", "hidden": False},
             {"path": "/Game/Map.PersistentLevel.P02", "label": "Passage 02 - Structure", "class": "InfinityStagePassageActor", "hidden": False},
             {"path": "/Game/Map.PersistentLevel.Hangar", "label": "Hangar S4", "class": "Actor", "hidden": False},
             {"path": "/Game/Map.PersistentLevel.Sky", "label": "Editor Sky", "class": "SkyAtmosphere", "hidden": True},
@@ -54,6 +53,10 @@ def fixture():
         "owned_mask_exists": False,
         "tick_resolution": 24000.0,
         "opening_end_pose": {"location": [-900.0, 0.0, 160.0], "rotation": [5.0, 0.0, 0.0], "focal_mm": 35.0},
+        "opening_curtain_source": {"sequence": E.OPENING_SEQUENCE, "binding": E.OPENING_CURTAIN_BINDING,
+                                   "binding_guid": "C" * 32, "template_class": "GeometryCacheActor",
+                                   "geometry_cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_RaggedProscenium_P02Held",
+                                   "provenance": "sequence_spawnable; q17 ragged-opening swap owns the cache"},
     }
 
 
@@ -80,6 +83,7 @@ class FakeBackend(object):
                     stage_actor_paths=copy.deepcopy(plan["stage_actor_paths"]),
                     hidden_actor_paths=copy.deepcopy(plan["hidden_actor_paths"]),
                     visibility=copy.deepcopy(plan["visibility"]), mask_label=plan["mask"]["label"],
+                    ending_curtain_source=copy.deepcopy(plan["opening_curtain_source"]),
                     camera_keys=copy.deepcopy(plan["camera_keys"]))
     def backup(self, run, packages, prefix="PreE25Ending"):
         return {"root": "/fake/%s-%s" % (prefix, run), "files": list(packages)}
@@ -109,6 +113,7 @@ def pinned(plan):
         "expected_camera_path": plan["camera_actor_path"],
         "expected_stage_actor_paths": plan["stage_actor_paths"],
         "expected_hidden_actor_paths": plan["hidden_actor_paths"],
+        "expected_curtain_source": plan["opening_curtain_source"],
     }
 
 
@@ -121,6 +126,10 @@ def main():
     check("visibility trap semantics explicit", plan["visibility"]["stage"] == [[0, False], [50, True], [300, True]], positive=True)
     check("sky hidden and mask present", any("Sky" in p for p in plan["hidden_actor_paths"]) and plan["mask"]["label"], positive=True)
     check("optional beats excluded", len(plan["optional_later_beats_not_built"]) == 4, positive=True)
+    check("opening curtain references sequence spawnable, not level actor",
+          plan["opening_curtain_source"]["sequence"] == E.OPENING_SEQUENCE and
+          plan["opening_curtain_source"]["binding"] == E.OPENING_CURTAIN_BINDING and
+          not any("Curtain" in a["label"] for a in fixture()["actors"]), positive=True)
 
     root = tempfile.mkdtemp(prefix="e25-harness-")
     try:
@@ -154,10 +163,10 @@ def main():
     rejects("sky must stay hidden", lambda: E.build_plan(bad, {}), "NO_SKY_ACTOR")
     bad = fixture(); bad["actors"] = [a for a in bad["actors"] if a["label"] != "Opening — Stalls Camera"]
     rejects("camera must resolve", lambda: E.build_plan(bad, {}), "OPENING_CAMERA_COUNT")
-    bad = fixture(); bad["actors"] = [a for a in bad["actors"] if a["label"] != "Opening — Curtain"]
-    rejects("opening curtain required", lambda: E.build_plan(bad, {}), "NO_OPENING_CURTAIN")
+    bad = fixture(); bad["opening_curtain_source"]["binding"] = "Wrong"
+    rejects("opening curtain spawnable identity required", lambda: E.build_plan(bad, {}), "OPENING_CURTAIN_SOURCE")
     bad = fixture(); bad["actors"] = [a for a in bad["actors"] if a["label"] != "Passage 01 - Structure"]
-    rejects("P01 stage and lighting required", lambda: E.build_plan(bad, {}), "NO_P01_STAGE_LIGHTING")
+    rejects("P01 stage and lighting required", lambda: E.build_plan(bad, {}), "NO_STAGE_ACTORS_DISCOVERED")
     rejects("role overlap", lambda: E.normalise_args({"expected_stage_actor_paths": ["x"], "expected_hidden_actor_paths": ["x"]}), "ACTOR_ROLE_OVERLAP")
     rejects("black duration bound", lambda: E.normalise_args({"black_seconds": 0}), "BLACK_SECONDS_RANGE")
     rejects("arrival duration bound", lambda: E.normalise_args({"arrival_seconds": 0}), "ARRIVAL_SECONDS_RANGE")
@@ -168,6 +177,7 @@ def main():
              "camera_cut_range": [0, broken["total_frames"]], "camera_cut_actor_path": "/wrong",
              "stage_actor_paths": broken["stage_actor_paths"], "hidden_actor_paths": broken["hidden_actor_paths"],
              "visibility": broken["visibility"], "mask_label": broken["mask"]["label"],
+             "ending_curtain_source": broken["opening_curtain_source"],
              "camera_keys": broken["camera_keys"]}
     check("negative scene-cut control", "CAMERA_CUT_BINDING" in E.verify_after(broken, facts), negative=True)
     facts["camera_cut_actor_path"] = broken["camera_actor_path"]; facts["visibility"] = {}

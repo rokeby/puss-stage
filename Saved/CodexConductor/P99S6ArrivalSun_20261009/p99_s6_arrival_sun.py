@@ -1,4 +1,4 @@
-"""Job 99 later-live tool. DRY is PIE read-only; APPLY/REVERT require editor world.
+"""Job 99 later-live tool. DRY is non-PIE; a separate probe samples S6 PIE.
 
 The tool never starts, stops, scrubs, or quits PIE. APPLY never deletes an
 obstruction: it either adds an S6 bHidden visibility track or moves one exact
@@ -258,7 +258,36 @@ def parcan_instances_in_view(world, pc, viewport):
     return sorted(rows,key=lambda x:x["centre_distance"])
 
 
-def dry_pie(args, run):
+def dry_editor(args, run):
+    """Non-PIE DRY: actor/component and S6 sun-setting census only."""
+    world = editor_context()
+    dirty0 = census()
+    seq = unreal.load_asset(args["scene_sequence"]); require(seq is not None, "SCENE_SEQUENCE_MISSING")
+    actors = []
+    for actor in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors():
+        comps = components(actor)
+        if comps or label(actor) in (args["sun_actor_label"], args["sky_actor_label"]):
+            actors.append({"label": label(actor), "path": path(actor),
+                           "class": actor.get_class().get_name(),
+                           "hidden": bool(actor.get_editor_property("hidden")), "components": comps})
+    out = {"schema": "p99_editor_dry_v1", "run": run, "mode": "DRY", "pie": False,
+           "actor_component_census": actors, "sky_sun_census": sky_rows(world),
+           "s6_binding_census": binding_census(seq, world),
+           "sun_requested": {"elevation_deg": args["sun_elevation_deg"],
+                             "azimuth_deg": args["sun_azimuth_deg"],
+                             "intensity_lux": args["sun_intensity_lux"],
+                             "source_angle_deg": args["sun_source_angle_deg"]},
+           "dirty_before": dirty0, "dirty_after": census(),
+           "pie_probe_required": True}
+    require(out["dirty_after"] == dirty0, "DRY_DIRTIED_PACKAGES|" + json.dumps(out["dirty_after"]))
+    out["dry_sha256"] = C.stable_hash(out)
+    report = os.path.join(HERE, "p99_report_DRY_%s.json" % run); write_json(report, out)
+    unreal.log("P99_S6_DRY_OK|run=%s|pie=0|actors=%d|sun_rows=%d|dirty_unchanged=1|pie_probe_required=1|report=%s" %
+               (run, len(actors), len(out["sky_sun_census"]), report))
+    return out
+
+
+def pie_probe(args, run):
     editor=unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem); world=editor.get_game_world()
     require(world is not None,"DRY_REQUIRES_LIVE_PIE_AT_S6_ARRIVAL")
     dirty0=census(); root=list(unreal.GameplayStatics.get_all_actors_of_class(world,unreal.InfinityStageShowRoot))
@@ -303,7 +332,7 @@ def dry_pie(args, run):
         sun_view=C.direction_uv(vec(cr.get_forward_vector()),vec(cr.get_right_vector()),vec(cr.get_up_vector()),d,hfov,aspect)
     seq=unreal.load_asset(args["scene_sequence"]); require(seq is not None,"SCENE_SEQUENCE_MISSING")
     selected=projected_parcans[0] if projected_parcans else next((x for x in hits if x.get("component_mesh")==PARCAN), hits[0] if hits else None)
-    out={"schema":"p99_dry_v1","run":run,"mode":"DRY","segment":seg_label,"segment_index":idx,"master_frame":master,"scene_seconds":scene_s,
+    out={"schema":"p99_pie_probe_v1","run":run,"mode":"PIE_PROBE","segment":seg_label,"segment_index":idx,"master_frame":master,"scene_seconds":scene_s,
          "camera":{"location_cm":vec(loc),"rotation_deg":rot(cr),"hfov_deg":hfov,"viewport":[float(size.x),float(size.y)]},
          "central_frustum_hits":hits,"projected_parcan_instances":projected_parcans,"selected_obstruction":selected,"sky_sun_census":skies,"sun_in_camera":sun_view,
          "s6_binding_census":binding_census(seq,world),"dirty_before":dirty0,"dirty_after":census(),
@@ -312,9 +341,9 @@ def dry_pie(args, run):
                       "p06_record":"Saved/CodexConductor/p06_sunset_record.json",
                       "p18_pattern":"P18 hides foreign/editor skies; S6 sequence bHidden override is required"}}
     require(out["dirty_after"]==dirty0,"DRY_DIRTIED_PACKAGES|"+json.dumps(out["dirty_after"]))
-    out["dry_sha256"]=C.stable_hash(out); report=os.path.join(HERE,"p99_report_DRY_%s.json"%run); write_json(report,out)
+    out["probe_sha256"]=C.stable_hash(out); report=os.path.join(HERE,"p99_report_PIE_PROBE_%s.json"%run); write_json(report,out)
     selected_name=((selected.get("structure_instance") or {}).get("attachment_label") or selected.get("actor_label")) if selected else None
-    unreal.log("P99_S6_DRY_OK|run=%s|segment=%s|scene_s=%.3f|hits=%d|parcans_in_view=%d|selected=%s|sun_inside=%s|sky_visible=%s|dirty_unchanged=1|report=%s"%
+    unreal.log("P99_S6_PIE_PROBE_OK|run=%s|segment=%s|scene_s=%.3f|hits=%d|parcans_in_view=%d|selected=%s|sun_inside=%s|sky_visible=%s|dirty_unchanged=1|report=%s"%
                (run,seg_label,scene_s,len(hits),len(projected_parcans),selected_name,
                 sun_view.get("inside") if sun_view else None,out["diagnosis"]["sky_atmosphere_visible"],report))
     return out
@@ -407,7 +436,10 @@ def save_named(packages):
 def apply(args,run):
     world=editor_context(); dry_path=os.path.normpath(os.path.join(project_root(),str(args["dry_report"]).replace("/",os.sep)))
     require(os.path.isfile(dry_path),"DRY_REPORT_MISSING"); require(sha_file(dry_path)==args["dry_report_sha256"],"DRY_REPORT_SHA")
-    dry=json.load(open(dry_path,encoding="utf-8")); require(dry.get("schema")=="p99_dry_v1" and dry.get("segment","").startswith("Scene 6"),"DRY_REPORT_SCOPE")
+    dry=json.load(open(dry_path,encoding="utf-8")); require(dry.get("schema")=="p99_editor_dry_v1" and dry.get("pie") is False,"DRY_REPORT_SCOPE")
+    pie_path=os.path.normpath(os.path.join(project_root(),str(args["pie_probe_report"]).replace("/",os.sep)))
+    require(os.path.isfile(pie_path),"PIE_PROBE_REPORT_MISSING"); require(sha_file(pie_path)==args["pie_probe_report_sha256"],"PIE_PROBE_REPORT_SHA")
+    pie=json.load(open(pie_path,encoding="utf-8")); require(pie.get("schema")=="p99_pie_probe_v1" and pie.get("segment","").startswith("Scene 6"),"PIE_PROBE_REPORT_SCOPE")
     require(not os.path.exists(ACTIVE),"ACTIVE_RECORD_EXISTS")
     seq=unreal.load_asset(args["scene_sequence"]); require(seq is not None,"SCENE_SEQUENCE_MISSING")
     sun=actor_by_label(world,args["sun_actor_label"])
@@ -419,7 +451,7 @@ def apply(args,run):
     if created_actor or args["obstruction_action"]=="MOVE_SHOW_ATTACHMENT": packages.append(WORLD)
     if args["obstruction_action"]=="MOVE_SHOW_ATTACHMENT": packages.insert(0,SHOW)
     pre=backup(run,packages)
-    record={"schema":"p99_active_v1","status":"prepared","run":run,"args":args,"dry":dry,
+    record={"schema":"p99_active_v1","status":"prepared","run":run,"args":args,"dry":dry,"pie_probe":pie,
         "backup":pre,"packages":packages,"created_sky_actor":created_actor,"created_bindings":[],"owned_tracks":[],"move":None}
     write_json(ACTIVE,record,True)
     if skies: sky=skies[0]
@@ -497,11 +529,21 @@ def main():
     run=run_id()
     try:
         args=C.validate_args(json.load(open(ARGS,encoding="utf-8")))
-        if args["mode"]=="DRY": return dry_pie(args,run)
+        if args["mode"]=="DRY": return dry_editor(args,run)
         if args["mode"]=="APPLY": return apply(args,run)
         return revert(args,run)
     except Exception as exc:
         unreal.log_error("P99_S6_FAILED|run=%s|%r"%(run,exc)); raise
+
+
+def run_pie_probe():
+    run = run_id()
+    try:
+        args = C.validate_args(json.load(open(ARGS, encoding="utf-8")))
+        require(args["mode"] == "DRY", "PIE_PROBE_REQUIRES_DRY_ARGS")
+        return pie_probe(args, run)
+    except Exception as exc:
+        unreal.log_error("P99_S6_PIE_PROBE_FAILED|run=%s|%r" % (run, exc)); raise
 
 
 if unreal is not None and __name__=="__main__": main()

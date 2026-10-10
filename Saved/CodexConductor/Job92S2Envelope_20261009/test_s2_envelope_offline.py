@@ -21,8 +21,20 @@ class Proposal(unittest.TestCase):
         # Measured from s2v3_overlay_record.json: pivots y -1504..1851, ceiling pivot z 1640.
         p = C.proposal({"min": [1041, -1504, -1], "max": [4595, 1851, 1640]})
         self.assertEqual(p["half_width_cm"], 2500.0)
-        self.assertEqual(p["height_cm"], 4500.0)
+        self.assertEqual(p["height_cm"], 4700.0)
         self.assertFalse(C.contains({"min": [1041, -1504, 0], "max": [4595, 1851, 1640]}, 1000, 3000, 300, 300))
+
+    def test_pass1_measured_bounds_drive_full_rig_envelope(self):
+        measured = {"min": [-2931.035294114732, -7868.034872621067, -1207.990478515625],
+                    "max": [13059.035199321967, 8122.035620815632, 13711.0]}
+        p = C.proposal(measured)
+        self.assertEqual(p, {"half_width_cm": 8500.0, "height_cm": 16000.0,
+                             "lattice_landed_z_cm": 14100.0, "lattice_rest_z_cm": 15700.0,
+                             "content_clearance_side_cm": 300.0,
+                             "content_clearance_top_cm": 300.0})
+        self.assertTrue(C.contains(measured, p["half_width_cm"], p["height_cm"], 300, 300))
+        self.assertTrue(C.rig_clear(measured, p["lattice_landed_z_cm"],
+                                    p["lattice_rest_z_cm"], p["height_cm"], 300))
 
     def test_bounds_gate_positive_and_negative(self):
         b = {"min": [500, -2100, 0], "max": [5000, 2150, 3900]}
@@ -44,24 +56,24 @@ class Proposal(unittest.TestCase):
 class Actors(unittest.TestCase):
     def test_side_wall_height_and_width(self):
         got = C.target_actor(row("S2 Hangar Left Wall", (3000, -1025, 1500), (60, .5, 30)), ARGS["old"], ARGS["new"])
-        self.assertEqual(got["root_local"], [3000, -2525.0, 2250.0])
-        self.assertEqual(got["scale"][2], 45.0)
+        self.assertEqual(got["root_local"], [3000, -8525.0, 8000.0])
+        self.assertEqual(got["scale"][2], 160.0)
         self.assertNotEqual(got["scale"][2], 30.0)  # negative control: unchanged wall is wrong
 
     def test_floor_and_apron_widen(self):
         for label in ("S2 Hangar Floor 1", "S2 Hangar Apron"):
             got = C.target_actor(row(label, scale=(20, 20, .2)), ARGS["old"], ARGS["new"])
-            self.assertEqual(got["scale"][1], 50.0)
+            self.assertEqual(got["scale"][1], 170.0)
             self.assertNotEqual(got["scale"][0], 50.0)
 
     def test_lattice_rises(self):
         got = C.target_actor(row("S2 Hangar Lattice Fly", (3000, 0, 1200)), ARGS["old"], ARGS["new"])
-        self.assertEqual(got["root_local"][2], 2800.0)
+        self.assertEqual(got["root_local"][2], 14100.0)
         self.assertNotEqual(got["root_local"][2], 1200.0)
 
     def test_roof_hinge_rises(self):
         got = C.target_actor(row("S2 Hangar Roof Hinge", (6025, 0, 3000)), ARGS["old"], ARGS["new"])
-        self.assertEqual(got["root_local"][2], 4500.0)
+        self.assertEqual(got["root_local"][2], 16000.0)
 
     def test_exit_opening_stays_300cm(self):
         left = C.target_actor(row("S2 Hangar Far Wall Left of Exit", (6025, -600, 225), (.5, 9, 4.5)), ARGS["old"], ARGS["new"])

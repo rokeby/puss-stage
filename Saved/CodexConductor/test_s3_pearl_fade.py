@@ -9,17 +9,20 @@ spec.loader.exec_module(tool)
 
 current = {
     "solid_visibility": [{"property": "bHiddenInGame", "path": "bHiddenInGame", "active_sections": 1,
-                          "keys": [(1080, True), (1440, True), (tool.F0, False), (5201, True), (6176, True)]}],
+                          "keys": [(1080, True), (1440, True), (tool.LEGACY_F0, False), (5201, True), (6176, True)]}],
     "twin_visibility": [{"property": "None", "path": "None", "active_sections": 1,
-                         "keys": tool._expected_twin_vis()}],
+                         "keys": tool._expected_twin_vis(tool.LEGACY_F0)}],
     "material_fade": [{"class": "MovieSceneComponentMaterialTrack", "active_sections": 1,
-                       "keys": tool._expected_fade()}],
+                       "keys": tool._expected_fade(tool.LEGACY_F0)}],
 }
 results = []
+results.append(("two-second fade ends at retained vanish frame",
+                tool.F1 == 5040 and tool.F1 - tool.F0 == 48 and tool.FADE_SECONDS == 2))
 results.append(("old existing-track guard refuses logged state", len(current["material_fade"]) != 0))
 plan = tool.adoption_plan(current)
 results.append(("new plan adopts exact existing tracks", plan["twin_visibility"] == "reuse" and
-                plan["material_fade"] == "reuse" and plan["twin_bind_bHidden"] and plan["solid_bind_bHidden"]))
+                plan["material_fade"] == "reuse" and plan["twin_bind_bHidden"] and plan["solid_bind_bHidden"] and
+                plan["twin_retime_legacy"] and plan["material_retime_legacy"] and plan["solid_remove_legacy_f0"]))
 drift = {key: [dict(row) for row in value] for key, value in current.items()}
 drift["twin_visibility"][0]["keys"] = [(0, False), (tool.F0, True), (tool.F1 + 1, False)]
 try:

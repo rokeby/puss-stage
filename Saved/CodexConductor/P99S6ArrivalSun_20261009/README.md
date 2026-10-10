@@ -2,10 +2,15 @@
 
 Offline delivery only. Nothing here has been run in Unreal, PIE, MCP, or Blender.
 
-## What the DRY proves later
+## Split DRY and PIE evidence
 
-Run `p99_request.json` while Gary has manually paused PIE in the first six seconds
-of Scene 6. The tool never starts, stops, scrubs, or quits PIE. It records:
+Run `p99_request.json` with PIE stopped. This non-PIE DRY records the editor
+actor/component census, existing sun/sky settings, and S6 property bindings.
+It emits `P99_S6_DRY_OK` with `pie=0` and must leave the dirty census unchanged.
+
+The conductor separately schedules `p99_pie_probe_request.json` after manually
+pausing in the first six seconds of Scene 6. The probe never starts, stops,
+scrubs, or quits PIE. It records:
 
 - the live PlayerCameraManager pose/FOV and a 3 x 3 central frustum trace;
 - every on-screen `SM_Lantern_ParCan` ISM instance, ranked by distance from frame
@@ -19,7 +24,8 @@ of Scene 6. The tool never starts, stops, scrubs, or quits PIE. It records:
   S6 visibility/property tracks, and whether the sun direction is inside the
   live camera frustum.
 
-Success is `P99_S6_DRY_OK`. DRY must leave the exact dirty census unchanged.
+Success is `P99_S6_PIE_PROBE_OK`. APPLY requires paths and SHA-256 hashes for
+both reports.
 
 ## Choose one obstruction action from the DRY
 
@@ -45,6 +51,18 @@ the shipped 4 degrees / 2 lux / 1.22 degrees are review defaults, not approval.
 
 ## Ordered runbook
 
+1. Run the offline harness.
+2. With PIE stopped, run `p99_request.json`; require `P99_S6_DRY_OK` and review
+   the actor/component, sun/sky, and S6 binding censuses.
+3. Manually reach and pause in the first six seconds of S6, then run
+   `p99_pie_probe_request.json`; require `P99_S6_PIE_PROBE_OK`.
+4. Stop PIE manually. Put both report paths and SHA-256 hashes in args, select
+   the exact obstruction target/action, and obtain Gary's creative approval.
+5. APPLY from a clean editor, verify named-package read-back, then capture the
+   planned stills. REVERT remains a separate non-PIE operation.
+
+### Superseded pass-1 sequence (kept only as failure history)
+
 1. `python Saved/CodexConductor/P99S6ArrivalSun_20261009/test_p99_offline.py`
 2. In PIE, manually reach Scene 6 arrival and pause within 0–6 s. Run
    `p99_request.json`. Review `selected_obstruction`, `provenance`,
@@ -69,7 +87,7 @@ the shipped 4 degrees / 2 lux / 1.22 degrees are review defaults, not approval.
   restore-state leaves the sky hidden.
 - Revert still at S6 +0.25 s reproduces the original parcan/sky state.
 
-Offline harness: `P99_HARNESS|pass=27|fail=0`. Positive controls cover enum/GUID
+Offline harness: `P99_HARNESS|pass=29|fail=0`. Positive controls cover enum/GUID
 normalization, centre-frustum projection, both APPLY routes, and REVERT. Negative
 controls cover malformed GUIDs, behind-camera sun, missing confirms/report,
 unset target, zero move, inert `bHiddenInGame`, broad saves, and editor-control

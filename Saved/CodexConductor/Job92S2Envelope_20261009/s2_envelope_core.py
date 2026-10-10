@@ -17,14 +17,23 @@ def round_up(value, quantum):
 
 
 def proposal(bounds, margin_side=300.0, margin_top=300.0, quantum=100.0,
-             min_half_width=2500.0, min_height=4500.0, min_lattice=2800.0):
+             min_half_width=2500.0, min_height=4500.0, min_lattice=2800.0,
+             lattice_travel_cm=1600.0, roof_margin_cm=200.0,
+             rail_top_offset_cm=51.0):
     """bounds are hangar-root-local cm: {min:[x,y,z], max:[x,y,z]}."""
     half_w = round_up(max(abs(bounds["min"][1]), abs(bounds["max"][1])) + margin_side, quantum)
-    height = round_up(bounds["max"][2] + margin_top, quantum)
     lattice = round_up(bounds["max"][2] + margin_top, quantum)
+    landed = max(min_lattice, lattice)
+    rest = landed + float(lattice_travel_cm)
+    # Height must contain both Klara's measured content and the raised rig at
+    # rest.  The earlier recommendation omitted the rest lattice/roof margin,
+    # so copying it verbatim could immediately trip RIG_OR_ROOF_CLEARANCE.
+    height = round_up(max(bounds["max"][2] + margin_top,
+                          rest + rail_top_offset_cm + roof_margin_cm), quantum)
     return {"half_width_cm": max(min_half_width, half_w),
             "height_cm": max(min_height, height),
-            "lattice_landed_z_cm": max(min_lattice, lattice),
+            "lattice_landed_z_cm": landed,
+            "lattice_rest_z_cm": rest,
             "content_clearance_side_cm": margin_side,
             "content_clearance_top_cm": margin_top}
 
@@ -38,7 +47,7 @@ def rig_clear(bounds, landed_z, rest_z, height, top_margin=300.0, roof_margin=20
 def contains(bounds, half_width, height, margin_side=0.0, margin_top=0.0):
     return (bounds["min"][1] >= -half_width + margin_side and
             bounds["max"][1] <= half_width - margin_side and
-            bounds["max"][2] <= height - margin_top and bounds["min"][2] >= -5.0)
+            bounds["max"][2] <= height - margin_top)
 
 
 def remap_value(value, old_landed, old_rest, new_landed, new_rest, tol=0.01):

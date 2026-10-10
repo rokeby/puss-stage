@@ -306,11 +306,19 @@ def _load_sequences(run):
     return rows
 
 
+def _property_token(value):
+    """Map Python None and UE's post-string NAME_None sentinel to unbound."""
+    if value is None:
+        return ""
+    text = str(value).strip()
+    return "" if text == "None" else text
+
+
 def _track_property(track):
     try:
         name = track.get_property_name()
         path = track.get_property_path()
-        return ("" if name is None else str(name), "" if path is None else str(path))
+        return _property_token(name), _property_token(path)
     except Exception:  # noqa: BLE001
         return "", ""
 

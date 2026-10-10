@@ -16,6 +16,9 @@ The tool builds only Gary's E25 minimum:
 - the opening camera's P87 wide pose, then a 10-second move to the live Opening
   sequence's current end pose and focal length;
 - the live Opening/P01 stage composition shown after black;
+- the opening drape sourced from the `Opening Drape (baked)` sequence spawnable
+  in `LS_Opening_Curtain_Baked` (the q17 ragged-curtain cache), rather than a
+  nonexistent persistent-level curtain actor;
 - all DRY-discovered Passage 02-06, hangar, infinity and sky actors held hidden;
 - one owned, collisionless black mask behind the opening stage;
 - the existing Closing remains next and is not edited.
@@ -33,8 +36,9 @@ other “closing up” action. Those are listed in the plan as optional later be
 3. Review the DRY JSON actor census and preview. Confirm that every stage actor
    belongs in `stage_actor_paths`, every Passage/hangar/infinity/sky actor belongs
    in `hidden_actor_paths`, and the mask sits immediately behind the stage front.
-   Copy the reported S6/Closing GUIDs, camera path, and both actor-path arrays into
-   the corresponding `expected_*` arguments. Do not infer or shorten the arrays.
+   Copy the reported S6/Closing GUIDs, camera path, both actor-path arrays, and
+   `opening_curtain_source` into the corresponding `expected_*` arguments. Do
+   not infer or shorten the arrays.
 4. Repeat DRY with all identities pinned and final creative values. The snapshot
    and plan digests must remain unchanged.
 5. Change to `mode=APPLY`, choose a fresh run, and confirm `APPLY E25 <run>`.
@@ -68,4 +72,4 @@ back the original spine. Run both editor tests again.
 python Saved/CodexConductor/E25Ending_20261009/test_e25_ending.py
 ```
 
-Expected: `E25_ENDING_HARNESS_OK|positive=10|negative=20|checks=30`.
+Expected: `E25_ENDING_HARNESS_OK|positive=11|negative=20|checks=31`.

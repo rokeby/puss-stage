@@ -8,6 +8,7 @@ from __future__ import division
 
 import copy
 import datetime
+import glob
 import hashlib
 import json
 import math
@@ -81,6 +82,56 @@ def read_json(path):
         raise PlanError("JSON_MISSING|%s" % path)
     with open(path, "r", encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def minted_guid_rows(value, source="record", prefix=""):
+    """Extract Nap identity GUIDs from NAP_LIVE_REPORT / P79 records."""
+    rows = []
+    if isinstance(value, dict):
+        for key, child in value.items():
+            path = (prefix + "." + str(key)).strip(".")
+            low = path.lower()
+            guid = norm_guid(child) if not isinstance(child, (dict, list)) else ""
+            if len(guid) == 32 and (str(key).lower() in ("minted_nap_cue_guid", "nap_cue_guid") or
+                                    ("nap" in low and str(key).lower() == "guid")):
+                rows.append({"guid": guid, "source": source, "field": path})
+            rows.extend(minted_guid_rows(child, source, path))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            rows.extend(minted_guid_rows(child, source, "%s[%d]" % (prefix, index)))
+    unique = {}
+    for row in rows:
+        unique[(row["guid"], row["source"], row["field"])] = row
+    return list(unique.values())
+
+
+def resolve_nap_identity(cues, record_guids, configured_guid, exact_label=OLD_LABEL):
+    """Prefer a minted record GUID; use the exact label only if all GUIDs are absent."""
+    configured = norm_guid(configured_guid)
+    candidates = list(record_guids)
+    if len(configured) == 32:
+        candidates.append({"guid": configured, "source": "configured_arg", "field": "recorded_nap_guid"})
+    seen = []
+    for candidate in candidates:
+        guid = norm_guid(candidate.get("guid"))
+        if len(guid) != 32 or guid in seen:
+            continue
+        seen.append(guid)
+        hits = [row for row in cues if norm_guid(row.get("guid")) == guid]
+        if len(hits) > 1:
+            raise PlanError("NAP_GUID_COUNT|%d|guid=%s" % (len(hits), guid))
+        if hits:
+            if hits[0].get("label") not in (OLD_LABEL, NEW_LABEL):
+                raise PlanError("NAP_GUID_LABEL_DRIFT|%s|%s" % (guid, hits[0].get("label")))
+            return hits[0], {"method": "minted_guid" if candidate.get("source") != "configured_arg" else "configured_guid",
+                             "guid": guid, "record": candidate, "absent_guids": seen[:-1],
+                             "label_fallback": False}
+    label_hits = [row for row in cues if row.get("label") == exact_label]
+    if len(label_hits) != 1:
+        raise PlanError("NAP_LABEL_FALLBACK_COUNT|%d|guids_absent=%s" % (len(label_hits), seen))
+    return label_hits[0], {"method": "exact_label_fallback", "guid": norm_guid(label_hits[0].get("guid")),
+                           "record": None, "absent_guids": seen, "label_fallback": True,
+                           "fallback_label": exact_label, "guid_truly_absent": True}
 
 
 def write_json(path, value, exclusive=False):
@@ -163,8 +214,17 @@ def build_plan(snapshot, raw_args):
     if missing:
         raise PlanError("SNAPSHOT_MISSING|%s" % ",".join(missing))
     cue = snapshot["cue"]
-    if norm_guid(cue.get("guid")) != p["recorded_nap_guid"] or cue.get("label") != OLD_LABEL:
+    if cue.get("label") != OLD_LABEL:
         raise PlanError("RECORDED_CUE_IDENTITY_DRIFT|%s|%s" % (cue.get("guid"), cue.get("label")))
+    resolution = snapshot.get("identity_resolution")
+    if resolution is None:
+        if norm_guid(cue.get("guid")) != p["recorded_nap_guid"]:
+            raise PlanError("RECORDED_CUE_IDENTITY_DRIFT|%s|%s" % (cue.get("guid"), cue.get("label")))
+        resolution = {"method": "configured_guid", "guid": norm_guid(cue.get("guid")),
+                      "label_fallback": False}
+    if resolution.get("label_fallback") and not resolution.get("guid_truly_absent"):
+        raise PlanError("NAP_LABEL_FALLBACK_WITHOUT_ABSENCE_PROOF")
+    p["recorded_nap_guid"] = norm_guid(cue.get("guid"))
     segment = snapshot["segment"]
     start_s = float(segment["start"]) / float(snapshot["tick_resolution"])
     end_s = float(segment["end"]) / float(snapshot["tick_resolution"])
@@ -199,7 +259,8 @@ def build_plan(snapshot, raw_args):
     named = list(dict.fromkeys(named))
     return {
         "schema_version": 1, "tool": TOOL, "version": VERSION, "params": p,
-        "cue": {"guid": p["recorded_nap_guid"], "old_label": OLD_LABEL, "new_label": NEW_LABEL},
+        "cue": {"guid": p["recorded_nap_guid"], "old_label": OLD_LABEL, "new_label": NEW_LABEL,
+                "identity_resolution": copy.deepcopy(resolution)},
         "master_segment_before": copy.deepcopy(segment),
         "marker": {"frame": old_frame, "old": old_marker, "new": new_marker},
         "vamp_markers_before": [[int(f), label] for f, label in marks if label.startswith("InfinityStage.Vamp")],
@@ -296,6 +357,7 @@ class UnrealBackend(object):
         import unreal
         self.ue = unreal
         self.args = None
+        self._resolved_nap_guid = None
 
     def log(self, text):
         self.ue.log(text)
@@ -325,12 +387,30 @@ class UnrealBackend(object):
     def _guid(self, value):
         return norm_guid(self.ue.GuidLibrary.conv_guid_to_string(value))
 
+    def _nap_record_guids(self):
+        saved = os.path.abspath(self.ue.Paths.convert_relative_path_to_full(self.ue.Paths.project_saved_dir()))
+        patterns = (os.path.join(saved, "**", "NAP_LIVE_REPORT.json"),
+                    os.path.join(saved, "**", "nap_interlude_record_*.json"))
+        rows = []
+        for pattern in patterns:
+            for filename in sorted(glob.glob(pattern, recursive=True)):
+                try:
+                    rows.extend(minted_guid_rows(read_json(filename), filename))
+                except Exception:
+                    continue
+        return rows
+
     def _cue(self, show, wanted_guid):
-        rows = [c for c in show.get_editor_property("cues")
-                if self._guid(c.get_editor_property("cue_guid")) == wanted_guid]
-        if len(rows) != 1:
-            raise PlanError("NAP_GUID_COUNT|%d" % len(rows))
-        return rows[0]
+        objects = list(show.get_editor_property("cues"))
+        public = [{"guid": self._guid(c.get_editor_property("cue_guid")),
+                   "label": str(c.get_editor_property("label")), "index": i}
+                  for i, c in enumerate(objects)]
+        records = self._nap_record_guids()
+        if self._resolved_nap_guid:
+            records.insert(0, {"guid": self._resolved_nap_guid, "source": "current_run", "field": "resolved"})
+        row, resolution = resolve_nap_identity(public, records, wanted_guid)
+        self._resolved_nap_guid = row["guid"]
+        return objects[row["index"]], resolution
 
     def _segment(self, show, wanted_guid):
         tr = self.ue.InfinityStageTransportController()
@@ -437,7 +517,8 @@ class UnrealBackend(object):
     def inspect(self, args):
         ue = self.ue
         show, seq = ue.load_asset(args["show_package"]), ue.load_asset(args["nap_sequence"])
-        cue = self._cue(show, args["recorded_nap_guid"])
+        cue, resolution = self._cue(show, args["recorded_nap_guid"])
+        resolved_guid = self._guid(cue.get_editor_property("cue_guid"))
         markers = sorted([[int(m.frame_number.value), str(m.label)] for m in
                           seq.get_marked_frames_from_sequence(ue.MovieSceneTimeUnit.DISPLAY_RATE)])
         fps = int(round(float(seq.get_display_rate().numerator) / seq.get_display_rate().denominator))
@@ -447,7 +528,8 @@ class UnrealBackend(object):
         tick = float(show.get_editor_property("tick_resolution").numerator) / show.get_editor_property("tick_resolution").denominator
         return {"cue": {"guid": self._guid(cue.get_editor_property("cue_guid")),
                         "label": str(cue.get_editor_property("label")), "type": enum_tail(cue.get_editor_property("type"))},
-                "segment": self._segment(show, args["recorded_nap_guid"]), "tick_resolution": tick,
+                "identity_resolution": resolution,
+                "segment": self._segment(show, resolved_guid), "tick_resolution": tick,
                 "markers": markers, "loop_frames": int(vamp_end[0]), "total_frames": int(seq.get_playback_end()),
                 "fps": fps, "actors": self._nap_actors(seq), "spots": self._spot_rows()}
 
@@ -657,6 +739,8 @@ def run_revert(run, source, args, backend, root):
     record = read_json(path)
     if record.get("status") != "saved_readback_verified":
         _stop(backend, run, "SOURCE_RECORD_NOT_APPLIED")
+    args = copy.deepcopy(args)
+    args["recorded_nap_guid"] = record["plan"]["cue"]["guid"]
     current = backend.inspect(args)
     failures = verify_after(record["plan"], current)
     if failures:

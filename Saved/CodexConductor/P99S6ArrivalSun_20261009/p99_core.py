@@ -106,6 +106,8 @@ def validate_args(raw):
         require(args.get("confirm") == "APPLY P99 S6 ARRIVAL SUN", "APPLY_CONFIRM")
         require(args.get("dry_report") and len(str(args.get("dry_report_sha256", ""))) == 64,
                 "DRY_REPORT_REQUIRED")
+        require(args.get("pie_probe_report") and len(str(args.get("pie_probe_report_sha256", ""))) == 64,
+                "PIE_PROBE_REPORT_REQUIRED")
         require(args["obstruction_action"] != "UNSET", "CHOOSE_OBSTRUCTION_ACTION")
         if args["obstruction_action"] == "HIDE_ACTOR_S6":
             require(args.get("obstruction_actor_label"), "OBSTRUCTION_ACTOR_LABEL")

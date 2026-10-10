@@ -188,9 +188,30 @@ facts["segment"]["label"] = e18.NEW_LABEL
 check("N15 terminal light leak detected", any("INTENSITY" in x for x in e18.verify_after(plan, facts)))
 NEGATIVE += 1
 
+# Minted-record identity wins; exact-label fallback is permitted only after all
+# recorded/configured GUIDs are proven absent from the live cue inventory.
+cues = [{"guid": "A" * 32, "label": e18.OLD_LABEL, "index": 1}]
+row, resolution = e18.resolve_nap_identity(
+    cues, [{"guid": "A" * 32, "source": "NAP_LIVE_REPORT.json", "field": "minted_nap_cue_guid"}],
+    "B" * 32)
+check("P4 minted NAP live-record GUID wins", row["guid"] == "A" * 32 and
+      resolution["method"] == "minted_guid" and not resolution["label_fallback"])
+POSITIVE += 1
+row, resolution = e18.resolve_nap_identity(cues, [{"guid": "B" * 32, "source": "record", "field": "guid"}], "C" * 32)
+check("P5 exact-label fallback records absent GUID proof", row["guid"] == "A" * 32 and
+      resolution["label_fallback"] and resolution["guid_truly_absent"] and
+      resolution["fallback_label"] == e18.OLD_LABEL)
+POSITIVE += 1
+try:
+    e18.resolve_nap_identity(cues + [{"guid": "D" * 32, "label": e18.OLD_LABEL, "index": 2}], [], "B" * 32)
+    check("N16 ambiguous exact-label fallback refuses", False, "did not refuse")
+except e18.PlanError as exc:
+    check("N16 ambiguous exact-label fallback refuses", "NAP_LABEL_FALLBACK_COUNT" in str(exc), str(exc))
+NEGATIVE += 1
+
 passed = sum(ok for _, ok, _ in RESULTS)
 failed = [(name, detail) for name, ok, detail in RESULTS if not ok]
-result = {"positive": "%d/3" % POSITIVE, "negative": "%d/15" % NEGATIVE,
+result = {"positive": "%d/5" % POSITIVE, "negative": "%d/16" % NEGATIVE,
           "checks_passed": passed, "checks_total": len(RESULTS), "failures": failed,
           "scratch_retained": scratch}
 with open(os.path.join(HERE, "e18_harness_result.json"), "w", encoding="utf-8") as handle:
@@ -198,6 +219,6 @@ with open(os.path.join(HERE, "e18_harness_result.json"), "w", encoding="utf-8") 
     handle.write("\n")
 for name, detail in failed:
     print("FAIL", name, detail)
-print("E18_NAP_REVISION_HARNESS_%s|positive=%d/3|negative=%d/15|checks=%d/%d" %
+print("E18_NAP_REVISION_HARNESS_%s|positive=%d/5|negative=%d/16|checks=%d/%d" %
       ("OK" if not failed else "FAIL", POSITIVE, NEGATIVE, passed, len(RESULTS)))
 sys.exit(1 if failed else 0)
