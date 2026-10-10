@@ -162,3 +162,4 @@ Stills are in `Saved/CodexConductor/ApplyPass_20261010/stills/`. Verdicts are by
 7. A P06 dusk still.
 - **Fringe (88): HELD until 11 Oct**: two live failures (post_edit_change, then the SkinColor setter); low priority; retired records.
 - **Metamall**: build done 03:53 local; **SLOT OPEN** until 06:30 local (soak + one visual check cleared). The Puss editor stays CLOSED until they send "slot done".
+- **Shadow-cat v3 (job 154)**: still fails to compile (ShadowCatActionTolerance undeclared in the tests; a bad dereference + nodiscard at InfinityStageCameraRig.cpp:1329). REVERTED, clean rebuild Succeeded. Needs a proper compile-fix round in the morning.

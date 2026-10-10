@@ -42,7 +42,7 @@ Verdicts on stills are by the conductor's eye. "Applied" means saved and read ba
 - **3D stage front**: meshes and textures imported; the **Arch** material instance is saved; the other five pieces and the placement are not done.
 - **Chandelier chain** and **Ending 101**: not run.
 - **Fringe**: held after two failures.
-- **Shadow-cat build**: v2 failed to compile (header include order), so it was reverted and rebuilt clean. Job 154 is fixing it (v3).
+- **Shadow-cat build**: v2 and v3 both failed to compile, so both were reverted and the editor rebuilt clean. It needs a compile-fix round with Gary around.
 
 **Machine:** the editor is closed after a clean build. Metamall has the build window, then its ~3 h slot.
 
