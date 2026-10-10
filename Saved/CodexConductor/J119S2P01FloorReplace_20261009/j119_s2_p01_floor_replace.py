@@ -220,7 +220,7 @@ def _snapshot(actor, component_world=False):
         "component_relative_location": relative_location,
         "component_relative_transform": {"location": relative_location, "rotation": relative_rotation,
                                           "scale": relative_scale},
-        "component_is_root": _path(actor.get_root_component()) == _path(component),
+        "component_is_root": _path(actor.get_editor_property("root_component")) == _path(component),
         "component_settings": {
             name: _plain(_prop(component, name)) for name in
             ("mobility", "collision_profile_name", "collision_enabled", "cast_shadow", "visible", "hidden_in_game")
