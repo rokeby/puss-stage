@@ -124,6 +124,25 @@ def test_gate_wave_ramp():
     assert got == [0, 0, 0, 5, 10, 10]
 
 
+def test_live_late_wave_retimes_dark_anchor():
+    mod = load()
+    got = mod.plan_wave_gate([0, 436, 438, 440, 442, 444, 446],
+                             [0, 230, 310, 309, 314, 308, 334], 360, 372, 444)
+    assert got["frames"] == [372, 436, 438, 440, 442, 444, 446]
+    assert got["values"][0] == 0.0 and got["values"][5] == 308.0
+    assert got["source_mode"] == "retime_dark_anchor"
+
+
+def test_late_wave_without_dark_anchor_refuses():
+    refuses(lambda: load().plan_wave_gate([0, 436, 438], [1, 230, 310], 360, 372, 444),
+            "WAVE_NO_DARK_ANCHOR")
+
+
+def test_late_wave_after_envelope_refuses():
+    refuses(lambda: load().plan_wave_gate([0, 446, 448], [0, 230, 310], 360, 372, 444),
+            "WAVE_LATE_START_OUTSIDE_RISE")
+
+
 def test_gate_bad_order_refuses():
     refuses(lambda: load().gate_values([360], [1], 360, 372, 371), "SHAPE_OR_ORDER")
 
@@ -185,6 +204,9 @@ def main():
         ("+ fire reveal shifts and preserves tail", test_shift_fire),
         ("- fire cannot move earlier", test_shift_fire_early_refuses),
         ("+ wave values gate after crowd settle", test_gate_wave_ramp),
+        ("+ live late-start wave retimes its dark anchor", test_live_late_wave_retimes_dark_anchor),
+        ("- late-start wave requires a dark anchor", test_late_wave_without_dark_anchor_refuses),
+        ("- late-start wave must enter inside the rise", test_late_wave_after_envelope_refuses),
         ("- wave value gate order refuses", test_gate_bad_order_refuses),
         ("- crowd census default cannot drift", test_copy_count_guard),
         ("- negative settle pad refuses", test_negative_settle),

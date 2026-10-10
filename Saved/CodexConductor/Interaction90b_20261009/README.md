@@ -14,8 +14,10 @@ still and does not establish the look.
    `DRY INTERACTION90B`. Require `INTERACTION_90B_DRY_OK`, `mutated=0`, and
    `dirty=0`.
 3. Inspect the DRY report. It must show I2's cut pose held until `CST drop`,
-   opposite signed curtain-plane distances, and the last transform key exactly
-   equal to the live P03 start pose returned by `get_passage_camera_pose`.
+   a cut pose clear of the curtain plane, and either `crosses_plane` or
+   `lands_on_plane`. The latter is the expected live case when the P03 start is
+   authored on the drape plane. The last transform key must exactly equal the
+   live P03 start pose returned by `get_passage_camera_pose`.
 4. Inspect S3/I3: S3 reaches full black on its final displayed frame; I3 holds
    blackout at 1.0 from frame 0 through camera settle, the camera has non-zero
    travel, then blackout clears while both shadow spots fade to I2's live

@@ -90,55 +90,46 @@ def validate_args(raw):
     mode = str(args.get("mode", "DRY")).upper()
     require(mode in ("DRY", "APPLY", "REVERT"), "MODE")
     args["mode"] = mode
-    args.setdefault("scene_sequence", "/Game/InfinityStage/Dev/Sequences/LS_DevScene_06")
+    args.setdefault("master_sequence", "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master")
+    args.setdefault("passage_label", "Passage 6")
+    args.setdefault("passage_actor_prefix", "Passage 06")
     args.setdefault("sun_actor_label", "Infinity Stage - Dusk Sun")
-    args.setdefault("sky_actor_label", "P99 S6 SkyAtmosphere")
+    args.setdefault("sky_actor_label", "Job126 P06 SkyAtmosphere")
     args.setdefault("create_sky_if_missing", True)
-    args.setdefault("sun_elevation_deg", 4.0)
-    args.setdefault("sun_azimuth_deg", 0.0)
-    args.setdefault("sun_intensity_lux", 2.0)
+    args.setdefault("sun_action", "SHOW_ATMOSPHERE_P06")
     args.setdefault("sun_source_angle_deg", 1.22)
     args.setdefault("arrival_window_s", 6.0)
     args.setdefault("obstruction_action", "UNSET")
-    require(args["obstruction_action"] in ("UNSET", "HIDE_ACTOR_S6", "MOVE_SHOW_ATTACHMENT"),
-            "OBSTRUCTION_ACTION")
+    args.setdefault("obstruction_actor_labels", [])
+    require(args["obstruction_action"] in ("UNSET", "HIDE_ACTORS_P06"), "OBSTRUCTION_ACTION")
+    require(args["sun_action"] in ("DIAGNOSE_ONLY", "SHOW_ATMOSPHERE_P06"), "SUN_ACTION")
+    require(args["passage_label"] == "Passage 6", "PASSAGE_SCOPE")
+    require(args["passage_actor_prefix"] == "Passage 06", "PASSAGE_ACTOR_SCOPE")
+    require(isinstance(args["obstruction_actor_labels"], list), "OBSTRUCTION_ACTOR_LABELS")
     if mode == "APPLY":
-        require(args.get("confirm") == "APPLY P99 S6 ARRIVAL SUN", "APPLY_CONFIRM")
+        require(args.get("confirm") == "APPLY JOB126 P06 ARRIVAL SUN", "APPLY_CONFIRM")
         require(args.get("dry_report") and len(str(args.get("dry_report_sha256", ""))) == 64,
                 "DRY_REPORT_REQUIRED")
         require(args.get("pie_probe_report") and len(str(args.get("pie_probe_report_sha256", ""))) == 64,
                 "PIE_PROBE_REPORT_REQUIRED")
         require(args["obstruction_action"] != "UNSET", "CHOOSE_OBSTRUCTION_ACTION")
-        if args["obstruction_action"] == "HIDE_ACTOR_S6":
-            require(args.get("obstruction_actor_label"), "OBSTRUCTION_ACTOR_LABEL")
-        else:
-            require(args.get("obstruction_cue_guid") and args.get("obstruction_attachment_guid"),
-                    "OBSTRUCTION_ATTACHMENT_IDS")
-            delta = args.get("obstruction_move_delta_cm")
-            require(isinstance(delta, list) and len(delta) == 3 and any(abs(float(x)) > 0.01 for x in delta),
-                    "OBSTRUCTION_MOVE_DELTA")
+        require(args["obstruction_actor_labels"] and
+                len(args["obstruction_actor_labels"]) == len(set(args["obstruction_actor_labels"])),
+                "OBSTRUCTION_ACTOR_LABELS")
     if mode == "REVERT":
-        require(args.get("confirm") == "REVERT P99 S6 ARRIVAL SUN", "REVERT_CONFIRM")
-    for key, lo, hi in (("sun_elevation_deg", -2.0, 15.0), ("sun_azimuth_deg", -180.0, 180.0),
-                        ("sun_intensity_lux", 0.01, 20.0), ("sun_source_angle_deg", 0.05, 10.0)):
+        require(args.get("confirm") == "REVERT JOB126 P06 ARRIVAL SUN", "REVERT_CONFIRM")
+    for key, lo, hi in (("sun_source_angle_deg", 0.05, 10.0), ("arrival_window_s", 0.1, 30.0)):
         require(lo <= float(args[key]) <= hi, "%s_RANGE" % key.upper())
-    args["sun_rotation_deg"] = [0.0, sun_pitch_for_elevation(args["sun_elevation_deg"]),
-                                float(args["sun_azimuth_deg"])]
     return args
 
 
 def plan_summary(args, dry):
     selected = dry.get("selected_obstruction") or {}
-    return {"schema": "p99_plan_v1", "scene_sequence": args["scene_sequence"],
+    return {"schema": "job126_plan_v1", "master_sequence": args["master_sequence"],
+            "passage_label": args["passage_label"],
             "obstruction": {"action": args["obstruction_action"], "selected": selected,
-                            "actor_label": args.get("obstruction_actor_label"),
-                            "cue_guid": args.get("obstruction_cue_guid"),
-                            "attachment_guid": args.get("obstruction_attachment_guid"),
-                            "move_delta_cm": args.get("obstruction_move_delta_cm")},
+                            "actor_labels": args.get("obstruction_actor_labels")},
             "sun": {"actor_label": args["sun_actor_label"], "sky_actor_label": args["sky_actor_label"],
                     "create_sky_if_missing": bool(args["create_sky_if_missing"]),
-                    "elevation_deg": float(args["sun_elevation_deg"]),
-                    "azimuth_deg": float(args["sun_azimuth_deg"]),
-                    "rotation_channels_xyz": args["sun_rotation_deg"],
-                    "intensity_lux": float(args["sun_intensity_lux"]),
+                    "action": args["sun_action"],
                     "source_angle_deg": float(args["sun_source_angle_deg"])}}

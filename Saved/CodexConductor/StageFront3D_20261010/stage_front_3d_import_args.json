@@ -1,0 +1,5 @@
+{
+ "mode": "DRY",
+ "max_texture_size": 4096,
+ "master_path": "/Game/Scenes/Props/StageFront3D/Materials/M_StageFront_Baked_Master"
+}

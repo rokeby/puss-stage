@@ -13,6 +13,7 @@ Record + Backups/PreS3PearlFade-<run> first; saves LS_DevScene_03 only.  Markers
 import json
 import os
 import shutil
+import copy
 
 HERE = "E:/PussStage/Saved/CodexConductor/"
 SCENE = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03"
@@ -35,6 +36,33 @@ def _expected_twin_vis(start=F0):
 
 def _expected_fade(start=F0):
     return [(0, 1.0), (start, 1.0), (F1, 0.0)]
+
+
+def expected_state_after(state):
+    """Return the exact owned in-memory state APPLY must establish before save."""
+    out = copy.deepcopy(state)
+    solid = out["solid_visibility"][0]
+    solid["property"] = "bHidden"
+    solid["path"] = "bHidden"
+    solid["keys"] = sorted((int(frame), bool(value)) for frame, value in solid["keys"]
+                           if not (int(frame) == LEGACY_F0 and value is False))
+    if (F0, False) not in solid["keys"]:
+        solid["keys"].append((F0, False))
+        solid["keys"].sort()
+    if out["twin_visibility"]:
+        twin = out["twin_visibility"][0]
+        twin["property"] = "bHidden"
+        twin["path"] = "bHidden"
+        twin["keys"] = _expected_twin_vis()
+    else:
+        out["twin_visibility"] = [{"property": "bHidden", "path": "bHidden",
+                                   "active_sections": 1, "keys": _expected_twin_vis()}]
+    if out["material_fade"]:
+        out["material_fade"][0]["keys"] = _expected_fade()
+    else:
+        out["material_fade"] = [{"class": "MovieSceneComponentMaterialTrack",
+                                  "active_sections": 1, "keys": _expected_fade()}]
+    return out
 
 
 def adoption_plan(state):
@@ -142,7 +170,7 @@ def main():
             active = [section for section in track.get_sections() if section.is_active()]
             keys = []
             if len(active) == 1 and len(active[0].get_all_channels()) == 1:
-                keys = sorted((int(k.get_time().frame_number.value), bool(k.get_value()))
+                keys = sorted((int(k.get_time(time_unit=DR).frame_number.value), bool(k.get_value()))
                               for k in active[0].get_all_channels()[0].get_keys())
             rows.append({"track": track, "property": str(track.get_property_name()),
                          "path": str(track.get_property_path()), "active_sections": len(active), "keys": keys})
@@ -157,7 +185,7 @@ def main():
                 active = [section for section in track.get_sections() if section.is_active()]
                 keys = []
                 if len(active) == 1 and len(active[0].get_all_channels()) == 1:
-                    keys = sorted((int(k.get_time().frame_number.value), round(float(k.get_value()), 3))
+                    keys = sorted((int(k.get_time(time_unit=DR).frame_number.value), round(float(k.get_value()), 3))
                                   for k in active[0].get_all_channels()[0].get_keys())
                 rows.append({"binding": binding, "track": track, "class": track.get_class().get_name(),
                              "active_sections": len(active), "keys": keys})
@@ -174,6 +202,7 @@ def main():
                     "material_fade": [{k: v for k, v in row.items() if k not in ("track", "binding")}
                                       for row in mat_rows]}
     plan = adoption_plan(public_state)
+    expected_after = expected_state_after(public_state)
     if mode == "DRY":
         unreal.log("S3PFADE_DRY_OK|run=%s|apply_ready=1|material=%s|has_fade=%s|api=%s|adoption=%s" % (
             run, mat.get_path_name() if mat else None, has_fade, api, plan))
@@ -201,11 +230,11 @@ def main():
     vch = [s for s in solid_rows[0]["track"].get_sections() if s.is_active()][0].get_all_channels()[0]
     if plan["solid_remove_legacy_f0"]:
         for key in list(vch.get_keys()):
-            if int(key.get_time(time_unit=DR).frame_number.value) == LEGACY_F0:
-                key.remove()
+            if int(key.get_time(time_unit=DR).frame_number.value) == LEGACY_F0 and key.get_value() is False:
+                vch.remove_key(key)
     if plan["solid_add_f0"]:
         vch.add_key(unreal.FrameNumber(F0), False, time_unit=DR)                  # solid pearl off at the take
-    vk = sorted((int(k.get_time().frame_number.value), bool(k.get_value())) for k in vch.get_keys())
+    vk = sorted((int(k.get_time(time_unit=DR).frame_number.value), bool(k.get_value())) for k in vch.get_keys())
     if (F0, False) not in vk:
         raise RuntimeError("VIS_READBACK|%s|NOTHING SAVED; Don't-Save restart" % vk)
     if plan["twin_visibility"] == "create":
@@ -225,7 +254,7 @@ def main():
             for key in tch.get_keys():
                 if int(key.get_time(time_unit=DR).frame_number.value) == LEGACY_F0:
                     key.set_time(unreal.FrameNumber(F0), time_unit=DR)
-    tk = sorted((int(k.get_time().frame_number.value), bool(k.get_value())) for k in tch.get_keys())
+    tk = sorted((int(k.get_time(time_unit=DR).frame_number.value), bool(k.get_value())) for k in tch.get_keys())
     if tk != [(0, False), (F0, True), (F1, False)]:
         raise RuntimeError("TWIN_VIS_READBACK|%s|NOTHING SAVED; Don't-Save restart" % tk)
     fade_track = t if plan["material_fade"] == "create" else mat_rows[0]["track"]
@@ -235,7 +264,7 @@ def main():
             if int(key.get_time(time_unit=DR).frame_number.value) == LEGACY_F0:
                 key.set_time(unreal.FrameNumber(F0), time_unit=DR)
     fade_keys = [] if len(fade_sections) != 1 else sorted(
-        (int(k.get_time().frame_number.value), round(float(k.get_value()), 3))
+        (int(k.get_time(time_unit=DR).frame_number.value), round(float(k.get_value()), 3))
         for k in fade_sections[0].get_all_channels()[0].get_keys())
     if fade_keys != _expected_fade():
         raise RuntimeError("FADE_READBACK|%s|NOTHING SAVED; Don't-Save restart" % fade_keys)
@@ -243,6 +272,19 @@ def main():
             str(tv.get_property_name()) != "bHidden":
         raise RuntimeError("VISIBILITY_BINDING_READBACK|solid=%s|twin=%s|NOTHING SAVED; Don't-Save restart" %
                            (solid_rows[0]["track"].get_property_name(), tv.get_property_name()))
+    # Re-snapshot every owned edit from the live in-memory sequence before any save.
+    solid_after = visibility_rows(bound_to(pearl[0]))
+    twin_after = visibility_rows(bound_to(twin[0]))
+    material_after = material_rows()
+    actual_after = {
+        "solid_visibility": [{k: v for k, v in row.items() if k != "track"} for row in solid_after],
+        "twin_visibility": [{k: v for k, v in row.items() if k != "track"} for row in twin_after],
+        "material_fade": [{k: v for k, v in row.items() if k not in ("track", "binding")}
+                          for row in material_after],
+    }
+    if actual_after != expected_after:
+        raise RuntimeError("IN_MEMORY_VERIFY|got=%s|want=%s|NOTHING SAVED; Don't-Save restart" %
+                           (actual_after, expected_after))
     if dirty() != ([SCENE], []):
         raise RuntimeError("CENSUS|%s|NOTHING SAVED; Don't-Save restart" % (dirty(),))
     if not unreal.EditorAssetLibrary.save_asset(SCENE, only_if_is_dirty=False) or dirty() != ([], []):

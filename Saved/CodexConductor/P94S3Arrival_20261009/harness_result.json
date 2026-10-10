@@ -1,7 +1,7 @@
 {
-  "passed": 24,
+  "passed": 27,
   "failed": 0,
-  "total": 24,
+  "total": 27,
   "results": [
     {
       "name": "+ default darkness/settle/rise frames",
@@ -65,6 +65,18 @@
     },
     {
       "name": "+ wave values gate after crowd settle",
+      "status": "PASS"
+    },
+    {
+      "name": "+ live late-start wave retimes its dark anchor",
+      "status": "PASS"
+    },
+    {
+      "name": "- late-start wave requires a dark anchor",
+      "status": "PASS"
+    },
+    {
+      "name": "- late-start wave must enter inside the rise",
       "status": "PASS"
     },
     {

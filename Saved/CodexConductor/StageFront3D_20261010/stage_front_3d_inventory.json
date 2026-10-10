@@ -1,0 +1,39 @@
+{
+ "schema": 1,
+ "observed_utc": "2026-10-10",
+ "authority_root": "E:/PussStage/DerivedAssets/StageFrontBuild/BakedStageFront",
+ "apply_marker": "E:/PussStage/DerivedAssets/StageFrontBuild/APPLY_DONE.json (2026-10-09T18:57:10Z)",
+ "map_suffixes": ["BaseColor_Dusty", "BaseColor_Clean", "Masks", "N", "Roughness"],
+ "assets": {
+  "StageFront_Arch": {"maps": "five 4096x4096 PNGs", "mesh": "SM_StageFront_Arch.fbx", "status": "import-ready"},
+  "StageFront_Wall": {"maps": "five 4096x4096 PNGs", "mesh": "SM_StageFront_Wall.fbx", "status": "import-ready"},
+  "StageFront_Gilt": {"maps": "five 4096x4096 PNGs", "mesh": "SM_StageFront_Gilt.fbx", "status": "import-ready"},
+  "Crest": {"maps": "two 8192x8192 colour plus three 4096x4096 data PNGs", "mesh": null, "status": "missing final scene-prepared FBX"},
+  "Column": {"maps": "two 8192x8192 colour plus three 4096x4096 data PNGs", "mesh": null, "status": "missing final scene-prepared FBX"},
+  "CatCandelabra": {"maps": "two 8192x8192 colour plus three 4096x4096 data PNGs", "mesh": null, "status": "missing final scene-prepared FBX"},
+  "PaperProsc_Side_L": {"maps": "five 2048x4096 PNGs", "mesh": "already imported Flat V3 asset", "status": "bakes not assigned by Job 131"},
+  "PaperProsc_Side_R": {"maps": "five 2048x4096 PNGs", "mesh": "already imported Flat V3 asset", "status": "bakes not assigned by Job 131"},
+  "PaperProsc_Valance_C": {"maps": "five 2048x4096 PNGs", "mesh": "already imported Flat V3 asset", "status": "bakes not assigned by Job 131"},
+  "Chandelier_Iron3": {"maps": "two 8192x8192 colour plus three 4096x4096 data PNGs", "mesh": "raw Rodin GLB only", "status": "Gary variant and placement decision required"},
+  "Chandelier_Img": {"maps": "two 8192x8192 colour plus three 4096x4096 data PNGs", "mesh": "raw Rodin GLB only", "status": "Gary variant and placement decision required"}
+ },
+ "paper_proscenium_world_cm": {
+  "side_l": [-60.0, -1231.0, 0.0],
+  "side_r": [-60.0, 1198.0, 0.0],
+  "valance": [-45.0, 0.0, 930.0]
+ },
+ "stage_front_actor_world_cm": {
+  "architecture_groups": [0.0, 0.0, 0.0],
+  "crest": [-500.0, 0.0, 1260.0],
+  "column_l": [-405.0, -1432.4, 0.0],
+  "column_r": [-405.0, 1432.4, 0.0],
+  "cat_l": [-104.7, -1090.0, 0.0],
+  "cat_r": [-104.7, 1090.0, 0.0]
+ },
+ "notes": [
+  "Architecture FBX vertices are already in assembly/world coordinates and use identity actor transforms.",
+  "Crest, column and cat transforms assume their missing FBXs have the scene preparation baked into mesh data.",
+  "Cat R has yaw 180 degrees; all other listed rotations are zero.",
+  "All imported textures are capped at 4096 in Unreal even where the source colour bake is 8192."
+ ]
+}

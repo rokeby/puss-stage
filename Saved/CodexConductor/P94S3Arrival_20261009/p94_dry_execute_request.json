@@ -1,0 +1,10 @@
+{
+  "name": "call_tool",
+  "arguments": {
+    "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+    "tool_name": "ExecuteProjectPythonFile",
+    "arguments": {
+      "relativeSavedPath": "CodexConductor/P94S3Arrival_20261009/p94_run.py"
+    }
+  }
+}

@@ -1,95 +1,72 @@
-# Job 99 — S6 arrival parcan and sun disc
+# Job 126 correction — P06 arrival parcan and sun disc
 
-Offline delivery only. Nothing here has been run in Unreal, PIE, MCP, or Blender.
+The directory keeps its legacy Job 99 name so conductor request paths do not
+break. Its implementation, confirms, reports and markers are Job 126 / Passage
+06 only. Offline delivery: no Unreal, MCP, PIE, Blender or asset save was run.
 
 ## Split DRY and PIE evidence
 
-Run `p99_request.json` with PIE stopped. This non-PIE DRY records the editor
-actor/component census, existing sun/sky settings, and S6 property bindings.
-It emits `P99_S6_DRY_OK` with `pie=0` and must leave the dirty census unchanged.
+With PIE stopped, `p99_request.json` records the exact managed-Master range for
+`Passage 6`, P06 actor/components, the celestial cycle and every sun/sky setting.
+Success is `JOB126_P06_DRY_OK`; the dirty census must be unchanged.
 
-The conductor separately schedules `p99_pie_probe_request.json` after manually
-pausing in the first six seconds of Scene 6. The probe never starts, stops,
-scrubs, or quits PIE. It records:
+The conductor separately pauses within the first six seconds of **Passage 6**
+and runs `p99_pie_probe_request.json`. The probe never starts, stops or scrubs
+PIE. It records:
 
-- the live PlayerCameraManager pose/FOV and a 3 x 3 central frustum trace;
-- every on-screen `SM_Lantern_ParCan` ISM instance, ranked by distance from frame
-  centre, including its actor, component and instance index;
-- for a Structure fixture, the exact cue GUID, attachment GUID and attachment
-  label reconstructed in the same Station/attachment order as
-  `GatherFixturePlacements`;
-- matches against the Puss-light, Job 35, Jobs 30/43, P06 fixture/FX/scaffold,
-  and P01-practicals records;
-- every sky/sun component, hidden/visible state, sun intensity/source angle,
-  S6 visibility/property tracks, and whether the sun direction is inside the
-  live camera frustum.
+- live camera pose/FOV and a 3 x 3 central frustum trace;
+- every on-screen `SM_Lantern_ParCan`, including normalized UV and pixel screen
+  position, actor/component/instance identity, and P06 ownership evidence;
+- Structure ISM instance-to-Show cue/attachment mapping, plus Job 43, P06 FX,
+  scaffold and fixture-record provenance;
+- directional-light atmosphere flag/index, source angle and disc colour scale;
+- SkyAtmosphere visibility/settings, actual sun UV/elevation, a ray toward the
+  sun, and P06 mesh screen bounds crossing the sun's horizontal position.
 
-Success is `P99_S6_PIE_PROBE_OK`. APPLY requires paths and SHA-256 hashes for
-both reports.
+Success is `JOB126_P06_PIE_PROBE_OK`. APPLY requires SHA-pinned reports from
+both phases.
 
-## Choose one obstruction action from the DRY
+## Parcan route
 
-- `HIDE_ACTOR_S6`: only for a standalone one-mesh actor. APPLY adds an exact
-  `("bHidden", "bHidden")` visibility track to `LS_DevScene_06`; the bool
-  channel stores VISIBLE, so `False` hides. A multi-instance actor is refused.
-- `MOVE_SHOW_ATTACHMENT`: for the likely Structure fixture case. Copy the exact
-  cue/attachment GUIDs from `selected_obstruction.structure_instance` and set an
-  approved `obstruction_move_delta_cm`. APPLY moves that one authoritative Show
-  light row, rematerializes only Passage 6 and its Structure, and records the
-  original transform. It never deletes a row.
-
-The second route necessarily changes the corresponding fixture during P06 too;
-the S6-only hide route cannot address one ISM instance independently.
+Set `obstruction_action` to `HIDE_ACTORS_P06` and copy one or more exact actor
+labels from hideable P06 probe rows. APPLY adds `bHidden`/`bHidden` visibility
+tracks on the Master only across the measured Passage 6 section; VISIBLE
+`False` hides them and Restore State restores them afterward. Nothing is
+deleted or moved. A Structure actor with multiple ParCan ISM instances is
+reported but deliberately refused: `bHidden` cannot hide one ISM instance
+without hiding the whole Structure.
 
 ## Sun route
 
-APPLY reuses the named S6 SkyAtmosphere or creates `P99 S6 SkyAtmosphere` hidden
-by default. S6 tracks show the sky and existing dusk sun, restore state on exit,
-rotate the sun to args elevation/azimuth, and override only S6 intensity and
-SourceAngle. The editor sky remains hidden under P18. Creative values are args;
-the shipped 4 degrees / 2 lux / 1.22 degrees are review defaults, not approval.
+The existing P06 celestial cycle retains rotation and intensity authority.
+Job 126 does not key either value. With `SHOW_ATMOSPHERE_P06`, APPLY reuses or
+creates the named SkyAtmosphere, keeps it hidden in the editor, and adds
+P06-range Master tracks that show the actor/component, temporarily suspend the
+celestial rig's foreign-sky suppression, and set only `LightSourceAngle` from
+args. All use Restore State. The shipped 1.22 degree size is a review default,
+not creative approval.
 
 ## Ordered runbook
 
-1. Run the offline harness.
-2. With PIE stopped, run `p99_request.json`; require `P99_S6_DRY_OK` and review
-   the actor/component, sun/sky, and S6 binding censuses.
-3. Manually reach and pause in the first six seconds of S6, then run
-   `p99_pie_probe_request.json`; require `P99_S6_PIE_PROBE_OK`.
-4. Stop PIE manually. Put both report paths and SHA-256 hashes in args, select
-   the exact obstruction target/action, and obtain Gary's creative approval.
-5. APPLY from a clean editor, verify named-package read-back, then capture the
-   planned stills. REVERT remains a separate non-PIE operation.
+1. Run `python Saved/CodexConductor/P99S6ArrivalSun_20261009/test_p99_offline.py`.
+2. With PIE stopped, run `p99_request.json`; require `JOB126_P06_DRY_OK`.
+3. Manually pause within P06 0–6 s and run `p99_pie_probe_request.json`; require
+   `JOB126_P06_PIE_PROBE_OK`.
+4. Stop PIE. Review screen positions and sun diagnosis; copy exact hideable
+   actor labels and both report hashes into args. Obtain Gary's approval for
+   the actor selection and disc size.
+5. Set `APPLY` / `APPLY JOB126 P06 ARRIVAL SUN`; require
+   `JOB126_P06_APPLY_OK`, named saves, read-back and `dirty=0+0`.
+6. For reversal use `REVERT` / `REVERT JOB126 P06 ARRIVAL SUN`; require
+   `JOB126_P06_REVERT_OK`.
 
-### Superseded pass-1 sequence (kept only as failure history)
+## Render controls
 
-1. `python Saved/CodexConductor/P99S6ArrivalSun_20261009/test_p99_offline.py`
-2. In PIE, manually reach Scene 6 arrival and pause within 0–6 s. Run
-   `p99_request.json`. Review `selected_obstruction`, `provenance`,
-   `projected_parcan_instances`, `sun_in_camera`, `sky_sun_census`, and
-   `s6_binding_census`.
-3. Stop PIE manually. Do not let this tool do it. Copy the exact DRY report path
-   and SHA-256 into args; select one obstruction action and exact target IDs.
-4. Obtain Gary's approval for the move delta and sun values. Set mode `APPLY`
-   and confirm `APPLY P99 S6 ARRIVAL SUN`; run once from a clean editor world.
-5. Require `P99_S6_APPLY_OK`, named-package read-back and `dirty=0+0`.
-6. Capture the stills below, then let Gary judge. Automation is not visual
-   acceptance.
-7. To undo, set mode `REVERT`, confirm `REVERT P99 S6 ARRIVAL SUN`, and run.
-   Require `P99_S6_REVERT_OK` and clean read-back.
+- Matched before/after at P06 +0.25 s and the requested middle arrival frame.
+- Sun disc plus reflection at P06 +0.25 s and +2.0 s.
+- Negative controls at P05, S5, S6, after P06, and in the editor viewport.
+- Revert still at the same P06 frame.
 
-## Stills plan and harness controls
-
-- Before/after at S6 +0.25 s, identical live camera: frame-centre parcan.
-- After at S6 +0.25 s and +2.0 s: sun disc and its reflection together; record
-  reported sun UV, source angle, lux and exposure.
-- Negative controls: P05/S5 and the editor viewport show no sky/disc; after S6,
-  restore-state leaves the sky hidden.
-- Revert still at S6 +0.25 s reproduces the original parcan/sky state.
-
-Offline harness: `P99_HARNESS|pass=29|fail=0`. Positive controls cover enum/GUID
-normalization, centre-frustum projection, both APPLY routes, and REVERT. Negative
-controls cover malformed GUIDs, behind-camera sun, missing confirms/report,
-unset target, zero move, inert `bHiddenInGame`, broad saves, and editor-control
-calls.
+Automation/read-back is not rendered acceptance. Gary must judge the obstruction
+clearance, sun size/luminance, wing-top clearance and reflection continuity.
 

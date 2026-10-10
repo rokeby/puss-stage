@@ -17,7 +17,7 @@ import re
 import shutil
 
 TOOL = "INTERACTION_90B"
-VERSION = "2026-10-09a"
+VERSION = "2026-10-10-job132"
 WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SHOW = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 SEQS = {
@@ -162,10 +162,18 @@ def plan_i2(snapshot, target, margin=1.0):
     drape = snapshot["mouth_drape"]
     d0 = signed_plane_distance(start_point, drape["loc"], drape["yaw"])
     d1 = signed_plane_distance([target["x"], target["y"], target["z"]], drape["loc"], drape["yaw"])
-    if d0 * d1 >= 0.0 or abs(d0) < margin or abs(d1) < margin:
+    if abs(d0) < margin:
+        raise PlanError("I2_START_NOT_CLEAR_OF_PLANE|start=%.3f|margin=%.3f" % (d0, margin))
+    # The live P03 start is authored exactly on the transition-drape plane.
+    # Accept that seam target (within tolerance) as well as a genuine sign
+    # change, but continue to reject an endpoint that remains on the start side.
+    lands_on_plane = abs(d1) <= margin
+    if not lands_on_plane and d0 * d1 > 0.0:
         raise PlanError("I2_NOT_THROUGH_PLANE|start=%.3f|end=%.3f|margin=%.3f" % (d0, d1, margin))
     return {"cut": cut, "release": release, "end": end, "target": target, "channels": after,
-            "plane_distance": {"cut": d0, "end": d1}, "track": snapshot["mouth_transform"]["locator"]}
+            "plane_distance": {"cut": d0, "end": d1},
+            "plane_result": "lands_on_plane" if lands_on_plane else "crosses_plane",
+            "track": snapshot["mouth_transform"]["locator"]}
 
 
 def plan_i3(snapshot, reference, gap, fade_frames):

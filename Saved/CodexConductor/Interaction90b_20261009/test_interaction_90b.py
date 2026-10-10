@@ -40,10 +40,26 @@ class Planner(unittest.TestCase):
         plan = T.plan_i2(s, target)
         self.assertEqual(plan["channels"]["Location.Y"][-1], [500, 1000.0])
         self.assertTrue(any(k[0] == 100 for k in plan["channels"]["Location.Y"]))
+        self.assertEqual(plan["plane_result"], "crosses_plane")
+
+    def test_positive_i2_live_target_lands_on_plane(self):
+        s = snap(2); s["cut"] = 200; s["drop"] = 300
+        target = {"x": 50, "y": 1000, "z": 600, "roll": 0, "pitch": 0, "yaw": 0}
+        plan = T.plan_i2(s, target)
+        self.assertEqual(plan["plane_result"], "lands_on_plane")
+        self.assertEqual(plan["plane_distance"]["end"], 0.0)
 
     def test_negative_i2_not_through_plane(self):
         s = snap(2); s["cut"] = 200; s["drop"] = 300
         target = {"x": -100, "y": 1000, "z": 600, "roll": 0, "pitch": 0, "yaw": 0}
+        with self.assertRaises(T.PlanError): T.plan_i2(s, target)
+
+    def test_negative_i2_start_on_plane(self):
+        s = snap(2); s["cut"] = 200; s["drop"] = 300
+        for row in s["mouth_transform"]["channels"]:
+            if row["base"] == "Location.X":
+                row["keys"] = [[0, 50], [100, 50], [200, 50]]
+        target = {"x": 100, "y": 1000, "z": 600, "roll": 0, "pitch": 0, "yaw": 0}
         with self.assertRaises(T.PlanError): T.plan_i2(s, target)
 
     def test_negative_i2_frame_order(self):

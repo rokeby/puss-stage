@@ -28,7 +28,7 @@ except ModuleNotFoundError:  # Offline harness imports this module.
 
 
 MARK = "P94_S3_ARRIVAL"
-VERSION = "2026-10-09a"
+VERSION = "2026-10-10-job132"
 FOLDER = "P94S3Arrival_20261009"
 ROOT = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03"
 RISE = "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise"
@@ -191,6 +191,53 @@ def gate_values(frames, values, source_start, new_start, new_end):
         else:
             out.append(value)
     return out
+
+
+def plan_wave_gate(frames, values, source_start, new_start, new_end, tolerance=1.0e-4):
+    """Gate old and live late-start WaveV3 curves without inventing a binding or key.
+
+    Older rect curves have an exact dark key at ``source_start``.  Newer warm
+    side curves have one dark frame-0 anchor followed by dense lit keys late in
+    the requested rise.  In that live shape, move only the dark anchor to the
+    new rise start so LINEAR interpolation cannot illuminate the scene early.
+    """
+    frames = [int(x) for x in frames]
+    values = [float(x) for x in values]
+    source_start, new_start, new_end = int(source_start), int(new_start), int(new_end)
+    if len(frames) != len(values) or len(frames) < 2 or frames != sorted(frames) or len(set(frames)) != len(frames):
+        raise PlanError("WAVE_KEY_SHAPE|frames=%r|values=%r" % (frames[:12], values[:12]))
+    if not source_start <= new_start < new_end:
+        raise PlanError("WAVE_GATE_ORDER")
+    planned_frames = list(frames)
+    if source_start in frames:
+        anchor_index = frames.index(source_start)
+        if abs(values[anchor_index]) > tolerance:
+            raise PlanError("WAVE_START_NOT_DARK|frame=%d|value=%s" %
+                            (source_start, values[anchor_index]))
+        mode = "exact_source_key"
+        gate_start = source_start
+    else:
+        first_nonzero = next((i for i, value in enumerate(values) if abs(value) > tolerance), None)
+        if first_nonzero is None:
+            raise PlanError("WAVE_NO_NONZERO")
+        first_nonzero_frame = frames[first_nonzero]
+        anchors = [i for i in range(first_nonzero)
+                   if frames[i] <= new_start and abs(values[i]) <= tolerance]
+        if not anchors:
+            raise PlanError("WAVE_NO_DARK_ANCHOR|frames=%r" % frames[:12])
+        if first_nonzero_frame <= new_start or first_nonzero_frame > new_end:
+            raise PlanError("WAVE_LATE_START_OUTSIDE_RISE|first=%d|rise=%d-%d" %
+                            (first_nonzero_frame, new_start, new_end))
+        anchor_index = anchors[-1]
+        planned_frames[anchor_index] = new_start
+        if planned_frames != sorted(planned_frames) or len(set(planned_frames)) != len(planned_frames):
+            raise PlanError("WAVE_DARK_ANCHOR_COLLISION|frames=%r" % planned_frames[:12])
+        mode = "retime_dark_anchor"
+        gate_start = new_start
+    return {"frames": planned_frames,
+            "values": gate_values(planned_frames, values, gate_start, new_start, new_end),
+            "source_mode": mode, "dark_anchor_before": frames[anchor_index],
+            "dark_anchor_after": planned_frames[anchor_index]}
 
 
 def _ue():
@@ -530,16 +577,18 @@ def _root_arrival_light_census(sequence, params, run):
             keys = list(channel.get_keys())
             frames = [_key_frame(key) for key in keys]
             values = [float(key.get_value()) for key in keys]
-            if params["wave_source_start_frame"] not in frames:
-                _stop(run, "WAVE_START_KEY|%s|%s" % (_owner(row), frames[:12]))
-            start_index = frames.index(params["wave_source_start_frame"])
-            if abs(values[start_index]) > params["value_tolerance"]:
-                _stop(run, "WAVE_START_NOT_DARK|%s" % _owner(row))
-            planned_values = gate_values(frames, values, params["wave_source_start_frame"],
-                                         params["light_rise_root_frame"], params["light_full_root_frame"])
+            try:
+                wave_plan = plan_wave_gate(frames, values, params["wave_source_start_frame"],
+                                           params["light_rise_root_frame"], params["light_full_root_frame"],
+                                           params["value_tolerance"])
+            except PlanError as exc:
+                _stop(run, "%s|%s" % (exc, _owner(row)))
             wave_hits.append({"row": row, "track": track, "section": section, "channel": channel,
                               "before": _track_snapshot(row, track, sequence), "frames": frames,
-                              "planned_frames": frames, "planned_values": planned_values})
+                              "planned_frames": wave_plan["frames"], "planned_values": wave_plan["values"],
+                              "source_mode": wave_plan["source_mode"],
+                              "dark_anchor_before": wave_plan["dark_anchor_before"],
+                              "dark_anchor_after": wave_plan["dark_anchor_after"]})
     if len(wave_hits) != params["wave_light_count"]:
         _stop(run, "WAVE_LIGHT_COUNT|got=%d|want=%d" % (len(wave_hits), params["wave_light_count"]))
     result["waves"] = wave_hits

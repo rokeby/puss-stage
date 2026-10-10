@@ -1,8 +1,9 @@
-"""Job 99 later-live tool. DRY is non-PIE; a separate probe samples S6 PIE.
+"""Job 126 correction of Job 99. DRY is non-PIE; a separate probe samples P06 PIE.
 
 The tool never starts, stops, scrubs, or quits PIE. APPLY never deletes an
-obstruction: it either adds an S6 bHidden visibility track or moves one exact
-Show attachment row and records the original transform.
+obstruction: it adds P06-range bHidden visibility tracks on the managed Master.
+The P06 celestial cycle remains rotation/intensity authority; this tool only
+exposes a SkyAtmosphere during P06 and optionally sizes the disc.
 """
 from __future__ import annotations
 
@@ -25,7 +26,8 @@ ARGS = os.path.join(HERE, "p99_args.json")
 ACTIVE = os.path.join(HERE, "p99_ACTIVE.json")
 WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SHOW = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
-OWNER = "P99 S6 [OWNED]"
+MASTER = "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master"
+OWNER = "JOB126 P06 [OWNED]"
 PARCAN = "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan"
 spec = importlib.util.spec_from_file_location("p99_core", os.path.join(HERE, "p99_core.py"))
 C = importlib.util.module_from_spec(spec); spec.loader.exec_module(C)
@@ -41,7 +43,7 @@ def label(actor):
     except Exception: return str(actor.get_name())
 def vec(v): return [float(v.x), float(v.y), float(v.z)]
 def rot(v): return [float(v.roll), float(v.pitch), float(v.yaw)]
-def run_id(): return "P99S6-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+def run_id(): return "JOB126P06-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 def sha_file(p):
     h=hashlib.sha256()
     with open(p,"rb") as f:
@@ -68,7 +70,7 @@ def package_file(pkg):
 
 
 def backup(run, packages, suffix=""):
-    root=os.path.join(project_root(),"Backups","PreP99S6ArrivalSun%s-%s"%(suffix,run)); os.makedirs(root,exist_ok=False)
+    root=os.path.join(project_root(),"Backups","PreJob126P06ArrivalSun%s-%s"%(suffix,run)); os.makedirs(root,exist_ok=False)
     rows=[]
     for pkg in packages:
         src=package_file(pkg); dst=os.path.join(root,pkg[6:].replace("/",os.sep)+os.path.splitext(src)[1])
@@ -169,10 +171,14 @@ def sky_rows(world):
         for comp in actor.get_components_by_class(unreal.ActorComponent):
             cls=comp.get_class().get_name()
             if cls not in ("SkyAtmosphereComponent","DirectionalLightComponent","SkyLightComponent","VolumetricCloudComponent"): continue
+            try: hidden_game=bool(actor.is_hidden())
+            except Exception: hidden_game=bool(actor.get_editor_property("hidden"))
             row={"actor_label":label(actor),"actor_path":path(actor),"actor_class":actor.get_class().get_name(),
-                 "component_path":path(comp),"component_class":cls,"actor_hidden":bool(actor.get_editor_property("hidden")),
+                 "component_path":path(comp),"component_class":cls,"actor_hidden":hidden_game,
                  "component_visible":bool(comp.is_visible()),"tags":sorted(str(x) for x in actor.get_editor_property("tags"))}
-            for prop in ("intensity","light_source_angle","atmosphere_sun_light","atmosphere_sun_light_index"):
+            for prop in ("intensity","light_source_angle","atmosphere_sun_light","atmosphere_sun_light_index",
+                         "atmosphere_sun_disk_color_scale","per_pixel_atmosphere_transmittance",
+                         "sky_luminance_factor","transmittance_min_light_elevation_angle"):
                 try: row[prop]=comp.get_editor_property(prop)
                 except Exception: pass
             if cls=="DirectionalLightComponent":
@@ -198,13 +204,38 @@ def binding_census(seq, world):
     return rows
 
 
-def owned_track_snapshot(seq):
+def p06_scope(show, master, args):
+    passages=[p for p in show.get_editor_property("passage_settings")
+              if str(p.get_editor_property("label"))==args["passage_label"]]
+    require(len(passages)==1,"P06_PASSAGE_COUNT|%d"%len(passages))
+    p=passages[0]; pg=C.guid32(p.get_editor_property("passage_guid")); sections=[]
+    for track in master.get_tracks():
+        if "InfinityPassage" not in track.get_class().get_name(): continue
+        for section in track.get_sections():
+            try: sg=C.guid32(section.get_editor_property("passage_guid"))
+            except Exception: continue
+            if sg==pg: sections.append(section)
+    require(len(sections)==1,"P06_MASTER_SECTION_COUNT|%d"%len(sections))
+    section=sections[0]
+    cycle=p.get_editor_property("celestial_cycle")
+    return {"passage_guid":pg,"start_frame":int(section.get_start_frame()),"end_frame":int(section.get_end_frame()),
+            "cycle":{"animate":bool(cycle.get_editor_property("animate")),
+                     "cycle_duration_seconds":float(cycle.get_editor_property("cycle_duration_seconds")),
+                     "cycle_rate_multiplier":float(cycle.get_editor_property("cycle_rate_multiplier")),
+                     "entry_phase_offset_cycles":float(cycle.get_editor_property("entry_phase_offset_cycles"))}}
+
+
+def owned_track_snapshot(seq,specs=None):
+    wanted=None if specs is None else {(x["binding"],x["class"],tuple(x["property"])) for x in specs}
     rows=[]
     for b in seq.get_bindings():
         for t in b.get_tracks():
-            if not str(t.get_display_name()).startswith(OWNER): continue
             try: prop=[str(t.get_property_name()),str(t.get_property_path())]
             except Exception: prop=["",""]
+            identity=(C.guid32(b.get_id()),t.get_class().get_name(),tuple(prop))
+            if wanted is None:
+                if not str(t.get_display_name()).startswith(OWNER): continue
+            elif identity not in wanted: continue
             sections=[]
             for s in t.get_sections():
                 channels=[]
@@ -229,9 +260,12 @@ def owned_track_snapshot(seq):
     return sorted(rows,key=lambda x:(x["binding"],x["display"]))
 
 
-def parcan_instances_in_view(world, pc, viewport):
+def parcan_instances_in_view(world, pc, viewport, passage_prefix="Passage 06"):
     sx,sy=float(viewport.x),float(viewport.y); rows=[]
     for actor in unreal.GameplayStatics.get_all_actors_of_class(world,unreal.Actor):
+        actor_tags=sorted(str(x) for x in actor.get_editor_property("tags"))
+        actor_text=(label(actor)+" "+" ".join(actor_tags)).lower()
+        p06_named=(passage_prefix.lower() in actor_text or "p06" in actor_text or "passage 6" in actor_text)
         for comp in actor.get_components_by_class(unreal.InstancedStaticMeshComponent):
             try: mesh=asset_id(comp.get_editor_property("static_mesh"))
             except Exception: continue
@@ -247,57 +281,104 @@ def parcan_instances_in_view(world, pc, viewport):
                 else: screen=result
                 u,v=float(screen.x)/sx,float(screen.y)/sy
                 if not (0.0<=u<=1.0 and 0.0<=v<=1.0): continue
-                row={"uv":[u,v],"centre_distance":math.hypot(u-.5,v-.5),"actor_label":label(actor),
-                     "actor_path":path(actor),"actor_class":actor.get_class().get_name(),"actor_tags":sorted(str(x) for x in actor.get_editor_property("tags")),
+                row={"uv":[u,v],"screen_px":[float(screen.x),float(screen.y)],"centre_distance":math.hypot(u-.5,v-.5),"actor_label":label(actor),
+                     "actor_path":path(actor),"actor_class":actor.get_class().get_name(),"actor_tags":actor_tags,
                      "component_path":path(comp),"component_class":comp.get_class().get_name(),"component_mesh":mesh,
-                     "instance_index":index,"world_location_cm":vec(loc),"structure_instance":mapping[index] if index<len(mapping) else None}
+                     "instance_index":index,"world_location_cm":vec(loc),"structure_instance":mapping[index] if index<len(mapping) else None,
+                     "hideable_actor":int(comp.get_instance_count())<=1,"p06_owned":p06_named or bool(mapping)}
                 tokens=[row["actor_label"],row["actor_path"],mesh]
                 if row["structure_instance"]: tokens+=list(row["structure_instance"].values())
                 rh=record_hits(tokens); row["provenance"]=C.classify_provenance(row["actor_label"],row["component_path"],mesh,row["actor_tags"],rh,row["structure_instance"])
                 rows.append(row)
+        for comp in actor.get_components_by_class(unreal.StaticMeshComponent):
+            if isinstance(comp,unreal.InstancedStaticMeshComponent): continue
+            try: mesh=asset_id(comp.get_editor_property("static_mesh"))
+            except Exception: continue
+            if mesh!=PARCAN: continue
+            loc=comp.get_world_location(); result=unreal.GameplayStatics.project_world_to_screen(pc,loc,False)
+            if result is None: continue
+            if isinstance(result,tuple):
+                if len(result)>1 and isinstance(result[0],bool) and not result[0]: continue
+                screen=result[-1]
+            else: screen=result
+            u,v=float(screen.x)/sx,float(screen.y)/sy
+            if not (0.0<=u<=1.0 and 0.0<=v<=1.0): continue
+            tokens=[label(actor),path(actor),mesh]+actor_tags; rh=record_hits(tokens)
+            p06_recorded=any("p06" in (str(x.get("record",""))+" "+str(x.get("tool",""))).lower() for x in rh)
+            rows.append({"uv":[u,v],"screen_px":[float(screen.x),float(screen.y)],"centre_distance":math.hypot(u-.5,v-.5),
+                         "actor_label":label(actor),"actor_path":path(actor),"actor_class":actor.get_class().get_name(),
+                         "actor_tags":actor_tags,"component_path":path(comp),"component_class":comp.get_class().get_name(),
+                         "component_mesh":mesh,"instance_index":None,"world_location_cm":vec(loc),"structure_instance":None,
+                         "hideable_actor":True,"p06_owned":p06_named or p06_recorded,
+                         "provenance":C.classify_provenance(label(actor),path(comp),mesh,actor_tags,rh,None)})
     return sorted(rows,key=lambda x:x["centre_distance"])
 
 
+def p06_screen_bounds(world,pc,viewport,passage_prefix):
+    sx,sy=float(viewport.x),float(viewport.y); rows=[]
+    for actor in unreal.GameplayStatics.get_all_actors_of_class(world,unreal.Actor):
+        text=(label(actor)+" "+" ".join(str(x) for x in actor.get_editor_property("tags"))).lower()
+        if passage_prefix.lower() not in text and "p06" not in text: continue
+        for comp in actor.get_components_by_class(unreal.StaticMeshComponent):
+            try: origin,extent,_radius=unreal.SystemLibrary.get_component_bounds(comp)
+            except Exception: continue
+            points=[]
+            for dx in (-extent.x,extent.x):
+                for dy in (-extent.y,extent.y):
+                    for dz in (-extent.z,extent.z):
+                        result=unreal.GameplayStatics.project_world_to_screen(pc,origin+unreal.Vector(dx,dy,dz),False)
+                        if result is None: continue
+                        screen=result[-1] if isinstance(result,tuple) else result
+                        points.append([float(screen.x)/sx,float(screen.y)/sy])
+            if points:
+                rows.append({"actor_label":label(actor),"component_path":path(comp),
+                             "uv_bounds":[min(x[0] for x in points),min(x[1] for x in points),
+                                          max(x[0] for x in points),max(x[1] for x in points)]})
+    return rows
+
+
 def dry_editor(args, run):
-    """Non-PIE DRY: actor/component and S6 sun-setting census only."""
+    """Non-PIE DRY: P06 actor/component, Master range and sun/sky census."""
     world = editor_context()
     dirty0 = census()
-    seq = unreal.load_asset(args["scene_sequence"]); require(seq is not None, "SCENE_SEQUENCE_MISSING")
+    show=unreal.load_asset(SHOW); master=unreal.load_asset(args["master_sequence"])
+    require(show is not None and master is not None,"SHOW_OR_MASTER_MISSING")
+    scope=p06_scope(show,master,args)
     actors = []
     for actor in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors():
         comps = components(actor)
-        if comps or label(actor) in (args["sun_actor_label"], args["sky_actor_label"]):
+        text=(label(actor)+" "+" ".join(str(x) for x in actor.get_editor_property("tags"))).lower()
+        if ("p06" in text or args["passage_actor_prefix"].lower() in text or
+                label(actor) in (args["sun_actor_label"], args["sky_actor_label"])) and comps:
             actors.append({"label": label(actor), "path": path(actor),
                            "class": actor.get_class().get_name(),
                            "hidden": bool(actor.get_editor_property("hidden")), "components": comps})
-    out = {"schema": "p99_editor_dry_v1", "run": run, "mode": "DRY", "pie": False,
+    out = {"schema": "job126_p06_editor_dry_v1", "run": run, "mode": "DRY", "pie": False,
+           "passage_scope":scope,
            "actor_component_census": actors, "sky_sun_census": sky_rows(world),
-           "s6_binding_census": binding_census(seq, world),
-           "sun_requested": {"elevation_deg": args["sun_elevation_deg"],
-                             "azimuth_deg": args["sun_azimuth_deg"],
-                             "intensity_lux": args["sun_intensity_lux"],
-                             "source_angle_deg": args["sun_source_angle_deg"]},
+           "p06_master_binding_census": binding_census(master, world),
+           "sun_requested":{"action":args["sun_action"],"source_angle_deg":args["sun_source_angle_deg"]},
            "dirty_before": dirty0, "dirty_after": census(),
            "pie_probe_required": True}
     require(out["dirty_after"] == dirty0, "DRY_DIRTIED_PACKAGES|" + json.dumps(out["dirty_after"]))
     out["dry_sha256"] = C.stable_hash(out)
-    report = os.path.join(HERE, "p99_report_DRY_%s.json" % run); write_json(report, out)
-    unreal.log("P99_S6_DRY_OK|run=%s|pie=0|actors=%d|sun_rows=%d|dirty_unchanged=1|pie_probe_required=1|report=%s" %
+    report = os.path.join(HERE, "job126_report_DRY_%s.json" % run); write_json(report, out)
+    unreal.log("JOB126_P06_DRY_OK|run=%s|pie=0|actors=%d|sun_rows=%d|dirty_unchanged=1|pie_probe_required=1|report=%s" %
                (run, len(actors), len(out["sky_sun_census"]), report))
     return out
 
 
 def pie_probe(args, run):
     editor=unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem); world=editor.get_game_world()
-    require(world is not None,"DRY_REQUIRES_LIVE_PIE_AT_S6_ARRIVAL")
+    require(world is not None,"PROBE_REQUIRES_LIVE_PIE_AT_P06_ARRIVAL")
     dirty0=census(); root=list(unreal.GameplayStatics.get_all_actors_of_class(world,unreal.InfinityStageShowRoot))
     require(len(root)==1,"SHOW_ROOT_COUNT|%d"%len(root))
     tr=root[0].get_editor_property("transport"); master=int(tr.get_current_master_frame().value)
     segs=list(tr.get_editor_property("segments")); idx=int(tr.find_segment_at_frame(unreal.FrameNumber(master)))
-    seg=segs[idx]; seg_label=str(seg.get_editor_property("label")); require(seg_label.startswith("Scene 6"),"NOT_SCENE_6|"+seg_label)
+    seg=segs[idx]; seg_label=str(seg.get_editor_property("label")); require(seg_label==args["passage_label"],"NOT_PASSAGE_6|"+seg_label)
     show=unreal.load_asset(SHOW); tick=show.get_editor_property("tick_resolution"); tick_rate=float(tick.numerator)/float(tick.denominator)
-    scene_s=(master-int(seg.start_frame.value))/tick_rate
-    require(-0.05<=scene_s<=float(args["arrival_window_s"]),"NOT_S6_ARRIVAL_WINDOW|seconds=%.3f|max=%.3f"%(scene_s,args["arrival_window_s"]))
+    passage_s=(master-int(seg.start_frame.value))/tick_rate
+    require(-0.05<=passage_s<=float(args["arrival_window_s"]),"NOT_P06_ARRIVAL_WINDOW|seconds=%.3f|max=%.3f"%(passage_s,args["arrival_window_s"]))
     pc=unreal.GameplayStatics.get_player_controller(world,0); pcm=unreal.GameplayStatics.get_player_camera_manager(world,0)
     require(pc is not None and pcm is not None,"CAMERA_MISSING")
     loc=pcm.get_camera_location(); cr=pcm.get_camera_rotation(); hfov=float(pcm.get_fov_angle())
@@ -323,28 +404,37 @@ def pie_probe(args, run):
         if row.get("structure_instance"): tokens += list(row["structure_instance"].values())
         rh=record_hits(tokens); row["provenance"]=C.classify_provenance(row.get("actor_label"),row.get("component_path"),
             row.get("component_mesh"),row.get("actor_tags",[]),rh,row.get("structure_instance"))
-    projected_parcans=parcan_instances_in_view(world,pc,size)
+    projected_parcans=parcan_instances_in_view(world,pc,size,args["passage_actor_prefix"])
     skies=sky_rows(world); sun=next((x for x in skies if x["actor_label"]==args["sun_actor_label"] and x["component_class"]=="DirectionalLightComponent"),None)
     sun_view=None
     if sun:
         actor=next(a for a in unreal.GameplayStatics.get_all_actors_of_class(world,unreal.Actor) if path(a)==sun["actor_path"])
         fwd=actor.get_actor_rotation().get_forward_vector(); d=[-fwd.x,-fwd.y,-fwd.z]
         sun_view=C.direction_uv(vec(cr.get_forward_vector()),vec(cr.get_right_vector()),vec(cr.get_up_vector()),d,hfov,aspect)
-    seq=unreal.load_asset(args["scene_sequence"]); require(seq is not None,"SCENE_SEQUENCE_MISSING")
-    selected=projected_parcans[0] if projected_parcans else next((x for x in hits if x.get("component_mesh")==PARCAN), hits[0] if hits else None)
-    out={"schema":"p99_pie_probe_v1","run":run,"mode":"PIE_PROBE","segment":seg_label,"segment_index":idx,"master_frame":master,"scene_seconds":scene_s,
+        sun_hit=hit_row(unreal.SystemLibrary.line_trace_single(world,loc,loc+unreal.Vector(*d)*200000.0,
+            unreal.TraceTypeQuery.TRACE_TYPE_QUERY1,True,[],unreal.DrawDebugTrace.NONE,True),sun_view["uv"])
+    else: sun_hit=None
+    master_seq=unreal.load_asset(args["master_sequence"]); show=unreal.load_asset(SHOW)
+    require(master_seq is not None and show is not None,"SHOW_OR_MASTER_MISSING")
+    bounds=p06_screen_bounds(world,pc,size,args["passage_actor_prefix"])
+    skyline=[] if not sun_view else [x for x in bounds if x["uv_bounds"][0]<=sun_view["uv"][0]<=x["uv_bounds"][2]]
+    selected=next((x for x in projected_parcans if x["p06_owned"] and x["hideable_actor"]),None)
+    out={"schema":"job126_p06_pie_probe_v1","run":run,"mode":"PIE_PROBE","segment":seg_label,"segment_index":idx,"master_frame":master,"passage_seconds":passage_s,
          "camera":{"location_cm":vec(loc),"rotation_deg":rot(cr),"hfov_deg":hfov,"viewport":[float(size.x),float(size.y)]},
          "central_frustum_hits":hits,"projected_parcan_instances":projected_parcans,"selected_obstruction":selected,"sky_sun_census":skies,"sun_in_camera":sun_view,
-         "s6_binding_census":binding_census(seq,world),"dirty_before":dirty0,"dirty_after":census(),
+         "sun_occlusion_hit":sun_hit,"p06_screen_bounds_at_sun_x":skyline,"passage_scope":p06_scope(show,master_seq,args),
+         "p06_master_binding_census":binding_census(master_seq,world),"dirty_before":dirty0,"dirty_after":census(),
          "diagnosis":{"sun_below_or_outside_frame":bool(sun_view and not sun_view["inside"]),
                       "sky_atmosphere_visible":any(x["component_class"]=="SkyAtmosphereComponent" and x["component_visible"] and not x["actor_hidden"] for x in skies),
+                      "sun_occluded_by_geometry":bool(sun_hit),
+                      "sun_below_projected_p06_bounds":bool(sun_view and any(x["uv_bounds"][1] < sun_view["uv"][1] for x in skyline)),
                       "p06_record":"Saved/CodexConductor/p06_sunset_record.json",
-                      "p18_pattern":"P18 hides foreign/editor skies; S6 sequence bHidden override is required"}}
+                      "p18_pattern":"editor sky remains hidden; P06 Master range must show the production atmosphere and suspend foreign-sky suppression"}}
     require(out["dirty_after"]==dirty0,"DRY_DIRTIED_PACKAGES|"+json.dumps(out["dirty_after"]))
-    out["probe_sha256"]=C.stable_hash(out); report=os.path.join(HERE,"p99_report_PIE_PROBE_%s.json"%run); write_json(report,out)
+    out["probe_sha256"]=C.stable_hash(out); report=os.path.join(HERE,"job126_report_PIE_PROBE_%s.json"%run); write_json(report,out)
     selected_name=((selected.get("structure_instance") or {}).get("attachment_label") or selected.get("actor_label")) if selected else None
-    unreal.log("P99_S6_PIE_PROBE_OK|run=%s|segment=%s|scene_s=%.3f|hits=%d|parcans_in_view=%d|selected=%s|sun_inside=%s|sky_visible=%s|dirty_unchanged=1|report=%s"%
-               (run,seg_label,scene_s,len(hits),len(projected_parcans),selected_name,
+    unreal.log("JOB126_P06_PIE_PROBE_OK|run=%s|segment=%s|passage_s=%.3f|hits=%d|parcans_in_view=%d|selected=%s|sun_inside=%s|sky_visible=%s|dirty_unchanged=1|report=%s"%
+               (run,seg_label,passage_s,len(hits),len(projected_parcans),selected_name,
                 sun_view.get("inside") if sun_view else None,out["diagnosis"]["sky_atmosphere_visible"],report))
     return out
 
@@ -377,36 +467,27 @@ def binding_for(seq,obj,world,name,created):
     return b
 
 
-def add_visibility(seq,actor,world,name,created):
+def add_visibility(seq,actor,world,name,created,start,end,visible):
     b=binding_for(seq,actor,world,name,created)
-    require(not any(str(t.get_display_name()).startswith(OWNER) for t in b.get_tracks()),"OWNED_TRACK_EXISTS|"+name)
+    require(not any(t.get_class().get_name()=="MovieSceneVisibilityTrack" and str(t.get_property_name()) in ("bHidden","") for t in b.get_tracks()),
+            "VISIBILITY_TRACK_CONFLICT|"+name)
     t=b.add_track(unreal.MovieSceneVisibilityTrack); t.set_property_name_and_path("bHidden","bHidden"); t.set_display_name(OWNER+" "+name)
-    s=t.add_section(); s.set_range(seq.get_playback_start(),seq.get_playback_end()); s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
-    ch=list(s.get_all_channels()); require(len(ch)==1,"VIS_CHANNELS"); ch[0].set_default(True) # visible semantics
-    return {"binding":C.guid32(b.get_id()),"track":str(t.get_display_name()),"property":[str(t.get_property_name()),str(t.get_property_path())]}
+    require(str(t.get_property_name())=="bHidden" and str(t.get_property_path())=="bHidden","VISIBILITY_PROPERTY|"+name)
+    s=t.add_section(); s.set_range(start,end); s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
+    ch=list(s.get_all_channels()); require(len(ch)==1,"VIS_CHANNELS"); ch[0].set_default(bool(visible))
+    return {"binding":C.guid32(b.get_id()),"track":str(t.get_display_name()),"class":t.get_class().get_name(),
+            "property":[str(t.get_property_name()),str(t.get_property_path())]}
 
 
-def add_sun_tracks(seq,sun,world,args,created):
-    b=binding_for(seq,sun,world,args["sun_actor_label"],created)
-    require(not any(str(t.get_display_name()).startswith(OWNER) for t in b.get_tracks()),"SUN_OWNED_TRACK_EXISTS")
-    t=b.add_track(unreal.MovieScene3DTransformTrack); t.set_display_name(OWNER+" Sun Rotation")
-    s=t.add_section(); s.set_range(seq.get_playback_start(),seq.get_playback_end()); s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
-    ch={str(x.channel_name):x for x in s.get_all_channels()}; tf=sun.get_actor_transform(); loc=vec(tf.translation); scale=vec(tf.scale3d)
-    vals={"Location.X":loc[0],"Location.Y":loc[1],"Location.Z":loc[2],"Rotation.X":0.0,
-          "Rotation.Y":args["sun_rotation_deg"][1],"Rotation.Z":args["sun_rotation_deg"][2],
-          "Scale.X":scale[0],"Scale.Y":scale[1],"Scale.Z":scale[2]}
-    for n,v in vals.items(): require(n in ch,"TRANSFORM_CHANNEL|"+n); ch[n].set_default(float(v))
-    comp=sun.get_component_by_class(unreal.DirectionalLightComponent); require(comp is not None,"SUN_COMPONENT")
-    cb=binding_for(seq,comp,world,args["sun_actor_label"]+" Component",created)
-    rows=[]
-    for prop,value in (("Intensity",args["sun_intensity_lux"]),("LightSourceAngle",args["sun_source_angle_deg"])):
-        require(not any(t.get_class().get_name()=="MovieSceneFloatTrack" and str(t.get_property_name())==prop for t in cb.get_tracks()),
-                "SUN_PROPERTY_TRACK_CONFLICT|"+prop)
-        ft=cb.add_track(unreal.MovieSceneFloatTrack); ft.set_property_name_and_path(prop,prop); ft.set_display_name(OWNER+" "+prop)
-        fs=ft.add_section(); fs.set_range(seq.get_playback_start(),seq.get_playback_end()); fs.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
-        channel=list(fs.get_all_channels()); require(len(channel)==1,"FLOAT_CHANNEL|"+prop); channel[0].set_default(float(value)); rows.append(prop)
-    return {"actor_binding":C.guid32(b.get_id()),"component_binding":C.guid32(cb.get_id()),"properties":rows,
-            "rotation_xyz":args["sun_rotation_deg"]}
+def add_property_track(seq,obj,world,name,created,start,end,prop,value,track_class):
+    b=binding_for(seq,obj,world,name,created)
+    require(not any(str(t.get_property_name())==prop for t in b.get_tracks()),
+            "PROPERTY_TRACK_CONFLICT|%s|%s"%(name,prop))
+    t=b.add_track(track_class); t.set_property_name_and_path(prop,prop); t.set_display_name(OWNER+" "+name+" "+prop)
+    require(str(t.get_property_name())==prop and str(t.get_property_path())==prop,"PROPERTY_BINDING|%s|%s"%(name,prop))
+    s=t.add_section(); s.set_range(start,end); s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
+    channels=list(s.get_all_channels()); require(len(channels)==1,"PROPERTY_CHANNEL|"+prop); channels[0].set_default(value)
+    return {"binding":C.guid32(b.get_id()),"track":str(t.get_display_name()),"class":t.get_class().get_name(),"property":[prop,prop]}
 
 
 def find_attachment(show,cue_guid,attachment_guid):
@@ -436,84 +517,73 @@ def save_named(packages):
 def apply(args,run):
     world=editor_context(); dry_path=os.path.normpath(os.path.join(project_root(),str(args["dry_report"]).replace("/",os.sep)))
     require(os.path.isfile(dry_path),"DRY_REPORT_MISSING"); require(sha_file(dry_path)==args["dry_report_sha256"],"DRY_REPORT_SHA")
-    dry=json.load(open(dry_path,encoding="utf-8")); require(dry.get("schema")=="p99_editor_dry_v1" and dry.get("pie") is False,"DRY_REPORT_SCOPE")
+    dry=json.load(open(dry_path,encoding="utf-8")); require(dry.get("schema")=="job126_p06_editor_dry_v1" and dry.get("pie") is False,"DRY_REPORT_SCOPE")
     pie_path=os.path.normpath(os.path.join(project_root(),str(args["pie_probe_report"]).replace("/",os.sep)))
     require(os.path.isfile(pie_path),"PIE_PROBE_REPORT_MISSING"); require(sha_file(pie_path)==args["pie_probe_report_sha256"],"PIE_PROBE_REPORT_SHA")
-    pie=json.load(open(pie_path,encoding="utf-8")); require(pie.get("schema")=="p99_pie_probe_v1" and pie.get("segment","").startswith("Scene 6"),"PIE_PROBE_REPORT_SCOPE")
+    pie=json.load(open(pie_path,encoding="utf-8")); require(pie.get("schema")=="job126_p06_pie_probe_v1" and pie.get("segment")=="Passage 6","PIE_PROBE_REPORT_SCOPE")
     require(not os.path.exists(ACTIVE),"ACTIVE_RECORD_EXISTS")
-    seq=unreal.load_asset(args["scene_sequence"]); require(seq is not None,"SCENE_SEQUENCE_MISSING")
-    sun=actor_by_label(world,args["sun_actor_label"])
+    seq=unreal.load_asset(args["master_sequence"]); show=unreal.load_asset(SHOW)
+    require(seq is not None and show is not None,"SHOW_OR_MASTER_MISSING")
+    scope=p06_scope(show,seq,args); require(scope==dry.get("passage_scope")==pie.get("passage_scope"),"P06_SCOPE_DRIFT")
+    candidate_labels={x.get("actor_label") for x in pie.get("projected_parcan_instances",[])
+                      if x.get("p06_owned") and x.get("hideable_actor")}
+    require(set(args["obstruction_actor_labels"])<=candidate_labels,"OBSTRUCTION_NOT_HIDEABLE_P06_CANDIDATE")
+    obstructions=[actor_by_label(world,x) for x in args["obstruction_actor_labels"]]
+    for actor in obstructions:
+        isms=sum((c.get_instance_count() for c in actor.get_components_by_class(unreal.InstancedStaticMeshComponent)),0)
+        require(isms<=1,"REFUSE_WHOLE_MULTI_INSTANCE_ACTOR|%s|instances=%d"%(label(actor),isms))
     skies=[a for a in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors() if label(a)==args["sky_actor_label"]]
     require(len(skies)<=1,"SKY_COUNT")
-    created_actor=not bool(skies)
+    created_actor=not bool(skies) and args["sun_action"]=="SHOW_ATMOSPHERE_P06"
     require(not created_actor or args["create_sky_if_missing"],"SKY_MISSING")
-    packages=[args["scene_sequence"]]
-    if created_actor or args["obstruction_action"]=="MOVE_SHOW_ATTACHMENT": packages.append(WORLD)
-    if args["obstruction_action"]=="MOVE_SHOW_ATTACHMENT": packages.insert(0,SHOW)
+    packages=[args["master_sequence"]]+([WORLD] if created_actor else [])
     pre=backup(run,packages)
-    record={"schema":"p99_active_v1","status":"prepared","run":run,"args":args,"dry":dry,"pie_probe":pie,
-        "backup":pre,"packages":packages,"created_sky_actor":created_actor,"created_bindings":[],"owned_tracks":[],"move":None}
+    record={"schema":"job126_active_v1","status":"prepared","run":run,"args":args,"dry":dry,"pie_probe":pie,
+        "backup":pre,"packages":packages,"created_sky_actor":created_actor,"created_bindings":[],"owned_tracks":[],"passage_scope":scope}
     write_json(ACTIVE,record,True)
-    if skies: sky=skies[0]
-    else:
+    sky=skies[0] if skies else None
+    if created_actor:
         sky=unreal.get_editor_subsystem(unreal.EditorActorSubsystem).spawn_actor_from_class(unreal.SkyAtmosphere,unreal.Vector(),unreal.Rotator())
-        require(sky is not None,"SPAWN_SKY"); sky.set_actor_label(args["sky_actor_label"],mark_dirty=True); sky.set_actor_hidden_in_game(True); created_actor=True
-    if args["obstruction_action"]=="HIDE_ACTOR_S6":
-        obstruction=actor_by_label(world,args["obstruction_actor_label"])
-        isms=sum((c.get_instance_count() for c in obstruction.get_components_by_class(unreal.InstancedStaticMeshComponent)),0)
-        require(isms<=1,"REFUSE_WHOLE_MULTI_INSTANCE_ACTOR|instances=%d|use MOVE_SHOW_ATTACHMENT"%isms)
-        # Visibility bool channels store VISIBLE: False hides.
-        b=binding_for(seq,obstruction,world,args["obstruction_actor_label"],record["created_bindings"])
-        t=b.add_track(unreal.MovieSceneVisibilityTrack); t.set_property_name_and_path("bHidden","bHidden"); t.set_display_name(OWNER+" Obstruction Hidden")
-        s=t.add_section(); s.set_range(seq.get_playback_start(),seq.get_playback_end()); s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
-        channel=list(s.get_all_channels()); require(len(channel)==1,"OBSTRUCTION_VIS_CHANNEL"); channel[0].set_default(False)
-        record["owned_tracks"].append({"binding":C.guid32(b.get_id()),"display":str(t.get_display_name()),"property":["bHidden","bHidden"]})
-    else:
-        show=unreal.load_asset(SHOW); cue,a=find_attachment(show,args["obstruction_cue_guid"],args["obstruction_attachment_guid"])
-        before=tf_state(a.get_editor_property("relative_transform")); after=json.loads(json.dumps(before))
-        after["location"]=[before["location"][i]+float(args["obstruction_move_delta_cm"][i]) for i in range(3)]
-        show.modify(); set_tf(a,after); record["move"]={"cue_guid":C.guid32(cue.get_editor_property("cue_guid")),
-            "attachment_guid":C.guid32(a.get_editor_property("attachment_guid")),"label":str(a.get_editor_property("label")),"before":before,"after":after}
-        passage=next(x for x in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
-                     if x.get_class().get_name()=="InfinityStagePassageActor" and str(x.get_actor_label()).startswith("Passage 06"))
-        structure=next(x for x in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
-                       if x.get_class().get_name()=="InfinityStageStructureActor" and x.get_editor_property("passage")==passage)
-        require(passage.materialize_passage(),"MATERIALIZE_PASSAGE"); require(structure.materialize_structure(),"MATERIALIZE_STRUCTURE")
-    record["owned_tracks"].append(add_visibility(seq,sky,world,"Sky Visible",record["created_bindings"]))
-    record["owned_tracks"].append(add_visibility(seq,sun,world,"Sun Visible",record["created_bindings"]))
-    record["sun_tracks"]=add_sun_tracks(seq,sun,world,args,record["created_bindings"])
+        require(sky is not None,"SPAWN_SKY"); sky.set_actor_label(args["sky_actor_label"],mark_dirty=True)
+        sky.set_actor_hidden_in_game(True); sky.set_is_temporarily_hidden_in_editor(True)
+    for obstruction in obstructions:
+        record["owned_tracks"].append(add_visibility(seq,obstruction,world,"ParCan Hidden "+label(obstruction),record["created_bindings"],scope["start_frame"],scope["end_frame"],False))
+    if args["sun_action"]=="SHOW_ATMOSPHERE_P06":
+        require(sky is not None,"SKY_MISSING")
+        sky_comp=sky.get_component_by_class(unreal.SkyAtmosphereComponent); require(sky_comp is not None,"SKY_COMPONENT")
+        rigs=[a for a in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors() if a.get_class().get_name()=="InfinityStageCelestialRig"]
+        require(len(rigs)==1,"CELESTIAL_RIG_COUNT|%d"%len(rigs)); rig=rigs[0]
+        sun=actor_by_label(world,args["sun_actor_label"]); sun_comp=sun.get_component_by_class(unreal.DirectionalLightComponent)
+        require(sun_comp is not None and bool(sun_comp.get_editor_property("atmosphere_sun_light")),"SUN_NOT_ATMOSPHERE_LIGHT")
+        record["owned_tracks"].append(add_visibility(seq,sky,world,"Sky Visible",record["created_bindings"],scope["start_frame"],scope["end_frame"],True))
+        record["owned_tracks"].append(add_property_track(seq,sky_comp,world,"Sky Component",record["created_bindings"],scope["start_frame"],scope["end_frame"],"bVisible",True,unreal.MovieSceneBoolTrack))
+        record["owned_tracks"].append(add_property_track(seq,rig,world,"Foreign Sky Suppression",record["created_bindings"],scope["start_frame"],scope["end_frame"],"bSuppressForeignEnvironmentLighting",False,unreal.MovieSceneBoolTrack))
+        record["owned_tracks"].append(add_property_track(seq,sun_comp,world,"Sun Disc",record["created_bindings"],scope["start_frame"],scope["end_frame"],"LightSourceAngle",float(args["sun_source_angle_deg"]),unreal.MovieSceneFloatTrack))
     expected={"content":sorted(p for p in packages if p!=WORLD),"maps":[WORLD] if WORLD in packages else []}; require(census()==expected,"APPLY_DIRTY_SCOPE|"+json.dumps(census()))
-    save_named(packages); record["status"]="applied"; record["owned_track_snapshot"]=owned_track_snapshot(seq)
+    save_named(packages); record["status"]="applied"; record["owned_track_snapshot"]=owned_track_snapshot(seq,record["owned_tracks"])
     require(record["owned_track_snapshot"],"OWNED_TRACK_READBACK_EMPTY")
-    if record.get("move"):
-        live_show=unreal.load_asset(SHOW); _cue,live_attachment=find_attachment(live_show,record["move"]["cue_guid"],record["move"]["attachment_guid"])
-        require(C.stable_hash(tf_state(live_attachment.get_editor_property("relative_transform")))==C.stable_hash(record["move"]["after"]),"MOVE_SAVED_READBACK")
     record["readback"]={"dirty":census(),"tracks":binding_census(seq,world),"sky":sky_rows(world)}; write_json(ACTIVE,record)
-    unreal.log("P99_S6_APPLY_OK|run=%s|obstruction=%s|sun_elev=%.2f|sky_created=%s|saved=%d|readback=1|dirty=0+0|record=%s"%
-               (run,args["obstruction_action"],args["sun_elevation_deg"],created_actor,len(packages),ACTIVE)); return record
+    unreal.log("JOB126_P06_APPLY_OK|run=%s|parcans=%d|sun_action=%s|sky_created=%s|saved=%d|readback=1|dirty=0+0|record=%s"%
+               (run,len(obstructions),args["sun_action"],created_actor,len(packages),ACTIVE)); return record
 
 
-def remove_owned(seq):
+def remove_owned(seq,specs):
+    wanted={(x["binding"],x["class"],tuple(x["property"])) for x in specs}
     removed=0
     for b in seq.get_bindings():
         for t in list(b.get_tracks()):
-            if str(t.get_display_name()).startswith(OWNER): b.remove_track(t); removed+=1
+            try: prop=(str(t.get_property_name()),str(t.get_property_path()))
+            except Exception: prop=("","")
+            if (C.guid32(b.get_id()),t.get_class().get_name(),prop) in wanted: b.remove_track(t); removed+=1
     return removed
 
 
 def revert(args,run):
     world=editor_context(); require(os.path.isfile(ACTIVE),"ACTIVE_RECORD_MISSING"); rec=json.load(open(ACTIVE,encoding="utf-8"))
     require(rec.get("status")=="applied","ACTIVE_STATUS"); packages=rec["packages"]; pre=backup(run,packages,"Revert")
-    seq=unreal.load_asset(rec["args"]["scene_sequence"])
-    require(C.stable_hash(owned_track_snapshot(seq))==C.stable_hash(rec.get("owned_track_snapshot",[])),"REVERT_TRACK_DRIFT")
-    removed=remove_owned(seq)
-    if rec.get("move"):
-        show=unreal.load_asset(SHOW); _cue,a=find_attachment(show,rec["move"]["cue_guid"],rec["move"]["attachment_guid"])
-        live=tf_state(a.get_editor_property("relative_transform")); require(C.stable_hash(live)==C.stable_hash(rec["move"]["after"]),"REVERT_MOVE_DRIFT")
-        show.modify(); set_tf(a,rec["move"]["before"])
-        passage=next(x for x in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors() if x.get_class().get_name()=="InfinityStagePassageActor" and str(x.get_actor_label()).startswith("Passage 06"))
-        structure=next(x for x in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors() if x.get_class().get_name()=="InfinityStageStructureActor" and x.get_editor_property("passage")==passage)
-        require(passage.materialize_passage(),"REVERT_MATERIALIZE_PASSAGE"); require(structure.materialize_structure(),"REVERT_MATERIALIZE_STRUCTURE")
+    seq=unreal.load_asset(rec["args"]["master_sequence"])
+    require(C.stable_hash(owned_track_snapshot(seq,rec["owned_tracks"]))==C.stable_hash(rec.get("owned_track_snapshot",[])),"REVERT_TRACK_DRIFT")
+    removed=remove_owned(seq,rec["owned_tracks"])
     if rec.get("created_sky_actor"):
         sky=actor_by_label(world,rec["args"]["sky_actor_label"]); require(unreal.get_editor_subsystem(unreal.EditorActorSubsystem).destroy_actor(sky),"DESTROY_OWNED_SKY")
     for guid in rec.get("created_bindings",[]):
@@ -521,8 +591,8 @@ def revert(args,run):
         require(len(rows)==1,"REVERT_BINDING_COUNT|%s|%d"%(guid,len(rows))); rows[0].remove()
         require(not [b for b in seq.get_bindings() if C.guid32(b.get_id())==guid],"REVERT_BINDING_SURVIVED|"+guid)
     save_named(packages); archive=ACTIVE.replace("_ACTIVE.json","_REVERTED_%s.json"%run); rec.update({"status":"reverted","revert_run":run,"revert_backup":pre,"removed_tracks":removed}); write_json(ACTIVE,rec); os.replace(ACTIVE,archive)
-    unreal.log("P99_S6_REVERT_OK|run=%s|tracks=%d|move=%s|sky_destroyed=%s|saved=%d|readback=1|dirty=0+0|record=%s"%
-               (run,removed,bool(rec.get("move")),bool(rec.get("created_sky_actor")),len(packages),archive)); return rec
+    unreal.log("JOB126_P06_REVERT_OK|run=%s|tracks=%d|sky_destroyed=%s|saved=%d|readback=1|dirty=0+0|record=%s"%
+               (run,removed,bool(rec.get("created_sky_actor")),len(packages),archive)); return rec
 
 
 def main():
@@ -533,7 +603,7 @@ def main():
         if args["mode"]=="APPLY": return apply(args,run)
         return revert(args,run)
     except Exception as exc:
-        unreal.log_error("P99_S6_FAILED|run=%s|%r"%(run,exc)); raise
+        unreal.log_error("JOB126_P06_FAILED|run=%s|%r"%(run,exc)); raise
 
 
 def run_pie_probe():
@@ -543,7 +613,7 @@ def run_pie_probe():
         require(args["mode"] == "DRY", "PIE_PROBE_REQUIRES_DRY_ARGS")
         return pie_probe(args, run)
     except Exception as exc:
-        unreal.log_error("P99_S6_PIE_PROBE_FAILED|run=%s|%r" % (run, exc)); raise
+        unreal.log_error("JOB126_P06_PIE_PROBE_FAILED|run=%s|%r" % (run, exc)); raise
 
 
 if unreal is not None and __name__=="__main__": main()

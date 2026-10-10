@@ -23,6 +23,17 @@ plan = tool.adoption_plan(current)
 results.append(("new plan adopts exact existing tracks", plan["twin_visibility"] == "reuse" and
                 plan["material_fade"] == "reuse" and plan["twin_bind_bHidden"] and plan["solid_bind_bHidden"] and
                 plan["twin_retime_legacy"] and plan["material_retime_legacy"] and plan["solid_remove_legacy_f0"]))
+after = tool.expected_state_after(current)
+results.append(("post-edit state is exact before save",
+                after["solid_visibility"][0]["property"] == "bHidden" and
+                (tool.LEGACY_F0, False) not in after["solid_visibility"][0]["keys"] and
+                (tool.F0, False) in after["solid_visibility"][0]["keys"] and
+                after["twin_visibility"][0]["keys"] == tool._expected_twin_vis() and
+                after["material_fade"][0]["keys"] == tool._expected_fade()))
+source = open(os.path.join(HERE, "s3_pearl_fade.py"), encoding="utf-8").read()
+results.append(("UE 5.8 key removal uses channel API before in-memory gate",
+                "vch.remove_key(key)" in source and "key.remove()" not in source and
+                source.index("IN_MEMORY_VERIFY") < source.index("EditorAssetLibrary.save_asset")))
 drift = {key: [dict(row) for row in value] for key, value in current.items()}
 drift["twin_visibility"][0]["keys"] = [(0, False), (tool.F0, True), (tool.F1 + 1, False)]
 try:

@@ -1,5 +1,10 @@
 # Job 99 — S6 arrival parcan and sun disc (offline delivery)
 
+> **SUPERSEDED 10 Oct 2026 by Gary's scope correction.** The obstruction and
+> missing disc are in Passage 06, not Scene 6. Do not run the S6 plan below;
+> use `Docs/Conductor/JOB126_REPORT_2026-10-10.md` and the re-scoped tool in the
+> same legacy-named Saved directory.
+
 ## Outcome and boundary
 
 - **measured (this run):** dedupe found no prior Job 99 package. The delivered

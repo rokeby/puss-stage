@@ -1,0 +1,13 @@
+{
+ "blender_processes_started": 0,
+ "fail": 0,
+ "pass": 41,
+ "production_import_count": 36,
+ "production_missing": [
+  "DerivedAssets/StageFrontBuild/BakedStageFront/SM_StageFront_CatCandelabra.fbx",
+  "DerivedAssets/StageFrontBuild/BakedStageFront/SM_StageFront_Column.fbx",
+  "DerivedAssets/StageFrontBuild/BakedStageFront/SM_StageFront_Crest.fbx"
+ ],
+ "status": "PASS",
+ "unreal_processes_started": 0
+}

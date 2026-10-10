@@ -74,6 +74,8 @@ Still open: **D.2** what the cue feed is · **A.5** camera owner on the other 18
 
 ## B. Curtain rig
 
+- [ ] **B.8** (G) Import and place the 9 Oct 3D stage front. The three architecture FBXs and all eleven mask-bake sets exist; Unreal import/placement has not run. Job 131 added guarded offline tools and inventory, but APPLY remains blocked on final scene-prepared Crest/Column/Cat FBXs and Gary's chandelier variant/placement decision. See [`Conductor/JOB131_REPORT_2026-10-10.md`](Conductor/JOB131_REPORT_2026-10-10.md).
+
 - [ ] **B.2** (G) Curtain engineering base exists as `BP_InfinityStageSequenceCurtain`, using the fire-safety mesh with camera-relative placement. Remaining: world/camera mode authoring plus painted/diaphanous material treatment and final rendered framing.
 - [x] **B.3** ✅ `LS_Interaction_Template` plus five production interactions authored with close / boy-cat window / covered changeover / open timing and separate Curtain, BoyCat, and Light/Shadow/Audio/VFX folders.
 - [ ] **B.6** (G) Shadow Cat — clear the `SpeedMultiplier` empty-array and `HeightFixer Sphere` warnings, verify under stop/accelerate/reverse/seek.
