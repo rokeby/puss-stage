@@ -1,0 +1,10 @@
+"""Run the Job 110 P02 car-light tune tool using its guarded args file."""
+import os
+import runpy
+import sys
+
+import unreal
+
+sys.modules.pop("p02_car_light_tune", None)
+here = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexConductor")
+runpy.run_path(os.path.join(here, "p02_car_light_tune.py"))
