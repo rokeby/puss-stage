@@ -36,3 +36,9 @@
 - **E28 (P02 car drive-by, Gary ~01:20 10 Oct)**: the shadow doesn't travel across to the far wings. Gary: set the drive-by attenuation (cutoff) radius to **10000 cm**. Use job 110's tune tool with `attenuation_radius_cm=10000`, applied in pass 2. Aim and intensity stay unchanged unless Gary asks.
 - **E29 (all shadow casters, Gary ~01:25)**: like the drive-by, every shadow-casting light should REACH ACROSS the wings. Gary suspects lights whose radius ends mid-corridor add milky fog when unfocused. Conductor's note [inferred]: a likelier fog contributor is lights that light the volumetric fog WITHOUT volumetric shadows (the drive-by has cast_volumetric_shadow=False), which gives uniform haze with no shafts. Job 111 reports both, per light. → Codex job 111.
 - **E27c (Gary ~01:40 10 Oct)**: P06 SWITCHES to Cameron's `P06_Walking6` (125 s): "the right one and right length". This overrides E27b ("leave the sound waves") for P06 only. Job 104 runs with the `IMPORT_AND_SWAP` verdict in pass 2.
+- **Gary 10 Oct ~01:50, list replies**:
+  - Girder texture (job 98) can apply to girders EVERYWHERE, not only S5. Low priority; extend after the S5 apply is seen.
+  - Cloud-wing widening: DONE (Gary).
+  - Cue Book dark stills: low priority; take them from the video after recording.
+  - Code.gs: up to date.
+  - S6 old-lady cuts darker: eventually, after Gary directs them by hand.
