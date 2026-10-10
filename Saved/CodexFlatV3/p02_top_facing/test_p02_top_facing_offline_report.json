@@ -1,0 +1,181 @@
+{
+ "passed": 35,
+ "failed": 0,
+ "checks": [
+  {
+   "check": "E1 measured-record fixture: exactly 23 P02 Top targets",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "E2 measured-record fixture: 23/23 Top signs oppose 23/23 L/R signs",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "E3 declaration control: no image flip and authored transforms retained in every planned row",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "P1 POS synthetic DRY passes all 23",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "N1 NEG 22 rows refused",
+   "pass": true,
+   "detail": "P02_ROW_COUNT 22 != 23"
+  },
+  {
+   "check": "N2 NEG pre-existing Top image flip refused",
+   "pass": true,
+   "detail": "TOP_IMAGE_FLIP_TRUE P02 Wing 001"
+  },
+  {
+   "check": "N3 NEG non-AUTO Top refused",
+   "pass": true,
+   "detail": "TOP_POLICY_NOT_AUTO P02 Wing 001 ROTATE180_AROUND_UP"
+  },
+  {
+   "check": "N4 NEG Top without approved local yaw 180 refused",
+   "pass": true,
+   "detail": "TOP_LOCAL_YAW_NOT_180 P02 Wing 001 [0.0, 0.0, 0.0]"
+  },
+  {
+   "check": "N5 NEG L/R corridor convention mismatch refused",
+   "pass": true,
+   "detail": "LR_FACING_NOT_CORRIDOR P02 Wing 001 L=1 R=-1"
+  },
+  {
+   "check": "N6 NEG APPLY confirm must carry fresh DRY hash",
+   "pass": true,
+   "detail": "CONFIRM_MISMATCH"
+  },
+  {
+   "check": "P2 POS text verifier accepts FacingPolicy-only edits",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "N7 NEG text verifier catches image-flip drift",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "P3 POS DRY writes named + LATEST records and does not mutate",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "P4 POS APPLY writes 23 FacingPolicy fields and records 23/23 matching L/R signs",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "P5 POS backup precedes write; materialize precedes targeted saves",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "P6 POS all Tops rotate, flips remain false, no transforms changed",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "P7 POS REVERT records 23/23 original opposite signs",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "P8 POS REVERT retires records without permanent deletion",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "N8 NEG dirty census blocks DRY",
+   "pass": true,
+   "detail": "DIRTY_CENSUS {\"content\": [\"/Game/Other/Dirty\"], \"maps\": []}"
+  },
+  {
+   "check": "N8 NEG any P02 cue edit stales the DRY before backup/write",
+   "pass": true,
+   "detail": "DRY_STALE re-run DRY"
+  },
+  {
+   "check": "N8 NEG no backup and no write",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "N9 NEG accidental image flip rolls back before save",
+   "pass": true,
+   "detail": "FACING_ONLY_READBACK ['TOP_CHANGED_OUTSIDE_FACING index 0', 'TOP_CHANGED_OUTSIDE_FACING index 1', 'TOP_CHANGED_OUTSIDE_FACING index 2', 'TOP_CHANGED_OUTSIDE_FACING index 3', 'TOP_CHANGED_OUTSIDE_FACING index 4', 'TOP_CHANGED_OUTSIDE_FACING index 5'] | in-memory restore=True | NOTHING SAVED | failed records retired=True"
+  },
+  {
+   "check": "N9 NEG no save occurred",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "N9 NEG failed records retained but ACTIVE pointer retired after exact rollback",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "N10 NEG any non-target/other-passage cue mutation rolls back",
+   "pass": true,
+   "detail": "FACING_ONLY_READBACK ['NON_TARGET_CUE_CHANGED index 23'] | in-memory restore=True | NOTHING SAVED | failed records retired=True"
+  },
+  {
+   "check": "N10 NEG no save occurred",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "N11 NEG materialized Top sign failing to match L/R rolls back",
+   "pass": true,
+   "detail": "FACING_SIGN_READBACK ['TOP_SIGN_WRONG P02 Wing 001 1 want -1', 'TOP_SIGN_WRONG P02 Wing 002 1 want -1', 'TOP_SIGN_WRONG P02 Wing 003 1 want -1', 'TOP_SIGN_WRONG P02 Wing 004 1 want -1', 'TOP_SIGN_WRONG P02 Wing 005 1 want -1', 'TOP_SIGN_WRONG P02 Wing 006 1 want -1'] | in-memory restore=True | NOTHING SAVED | failed records retired=True"
+  },
+  {
+   "check": "N11 NEG no save occurred",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "N12 NEG foreign dirty package blocks targeted saves",
+   "pass": true,
+   "detail": "DIRTY_SCOPE {\"content\": [\"/Game/InfinityStage/Dev/DA_InfinityStage_V1Show\", \"/Game/Other/Dirty\"], \"maps\": [\"/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice\"]} | in-memory restore=True | NOTHING SAVED | failed records retired=True"
+  },
+  {
+   "check": "N12 NEG no save occurred",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "S1 live files parse as Python 3.11",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "S2 sole panel property setter is facing_policy",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "S3 no Save All / asset delete / package reload / image or UV mutation",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "S4 request uses guarded project-Python route",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "check": "S5 shipped args are read-only DRY",
+   "pass": true,
+   "detail": ""
+  }
+ ]
+}

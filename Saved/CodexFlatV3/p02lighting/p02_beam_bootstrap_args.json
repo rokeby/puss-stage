@@ -1,0 +1,8 @@
+{
+  "mode": "DRY",
+  "confirm": "",
+  "expected_plan_sha256": "",
+  "ordinals": [3, 7, 12, 20],
+  "max_actors": 4,
+  "expected_source_record_sha256": "50acccad802aeb0070768449bbc8174c641e7a40fe1f3ea2709b134a96f2eaed"
+}
