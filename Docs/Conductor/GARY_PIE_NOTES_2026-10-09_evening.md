@@ -71,3 +71,4 @@
   2. Tight framing on the curtain. The curtain must take a SIMILAR PROPORTION of the frame in ALL interactions (match I1/I4/I5: measure their curtain frame fraction and fit the I2/I3 camera distance to it).
   3. I3: reuse ANY existing gobo for now; real gobos are coming.
 - **P02 lighting (Gary, morning 10 Oct)**: needs an AUDIT: both too HEAVY (perf, haze, possibly the GPU hang) and SHOWING UP TOO LITTLE. → Codex job 161 (offline, from the records).
+- **P02 lean lighting (Gary: "Sure")**: APPROVED for the first slot after the reboot: job 161 p02_lighting_lean DRY → APPLY → PIE perf (p95 at 3 P02 spots) + stills; auto-REVERT if p95 is not better than 40.7 ms or the look is worse. Car radius 10000 → 4600 cm approved.

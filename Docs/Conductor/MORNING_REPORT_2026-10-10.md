@@ -91,3 +91,15 @@ Verdicts on stills are by the conductor's eye. "Applied" means saved and read ba
   - fringe (5.8-safe texture settings)
   - I2 track conflict (SAFE_SKIP default)
 - **Job 160: the opening (87) re-planned** against the 3D stage front: the wide camera fits the whole front, then the move-in, uplights on the new lip, bulb scatter clear of the pieces. Preview: `DerivedAssets/P87OpeningFixes/p87_stage_front_camera_frusta.svg`. It runs after the stage front is placed.
+
+## First slot after the reboot (approved order)
+
+1. **The P02 lean lighting (job 161, Gary approved)**: DRY → APPLY → PIE p95 + stills; auto-REVERT if it is not better. Car 4600 cm.
+2. Shadow radii (job 159 fix).
+3. The 3D stage front (5 more MIs + place), then the opening (job 87 re-plan from 160), with stills.
+4. The chandelier chain.
+5. Ending 101.
+6. The P02 floor (job 156).
+7. I2/I3 back wall (SAFE_SKIP).
+8. Fringe.
+9. Stills: P06 dusk, S2 from outside, P05 wings.
