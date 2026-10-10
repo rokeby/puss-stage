@@ -694,3 +694,37 @@
 ### Pass 14 terminal condition
 
 **Measured:** no mutation boundary was crossed. Pass 14 could not continue after the editor's D3D12 device removal left the guarded MCP listener non-responsive (`Saved/Logs/PussStage.log:2847-2889`). In accordance with the no-quit/no-restart rule, this job did not attempt editor recovery.
+
+## Slot 10 Oct after reboot
+
+### Outcome and terminal boundary
+
+- **Measured:** the freshly rebooted editor opened with PIE off and a clean census, `content=[]`, `maps=[]`; the sky auto-hide had already reported an unchanged census (`Saved/Logs/PussStage.log:2842`; `Saved/Logs/PussStage.log:2813`). Byte-offset scans after every executed step found no new DXGI device-loss or D3D12 fatal signature through the terminal shadow-radius failure.
+- **Measured:** P02 LEAN failed in DRY before entering the tool because its runner could not import the same-folder `_fx_authoring_common` module (`Saved/Logs/PussStage.log:2866`). **Declaration-proven:** this is a runner-path failure, not a missing UE 5.8 API name, so the permitted pre-mutation API-name patch exception did not apply (`Docs/Conductor/codex_briefs/p135_live_pass3.md:5-8`). The independent post-failure census remained clean with PIE off (`Saved/Logs/PussStage.log:2872`). No P02 lighting field, car radius, performance sample or still was changed/captured by this slot.
+- **Measured:** the job-159 shadow-radius offline harness passed 28/28, including the negative control that the unrelated lighting tool is never imported (`Saved/CodexConductor/test_shadow_radius_reach_offline.py:1-114`). Fresh DRY `SRR-20261010-105400` found 381 shadow casters, 310 raise-only changes, zero Sequencer-keyed radius edits and 362 report-only fog flags (`Saved/Logs/PussStage.log:2897`; `Saved/CodexConductor/shadow_radius_reach_report_DRY_SRR-20261010-105400.json:54-110`).
+- **Measured / terminal stop:** APPLY `SRR-20261010-105417` created the verified Show/map backup and a durable `status="prepared"` record containing 310 targets (`Saved/CodexConductor/shadow_radius_reach_record.json:42-46`). It then changed the live values and materialized affected passages before the narrow-save gate refused on out-of-scope dirty streamed maps; the failure marker reports `saved=0|NOTHING SAVED`, lists the dirty Show plus the vertical-slice, Japanese Alley, Animals and Children maps, and no `SHADOWRADIUSREACH_APPLY_OK` exists (`Saved/Logs/PussStage.log:2919`). **Declaration-proven:** mutation begins at `apply_values`, the failed save gate is later, and the success marker is later still (`Saved/CodexConductor/shadow_radius_reach.py:687-721`). The editor therefore contains unsaved in-memory mutations with a prepared record, so no further Unreal/MCP/PIE call was issued.
+- **Declaration-proven:** items 3-9 were not run after the mutation-without-APPLY_OK stop required by the brief (`Docs/Conductor/codex_briefs/p135_live_pass3.md:7-8`). No PIE was started, so none was ended. No Save All, editor quit/restart, Klara-level save or permanent deletion was issued.
+
+### Slot result table
+
+| item | target | run id | APPLY marker | census | still path | visual verdict |
+|---|---|---|---|---|---|---|
+| 1 | P02 LEAN lighting, car 4600 cm, three-spot p95 and stills | none | **Measured:** none; DRY runner import failed before mutation (`Saved/Logs/PussStage.log:2866`) | **Measured:** clean, PIE off after refusal (`Saved/Logs/PussStage.log:2872`) | none | **Declaration-proven: VISUAL NOT CAPTURED;** APPLY/perf/stills were not reached |
+| 2 | Job 159 shadow radii plus performance auto-revert | DRY `SRR-20261010-105400`; APPLY `SRR-20261010-105417` | **Measured:** none; APPLY mutated in memory, then stopped before save with `saved=0|NOTHING SAVED` (`Saved/Logs/PussStage.log:2919`) | **Measured:** dirty failure census contains the Show and four maps; no later census was permitted | none | **Declaration-proven: VISUAL NOT CAPTURED;** no after-p95 sample or auto-REVERT decision exists |
+| 3 | StageFront3D wall/gilt/crest/column/cat MATERIAL, PLACE/VERIFY, Iron3; un-hold/re-plan/apply Job 87; opening stills | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+| 4 | P75 chandelier chain | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+| 5 | Ending 101 | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+| 6 | Job 156 P02 floor | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+| 7 | Job 144 I2 then I3 back wall, `SAFE_SKIP` | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+| 8 | Job 159 Fringe | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+| 9 | P06 dusk, S2 outside and P05 wings stills | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | **Declaration-proven: VISUAL NOT CAPTURED** |
+
+### Files, backup and recovery boundary
+
+- **Measured:** the shadow APPLY created `Backups/PreShadowRadiusReach-SRR-20261010-105417/`, `Saved/CodexConductor/shadow_radius_reach_record.json`, and `Saved/CodexConductor/shadow_radius_reach_report_APPLY_SRR-20261010-105417.json`. The backup record covers the Show and vertical-slice map and carries matching SHA-256 evidence (`Saved/CodexConductor/shadow_radius_reach_record.json:4-42`).
+- **Measured:** `Saved/CodexConductor/shadow_radius_reach_args.json` was restored by filesystem edit to its original DRY form after the stop. This report was appended. No Unreal authoring package was saved by this slot (`Saved/Logs/PussStage.log:2919`).
+- **Inferred / recovery guidance:** preserve the prepared record and backup. The conductor should use the prescribed Don't-Save recovery before any later live call; do not attempt the tool's guarded REVERT against unsaved state, and do not save the currently dirty streamed levels.
+
+### Terminal STOP reason
+
+**Measured:** shadow-radius APPLY `SRR-20261010-105417` crossed its mutation boundary, then stopped at the narrow-save guard without `SHADOWRADIUSREACH_APPLY_OK`. In accordance with the user's explicit stop rule, this slot made no later Unreal/MCP/PIE call and did not quit or restart the editor.

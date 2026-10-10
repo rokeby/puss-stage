@@ -11,6 +11,8 @@ for name, module in list(sys.modules.items()):
     source = getattr(module, "__file__", None)
     if source and os.path.normcase(os.path.abspath(source)).startswith(os.path.normcase(os.path.abspath(HERE))):
         sys.modules.pop(name, None)
+if HERE not in sys.path:  # live 10 Oct: same-folder imports failed (job 162)
+    sys.path.insert(0, HERE)
 with open(os.path.join(HERE, "p02_lighting_lean_args.json"), encoding="utf-8") as handle:
     args = json.load(handle)
 mode = str(args.get("mode", "DRY")).upper()
