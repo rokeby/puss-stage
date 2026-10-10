@@ -10,7 +10,7 @@ MARK = "STAGEFRONT3D"
 WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 MAP_RELATIVE = "InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap"
 DEST = "/Game/Scenes/Props/StageFront3D"
-MASTER_DEFAULT = DEST + "/Materials/M_StageFront_Baked_Master"
+MASTER_DEFAULT = "/Game/Scenes/Props/Chandelier/M_AgedMaskedMetal_CreateOnly"
 MI_DIR = DEST + "/Materials/Instances"
 MESH_DIR = DEST + "/Meshes"
 TEX_DIR = DEST + "/Textures"
@@ -50,15 +50,26 @@ PIECES = {
 MAP_KINDS = (
     ("BaseColor_Dusty", True, "TC_DEFAULT", "BaseColorDusty"),
     ("BaseColor_Clean", True, "TC_DEFAULT", "BaseColorClean"),
-    ("Masks", False, "TC_MASKS", "Masks"),
-    ("N", False, "TC_NORMALMAP", "Normal"),
-    ("Roughness", False, "TC_MASKS", "Roughness"),
+    ("Masks", False, "TC_MASKS", "MasksTexture"),
+    ("N", False, "TC_NORMALMAP", "NormalTexture"),
+    ("Roughness", False, "TC_MASKS", "RoughnessTexture"),
 )
 
-MASTER_MASK_CHANNELS = (
-    ("R", "DustStrength"),
-    ("G", "SootStrength"),
-    ("A", "PeelStrength"),
+MASTER_TEXTURE_PARAMETERS = (
+    "BaseColorClean",
+    "BaseColorDusty",
+    "MasksTexture",
+    "NormalTexture",
+    "RoughnessTexture",
+)
+
+# Job 149 deliberately binds only the dusty colour family.  BaseColorClean is
+# verified on the reused chandelier parent but is not overridden on these MIs.
+MI_TEXTURE_BINDINGS = (
+    ("BaseColor_Dusty", "BaseColorDusty"),
+    ("Masks", "MasksTexture"),
+    ("N", "NormalTexture"),
+    ("Roughness", "RoughnessTexture"),
 )
 
 
@@ -66,18 +77,12 @@ class PlanError(RuntimeError):
     pass
 
 
-def master_presence_problem(registered_in_memory, exists_on_disk):
-    """Refuse an Asset Registry object that has never been saved as a package."""
-    if registered_in_memory and not exists_on_disk:
-        return "PARTIAL_UNSAVED_MASTER_IN_MEMORY"
-    return None
-
-
-def master_output_pin_problem(available_outputs, required_output):
-    """UE material output names are case-sensitive; reject aliases and lowercase guesses."""
-    available = tuple(str(x) for x in available_outputs)
-    if required_output not in available or required_output.lower() in available:
-        return "MASK_OUTPUT_PIN_CASE|wanted=%s|available=%s" % (required_output, list(available))
+def master_parameter_problem(actual):
+    """Require the exact chandelier-master texture contract recorded by P80."""
+    got = tuple(sorted(str(x) for x in actual))
+    want = tuple(sorted(MASTER_TEXTURE_PARAMETERS))
+    if got != want:
+        return "MASTER_TEXTURE_PARAMETERS|wanted=%s|got=%s" % (list(want), list(got))
     return None
 
 
@@ -161,13 +166,15 @@ def validate_import_args(doc, record=None):
     piece = doc.get("piece")
     if mode == "MATERIAL" and piece not in PIECES:
         raise PlanError("PIECE_ONE_REQUIRED")
+    if mode == "DRY" and piece is not None:
+        if piece not in PIECES:
+            raise PlanError("PIECE_ONE_REQUIRED")
+        if doc.get("confirm") != "DRY STAGEFRONT3D MATERIAL":
+            raise PlanError("CONFIRM|DRY STAGEFRONT3D MATERIAL")
     if mode in ("VERIFY", "REVERT") and not record:
         raise PlanError("RECORD_REQUIRED")
     return mode, {"asset": selector, "piece": piece, "max_texture_size": cap,
-                  "master_path": str(doc.get("master_path") or MASTER_DEFAULT),
-                  "dust_strength": float(doc.get("dust_strength", 1.0)),
-                  "soot_strength": float(doc.get("soot_strength", 1.0)),
-                  "peel_strength": float(doc.get("peel_strength", 1.0))}
+                  "master_path": str(doc.get("master_path") or MASTER_DEFAULT)}
 
 
 def validate_place_args(doc, record=None):

@@ -1,4 +1,4 @@
-# Job 131 stage-front 3D tools
+# Job 131 stage-front 3D tools (material step revised by Job 149)
 
 Mesh IMPORT enables `StaticMesh.nanite_settings.enabled` after Interchange,
 checks it before save, reloads and checks it after the targeted save, and makes
@@ -34,14 +34,23 @@ preparations. The three architecture FBXs and all required texture sets exist.
    `IMPORT STAGEFRONT3D`, and execute **one selector in one MCP call**. Return to
    the editor/event loop between calls; never wrap these in one project-Python
    loop.
-3. After all six mesh selectors and their 30 texture selectors exist, run one
-   `MATERIAL` call per piece with confirm `MATERIAL STAGEFRONT3D`. An existing
-   `master_path` is only reused after parameter read-back; otherwise the default
-   master is created. Every MI is create-only. Existing material nodes are never
-   changed or deleted.
-4. Run import `VERIFY`.
-5. Run placement `DRY`, then `APPLY` with `APPLY STAGEFRONT3D`.
-6. In a later clean call, run placement `VERIFY`. Only after that read-back is
+3. After all six mesh selectors and their 30 texture selectors exist, stop
+   building material graphs. For each piece, first run `DRY` with confirm
+   `DRY STAGEFRONT3D MATERIAL`. DRY loads the existing chandelier parent
+   `/Game/Scenes/Props/Chandelier/M_AgedMaskedMetal_CreateOnly` and requires the
+   exact recorded texture parameters `BaseColorClean`, `BaseColorDusty`,
+   `MasksTexture`, `NormalTexture`, and `RoughnessTexture` through
+   `MaterialEditingLibrary.get_texture_parameter_names`. Any missing, renamed or
+   extra parameter refuses before mutation.
+4. Run one `MATERIAL` call per piece with confirm `MATERIAL STAGEFRONT3D`.
+   MATERIAL creates only the piece MI, maps its Dusty BaseColor, Masks, N and
+   Roughness textures to `BaseColorDusty`, `MasksTexture`, `NormalTexture` and
+   `RoughnessTexture`, assigns that MI to the one-slot Nanite mesh, reads both
+   back, and saves only the new MI plus that mesh. It never creates, edits,
+   recompiles or saves a master material.
+5. Run import `VERIFY`.
+6. Run placement `DRY`, then `APPLY` with `APPLY STAGEFRONT3D`.
+7. In a later clean call, run placement `VERIFY`. Only after that read-back is
    the saved assembly verified.
 
 Piece order: `arch`, `wall`, `gilt`, `crest`, `column`, `cat`.
@@ -68,4 +77,4 @@ recorded packages or tagged actors.
 python Saved\CodexConductor\StageFront3D_20261010\test_stage_front_3d_offline.py
 ```
 
-Expected: `STAGEFRONT3D_HARNESS_PASS|pass=41|fail=0|unreal=0|blender=0`.
+Expected: `STAGEFRONT3D_HARNESS_PASS|pass=55|fail=0|unreal=0|blender=0`.

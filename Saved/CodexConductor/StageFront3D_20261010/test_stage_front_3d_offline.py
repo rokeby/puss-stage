@@ -1,8 +1,7 @@
-"""Offline positive/negative harness for Job 131. Starts neither Unreal nor Blender."""
+"""Offline positive/negative harness for Job 149. Starts neither Unreal nor Blender."""
 from __future__ import annotations
 
 import importlib.util
-import ast
 import json
 import os
 import tempfile
@@ -61,6 +60,9 @@ def main():
     check("NEG texture cap above 4K", raises(C.validate_import_args, {"mode": "DRY", "max_texture_size": 8192}, contains="MAX_4096"))
     check("NEG MATERIAL requires one piece", raises(C.validate_import_args, {"mode": "MATERIAL", "confirm": C.CONFIRMS["MATERIAL"]}, contains="PIECE_ONE"))
     check("POS MATERIAL one piece", C.validate_import_args({"mode": "MATERIAL", "confirm": C.CONFIRMS["MATERIAL"], "piece": "crest"})[1]["piece"] == "crest")
+    check("NEG material DRY requires confirm", raises(C.validate_import_args, {"mode": "DRY", "piece": "crest"}, contains="CONFIRM"))
+    material_dry = {"mode": "DRY", "confirm": "DRY STAGEFRONT3D MATERIAL", "piece": "crest"}
+    check("POS material DRY one piece", C.validate_import_args(material_dry)[1]["piece"] == "crest")
     check("NEG VERIFY needs record", raises(C.validate_import_args, {"mode": "VERIFY"}, contains="RECORD"))
     check("NEG APPLY place needs confirm", raises(C.validate_place_args, {"mode": "APPLY"}, contains="CONFIRM"))
     check("POS APPLY place confirm", C.validate_place_args({"mode": "APPLY", "confirm": "APPLY STAGEFRONT3D"})[0] == "APPLY")
@@ -87,28 +89,30 @@ def main():
     check("POS one import task call", "import_asset_tasks([task])" in main_import and "replace_existing\", False" in main_import)
     check("POS GC before targeted save", section.index("collect_garbage()") < section.index("save_asset(row[\"dest\"]"))
     check("POS import delta refuses split FBX", "multi-object FBX/strays are never deleted" in main_import)
-    check("POS pre-existing master read-only", "PREEXISTING_MASTER_INCOMPATIBLE" in main_import and "if master_exists:" in main_import)
+    check("POS chandelier master preferred", C.MASTER_DEFAULT == "/Game/Scenes/Props/Chandelier/M_AgedMaskedMetal_CreateOnly")
+    check("POS recorded chandelier parameter names", C.MASTER_TEXTURE_PARAMETERS ==
+          ("BaseColorClean", "BaseColorDusty", "MasksTexture", "NormalTexture", "RoughnessTexture"))
+    check("POS exact parent parameter contract accepted", C.master_parameter_problem(C.MASTER_TEXTURE_PARAMETERS) is None)
+    check("NEG missing parent parameter refused", C.master_parameter_problem(C.MASTER_TEXTURE_PARAMETERS[:-1]).startswith("MASTER_TEXTURE_PARAMETERS"))
+    check("NEG extra parent parameter refused", C.master_parameter_problem(C.MASTER_TEXTURE_PARAMETERS + ("Unexpected",)).startswith("MASTER_TEXTURE_PARAMETERS"))
+    check("NEG renamed parent parameter refused", C.master_parameter_problem(("BaseColorClean", "BaseColorDusty", "Masks", "NormalTexture", "RoughnessTexture")).startswith("MASTER_TEXTURE_PARAMETERS"))
+    check("POS pre-existing master read-only", "load_existing_master(c, master_path)" in main_import and
+          "EXISTING_SAVED_MASTER_REQUIRED" in main_import and "PREEXISTING_MASTER_INCOMPATIBLE" in main_import)
     check("POS never deletes material nodes", "delete_material_expression" not in main_import and "delete_all_material_expressions" not in main_import)
-    check("POS mask strengths drive clean-to-dusty blend", all(x in main_import for x in
-          ("MASTER_MASK_CHANNELS", "MaterialExpressionSaturate", "MaterialExpressionLinearInterpolate", "CONNECT_BLEND_ALPHA")))
-    check("POS direct mask pins are uppercase", C.MASTER_MASK_CHANNELS == (("R", "DustStrength"), ("G", "SootStrength"), ("A", "PeelStrength")) and
-          'connect_material_expressions(nodes["Masks"], channel, mul, "A")' in main_import)
-    check("NEG lowercase texture outputs rejected", C.master_output_pin_problem(("RGB", "r", "G", "B", "A"), "R").startswith("MASK_OUTPUT_PIN_CASE") and
-          "master_output_pin_problem(outputs, channel)" in main_import)
-    check("POS uppercase texture output accepted", C.master_output_pin_problem(("RGB", "R", "G", "B", "A"), "R") is None)
-    tree = ast.parse(main_import)
-    connect_calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call) and
-                     isinstance(node.func, ast.Attribute) and node.func.attr == "connect_material_expressions"]
-    check("POS UE58 connect signature has four positional args", bool(connect_calls) and all(len(x.args) == 4 for x in connect_calls))
-    check("POS masks use linear grayscale sampler", '"SAMPLERTYPE_LINEAR_GRAYSCALE"' in main_import and
-          '"SAMPLERTYPE_LINEAR_COLOR"' not in main_import)
-    check("POS full graph readback precedes all material saves", "MASTER_GRAPH_NODE_COUNT" in main_import and
-          "MASTER_GRAPH_LINK_" in main_import and "MASTER_GRAPH_PROPERTY_" in main_import and
-          "MASTER_GRAPH_COMPILE" in main_import and
-          main_import.index("graph = verify_master_graph_in_memory(c, mat") < main_import.index("for path in save"))
-    check("NEG unsaved in-memory master refused", C.master_presence_problem(True, False) == "PARTIAL_UNSAVED_MASTER_IN_MEMORY" and
-          "master_presence_problem(master_registered, master_on_disk)" in main_import)
-    check("POS saved master remains reusable", C.master_presence_problem(True, True) is None)
+    check("NEG all master graph construction absent", all(x not in main_import for x in
+          ("MaterialFactoryNew", "create_material_expression", "connect_material_expressions",
+           "connect_material_property", "recompile_material", "layout_material_expressions",
+           "CONNECT_MASK", "CONNECT_SATURATE")))
+    check("POS material DRY reads parent parameter names", "get_texture_parameter_names(mat)" in main_import and
+          "MATERIAL_DRY_OK" in main_import and "load_existing_master(c, values[\"master_path\"])" in main_import)
+    check("POS only dusty N roughness masks are overridden", C.MI_TEXTURE_BINDINGS ==
+          (("BaseColor_Dusty", "BaseColorDusty"), ("Masks", "MasksTexture"),
+           ("N", "NormalTexture"), ("Roughness", "RoughnessTexture")))
+    material_section = main_import[main_import.index("def run_material("):main_import.index("\ndef run_verify(")]
+    check("POS parent inspected before backup and mutation", material_section.index("load_existing_master") <
+          material_section.index("backup(c") < material_section.index("create_asset(mi_path"))
+    check("POS material save scope is MI plus mesh", 'targets = [mi_path, mesh_path]' in material_section and
+          'targets = [mi_path, mesh_path] +' not in material_section)
     check("POS no ClearCoat graph pins", "MP_CLEAR_COAT" not in main_import and "ClearCoat" not in main_import)
     check("POS create-only MI", "REFUSE_OVERWRITE|\" + mi_path" in main_import)
     check("POS placement attachment KEEP_WORLD", "AttachmentRule.KEEP_WORLD" in main_place)

@@ -3,9 +3,9 @@
 One IMPORT execution accepts exactly one selector. Interchange pipeline settings
 are supplied and read back (FbxImportUI is intentionally not used), the folder
 delta must be exactly one package, transient importer state is garbage-collected,
-and only that package is saved. MATERIAL handles one piece per execution. It
-never edits a pre-existing material: a supplied/existing master is read-only and
-must match the parameter contract; otherwise a new master and MI are create-only.
+and only that package is saved. MATERIAL handles one piece per execution. Job
+149 forbids master-graph construction: MATERIAL reuses a saved parent, creates
+only one MI, binds it to one mesh, and saves only those two packages.
 """
 from __future__ import annotations
 
@@ -181,160 +181,53 @@ def enable_nanite(c, mesh):
 def master_info(u, mat):
     mel = u.MaterialEditingLibrary
     return {"path": _pkg(mat),
-            "textures": sorted(str(x) for x in mel.get_texture_parameter_names(mat)),
-            "scalars": sorted(str(x) for x in mel.get_scalar_parameter_names(mat))}
+            "textures": sorted(str(x) for x in mel.get_texture_parameter_names(mat))}
 
 
 def master_problems(info):
-    want_t = sorted(x[3] for x in C.MAP_KINDS)
-    want_s = ["DustStrength", "PeelStrength", "SootStrength"]
-    out = []
-    if info.get("textures") != want_t: out.append("TEXTURE_PARAMETERS")
-    if info.get("scalars") != want_s: out.append("SCALAR_PARAMETERS")
-    return out
+    problem = C.master_parameter_problem(info.get("textures", []))
+    return [] if problem is None else [problem]
 
 
-def _enum_token(value):
-    return str(value).split(".")[-1].split(":")[0].strip("<> ")
-
-
-def _same_object(left, right):
-    if left is None or right is None:
-        return left is right
-    left_path = left.get_path_name() if hasattr(left, "get_path_name") else str(left)
-    right_path = right.get_path_name() if hasattr(right, "get_path_name") else str(right)
-    return left_path == right_path
-
-
-def _require_expression_link(c, mat, mel, target, input_name, source, output_name, label):
-    input_names = [str(x) for x in mel.get_material_expression_input_names(target)]
-    actual_sources = list(mel.get_inputs_for_material_expression(mat, target))
-    source_ok = any(_same_object(x, source) for x in actual_sources)
-    output_result = mel.get_input_node_output_name_for_material_expression(target, source)
-    if isinstance(output_result, tuple):
-        output_ok_flag, actual_output = bool(output_result[0]), str(output_result[1])
-    else:
-        output_ok_flag, actual_output = True, str(output_result)
-    output_ok = output_ok_flag and (output_name == "" or actual_output == output_name)
-    c.require(input_name in input_names and source_ok and output_ok,
-              "MASTER_GRAPH_LINK_%s|input=%s|wanted=%s|got=%s|inputs=%s" %
-              (label, input_name, output_name, actual_output, input_names))
-    return {"input": input_name, "output": output_name}
-
-
-def verify_master_graph_in_memory(c, mat, nodes, scalars, weighted, add1, add2, saturate, blend):
-    """Read back every node, sampler, expression edge, output edge and compile result before save."""
-    u = c.u; mel = u.MaterialEditingLibrary; MP = u.MaterialProperty
-    expected_samplers = {
-        "BaseColorClean": "SAMPLERTYPE_COLOR",
-        "BaseColorDusty": "SAMPLERTYPE_COLOR",
-        "Masks": "SAMPLERTYPE_LINEAR_GRAYSCALE",
-        "Normal": "SAMPLERTYPE_NORMAL",
-        "Roughness": "SAMPLERTYPE_LINEAR_GRAYSCALE",
-    }
-    got_samplers = {name: _enum_token(node.get_editor_property("sampler_type")) for name, node in nodes.items()}
-    c.require(got_samplers == expected_samplers, "MASTER_GRAPH_SAMPLERS|%s" % got_samplers)
-    expressions = list(mel.get_material_expressions(mat))
-    c.require(len(expressions) == 15, "MASTER_GRAPH_NODE_COUNT|%d" % len(expressions))
-    links = []
-    for index, (channel, scalar_name) in enumerate(C.MASTER_MASK_CHANNELS):
-        links.append(_require_expression_link(c, mat, mel, weighted[index], "A", nodes["Masks"], channel,
-                                              "MASK_%s" % channel))
-        links.append(_require_expression_link(c, mat, mel, weighted[index], "B", scalars[scalar_name], "",
-                                              "STRENGTH_%s" % channel))
-    for target, input_name, source, output_name, label in (
-            (add1, "A", weighted[0], "", "DUST_ADD"),
-            (add1, "B", weighted[1], "", "SOOT_ADD"),
-            (add2, "A", add1, "", "AGING_ADD"),
-            (add2, "B", weighted[2], "", "PEEL_ADD"),
-            (saturate, "Input", add2, "", "SATURATE"),
-            (blend, "A", nodes["BaseColorClean"], "RGB", "CLEAN"),
-            (blend, "B", nodes["BaseColorDusty"], "RGB", "DUSTY"),
-            (blend, "Alpha", saturate, "", "BLEND_ALPHA")):
-        links.append(_require_expression_link(c, mat, mel, target, input_name, source, output_name, label))
-    properties = {}
-    for prop, source, output_name, label in (
-            (MP.MP_BASE_COLOR, blend, "", "BASE_COLOR"),
-            (MP.MP_NORMAL, nodes["Normal"], "RGB", "NORMAL"),
-            (MP.MP_ROUGHNESS, nodes["Roughness"], "R", "ROUGHNESS"),
-            (MP.MP_AMBIENT_OCCLUSION, nodes["Masks"], "B", "AMBIENT_OCCLUSION")):
-        actual_source = mel.get_material_property_input_node(mat, prop)
-        actual_output = str(mel.get_material_property_input_node_output_name(mat, prop))
-        output_ok = actual_output == output_name or (output_name == "" and actual_output in ("", "None"))
-        c.require(_same_object(actual_source, source) and output_ok,
-                  "MASTER_GRAPH_PROPERTY_%s|wanted=%s|got=%s" % (label, output_name, actual_output))
-        properties[label] = output_name
-    compile_errors = [str(x) for x in mel.recompile_material(mat)]
-    c.require(not compile_errors, "MASTER_GRAPH_COMPILE|%s" % compile_errors)
-    return {"nodes": len(expressions), "expression_links": len(links), "material_links": len(properties),
-            "samplers": got_samplers, "compile_errors": compile_errors}
-
-
-def build_master(c, path, default_textures):
-    u = c.u; eal = u.EditorAssetLibrary; tools = u.AssetToolsHelpers.get_asset_tools()
-    name, folder = path.rsplit("/", 1)[1], path.rsplit("/", 1)[0]
-    c.require(not eal.does_asset_exist(path), "REFUSE_OVERWRITE|" + path)
-    mat = tools.create_asset(name, folder, u.Material, u.MaterialFactoryNew())
-    c.require(mat is not None, "MASTER_CREATE")
-    c.past_write = True
-    mel = u.MaterialEditingLibrary; MP = u.MaterialProperty
-    nodes = {}
-    for index, (_, srgb, compression, parameter) in enumerate(C.MAP_KINDS):
-        node = mel.create_material_expression(mat, u.MaterialExpressionTextureSampleParameter2D, -700, -300 + index * 150)
-        node.set_editor_property("parameter_name", u.Name(parameter)); nodes[parameter] = node
-        node.set_editor_property("texture", eal.load_asset(default_textures[parameter]))
-        sampler = ("SAMPLERTYPE_COLOR" if srgb else
-                   "SAMPLERTYPE_NORMAL" if compression == "TC_NORMALMAP" else
-                   "SAMPLERTYPE_LINEAR_GRAYSCALE")
-        node.set_editor_property("sampler_type", getattr(u.MaterialSamplerType, sampler))
-    scalars = {}
-    for index, name in enumerate(("DustStrength", "SootStrength", "PeelStrength")):
-        node = mel.create_material_expression(mat, u.MaterialExpressionScalarParameter, -300, 500 + index * 100)
-        node.set_editor_property("parameter_name", u.Name(name)); node.set_editor_property("default_value", 1.0)
-        scalars[name] = node
-    weighted = []
-    for index, (channel, scalar_name) in enumerate(C.MASTER_MASK_CHANNELS):
-        mul = mel.create_material_expression(mat, u.MaterialExpressionMultiply, -180, -250 + index * 120)
-        outputs = [str(x) for x in mel.get_material_expression_output_names(nodes["Masks"])]
-        output_problem = C.master_output_pin_problem(outputs, channel)
-        c.require(not output_problem, output_problem)
-        c.require(mel.connect_material_expressions(nodes["Masks"], channel, mul, "A"), "CONNECT_MASK_" + channel)
-        c.require(mel.connect_material_expressions(scalars[scalar_name], "", mul, "B"), "CONNECT_STRENGTH_" + channel)
-        weighted.append(mul)
-    add1 = mel.create_material_expression(mat, u.MaterialExpressionAdd, 40, -180)
-    add2 = mel.create_material_expression(mat, u.MaterialExpressionAdd, 220, -100)
-    saturate = mel.create_material_expression(mat, u.MaterialExpressionSaturate, 400, -100)
-    blend = mel.create_material_expression(mat, u.MaterialExpressionLinearInterpolate, 600, -220)
-    c.require(mel.connect_material_expressions(weighted[0], "", add1, "A"), "CONNECT_DUST_ADD")
-    c.require(mel.connect_material_expressions(weighted[1], "", add1, "B"), "CONNECT_SOOT_ADD")
-    c.require(mel.connect_material_expressions(add1, "", add2, "A"), "CONNECT_AGING_ADD")
-    c.require(mel.connect_material_expressions(weighted[2], "", add2, "B"), "CONNECT_PEEL_ADD")
-    c.require(mel.connect_material_expressions(add2, "", saturate, "Input"), "CONNECT_SATURATE")
-    c.require(mel.connect_material_expressions(nodes["BaseColorClean"], "RGB", blend, "A"), "CONNECT_CLEAN")
-    c.require(mel.connect_material_expressions(nodes["BaseColorDusty"], "RGB", blend, "B"), "CONNECT_DUSTY")
-    c.require(mel.connect_material_expressions(saturate, "", blend, "Alpha"), "CONNECT_BLEND_ALPHA")
-    c.require(mel.connect_material_property(blend, "", MP.MP_BASE_COLOR), "CONNECT_BASE")
-    c.require(mel.connect_material_property(nodes["Normal"], "RGB", MP.MP_NORMAL), "CONNECT_NORMAL")
-    c.require(mel.connect_material_property(nodes["Roughness"], "R", MP.MP_ROUGHNESS), "CONNECT_ROUGHNESS")
-    c.require(mel.connect_material_property(nodes["Masks"], "B", MP.MP_AMBIENT_OCCLUSION), "CONNECT_AO")
-    graph = verify_master_graph_in_memory(c, mat, nodes, scalars, weighted, add1, add2, saturate, blend)
-    mel.layout_material_expressions(mat)
-    info = master_info(u, mat); c.require(not master_problems(info), "MASTER_READBACK|%s" % master_problems(info))
-    info["graph"] = graph
+def load_existing_master(c, path):
+    """Read-only parent selection.  Never creates, edits, recompiles or saves it."""
+    eal = c.u.EditorAssetLibrary
+    c.require(eal.does_asset_exist(path), "EXISTING_MASTER_REQUIRED|" + path)
+    c.require(os.path.isfile(_asset_file(c.u, path)), "EXISTING_SAVED_MASTER_REQUIRED|" + path)
+    mat = eal.load_asset(path)
+    c.require(isinstance(mat, c.u.Material), "MASTER_CLASS|" + path)
+    info = master_info(c.u, mat)
+    problems = master_problems(info)
+    c.require(not problems, "PREEXISTING_MASTER_INCOMPATIBLE|%s" % problems)
     return mat, info
 
 
 def mi_facts(c, mi):
     mel = c.u.MaterialEditingLibrary
     return {"parent": _pkg(mi.get_editor_property("parent")),
-            "textures": {x[3]: _pkg(mel.get_material_instance_texture_parameter_value(mi, x[3])) for x in C.MAP_KINDS},
-            "scalars": {n: float(mel.get_material_instance_scalar_parameter_value(mi, n))
-                        for n in ("DustStrength", "SootStrength", "PeelStrength")}}
+            "textures": {parameter: _pkg(mel.get_material_instance_texture_parameter_value(mi, parameter))
+                         for _, parameter in C.MI_TEXTURE_BINDINGS}}
 
 
-def run_dry(c, plan, rec):
+def run_dry(c, plan, rec, values):
     guard(c, require_clean=False); before = census(c.u)
-    existing = sorted(set(plan["packages"] + plan["material_packages"] + [C.MASTER_DEFAULT]) & listing(c.u))
+    piece = values.get("piece")
+    if piece is not None:
+        master, info = load_existing_master(c, values["master_path"])
+        required = [C.package_for("mesh", piece)] + [C.package_for("texture", piece, kind)
+                                                     for kind, _ in C.MI_TEXTURE_BINDINGS]
+        missing = [path for path in required if not c.u.EditorAssetLibrary.does_asset_exist(path)]
+        mi_path = C.package_for("mi", piece)
+        c.require(not missing, "PIECE_IMPORTS_INCOMPLETE|%s" % missing)
+        c.require(not c.u.EditorAssetLibrary.does_asset_exist(mi_path), "REFUSE_OVERWRITE|" + mi_path)
+        mesh = c.u.EditorAssetLibrary.load_asset(C.package_for("mesh", piece))
+        c.require(len(list(mesh.get_editor_property("static_materials"))) == 1, "MESH_SLOT_COUNT")
+        c.require(census(c.u) == before, "DRY_DIRTIED")
+        c.require(before == {"content": [], "maps": []}, "DIRTY_AT_START|%s" % before)
+        c.u.log("%s_MATERIAL_DRY_OK|run=%s|mutated=0|piece=%s|master=%s|texture_parameters=%s|mi=%s|dirty=0" %
+                (C.MARK, c.run, piece, _pkg(master), info["textures"], mi_path))
+        return
+    existing = sorted(set(plan["packages"] + plan["material_packages"]) & listing(c.u))
     c.require(census(c.u) == before, "DRY_DIRTIED")
     c.u.log("%s_IMPORT_DRY_%s|run=%s|mutated=0|inputs=%d|missing=%s|existing=%s|dirty=%s|record=%d" %
             (C.MARK, "OK" if not plan["missing"] and not existing and before == {"content": [], "maps": []} else "REFUSED",
@@ -392,32 +285,22 @@ def run_material(c, plan, rec, values):
     c.require(all(eal.does_asset_exist(x) for x in required), "PIECE_IMPORTS_INCOMPLETE|%s" % required)
     c.require(not eal.does_asset_exist(mi_path), "REFUSE_OVERWRITE|" + mi_path)
     master_path = values["master_path"]
-    master_registered = eal.does_asset_exist(master_path)
-    master_on_disk = os.path.isfile(_asset_file(c.u, master_path))
-    presence_problem = C.master_presence_problem(master_registered, master_on_disk)
-    c.require(not presence_problem, "%s|%s" % (presence_problem, master_path))
     c.require(census(c.u) == {"content": [], "maps": []}, "DIRTY_AT_START|%s" % census(c.u))
-    master_exists = master_on_disk
-    targets = [mi_path, mesh_path] + ([] if master_exists else [master_path])
-    backup_dir = backup(c, "StageFront3DMaterial", targets, {"piece": key, "master": master_path, "existing_master": master_exists})
+    master, info = load_existing_master(c, master_path)
+    targets = [mi_path, mesh_path]
+    backup_dir = backup(c, "StageFront3DMaterial", targets,
+                        {"piece": key, "master": master_path, "master_parameters": info["textures"]})
     rec.update({"pending": {"run": c.run, "mode": "MATERIAL", "piece": key, "backup": backup_dir}}); _write(RECORD, rec)
-    texture_paths = {row[3]: C.package_for("texture", key, row[0]) for row in C.MAP_KINDS}
-    if master_exists:
-        master = eal.load_asset(master_path); info = master_info(c.u, master)
-        c.require(not master_problems(info), "PREEXISTING_MASTER_INCOMPATIBLE|%s" % master_problems(info))
-    else:
-        master, info = build_master(c, master_path, texture_paths)
+    texture_paths = {parameter: C.package_for("texture", key, map_kind)
+                     for map_kind, parameter in C.MI_TEXTURE_BINDINGS}
     mi = c.u.AssetToolsHelpers.get_asset_tools().create_asset(mi_path.rsplit("/", 1)[1], mi_path.rsplit("/", 1)[0],
             c.u.MaterialInstanceConstant, c.u.MaterialInstanceConstantFactoryNew())
     c.require(mi is not None, "MI_CREATE"); c.past_write = True
     mi.modify(); mel.set_material_instance_parent(mi, master)
     textures = {}
-    for map_kind, _, _, parameter in C.MAP_KINDS:
+    for map_kind, parameter in C.MI_TEXTURE_BINDINGS:
         path = C.package_for("texture", key, map_kind); textures[parameter] = path
         mel.set_material_instance_texture_parameter_value(mi, parameter, eal.load_asset(path))
-    for name, value in (("DustStrength", values["dust_strength"]), ("SootStrength", values["soot_strength"]),
-                        ("PeelStrength", values["peel_strength"])):
-        mel.set_material_instance_scalar_parameter_value(mi, name, value)
     mel.update_material_instance(mi); got = mi_facts(c, mi)
     c.require(got["parent"] == master_path and got["textures"] == textures, "MI_READBACK|%s" % got)
     mesh = eal.load_asset(mesh_path); slots = list(mesh.get_editor_property("static_materials"))
@@ -429,12 +312,13 @@ def run_material(c, plan, rec, values):
     for path in save: c.require(eal.save_asset(path, only_if_is_dirty=False), "SAVE|" + path)
     c.require(census(c.u) == {"content": [], "maps": []}, "DIRTY_AFTER_SAVE")
     materials = dict(rec.get("materials", {})); materials[key] = {"run": c.run, "mi": mi_path, "master": master_path,
-                    "master_created": not master_exists, "mi_readback": got, "mesh_materials": bound, "backup": backup_dir}
-    created = rec["created_packages"] + [mi_path] + ([] if master_exists else [master_path])
+                    "master_parameters": info["textures"], "mi_readback": got,
+                    "mesh_materials": bound, "backup": backup_dir}
+    created = rec["created_packages"] + [mi_path]
     rec.update({"pending": None, "materials": materials, "created_packages": sorted(set(created)), "state": "materialized"})
     _write(RECORD, rec)
-    c.u.log("%s_MATERIAL_OK|run=%s|piece=%s|master=%s|master_reused=%d|mi=%s|saved=%d|dirty_after=0+0" %
-            (C.MARK, c.run, key, master_path, master_exists, mi_path, len(save)))
+    c.u.log("%s_MATERIAL_OK|run=%s|piece=%s|master=%s|existing_parent=1|mi=%s|saved=%d|dirty_after=0+0" %
+            (C.MARK, c.run, key, master_path, mi_path, len(save)))
 
 
 def run_verify(c, plan, rec):
@@ -454,6 +338,10 @@ def run_verify(c, plan, rec):
                 problems.append("TEXTURE_DRIFT|%s|%s" % (path, got))
             if row["map_kind"] == "N" and got["flip_green_channel"]: problems.append("NORMAL_GREEN_FLIP|" + path)
     for key, row in rec.get("materials", {}).items():
+        master = eal.load_asset(row["master"])
+        if master is None: problems.append("MISSING_PARENT|" + row["master"])
+        elif master_info(c.u, master)["textures"] != row["master_parameters"]:
+            problems.append("MASTER_PARAMETER_DRIFT|" + key)
         if not eal.does_asset_exist(row["mi"]): problems.append("MISSING|" + row["mi"])
         elif mi_facts(c, eal.load_asset(row["mi"])) != row["mi_readback"]: problems.append("MI_DRIFT|" + key)
         mesh = eal.load_asset(C.package_for("mesh", key))
@@ -472,7 +360,7 @@ def run_revert(c, rec):
         refs = {_pkg(x) for x in eal.find_package_referencers_for_asset(path, False)}
         c.require(not (refs - ours), "FOREIGN_REFERENCERS|%s|%s" % (path, sorted(refs - ours)))
     backup(c, "StageFront3DRevert", sorted(ours), {"record": rec})
-    priority = lambda p: (0 if "/MI_" in p else 1 if "/Meshes/" in p else 2 if p.endswith("M_StageFront_Baked_Master") else 3, p)
+    priority = lambda p: (0 if "/MI_" in p else 1 if "/Meshes/" in p else 2, p)
     for path in sorted(ours, key=priority):
         c.require(eal.delete_asset(path), "DELETE|" + path); c.require(not eal.does_asset_exist(path), "DELETE_READBACK|" + path)
     archived = RECORD.replace(".json", ".reverted-%s.json" % c.run); os.replace(RECORD, archived)
@@ -483,7 +371,7 @@ def main():
     args = _read(ARGS); rec = _read(RECORD) if os.path.isfile(RECORD) else None
     mode, values = C.validate_import_args(args, rec); c = Ctx(mode); plan = C.build_plan(PROJECT)
     c.u.log("%s_IMPORT_START|run=%s|mode=%s" % (C.MARK, c.run, mode))
-    if mode == "DRY": run_dry(c, plan, rec)
+    if mode == "DRY": run_dry(c, plan, rec, values)
     elif mode == "IMPORT": run_import(c, plan, rec, values)
     elif mode == "MATERIAL": run_material(c, plan, rec, values)
     elif mode == "VERIFY": run_verify(c, plan, rec)

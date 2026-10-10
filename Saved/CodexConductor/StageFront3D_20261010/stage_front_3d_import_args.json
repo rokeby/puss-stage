@@ -1,5 +1,7 @@
 {
  "mode": "DRY",
+ "confirm": "DRY STAGEFRONT3D MATERIAL",
+ "piece": "arch",
  "max_texture_size": 4096,
- "master_path": "/Game/Scenes/Props/StageFront3D/Materials/M_StageFront_Baked_Master"
+ "master_path": "/Game/Scenes/Props/Chandelier/M_AgedMaskedMetal_CreateOnly"
 }
