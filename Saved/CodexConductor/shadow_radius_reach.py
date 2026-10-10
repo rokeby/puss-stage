@@ -636,14 +636,41 @@ def apply_values(live, targets, side, strict=True):
     assert_planned_scope(targets)
     show = unreal.EditorAssetLibrary.load_asset(SHOW_PATH)
     require(show is not None, "SHOW_MISSING")
+    managed = {}
+    for passage, passage_actor in live["passages"].items():
+        for actor in passage_actor.get_editor_property("managed_attachment_actors"):
+            identity = parse_attachment_tag(actor)
+            if not identity:
+                continue
+            comps = light_components(actor)
+            if comps:
+                key = (passage, identity[0], identity[1])
+                require(key not in managed, "LIVE_TARGET_DUPLICATE|" + canonical(key))
+                managed[key] = (actor, comps[0])
     for target in targets:
         before, after = target["attenuation_radius_cm"], target["planned_radius_cm"]
         want, expected = (after, before) if side == "after" else (before, after)
         require(target["source"] == "SHOW_ATTACHMENT", "NON_SHOW_TARGET|" + target["id"])
+        key = (target["passage"], target["cue_guid"], target["attachment_guid"])
+        require(key in managed, "LIVE_TARGET_RESOLVE|" + canonical(key))
+        actor, component = managed[key]
+        require(actor.get_path_name() == target["actor_path"], "LIVE_ACTOR_DRIFT|" + target["id"])
+        require(actor_level_package(actor) == EXPECTED_WORLD,
+                "LIVE_TARGET_OUTSIDE_PERSISTENT_LEVEL|" + target["id"])
+        require(component.get_name() == target["component_name"], "LIVE_COMPONENT_DRIFT|" + target["id"])
+        live_radius = float(prop(component, "attenuation_radius"))
+        if strict:
+            require(abs(live_radius - float(expected)) <= FLOAT_TOL,
+                    "LIVE_RADIUS_DRIFT|%s|%s|%s" % (target["label"], live_radius, expected))
         set_show_radius(show, target, want, expected, strict)
+        actor.modify()
+        component.modify()
+        setter = getattr(component, "set_attenuation_radius", None)
+        require(callable(setter), "LIVE_RADIUS_SETTER_MISSING|" + target["id"])
+        setter(float(want))
+        require(abs(float(prop(component, "attenuation_radius")) - float(want)) <= FLOAT_TOL,
+                "LIVE_RADIUS_WRITEBACK|" + target["id"])
     affected = sorted({t["passage"] for t in targets if t["source"] == "SHOW_ATTACHMENT"})
-    for key in affected:
-        require(bool(live["passages"][key].materialize_passage()), "MATERIALIZE_FAILED|" + key)
     return affected
 
 

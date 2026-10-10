@@ -114,9 +114,16 @@ rejects("negative unowned persistent light refused",
         "PLANNED_CHANGE_OUTSIDE_PERSISTENT_PASSAGE_SCOPE")
 
 source = open(TOOL, encoding="utf-8").read()
-check("static no direct level-component radius mutation",
-      'set_editor_property("attenuation_radius", float(want))' not in source)
+apply_source = source[source.index("def apply_values("):source.index("def save_narrow(")]
+check("positive persistent component mirror uses supported setter",
+      'setter = getattr(component, "set_attenuation_radius", None)' in apply_source and
+      "setter(float(want))" in apply_source)
 check("static show setter only radius field", 'set_editor_property("attenuation_radius_cm", float(value))' in source)
+check("negative persistent-only apply never rematerializes whole passages",
+      "materialize_passage" not in apply_source)
+check("positive Show authority is written before component mirror",
+      apply_source.index("set_show_radius(show, target, want, expected, strict)") <
+      apply_source.index("setter(float(want))"))
 check("static no fog mutation", 'set_editor_property("cast_volumetric_shadow"' not in source)
 check("static backup before apply", source.index('backup_assets("PreShadowRadiusReach-"') < source.index('apply_values(live, changes, "after")'))
 check("negative unrelated live tool is never imported", "lighting_looks_apply.py" not in source)
