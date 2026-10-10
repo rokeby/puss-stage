@@ -31,7 +31,7 @@ Status values: `TODO` · `RUNNING` · `DONE (marker)` · `SKIPPED (reason)` · `
 | 11 | P05 → 42.04 s (103) | P05 | TODO |
 | 11b | P06 → Walking6, 125 s (104, IMPORT_AND_SWAP approved) | P06 | TODO |
 | 12 | Car drive-by radius 10000 (110) | **P02** | TODO |
-| 13 | 87 opening, **92 S2 hangar size (BIG DEAL, Gary 10 Oct: fully fit Klara's scene; verify with a still from inside her S2 camera)**, 94 S3 arrival, 97 Nap, pearl 2 s, 99 (S6 non-PIE), 101 ending | as listed | TODO. Note: 99 was mis-scoped (Gary: it is P06); job 126 replaces it |
+| 13 | (87 opening HELD: its requests renamed; it runs AFTER job 131 places the 3D stage front, because stage scale and camera angle change all opening visuals; then RE-DRY, and possibly re-plan the camera/uplights) **92 S2 hangar size (BIG DEAL, Gary 10 Oct: fully fit Klara's scene; verify with a still from inside her S2 camera)**, 94 S3 arrival, 97 Nap, pearl 2 s, 99 (S6 non-PIE), 101 ending | as listed | TODO. Note: 99 was mis-scoped (Gary: it is P06); job 126 replaces it |
 | — | Job 119/129 floor tool | **P02** floor (args target=P02; the S2 target is never used) | TODO: probe J118 P02 vs P01, then DRY (review segments + bindings) → APPLY → stills |
 | 14 | Stills | — | TODO |
 
