@@ -1,7 +1,7 @@
 {
   "target": "P02",
   "mode": "DRY",
-  "confirm": "",
+  "confirm": "DRY",
   "plan_sha256": "",
   "component_below_offset_cm": 100000.0,
   "bounds_tolerance_cm": 0.1,

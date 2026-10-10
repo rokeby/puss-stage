@@ -1,0 +1,10 @@
+{
+  "name": "call_tool",
+  "arguments": {
+    "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+    "tool_name": "ExecuteProjectPythonFile",
+    "arguments": {
+      "relativeSavedPath": "CodexConductor/StageFront3D_20261010/stage_front_3d_import_run.py"
+    }
+  }
+}

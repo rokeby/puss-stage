@@ -193,18 +193,17 @@ def _snapshot(actor, component_world=False):
         if min(abs(x) for x in relative_scale) <= 1e-6:
             raise Refused("DEGENERATE_SOURCE_COMPONENT_SCALE|%s|%s" %
                           (actor.get_actor_label(), relative_scale))
-        transform = component.get_component_transform()
-        transform_rotation = transform.rotation.rotator()
-        location = v3(transform.translation)
+        transform_rotation = component.get_world_rotation()
+        location = v3(component.get_world_location())
         rotation = [float(transform_rotation.roll), float(transform_rotation.pitch), float(transform_rotation.yaw)]
-        scale = v3(transform.scale3d)
+        scale = v3(component.get_world_scale())
     else:
         actor_rotation = actor.get_actor_rotation()
         location = v3(actor.get_actor_location())
         rotation = [float(actor_rotation.roll), float(actor_rotation.pitch), float(actor_rotation.yaw)]
         scale = v3(actor.get_actor_scale3d())
     bmin, bmax = _bbox(mesh)
-    origin, extent = unreal.SystemLibrary.get_actor_bounds(actor, False)
+    origin, extent = actor.get_actor_bounds(False)
     return {
         "label": str(actor.get_actor_label()), "actor_path": _path(actor), "level": _level(actor),
         "actor_class": _path(actor.get_class()), "component_path": _path(component), "mesh": _path(mesh),
@@ -267,7 +266,7 @@ def _sequence_audit(world, targets):
             continue
         for binding in bindings:
             try:
-                objects = list(sequence.locate_bound_objects(binding.get_id(), world))
+                objects = list(sequence.locate_bound_objects(binding, world))
             except Exception as exc:
                 unclear.append({"sequence": asset_path, "binding": str(binding.get_name()), "error": repr(exc)})
                 continue
@@ -408,7 +407,10 @@ def _p02_segments(targets):
                               for instance_index in range(count)]
                 construction = "instanced_board_per_instance"
             else:
-                transforms = [(None, component.get_component_transform())]
+                transforms = [(None, unreal.Transform(
+                    location=component.get_world_location(),
+                    rotation=component.get_world_rotation(),
+                    scale=component.get_world_scale()))]
                 construction = "route_static_mesh_component"
             for instance_index, transform in transforms:
                 rotation = transform.rotation.rotator()
@@ -450,7 +452,7 @@ def _sequence_audit_p02(world, targets):
             continue
         for binding in bindings:
             try:
-                objects = list(sequence.locate_bound_objects(binding.get_id(), world))
+                objects = list(sequence.locate_bound_objects(binding, world))
             except Exception as exc:
                 unclear.append({"sequence": asset_path, "binding": str(binding.get_name()), "error": repr(exc)})
                 continue
