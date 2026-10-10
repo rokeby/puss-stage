@@ -160,3 +160,4 @@ Stills are in `Saved/CodexConductor/ApplyPass_20261010/stills/`. Verdicts are by
 5. Chandelier.
 6. Ending.
 7. A P06 dusk still.
+- **Fringe (88): HELD until 11 Oct**: two live failures (post_edit_change, then the SkinColor setter); low priority; retired records.
