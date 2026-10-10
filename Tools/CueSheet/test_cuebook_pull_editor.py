@@ -267,7 +267,7 @@ class CueBookEditorHarness(unittest.TestCase):
         with mock.patch.dict(sys.modules, {"unreal": MenuUnreal}):
             startup_spec.loader.exec_module(startup)
         self.assertEqual([entry.label for _, entry in entries], [
-            "Pull Cue Book", "Export from Cue Book backup..."
+            "Pull Cue Book", "Export from Cue Book backup...", "Rebuild Passage Fixtures"
         ])
 
 

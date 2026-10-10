@@ -1,0 +1,481 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
+index 96158789..32afce65 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
+@@ -161,7 +161,9 @@ TArray<FFixturePlacement> GatherFixturePlacements(
+         const FTransform PairWorld = (*Cue)->WingPair.OccurrenceOffset * Stations[StationIndex].StationWorld;
+         for (const FInfinityCueAttachment& Attachment : (*Cue)->WingPair.Attachments)
+         {
+-            if (!Attachment.bEnabled || Attachment.Kind != EInfinityAttachmentKind::Light)
++            if (!Attachment.bEnabled
++                || Attachment.Kind != EInfinityAttachmentKind::Light
++                || Attachment.bSuppressFixtureBody)
+             {
+                 continue;
+             }
+@@ -485,6 +487,118 @@ void AInfinityStageStructureActor::ClearStructure()
+     MarkPackageDirty();
+ }
+ 
++void AInfinityStageStructureActor::ClearFixtureComponents()
++{
++    TSet<UInstancedStaticMeshComponent*> ComponentsToDestroy;
++    for (UInstancedStaticMeshComponent* Component : ManagedComponents)
++    {
++        if (IsValid(Component)
++            && (Component->ComponentTags.Contains(FixtureLayerTag)
++                || Component->ComponentTags.Contains(LineLayerTag)))
++        {
++            ComponentsToDestroy.Add(Component);
++        }
++    }
++
++    // Recover fixture components whose serialized ownership-array reference was
++    // lost through undo or reinstancing, without touching any other layer.
++    TInlineComponentArray<UInstancedStaticMeshComponent*> AttachedComponents(this);
++    for (UInstancedStaticMeshComponent* Component : AttachedComponents)
++    {
++        if (IsValid(Component)
++            && (Component->ComponentTags.Contains(FixtureLayerTag)
++                || Component->ComponentTags.Contains(LineLayerTag)))
++        {
++            ComponentsToDestroy.Add(Component);
++        }
++    }
++
++    for (UInstancedStaticMeshComponent* Component : ComponentsToDestroy)
++    {
++        ManagedComponents.Remove(Component);
++        Component->Modify();
++        RemoveInstanceComponent(Component);
++        Component->DestroyComponent();
++    }
++    FixtureBodyCount = 0;
++    HangingLineCount = 0;
++    MovingLightsWithoutHousing = 0;
++}
++
++bool AInfinityStageStructureActor::RebuildFixturesOnly()
++{
++    if (GetWorld() && GetWorld()->IsGameWorld())
++    {
++        UE_LOG(LogInfinityStageStructure, Warning,
++            TEXT("RebuildFixturesOnly is editor authoring only; refusing in a game world."));
++        return false;
++    }
++
++    TArray<FInfinityStructureStation> Stations;
++    FString Error;
++    if (!GatherStations(Stations, Error))
++    {
++        UE_LOG(LogInfinityStageStructure, Error, TEXT("%s Keeping the previous fixtures."), *Error);
++        return false;
++    }
++
++    UStaticMesh* BodyMesh = nullptr;
++    UStaticMesh* LineMesh = nullptr;
++    UMaterialInterface* BodyMaterial = nullptr;
++    UMaterialInterface* LineMaterial = nullptr;
++    if (Fixtures.bEnabled)
++    {
++        BodyMesh = Fixtures.BodyMesh.LoadSynchronous();
++        if (!BodyMesh)
++        {
++            UE_LOG(LogInfinityStageStructure, Error,
++                TEXT("Fixture body mesh '%s' does not load. Keeping the previous fixtures."),
++                *Fixtures.BodyMesh.ToSoftObjectPath().ToString());
++            return false;
++        }
++        BodyMaterial = Fixtures.BodyMaterial.LoadSynchronous();
++        if (!BodyMaterial && !Fixtures.BodyMaterial.IsNull())
++        {
++            UE_LOG(LogInfinityStageStructure, Warning,
++                TEXT("Fixture body material '%s' does not load; using the mesh's own."),
++                *Fixtures.BodyMaterial.ToSoftObjectPath().ToString());
++        }
++
++        const bool bFixtureLines = Fixtures.bHangFromGrid && Gridiron.bEnabled;
++        if (bFixtureLines)
++        {
++            LineMesh = Fixtures.LineMesh.LoadSynchronous();
++            if (!LineMesh)
++            {
++                UE_LOG(LogInfinityStageStructure, Error,
++                    TEXT("Hanging line mesh '%s' does not load. Keeping the previous fixtures."),
++                    *Fixtures.LineMesh.ToSoftObjectPath().ToString());
++                return false;
++            }
++            LineMaterial = Fixtures.LineMaterial.LoadSynchronous();
++            if (!LineMaterial && !Fixtures.LineMaterial.IsNull())
++            {
++                UE_LOG(LogInfinityStageStructure, Warning,
++                    TEXT("Hanging line material '%s' does not load; using the mesh's own."),
++                    *Fixtures.LineMaterial.ToSoftObjectPath().ToString());
++            }
++        }
++    }
++
++    Modify();
++    ClearFixtureComponents();
++    if (BodyMesh)
++    {
++        BuildFixtures(Stations, *BodyMesh, BodyMaterial, LineMesh, LineMaterial);
++    }
++
++    int32 MovingLights = 0;
++    StationSignature = ComputeStructureSignature(
++        Stations,
++        GatherFixturePlacements(*Passage->ShowAsset, Stations, MovingLights));
++    return true;
++}
++
+ bool AInfinityStageStructureActor::MaterializeStructure()
+ {
+     if (GetWorld() && GetWorld()->IsGameWorld())
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
+index 3b51f40d..245fb43e 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
+@@ -1164,6 +1164,12 @@ public:
+     UFUNCTION(BlueprintCallable, Category = "Infinity Stage")
+     bool MaterializeStructure();
+ 
++    /** Rebuilds only generated fixture housings and their hanging lines from the
++     * Show. Other structure layers and their instance transforms are untouched.
++     * Editor authoring only; refuses in PIE/game worlds. */
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage")
++    bool RebuildFixturesOnly();
++
+     /** Details-panel button; Unreal buttons need a void, parameterless function. */
+     UFUNCTION(CallInEditor, Category = "Infinity Stage", meta = (DisplayName = "Materialize Structure"))
+     void MaterializeStructureInEditor();
+@@ -1200,6 +1206,9 @@ private:
+         UMaterialInterface* Material,
+         bool bCastShadow);
+ 
++    /** Removes only components tagged as fixture housings or fixture lines. */
++    void ClearFixtureComponents();
++
+     void BuildGridiron(
+         const TArray<FInfinityStructureStation>& Stations,
+         UInstancedStaticMeshComponent& Component,
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+index e43a4a77..46b4f2b8 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+@@ -464,6 +464,13 @@ struct INFINITYSTAGE_API FInfinityCueAttachment
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attachment")
+     bool bEnabled = true;
+ 
++    /** Light attachments only: keep the authored light but omit the generated
++     * parcan housing and its hanging line. Off by default, so existing lights
++     * retain their fixture bodies until an artist opts out explicitly. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lighting",
++        meta = (EditCondition = "Kind == EInfinityAttachmentKind::Light", EditConditionHides))
++    bool bSuppressFixtureBody = false;
++
+     /** Optional placed-actor override. Light attachments may leave this empty:
+      * a native actor is then created from Lighting.Type. A custom light actor
+      * receives the same persistent settings on its first Light Component. */
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorModule.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorModule.cpp
+index db46ed56..8aeeed6d 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorModule.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorModule.cpp
+@@ -1,4 +1,5 @@
+ #include "Editor.h"
++#include "Containers/Ticker.h"
+ #include "Engine/Engine.h"
+ #include "Engine/World.h"
+ #include "EngineUtils.h"
+@@ -23,12 +24,14 @@
+ #include "InfinityStageAttachmentBinding.h"
+ #include "InfinityStageShadowCatComponent.h"
+ #include "InfinityStageShowAsset.h"
++#include "InfinityStageStructureActor.h"
+ #include "InfinityStageTrackEditor.h"
+ #include "InfinityStageWingAssetAuditor.h"
+ #include "InfinityStageWingLibraryAsset.h"
+ #include "Misc/CommandLine.h"
+ #include "Misc/Parse.h"
+ #include "HAL/IConsoleManager.h"
++#include "HAL/PlatformTime.h"
+ 
+ namespace
+ {
+@@ -194,6 +197,12 @@ public:
+             GEditor->OnActorsMoved().Remove(ActorsMovedHandle);
+         }
+         FCoreUObjectDelegates::OnObjectPropertyChanged.Remove(ObjectPropertyChangedHandle);
++        if (FixtureRebuildTickerHandle.IsValid())
++        {
++            FTSTicker::GetCoreTicker().RemoveTicker(FixtureRebuildTickerHandle);
++            FixtureRebuildTickerHandle.Reset();
++        }
++        PendingFixturePassages.Reset();
+         if (GEngine && LevelActorDeletedHandle.IsValid())
+         {
+             GEngine->OnLevelActorDeleted().Remove(LevelActorDeletedHandle);
+@@ -245,6 +254,7 @@ private:
+         }
+ 
+         int32 Updated = 0;
++        TSet<TWeakObjectPtr<AInfinityStagePassageActor>> UpdatedPassages;
+         for (AActor* Moved : MovedActors)
+         {
+             if (!IsValid(Moved))
+@@ -297,10 +307,15 @@ private:
+             Owner->ShowAsset->Modify();
+             Attachment->RelativeTransform = Moved->GetActorTransform().GetRelativeTransform(AnchorWorld);
+             ++Updated;
++            UpdatedPassages.Add(Owner);
+         }
+ 
+         if (Updated > 0)
+         {
++            for (const TWeakObjectPtr<AInfinityStagePassageActor>& Passage : UpdatedPassages)
++            {
++                QueueFixtureRebuild(Passage.Get());
++            }
+             UE_LOG(
+                 LogTemp,
+                 Display,
+@@ -414,6 +429,85 @@ private:
+             *Attachment->Label.ToString(),
+             Event.Property ? *Event.Property->GetName() : TEXT("?"),
+             Captured.Intensity);
++        QueueFixtureRebuild(Owner);
++    }
++
++    void QueueFixtureRebuild(AInfinityStagePassageActor* Passage)
++    {
++        if (!IsValid(Passage) || !Passage->GetWorld() || Passage->GetWorld()->IsGameWorld())
++        {
++            return;
++        }
++        PendingFixturePassages.Add(Passage);
++        FixtureRebuildDeadlineSeconds = FPlatformTime::Seconds() + 0.3;
++        if (!FixtureRebuildTickerHandle.IsValid())
++        {
++            FixtureRebuildTickerHandle = FTSTicker::GetCoreTicker().AddTicker(
++                FTickerDelegate::CreateRaw(this, &FInfinityStageEditorModule::TickFixtureRebuild),
++                0.05f);
++        }
++    }
++
++    bool TickFixtureRebuild(float)
++    {
++        if (FPlatformTime::Seconds() < FixtureRebuildDeadlineSeconds)
++        {
++            return true;
++        }
++
++        FixtureRebuildTickerHandle.Reset();
++        TSet<TWeakObjectPtr<AInfinityStagePassageActor>> Passages = MoveTemp(PendingFixturePassages);
++        PendingFixturePassages.Reset();
++
++        // A drag completed just before PIE began must not mutate authoring data
++        // while the game world is running. Discard it; the next edit queues anew.
++        if (GEditor && GEditor->PlayWorld)
++        {
++            UE_LOG(LogTemp, Display,
++                TEXT("INFINITY_STAGE_FIXTURES_REBUILD_SKIPPED reason=PIE passages=%d"),
++                Passages.Num());
++            return false;
++        }
++
++        for (const TWeakObjectPtr<AInfinityStagePassageActor>& WeakPassage : Passages)
++        {
++            AInfinityStagePassageActor* Passage = WeakPassage.Get();
++            UWorld* World = IsValid(Passage) ? Passage->GetWorld() : nullptr;
++            if (!World || World->IsGameWorld())
++            {
++                continue;
++            }
++
++            const double Started = FPlatformTime::Seconds();
++            int32 Bodies = 0;
++            int32 Structures = 0;
++            bool bAllSucceeded = true;
++            for (TActorIterator<AInfinityStageStructureActor> It(World); It; ++It)
++            {
++                if (It->Passage != Passage)
++                {
++                    continue;
++                }
++                ++Structures;
++                bAllSucceeded &= It->RebuildFixturesOnly();
++                Bodies += It->FixtureBodyCount;
++            }
++            bAllSucceeded &= Structures > 0;
++            const double ElapsedMs = (FPlatformTime::Seconds() - Started) * 1000.0;
++            if (bAllSucceeded)
++            {
++                UE_LOG(LogTemp, Display,
++                    TEXT("INFINITY_STAGE_FIXTURES_REBUILT passage=%s bodies=%d ms=%.2f"),
++                    *Passage->GetActorNameOrLabel(), Bodies, ElapsedMs);
++            }
++            else
++            {
++                UE_LOG(LogTemp, Error,
++                    TEXT("INFINITY_STAGE_FIXTURES_REBUILD_FAILED passage=%s structures=%d ms=%.2f"),
++                    *Passage->GetActorNameOrLabel(), Structures, ElapsedMs);
++            }
++        }
++        return false;
+     }
+ 
+     /**
+@@ -597,6 +691,9 @@ private:
+     FDelegateHandle LevelActorDeletedHandle;
+     FDelegateHandle EndPIEHandle;
+     FDelegateHandle MapOpenedHandle;
++    TSet<TWeakObjectPtr<AInfinityStagePassageActor>> PendingFixturePassages;
++    double FixtureRebuildDeadlineSeconds = 0.0;
++    FTSTicker::FDelegateHandle FixtureRebuildTickerHandle;
+ };
+ 
+ IMPLEMENT_MODULE(FInfinityStageEditorModule, InfinityStageEditor)
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
+index d0f920ae..7a19415e 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
+@@ -91,6 +91,30 @@ TArray<FTransform> ReadInstances(const UInstancedStaticMeshComponent& Component)
+     }
+     return Transforms;
+ }
++
++bool InstanceTransformsBitIdentical(const TArray<FTransform>& A, const TArray<FTransform>& B)
++{
++    if (A.Num() != B.Num())
++    {
++        return false;
++    }
++    for (int32 Index = 0; Index < A.Num(); ++Index)
++    {
++        const FVector ALocation = A[Index].GetLocation();
++        const FVector BLocation = B[Index].GetLocation();
++        const FQuat ARotation = A[Index].GetRotation();
++        const FQuat BRotation = B[Index].GetRotation();
++        const FVector AScale = A[Index].GetScale3D();
++        const FVector BScale = B[Index].GetScale3D();
++        if (FMemory::Memcmp(&ALocation, &BLocation, sizeof(FVector)) != 0
++            || FMemory::Memcmp(&ARotation, &BRotation, sizeof(FQuat)) != 0
++            || FMemory::Memcmp(&AScale, &BScale, sizeof(FVector)) != 0)
++        {
++            return false;
++        }
++    }
++    return true;
++}
+ }
+ 
+ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+@@ -310,6 +334,7 @@ bool FInfinityStageStructureFixturesTest::RunTest(const FString& Parameters)
+     UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+     AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 2);
+     AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    Structure->Ground.bEnabled = true;
+ 
+     const auto MakeLight = [](const FTransform& Offset)
+     {
+@@ -327,14 +352,19 @@ bool FInfinityStageStructureFixturesTest::RunTest(const FString& Parameters)
+     Off.bEnabled = false;
+     FInfinityCueAttachment Riding = MakeLight(FTransform(FVector(0.0, -200.0, 1000.0)));
+     Riding.Anchor = EInfinityAttachmentAnchor::LeftPanel;
++    FInfinityCueAttachment Suppressed = MakeLight(FTransform(FVector(0.0, 50.0, 900.0)));
++    Suppressed.bSuppressFixtureBody = true;
+     TArray<FInfinityCueAttachment>& Attachments = Passage->ShowAsset->Cues[0].WingPair.Attachments;
+-    Attachments.Append({ Hung, Outside, Off, Riding });
++    Attachments.Append({ Hung, Outside, Off, Riding, Suppressed });
+ 
+     TestTrue(TEXT("Structure with lights materializes"), Structure->MaterializeStructure());
+     TestEqual(TEXT("A housing for each enabled station light"), Structure->FixtureBodyCount, 2);
++    TestTrue(TEXT("Fixture suppression defaults off"), !Hung.bSuppressFixtureBody);
++    TestTrue(TEXT("A suppressed station light gets no additional housing"), Suppressed.bSuppressFixtureBody);
+     TestEqual(TEXT("A line only where the grid is overhead"), Structure->HangingLineCount, 1);
+     TestEqual(TEXT("A panel-riding light is reported, not housed"), Structure->MovingLightsWithoutHousing, 1);
+-    TestEqual(TEXT("Gridiron, housings and lines are separate layers"), Structure->ManagedComponents.Num(), 3);
++    TestTrue(TEXT("Gridiron, ground, grooves, understage, housings and lines are separate layers"),
++        Structure->ManagedComponents.Num() >= 6);
+ 
+     UInstancedStaticMeshComponent* Housings = FindLayer(*Structure, TEXT("InfinityStage.Structure.Fixtures"));
+     UInstancedStaticMeshComponent* Lines = FindLayer(*Structure, TEXT("InfinityStage.Structure.Lines"));
+@@ -357,6 +387,15 @@ bool FInfinityStageStructureFixturesTest::RunTest(const FString& Parameters)
+         Housing.GetLocation().Equals(LightWorld.GetLocation() - Throw * (HousingLength * 0.5), 0.1));
+     TestTrue(TEXT("The housing points along the throw"),
+         FVector::DotProduct(Housing.GetRotation().GetAxisX(), Throw) > 0.999);
++    const FTransform SuppressedWorld = Suppressed.RelativeTransform * Stations[0].StationWorld;
++    const FVector SuppressedCentre = SuppressedWorld.GetLocation()
++        - SuppressedWorld.GetUnitAxis(EAxis::X) * (HousingLength * 0.5);
++    bool bFoundSuppressedHousing = false;
++    for (const FTransform& Candidate : ReadInstances(*Housings))
++    {
++        bFoundSuppressedHousing |= Candidate.GetLocation().Equals(SuppressedCentre, 0.1);
++    }
++    TestFalse(TEXT("A suppressed attachment has no body instance"), bFoundSuppressedHousing);
+ 
+     const FTransform Line = ReadInstances(*Lines)[0];
+     const double GridTopZ = Stations[0].StationWorld.GetLocation().Z
+@@ -369,9 +408,62 @@ bool FInfinityStageStructureFixturesTest::RunTest(const FString& Parameters)
+         && FMath::IsNearlyEqual(Line.GetLocation().Y, Housing.GetLocation().Y, 0.1));
+ 
+     TestTrue(TEXT("A fresh build with lights is current"), Structure->IsStructureCurrent());
++    TMap<UInstancedStaticMeshComponent*, TArray<FTransform>> OtherLayersBefore;
++    for (UInstancedStaticMeshComponent* Component : Structure->ManagedComponents)
++    {
++        if (Component
++            && !Component->ComponentTags.Contains(TEXT("InfinityStage.Structure.Fixtures"))
++            && !Component->ComponentTags.Contains(TEXT("InfinityStage.Structure.Lines")))
++        {
++            OtherLayersBefore.Add(Component, ReadInstances(*Component));
++        }
++    }
++    TestTrue(TEXT("Fixture test covers multiple non-fixture layers"), OtherLayersBefore.Num() >= 4);
++    const FVector HousingBefore = Housing.GetLocation();
+     Attachments[0].RelativeTransform.AddToTranslation(FVector(0.0, 0.0, -50.0));
+     TestFalse(TEXT("Moving a light in the Show leaves its housing stale"), Structure->IsStructureCurrent());
++    TestTrue(TEXT("Fixture-only rebuild succeeds"), Structure->RebuildFixturesOnly());
++    UInstancedStaticMeshComponent* HousingsAfter = FindLayer(*Structure, TEXT("InfinityStage.Structure.Fixtures"));
++    TestNotNull(TEXT("Fixture-only rebuild creates housings"), HousingsAfter);
++    bool bOtherLayersUntouched = true;
++    for (const TPair<UInstancedStaticMeshComponent*, TArray<FTransform>>& Pair : OtherLayersBefore)
++    {
++        const bool bStillManaged = Structure->ManagedComponents.ContainsByPredicate(
++            [&Pair](const TObjectPtr<UInstancedStaticMeshComponent>& Candidate)
++            {
++                return Candidate.Get() == Pair.Key;
++            });
++        bOtherLayersUntouched &= bStillManaged
++            && InstanceTransformsBitIdentical(Pair.Value, ReadInstances(*Pair.Key));
++    }
++    TestTrue(TEXT("Every other layer component and its instance transforms are bit-identical"),
++        bOtherLayersUntouched);
++    const TArray<FTransform> HousingsAfterTransforms = HousingsAfter
++        ? ReadInstances(*HousingsAfter)
++        : TArray<FTransform>();
++    TestTrue(TEXT("Fixture-only rebuild makes the housing follow the moved light"),
++        !HousingsAfterTransforms.IsEmpty() && HousingsAfterTransforms[0].GetLocation().Equals(
++            HousingBefore + FVector(0.0, 0.0, -50.0), 0.1));
++    TestEqual(TEXT("Suppression still omits one body after a rebuild"), Structure->FixtureBodyCount, 2);
++    TestTrue(TEXT("Fixture-only rebuild refreshes the structure signature"), Structure->IsStructureCurrent());
++
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageFixtureOnlyRebuildRefusesPIETest,
++    "InfinityStage.Structure.FixtureOnlyRebuildRefusesPIE",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+ 
++bool FInfinityStageFixtureOnlyRebuildRefusesPIETest::RunTest(const FString& Parameters)
++{
++    UWorld* World = UWorld::CreateWorld(EWorldType::PIE, false);
++    AInfinityStageStructureActor* Structure = World->SpawnActor<AInfinityStageStructureActor>();
++    Structure->FixtureBodyCount = 17;
++    AddExpectedError(TEXT("RebuildFixturesOnly is editor authoring only"), EAutomationExpectedErrorFlags::Contains, 1);
++    TestFalse(TEXT("Fixture-only rebuild refuses in PIE"), Structure->RebuildFixturesOnly());
++    TestEqual(TEXT("PIE refusal leaves the fixture layer untouched"), Structure->FixtureBodyCount, 17);
+     World->DestroyWorld(false);
+     return true;
+ }

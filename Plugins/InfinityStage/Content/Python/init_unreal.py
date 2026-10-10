@@ -50,8 +50,24 @@ def _register_cue_book_menu():
         "import cuebook_pull_editor; cuebook_pull_editor.run_export_from_dialog()",
     )
     puss_menu.add_menu_entry("CueBook", export)
+
+    rebuild_fixtures = unreal.ToolMenuEntry(
+        name="Puss.RebuildPassageFixtures",
+        type=unreal.MultiBlockType.MENU_ENTRY,
+    )
+    rebuild_fixtures.set_label("Rebuild Passage Fixtures")
+    rebuild_fixtures.set_tool_tip(
+        "Rebuild only parcan bodies and hanging lines for the selected attachment light's Passage"
+    )
+    rebuild_fixtures.set_string_command(
+        unreal.ToolMenuStringCommandType.PYTHON,
+        "",
+        "import infinity_stage_fixture_tools; infinity_stage_fixture_tools.rebuild_selected_passage_fixtures()",
+    )
+    puss_menu.add_menu_entry("Stage", rebuild_fixtures)
     menus.refresh_all_widgets()
     unreal.log("PUSS_CUEBOOK_MENU_READY")
+    unreal.log("PUSS_EDITOR_MENUS_READY")
 
 
 _register_cue_book_menu()
