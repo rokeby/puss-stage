@@ -12,7 +12,7 @@ HARD RULES: those in `p49_postbake_editor_runner.md`. Also:
 - Never skip within a dependency chain. If a chain step fails, skip the rest of that chain.
 
 Gary's decisions:
-- "Leave the sound waves". Job 104 (P06) is NOT run in this pass.
+- P06: Gary (10 Oct ~01:40) chose to SWITCH to Cameron's `P06_Walking6` (125 s). Run job 104 with its `IMPORT_AND_SWAP` verdict as item 11b, right after job 103. No other SoundWave changes.
 - The P02 car drive-by radius is 10000 cm (E28), when job 110 is present.
 
 Source: `Docs/Conductor/DRY_ALL_REPORT_2026-10-10.md` (pass-1 results).
@@ -35,6 +35,7 @@ Source: `Docs/Conductor/DRY_ALL_REPORT_2026-10-10.md` (pass-1 results).
 9. **Job 98**, S5 girders.
 10. **Job 88**, proscenium fringe IMPORT.
 11. **Job 103**, P05 to 42 s (`passages_to_music_p05_e26_*`).
+    - 11b. **Job 104**, P06 to 125 s, IMPORT_AND_SWAP to `P06_Walking6` (`P104P06FullTrack_20261009`). It re-times the P06 sunset, chains A and B, the domino finale and the P06 chandelier part, so it runs AFTER the chandelier chain (item 3).
 12. **Job 110**, P02 car drive-by radius 10000. Only if its folder is in the main tree; DRY first.
 13. **Items fixed by job 112**, only if its report marks them "ready for pass 2" and their files are in the main tree:
     - 87

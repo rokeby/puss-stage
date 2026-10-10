@@ -54,7 +54,7 @@ DEFAULT_TARGET = {
     "outer_cone_degrees": None,
 }
 LIMITS = {
-    "attenuation_radius_cm": (1000.0, 8000.0),
+    "attenuation_radius_cm": (1000.0, 12000.0),
     "peak_intensity": (100.0, 20000.0),
     "outer_cone_degrees": (1.0, 80.0),
 }
