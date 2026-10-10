@@ -1,8 +1,11 @@
-"""Jobs 111/163: passage shadow-light radius census / APPLY / REVERT.
+"""Jobs 111/159/163/179: passage shadow-light radius census / APPLY / REVERT.
 
 Offline-authored; run later through ExecuteProjectPythonFile.  DRY is read-only.
 APPLY writes only attenuation radius, never lowers it, and skips lights whose
-radius is keyed by Sequencer.  Fog/VSM findings are report-only.
+radius is keyed by Sequencer. Job 179 derives one middle-point reach per Passage
+from the live wing stations: the larger of two wing pitches along the route and
+the across-Passage wing gap, plus a small margin, with a strict sub-100 m cap.
+Fog/VSM findings are report-only.
 
 Evidence used while authoring:
   declaration-proven: FInfinityStageLightSettings::AttenuationRadiusCm,
@@ -48,8 +51,10 @@ FLOAT_TOL = 0.01
 
 DEFAULTS = {
     "passages": list(PASSAGES),
-    "margin_cm": 300.0,
-    "cap_cm": None,
+    "neighbour_wings": 2,
+    "margin_cm": 100.0,
+    "min_radius_cm": 500.0,
+    "cap_cm": 5000.0,
     "large_source_radius_cm": 20.0,
     "sequence_roots": ["/Game"],
 }
@@ -66,6 +71,38 @@ def require(condition, message):
 
 def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+
+
+def plan_sha256(planned, tiers):
+    payload = {
+        "per_passage": tiers["tier_0_verdict"]["per_passage"],
+        "changes": [{key: row.get(key) for key in (
+            "id", "passage", "cue_guid", "attachment_guid", "attenuation_radius_cm",
+            "planned_radius_cm", "decision")}
+                    for row in planned if row.get("will_change")],
+    }
+    return hashlib.sha256(canonical(payload).encode("utf-8")).hexdigest()
+
+
+def evaluate_perf(before, after, passages=PASSAGES, max_regression=0.10):
+    """Pure three-spots-per-Passage p95 gate used by the live gate runner."""
+    require(set(before) == set(after), "PERF_LABEL_SET_MISMATCH")
+    rows = []
+    for passage in passages:
+        labels = sorted(label for label in before if str(label).startswith(passage + ":"))
+        require(len(labels) == 3, "PERF_NEEDS_THREE_SPOTS|%s|got=%d" % (passage, len(labels)))
+        for label in labels:
+            b, a = float(before[label]), float(after[label])
+            require(b > 0.0 and a > 0.0, "PERF_NONPOSITIVE|" + label)
+            regression = (a - b) / b
+            rows.append({"passage": passage, "spot": label, "before_p95_ms": b,
+                         "after_p95_ms": a, "regression_fraction": regression,
+                         "passes": regression <= max_regression})
+    passed = all(row["passes"] for row in rows)
+    return {"pass": passed, "auto_revert": not passed,
+            "threshold_fraction": max_regression,
+            "max_regression_fraction": max(row["regression_fraction"] for row in rows),
+            "spots": rows}
 
 
 def f32(value):
@@ -180,19 +217,28 @@ def check_args(raw):
     require(isinstance(params["passages"], list) and params["passages"], "PASSAGES_EMPTY")
     require(all(p in PASSAGES for p in params["passages"]), "PASSAGES_INVALID")
     params["passages"] = sorted(set(params["passages"]))
+    require(isinstance(params["neighbour_wings"], int) and not isinstance(params["neighbour_wings"], bool),
+            "NEIGHBOUR_WINGS_NOT_INT")
+    require(params["neighbour_wings"] == 2, "NEIGHBOUR_WINGS_MUST_BE_TWO")
     params["margin_cm"] = finite(params["margin_cm"], "MARGIN")
     require(params["margin_cm"] >= 0.0, "MARGIN_NEGATIVE")
+    params["min_radius_cm"] = finite(params["min_radius_cm"], "MIN_RADIUS")
+    require(0.0 <= params["min_radius_cm"] < 10000.0, "MIN_RADIUS_RANGE")
     params["large_source_radius_cm"] = finite(params["large_source_radius_cm"], "SOURCE_THRESHOLD")
     require(params["large_source_radius_cm"] >= 0.0, "SOURCE_THRESHOLD_NEGATIVE")
-    if params["cap_cm"] is not None:
-        params["cap_cm"] = finite(params["cap_cm"], "CAP")
-        require(params["cap_cm"] > 0.0, "CAP_NONPOSITIVE")
+    params["cap_cm"] = finite(params["cap_cm"], "CAP")
+    require(params["min_radius_cm"] <= params["cap_cm"] < 10000.0,
+            "CAP_MUST_BE_BELOW_100M")
     expected = raw.get("expected_changes")
     require(expected is None or isinstance(expected, int) and expected >= 0, "EXPECTED_CHANGES_INVALID")
     if mode == "APPLY":
         require(expected is not None, "EXPECTED_CHANGES_REQUIRED")
+        require(re.fullmatch(r"[0-9a-f]{64}", str(raw.get("expected_plan_sha256", ""))),
+                "EXPECTED_PLAN_SHA256_REQUIRED")
     return {"mode": mode, "confirm": raw.get("confirm"), "params": params,
-            "expected_changes": expected, "allow_dirty": list(raw.get("allow_dirty") or [])}
+            "expected_changes": expected,
+            "expected_plan_sha256": str(raw.get("expected_plan_sha256", "")),
+            "allow_dirty": list(raw.get("allow_dirty") or [])}
 
 
 def fog_flags(row, threshold):
@@ -210,25 +256,55 @@ def nearest_station(location, stations):
     return min(stations, key=lambda s: (dist(location, s["center"]), s["id"]))
 
 
-def needed_radius(location, station, margin):
-    # The wing line is vertical: XY distance is the shortest 3-D distance to it.
-    far = max(dist(location, station["left"], True), dist(location, station["right"], True))
-    return far + float(margin), far
+def median(values):
+    ordered = sorted(float(x) for x in values)
+    require(ordered, "MEDIAN_EMPTY")
+    middle = len(ordered) // 2
+    return ordered[middle] if len(ordered) % 2 else (ordered[middle - 1] + ordered[middle]) * 0.5
+
+
+def passage_geometry(stations_by_passage, params):
+    """One deterministic middle-point radius per Passage from ordered stations."""
+    result = {}
+    for passage in sorted(stations_by_passage):
+        stations = sorted(stations_by_passage[passage], key=lambda row: (row.get("ordinal", 10**9), row["id"]))
+        require(len(stations) >= 3, "TOO_FEW_STATIONS|" + passage)
+        pitches = [dist(stations[index - 1]["center"], stations[index]["center"], True)
+                   for index in range(1, len(stations))]
+        gaps = [dist(row["left"], row["right"], True) for row in stations]
+        pitch = median(pitches)
+        gap = median(gaps)
+        along = pitch * int(params["neighbour_wings"])
+        raw = max(along, gap) + float(params["margin_cm"])
+        chosen = min(float(params["cap_cm"]), max(float(params["min_radius_cm"]), raw))
+        require(chosen < 10000.0, "RADIUS_REACHED_100M|" + passage)
+        result[passage] = {
+            "station_count": len(stations),
+            "pitch_samples_cm": pitches,
+            "gap_samples_cm": gaps,
+            "wing_pitch_cm": pitch,
+            "across_gap_cm": gap,
+            "two_wing_reach_cm": along,
+            "raw_radius_cm": raw,
+            "chosen_radius_cm": chosen,
+            "clamped": abs(chosen - raw) > FLOAT_TOL,
+        }
+    return result
 
 
 def plan_census(rows, stations_by_passage, params, keyed_ids=()):
     keyed = set(keyed_ids)
     output = []
-    cap = params.get("cap_cm")
+    geometry = passage_geometry(stations_by_passage, params)
     for original in rows:
         row = copy.deepcopy(original)
         passage = row["passage"]
         station = nearest_station(row["location"], stations_by_passage[passage])
-        needed, far = needed_radius(row["location"], station, params["margin_cm"])
+        chosen = geometry[passage]["chosen_radius_cm"]
         current = float(row["attenuation_radius_cm"]) if row.get("attenuation_radius_cm") is not None else None
         keyed_radius = row["id"] in keyed
         applicable = current is not None and bool(row.get("radius_editable", True))
-        desired = needed if cap is None else min(needed, float(cap))
+        desired = chosen
         after = current
         reason = "ALREADY_REACHES"
         if not bool(row["cast_shadows"]):
@@ -239,13 +315,16 @@ def plan_census(rows, stations_by_passage, params, keyed_ids=()):
             reason = ("NO_DURABLE_AUTHORITY" if current is not None else "NO_ATTENUATION_RADIUS")
         elif desired > current + FLOAT_TOL:
             after = desired
-            reason = "RAISE" if cap is None or needed <= float(cap) else "RAISE_CAPPED_UNDERREACH"
+            reason = "RAISE"
         fog, fog_reasons = fog_flags(row, params["large_source_radius_cm"])
         row.update({
             "station_id": station["id"], "station_center": station["center"],
             "station_half_width_cm": station["half_width_cm"],
-            "far_wing_distance_cm": far, "margin_cm": params["margin_cm"],
-            "needed_radius_cm": needed, "planned_radius_cm": after,
+            "wing_pitch_cm": geometry[passage]["wing_pitch_cm"],
+            "across_gap_cm": geometry[passage]["across_gap_cm"],
+            "two_wing_reach_cm": geometry[passage]["two_wing_reach_cm"],
+            "margin_cm": params["margin_cm"],
+            "needed_radius_cm": chosen, "planned_radius_cm": after,
             "radius_keyed_by_sequencer": keyed_radius,
             "will_change": reason.startswith("RAISE"), "decision": reason,
             "likely_milky_fog_contributor": fog, "milky_fog_reasons": fog_reasons,
@@ -276,13 +355,18 @@ def tiered_report(planned, stations_by_passage, sequence_tracks):
     changes = [r for r in shadows if r["will_change"]]
     fog = [r for r in shadows if r["likely_milky_fog_contributor"]]
     keyed = [r for r in shadows if r["radius_keyed_by_sequencer"]]
-    capped = [r for r in shadows if r["decision"] == "RAISE_CAPPED_UNDERREACH"]
     unsupported = [r for r in shadows if r["decision"] in ("NO_ATTENUATION_RADIUS", "NO_DURABLE_AUTHORITY")]
     overlaps = overlap_prediction(planned, stations_by_passage)
     per_passage = {}
     for passage in sorted(stations_by_passage):
         local = [r for r in shadows if r["passage"] == passage]
+        any_local = [r for r in planned if r["passage"] == passage]
+        require(any_local, "NO_PASSAGE_LIGHT_ROWS|" + passage)
         per_passage[passage] = {
+            "wing_pitch_cm": any_local[0]["wing_pitch_cm"],
+            "across_gap_cm": any_local[0]["across_gap_cm"],
+            "chosen_radius_cm": any_local[0]["needed_radius_cm"],
+            "persistent_light_count": len(any_local),
             "shadow_casters": len(local),
             "will_raise": sum(r["will_change"] for r in local),
             "sequencer_keyed_report_only": sum(r["radius_keyed_by_sequencer"] for r in local),
@@ -294,7 +378,7 @@ def tiered_report(planned, stations_by_passage, sequence_tracks):
         "tier_0_verdict": {
             "shadow_casters": len(shadows), "will_raise": len(changes),
             "already_reach": sum(r["decision"] == "ALREADY_REACHES" for r in shadows),
-            "sequencer_keyed_report_only": len(keyed), "capped_underreach": len(capped),
+            "sequencer_keyed_report_only": len(keyed),
             "unsupported_no_radius": len(unsupported), "likely_milky_fog_contributors": len(fog),
             "overlap_points_increased": sum(p["delta"] > 0 for p in overlaps),
             "max_overlap_delta": max([p["delta"] for p in overlaps] or [0]),
@@ -418,17 +502,20 @@ def gather_stations(passage, key):
         if side not in ("LEFT", "RIGHT"):
             continue
         cue = guid_text(ref.get_editor_property("cue_guid"))
-        grouped.setdefault(cue, {})[side] = vec(live_transform(ref).translation)
+        if cue not in grouped:
+            grouped[cue] = {"ordinal": len(grouped) + 1}
+        grouped[cue][side] = vec(live_transform(ref).translation)
     stations = []
     for cue, sides in grouped.items():
         if "LEFT" not in sides or "RIGHT" not in sides:
             continue
         left, right = sides["LEFT"], sides["RIGHT"]
         center = [(left[i] + right[i]) * 0.5 for i in range(3)]
-        stations.append({"id": cue, "passage": key, "left": left, "right": right, "center": center,
+        stations.append({"id": cue, "passage": key, "ordinal": int(sides["ordinal"]),
+                         "left": left, "right": right, "center": center,
                          "half_width_cm": dist(left, right) * 0.5})
     require(stations, "NO_LIVE_WING_STATIONS|" + key)
-    stations.sort(key=lambda s: (s["center"][0], s["center"][1], s["id"]))
+    stations.sort(key=lambda s: (s["ordinal"], s["id"]))
     return stations
 
 
@@ -578,6 +665,7 @@ def report_paths(mode, run):
 
 CSV_FIELDS = ("level_package", "passage", "label", "class", "source", "passage_owned",
               "intensity", "cast_shadows", "attenuation_radius_cm", "needed_radius_cm",
+              "wing_pitch_cm", "across_gap_cm", "two_wing_reach_cm",
               "planned_radius_cm", "volumetric_scattering_intensity", "cast_volumetric_shadow",
               "use_inverse_squared_falloff", "light_function", "radius_keyed_by_sequencer",
               "source_radius_cm", "likely_milky_fog_contributor", "milky_fog_reasons", "decision")
@@ -735,23 +823,29 @@ def run(raw):
         live["args"] = args
         planned = plan_census(live["rows"], live["stations"], args["params"], live["keyed"])
         tiers = tiered_report(planned, live["stations"], live["tracks"])
+        plan_sha = plan_sha256(planned, tiers)
         level_counts = level_scope_counts(live["inventory"], planned)
         report.update({"tiers": tiers, "dirty_before": live["census"],
                        "persistent_level": EXPECTED_WORLD,
                        "scope_policy": "PERSISTENT_PASSAGE_OWNED_ONLY",
-                       "level_counts": level_counts})
+                        "level_counts": level_counts, "plan_sha256": plan_sha})
         assert_planned_scope(planned)
         changes = [r for r in planned if r["will_change"]]
         if mode == "DRY":
             require(dirty_census() == live["census"], "DRY_DIRTY_CHANGED")
             report["ok"] = True
             paths = write_report(report, mode, run_id)
-            unreal.log("%s_DRY_OK|run=%s|shadow=%d|raise=%d|keyed=%d|fog=%d|levels=%s|reports=%s" %
+            radii = ",".join("%s:%.0f/%d" %
+                             (key, row["chosen_radius_cm"], row["shadow_casters"])
+                             for key, row in sorted(tiers["tier_0_verdict"]["per_passage"].items()))
+            unreal.log("%s_DRY_OK|run=%s|shadow=%d|raise=%d|keyed=%d|fog=%d|radii_cm_and_lights=%s|plan_sha256=%s|levels=%s|reports=%s" %
                        (MARK, run_id, tiers["tier_0_verdict"]["shadow_casters"], len(changes),
                         tiers["tier_0_verdict"]["sequencer_keyed_report_only"],
                         tiers["tier_0_verdict"]["likely_milky_fog_contributors"],
-                        canonical(level_counts), paths[0]))
+                        radii, plan_sha, canonical(level_counts), paths[0]))
             return report
+        require(args["expected_plan_sha256"] == plan_sha,
+                "PLAN_DRIFT|dry=%s|live=%s" % (args["expected_plan_sha256"], plan_sha))
         require(len(changes) == args["expected_changes"],
                 "EXPECTED_CHANGES|expected=%d|live=%d" % (args["expected_changes"], len(changes)))
         if not changes:
@@ -761,7 +855,7 @@ def run(raw):
             return report
         require(not os.path.exists(RECORD), "ACTIVE_RECORD_EXISTS")
         backup = backup_assets("PreShadowRadiusReach-", run_id)
-        record = {"schema_version": 1, "status": "prepared", "run": run_id,
+        record = {"schema_version": 2, "status": "prepared", "run": run_id,
                   "backup": backup, "args": args, "targets": changes, "tiers": tiers}
         with open(RECORD, "w", encoding="utf-8") as handle:
             json.dump(record, handle, indent=2, sort_keys=True)
@@ -788,13 +882,15 @@ def run(raw):
         post = dirty_census()
         require(post == {"content": [], "maps": []}, "POST_SAVE_DIRTY|" + canonical(post))
         record.update({"status": "saved_readback_verified", "affected_passages": affected,
-                       "saved_census": post})
+                       "saved_census": post,
+                       "perf_gate": {"status": "PENDING", "spots_per_passage": 3,
+                                     "max_regression_fraction": 0.10, "auto_revert": True}})
         with open(RECORD, "w", encoding="utf-8") as handle:
             json.dump(record, handle, indent=2, sort_keys=True)
         report.update({"ok": True, "backup": backup, "record": RECORD,
                        "affected_passages": affected, "saved_census": post})
         write_report(report, mode, run_id)
-        unreal.log("%s_APPLY_OK|run=%s|rows=%d|passages=%s|readback=1|record=%s" %
+        unreal.log("%s_APPLY_OK|run=%s|rows=%d|passages=%s|readback=1|record=%s|perf=PENDING|spots_per_passage=3|auto_revert=1" %
                    (MARK, run_id, len(changes), ",".join(affected), RECORD))
         return report
     except Exception as error:

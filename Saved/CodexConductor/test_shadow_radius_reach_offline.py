@@ -1,4 +1,4 @@
-"""Offline +/- harness for job 111.  No Unreal import or editor access."""
+"""Offline +/- harness for Jobs 111/159/163/179. No Unreal/editor access."""
 from __future__ import annotations
 
 import importlib.util
@@ -47,15 +47,24 @@ def row(identity, x, radius, **updates):
     return value
 
 
-stations = {"P01": [{"id": "S1", "center": [0.0, 0.0, 0.0], "left": [0.0, -1000.0, 0.0],
-                       "right": [0.0, 1000.0, 0.0], "half_width_cm": 1000.0}]}
+stations = {"P01": [
+    {"id": "S1", "ordinal": 1, "center": [0.0, 0.0, 0.0], "left": [0.0, -1000.0, 0.0],
+     "right": [0.0, 1000.0, 0.0], "half_width_cm": 1000.0},
+    {"id": "S2", "ordinal": 2, "center": [800.0, 0.0, 0.0], "left": [800.0, -1000.0, 0.0],
+     "right": [800.0, 1000.0, 0.0], "half_width_cm": 1000.0},
+    {"id": "S3", "ordinal": 3, "center": [1600.0, 0.0, 0.0], "left": [1600.0, -1000.0, 0.0],
+     "right": [1600.0, 1000.0, 0.0], "half_width_cm": 1000.0}]}
 params = dict(m.DEFAULTS)
-params.update({"passages": ["P01"], "margin_cm": 300.0})
+params.update({"passages": ["P01"]})
 
-plan = m.plan_census([row("raise", 0.0, 500.0), row("keep", 0.0, 2000.0)], stations, params)
-check("positive raises to far wing plus margin", plan[1]["planned_radius_cm"] == 1300.0 if plan[1]["id"] == "raise" else plan[0]["planned_radius_cm"] == 1300.0)
+geometry = m.passage_geometry(stations, params)["P01"]
+check("positive pitch measured", geometry["wing_pitch_cm"] == 800.0)
+check("positive across gap measured", geometry["across_gap_cm"] == 2000.0)
+check("positive larger reach plus margin chosen", geometry["chosen_radius_cm"] == 2100.0)
+plan = m.plan_census([row("raise", 0.0, 500.0), row("keep", 0.0, 2500.0)], stations, params)
+check("positive raises to per-passage middle point", plan[1]["planned_radius_cm"] == 2100.0 if plan[1]["id"] == "raise" else plan[0]["planned_radius_cm"] == 2100.0)
 by_id = {r["id"]: r for r in plan}
-check("positive never lowers", by_id["keep"]["planned_radius_cm"] == 2000.0)
+check("positive never lowers", by_id["keep"]["planned_radius_cm"] == 2500.0)
 check("positive only one change", sum(r["will_change"] for r in plan) == 1)
 
 keyed = m.plan_census([row("keyed", 0.0, 500.0)], stations, params, ["keyed"])[0]
@@ -64,7 +73,7 @@ check("negative sequencer track blocks edit", not keyed["will_change"] and keyed
 capped_params = dict(params, cap_cm=900.0)
 capped = m.plan_census([row("cap", 0.0, 500.0)], stations, capped_params)[0]
 check("positive cap respected", capped["planned_radius_cm"] == 900.0)
-check("negative cap underreach explicit", capped["decision"] == "RAISE_CAPPED_UNDERREACH")
+check("positive clamped geometry reported", m.passage_geometry(stations, capped_params)["P01"]["clamped"])
 
 fog = m.plan_census([row("fog", 0.0, 2000.0, cast_volumetric_shadow=False)], stations, params)[0]
 check("positive fog flag separate", fog["likely_milky_fog_contributor"])
@@ -84,9 +93,12 @@ check("positive per-light fog column", "likely_milky_fog_contributor" in report[
 check("positive dry accepts no confirm", m.check_args({"mode": "DRY"})["mode"] == "DRY")
 rejects("negative apply needs confirm", lambda: m.check_args({"mode": "APPLY", "expected_changes": 1}), "CONFIRM_MISSING")
 rejects("negative apply needs expected count", lambda: m.check_args({"mode": "APPLY", "confirm": m.CONFIRM["APPLY"]}), "EXPECTED_CHANGES_REQUIRED")
+rejects("negative apply needs plan hash", lambda: m.check_args({"mode": "APPLY", "confirm": m.CONFIRM["APPLY"],
+                                                                 "expected_changes": 1}), "EXPECTED_PLAN_SHA256")
 rejects("negative bad passage", lambda: m.check_args({"params": {"passages": ["P07"]}}), "PASSAGES_INVALID")
 rejects("negative negative margin", lambda: m.check_args({"params": {"margin_cm": -1}}), "MARGIN_NEGATIVE")
-rejects("negative zero cap", lambda: m.check_args({"params": {"cap_cm": 0}}), "CAP_NONPOSITIVE")
+rejects("negative zero cap", lambda: m.check_args({"params": {"cap_cm": 0}}), "CAP_MUST_BE_BELOW_100M")
+rejects("negative 100m cap", lambda: m.check_args({"params": {"cap_cm": 10000}}), "CAP_MUST_BE_BELOW_100M")
 
 inventory = [
     {"level_package": m.EXPECTED_WORLD, "passage_owned": True, "included": True},
@@ -130,6 +142,14 @@ check("negative unrelated live tool is never imported", "lighting_looks_apply.py
 check("static success markers", all(x in source for x in ("_DRY_OK", "_APPLY_OK", "_REVERT_OK")))
 check("static proximity membership removed", 'source, "LEVEL_ACTOR"' not in source and
       'nearest_distance > args["params"]["membership_radius_cm"]' not in source)
+
+before = {"P01:a": 40.0, "P01:b": 41.0, "P01:c": 42.0}
+gate_ok = m.evaluate_perf(before, {"P01:a": 42.0, "P01:b": 43.0, "P01:c": 44.0}, ["P01"])
+check("positive three-spot perf pass", gate_ok["pass"] and not gate_ok["auto_revert"])
+gate_bad = m.evaluate_perf(before, {"P01:a": 45.0, "P01:b": 43.0, "P01:c": 44.0}, ["P01"])
+check("negative over-ten-percent auto reverts", not gate_bad["pass"] and gate_bad["auto_revert"])
+rejects("negative perf needs three spots", lambda: m.evaluate_perf({"P01:a": 1}, {"P01:a": 1}, ["P01"]),
+        "PERF_NEEDS_THREE_SPOTS")
 
 with tempfile.TemporaryDirectory() as temp:
     content = os.path.join(temp, "Content")
