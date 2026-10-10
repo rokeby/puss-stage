@@ -1,0 +1,113 @@
+{
+ "tiling": 12.0,
+ "rows": [
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore01_M56_Shirt_Hessian_v1",
+   "old": {
+    "DetailTex_Color": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Macros/macro_heather_04.macro_heather_04",
+    "detailTex_normal": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Micros/micro_knit_front_N.micro_knit_front_N",
+    "DetailTex_UVTtiling": 100.0,
+    "DoDetailColor": false
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore01_M56_Shorts_Hessian_v1",
+   "old": {
+    "DetailTex_Color": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/DefaultGarment/ClothAssets/bodyShapeA/Textures/white.white",
+    "detailTex_normal": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Micros/micro_knit_front_N.micro_knit_front_N",
+    "DetailTex_UVTtiling": 80.0,
+    "DoDetailColor": false
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shirt_Hessian_v1",
+   "old": {
+    "DetailTex_Color": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Macros/macro_heather_04.macro_heather_04",
+    "detailTex_normal": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Micros/micro_knit_front_N.micro_knit_front_N",
+    "DetailTex_UVTtiling": 100.0,
+    "DoDetailColor": false
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shorts_Hessian_v1",
+   "old": {
+    "DetailTex_Color": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/DefaultGarment/ClothAssets/bodyShapeA/Textures/white.white",
+    "detailTex_normal": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Micros/micro_knit_front_N.micro_knit_front_N",
+    "DetailTex_UVTtiling": 80.0,
+    "DoDetailColor": false
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shirt_Hessian_v1",
+   "old": {
+    "DetailTex_Color": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Macros/macro_heather_04.macro_heather_04",
+    "detailTex_normal": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Micros/micro_knit_front_N.micro_knit_front_N",
+    "DetailTex_UVTtiling": 100.0,
+    "DoDetailColor": false
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1",
+   "old": {
+    "DetailTex_Color": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/DefaultGarment/ClothAssets/bodyShapeA/Textures/white.white",
+    "detailTex_normal": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Micros/micro_knit_front_N.micro_knit_front_N",
+    "DetailTex_UVTtiling": 80.0,
+    "DoDetailColor": false
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+   "old": {
+    "DetailTex_Color": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Macros/macro_heather_04.macro_heather_04",
+    "detailTex_normal": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Micros/micro_knit_front_N.micro_knit_front_N",
+    "DetailTex_UVTtiling": 100.0,
+    "DoDetailColor": false
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "old": {
+    "DetailTex_Color": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/DefaultGarment/ClothAssets/bodyShapeA/Textures/white.white",
+    "detailTex_normal": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Micros/micro_knit_front_N.micro_knit_front_N",
+    "DetailTex_UVTtiling": 80.0,
+    "DoDetailColor": false
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shirt_Hessian_v1",
+   "old": {
+    "DetailTex_Color": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Macros/macro_heather_04.macro_heather_04",
+    "detailTex_normal": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Micros/micro_knit_front_N.micro_knit_front_N",
+    "DetailTex_UVTtiling": 100.0,
+    "DoDetailColor": false
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1",
+   "old": {
+    "DetailTex_Color": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/DefaultGarment/ClothAssets/bodyShapeA/Textures/white.white",
+    "detailTex_normal": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Micros/micro_knit_front_N.micro_knit_front_N",
+    "DetailTex_UVTtiling": 80.0,
+    "DoDetailColor": false
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+   "old": {
+    "DetailTex_Color": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Macros/macro_heather_04.macro_heather_04",
+    "detailTex_normal": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Micros/micro_knit_front_N.micro_knit_front_N",
+    "DetailTex_UVTtiling": 100.0,
+    "DoDetailColor": false
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "old": {
+    "DetailTex_Color": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/DefaultGarment/ClothAssets/bodyShapeA/Textures/white.white",
+    "detailTex_normal": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Optional/Clothing/Common/Materials/Textures/Clothing/Micros/micro_knit_front_N.micro_knit_front_N",
+    "DetailTex_UVTtiling": 80.0,
+    "DoDetailColor": false
+   }
+  }
+ ]
+}
