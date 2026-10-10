@@ -7,6 +7,7 @@ editor already has loaded and proves that the dirty-package census is byte-for-b
 from __future__ import annotations
 
 import datetime
+import hashlib
 import json
 import os
 
@@ -16,7 +17,9 @@ MARK = "J118_S2_FLOOR_REFLECTION_PROBE"
 WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 P01 = "Passage 01 - Opening Floor"
 S2 = ("S2 Hangar Floor 1", "S2 Hangar Floor 2", "S2 Hangar Floor 3", "S2 Hangar Apron")
-FLOORS = (P01,) + S2
+P02 = ("Passage 02 - Floor Near", "Passage 02 - Floor Left",
+       "Passage 02 - Floor Right", "Passage 02 - Floor Far")
+TARGETS = {"S2": S2, "P02": P02}
 KLARA_PACKAGES = (
     "/Game/KK_S1_Animals/L_Animals",
     "/Game/L_KK_children",
@@ -142,6 +145,115 @@ def relevant_parameter_values(material):
     return {"values": resolved, "sources": source, "chain": chain}
 
 
+def stable_digest(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
+def rounded(values, digits=6):
+    return [round(float(value), digits) for value in values]
+
+
+def mesh_geometry(mesh):
+    """Read a compact LOD0 signature without changing build settings or mesh assets."""
+    result = {
+        "status": "UNCLEAR", "mesh": path(mesh), "lod": 0, "polygon_count": None,
+        "vertex_count": None, "vertex_instance_count": None, "uv_channel_count": None,
+        "uv_channels": [], "normal": None, "vertex_color": None, "errors": [],
+    }
+    if mesh is None:
+        result["errors"].append("NO_STATIC_MESH")
+        return result
+    try:
+        desc = mesh.get_static_mesh_description(0)
+    except Exception as exc:
+        result["errors"].append("get_static_mesh_description: %r" % (exc,))
+        return result
+    if desc is None:
+        result["errors"].append("LOD0_MESH_DESCRIPTION_UNAVAILABLE")
+        return result
+    try:
+        result["polygon_count"] = int(desc.get_polygon_count())
+        try:
+            result["vertex_count"] = int(desc.get_vertex_count())
+        except Exception as exc:
+            result["errors"].append("get_vertex_count: %r" % (exc,))
+        try:
+            subsystem = unreal.get_editor_subsystem(unreal.StaticMeshEditorSubsystem)
+            result["uv_channel_count"] = int(subsystem.get_num_uv_channels(mesh, 0))
+        except Exception as exc:
+            result["uv_channel_count"] = 0
+            result["errors"].append("get_num_uv_channels: %r" % (exc,))
+        corners = []
+        for polygon_index in range(result["polygon_count"]):
+            polygon_id = unreal.PolygonID(polygon_index)
+            for vertex_instance in list(desc.get_polygon_vertex_instances(polygon_id)):
+                try:
+                    normal = desc.get_vertex_instance_normal(vertex_instance)
+                    normal_row = rounded((normal.x, normal.y, normal.z))
+                except Exception as exc:
+                    normal_row = None
+                    if not any(str(row).startswith("get_vertex_instance_normal") for row in result["errors"]):
+                        result["errors"].append("get_vertex_instance_normal: %r" % (exc,))
+                try:
+                    color = desc.get_vertex_instance_color(vertex_instance)
+                    color_row = rounded((color.r, color.g, color.b, color.a))
+                except Exception as exc:
+                    color_row = None
+                    if not any(str(row).startswith("get_vertex_instance_color") for row in result["errors"]):
+                        result["errors"].append("get_vertex_instance_color: %r" % (exc,))
+                corners.append({
+                    "normal": normal_row,
+                    "color": color_row,
+                    "uv": [rounded(desc.get_vertex_instance_uv(vertex_instance, channel).to_tuple())
+                           for channel in range(result["uv_channel_count"])],
+                })
+        result["vertex_instance_count"] = len(corners)
+        normals = [row["normal"] for row in corners if row["normal"] is not None]
+        result["normal"] = {
+            "status": "measured" if len(normals) == len(corners) else "UNCLEAR",
+            "corner_count": len(normals), "sha256": stable_digest(normals) if normals else None,
+            "unique_rounded": len({tuple(row) for row in normals}),
+        }
+        colors = [row["color"] for row in corners if row["color"] is not None]
+        result["vertex_color"] = {
+            "status": "measured" if len(colors) == len(corners) else "UNCLEAR",
+            "corner_count": len(colors), "sha256": stable_digest(colors) if colors else None,
+            "unique_rounded": len({tuple(row) for row in colors}),
+            "non_white_corners": sum(1 for row in colors if row != [1.0, 1.0, 1.0, 1.0]),
+        }
+        for channel in range(result["uv_channel_count"]):
+            values = [row["uv"][channel] for row in corners]
+            result["uv_channels"].append({
+                "channel": channel, "corner_count": len(values), "sha256": stable_digest(values),
+                "min": [min(row[axis] for row in values) for axis in range(2)] if values else None,
+                "max": [max(row[axis] for row in values) for axis in range(2)] if values else None,
+            })
+        result["status"] = "measured" if not result["errors"] else "partial"
+    except Exception as exc:
+        result["errors"].append("LOD0_WALK: %r" % (exc,))
+    return result
+
+
+def render_sections(component, mesh):
+    """Resolve each LOD0 render section to its material slot where UE exposes the mapping."""
+    rows, errors = [], []
+    try:
+        subsystem = unreal.get_editor_subsystem(unreal.StaticMeshEditorSubsystem)
+        count = int(subsystem.get_num_sections(mesh, 0))
+        for section_index in range(count):
+            slot_index = int(subsystem.get_lod_material_slot(mesh, 0, section_index))
+            material = component.get_material(slot_index)
+            rows.append({
+                "section_index": section_index, "material_slot_index": slot_index,
+                "effective_render_material": path(material),
+                "is_mid": bool(material and material.get_class().get_name() == "MaterialInstanceDynamic"),
+                "parameters": relevant_parameter_values(material) if material is not None else None,
+            })
+    except Exception as exc:
+        errors.append("StaticMeshEditorSubsystem section mapping: %r" % (exc,))
+    return {"status": "measured" if not errors else "UNCLEAR", "sections": rows, "errors": errors}
+
+
 def component_materials(component):
     mesh = prop(component, "static_mesh")
     mesh_slots = []
@@ -179,7 +291,12 @@ def component_materials(component):
                 section_map = str(getter())
             except Exception as exc:
                 section_map = "UNCLEAR: %r" % (exc,)
-    return {"component": path(component), "mesh": path(mesh), "sections": sections, "section_info_map": section_map}
+    return {
+        "component": path(component), "component_class": component.get_class().get_name(),
+        "mesh": path(mesh), "material_slots": sections, "render_sections_lod0": render_sections(component, mesh),
+        "section_info_map": section_map, "geometry_lod0": mesh_geometry(mesh),
+        "instance_count": int(component.get_instance_count()) if hasattr(component, "get_instance_count") else None,
+    }
 
 
 def actor_bounds(actor):
@@ -268,8 +385,48 @@ def union_bounds(rows):
     }
 
 
+def comparison_rows(floors):
+    source = floors[0]
+    source_components = source["components"]
+    rows = []
+    for target in floors[1:]:
+        target_components = target["components"]
+        component_pairs = []
+        for index in range(max(len(source_components), len(target_components))):
+            left = source_components[index] if index < len(source_components) else None
+            right = target_components[index] if index < len(target_components) else None
+            component_pairs.append({
+                "component_index": index,
+                "mesh_equal": bool(left and right and left["mesh"] == right["mesh"]),
+                "materials_per_section_equal": bool(left and right and
+                    left["render_sections_lod0"]["sections"] == right["render_sections_lod0"]["sections"]),
+                "uvs_equal": bool(left and right and
+                    left["geometry_lod0"]["uv_channels"] == right["geometry_lod0"]["uv_channels"]),
+                "normals_equal": bool(left and right and
+                    left["geometry_lod0"]["normal"] == right["geometry_lod0"]["normal"]),
+                "vertex_colours_equal": bool(left and right and
+                    left["geometry_lod0"]["vertex_color"] == right["geometry_lod0"]["vertex_color"]),
+                "source": left, "target": right,
+            })
+        rows.append({"source_label": source["label"], "target_label": target["label"],
+                     "component_count_equal": len(source_components) == len(target_components),
+                     "components": component_pairs})
+    return rows
+
+
 def main():
-    run = "J118PROBE-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    here = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()),
+                        "CodexConductor", "J118S2FloorReflection_20261009")
+    args_path = os.path.join(here, "j118_floor_reflection_probe_args.json")
+    args = {"target": "S2"}
+    if os.path.exists(args_path):
+        with open(args_path, encoding="utf-8") as handle:
+            args = json.load(handle)
+    target = str(args.get("target", "S2")).upper()
+    if target not in TARGETS:
+        raise RuntimeError("BAD_TARGET|%s|expected=S2|P02" % target)
+    floors_wanted = (P01,) + TARGETS[target]
+    run = "J118%sPROBE-" % target + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     before = census()
     editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     if editor.get_game_world() is not None:
@@ -283,7 +440,7 @@ def main():
         by_label.setdefault(str(actor.get_actor_label()), []).append(actor)
 
     floor_rows = []
-    for label in FLOORS:
+    for label in floors_wanted:
         found = by_label.get(label, [])
         if len(found) != 1:
             raise RuntimeError("FLOOR_COUNT|label=%s|count=%d" % (label, len(found)))
@@ -307,9 +464,10 @@ def main():
                 ppvs.append(row)
     unreal.log("%s_TIER2_POSTPROCESS|run=%s|volumes=%d" % (MARK, run, len(ppvs)))
 
-    s2_union = union_bounds([row for row in floor_rows if row["label"] in S2])
-    center = [(s2_union["min"][i] + s2_union["max"][i]) * 0.5 for i in range(3)]
-    radius = max(s2_union["max"][0] - s2_union["min"][0], s2_union["max"][1] - s2_union["min"][1]) + 30000.0
+    target_union = union_bounds([row for row in floor_rows if row["label"] in TARGETS[target]])
+    center = [(target_union["min"][i] + target_union["max"][i]) * 0.5 for i in range(3)]
+    radius = max(target_union["max"][0] - target_union["min"][0],
+                 target_union["max"][1] - target_union["min"][1]) + 30000.0
     light_rows, capture_rows = [], []
     for actor in actors:
         label, lvl = str(actor.get_actor_label()), level_path(actor)
@@ -317,12 +475,12 @@ def main():
             loc = component.get_world_location()
             near = sum((float(loc.to_tuple()[i]) - center[i]) ** 2 for i in range(3)) ** 0.5 <= radius
             is_sky_or_sun = component.get_class().get_name() in ("SkyLightComponent", "DirectionalLightComponent")
-            if near or is_sky_or_sun or label.startswith("S2") or "hangar" in label.lower() or lvl in KLARA_PACKAGES:
+            if near or is_sky_or_sun or label.startswith(target) or (target == "S2" and "hangar" in label.lower()) or lvl in KLARA_PACKAGES:
                 light_rows.append(component_row(component))
         for component in actor.get_components_by_class(unreal.ReflectionCaptureComponent):
             loc = component.get_world_location()
             near = sum((float(loc.to_tuple()[i]) - center[i]) ** 2 for i in range(3)) ** 0.5 <= radius
-            if near or label.startswith("S2") or "hangar" in label.lower() or lvl in KLARA_PACKAGES:
+            if near or label.startswith(target) or (target == "S2" and "hangar" in label.lower()) or lvl in KLARA_PACKAGES:
                 capture_rows.append(component_row(component))
 
     renderer = unreal.get_default_object(unreal.RendererSettings)
@@ -340,11 +498,11 @@ def main():
     if before != after:
         raise RuntimeError("CENSUS_CHANGED|before=%s|after=%s" % (json.dumps(before), json.dumps(after)))
     report = {
-        "schema": 1, "run": run, "world": WORLD, "pie": False, "saved": False,
+        "schema": 2, "run": run, "target": target, "world": WORLD, "pie": False, "saved": False,
         "census_before": before, "census_after": after, "census_equal": True,
-        "floors": floor_rows, "post_process_volumes": ppvs,
-        "s2_lights_and_skylights": sorted(light_rows, key=lambda r: (r["level"], r["actor_label"], r["component"])),
-        "s2_reflection_captures": sorted(capture_rows, key=lambda r: (r["level"], r["actor_label"], r["component"])),
+        "floors": floor_rows, "p01_vs_target": comparison_rows(floor_rows), "post_process_volumes": ppvs,
+        "target_lights_and_skylights": sorted(light_rows, key=lambda r: (r["level"], r["actor_label"], r["component"])),
+        "target_reflection_captures": sorted(capture_rows, key=lambda r: (r["level"], r["actor_label"], r["component"])),
         "project_defaults": defaults,
         "limitations": [
             "Editor/no-PIE evidence: no future runtime-created MID can exist yet; existing MIDs are reported.",
@@ -352,8 +510,6 @@ def main():
             "Section-to-slot remaps are UNCLEAR where UStaticMesh section_info_map is not Python-exposed.",
         ],
     }
-    here = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()),
-                        "CodexConductor", "J118S2FloorReflection_20261009")
     os.makedirs(here, exist_ok=True)
     output = os.path.join(here, "j118_probe_%s.json" % run)
     with open(output, "x", encoding="utf-8") as handle:
@@ -364,8 +520,8 @@ def main():
         checked = json.load(handle)
     if checked.get("run") != run or not checked.get("census_equal"):
         raise RuntimeError("REPORT_READBACK_FAILED")
-    unreal.log("%s_OK|run=%s|floors=%d|ppv=%d|lights=%d|captures=%d|census_before==after=1|saved=0|report=%s" %
-               (MARK, run, len(floor_rows), len(ppvs), len(light_rows), len(capture_rows), output))
+    unreal.log("%s_OK|run=%s|target=%s|floors=%d|ppv=%d|lights=%d|captures=%d|census_before==after=1|saved=0|report=%s" %
+               (MARK, run, target, len(floor_rows), len(ppvs), len(light_rows), len(capture_rows), output))
 
 
 try:

@@ -1,8 +1,8 @@
 {
-  "tests": 13,
+  "tests": 15,
   "failures": 0,
   "errors": 0,
-  "positive_controls": 8,
-  "negative_controls": 8,
+  "positive_controls": 11,
+  "negative_controls": 11,
   "passed": true
 }

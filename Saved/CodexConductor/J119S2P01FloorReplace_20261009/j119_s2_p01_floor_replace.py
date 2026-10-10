@@ -27,6 +27,10 @@ SOURCE_LABEL = "Passage 01 - Opening Floor"
 TARGET_LABELS = ("S2 Hangar Floor 1", "S2 Hangar Floor 2", "S2 Hangar Floor 3", "S2 Hangar Apron")
 TAG = "Codex.J119.S2P01FloorReplacement"
 MARK = "J119_S2_P01_FLOOR_REPLACE"
+P02_TARGET_LABELS = ("Passage 02 - Floor Near", "Passage 02 - Floor Left",
+                     "Passage 02 - Floor Right", "Passage 02 - Floor Far")
+P02_TAG = "Codex.J129.P02P01FloorReplacement"
+P02_MARK = "J129_P02_P01_FLOOR_REPLACE"
 KLARA_PACKAGES = ("/Game/Scenes/L_Animals", "/Game/Scenes/L_KK_children",
                   "/Game/Scenes/Japanese_Alley", "/Game/Scenes/L_KK_Void")
 MODES = ("DRY", "APPLY", "REVERT")
@@ -38,6 +42,10 @@ class Refused(RuntimeError):
 
 def confirm_ok(mode, value):
     return mode == "DRY" or value == "%s J119S2P01FLOOR" % mode
+
+
+def p02_confirm_ok(mode, value):
+    return mode == "DRY" or value == "%s J129P02P01FLOOR" % mode
 
 
 def digest(value):
@@ -310,12 +318,322 @@ def _make_plan(args, world):
             ]}, source_actor, targets
 
 
+def _bounds_for_row(row):
+    if abs(row["rotation"][0]) > 1e-6 or abs(row["rotation"][1]) > 1e-6:
+        raise Refused("P02_PITCHED_OR_ROLLED_SEGMENT|" + json.dumps(row))
+    radians = math.radians(row["rotation"][2])
+    c, s = math.cos(radians), math.sin(radians)
+    points = []
+    for x in (row["bbox_min"][0], row["bbox_max"][0]):
+        for y in (row["bbox_min"][1], row["bbox_max"][1]):
+            for z in (row["bbox_min"][2], row["bbox_max"][2]):
+                local = [x * row["scale"][0], y * row["scale"][1], z * row["scale"][2]]
+                points.append([row["location"][0] + c * local[0] - s * local[1],
+                               row["location"][1] + s * local[0] + c * local[1],
+                               row["location"][2] + local[2]])
+    low = [min(point[i] for point in points) for i in range(3)]
+    high = [max(point[i] for point in points) for i in range(3)]
+    return {"min": low, "max": high,
+            "origin": [(low[i] + high[i]) * 0.5 for i in range(3)],
+            "extent": [(high[i] - low[i]) * 0.5 for i in range(3)]}
+
+
+def _p02_components(actor):
+    return [component for component in actor.get_components_by_class(unreal.StaticMeshComponent)
+            if _prop(component, "static_mesh") is not None]
+
+
+def _p02_segments(targets):
+    """One replacement per existing route segment, or per ISM instance when boards are instanced."""
+    rows = []
+    for actor in targets:
+        components = _p02_components(actor)
+        if not components:
+            raise Refused("P02_NO_STATIC_MESH_COMPONENT|" + str(actor.get_actor_label()))
+        for component_index, component in enumerate(components):
+            mesh = _prop(component, "static_mesh")
+            bmin, bmax = _bbox(mesh)
+            count = int(component.get_instance_count()) if hasattr(component, "get_instance_count") else 0
+            if count:
+                transforms = [(instance_index, component.get_instance_transform(instance_index, True))
+                              for instance_index in range(count)]
+                construction = "instanced_board_per_instance"
+            else:
+                transforms = [(None, component.get_component_transform())]
+                construction = "route_static_mesh_component"
+            for instance_index, transform in transforms:
+                rotation = transform.rotation.rotator()
+                row = {
+                    "target_label": str(actor.get_actor_label()), "target_actor_path": _path(actor),
+                    "target_component_path": _path(component), "component_index": component_index,
+                    "instance_index": instance_index, "construction": construction, "mesh": _path(mesh),
+                    "location": v3(transform.translation),
+                    "rotation": [float(rotation.roll), float(rotation.pitch), float(rotation.yaw)],
+                    "scale": v3(transform.scale3d), "bbox_min": bmin, "bbox_max": bmax,
+                }
+                row["world_bounds"] = _bounds_for_row(row)
+                rows.append(row)
+    if not rows:
+        raise Refused("P02_NO_ROUTE_SEGMENTS")
+    return rows
+
+
+def _sequence_audit_p02(world, targets):
+    target_objects = {}
+    for actor in targets:
+        target_objects[_path(actor)] = (str(actor.get_actor_label()), "actor")
+        for component in _p02_components(actor):
+            target_objects[_path(component)] = (str(actor.get_actor_label()), "component")
+        parent = actor.get_attach_parent_actor()
+        while parent is not None:
+            target_objects.setdefault(_path(parent), (str(actor.get_actor_label()), "ancestor_actor"))
+            parent = parent.get_attach_parent_actor()
+    rows, unclear = [], []
+    for asset_path in unreal.EditorAssetLibrary.list_assets("/Game", True, False):
+        data = unreal.EditorAssetLibrary.find_asset_data(asset_path)
+        if str(_prop(_prop(data, "asset_class_path"), "asset_name", "")) != "LevelSequence":
+            continue
+        sequence = unreal.load_asset(asset_path)
+        try:
+            bindings = list(sequence.get_bindings())
+        except Exception as exc:
+            unclear.append({"sequence": asset_path, "error": repr(exc)})
+            continue
+        for binding in bindings:
+            try:
+                objects = list(sequence.locate_bound_objects(binding.get_id(), world))
+            except Exception as exc:
+                unclear.append({"sequence": asset_path, "binding": str(binding.get_name()), "error": repr(exc)})
+                continue
+            for obj in objects:
+                hit = target_objects.get(_path(obj))
+                if hit:
+                    for track in list(binding.get_tracks()):
+                        rows.append({"sequence": asset_path, "binding": str(binding.get_name()),
+                                     "bound_object": _path(obj), "target_label": hit[0], "object_kind": hit[1],
+                                     "track_class": track.get_class().get_name(), "property": _track_property(track)})
+    return rows, unclear
+
+
+def _p02_passage_actor():
+    rows = [actor for actor in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
+            if actor.get_class().get_name() == "InfinityStagePassageActor" and
+            str(actor.get_actor_label()).startswith("Passage 02")]
+    if len(rows) != 1 or _level(rows[0]) != WORLD:
+        raise Refused("P02_PASSAGE_ACTOR_COUNT_OR_LEVEL|count=%d" % len(rows))
+    return rows[0]
+
+
+def _owned_p02():
+    return [actor for actor in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
+            if P02_TAG in [str(value) for value in list(_prop(actor, "tags", ()) or ())]]
+
+
+def _p02_plan(args, world):
+    labels = _actors_by_label()
+    source_actor = _one(labels, SOURCE_LABEL)
+    targets = [_one(labels, label) for label in P02_TARGET_LABELS]
+    for actor in [source_actor] + targets:
+        if _level(actor) != WORLD:
+            raise Refused("ACTOR_NOT_PERSISTENT|label=%s|level=%s" % (actor.get_actor_label(), _level(actor)))
+    source = _snapshot(source_actor)
+    segments = _p02_segments(targets)
+    replacements = []
+    for index, segment in enumerate(segments):
+        fitted = fit_transform(source, segment)
+        replacements.append({"segment": segment,
+                             "new_label": "J129 P01 route segment %03d - %s" % (index + 1, segment["target_label"]),
+                             "new_transform": fitted,
+                             "scale_ratio_vs_p01": [fitted["scale"][i] / source["scale"][i] for i in range(3)]})
+    sequence_rows, unclear = _sequence_audit_p02(world, targets)
+    blockers, inherited = sequence_binding_policy(sequence_rows)
+    passage = _p02_passage_actor()
+    plan = {
+        "schema": 2, "target": "P02", "world": WORLD, "source": source,
+        "target_actor_labels": list(P02_TARGET_LABELS), "route_segments": len(segments),
+        "construction_methods": sorted(set(row["construction"] for row in segments)),
+        "construction_contract": "duplicate the P01 floor actor once per existing P02 route component/ISM instance; never one corridor plane",
+        "replacements": replacements, "component_below_offset_cm": float(args["component_below_offset_cm"]),
+        "sequence_bindings": sequence_rows, "sequence_scan_unclear": unclear,
+        "sequence_component_blockers": blockers, "sequence_inherited_tracks": inherited,
+        "passage_materialization": {"actor": _path(passage), "label": str(passage.get_actor_label()),
+                                    "apply_and_revert_required": True},
+        "save_allowlist": [WORLD], "klara_packages_forbidden": list(KLARA_PACKAGES),
+        "texel_density": {"status": "inferred", "basis": "same P01 mesh/material per route segment; live mapping and stills pending",
+                          "apply_ack_required": True},
+        "stills_plan": [
+            "Matched P01/P02 grazing-angle stills with identical exposure and camera height.",
+            "P02 full route stills proving every Near/Left/Right/Far segment is covered without a corridor-spanning plane.",
+            "Every P02 floor visibility section before/during/after; replacements must inherit AActor::bHidden.",
+            "Passage 02 start/mid/end after materialize_passage; route joins and any curve must remain aligned.",
+            "Collision walk/trace across every segment join after visual approval.",
+        ],
+    }
+    return plan, source_actor, targets, passage
+
+
+def _p02_component_map(targets):
+    return {_path(component): component for actor in targets for component in _p02_components(actor)}
+
+
+def _main_p02(args, here):
+    mode = str(args.get("mode", "DRY")).upper()
+    run = "J129P02P01-%s" % datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    record_path = os.path.join(here, "j129_p02_p01_floor_replace_record.json")
+    if mode not in MODES:
+        raise Refused("BAD_MODE|" + mode)
+    if not p02_confirm_ok(mode, str(args.get("confirm", ""))):
+        raise Refused("CONFIRM_REQUIRED|%s J129P02P01FLOOR" % mode)
+    world = _require_context()
+    initial = _census()
+    if mode != "DRY" and initial != {"content": [], "maps": []}:
+        raise Refused("DIRTY_AT_START|" + json.dumps(initial))
+
+    if mode == "REVERT":
+        if not os.path.exists(record_path):
+            raise Refused("REVERT_RECORD_MISSING")
+        with open(record_path, encoding="utf-8") as handle:
+            record = json.load(handle)
+        if record.get("state") not in ("save_attempted", "applied") or record.get("world") != WORLD or record.get("target") != "P02":
+            raise Refused("REVERT_RECORD_CONTEXT")
+        owned = {_path(actor): actor for actor in _owned_p02()}
+        if sorted(owned) != sorted(row["created_actor_path"] for row in record["actors"]):
+            raise Refused("REVERT_OWNERSHIP_DRIFT")
+        labels = _actors_by_label()
+        targets = [_one(labels, label) for label in P02_TARGET_LABELS]
+        components = _p02_component_map(targets)
+        backup = _backup(run, "PreJ129P02P01FloorRevert", record_path)
+        for row in record["components"]:
+            component = components.get(row["component_path"])
+            if component is None:
+                raise Refused("REVERT_COMPONENT_MISSING|" + row["component_path"])
+            current = v3(_prop(component, "relative_location"))
+            if any(abs(current[i] - row["shifted_relative_location"][i]) > 0.02 for i in range(3)):
+                raise Refused("REVERT_COMPONENT_DRIFT|" + row["component_path"])
+            component.set_editor_property("relative_location", unreal.Vector(*row["old_relative_location"]))
+        subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+        for actor in owned.values():
+            if not subsystem.destroy_actor(actor):
+                raise Refused("P02_REVERT_DESTROY_FAILED|NOTHING_SAVED_DONT_SAVE_RESTART|" + _path(actor))
+        passage = _p02_passage_actor()
+        if not bool(passage.materialize_passage()):
+            raise Refused("P02_REVERT_MATERIALIZE_FAILED|NOTHING_SAVED_DONT_SAVE_RESTART")
+        save_before, final = _save_level_only()
+        archived = record_path + ".reverted-" + run
+        os.rename(record_path, archived)
+        unreal.log("%s_REVERT_OK|run=%s|restored_components=%d|destroyed=%d|materialized=1|saved=%s|klara_saved=0|backup=%s|record=%s|census_before_save=%s|census_after=%s" %
+                   (P02_MARK, run, len(record["components"]), len(owned), WORLD, backup, archived,
+                    json.dumps(save_before), json.dumps(final)))
+        return
+
+    if _owned_p02() or os.path.exists(record_path):
+        raise Refused("ACTIVE_P02_RECORD_OR_OWNED_ACTORS")
+    plan, source_actor, targets, passage = _p02_plan(args, world)
+    plan["plan_sha256"] = digest(plan)
+    if mode == "DRY":
+        final = _census()
+        if initial != final:
+            raise Refused("DRY_DIRTIED_PACKAGES|before=%s|after=%s" % (json.dumps(initial), json.dumps(final)))
+        output = os.path.join(here, "j129_p02_dry_%s.json" % run)
+        _write_json(output, {"run": run, "mode": mode, "census_before": initial, "census_after": final, "plan": plan}, True)
+        unreal.log("%s_DRY_OK|run=%s|mutated=0|target_actors=4|route_segments=%d|bindings=%d|blockers=%d|unclear=%d|plan_sha256=%s|report=%s" %
+                   (P02_MARK, run, plan["route_segments"], len(plan["sequence_bindings"]),
+                    len(plan["sequence_component_blockers"]), len(plan["sequence_scan_unclear"]),
+                    plan["plan_sha256"], output))
+        return
+    if str(args.get("plan_sha256", "")) != plan["plan_sha256"]:
+        raise Refused("PLAN_DIGEST_MISMATCH|expected=%s" % plan["plan_sha256"])
+    if plan["sequence_component_blockers"]:
+        raise Refused("COMPONENT_SEQUENCE_BINDING_BLOCKS_APPLY|" + json.dumps(plan["sequence_component_blockers"]))
+    if plan["sequence_scan_unclear"] and not bool(args.get("ack_sequence_scan_unclear", False)):
+        raise Refused("SEQUENCE_SCAN_UNCLEAR_ACK_REQUIRED|" + json.dumps(plan["sequence_scan_unclear"]))
+    if not bool(args.get("ack_texel_density_inferred", False)):
+        raise Refused("TEXEL_DENSITY_INFERRED_ACK_REQUIRED")
+
+    backup = _backup(run, "PreJ129P02P01Floor")
+    record = {"schema": 2, "target": "P02", "run": run, "world": WORLD, "backup": backup,
+              "plan": plan, "components": [], "actors": [], "applied": False, "state": "applying"}
+    _write_json(record_path, record, True)
+    offset = float(plan["component_below_offset_cm"])
+    component_map = _p02_component_map(targets)
+    for component_path, component in sorted(component_map.items()):
+        old = v3(_prop(component, "relative_location"))
+        shifted = [old[0], old[1], old[2] - offset]
+        record["components"].append({"component_path": component_path, "old_relative_location": old,
+                                     "shifted_relative_location": shifted})
+        component.set_editor_property("relative_location", unreal.Vector(*shifted))
+        _write_json(record_path, record)
+    subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    target_by_path = {_path(actor): actor for actor in targets}
+    for item in plan["replacements"]:
+        target_actor = target_by_path[item["segment"]["target_actor_path"]]
+        duplicate = subsystem.duplicate_actor(source_actor, world, unreal.Vector(0, 0, 0))
+        if duplicate is None or _level(duplicate) != WORLD:
+            raise Refused("DUPLICATE_FAILED_OR_NOT_PERSISTENT|NOTHING_SAVED_DONT_SAVE_RESTART")
+        transform = item["new_transform"]
+        duplicate.set_actor_label(item["new_label"])
+        duplicate.tags = list(_prop(duplicate, "tags", ()) or ()) + [unreal.Name(P02_TAG)]
+        duplicate.set_actor_location(unreal.Vector(*transform["location"]), False, True)
+        duplicate.set_actor_rotation(unreal.Rotator(roll=transform["rotation"][0], pitch=transform["rotation"][1],
+                                                     yaw=transform["rotation"][2]), False)
+        duplicate.set_actor_scale3d(unreal.Vector(*transform["scale"]))
+        duplicate.attach_to_actor(target_actor, "", unreal.AttachmentRule.KEEP_WORLD,
+                                  unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, False)
+        record["actors"].append({"created_actor_path": _path(duplicate), "created_label": item["new_label"],
+                                 "target_actor_path": item["segment"]["target_actor_path"],
+                                 "expected_world_bounds": item["segment"]["world_bounds"]})
+        _write_json(record_path, record)
+        got = _snapshot(duplicate)
+        if (got["actor_class"] != plan["source"]["actor_class"] or got["mesh"] != plan["source"]["mesh"] or
+                got["materials"] != plan["source"]["materials"] or
+                got["component_settings"] != plan["source"]["component_settings"]):
+            raise Refused("P01_COMPONENT_COPY_READBACK|%s|NOTHING_SAVED_DONT_SAVE_RESTART" % item["new_label"])
+        if not _bounds_close(got["world_bounds"], item["segment"]["world_bounds"], float(args["bounds_tolerance_cm"])):
+            raise Refused("P02_SEGMENT_FOOTPRINT_READBACK|%s|got=%s|want=%s|NOTHING_SAVED_DONT_SAVE_RESTART" %
+                          (item["new_label"], json.dumps(got["world_bounds"]), json.dumps(item["segment"]["world_bounds"])))
+    if not bool(passage.materialize_passage()):
+        raise Refused("P02_MATERIALIZE_FAILED|NOTHING_SAVED_DONT_SAVE_RESTART")
+    for row in record["components"]:
+        component = component_map.get(row["component_path"])
+        current = v3(_prop(component, "relative_location")) if component is not None else None
+        if current is None or any(abs(current[i] - row["shifted_relative_location"][i]) > 0.02 for i in range(3)):
+            raise Refused("P02_COMPONENT_POST_MATERIALIZE_READBACK|%s|NOTHING_SAVED_DONT_SAVE_RESTART" % row["component_path"])
+    record["state"] = "save_attempted"
+    _write_json(record_path, record)
+    save_before, final = _save_level_only()
+    owned = {_path(actor): actor for actor in _owned_p02()}
+    if sorted(owned) != sorted(row["created_actor_path"] for row in record["actors"]):
+        raise Refused("POST_SAVE_OWNERSHIP_READBACK")
+    for row in record["actors"]:
+        actor = owned[row["created_actor_path"]]
+        if _level(actor) != WORLD or _path(actor.get_attach_parent_actor()) != row["target_actor_path"]:
+            raise Refused("POST_SAVE_LEVEL_OR_ATTACHMENT_READBACK|" + row["created_actor_path"])
+        got = _snapshot(actor)
+        if (got["mesh"] != plan["source"]["mesh"] or got["materials"] != plan["source"]["materials"] or
+                not _bounds_close(got["world_bounds"], row["expected_world_bounds"], float(args["bounds_tolerance_cm"]))):
+            raise Refused("POST_SAVE_P02_SEGMENT_READBACK|" + row["created_actor_path"])
+    record["applied"] = True
+    record["state"] = "applied"
+    record["census_before_save"] = save_before
+    record["post_save_census"] = final
+    record["read_back"] = {"owned_actor_count": len(owned), "persistent_only": True, "materialized": True,
+                           "note": "current-world read-back after targeted save; map reload intentionally forbidden"}
+    _write_json(record_path, record)
+    unreal.log("%s_APPLY_OK|run=%s|created=%d|target_actors=4|materialized=1|saved=%s|klara_saved=0|backup=%s|record=%s|census_after=%s|readback=1" %
+               (P02_MARK, run, len(owned), WORLD, backup, record_path, json.dumps(final)))
+
+
 def main():
     here = os.path.dirname(os.path.abspath(__file__))
     args_path = os.path.join(here, "j119_s2_p01_floor_replace_args.json")
     record_path = os.path.join(here, "j119_s2_p01_floor_replace_record.json")
     with open(args_path, encoding="utf-8") as handle:
         args = json.load(handle)
+    target = str(args.get("target", "S2")).upper()
+    if target == "P02":
+        return _main_p02(args, here)
+    if target != "S2":
+        raise Refused("BAD_TARGET|%s|expected=S2|P02" % target)
     mode = str(args.get("mode", "DRY")).upper()
     run = "J119S2P01-%s" % datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     if mode not in MODES:

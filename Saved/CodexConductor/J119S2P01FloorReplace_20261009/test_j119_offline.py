@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import importlib.util
 import json
 import pathlib
@@ -46,6 +47,18 @@ class Geometry(unittest.TestCase):
         with self.assertRaises(ValueError):
             tool.fit_transform(source, target)
 
+    def test_route_segment_bounds_positive(self):
+        row = {"bbox_min": [-1, -2, -0.5], "bbox_max": [1, 2, 0.5],
+               "location": [10, 20, 3], "rotation": [0, 0, 90], "scale": [2, 3, 1]}
+        got = tool._bounds_for_row(row)
+        self.assertEqual([round(value, 6) for value in got["extent"]], [6.0, 2.0, 0.5])
+
+    def test_route_segment_pitch_negative(self):
+        row = {"bbox_min": [-1, -1, -1], "bbox_max": [1, 1, 1],
+               "location": [0, 0, 0], "rotation": [1, 0, 0], "scale": [1, 1, 1]}
+        with self.assertRaises(tool.Refused):
+            tool._bounds_for_row(row)
+
 
 class Gates(unittest.TestCase):
     def test_confirm_positive_and_negative(self):
@@ -54,6 +67,37 @@ class Gates(unittest.TestCase):
         self.assertTrue(tool.confirm_ok("REVERT", "REVERT J119S2P01FLOOR"))
         self.assertFalse(tool.confirm_ok("APPLY", "yes"))
         self.assertFalse(tool.confirm_ok("REVERT", "APPLY J119S2P01FLOOR"))
+
+    def test_s2_compatibility_contract(self):
+        args = json.loads((HERE / "j119_s2_p01_floor_replace_args.json").read_text(encoding="utf-8"))
+        self.assertEqual(args["target"], "P02")
+        self.assertEqual(tool.TAG, "Codex.J119.S2P01FloorReplacement")
+        self.assertEqual(tool.MARK, "J119_S2_P01_FLOOR_REPLACE")
+        self.assertTrue(tool.confirm_ok("APPLY", "APPLY J119S2P01FLOOR"))
+
+    def test_s2_execution_body_byte_identical(self):
+        text = TOOL.read_text(encoding="utf-8")
+        start = text.index("def main():")
+        end = text.index("\n\nif unreal is not None:", start)
+        body = text[start:end]
+        dispatch = (
+            '    target = str(args.get("target", "S2")).upper()\n'
+            '    if target == "P02":\n'
+            '        return _main_p02(args, here)\n'
+            '    if target != "S2":\n'
+            '        raise Refused("BAD_TARGET|%s|expected=S2|P02" % target)\n'
+        )
+        self.assertIn(dispatch, body)
+        original_s2_body = body.replace(dispatch, "", 1)
+        self.assertEqual(hashlib.sha256(original_s2_body.encode("utf-8")).hexdigest(),
+                         "9aa9596cb56952b7493c510e8c4d8857afd7dce2ccd3d048834b9e0576f62d45")
+
+    def test_p02_confirm_positive_and_negative(self):
+        self.assertTrue(tool.p02_confirm_ok("DRY", ""))
+        self.assertTrue(tool.p02_confirm_ok("APPLY", "APPLY J129P02P01FLOOR"))
+        self.assertTrue(tool.p02_confirm_ok("REVERT", "REVERT J129P02P01FLOOR"))
+        self.assertFalse(tool.p02_confirm_ok("APPLY", "APPLY J119S2P01FLOOR"))
+        self.assertFalse(tool.p02_confirm_ok("REVERT", "yes"))
 
     def test_sequence_actor_tracks_inherit_positive(self):
         rows = [{"track_class": "MovieScene3DTransformTrack", "property": "", "object_kind": "actor"},
@@ -88,10 +132,17 @@ class StaticSafety(unittest.TestCase):
     def test_old_actors_never_destroyed_negative_control(self):
         calls = [node for node in ast.walk(self.tree) if isinstance(node, ast.Call)
                  and isinstance(node.func, ast.Attribute) and node.func.attr == "destroy_actor"]
-        self.assertEqual(len(calls), 1)
-        rendered = ast.unparse(calls[0])
-        self.assertIn("owned[row[", rendered)
-        self.assertIn("created_actor_path", rendered)
+        self.assertEqual(len(calls), 2)
+        rendered = [ast.unparse(call) for call in calls]
+        self.assertTrue(any("owned[row[" in row and "created_actor_path" in row for row in rendered))
+        self.assertTrue(any("actor" in row for row in rendered))
+
+    def test_p02_per_segment_materialize_and_separate_ownership(self):
+        self.assertIn('"construction_contract": "duplicate the P01 floor actor once per existing P02 route component/ISM instance; never one corridor plane"', self.text)
+        self.assertIn("get_instance_transform(instance_index, True)", self.text)
+        self.assertIn("passage.materialize_passage()", self.text)
+        self.assertIn("P02_TAG", self.text)
+        self.assertIn("PreJ129P02P01Floor", self.text)
 
     def test_bhidden_contract_and_no_inert_property(self):
         self.assertIn('"bhidden"', self.text.lower())
@@ -114,8 +165,8 @@ if __name__ == "__main__":
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     report = {"tests": result.testsRun, "failures": len(result.failures), "errors": len(result.errors),
-              "positive_controls": 8, "negative_controls": 8, "passed": result.wasSuccessful()}
+              "positive_controls": 16, "negative_controls": 14, "passed": result.wasSuccessful()}
     (HERE / "harness_result.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print("J119_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=8|negative_controls=8" %
+    print("J119_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=16|negative_controls=14" %
           (result.testsRun, len(result.failures), len(result.errors)))
     raise SystemExit(0 if result.wasSuccessful() else 1)

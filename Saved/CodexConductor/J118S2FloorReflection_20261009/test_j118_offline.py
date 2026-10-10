@@ -95,6 +95,18 @@ class StaticSafety(unittest.TestCase):
         # Writing the JSON evidence artifact is expected and is not an Unreal mutation.
         self.assertIn("json.dump(report", self.probe)
 
+    def test_probe_target_arg_positive_and_negative(self):
+        args = json.loads((HERE / "j118_floor_reflection_probe_args.json").read_text(encoding="utf-8"))
+        self.assertEqual(args["target"], "P02")
+        self.assertIn('TARGETS = {"S2": S2, "P02": P02}', self.probe)
+        self.assertIn("BAD_TARGET", self.probe)
+
+    def test_probe_geometry_and_section_evidence(self):
+        for token in ("get_lod_material_slot", "get_vertex_instance_uv", "get_vertex_instance_normal",
+                      "get_vertex_instance_color", '"p01_vs_target"'):
+            self.assertIn(token, self.probe)
+        self.assertNotIn("MaterialEditingLibrary.get_material_instance", self.probe)
+
     def test_fix_names_only_persistent_package_for_save(self):
         self.assertIn('"packages_allowed_to_dirty_and_save": [WORLD]', self.fix)
         self.assertIn('"klara_packages_forbidden": sorted(KLARA_PACKAGES)', self.fix)
@@ -117,11 +129,11 @@ if __name__ == "__main__":
         "tests": result.testsRun,
         "failures": len(result.failures),
         "errors": len(result.errors),
-        "positive_controls": 8,
-        "negative_controls": 8,
+        "positive_controls": 11,
+        "negative_controls": 11,
         "passed": result.wasSuccessful(),
     }
     (HERE / "harness_result.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print("J118_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=8|negative_controls=8" %
+    print("J118_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=11|negative_controls=11" %
           (result.testsRun, len(result.failures), len(result.errors)))
     raise SystemExit(0 if result.wasSuccessful() else 1)

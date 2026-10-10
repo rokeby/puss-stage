@@ -1,4 +1,5 @@
 {
+  "target": "P02",
   "mode": "DRY",
   "confirm": "",
   "plan_sha256": "",

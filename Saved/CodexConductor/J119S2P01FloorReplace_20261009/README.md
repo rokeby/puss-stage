@@ -1,12 +1,29 @@
-# Job 119: replace S2 floor with P01-derived actors
+# Jobs 119/129: replace target floor with P01-derived actors
 
-Offline-built; no Unreal, MCP or PIE call was made. The old actors are never deleted.
+Offline-built; no Unreal, MCP or PIE call was made. Original floor actors are never deleted.
 
-1. Run with the checked-in DRY args. Require `J119_S2_P01_FLOOR_REPLACE_DRY_OK`, unchanged dirty census, four floors, zero component-binding blockers, and review every `sequence_scan_unclear` row.
-2. Review the fitted transforms, scale ratios, persistent-level ownership, and stills plan in `j119_dry_<run>.json`.
-3. Copy its `plan_sha256` into args. Gary/conductor must explicitly acknowledge that equal texel density is inferred until live material mapping and stills are checked; set `ack_texel_density_inferred=true`. Acknowledge unclear sequence scans only after manual inspection.
-4. Set `mode=APPLY`, `confirm=APPLY J119S2P01FLOOR`, then run once. Require the APPLY marker, four owned actors, persistent map as the sole save, `klara_saved=0`, empty final census and post-save read-back.
-5. Execute the report's stills plan, including all visibility sections and hangar movement. Rendered acceptance remains Gary's.
-6. To undo, set `mode=REVERT`, `confirm=REVERT J119S2P01FLOOR`. REVERT restores the four old component locations, removes only the four tagged/recorded replacements, targets only the persistent map, and archives its record.
+Set `target` in `j119_s2_p01_floor_replace_args.json` to `S2` or `P02`. It is delivered as `P02`/DRY for job 129.
+Selecting `S2` preserves job 119's existing confirmations, markers, record path and execution body.
 
-Design: each replacement is a duplicate of `Passage 01 - Opening Floor`, fitted to one old S2 slab and attached to that unchanged old actor. Only the old actor's mesh component is shifted 1 km below stage. Actor/ancestor transform tracks and actor `bHidden` visibility therefore continue to govern the replacement. APPLY refuses component-bound transform/visibility tracks because inheritance cannot preserve them.
+## P02 / job 129
+
+1. Set `target=P02`, leave `mode=DRY`, and run the guarded request. Require
+   `J129_P02_P01_FLOOR_REPLACE_DRY_OK`, unchanged dirty census, four target actors, one route replacement per
+   static-mesh component or ISM instance, zero component-binding blockers, and review every uncertain sequence row.
+2. Review `j129_p02_dry_<run>.json`: construction methods, every fitted footprint, scale ratios, P02 Passage
+   actor, sequence audit, and stills plan. The tool never makes one corridor-spanning plane.
+3. Copy `plan_sha256` into args. Set the two acknowledgement fields only after their named uncertainties are reviewed.
+4. Set `mode=APPLY`, `confirm=APPLY J129P02P01FLOOR`. APPLY records and backs up first, creates one P01-derived
+   actor per route segment/instance, attaches it to the unchanged original route actor, lowers only the old mesh
+   component(s), materializes Passage 02, reads back, and saves only the persistent map.
+5. Capture the planned grazing, full-route, visibility, passage-timing and collision stills. Rendered acceptance is Gary's.
+6. To undo, use `mode=REVERT`, `confirm=REVERT J129P02P01FLOOR`. REVERT restores every recorded component,
+   destroys only tagged/recorded P02 replacements, materializes Passage 02, saves only the persistent map, and archives the record.
+
+## S2 / unchanged job 119 path
+
+1. Use `target=S2`, `mode=DRY`; require `J119_S2_P01_FLOOR_REPLACE_DRY_OK`, four floors, unchanged census,
+   zero component-binding blockers, and manually resolve every `sequence_scan_unclear` row.
+2. Review `j119_dry_<run>.json`, copy its plan digest, and set acknowledgements only after review.
+3. APPLY confirmation remains `APPLY J119S2P01FLOOR`; REVERT remains `REVERT J119S2P01FLOOR`.
+4. The S2 marker, tag, record path, backup stems, four-actor fit/attachment implementation and save/read-back path are unchanged.
