@@ -1,0 +1,16 @@
+{
+ "labels": [
+  "FX SMOKE P04 B04 L",
+  "FX SMOKE P04 B11 R"
+ ],
+ "components": [
+  {
+   "name": "Apparatus",
+   "mesh": "/Engine/BasicShapes/Cube.Cube"
+  },
+  {
+   "name": "Apparatus",
+   "mesh": "/Engine/BasicShapes/Cube.Cube"
+  }
+ ]
+}
