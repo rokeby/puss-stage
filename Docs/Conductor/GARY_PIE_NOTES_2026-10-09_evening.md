@@ -66,3 +66,7 @@
   4. Then the sleight move into the passage.
 
   → Codex job 144. It replaces the "missing I3 hangar/mouth spots" question, so 90b is superseded for those spots.
+- **Job 144 decisions (Gary ~03:00 local)**:
+  1. S3: FRONT projection (the spot in front of the curtain).
+  2. Tight framing on the curtain. The curtain must take a SIMILAR PROPORTION of the frame in ALL interactions (match I1/I4/I5: measure their curtain frame fraction and fit the I2/I3 camera distance to it).
+  3. I3: reuse ANY existing gobo for now; real gobos are coming.
