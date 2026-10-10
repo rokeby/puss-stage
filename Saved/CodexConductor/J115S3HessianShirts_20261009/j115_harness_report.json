@@ -1,0 +1,89 @@
+{
+  "blender_started": false,
+  "cases": [
+    {
+      "control": "POSITIVE",
+      "name": "args_dry",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "args_apply_confirm",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "texture_strategy",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "fallback_strategy",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "six_plus_p40_variant_scope",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "source_png_mean",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "diagnostic_matrix_complete",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "reject_apply_without_confirm",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "reject_record_collision",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "reject_revert_without_record",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "reject_nonboolean_switch",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "reject_incomplete_texture_pair",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "reject_missing_fallback_tint",
+      "passed": true
+    },
+    {
+      "control": "NEGATIVE",
+      "name": "reject_missing_base_actor",
+      "passed": true
+    },
+    {
+      "control": "POSITIVE",
+      "name": "editor_create_only_readback_guards",
+      "passed": true
+    }
+  ],
+  "negative_passed": 7,
+  "negative_total": 7,
+  "passed": 15,
+  "positive_passed": 8,
+  "positive_total": 8,
+  "result": "PASS",
+  "schema": "j115_s3_hessian_shirts/1",
+  "total": 15,
+  "unreal_started": false
+}

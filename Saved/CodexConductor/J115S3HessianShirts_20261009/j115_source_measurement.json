@@ -1,0 +1,19 @@
+{
+  "mean_linear": [
+    0.4400743730106298,
+    0.4071881324282042,
+    0.36306569710707637
+  ],
+  "mean_srgb": [
+    0.6658808661442177,
+    0.6412755956836775,
+    0.6070530255635579
+  ],
+  "path": "C:\\Users\\Administrator\\.codex\\worktrees\\8b8b\\PussStage\\Saved\\CodexConductor\\ShroudHessian_20261008\\T_Shroud_Weave_BC.png",
+  "sampled_pixels": 4194304,
+  "sha256": "5562d5eb749d2e3ccda6e86f568c5b856cd1155855b9dfea336ae32a4efa2194",
+  "size": [
+    2048,
+    2048
+  ]
+}
