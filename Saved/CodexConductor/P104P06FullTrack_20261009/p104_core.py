@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import copy
 import json
 import math
 
@@ -48,7 +49,11 @@ def validate_resume(record, facts):
     """Refuse to repeat import/length work unless the saved partial state is exact."""
     require(record.get("tool") == "p104" and record.get("status") == "prepared",
             "RESUME_RECORD_CONTEXT")
-    require(record.get("stage") == "length_applied", "RESUME_STAGE_NOT_LENGTH_APPLIED")
+    stage = record.get("stage")
+    require(stage in ("length_applied", "custom_recorded"), "RESUME_STAGE_NOT_RECOVERABLE")
+    if stage == "custom_recorded":
+        require(record.get("before") and record.get("after") and record.get("backup"),
+                "RESUME_CUSTOM_RECOVERY_RECORD_INCOMPLETE")
     require(record.get("audio_record") and record.get("length_record"), "RESUME_SUBRECORDS_MISSING")
     plan = record.get("plan") or {}
     decision = plan.get("decision") or {}
@@ -143,6 +148,38 @@ def scale_span(span, scale):
     """Scale finite section bounds and preserve infinite ends as infinite."""
     require(isinstance(span, (list, tuple)) and len(span) == 2, "SECTION_SPAN_SHAPE")
     return [None if value is None else scale_frame(value, scale) for value in span]
+
+
+def reconcile_job42_protected_choreo(job42_after, domino_before, domino_after):
+    """Return Job 42's expected state after P37's owned Choreo subsection is retimed.
+
+    Job 42 deliberately protects every non-glint Choreo track.  Job 104 then retimes
+    the P37 Domino subsection in that same asset, so the protected snapshot must be
+    advanced to the post-P37 bounds before live read-back is compared.  Match both
+    the P37-labelled subtrack and its exact old bounds; refuse missing or ambiguous
+    ownership instead of weakening the comparison.
+    """
+    out = copy.deepcopy(job42_after)
+    old_spans = list((domino_before or {}).get("subtrack") or [])
+    new_spans = list((domino_after or {}).get("subtrack") or [])
+    require(len(old_spans) == len(new_spans) and old_spans, "P37_SUBTRACK_PLAN_COUNT")
+    rows = ((out.get("bee") or {}).get("protected_choreo") or [])
+    used = set()
+    for old, new in zip(old_spans, new_spans):
+        require(None not in old and None not in new, "P37_SUBTRACK_PLAN_UNBOUNDED")
+        matches = []
+        for ri, row in enumerate(rows):
+            if row.get("class") != "MovieSceneSubTrack" or "P37" not in str(row.get("name") or "").upper():
+                continue
+            for si, section in enumerate(row.get("sections") or []):
+                if [section.get("start"), section.get("end")] == list(old):
+                    matches.append((ri, si))
+        require(len(matches) == 1, "P37_PROTECTED_SECTION_MATCH_COUNT|%d" % len(matches))
+        require(matches[0] not in used, "P37_PROTECTED_SECTION_REUSED")
+        used.add(matches[0])
+        section = rows[matches[0][0]]["sections"][matches[0][1]]
+        section["start"], section["end"] = int(new[0]), int(new[1])
+    return out
 
 
 def retime_phase(rate, offset, old_pass_s, new_pass_s, scale):

@@ -392,15 +392,36 @@ def restore_sequence(sequence, choreo, state):
 
 def verify_custom(R, after, after_mech, all_guids, sequence, choreo):
     post = R._live()["plain"]
-    require(not R.state_matches({"sunset": post["sunset"], "car": post["car"],
-                                 "bee": post["bee"], "fx": post["fx"]},
-                                {"sunset": after["sunset"], "car": after["car"],
-                                 "bee": after["bee"], "fx": after["fx"]}),
-            "JOB42_READBACK")
+    expected = C.reconcile_job42_protected_choreo(after, after["domino_before"], after["domino"])
+    failures = R.state_matches({"sunset": post["sunset"], "car": post["car"],
+                                "bee": post["bee"], "fx": post["fx"]},
+                               {"sunset": expected["sunset"], "car": expected["car"],
+                                "bee": expected["bee"], "fx": expected["fx"]})
+    require(not failures, "JOB42_READBACK|" + ",".join(failures))
     require(all(abs(mechanism_state(unreal.load_asset(SHOW), all_guids)[g][k] - after_mech[g][k]) <= 1e-4
                 for g in all_guids for k in ("rate", "offset")), "MECHANISM_READBACK")
     require(sequence_state(sequence, choreo) == after["domino"], "P37_SEQUENCE_READBACK")
     require(chandelier_state() == after["chandelier"], "CHANDELIER_DRIFT")
+
+
+def verify_custom_retry_baseline(record):
+    """A custom_recorded retry is legal only after unsaved mutations were discarded."""
+    R = load_module("p104_job42_retry", "CodexConductor/p06_retime.py", "P06_RETIME_IMPORT_ONLY")
+    live, before = R._live(), record["before"]
+    plain = live["plain"]
+    failures = R.state_matches({"sunset": plain["sunset"], "car": plain["car"],
+                                "bee": plain["bee"], "fx": plain["fx"]},
+                               {"sunset": before["sunset"], "car": before["car"],
+                                "bee": before["bee"], "fx": before["fx"]})
+    require(not failures, "CUSTOM_RETRY_UNSAVED_MUTATIONS_PRESENT|" + ",".join(failures))
+    all_guids = list(before["mechanisms"])
+    current_mech = mechanism_state(live["show"], all_guids)
+    require(all(abs(current_mech[g][key] - before["mechanisms"][g][key]) <= 1e-4
+                for g in all_guids for key in ("rate", "offset")),
+            "CUSTOM_RETRY_MECHANISMS_NOT_BASELINE")
+    require(sequence_state(unreal.load_asset(DOMINO), unreal.load_asset(CHOREO)) == before["domino"],
+            "CUSTOM_RETRY_P37_NOT_BASELINE")
+    require(chandelier_state() == before["chandelier"], "CUSTOM_RETRY_CHANDELIER_NOT_BASELINE")
 
 
 def apply_custom(run, plan, old_pass_frames, coordinator_run=None):
@@ -426,6 +447,7 @@ def apply_custom(run, plan, old_pass_frames, coordinator_run=None):
     before["domino"] = sequence_state(sequence, choreo)
     after["fx"] = copy.deepcopy(before["fx"]); after["chandelier"] = copy.deepcopy(before["chandelier"])
     after["domino"] = scaled_sequence_state(before["domino"], plan["scale"])
+    after["domino_before"] = copy.deepcopy(before["domino"])
     custom_backup = backup(run, "Retime", [SHOW, WORLD, GLINTS, CHOREO, DOMINO])
     record = read(RECORD_PATH)
     require(record.get("status") == "prepared" and record.get("run") == (coordinator_run or run),
@@ -461,10 +483,12 @@ def restore_custom(run):
     live = R._live(); show = live["show"]
     all_guids = list(record["before"]["mechanisms"])
     current_plain = live["plain"]
+    expected_after = C.reconcile_job42_protected_choreo(
+        record["after"], record["after"]["domino_before"], record["after"]["domino"])
     require(not R.state_matches({"sunset": current_plain["sunset"], "car": current_plain["car"],
                                  "bee": current_plain["bee"], "fx": current_plain["fx"]},
-                                {"sunset": record["after"]["sunset"], "car": record["after"]["car"],
-                                 "bee": record["after"]["bee"], "fx": record["after"]["fx"]}),
+                                {"sunset": expected_after["sunset"], "car": expected_after["car"],
+                                 "bee": expected_after["bee"], "fx": expected_after["fx"]}),
             "REVERT_STATE_DRIFT_JOB42_OR_FX")
     current_mech = mechanism_state(show, all_guids)
     require(all(abs(current_mech[g][key] - record["after"]["mechanisms"][g][key]) <= 1e-4
@@ -519,6 +543,8 @@ def main(raw):
         if resume:
             coordinator = read(RECORD_PATH)
             plan = C.validate_resume(coordinator, gather_facts())
+            if coordinator.get("stage") == "custom_recorded":
+                verify_custom_retry_baseline(coordinator)
             require(os.path.isfile(coordinator["audio_record"]), "RESUME_AUDIO_SUBRECORD_MISSING")
             require(os.path.isfile(coordinator["length_record"]), "RESUME_LENGTH_SUBRECORD_MISSING")
         else:
@@ -561,6 +587,8 @@ def main(raw):
         require(os.path.isfile(RECORD_PATH), "P104_ACTIVE_RECORD_MISSING")
         record = read(RECORD_PATH)
         plan = C.validate_resume(record, gather_facts())
+        if record.get("stage") == "custom_recorded":
+            verify_custom_retry_baseline(record)
         require(raw["reviewed_plan_sha256"] == plan["plan_sha256"], "PLAN_SHA256_CHANGED")
         require(os.path.isfile(record["audio_record"]), "RESUME_AUDIO_SUBRECORD_MISSING")
         require(os.path.isfile(record["length_record"]), "RESUME_LENGTH_SUBRECORD_MISSING")

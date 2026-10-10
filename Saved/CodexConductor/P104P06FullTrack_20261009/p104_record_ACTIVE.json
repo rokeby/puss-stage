@@ -1,0 +1,2502 @@
+{
+  "after": {
+    "bee": {
+      "bindings": [
+        {
+          "name": "P06 Bee Glint 1 @79.4s",
+          "spawn_keys": [
+            [
+              1985,
+              true
+            ],
+            [
+              2046,
+              false
+            ]
+          ],
+          "spawn_range": [
+            0,
+            3125
+          ],
+          "transform_defaults": [
+            [
+              [
+                "Location.X",
+                21579.61251856493
+              ],
+              [
+                "Location.Y",
+                400000.0
+              ],
+              [
+                "Location.Z",
+                240.0
+              ],
+              [
+                "Rotation.X",
+                0.0
+              ],
+              [
+                "Rotation.Y",
+                0.0
+              ],
+              [
+                "Rotation.Z",
+                90.0
+              ],
+              [
+                "Scale.X",
+                1.2750000000000001
+              ],
+              [
+                "Scale.Y",
+                0.30000000000000004
+              ],
+              [
+                "Scale.Z",
+                0.675
+              ]
+            ]
+          ],
+          "transform_ranges": [
+            [
+              0,
+              3125
+            ]
+          ]
+        },
+        {
+          "name": "P06 Bee Glint 2 @99.2s",
+          "spawn_keys": [
+            [
+              2481,
+              true
+            ],
+            [
+              2555,
+              false
+            ]
+          ],
+          "spawn_range": [
+            0,
+            3125
+          ],
+          "transform_defaults": [
+            [
+              [
+                "Location.X",
+                26599.556835438147
+              ],
+              [
+                "Location.Y",
+                400000.0
+              ],
+              [
+                "Location.Z",
+                240.0
+              ],
+              [
+                "Rotation.X",
+                0.0
+              ],
+              [
+                "Rotation.Y",
+                0.0
+              ],
+              [
+                "Rotation.Z",
+                90.0
+              ],
+              [
+                "Scale.X",
+                1.9124999999999999
+              ],
+              [
+                "Scale.Y",
+                0.44999999999999996
+              ],
+              [
+                "Scale.Z",
+                1.0125
+              ]
+            ]
+          ],
+          "transform_ranges": [
+            [
+              0,
+              3125
+            ]
+          ]
+        },
+        {
+          "name": "P06 Bee Glint 3 @117.1s",
+          "spawn_keys": [
+            [
+              2927,
+              true
+            ],
+            [
+              3027,
+              false
+            ]
+          ],
+          "spawn_range": [
+            0,
+            3125
+          ],
+          "transform_defaults": [
+            [
+              [
+                "Location.X",
+                28967.399269986912
+              ],
+              [
+                "Location.Y",
+                400000.0
+              ],
+              [
+                "Location.Z",
+                240.0
+              ],
+              [
+                "Rotation.X",
+                0.0
+              ],
+              [
+                "Rotation.Y",
+                0.0
+              ],
+              [
+                "Rotation.Z",
+                90.0
+              ],
+              [
+                "Scale.X",
+                2.86875
+              ],
+              [
+                "Scale.Y",
+                0.675
+              ],
+              [
+                "Scale.Z",
+                1.51875
+              ]
+            ]
+          ],
+          "transform_ranges": [
+            [
+              0,
+              3125
+            ]
+          ]
+        }
+      ],
+      "fps": 25.0,
+      "playback": [
+        0,
+        3125
+      ],
+      "protected_choreo": [
+        {
+          "class": "MovieSceneSubTrack",
+          "name": "P06 Domino Finale (P37)",
+          "sections": [
+            {
+              "channels": [],
+              "end": 2765,
+              "start": 0
+            }
+          ]
+        }
+      ],
+      "subtrack_range": [
+        0,
+        3125
+      ],
+      "tick": 24000.0
+    },
+    "car": {
+      "fade_in_seconds": 0.4962017317637652,
+      "fade_out_seconds": 0.8931630902192608,
+      "repeat_every_seconds": 0.0,
+      "repeat_jitter_seconds": 0.0,
+      "start_delay_seconds": 66.5406544668288,
+      "travel_seconds": 2.977210390582591
+    },
+    "chandelier": [],
+    "domino": {
+      "playback": [
+        0,
+        3126
+      ],
+      "rows": [
+        {
+          "binding_index": 0,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 04",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 0,
+          "keys": [
+            [
+              0,
+              0,
+              2670,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2708,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 04",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 0,
+          "keys": [
+            [
+              0,
+              0,
+              2672,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 04",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 0,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 04",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 1,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 09",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 1,
+          "keys": [
+            [
+              0,
+              0,
+              2955,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2992,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 09",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 1,
+          "keys": [
+            [
+              0,
+              0,
+              2957,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 09",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 1,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 09",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 2,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 05",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 2,
+          "keys": [
+            [
+              0,
+              0,
+              2726,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2762,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 05",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 2,
+          "keys": [
+            [
+              0,
+              0,
+              2727,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 05",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 2,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 05",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 3,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 08",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 3,
+          "keys": [
+            [
+              0,
+              0,
+              2898,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2934,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 08",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 3,
+          "keys": [
+            [
+              0,
+              0,
+              2899,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 08",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 3,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 08",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 4,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 11",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 4,
+          "keys": [
+            [
+              0,
+              0,
+              3068,
+              "True"
+            ],
+            [
+              0,
+              1,
+              3105,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 11",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 4,
+          "keys": [
+            [
+              0,
+              0,
+              3070,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 11",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 4,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 11",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 5,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 02",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 5,
+          "keys": [
+            [
+              0,
+              0,
+              2557,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2595,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 02",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 5,
+          "keys": [
+            [
+              0,
+              0,
+              2559,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 02",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 5,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 02",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 6,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 06",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 6,
+          "keys": [
+            [
+              0,
+              0,
+              2781,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2817,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 06",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 6,
+          "keys": [
+            [
+              0,
+              0,
+              2782,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 06",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 6,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 06",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 7,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 10",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 7,
+          "keys": [
+            [
+              0,
+              0,
+              3012,
+              "True"
+            ],
+            [
+              0,
+              1,
+              3048,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 10",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 7,
+          "keys": [
+            [
+              0,
+              0,
+              3013,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 10",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 7,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 10",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 8,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 03",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 8,
+          "keys": [
+            [
+              0,
+              0,
+              2616,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2654,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 03",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 8,
+          "keys": [
+            [
+              0,
+              0,
+              2617,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 03",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 8,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 03",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 9,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 07",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 9,
+          "keys": [
+            [
+              0,
+              0,
+              2839,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2876,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 07",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 9,
+          "keys": [
+            [
+              0,
+              0,
+              2840,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 07",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 9,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 07",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 10,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 01",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 10,
+          "keys": [
+            [
+              0,
+              0,
+              2503,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2539,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 01",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 10,
+          "keys": [
+            [
+              0,
+              0,
+              2504,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 01",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 10,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 01",
+          "range": [
+            0,
+            3126
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "keys": [],
+          "kind": "root",
+          "owner": "ROOT",
+          "range": [
+            3070,
+            3180
+          ],
+          "section": 0,
+          "track": "P06 Domino B Final Slam",
+          "track_index": 0
+        }
+      ],
+      "subtrack": [
+        [
+          0,
+          3126
+        ]
+      ]
+    },
+    "fx": [
+      {
+        "active_radius_cm": 2200.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "cue": "P06 Wing 049",
+        "enabled": true,
+        "guid": "A75BDB934232FBA76B33E3819E040574",
+        "label": "P06 FX 20261008 - fire_late",
+        "type": "<InfinityStageEffectType.FIRE: 3>"
+      },
+      {
+        "active_radius_cm": 2400.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "cue": "P06 Wing 052",
+        "enabled": true,
+        "guid": "3ECAE75D4F50BE6A73A0D0AA4C45ACD0",
+        "label": "P06 FX 20261008 - motes_69_83",
+        "type": "<InfinityStageEffectType.MOTES: 5>"
+      }
+    ],
+    "mechanisms": {
+      "008D989B20485276BC8D0493439D39EA": {
+        "offset": 3.479349811425837,
+        "rate": 0.33572283626300004
+      },
+      "07E24048F24647AA7D5992AB6A8A0770": {
+        "offset": -4.980764224944922,
+        "rate": 0.38964273127753307
+      },
+      "11F403689E45D226B3298AAF16790170": {
+        "offset": -11.92761846119675,
+        "rate": 0.38964273127753307
+      },
+      "2C9C4A30466204C2890815B6C777DACF": {
+        "offset": 4.968254185142914,
+        "rate": 0.42353844213900005
+      },
+      "30450225EE4DB0B28CEF8FA67FD430D4": {
+        "offset": -6.110685271218786,
+        "rate": 0.38964273127753307
+      },
+      "4927CDF2454CE3EC567E4C8BBB58AFB0": {
+        "offset": -14.882080650899377,
+        "rate": 0.38964273127753307
+      },
+      "4AA16A12224559F4375C89AF372F0857": {
+        "offset": -10.9210981718245,
+        "rate": 0.38964273127753307
+      },
+      "6C060F41144F94D9214DF3BF039C7E99": {
+        "offset": -12.934951525899383,
+        "rate": 0.38964273127753307
+      },
+      "73AFD9FE4A43CBCDC34ED08FC4D4CA21": {
+        "offset": -8.03212805260645,
+        "rate": 0.38964273127753307
+      },
+      "7B0D67932249C38B1F010C93D74A38F2": {
+        "offset": 1.7984836766360979,
+        "rate": 0.23368287828900003
+      },
+      "821E817A714533C8BFDB38B63581F33F": {
+        "offset": -9.93757876350953,
+        "rate": 0.38964273127753307
+      },
+      "84D6E0B0E64D490C8BAEC7955AED56C2": {
+        "offset": 2.4810996498521716,
+        "rate": 0.274224316093
+      },
+      "884761C04271AFF58AF47B8B8AE5CD64": {
+        "offset": 0.9443751554963122,
+        "rate": 0.100897198186
+      },
+      "88A3B6EF6F43524F0A057A84271187B7": {
+        "offset": -13.877038775624053,
+        "rate": 0.38964273127753307
+      },
+      "AA62A3AC5C432FCBE3A672B23443FA6A": {
+        "offset": 7.240461026282799,
+        "rate": 0.54965684416
+      },
+      "AF6EB4EB57431F88F4BFC0957DA0E395": {
+        "offset": -7.080097190546977,
+        "rate": 0.38964273127753307
+      },
+      "CC3403E5418809B2A1D9328EFC64C048": {
+        "offset": -8.985333364005118,
+        "rate": 0.38964273127753307
+      }
+    },
+    "sunset": {
+      "animate": true,
+      "cycle_duration_seconds": 1888.4020051731122,
+      "cycle_rate_multiplier": 1.0,
+      "entry_phase_offset_cycles": 0.7305555555555555
+    }
+  },
+  "audio_record": "E:\\PussStage\\Saved\\CodexConductor\\walking_music_swap_record_P06.json",
+  "backup": {
+    "packages": [
+      {
+        "backup": "E:\\PussStage\\Backups\\PreP104P06Full125Retime-P104-P4-RESUME-20261010-0136\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+        "package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
+        "sha256": "b21f24ddcd04eebceb65fd421234a1eddb5f61aef320f4244a1a118db5f2f315",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset"
+      },
+      {
+        "backup": "E:\\PussStage\\Backups\\PreP104P06Full125Retime-P104-P4-RESUME-20261010-0136\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+        "sha256": "791fd3bb3068857948e046a612825e1b7478626227a81dbff0c5a4012bb61590",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+      },
+      {
+        "backup": "E:\\PussStage\\Backups\\PreP104P06Full125Retime-P104-P4-RESUME-20261010-0136\\InfinityStage\\Effects\\LS_P06_BeeGlints.uasset",
+        "package": "/Game/InfinityStage/Effects/LS_P06_BeeGlints",
+        "sha256": "b082c5dcb3e5cb757929b0d341a3e1742d3eca21dba1118c59b37dd78b05594b",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Effects\\LS_P06_BeeGlints.uasset"
+      },
+      {
+        "backup": "E:\\PussStage\\Backups\\PreP104P06Full125Retime-P104-P4-RESUME-20261010-0136\\InfinityStage\\Choreo\\LS_Choreo_Passage_6.uasset",
+        "package": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_6",
+        "sha256": "adc87a8890b0c096671ae704a345efc49480ea38881b3bfce07b62dd1104e78d",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Choreo\\LS_Choreo_Passage_6.uasset"
+      },
+      {
+        "backup": "E:\\PussStage\\Backups\\PreP104P06Full125Retime-P104-P4-RESUME-20261010-0136\\InfinityStage\\Effects\\LS_P06_DominoFinale.uasset",
+        "package": "/Game/InfinityStage/Effects/LS_P06_DominoFinale",
+        "sha256": "8dac4a2c15b9a440ca0af6fb2975bb8b8ae1afacbde0ef9ba2e1e36525c4af67",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Effects\\LS_P06_DominoFinale.uasset"
+      }
+    ],
+    "root": "E:\\PussStage\\Backups\\PreP104P06Full125Retime-P104-P4-RESUME-20261010-0136"
+  },
+  "before": {
+    "bee": {
+      "bindings": [
+        {
+          "name": "P06 Bee Glint 1 @70.2s",
+          "spawn_keys": [
+            [
+              1756,
+              true
+            ],
+            [
+              1810,
+              false
+            ]
+          ],
+          "spawn_range": [
+            0,
+            2765
+          ],
+          "transform_defaults": [
+            [
+              [
+                "Location.X",
+                21579.61251856493
+              ],
+              [
+                "Location.Y",
+                400000.0
+              ],
+              [
+                "Location.Z",
+                240.0
+              ],
+              [
+                "Rotation.X",
+                0.0
+              ],
+              [
+                "Rotation.Y",
+                0.0
+              ],
+              [
+                "Rotation.Z",
+                90.0
+              ],
+              [
+                "Scale.X",
+                1.2750000000000001
+              ],
+              [
+                "Scale.Y",
+                0.30000000000000004
+              ],
+              [
+                "Scale.Z",
+                0.675
+              ]
+            ]
+          ],
+          "transform_ranges": [
+            [
+              0,
+              2765
+            ]
+          ]
+        },
+        {
+          "name": "P06 Bee Glint 2 @87.8s",
+          "spawn_keys": [
+            [
+              2194,
+              true
+            ],
+            [
+              2260,
+              false
+            ]
+          ],
+          "spawn_range": [
+            0,
+            2765
+          ],
+          "transform_defaults": [
+            [
+              [
+                "Location.X",
+                26599.556835438147
+              ],
+              [
+                "Location.Y",
+                400000.0
+              ],
+              [
+                "Location.Z",
+                240.0
+              ],
+              [
+                "Rotation.X",
+                0.0
+              ],
+              [
+                "Rotation.Y",
+                0.0
+              ],
+              [
+                "Rotation.Z",
+                90.0
+              ],
+              [
+                "Scale.X",
+                1.9124999999999999
+              ],
+              [
+                "Scale.Y",
+                0.44999999999999996
+              ],
+              [
+                "Scale.Z",
+                1.0125
+              ]
+            ]
+          ],
+          "transform_ranges": [
+            [
+              0,
+              2765
+            ]
+          ]
+        },
+        {
+          "name": "P06 Bee Glint 3 @103.6s",
+          "spawn_keys": [
+            [
+              2589,
+              true
+            ],
+            [
+              2677,
+              false
+            ]
+          ],
+          "spawn_range": [
+            0,
+            2765
+          ],
+          "transform_defaults": [
+            [
+              [
+                "Location.X",
+                28967.399269986912
+              ],
+              [
+                "Location.Y",
+                400000.0
+              ],
+              [
+                "Location.Z",
+                240.0
+              ],
+              [
+                "Rotation.X",
+                0.0
+              ],
+              [
+                "Rotation.Y",
+                0.0
+              ],
+              [
+                "Rotation.Z",
+                90.0
+              ],
+              [
+                "Scale.X",
+                2.86875
+              ],
+              [
+                "Scale.Y",
+                0.675
+              ],
+              [
+                "Scale.Z",
+                1.51875
+              ]
+            ]
+          ],
+          "transform_ranges": [
+            [
+              0,
+              2765
+            ]
+          ]
+        }
+      ],
+      "fps": 25.0,
+      "playback": [
+        0,
+        2765
+      ],
+      "protected_choreo": [
+        {
+          "class": "MovieSceneSubTrack",
+          "name": "P06 Domino Finale (P37)",
+          "sections": [
+            {
+              "channels": [],
+              "end": 2765,
+              "start": 0
+            }
+          ]
+        }
+      ],
+      "subtrack_range": [
+        0,
+        2765
+      ],
+      "tick": 24000.0
+    },
+    "car": {
+      "fade_in_seconds": 0.438884973526001,
+      "fade_out_seconds": 0.7899929285049438,
+      "repeat_every_seconds": 0.0,
+      "repeat_jitter_seconds": 0.0,
+      "start_delay_seconds": 58.85447692871094,
+      "travel_seconds": 2.633309841156006
+    },
+    "chandelier": [],
+    "domino": {
+      "playback": [
+        0,
+        2765
+      ],
+      "rows": [
+        {
+          "binding_index": 0,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 04",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 0,
+          "keys": [
+            [
+              0,
+              0,
+              2362,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2395,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 04",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 0,
+          "keys": [
+            [
+              0,
+              0,
+              2363,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 04",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 0,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 04",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 1,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 09",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 1,
+          "keys": [
+            [
+              0,
+              0,
+              2614,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2646,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 09",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 1,
+          "keys": [
+            [
+              0,
+              0,
+              2615,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 09",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 1,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 09",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 2,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 05",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 2,
+          "keys": [
+            [
+              0,
+              0,
+              2411,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2443,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 05",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 2,
+          "keys": [
+            [
+              0,
+              0,
+              2412,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 05",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 2,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 05",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 3,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 08",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 3,
+          "keys": [
+            [
+              0,
+              0,
+              2563,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2595,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 08",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 3,
+          "keys": [
+            [
+              0,
+              0,
+              2564,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 08",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 3,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 08",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 4,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 11",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 4,
+          "keys": [
+            [
+              0,
+              0,
+              2714,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2746,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 11",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 4,
+          "keys": [
+            [
+              0,
+              0,
+              2715,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 11",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 4,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 11",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 5,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 02",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 5,
+          "keys": [
+            [
+              0,
+              0,
+              2262,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2295,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 02",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 5,
+          "keys": [
+            [
+              0,
+              0,
+              2263,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 02",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 5,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 02",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 6,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 06",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 6,
+          "keys": [
+            [
+              0,
+              0,
+              2460,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2492,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 06",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 6,
+          "keys": [
+            [
+              0,
+              0,
+              2461,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 06",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 6,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 06",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 7,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 10",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 7,
+          "keys": [
+            [
+              0,
+              0,
+              2664,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2696,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 10",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 7,
+          "keys": [
+            [
+              0,
+              0,
+              2665,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 10",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 7,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 10",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 8,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 03",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 8,
+          "keys": [
+            [
+              0,
+              0,
+              2314,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2347,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 03",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 8,
+          "keys": [
+            [
+              0,
+              0,
+              2315,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 03",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 8,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 03",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 9,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 07",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 9,
+          "keys": [
+            [
+              0,
+              0,
+              2511,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2544,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 07",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 9,
+          "keys": [
+            [
+              0,
+              0,
+              2512,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 07",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 9,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 07",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "binding_index": 10,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 01",
+          "range": [
+            null,
+            null
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 0
+        },
+        {
+          "binding_index": 10,
+          "keys": [
+            [
+              0,
+              0,
+              2214,
+              "True"
+            ],
+            [
+              0,
+              1,
+              2246,
+              "False"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 01",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Spawned",
+          "track_index": 1
+        },
+        {
+          "binding_index": 10,
+          "keys": [
+            [
+              0,
+              0,
+              2215,
+              "<ParticleKey.TRIGGER: 2>"
+            ]
+          ],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 01",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Particle System",
+          "track_index": 2
+        },
+        {
+          "binding_index": 10,
+          "keys": [],
+          "kind": "binding",
+          "owner": "P06 Domino B Dust 01",
+          "range": [
+            0,
+            2765
+          ],
+          "section": 0,
+          "track": "Transform",
+          "track_index": 3
+        },
+        {
+          "keys": [],
+          "kind": "root",
+          "owner": "ROOT",
+          "range": [
+            2715,
+            2813
+          ],
+          "section": 0,
+          "track": "P06 Domino B Final Slam",
+          "track_index": 0
+        }
+      ],
+      "subtrack": [
+        [
+          0,
+          2765
+        ]
+      ]
+    },
+    "fx": [
+      {
+        "active_radius_cm": 2200.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "cue": "P06 Wing 049",
+        "enabled": true,
+        "guid": "A75BDB934232FBA76B33E3819E040574",
+        "label": "P06 FX 20261008 - fire_late",
+        "type": "<InfinityStageEffectType.FIRE: 3>"
+      },
+      {
+        "active_radius_cm": 2400.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "cue": "P06 Wing 052",
+        "enabled": true,
+        "guid": "3ECAE75D4F50BE6A73A0D0AA4C45ACD0",
+        "label": "P06 FX 20261008 - motes_69_83",
+        "type": "<InfinityStageEffectType.MOTES: 5>"
+      }
+    ],
+    "mechanisms": {
+      "008D989B20485276BC8D0493439D39EA": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.379567,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=3.484686,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,LeaveTangent=0.932039),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.207338,Value=0.278887,ArriveTangent=1.868057,LeaveTangent=1.080057),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.389214,Value=0.528444,ArriveTangent=1.664983,LeaveTangent=0.977887),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.552744,Value=0.708467,ArriveTangent=1.191176,LeaveTangent=-0.261666),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.642733,Value=0.696611,ArriveTangent=-0.000394,LeaveTangent=0.000537),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.732880,Value=0.708467,ArriveTangent=0.261029,LeaveTangent=-0.057062),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.752491,Value=0.707904,ArriveTangent=-0.000341,LeaveTangent=0.000589),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.772102,Value=0.708467,ArriveTangent=0.057252),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=0.708467)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=DFD138DA78440386500FEC8E57AE3BA9,GroupOrdinal=46,GroupSize=48))",
+        "offset": 3.484685822527922,
+        "rate": 0.379567
+      },
+      "07E24048F24647AA7D5992AB6A8A0770": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.440529,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=-4.966079,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.247137,Value=0.079246,ArriveTangent=0.753540,LeaveTangent=0.753540),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.508811,Value=0.432494,ArriveTangent=1.997525,LeaveTangent=1.997525),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.726872,Value=1.000000,ArriveTangent=3.233030),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.841586,Value=0.974493),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=30450225EE4DB0B28CEF8FA67FD430D4,GroupOrdinal=6,GroupSize=48))",
+        "offset": -4.966079295154177,
+        "rate": 0.44052863436123346
+      },
+      "11F403689E45D226B3298AAF16790170": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.440529,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=-11.917510,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.247137,Value=0.079246,ArriveTangent=0.753540,LeaveTangent=0.753540),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.508811,Value=0.432494,ArriveTangent=1.997525,LeaveTangent=1.997525),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.726872,Value=1.000000,ArriveTangent=3.233030),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.841586,Value=0.976041),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=30450225EE4DB0B28CEF8FA67FD430D4,GroupOrdinal=3,GroupSize=48))",
+        "offset": -11.917510425844323,
+        "rate": 0.44052863436123346
+      },
+      "2C9C4A30466204C2890815B6C777DACF": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.478851,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=4.975276,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,LeaveTangent=0.856233),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.229449,Value=0.278887,ArriveTangent=1.659694,LeaveTangent=0.975067),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.435754,Value=0.528444,ArriveTangent=1.437119,LeaveTangent=-0.315724),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.549282,Value=0.510504,ArriveTangent=-0.000470,LeaveTangent=0.000640),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.663009,Value=0.528444,ArriveTangent=0.314961,LeaveTangent=-0.068853),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.687749,Value=0.527587,ArriveTangent=-0.000411,LeaveTangent=0.000710),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.712490,Value=0.528444,ArriveTangent=0.069082),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=0.528444)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=DFD138DA78440386500FEC8E57AE3BA9,GroupOrdinal=1,GroupSize=48))",
+        "offset": 4.975275617060641,
+        "rate": 0.478851
+      },
+      "30450225EE4DB0B28CEF8FA67FD430D4": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.440529,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=-6.096703,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.247137,Value=0.079246,ArriveTangent=0.753540,LeaveTangent=0.753540),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.508811,Value=0.432494,ArriveTangent=1.997525,LeaveTangent=1.997525),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.726872,Value=1.000000,ArriveTangent=3.233030),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.841586,Value=0.975922),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=30450225EE4DB0B28CEF8FA67FD430D4,GroupOrdinal=0,GroupSize=48))",
+        "offset": -6.096703377386191,
+        "rate": 0.44052863436123346
+      },
+      "4927CDF2454CE3EC567E4C8BBB58AFB0": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.440529,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=-14.873910,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.247137,Value=0.079246,ArriveTangent=0.753540,LeaveTangent=0.753540),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.508811,Value=0.432494,ArriveTangent=1.997525,LeaveTangent=1.997525),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.726872,Value=1.000000,ArriveTangent=3.233030),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.841586,Value=0.978052),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=DFD138DA78440386500FEC8E57AE3BA9,GroupOrdinal=45,GroupSize=48))",
+        "offset": -14.873909544787047,
+        "rate": 0.44052863436123346
+      },
+      "4AA16A12224559F4375C89AF372F0857": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.440529,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=-10.910344,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.247137,Value=0.079246,ArriveTangent=0.753540,LeaveTangent=0.753540),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.508811,Value=0.432494,ArriveTangent=1.997525,LeaveTangent=1.997525),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.726872,Value=1.000000,ArriveTangent=3.233030),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.841586,Value=0.979269),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=DFD138DA78440386500FEC8E57AE3BA9,GroupOrdinal=21,GroupSize=48))",
+        "offset": -10.91034449339205,
+        "rate": 0.44052863436123346
+      },
+      "6C060F41144F94D9214DF3BF039C7E99": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.440529,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=-12.925489,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.247137,Value=0.079246,ArriveTangent=0.753540,LeaveTangent=0.753540),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.508811,Value=0.432494,ArriveTangent=1.997525,LeaveTangent=1.997525),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.726872,Value=1.000000,ArriveTangent=3.233030),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.841586,Value=0.977422),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=30450225EE4DB0B28CEF8FA67FD430D4,GroupOrdinal=4,GroupSize=48))",
+        "offset": -12.925489133626993,
+        "rate": 0.44052863436123346
+      },
+      "73AFD9FE4A43CBCDC34ED08FC4D4CA21": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.440529,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=-8.019437,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.247137,Value=0.079246,ArriveTangent=0.753540,LeaveTangent=0.753540),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.508811,Value=0.432494,ArriveTangent=1.997525,LeaveTangent=1.997525),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.726872,Value=1.000000,ArriveTangent=3.233030),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.841586,Value=0.978890),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=DFD138DA78440386500FEC8E57AE3BA9,GroupOrdinal=24,GroupSize=48))",
+        "offset": -8.019437444933907,
+        "rate": 0.44052863436123346
+      },
+      "7B0D67932249C38B1F010C93D74A38F2": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.264201,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=1.801878,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,LeaveTangent=1.204738),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.147842,Value=0.278887,ArriveTangent=2.683541,LeaveTangent=1.264064),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.303941,Value=0.528444,ArriveTangent=1.938964,LeaveTangent=1.064382),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.448261,Value=0.708467,ArriveTangent=1.402238,LeaveTangent=0.810257),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.574857,Value=0.820539,ArriveTangent=0.932372,LeaveTangent=0.547457),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.688683,Value=0.885558,ArriveTangent=0.577697,LeaveTangent=-0.126896),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.751321,Value=0.881541,ArriveTangent=-0.000192,LeaveTangent=0.000262),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.814069,Value=0.885558,ArriveTangent=0.126585,LeaveTangent=-0.027672),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.827719,Value=0.885368,ArriveTangent=-0.000165,LeaveTangent=0.000286),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.841369,Value=0.885558,ArriveTangent=0.027764),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=0.885558)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=DFD138DA78440386500FEC8E57AE3BA9,GroupOrdinal=1,GroupSize=48))",
+        "offset": 1.80187820883625,
+        "rate": 0.264201
+      },
+      "821E817A714533C8BFDB38B63581F33F": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.440529,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=-9.926179,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.247137,Value=0.079246,ArriveTangent=0.753540,LeaveTangent=0.753540),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.508811,Value=0.432494,ArriveTangent=1.997525,LeaveTangent=1.997525),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.726872,Value=1.000000,ArriveTangent=3.233030),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.841586,Value=0.976129),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=DFD138DA78440386500FEC8E57AE3BA9,GroupOrdinal=47,GroupSize=48))",
+        "offset": -9.92617944199705,
+        "rate": 0.44052863436123346
+      },
+      "84D6E0B0E64D490C8BAEC7955AED56C2": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.310037,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=2.485271,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,LeaveTangent=1.077298),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.183180,Value=0.278887,ArriveTangent=2.077972,LeaveTangent=1.140928),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.352538,Value=0.528444,ArriveTangent=1.818740,LeaveTangent=1.051166),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.501098,Value=0.708467,ArriveTangent=1.339155,LeaveTangent=0.786372),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.634673,Value=0.820539,ArriveTangent=0.865244,LeaveTangent=-0.190061),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.708177,Value=0.813485,ArriveTangent=-0.000288,LeaveTangent=0.000392),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.781811,Value=0.820539,ArriveTangent=0.189596,LeaveTangent=-0.041447),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.797830,Value=0.820205,ArriveTangent=-0.000248,LeaveTangent=0.000428),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.813848,Value=0.820539,ArriveTangent=0.041584),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=0.820539)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=DFD138DA78440386500FEC8E57AE3BA9,GroupOrdinal=37,GroupSize=48))",
+        "offset": 2.485270647009786,
+        "rate": 0.310037
+      },
+      "884761C04271AFF58AF47B8B8AE5CD64": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.114074,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=0.945699,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,LeaveTangent=0.000781),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.102714,Value=0.028889,LeaveTangent=-0.003570),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.142640,Value=0.018889,LeaveTangent=0.001079),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.176814,Value=0.021111,ArriveTangent=0.000540,LeaveTangent=0.146204),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.348923,Value=0.100003,ArriveTangent=0.983377,LeaveTangent=0.541589),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.459385,Value=0.239163,ArriveTangent=2.217525,LeaveTangent=2.219730),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.568230,Value=0.672576,ArriveTangent=6.334665,LeaveTangent=2.789179),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.632064,Value=0.854922,ArriveTangent=2.405360,LeaveTangent=1.132467),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.699463,Value=0.922580,ArriveTangent=0.857774,LeaveTangent=0.470658),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.761776,Value=0.951493,ArriveTangent=0.445269,LeaveTangent=0.257206),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.816436,Value=0.965793,ArriveTangent=0.258339,LeaveTangent=0.151672),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.865583,Value=0.973349,ArriveTangent=0.151428,LeaveTangent=-0.033261),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.892628,Value=0.972894,ArriveTangent=-0.000051,LeaveTangent=0.000069),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.919721,Value=0.973349,ArriveTangent=0.033180,LeaveTangent=-0.007253),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.925614,Value=0.973327,ArriveTangent=-0.000043,LeaveTangent=0.000075),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.931508,Value=0.973349,ArriveTangent=0.007277),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=0.973349)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=DFD138DA78440386500FEC8E57AE3BA9,GroupOrdinal=0,GroupSize=48))",
+        "offset": 0.9456985943043427,
+        "rate": 0.114074
+      },
+      "88A3B6EF6F43524F0A057A84271187B7": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.440529,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=-13.868222,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.247137,Value=0.079246,ArriveTangent=0.753540,LeaveTangent=0.753540),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.508811,Value=0.432494,ArriveTangent=1.997525,LeaveTangent=1.997525),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.726872,Value=1.000000,ArriveTangent=3.233030),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.841586,Value=0.975501),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=DFD138DA78440386500FEC8E57AE3BA9,GroupOrdinal=15,GroupSize=48))",
+        "offset": -13.868222026431692,
+        "rate": 0.44052863436123346
+      },
+      "AA62A3AC5C432FCBE3A672B23443FA6A": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.621440,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=7.249949,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,LeaveTangent=0.751451),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.267737,Value=0.278887,ArriveTangent=1.392475,LeaveTangent=-0.305962),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.415070,Value=0.256533,ArriveTangent=-0.000447,LeaveTangent=0.000609),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.562662,Value=0.278887,ArriveTangent=0.305231,LeaveTangent=-0.066728),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.594770,Value=0.277810,ArriveTangent=-0.000398,LeaveTangent=0.000688),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.626877,Value=0.278887,ArriveTangent=0.066950),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=0.278887)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=30450225EE4DB0B28CEF8FA67FD430D4,GroupOrdinal=1,GroupSize=48))",
+        "offset": 7.2499491799449025,
+        "rate": 0.62144
+      },
+      "AF6EB4EB57431F88F4BFC0957DA0E395": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.440529,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=-7.066761,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.247137,Value=0.079246,ArriveTangent=0.753540,LeaveTangent=0.753540),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.508811,Value=0.432494,ArriveTangent=1.997525,LeaveTangent=1.997525),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.726872,Value=1.000000,ArriveTangent=3.233030),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.841586,Value=0.977951),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=DFD138DA78440386500FEC8E57AE3BA9,GroupOrdinal=43,GroupSize=48))",
+        "offset": -7.066760939794411,
+        "rate": 0.44052863436123346
+      },
+      "CC3403E5418809B2A1D9328EFC64C048": {
+        "export": "(Kind=Topple,PlaybackMode=OneShot,CycleRateHz=0.440529,PhaseOrigin=PassFrame,ExplicitOriginFrame=(Value=0),PhaseOffsetCycles=-8.973288,InwardTravelCm=75.000000,MaxAngleDeg=-90.000000,LeftNormalizedCurve=(EditorCurveData=(Keys=((TangentMode=RCTM_User),(TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),RightNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.247137,Value=0.079246,ArriveTangent=0.753540,LeaveTangent=0.753540),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.508811,Value=0.432494,ArriveTangent=1.997525,LeaveTangent=1.997525),(InterpMode=RCIM_Cubic,TangentMode=RCTM_Break,Time=0.726872,Value=1.000000,ArriveTangent=3.233030),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.841586,Value=0.977826),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000,Value=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),TopNormalizedCurve=(EditorCurveData=(Keys=((InterpMode=RCIM_Cubic,TangentMode=RCTM_User),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.250000,Value=0.500000,ArriveTangent=3.141593,LeaveTangent=3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.500000,Value=1.000000),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=0.750000,Value=0.500000,ArriveTangent=-3.141593,LeaveTangent=-3.141593),(InterpMode=RCIM_Cubic,TangentMode=RCTM_User,Time=1.000000)),DefaultValue=340282346638528859811704183484516925440.000000,PreInfinityExtrap=RCCE_Constant,PostInfinityExtrap=RCCE_Constant),ExternalCurve=None),bTopFollowsMechanism=True,SoundCues=,CameraGust=(TimingMode=CameraTravelWindow,FanDepthPairs=3,OpeningSpanPairs=3.000000,CascadeDurationSeconds=90.000000,PairOpeningDurationSeconds=5.000000,PairStaggerSeconds=1.000000,Direction=NearestToFarthest,HoldOpenPolicy=HoldOpenThroughPassage,TriggerOffsetUnit=Pairs,TriggerOffset=1.000000,GroupAnchorCueGuid=DFD138DA78440386500FEC8E57AE3BA9,GroupOrdinal=5,GroupSize=48))",
+        "offset": -8.973288399412617,
+        "rate": 0.44052863436123346
+      }
+    },
+    "sunset": {
+      "animate": true,
+      "cycle_duration_seconds": 1670.270801153561,
+      "cycle_rate_multiplier": 1.0,
+      "entry_phase_offset_cycles": 0.7305555555555555
+    }
+  },
+  "length_record": "E:\\PussStage\\Saved\\CodexConductor\\passages_to_music_record_P06_125_E27.json",
+  "new_pass_frames": {
+    "008D989B20485276BC8D0493439D39EA": 45.43629166666667,
+    "07E24048F24647AA7D5992AB6A8A0770": 108.134375,
+    "0A53E28D7C44CCD4B5F79EA1FC64B0E7": 11.706208333333333,
+    "11F403689E45D226B3298AAF16790170": 74.40441666666666,
+    "1D2D86BCE74A910A13CC588B0D451795": 53.372791666666664,
+    "2C9C4A30466204C2890815B6C777DACF": 47.42041666666667,
+    "30450225EE4DB0B28CEF8FA67FD430D4": 102.97566666666667,
+    "3F1CEC91DE4164DCF2F0698A885CBD14": 55.35691666666666,
+    "4927CDF2454CE3EC567E4C8BBB58AFB0": 60.11879166666667,
+    "4AA16A12224559F4375C89AF372F0857": 79.16629166666667,
+    "6C060F41144F94D9214DF3BF039C7E99": 69.64254166666667,
+    "6DB7C86FE7463FB8ED5143833DF28400": 51.388666666666666,
+    "735A7090BC4094A56E9818B65CD531B7": 29.166541666666667,
+    "73AFD9FE4A43CBCDC34ED08FC4D4CA21": 93.45191666666666,
+    "7B0D67932249C38B1F010C93D74A38F2": 41.468041666666664,
+    "821E817A714533C8BFDB38B63581F33F": 83.92816666666667,
+    "84D6E0B0E64D490C8BAEC7955AED56C2": 43.45216666666666,
+    "884761C04271AFF58AF47B8B8AE5CD64": 37.499833333333335,
+    "88A3B6EF6F43524F0A057A84271187B7": 64.88066666666667,
+    "A9E0E66B074D5EA45E23BE93ADA0F8CE": 20.436375,
+    "AA62A3AC5C432FCBE3A672B23443FA6A": 49.40454166666667,
+    "ABFFBA7B47F22FE2F67C52A63EE441F7": 24.801458333333333,
+    "AF6EB4EB57431F88F4BFC0957DA0E395": 98.21379166666667,
+    "C1CDC6C8BB4116B5D3BB67B4103FF047": 4.166625,
+    "CC3403E5418809B2A1D9328EFC64C048": 88.69004166666667,
+    "D92313E04C50AB918446E1A5C1A766D6": 7.738,
+    "DFD138DA78440386500FEC8E57AE3BA9": 0.9920416666666667,
+    "E9850E1D8D4473A298BEA0A87E7AC60A": 16.071291666666667,
+    "F060763E471ABBB50FE986831AFBAC59": 33.531625
+  },
+  "old_pass_frames": {
+    "008D989B20485276BC8D0493439D39EA": 40.20195833333333,
+    "07E24048F24647AA7D5992AB6A8A0770": 95.677,
+    "0A53E28D7C44CCD4B5F79EA1FC64B0E7": 10.357666666666667,
+    "11F403689E45D226B3298AAF16790170": 65.83283333333334,
+    "1D2D86BCE74A910A13CC588B0D451795": 47.224125,
+    "2C9C4A30466204C2890815B6C777DACF": 41.9575,
+    "30450225EE4DB0B28CEF8FA67FD430D4": 91.11258333333333,
+    "3F1CEC91DE4164DCF2F0698A885CBD14": 48.97966666666667,
+    "4927CDF2454CE3EC567E4C8BBB58AFB0": 53.19295833333333,
+    "4AA16A12224559F4375C89AF372F0857": 70.046125,
+    "6C060F41144F94D9214DF3BF039C7E99": 61.61954166666667,
+    "6DB7C86FE7463FB8ED5143833DF28400": 45.468583333333335,
+    "735A7090BC4094A56E9818B65CD531B7": 25.8065,
+    "73AFD9FE4A43CBCDC34ED08FC4D4CA21": 82.686,
+    "7B0D67932249C38B1F010C93D74A38F2": 36.690875,
+    "821E817A714533C8BFDB38B63581F33F": 74.25941666666667,
+    "84D6E0B0E64D490C8BAEC7955AED56C2": 38.446416666666664,
+    "884761C04271AFF58AF47B8B8AE5CD64": 33.17979166666667,
+    "88A3B6EF6F43524F0A057A84271187B7": 57.40625,
+    "A9E0E66B074D5EA45E23BE93ADA0F8CE": 18.082083333333333,
+    "AA62A3AC5C432FCBE3A672B23443FA6A": 43.71304166666667,
+    "ABFFBA7B47F22FE2F67C52A63EE441F7": 21.94429166666667,
+    "AF6EB4EB57431F88F4BFC0957DA0E395": 86.89929166666667,
+    "C1CDC6C8BB4116B5D3BB67B4103FF047": 3.686625,
+    "CC3403E5418809B2A1D9328EFC64C048": 78.47270833333333,
+    "D92313E04C50AB918446E1A5C1A766D6": 6.846583333333333,
+    "DFD138DA78440386500FEC8E57AE3BA9": 0.87775,
+    "E9850E1D8D4473A298BEA0A87E7AC60A": 14.219875,
+    "F060763E471ABBB50FE986831AFBAC59": 29.668708333333335
+  },
+  "plan": {
+    "chain_a_rows": 6,
+    "chain_b_rows": 11,
+    "decided_by": "Gary 9 Oct E27",
+    "decision": {
+      "action": "IMPORT_AND_SWAP",
+      "reason": "SW_P06_IntoVoid is 110.561134 s, not the delivered 125.000 s WAV",
+      "target_sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P06_Walking6_Cameron"
+    },
+    "facts": {
+      "assigned_sound": "/Game/InfinityStage/Audio/Passages/SW_P06_IntoVoid",
+      "cameron_asset_exists": false,
+      "cameron_duration_s": null,
+      "chain_a_rows": 6,
+      "chain_a_run": "TOPPLE-20261009-120904",
+      "chain_b_rows": 11,
+      "chain_b_run": "B1T-P06B-APPLY-20261009-112519",
+      "chandelier_policy_evidence": "P75 p06 owned_sequence_writes=[]",
+      "delivered_wav_duration_s": 125.0,
+      "fx_policy_evidence": "P06 FX record fields are distance/view activated",
+      "into_void_duration_s": 110.5611343383789,
+      "p06_length_s": 110.6,
+      "p37_sequence_present": true
+    },
+    "old_passage_s": 110.6,
+    "old_track_s": 110.561125,
+    "passage_scale": 1.1301989150090417,
+    "plan_sha256": "f8bee40934e81aa3543dbd701ac1421638e59bbe3ad79f808208563040176409",
+    "policies": [
+      {
+        "item": "P06 Passage length",
+        "new_s": 125.0,
+        "old_s": 110.561125,
+        "policy": "TARGET_TRACK",
+        "reason": "Gary E27 requires the full delivered track"
+      },
+      {
+        "item": "Job 42 celestial sunset/dusk",
+        "policy": "SCALE",
+        "reason": "cycle duration was proportionally fitted to the 110.56 s P06",
+        "scale": 1.1305963104120005
+      },
+      {
+        "item": "Job 42 car drive-by temporal fields",
+        "policy": "SCALE",
+        "reason": "segment-relative seconds were fitted by p06_retime",
+        "scale": 1.1305963104120005
+      },
+      {
+        "item": "Job 42 bee-glint keys/ranges",
+        "policy": "SCALE",
+        "reason": "P06-relative Sequencer frames were fitted by p06_retime",
+        "scale": 1.1305963104120005
+      },
+      {
+        "item": "TOPPLE chain A",
+        "policy": "SCALE",
+        "reason": "one-shot phase clock is fitted to P06-relative creak/impact times",
+        "scale": 1.1305963104120005
+      },
+      {
+        "item": "TOPPLE chain B mechanisms",
+        "policy": "SCALE",
+        "reason": "108.6 s final slam was fitted to the 110.56 s end",
+        "scale": 1.1305963104120005
+      },
+      {
+        "item": "P37 domino dust and slam sequence",
+        "policy": "SCALE",
+        "reason": "owned section ranges, trigger keys and audio section use P06-relative frames",
+        "scale": 1.1305963104120005
+      },
+      {
+        "item": "P06 FX attachment set",
+        "policy": "KEEP_ABSOLUTE",
+        "reason": "fire/motes are view-distance activated; wing burn uses route distance, not time",
+        "scale": 1.0
+      },
+      {
+        "item": "Job 85 P06 chandelier staging",
+        "policy": "KEEP_ABSOLUTE",
+        "reason": "P06 part is spatial staging only and owns zero P06 sequence tracks",
+        "scale": 1.0
+      }
+    ],
+    "proof_limits": [
+      "offline-authored; live DRY must verify all facts",
+      "saved read-back is not rendered acceptance"
+    ],
+    "scale": 1.1305963104120005,
+    "schema": 1,
+    "target_track_s": 125.0
+  },
+  "run": "P104-R6-APPLY-20261010-0458",
+  "schema": 1,
+  "stage": "custom_recorded",
+  "status": "prepared",
+  "tool": "p104"
+}

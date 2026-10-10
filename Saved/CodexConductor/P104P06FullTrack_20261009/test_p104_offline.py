@@ -57,6 +57,31 @@ K.yes(swapped["decision"]["action"] == "LENGTHEN_ONLY", "dedupe already imported
 K.yes(C.scale_frame(2715, plan["scale"]) == round(2715 * plan["scale"]), "frame scale")
 K.yes(C.scale_span([None, None], plan["scale"]) == [None, None], "unbounded section stays unbounded")
 K.yes(C.scale_span([100, None], plan["scale"])[1] is None, "half-bounded section keeps infinite end")
+job42 = {"bee": {"protected_choreo": [
+    {"class": "MovieSceneSubTrack", "name": "P06 Domino Finale (P37)",
+     "sections": [{"start": 0, "end": 2765, "channels": []}]},
+    {"class": "MovieSceneSubTrack", "name": "Unrelated", "sections": [{"start": 0, "end": 2765}]},
+]}}
+reconciled = C.reconcile_job42_protected_choreo(
+    job42, {"subtrack": [[0, 2765]]}, {"subtrack": [[0, 3126]]})
+K.yes(reconciled["bee"]["protected_choreo"][0]["sections"][0]["end"] == 3126,
+      "P37 protected Choreo bound follows Job 134 subsection retime")
+K.yes(job42["bee"]["protected_choreo"][0]["sections"][0]["end"] == 2765,
+      "reconciliation does not mutate recorded Job 42 plan")
+try:
+    C.reconcile_job42_protected_choreo(job42, {"subtrack": [[1, 2765]]}, {"subtrack": [[1, 3126]]})
+except C.PlanError as exc:
+    K.yes("P37_PROTECTED_SECTION_MATCH_COUNT|0" in str(exc), "missing P37 protected section refused", negative=True)
+else:
+    raise AssertionError("missing P37 protected section refused")
+ambiguous = copy.deepcopy(job42)
+ambiguous["bee"]["protected_choreo"].append(copy.deepcopy(job42["bee"]["protected_choreo"][0]))
+try:
+    C.reconcile_job42_protected_choreo(ambiguous, {"subtrack": [[0, 2765]]}, {"subtrack": [[0, 3126]]})
+except C.PlanError as exc:
+    K.yes("P37_PROTECTED_SECTION_MATCH_COUNT|2" in str(exc), "ambiguous P37 protected section refused", negative=True)
+else:
+    raise AssertionError("ambiguous P37 protected section refused")
 rate, offset = C.retime_phase(0.4, 2.0, 50.0, 56.5, plan["scale"])
 for old_time in (42.0, 50.0, 58.0):
     old_phase = 2.0 + (old_time - 50.0) * 0.4
@@ -103,6 +128,20 @@ resume_record = {"tool": "p104", "status": "prepared", "stage": "length_applied"
 resume_facts = facts(assigned_sound=C.CAMERON, cameron_asset_exists=True,
                      cameron_duration_s=125.0, p06_length_s=125.0)
 K.yes(C.validate_resume(resume_record, resume_facts) is plan, "resume exact saved boundary")
+recovery_record = copy.deepcopy(resume_record)
+recovery_record.update({"stage": "custom_recorded", "before": {"recorded": True},
+                        "after": {"recorded": True}, "backup": {"root": "PreP104"}})
+K.yes(C.validate_resume(recovery_record, resume_facts) == plan,
+      "custom_recorded transaction may reach the live baseline recovery gate")
+incomplete_recovery = copy.deepcopy(recovery_record)
+incomplete_recovery.pop("before")
+try:
+    C.validate_resume(incomplete_recovery, resume_facts)
+except C.PlanError as exc:
+    K.yes("RESUME_CUSTOM_RECOVERY_RECORD_INCOMPLETE" in str(exc),
+          "custom_recorded retry without complete recovery evidence refused", negative=True)
+else:
+    raise AssertionError("incomplete custom recovery refused")
 for changes, label in (({"assigned_sound": C.INTO_VOID}, "resume refuses old rail"),
                        ({"p06_length_s": 110.6}, "resume refuses old length"),
                        ({"cameron_duration_s": 124.0}, "resume refuses wrong Walking6 duration")):
@@ -117,7 +156,9 @@ for changes, label in (({"assigned_sound": C.INTO_VOID}, "resume refuses old rai
 source = open(os.path.join(HERE, "p104_live.py"), "r", encoding="utf-8").read()
 for needle in ("guard()", "backup(run", "exclusive=True", "materialize_passage()", "P37_SEQUENCE_READBACK",
                "JOB42_READBACK", "MECHANISM_READBACK", "census() ==", "P104_P06_FULL_125",
-               "audio_repeated=0", "section.has_start_frame()", "verify_custom(R"):
+               "audio_repeated=0", "section.has_start_frame()", "verify_custom(R",
+               "reconcile_job42_protected_choreo", '"JOB42_READBACK|" + ",".join(failures)',
+               "verify_custom_retry_baseline", "CUSTOM_RETRY_UNSAVED_MUTATIONS_PRESENT"):
     K.yes(needle in source, "live safety source: " + needle)
 
 print("P104_HARNESS_OK|positive=%d/%d|negative=%d/%d|total=%d" %

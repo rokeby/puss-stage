@@ -1,0 +1,109 @@
+{
+  "apply_ready": true,
+  "census_after": {
+    "content": [],
+    "maps": []
+  },
+  "census_before": {
+    "content": [],
+    "maps": []
+  },
+  "mode": "DRY",
+  "mutated": false,
+  "next_mode": "RESUME",
+  "plan": {
+    "chain_a_rows": 6,
+    "chain_b_rows": 11,
+    "decided_by": "Gary 9 Oct E27",
+    "decision": {
+      "action": "IMPORT_AND_SWAP",
+      "reason": "SW_P06_IntoVoid is 110.561134 s, not the delivered 125.000 s WAV",
+      "target_sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P06_Walking6_Cameron"
+    },
+    "facts": {
+      "assigned_sound": "/Game/InfinityStage/Audio/Passages/SW_P06_IntoVoid",
+      "cameron_asset_exists": false,
+      "cameron_duration_s": null,
+      "chain_a_rows": 6,
+      "chain_a_run": "TOPPLE-20261009-120904",
+      "chain_b_rows": 11,
+      "chain_b_run": "B1T-P06B-APPLY-20261009-112519",
+      "chandelier_policy_evidence": "P75 p06 owned_sequence_writes=[]",
+      "delivered_wav_duration_s": 125.0,
+      "fx_policy_evidence": "P06 FX record fields are distance/view activated",
+      "into_void_duration_s": 110.5611343383789,
+      "p06_length_s": 110.6,
+      "p37_sequence_present": true
+    },
+    "old_passage_s": 110.6,
+    "old_track_s": 110.561125,
+    "passage_scale": 1.1301989150090417,
+    "plan_sha256": "f8bee40934e81aa3543dbd701ac1421638e59bbe3ad79f808208563040176409",
+    "policies": [
+      {
+        "item": "P06 Passage length",
+        "new_s": 125.0,
+        "old_s": 110.561125,
+        "policy": "TARGET_TRACK",
+        "reason": "Gary E27 requires the full delivered track"
+      },
+      {
+        "item": "Job 42 celestial sunset/dusk",
+        "policy": "SCALE",
+        "reason": "cycle duration was proportionally fitted to the 110.56 s P06",
+        "scale": 1.1305963104120005
+      },
+      {
+        "item": "Job 42 car drive-by temporal fields",
+        "policy": "SCALE",
+        "reason": "segment-relative seconds were fitted by p06_retime",
+        "scale": 1.1305963104120005
+      },
+      {
+        "item": "Job 42 bee-glint keys/ranges",
+        "policy": "SCALE",
+        "reason": "P06-relative Sequencer frames were fitted by p06_retime",
+        "scale": 1.1305963104120005
+      },
+      {
+        "item": "TOPPLE chain A",
+        "policy": "SCALE",
+        "reason": "one-shot phase clock is fitted to P06-relative creak/impact times",
+        "scale": 1.1305963104120005
+      },
+      {
+        "item": "TOPPLE chain B mechanisms",
+        "policy": "SCALE",
+        "reason": "108.6 s final slam was fitted to the 110.56 s end",
+        "scale": 1.1305963104120005
+      },
+      {
+        "item": "P37 domino dust and slam sequence",
+        "policy": "SCALE",
+        "reason": "owned section ranges, trigger keys and audio section use P06-relative frames",
+        "scale": 1.1305963104120005
+      },
+      {
+        "item": "P06 FX attachment set",
+        "policy": "KEEP_ABSOLUTE",
+        "reason": "fire/motes are view-distance activated; wing burn uses route distance, not time",
+        "scale": 1.0
+      },
+      {
+        "item": "Job 85 P06 chandelier staging",
+        "policy": "KEEP_ABSOLUTE",
+        "reason": "P06 part is spatial staging only and owns zero P06 sequence tracks",
+        "scale": 1.0
+      }
+    ],
+    "proof_limits": [
+      "offline-authored; live DRY must verify all facts",
+      "saved read-back is not rendered acceptance"
+    ],
+    "scale": 1.1305963104120005,
+    "schema": 1,
+    "target_track_s": 125.0
+  },
+  "resume_ready": true,
+  "run": "P104-P4-DRY-20261010-0135"
+}

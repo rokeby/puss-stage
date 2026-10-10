@@ -1,0 +1,144 @@
+diff --git a/Saved/CodexConductor/passage_stills.py b/Saved/CodexConductor/passage_stills.py
+index 151f542f..28ff7b74 100644
+--- a/Saved/CodexConductor/passage_stills.py
++++ b/Saved/CodexConductor/passage_stills.py
+@@ -24,9 +24,10 @@ with the time-keyed lighting cues active, and no actor is moved. The look bench'
+ measured PIE clips show the Passage camera travelling the route at eye height
+ (LookBench/20261005-062436/capture_20261005-064434_capture: y 240000, z 180, yaw 0).
+ 
+-Per still: scrub -> wait repose_seconds -> re-scrub (a jump's first frame can be
+-stale) -> luma settle gate (small HighResShot probes until stable; copied from
+-look_bench.py:1026-1107) -> master-frame gate (still on target) -> HighResShot ->
++Per still: scrub -> luma settle gate (small HighResShot probes until stable;
++copied from look_bench.py:1026-1107) -> re-scrub to the same Master frame -> wait
++repose_seconds and verify one decoded probe (a jump's first frame can be stale) ->
++master-frame gate (still on target) -> HighResShot ->
+ wait until the file is non-trivial and stable -> one post-capture probe (picture
+ must not have moved) -> record pose, master frame and luma.
+ 
+@@ -269,7 +270,7 @@ def write_verified(path, data):
+ # --------------------------------------------------------------------------
+ 
+ class StillsMachine:
+-    """Phases per still: jump -> repose -> settle -> capture -> wait_file -> post_probe -> next.
++    """Phases per still: jump -> settle -> repose -> capture -> wait_file -> post_probe -> next.
+     Gate failures (settle timeout, frame drift, post-capture drift) are recorded and the run goes
+     on (every still is still useful to look at) but they turn the result into FAILED. Hard errors
+     (scrub refused, PIE gone, file timeout) stop the run; finish() always runs."""
+@@ -345,14 +346,9 @@ class StillsMachine:
+             a.transport_pause()
+             self._scrub(still, now)
+             still["phase"] = "settling"
+-            st.update(phase="repose", t0=now, reposed=False, samples=[], settle_ticks=0, pending=None,
++            st.update(phase="settle", t0=now, samples=[], settle_ticks=0, pending=None,
+                       last_issue=None)
+             return
+-        if phase == "repose":
+-            if now - st["t0"] >= float(p["repose_seconds"]):
+-                self._scrub(still, now)          # re-pose: a jump's first frame can be stale
+-                st["phase"] = "settle"
+-            return
+         if phase == "settle":
+             st["settle_ticks"] += 1
+             el = now - st["t0"]
+@@ -371,6 +367,24 @@ class StillsMachine:
+             if verdict != "stable":
+                 self._fail("settle i=%d: picture still changing after %.1f s" % (still["i"], el))
+             st["pending"] = None
++            self._scrub(still, now)              # final re-pose follows settling, never precedes it
++            st.update(phase="repose", repose_t0=now, pending=None, last_issue=None)
++            return
++        if phase == "repose":
++            if now - st["repose_t0"] < float(p["repose_seconds"]):
++                return
++            got = self._read_pending(now)
++            if got is None and st.get("pending") is None:
++                self._issue_probe(now, "repose") # force a decoded frame after the final jump
++                return
++            if got is None:
++                return
++            ref = (still.get("settle") or {}).get("luma")
++            still["luma_after_repose"] = None if got == "timeout" else round(got, 3)
++            if got == "timeout":
++                self._fail("repose_probe i=%d: probe never readable" % still["i"])
++            elif ref is not None and abs(got - ref) > luma_tol(p, ref):
++                self._fail("repose_drift i=%d: %.1f vs settled %.1f" % (still["i"], got, ref))
+             st["phase"] = "capture"
+             return
+         if phase == "capture":
+diff --git a/Saved/CodexConductor/test_passage_stills.py b/Saved/CodexConductor/test_passage_stills.py
+index 5ecbd00c..888a2aa8 100644
+--- a/Saved/CodexConductor/test_passage_stills.py
++++ b/Saved/CodexConductor/test_passage_stills.py
+@@ -56,15 +56,16 @@ class Fake:
+     (probes small, stills large) whose luma follows `self.luma(now)`."""
+ 
+     def __init__(self, clock, world="game", census=None, luma=None, scrub_result="<InfinityTransportResult.SUCCEEDED: 0>",
+-                 drift_after=None, write_stills=True, dirty_on_scrub=False, pie_ends_at=None, still_delay=0):
++                 drift_after=None, write_stills=True, dirty_on_scrub=False, pie_ends_at=None, still_delay=0,
++                 repose_luma=None):
+         self.clock, self.world = clock, world
+         self._census = census or {"maps": ["/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"], "content": []}
+         self.luma = luma or (lambda t: 60.0)
+         self.scrub_result = scrub_result
+         self.frame, self.playing = 29_000_000, True
+         self.drift_after, self.write_stills, self.dirty_on_scrub = drift_after, write_stills, dirty_on_scrub
+-        self.pie_ends_at, self.still_delay = pie_ends_at, still_delay
+-        self.logs, self.errors, self.commands, self.scrubs = [], [], [], []
++        self.pie_ends_at, self.still_delay, self.repose_luma = pie_ends_at, still_delay, repose_luma
++        self.logs, self.errors, self.commands, self.scrubs, self.events = [], [], [], [], []
+         self.ok_seen_with_files = None
+         self.pending_stills = []
+ 
+@@ -89,6 +90,7 @@ class Fake:
+ 
+     def transport_scrub(self, f):
+         self.scrubs.append(int(f))
++        self.events.append(("scrub", self.clock[0], int(f)))
+         if "SUCCEEDED" not in self.scrub_result:
+             return self.scrub_result
+         self.frame, self.playing = int(f), False
+@@ -112,11 +114,13 @@ class Fake:
+         if self.world_kind() != "game":
+             raise ps.StillsRefused("pie_ended", "console")
+         self.commands.append(cmd)
++        self.events.append(("console", self.clock[0], cmd))
+         m = re.search(r'filename="([^"]+)"', cmd)
+         if not m:
+             return
+         path = m.group(1)
+-        grey = max(0, min(255, int(round(self.luma(self.clock[0])))))
++        value = self.repose_luma if self.repose_luma is not None and len(self.scrubs) >= 2 else self.luma(self.clock[0])
++        grey = max(0, min(255, int(round(value))))
+         if "_probes" in path:
+             write_png(path, 8, 6, grey)
+         elif self.write_stills:
+@@ -256,6 +260,16 @@ check("+ stills are 1600x900 HighResShots without exposure override; probes 256x
+ first_still = next(i for i, c in enumerate(f_ok.commands) if c.startswith("HighResShot 1600x900"))
+ check("+ at least settle_window probes precede the first still (settle gate actually ran)",
+       sum(1 for c in f_ok.commands[:first_still] if "256x144" in c) >= ps.DEFAULTS["settle_window"])
++event_names = [(kind, "probe" if "256x144" in str(value) else "still" if "1600x900" in str(value) else "other")
++               for kind, _time, value in f_ok.events]
++second_scrub = [i for i, row in enumerate(event_names) if row[0] == "scrub"][1]
++first_full = next(i for i, row in enumerate(event_names) if row == ("console", "still"))
++check("+ corrected order is PIE scrub, settle probes, final re-pose, decoded probe, full still",
++      any(row == ("console", "probe") for row in event_names[:second_scrub])
++      and any(row == ("console", "probe") for row in event_names[second_scrub + 1:first_full]))
++r_repose, _, _, _ = run(fractions=(0.5,), repose_luma=95.0)
++check("- control: post-re-pose decoded frame changing from settled luma marks capture FAILED",
++      r_repose["status"] == "failed" and any(g.startswith("repose_drift") for g in r_repose["gate_failures"]))
+ 
+ # ---- census-dirty refusal
+ r_d, f_d, _s, _r = run(dirty_on_scrub=True)
+@@ -380,8 +394,9 @@ ref["arguments"]["arguments"]["relativeSavedPath"] = "CodexConductor/passage_sti
+ check("+ request JSON = the purge request envelope with relativeSavedPath CodexConductor/passage_stills_run.py",
+       req == ref)
+ default_args = json.loads(args_path.read_text(encoding="utf-8"))
+-check("+ shipped args file is P05 with the default fractions",
+-      default_args["passage"] == "P05" and default_args["fractions"] == [0.1, 0.3, 0.5, 0.7, 0.9])
++check("+ shipped operational args have a valid passage and valid fractions",
++      bool(ps.passage_label(default_args["passage"])) and
++      ps.validate_fractions(default_args.get("fractions")) == default_args.get("fractions"))
+ 
+ failed = [n for n, ok in RESULTS if not ok]
+ print("\nPASSAGE_STILLS_HARNESS %d/%d %s" % (len(RESULTS) - len(failed), len(RESULTS), "OK" if not failed else "FAILED"))
