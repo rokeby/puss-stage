@@ -55,3 +55,4 @@
   - **P05**: every LEFT wing is offset 20 cm on its LOCAL X relative to the right, so the two don't overlap → job 128.
   - **Shadow radii (E29)**: run overnight: the job 111 DRY survey, then the raise-only APPLY, then the perf check; auto-REVERT if frame time regresses beyond the gate.
   - **P02 floor is NOT reflective** (the dark-wet MI was applied 9 Oct). Same symptom as S2 → job 129: compare with the P01 floor, then the job-119-style P01 floor copy for P02.
+  - **CORRECTION (Gary)**: the floor that fails to reflect, where his P01-floor drag test worked, is **P02**, not S2 (the conductor misread "s2's top wings" as S2). Job 119 (S2 target) is HELD: its request was renamed so pass 2 cannot run it. Job 129 does P02. The S2 floor: no change.
