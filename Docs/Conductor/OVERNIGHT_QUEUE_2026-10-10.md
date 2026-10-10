@@ -133,3 +133,4 @@ Stills are in `Saved/CodexConductor/ApplyPass_20261010/stills/`. Verdicts are by
 
   Waiting for Gary.
 - **P04 smoke (Gary: "just hide the prop")**: DONE. FX SMOKE P04 B18 L (nearest the final wing) has its Apparatus mesh cleared and the level is saved; the smoke FX stays. Verify after the next editor restart that the BP construction did not restore the cube. The other two P04 smoke pots (B04 L, B11 R) still show their cube props: ask Gary.
+- **P04 smoke pots B04 L + B11 R (Gary: hide them too)**: script ready (hide_b04_b11_props_request.json); run it when pass 5 releases the editor, then a still.
