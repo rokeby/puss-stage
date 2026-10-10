@@ -112,6 +112,7 @@ t = copy.deepcopy(T1); t["location"] = [160.0, 170.0, 31.0]
 refuses("delta vector over 200", "DELTA_VECTOR_OVER_LIMIT", lambda: C.capture_delta(T0, t, CFG, "A"))
 refuses("unkeyed missing default", "UNKEYED_CHANNEL_WITHOUT_DEFAULT", lambda: C.shifted_channel(channel([], None, False), 3.0))
 refuses("relative section", "NON_ABSOLUTE_SECTION", lambda: C.make_expected_binding(binding(blend="RELATIVE"), [0.0, 0.0, 2.0]))
+C.make_expected_binding(binding(blend="ADDITIVE"), [0.0, 0.0, 2.0])  # additive accepted (10 Oct live)
 b = binding("spawnable"); b["template_transform"] = None
 refuses("spawnable template required", "SPAWNABLE_TEMPLATE_MISSING", lambda: C.make_expected_binding(b, [0.0, 0.0, 2.0]))
 refuses("unknown actor alias", "UNKNOWN_TARGET_LABEL", lambda: C.binding_aliases("Shore07_X Clam"))

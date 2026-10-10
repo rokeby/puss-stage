@@ -172,7 +172,7 @@ def transform_sections(binding):
             row = {"track_index": ti, "section_index": si,
                    "track_name": str(track.get_name()), "section_name": str(section.get_name()),
                    "blend_type": blend_name(section), "channels": channels}
-            require(row["blend_type"] == "ABSOLUTE",
+            require(row["blend_type"] in ("ABSOLUTE", "ADDITIVE"),  # 10 Oct live: LS_Clams Shore sections are ADDITIVE; a uniform key offset is still exact
                     "NON_ABSOLUTE_SECTION|%s|%s" % (binding.get_display_name(), row["blend_type"]))
             rows.append(row)
     require(rows, "NO_TRANSFORM_SECTIONS|" + str(binding.get_display_name()))

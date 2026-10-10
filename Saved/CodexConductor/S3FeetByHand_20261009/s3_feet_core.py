@@ -123,7 +123,7 @@ def shifted_channel(state, delta):
 def make_expected_binding(binding, applied_delta):
     out = json.loads(json.dumps(binding))
     for section in out["transform_sections"]:
-        require(section.get("blend_type") == "ABSOLUTE", "NON_ABSOLUTE_SECTION|" + repr(section.get("blend_type")))
+        require(section.get("blend_type") in ("ABSOLUTE", "ADDITIVE"), "NON_ABSOLUTE_SECTION|" + repr(section.get("blend_type")))
         channels = section["channels"]
         for index, name in enumerate(LOCATION):
             channels[name] = shifted_channel(channels[name], applied_delta[index])
