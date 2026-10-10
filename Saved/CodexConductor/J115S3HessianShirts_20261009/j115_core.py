@@ -152,8 +152,10 @@ def plan_parameter_strategy(parameter_names: dict[str, list[str]], candidates: d
     roughness = choose_named(parameter_names["scalar"], candidates["roughness_scalar"], "ROUGHNESS_SCALAR")
     specular = choose_named(parameter_names["scalar"], candidates.get("specular_scalar", []),
                             "SPECULAR_SCALAR", False)
+    # 10 Oct live: the MetaHuman DefaultGarment parents carry c_metalness 0.8 / C_roughness 0.2 (metal-like, read dark/shiny).
+    metallic = choose_named(parameter_names["scalar"], candidates.get("metallic_scalar", []), "METALLIC_SCALAR", False)
     return {"mode": "tint_roughness", "tint_vector": tint,
-            "roughness_scalar": roughness, "specular_scalar": specular}
+            "roughness_scalar": roughness, "specular_scalar": specular, "metallic_scalar": metallic}
 
 
 def expected_actor_scope(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:

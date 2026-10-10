@@ -5,12 +5,26 @@
   "fallback_specular": 0.18,
   "source_png_relative": "Saved/CodexConductor/ShroudHessian_20261008/T_Shroud_Weave_BC.png",
   "parameter_candidates": {
-    "base_color_texture": ["BaseColor", "Base Color", "BaseColorTexture", "Base Color Texture", "Albedo", "Diffuse", "Fabric BaseColor"],
-    "normal_texture": ["Normal", "NormalMap", "Normal Map", "NormalTexture", "Normal Texture", "Fabric Normal"],
-    "tint_vector": ["BaseColor Tint", "Base Color Tint", "BaseColor", "Base Color", "Color", "Colour", "Tint", "C_color"],
-    "roughness_scalar": ["Roughness", "Roughness Multiplier", "RoughnessMultiplier", "Fabric Roughness"],
-    "specular_scalar": ["Specular", "Specular Multiplier", "SpecularMultiplier"]
+    "base_color_texture": [
+      "__tint_mode_no_texture__"
+    ],
+    "normal_texture": [
+      "__tint_mode_no_texture__"
+    ],
+    "tint_vector": [
+      "C_color"
+    ],
+    "roughness_scalar": [
+      "C_roughness value"
+    ],
+    "specular_scalar": [
+      "C_specular value"
+    ],
+    "metallic_scalar": [
+      "c_metalness value"
+    ]
   },
-  "texture_mode_static_switches": {}
+  "texture_mode_static_switches": {},
+  "fallback_metallic": 0.0,
+  "confirm": ""
 }
-

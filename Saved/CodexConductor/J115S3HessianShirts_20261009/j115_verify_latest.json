@@ -1,0 +1,280 @@
+{
+  "assignment_readbacks": [
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore01_M56_Draped_C_0",
+      "component": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore01_M56_Draped_C_0.SkeletalMesh",
+      "label": "Shore01_M56 Clam",
+      "resolved": [
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore01_M56_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore01_M56_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore01_M56_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore01_M56_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore01_M56_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore01_M56_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore01_M56_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore01_M56_Shirt_Hessian_v1"
+      ],
+      "slots": [
+        1,
+        3,
+        5,
+        7
+      ]
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore02_F52_Draped_C_1",
+      "component": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore02_F52_Draped_C_1.SkeletalMesh",
+      "label": "P40 Shore Variant 02 (Shore02_F52)",
+      "resolved": [
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shorts_Hessian_v1"
+      ],
+      "slots": [
+        0,
+        3,
+        4,
+        6
+      ]
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore02_F52_Draped_C_0",
+      "component": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore02_F52_Draped_C_0.SkeletalMesh",
+      "label": "Shore02_F52 Clam",
+      "resolved": [
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shorts_Hessian_v1"
+      ],
+      "slots": [
+        0,
+        3,
+        4,
+        6
+      ]
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore03_M59_Draped_C_0",
+      "component": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore03_M59_Draped_C_0.SkeletalMesh",
+      "label": "Shore03_M59 Clam",
+      "resolved": [
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shirt_Hessian_v1"
+      ],
+      "slots": [
+        1,
+        3,
+        5,
+        7
+      ]
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore04_F55_Draped_C_6",
+      "component": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore04_F55_Draped_C_6.SkeletalMesh",
+      "label": "P40 Shore Variant 01 (Shore04_F55)",
+      "resolved": [
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1"
+      ],
+      "slots": [
+        0,
+        3,
+        4,
+        6
+      ]
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore04_F55_Draped_C_0",
+      "component": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore04_F55_Draped_C_0.SkeletalMesh",
+      "label": "Shore04_F55 Clam",
+      "resolved": [
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1"
+      ],
+      "slots": [
+        0,
+        3,
+        4,
+        6
+      ]
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore05_M53_Draped_C_1",
+      "component": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore05_M53_Draped_C_1.SkeletalMesh",
+      "label": "Shore05_M53 Clam",
+      "resolved": [
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shirt_Hessian_v1"
+      ],
+      "slots": [
+        1,
+        3,
+        5,
+        7
+      ]
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore06_F25_Draped_C_0",
+      "component": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore06_F25_Draped_C_0.SkeletalMesh",
+      "label": "Shore06_F25 Clam",
+      "resolved": [
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+        "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+      ],
+      "slots": [
+        0,
+        3,
+        4,
+        6
+      ]
+    }
+  ],
+  "dirty_census": {
+    "content": [],
+    "maps": []
+  },
+  "mode": "VERIFY",
+  "ok": true,
+  "parameter_readbacks": [
+    {
+      "figure": "Shore01_M56",
+      "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore01_M56_Shirt_Hessian_v1",
+      "readback": {
+        "mode": "tint_roughness",
+        "roughness": 0.8399999737739563,
+        "specular": 0.18000000715255737,
+        "static_switches": {},
+        "tint": [
+          0.4400743842124939,
+          0.40718814730644226,
+          0.3630656898021698,
+          1.0
+        ]
+      }
+    },
+    {
+      "figure": "Shore02_F52",
+      "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shirt_Hessian_v1",
+      "readback": {
+        "mode": "tint_roughness",
+        "roughness": 0.8399999737739563,
+        "specular": 0.18000000715255737,
+        "static_switches": {},
+        "tint": [
+          0.4400743842124939,
+          0.40718814730644226,
+          0.3630656898021698,
+          1.0
+        ]
+      }
+    },
+    {
+      "figure": "Shore03_M59",
+      "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shirt_Hessian_v1",
+      "readback": {
+        "mode": "tint_roughness",
+        "roughness": 0.8399999737739563,
+        "specular": 0.18000000715255737,
+        "static_switches": {},
+        "tint": [
+          0.4400743842124939,
+          0.40718814730644226,
+          0.3630656898021698,
+          1.0
+        ]
+      }
+    },
+    {
+      "figure": "Shore04_F55",
+      "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+      "readback": {
+        "mode": "tint_roughness",
+        "roughness": 0.8399999737739563,
+        "specular": 0.18000000715255737,
+        "static_switches": {},
+        "tint": [
+          0.4400743842124939,
+          0.40718814730644226,
+          0.3630656898021698,
+          1.0
+        ]
+      }
+    },
+    {
+      "figure": "Shore05_M53",
+      "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shirt_Hessian_v1",
+      "readback": {
+        "mode": "tint_roughness",
+        "roughness": 0.8399999737739563,
+        "specular": 0.18000000715255737,
+        "static_switches": {},
+        "tint": [
+          0.4400743842124939,
+          0.40718814730644226,
+          0.3630656898021698,
+          1.0
+        ]
+      }
+    },
+    {
+      "figure": "Shore06_F25",
+      "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+      "readback": {
+        "mode": "tint_roughness",
+        "roughness": 0.8399999737739563,
+        "specular": 0.18000000715255737,
+        "static_switches": {},
+        "tint": [
+          0.4400743842124939,
+          0.40718814730644226,
+          0.3630656898021698,
+          1.0
+        ]
+      }
+    }
+  ],
+  "problems": [],
+  "run_id": "J115SHIRTS-20261009-230515",
+  "schema": "j115_s3_hessian_shirts/1",
+  "visual_acceptance": "not proved; compare the recorded stills plan"
+}

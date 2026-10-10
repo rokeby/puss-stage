@@ -1,0 +1,57 @@
+{
+ "target": {
+  "c_metalness value": 0.0,
+  "C_roughness value": 0.84,
+  "C_specular value": 0.18
+ },
+ "rows": [
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore01_M56_Shorts_Hessian_v1",
+   "old": {
+    "c_metalness value": 0.800000011920929,
+    "C_roughness value": 0.20000000298023224,
+    "C_specular value": 0.3499999940395355
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore02_F52_Shorts_Hessian_v1",
+   "old": {
+    "c_metalness value": 0.800000011920929,
+    "C_roughness value": 0.20000000298023224,
+    "C_specular value": 0.3499999940395355
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1",
+   "old": {
+    "c_metalness value": 0.800000011920929,
+    "C_roughness value": 0.20000000298023224,
+    "C_specular value": 0.3499999940395355
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "old": {
+    "c_metalness value": 0.800000011920929,
+    "C_roughness value": 0.20000000298023224,
+    "C_specular value": 0.3499999940395355
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore05_M53_Shorts_Hessian_v1",
+   "old": {
+    "c_metalness value": 0.800000011920929,
+    "C_roughness value": 0.20000000298023224,
+    "C_specular value": 0.3499999940395355
+   }
+  },
+  {
+   "path": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "old": {
+    "c_metalness value": 0.800000011920929,
+    "C_roughness value": 0.20000000298023224,
+    "C_specular value": 0.3499999940395355
+   }
+  }
+ ]
+}

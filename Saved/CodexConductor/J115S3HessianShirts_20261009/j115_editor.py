@@ -276,6 +276,8 @@ def create_children(parents, cfg, source):
             mel.set_material_instance_scalar_parameter_value(mi, plan["roughness_scalar"], cfg["fallback_roughness"])
             if plan.get("specular_scalar"):
                 mel.set_material_instance_scalar_parameter_value(mi, plan["specular_scalar"], cfg["fallback_specular"])
+            if plan.get("metallic_scalar"):
+                mel.set_material_instance_scalar_parameter_value(mi, plan["metallic_scalar"], float(cfg.get("fallback_metallic", 0.0)))
         for switch, value in cfg["texture_mode_static_switches"].items():
             # Unreal setters may report False despite succeeding. Ignore the return and read back.
             mel.set_material_instance_static_switch_parameter_value(mi, switch, bool(value))
@@ -289,6 +291,9 @@ def create_children(parents, cfg, source):
                     "TINT_READBACK|" + row["figure"])
             require(abs(got["roughness"] - cfg["fallback_roughness"]) <= 1.0e-4,
                     "ROUGHNESS_READBACK|" + row["figure"])
+            if plan.get("metallic_scalar"):
+                m = float(unreal.MaterialEditingLibrary.get_material_instance_scalar_parameter_value(mi, plan["metallic_scalar"]))
+                require(abs(m - float(cfg.get("fallback_metallic", 0.0))) <= 1.0e-4, "METALLIC_READBACK|" + row["figure"])
         require(got["static_switches"] == cfg["texture_mode_static_switches"],
                 "STATIC_SWITCH_READBACK|" + row["figure"])
         created.append({"figure": row["figure"], "path": row["child"], "parent": row["parent"],
