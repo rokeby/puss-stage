@@ -79,3 +79,4 @@
 - **Gobo timings** are arbitrary for now; when made, the shadow scenes will probably be ~60 s each.
 - **The 12:19 local editor crash**: Python access violation during a Codex tool call (Codex's fault, not Gary's viewing).
 - **S1 ending (Gary ~13:30)**: NO shrinking animals. Instead, around ~3600 the CAMERA PANS over to a WING in the corner where a SMALL FIRE has started (the animals vanish off-camera during the pan), then lights out from ~3800. → Codex job 169 revises job 168.
+  - Gary: "and then we close out": after the hold on the fire, S1 closes out (lights out, then the end). That matches job 169.
