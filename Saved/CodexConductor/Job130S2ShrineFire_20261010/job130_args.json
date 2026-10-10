@@ -1,0 +1,13 @@
+{
+  "mode": "PROBE",
+  "run": "JOB130-PROBE-REPLACE-ME",
+  "confirm": "PROBE JOB130",
+  "radius_cm": 12000.0,
+  "anchor_tokens": [
+    "/Game/KK_S2_Shrine/",
+    "SHRINE"
+  ],
+  "target_component_paths": [],
+  "reviewed_probe_sha256": "",
+  "allow_scalability": false
+}

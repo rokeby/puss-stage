@@ -1,0 +1,119 @@
+{
+  "passed": 28,
+  "failed": 0,
+  "total": 28,
+  "results": [
+    {
+      "name": "+ ranks invisible streamed shrine level",
+      "status": "PASS"
+    },
+    {
+      "name": "+ ranks auto-activate off without lifecycle",
+      "status": "PASS"
+    },
+    {
+      "name": "- lifecycle prevents false auto-activate diagnosis",
+      "status": "PASS"
+    },
+    {
+      "name": "+ ranks deactivation lifecycle",
+      "status": "PASS"
+    },
+    {
+      "name": "- lifecycle spanning +5 is not blamed for its later end",
+      "status": "PASS"
+    },
+    {
+      "name": "+ ranks property-less visibility inert",
+      "status": "PASS"
+    },
+    {
+      "name": "+ ranks bHiddenInGame visibility inert",
+      "status": "PASS"
+    },
+    {
+      "name": "- bHidden visibility is not called inert",
+      "status": "PASS"
+    },
+    {
+      "name": "+ ranks enabled distance culling",
+      "status": "PASS"
+    },
+    {
+      "name": "- disabled scalability suppresses cull diagnosis",
+      "status": "PASS"
+    },
+    {
+      "name": "+ ranking always contains five requested causes",
+      "status": "PASS"
+    },
+    {
+      "name": "+ review hash ignores run/mode/census",
+      "status": "PASS"
+    },
+    {
+      "name": "- review hash catches component drift",
+      "status": "PASS"
+    },
+    {
+      "name": "- DRY without selection cannot claim ready",
+      "status": "PASS"
+    },
+    {
+      "name": "- DRY refuses stale reviewed probe hash",
+      "status": "PASS"
+    },
+    {
+      "name": "+ Unreal None property sentinel normalizes",
+      "status": "PASS"
+    },
+    {
+      "name": "+ distance helper",
+      "status": "PASS"
+    },
+    {
+      "name": "+ module imports offline",
+      "status": "PASS"
+    },
+    {
+      "name": "+ shipped args are non-mutating PROBE",
+      "status": "PASS"
+    },
+    {
+      "name": "- exact confirmations cannot alias",
+      "status": "PASS"
+    },
+    {
+      "name": "- save surface is only our S2 sequence",
+      "status": "PASS"
+    },
+    {
+      "name": "+ lifecycle uses activate/keep-alive/deactivate",
+      "status": "PASS"
+    },
+    {
+      "name": "- existing bindings are never renamed",
+      "status": "PASS"
+    },
+    {
+      "name": "- APPLY backup precedes first mutation",
+      "status": "PASS"
+    },
+    {
+      "name": "- map dirtiness is refused and never saved",
+      "status": "PASS"
+    },
+    {
+      "name": "+ probe covers required inventory",
+      "status": "PASS"
+    },
+    {
+      "name": "+ PIE variant probes t=+5 and never starts/stops PIE",
+      "status": "PASS"
+    },
+    {
+      "name": "+ REVERT has independent backup and binding readback",
+      "status": "PASS"
+    }
+  ]
+}

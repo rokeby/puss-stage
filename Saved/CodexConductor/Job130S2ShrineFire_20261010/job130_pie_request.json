@@ -1,0 +1,7 @@
+{
+  "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+  "tool_name": "ExecuteProjectPythonFile",
+  "arguments": {
+    "relativeSavedPath": "CodexConductor/Job130S2ShrineFire_20261010/job130_s2_shrine_fire_pie.py"
+  }
+}

@@ -49,7 +49,7 @@ Status values: `TODO` · `RUNNING` · `DONE (marker)` · `SKIPPED (reason)` · `
    - 127: **P04** smoke-machine prop hidden (tool IN main tree, harness rerun; needs a DRY, then plan_sha256 into args, then APPLY with ack_clear_apparatus_mesh_for_pie=true).
    - 128: **P05** LEFT wings +20 cm on local X (tool IN main tree; DRY → copy the confirm into args → APPLY).
    - 129: **P02** floor = P01 floor copy.
-   - 130: **S2** shrine fires in PIE.
+   - 130: **S2** shrine fires in PIE (tool IN main tree: PROBE → PIE +5 s probe → select the fire paths → DRY → APPLY → PIE re-probe + still).
    - 131: **3D STAGE FRONT** (Arch/Gilt/Wall FBX + Crest/Column/CatCandelabra; baked in Blender 9 Oct, NEVER imported: found 10 Oct on Gary's question). Import + place next to the paper proscenium, then the wide stills.
 4. **Retry** any pass-2 items skipped because Gary was in PIE.
 5. **Build window** (editor closed):
