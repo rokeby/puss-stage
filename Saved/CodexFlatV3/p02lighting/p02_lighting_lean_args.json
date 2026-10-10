@@ -1,0 +1,9 @@
+{
+  "mode": "DRY",
+  "confirm": "",
+  "expected_plan_sha256": "",
+  "hero_ordinals": [3, 7, 12, 20],
+  "key_intensity_scale": 1.35,
+  "key_radius_cap_cm": 1800.0,
+  "car_radius_cm": 4600.0
+}
