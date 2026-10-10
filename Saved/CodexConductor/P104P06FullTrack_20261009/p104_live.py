@@ -53,7 +53,7 @@ def write(path, value, exclusive=False):
 
 
 def load_module(name, relative, flag):
-    path = os.path.join(SAVED, *relative.split("/"))
+    path = os.path.join(ROOT, *relative.split("/"))
     spec = importlib.util.spec_from_file_location(name, path)
     require(spec and spec.loader, "MODULE_LOAD|" + path)
     module = importlib.util.module_from_spec(spec)
