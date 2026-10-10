@@ -809,7 +809,16 @@ def evaluated_figure_rows(target_actors, frame, ground_actor, ground_component, 
 
 def evaluate_sequence_frames(world, sequence, target_actors, ground_actor, ground_component, ground_mesh, triangles):
     """Evaluate without opening editor Sequencer, then restore and destroy all transient state."""
-    settings = unreal.MovieSceneSequencePlaybackSettings(restore_state=True)
+    # UE 5.8: the struct constructor rejected restore_state=True live (10 Oct). Try it, then attribute assignment;
+    # record whether restore is on, so the census check plus the restored flag decide whether evaluation left state.
+    try:
+        settings = unreal.MovieSceneSequencePlaybackSettings(restore_state=True)
+    except Exception:
+        settings = unreal.MovieSceneSequencePlaybackSettings()
+        try:
+            settings.restore_state = True
+        except Exception:
+            unreal.log_warning("S3_VISUAL_DIAG_V2_NOTE|restore_state not settable; transforms re-read after player destroy")
     player = None
     sequence_actor = None
     rows = []

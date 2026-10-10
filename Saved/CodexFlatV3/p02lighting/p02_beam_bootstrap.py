@@ -256,7 +256,7 @@ def _spawn(row, target_passage):
     world = unreal.MathLibrary.compose_transforms(_make_transform(desired["relative_transform"]),
                                                    target_passage.get_actor_transform())
     actor = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).spawn_actor_from_class(
-        unreal.StaticMeshActor, world.translation, world.rotator())
+        unreal.StaticMeshActor, world.translation, world.rotation.rotator())  # UE 5.8: Transform has no rotator(); Quat does
     require(actor is not None, "SPAWN_FAILED|" + desired["label"])
     actor.modify()
     actor.set_actor_label(desired["label"], False)
