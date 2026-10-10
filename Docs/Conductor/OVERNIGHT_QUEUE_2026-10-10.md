@@ -52,7 +52,7 @@ Status values: `TODO` · `RUNNING` · `DONE (marker)` · `SKIPPED (reason)` · `
    - 128: **P05** LEFT wings +20 cm on local X (tool IN main tree; DRY → copy the confirm into args → APPLY).
    - 129: **P02** floor = P01 floor copy.
    - 130: **S2** shrine fires in PIE (tool IN main tree: PROBE → PIE +5 s probe → select the fire paths → DRY → APPLY → PIE re-probe + still).
-   - 131: **3D STAGE FRONT** (Arch/Gilt/Wall FBX + Crest/Column/CatCandelabra; baked in Blender 9 Oct, NEVER imported: found 10 Oct on Gary's question). Import + place next to the paper proscenium, then the wide stills.
+   - 131: **3D STAGE FRONT** [Gary: Dusty, all six pieces tonight, Iron3 chandelier; needs job 133 FBX export first] (Arch/Gilt/Wall FBX + Crest/Column/CatCandelabra; baked in Blender 9 Oct, NEVER imported: found 10 Oct on Gary's question). Import + place next to the paper proscenium, then the wide stills.
 4. **Retry** any pass-2 items skipped because Gary was in PIE.
 5. **Build window** (editor closed):
    - Shadow-cat v2 patch (job 123 output, reviewed first).
