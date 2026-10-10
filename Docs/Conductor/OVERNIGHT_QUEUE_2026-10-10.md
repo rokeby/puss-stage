@@ -142,3 +142,21 @@ Stills are in `Saved/CodexConductor/ApplyPass_20261010/stills/`. Verdicts are by
   - `camera_distance_override_cm` fitted so the curtain frame fraction matches I1/I4/I5 (measure those first)
   - `approved_shadow_source_labels` = the existing I2 gobo/puppet; I3 reuses it
 - APPLY, then the stills.
+
+
+## Pass 7 (job 143) and pass 8 (job 146, running)
+
+**Pass 7, checked by the conductor's eye:**
+- **S4 blackout: PASSED.** The P04 end, the cut and S4+1 s are all fully black.
+- **Pearl: PASSED.** The clam is empty at frame 5040.
+- **P06 retime to Walking6 125 s:** APPLIED; dusk not yet seen by eye.
+- **Stage front:** all six Nanite meshes and 30 textures imported and SAVED. The material step failed (CONNECT_MASK_r), so a Don't-Save restart → job 145 fixes it.
+
+**Pass 8, in order:**
+1. Job 144 I2/I3 back wall (matched framing, front spot, reuse a gobo).
+2. The P02 floor.
+3. Fringe.
+4. Shadow radii.
+5. Chandelier.
+6. Ending.
+7. A P06 dusk still.
