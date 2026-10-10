@@ -30,7 +30,7 @@ def refuses(name, token, fn):
 
 
 CFG = {
-    "mode": "DRY", "apply_xy": False, "max_delta_cm": 200.0,
+    "mode": "DRY", "apply_xy": False, "allow_yaw": False, "max_delta_cm": 200.0,
     "min_z_delta_cm": 0.001, "rotation_tolerance_deg": 0.01,
     "scale_tolerance": 0.0001, "readback_tolerance_cm": 0.01,
     "root_sequence": C.ROOT_SEQUENCE, "world": C.WORLD, "confirm": "",
@@ -59,6 +59,11 @@ def binding(kind="possessable", blend="ABSOLUTE"):
 
 
 ok("config accepts guarded defaults", lambda: C.validate_config(copy.deepcopy(CFG)))
+ok("v1 snapshot remains capture-compatible", lambda: (_ for _ in ()).throw(AssertionError())
+   if "s3_feet_by_hand/1" not in C.CAPTURE_COMPATIBLE_SNAPSHOT_SCHEMAS else None)
+cfg_without_yaw = copy.deepcopy(CFG); del cfg_without_yaw["allow_yaw"]
+ok("allow_yaw defaults false", lambda: (_ for _ in ()).throw(AssertionError())
+   if C.validate_config(cfg_without_yaw)["allow_yaw"] is not False else None)
 ok("suffix normalisation", lambda: (_ for _ in ()).throw(AssertionError())
    if C.channel_base("Location.Z_183") != "Location.Z" else None)
 ok("all six fixed labels", lambda: C.validate_target_labels(list(C.FIXED_LABELS)))
@@ -86,10 +91,58 @@ ok("structure ignores values but retains frames", lambda: (_ for _ in ()).throw(
 ok("wrapped rotation equivalence", lambda: (_ for _ in ()).throw(AssertionError())
    if not C.transform_near(T0, T1, loc_tol=20.0, rot_tol=0.001) else None)
 
+cfg_yaw = copy.deepcopy(CFG); cfg_yaw["allow_yaw"] = True; cfg_yaw["apply_xy"] = True
+yaw_after = copy.deepcopy(T0); yaw_after["location"] = [18.0, 14.0, 35.0]; yaw_after["rotation"][2] = 139.999
+yaw_capture = C.capture_delta(T0, yaw_after, cfg_yaw, "YawFigure")
+ok("yaw opt-in captures only yaw", lambda: (_ for _ in ()).throw(AssertionError())
+   if abs(yaw_capture["applied_yaw_delta_deg"] + 40.0) > 1.0e-9 else None)
+
+keyed_x = channel([{"frame": 0, "value": 10.0}, {"frame": 12, "value": 0.0}])
+keyed_y = channel([{"frame": 0, "value": 0.0}, {"frame": 12, "value": 10.0}])
+rx, ry = C.rotated_xy_channels(keyed_x, keyed_y, 90.0)
+ok("additive keyed XY rotates about zero pivot", lambda: (_ for _ in ()).throw(AssertionError())
+   if max(abs(rx["keys"][0]["value"]), abs(ry["keys"][0]["value"] - 10.0),
+          abs(rx["keys"][1]["value"] + 10.0), abs(ry["keys"][1]["value"])) > 1.0e-9 else None)
+rx_default, ry_default = C.rotated_xy_channels(channel([], 3.0), channel([], 4.0), -90.0)
+ok("additive unkeyed XY defaults rotate", lambda: (_ for _ in ()).throw(AssertionError())
+   if max(abs(rx_default["default"] - 4.0), abs(ry_default["default"] + 3.0)) > 1.0e-9 else None)
+
+yaw_binding = C.make_expected_binding(binding(blend="ADDITIVE"), [8.0, -6.0, 5.0], -40.0)
+ok("additive yaw default and location are rewritten", lambda: (_ for _ in ()).throw(AssertionError())
+   if (abs(yaw_binding["transform_sections"][0]["channels"]["Rotation.Z"]["default"] + 40.0) > 1.0e-9 or
+       abs(yaw_binding["transform_sections"][0]["channels"]["Location.X"]["default"] - 8.0) > 1.0e-9 or
+       abs(yaw_binding["transform_sections"][0]["channels"]["Location.Y"]["default"] + 6.0) > 1.0e-9)
+   else None)
+yaw_key_binding = binding(blend="ADDITIVE")
+yaw_key_binding["transform_sections"][0]["channels"]["Rotation.Z"] = channel(
+    [{"frame": 0, "value": 5.0}, {"frame": 12, "value": -10.0}])
+yaw_key_result = C.make_expected_binding(yaw_key_binding, [0.0, 0.0, 0.0], -40.0)
+ok("every additive yaw key receives delta", lambda: (_ for _ in ()).throw(AssertionError())
+   if [row["value"] for row in yaw_key_result["transform_sections"][0]["channels"]["Rotation.Z"]["keys"]]
+   != [-35.0, -50.0] else None)
+
+def check_three_frame_world_positions():
+    base = [100.0, 200.0, 30.0]
+    hand = [108.0, 194.0, 35.0]
+    translation_delta = [hand[i] - base[i] for i in range(3)]
+    original_motion = ([0.0, 0.0, 0.0], [12.0, 0.0, 1.0], [-5.0, 7.0, 2.0])
+    for motion in original_motion:
+        rotated_xy = C.rotate_xy(motion[0], motion[1], -40.0)
+        rewritten = [translation_delta[0] + rotated_xy[0],
+                     translation_delta[1] + rotated_xy[1],
+                     translation_delta[2] + motion[2]]
+        evaluated = C.evaluated_additive_world_position(base, rewritten)
+        wanted = [hand[0] + rotated_xy[0], hand[1] + rotated_xy[1], hand[2] + motion[2]]
+        assert max(abs(evaluated[i] - wanted[i]) for i in range(3)) < 1.0e-9, (evaluated, wanted)
+
+ok("three-frame world position equals hand pose plus rotated original motion", check_three_frame_world_positions)
+
 bad = copy.deepcopy(CFG); bad["mode"] = "BOGUS"
 refuses("unknown mode", "MODE", lambda: C.validate_config(bad))
 bad = copy.deepcopy(CFG); bad["apply_xy"] = 1
 refuses("non-bool xy", "APPLY_XY_BOOL", lambda: C.validate_config(bad))
+bad = copy.deepcopy(CFG); bad["allow_yaw"] = 1
+refuses("non-bool allow_yaw", "ALLOW_YAW_BOOL", lambda: C.validate_config(bad))
 bad = copy.deepcopy(CFG); bad["max_delta_cm"] = 201.0
 refuses("limit cannot exceed 200", "MAX_DELTA_LIMIT", lambda: C.validate_config(bad))
 bad = copy.deepcopy(CFG); bad["world"] = "/Game/Wrong"
@@ -101,7 +154,11 @@ refuses("unexpected crowd target", "UNEXPECTED_TARGETS", lambda: C.validate_targ
 refuses("duplicate label", "DUPLICATE_TARGET_LABEL", lambda: C.validate_target_labels(list(C.FIXED_LABELS) + [C.FIXED_LABELS[0]]))
 
 t = copy.deepcopy(T1); t["rotation"][0] = 1.0
-refuses("rotation change", "ROTATION_CHANGED", lambda: C.capture_delta(T0, t, CFG, "A"))
+refuses("roll change", "ROLL_PITCH_CHANGED", lambda: C.capture_delta(T0, t, CFG, "A"))
+t = copy.deepcopy(T1); t["rotation"][1] = 1.0
+refuses("pitch change", "ROLL_PITCH_CHANGED", lambda: C.capture_delta(T0, t, cfg_yaw, "A"))
+t = copy.deepcopy(T1); t["rotation"][2] = 150.0
+refuses("yaw change defaults off", "YAW_CHANGED_WITHOUT_ALLOW_YAW", lambda: C.capture_delta(T0, t, CFG, "A"))
 t = copy.deepcopy(T1); t["scale"][0] = 1.2
 refuses("scale change", "SCALE_CHANGED", lambda: C.capture_delta(T0, t, CFG, "A"))
 t = copy.deepcopy(T0); t["location"][0] += 5.0
@@ -114,11 +171,19 @@ refuses("delta vector over 200", "DELTA_VECTOR_OVER_LIMIT", lambda: C.capture_de
 refuses("unkeyed missing default", "UNKEYED_CHANNEL_WITHOUT_DEFAULT", lambda: C.shifted_channel(channel([], None, False), 3.0))
 refuses("relative section", "NON_ABSOLUTE_SECTION", lambda: C.make_expected_binding(binding(blend="RELATIVE"), [0.0, 0.0, 2.0]))
 C.make_expected_binding(binding(blend="ADDITIVE"), [0.0, 0.0, 2.0])  # additive accepted (10 Oct live)
+refuses("yaw refuses absolute section", "YAW_REQUIRES_ADDITIVE_SECTION",
+        lambda: C.make_expected_binding(binding(blend="ABSOLUTE"), [0.0, 0.0, 0.0], -40.0))
+refuses("yaw refuses mismatched XY topology", "XY_KEY_TOPOLOGY_MISMATCH",
+        lambda: C.rotated_xy_channels(channel([{"frame": 0, "value": 1.0}]), channel([], 0.0), 10.0))
+refuses("yaw refuses mismatched XY frames", "XY_KEY_FRAME_MISMATCH",
+        lambda: C.rotated_xy_channels(channel([{"frame": 0, "value": 1.0}]),
+                                      channel([{"frame": 1, "value": 2.0}]), 10.0))
 b = binding("spawnable"); b["template_transform"] = None
 refuses("spawnable template required", "SPAWNABLE_TEMPLATE_MISSING", lambda: C.make_expected_binding(b, [0.0, 0.0, 2.0]))
 refuses("unknown actor alias", "UNKNOWN_TARGET_LABEL", lambda: C.binding_aliases("Shore07_X Clam"))
 
 source = open(os.path.join(HERE, "s3_feet_editor.py"), "r", encoding="utf-8").read()
+probe_source = open(os.path.join(HERE, "s3_feet_yaw_ab_probe.py"), "r", encoding="utf-8").read()
 for name, token in (
     ("no Sequencer editor library", "LevelSequenceEditorBlueprintLibrary"),
     ("no sequence player", "LevelSequencePlayer"),
@@ -142,7 +207,31 @@ for name, token in (
     assert token in source, (name, token)
     positive.append(name)
 
-print("S3_FEET_OFFLINE_PASS|positive=%d/%d|negative=%d/%d|total=%d/%d" %
-      (len(positive), len(positive), len(negative), len(negative),
-       len(positive) + len(negative), len(positive) + len(negative)))
+for name, token in (
+    ("probe uses transient sequence", "get_transient_package()"),
+    ("probe never writes real binding", "REAL_BINDING_READ_ONLY"),
+    ("probe checks exactly one frame", "PROBE_FRAME_COUNT = 1"),
+    ("probe destroys only spawned temporary actors", "destroy_actor(temp_actor)"),
+):
+    assert token in probe_source, (name, token)
+    positive.append(name)
+
+marker = "S3_FEET_OFFLINE_PASS|positive=%d/%d|negative=%d/%d|total=%d/%d" % (
+    len(positive), len(positive), len(negative), len(negative),
+    len(positive) + len(negative), len(positive) + len(negative))
+report = {
+    "schema": "s3_feet_by_hand_harness/2", "date": "2026-10-09",
+    "offline_only": True, "unreal_started": False, "result": "PASS",
+    "positive": {"passed": len(positive), "total": len(positive), "controls": positive},
+    "negative": {"passed": len(negative), "total": len(negative), "controls": negative},
+    "total": {"passed": len(positive) + len(negative),
+              "total": len(positive) + len(negative)},
+    "command": "python Saved/CodexConductor/S3FeetByHand_20261009/test_s3_feet_offline.py",
+    "marker": marker,
+    "proof_boundary": "Python policy, transform arithmetic, and source-contract controls only; no Unreal API, saved asset, runtime evaluation, or rendered result was measured.",
+}
+with open(os.path.join(HERE, "s3_feet_harness_report.json"), "w", encoding="utf-8", newline="\n") as handle:
+    json.dump(report, handle, indent=2)
+    handle.write("\n")
+print(marker)
 print(json.dumps({"positive": positive, "negative": negative}, indent=2))

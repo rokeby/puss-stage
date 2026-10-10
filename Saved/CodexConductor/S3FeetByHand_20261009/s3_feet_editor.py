@@ -282,7 +282,8 @@ def verify_non_target_actors(snapshot, current, target_paths):
                 "NON_TARGET_TRANSFORM_DRIFT|" + path)
 
 
-def assert_binding_near(expected, actual, tolerance, compare_template=True):
+def assert_binding_near(expected, actual, tolerance, rotation_tolerance=None, compare_template=True):
+    rotation_tolerance = tolerance if rotation_tolerance is None else rotation_tolerance
     require(core.structural_binding(expected) == core.structural_binding(actual),
             "BINDING_STRUCTURE_DRIFT|%s" % expected["binding_guid"])
     for es, got in zip(expected["transform_sections"], actual["transform_sections"]):
@@ -290,15 +291,16 @@ def assert_binding_near(expected, actual, tolerance, compare_template=True):
             ec, gc = es["channels"][name], got["channels"][name]
             require(ec["has_default"] == gc["has_default"] and len(ec["keys"]) == len(gc["keys"]),
                     "CHANNEL_SHAPE_DRIFT|%s|%s" % (expected["binding_guid"], name))
+            channel_tolerance = rotation_tolerance if name in core.ROTATION else tolerance
             if ec["has_default"]:
-                require(core.near(ec["default"], gc["default"], tolerance),
+                require(core.near(ec["default"], gc["default"], channel_tolerance),
                         "DEFAULT_READBACK|%s|%s" % (expected["binding_guid"], name))
             for ek, gk in zip(ec["keys"], gc["keys"]):
-                require(ek["frame"] == gk["frame"] and core.near(ek["value"], gk["value"], tolerance),
+                require(ek["frame"] == gk["frame"] and core.near(ek["value"], gk["value"], channel_tolerance),
                         "KEY_READBACK|%s|%s|%s" % (expected["binding_guid"], name, ek["frame"]))
     if compare_template and expected["kind"] == "spawnable":
         require(core.transform_near(expected["template_transform"], actual["template_transform"],
-                                    loc_tol=tolerance),
+                                    loc_tol=tolerance, rot_tol=rotation_tolerance),
                 "TEMPLATE_READBACK|" + expected["binding_guid"])
 
 
@@ -338,11 +340,32 @@ def snapshot(cfg):
 def capture(cfg):
     require(os.path.isfile(SNAPSHOT), "SNAPSHOT_MISSING")
     snap = load_json(SNAPSHOT)
-    require(snap.get("schema") == core.SCHEMA and snap.get("mode") == "SNAPSHOT", "SNAPSHOT_SCHEMA")
+    # The 9 Oct v1 snapshot is the pre-hand-pose evidence for Crowd 15. It has
+    # the complete actor census and binding state needed by v2; do not force a
+    # new snapshot after Gary's move and thereby erase the baseline.
+    require(snap.get("schema") in core.CAPTURE_COMPATIBLE_SNAPSHOT_SCHEMAS and
+            snap.get("mode") == "SNAPSHOT", "SNAPSHOT_SCHEMA")
     before = census()
     _world, actors, targets = inventory(cfg, require_clean=False)
     current = {row["label"]: row for row in targets}
-    prior = {row["label"]: row for row in snap["targets"]}
+    prior = {row["label"]: json.loads(json.dumps(row)) for row in snap["targets"]}
+    if snap.get("schema") != core.SCHEMA:
+        # The v1 snapshot predates the already-saved 9 Oct feet pass. Prove its
+        # known applied record is exactly what is live, then use that saved
+        # binding state as the new curve baseline while retaining the snapshot's
+        # pre-hand actor transforms (including Crowd 15 in all_actors).
+        require(os.path.isfile(RECORD), "LEGACY_SNAPSHOT_APPLY_RECORD_MISSING")
+        previous = load_json(RECORD)
+        require(previous.get("state") == "applied" and previous.get("saved") is True,
+                "LEGACY_SNAPSHOT_RECORD_NOT_APPLIED")
+        previous_targets = {row["label"]: row for row in previous.get("targets", [])}
+        for label, old in prior.items():
+            require(label in current and label in previous_targets,
+                    "LEGACY_SNAPSHOT_REBASE_TARGET|" + label)
+            expected = previous_targets[label]["expected"]
+            assert_binding_near(expected, current[label]["binding"],
+                                cfg["readback_tolerance_cm"], cfg["readback_tolerance_deg"])
+            old["binding"] = json.loads(json.dumps(current[label]["binding"]))
     # 10 Oct: crowd copies Gary also moved (extra_target_labels) were not snapshot targets. Their pre-move pose is the
     # snapshot's all_actors row; their binding is taken from now (hand moves cannot rewrite keys; asserted below).
     by_path = {row["path"]: row for row in snap["all_actors"]}
@@ -364,6 +387,7 @@ def capture(cfg):
                 "BINDING_STRUCTURE_DRIFT|" + label)
         # Hand moves must not have rewritten the existing transform curves.
         assert_binding_near(old["binding"], now["binding"], cfg["readback_tolerance_cm"],
+                            cfg["readback_tolerance_deg"],
                             compare_template=False)
         delta = core.capture_delta(old["actor_transform"], now["actor_transform"], cfg, label)
         owners.add(old["binding"]["sequence_path"])
@@ -388,8 +412,8 @@ def capture(cfg):
               "map_discard_required_after_apply": bool(before["maps"])}
     report["capture_hash"] = core.stable_hash(report)
     write_json(CAPTURE, report)
-    unreal.log("S3_FEET_CAPTURE_OK|run=%s|targets=%d|apply_xy=%d|max_delta_cm=%.3f|writes=0|dirty_unchanged=1|output=%s" %
-               (report["run_id"], len(rows), int(cfg["apply_xy"]),
+    unreal.log("S3_FEET_CAPTURE_OK|run=%s|targets=%d|apply_xy=%d|allow_yaw=%d|max_delta_cm=%.3f|writes=0|dirty_unchanged=1|output=%s" %
+               (report["run_id"], len(rows), int(cfg["apply_xy"]), int(cfg["allow_yaw"]),
                 max(abs(x) for row in rows for x in row["delta"]["reported_location_delta_cm"]), CAPTURE))
     return report
 
@@ -455,7 +479,7 @@ def section_objects(binding, section_row):
 def write_binding_state(binding, saved, template_transform):
     for section_row in saved["transform_sections"]:
         _track, _section, channels = section_objects(binding, section_row)
-        for name in core.LOCATION:
+        for name in core.LOCATION + (core.ROTATION[2],):
             channel = channels[name]
             state = section_row["channels"][name]
             keys = list(channel.get_keys())
@@ -471,8 +495,11 @@ def write_binding_state(binding, saved, template_transform):
         template = binding.get_object_template()
         require(template is not None and template_transform is not None, "SPAWNABLE_TEMPLATE_WRITE")
         template.modify()
-        loc = template_transform["location"]
-        template.set_actor_location(unreal.Vector(float(loc[0]), float(loc[1]), float(loc[2])), False, False)
+        loc, rot = template_transform["location"], template_transform["rotation"]
+        template.set_actor_location_and_rotation(
+            unreal.Vector(float(loc[0]), float(loc[1]), float(loc[2])),
+            unreal.Rotator(roll=float(rot[0]), pitch=float(rot[1]), yaw=float(rot[2])),
+            False, False)
     return True
 
 
@@ -498,6 +525,7 @@ def apply(cfg):
     cap = load_json(CAPTURE)
     require(cap.get("schema") == core.SCHEMA and cap.get("mode") == "CAPTURE", "CAPTURE_SCHEMA")
     require(bool(cfg["apply_xy"]) == bool(cap["config"]["apply_xy"]), "APPLY_XY_CHANGED_AFTER_CAPTURE")
+    require(bool(cfg["allow_yaw"]) == bool(cap["config"]["allow_yaw"]), "ALLOW_YAW_CHANGED_AFTER_CAPTURE")
     require(census() == cap["dirty_after"], "STATE_DIRTY_DRIFT|%s" % json.dumps(census()))
     _world, _actors, live_rows = inventory(cfg, require_clean=False)
     live = {row["label"]: row for row in live_rows}
@@ -507,17 +535,20 @@ def apply(cfg):
         require(core.transform_near(row["captured_transform"], live[row["label"]]["actor_transform"]),
                 "HAND_POSE_DRIFT|" + row["label"])
         assert_binding_near(row["binding_at_capture"], live[row["label"]]["binding"],
-                            cfg["readback_tolerance_cm"])
+                            cfg["readback_tolerance_cm"], cfg["readback_tolerance_deg"])
     owners = cap["owning_sequences"]
     backup = backup_assets("PreS3Feet", cap["run_id"], owners)
     planned = []
     for row in cap["targets"]:
-        expected = core.make_expected_binding(row["binding_at_capture"], row["delta"]["applied_location_delta_cm"])
+        expected = core.make_expected_binding(row["binding_at_capture"],
+                                              row["delta"]["applied_location_delta_cm"],
+                                              row["delta"]["applied_yaw_delta_deg"])
         if expected["kind"] == "spawnable":
             # A viewport edit can already have written into the live spawnable template.
             # Base the persistent template pose on SNAPSHOT + delta so it is never doubled.
             expected_from_snapshot = core.make_expected_binding(
-                row["binding_before"], row["delta"]["applied_location_delta_cm"])
+                row["binding_before"], row["delta"]["applied_location_delta_cm"],
+                row["delta"]["applied_yaw_delta_deg"])
             expected["template_transform"] = expected_from_snapshot["template_transform"]
         planned.append({"label": row["label"], "old": row["binding_before"], "expected": expected,
                         "delta": row["delta"]})
@@ -533,14 +564,14 @@ def apply(cfg):
     readback = []
     for row in record["targets"]:
         _sequence, _binding, got = current_binding(row["old"])
-        assert_binding_near(row["expected"], got, cfg["readback_tolerance_cm"])
+        assert_binding_near(row["expected"], got, cfg["readback_tolerance_cm"], cfg["readback_tolerance_deg"])
         readback.append({"label": row["label"], "binding": got})
     save_only_sequences(owners, cap["dirty_after"]["maps"])
     # Read again after the targeted save; this is saved-state readback, not visual proof.
     saved_readback = []
     for row in record["targets"]:
         _sequence, _binding, got = current_binding(row["old"])
-        assert_binding_near(row["expected"], got, cfg["readback_tolerance_cm"])
+        assert_binding_near(row["expected"], got, cfg["readback_tolerance_cm"], cfg["readback_tolerance_deg"])
         saved_readback.append({"label": row["label"], "binding": got})
     record["state"] = "applied"; record["saved"] = True; record["readback"] = saved_readback
     write_json(RECORD, record); write_json(READBACK, {"schema": core.SCHEMA, "mode": "APPLY_READBACK",
@@ -561,7 +592,7 @@ def revert(cfg):
             "REVERT_DIRTY_CENSUS|%s" % json.dumps(now))
     for row in record["targets"]:
         _sequence, _binding, got = current_binding(row["old"])
-        assert_binding_near(row["expected"], got, cfg["readback_tolerance_cm"])
+        assert_binding_near(row["expected"], got, cfg["readback_tolerance_cm"], cfg["readback_tolerance_deg"])
     backup = backup_assets("PreS3FeetRevert", record["run_id"], record["owning_sequences"])
     record["revert_backup"] = backup; record["state"] = "reverting"; write_json(RECORD, record)
     for row in record["targets"]:
@@ -569,12 +600,12 @@ def revert(cfg):
         write_binding_state(binding, row["old"], row["old"].get("template_transform"))
     for row in record["targets"]:
         _sequence, _binding, got = current_binding(row["old"])
-        assert_binding_near(row["old"], got, cfg["readback_tolerance_cm"])
+        assert_binding_near(row["old"], got, cfg["readback_tolerance_cm"], cfg["readback_tolerance_deg"])
     save_only_sequences(record["owning_sequences"], now["maps"])
     restored = []
     for row in record["targets"]:
         _sequence, _binding, got = current_binding(row["old"])
-        assert_binding_near(row["old"], got, cfg["readback_tolerance_cm"])
+        assert_binding_near(row["old"], got, cfg["readback_tolerance_cm"], cfg["readback_tolerance_deg"])
         restored.append({"label": row["label"], "binding": got})
     record["state"] = "reverted"; record["reverted"] = True; record["revert_readback"] = restored
     write_json(RECORD, record); write_json(READBACK, {"schema": core.SCHEMA, "mode": "REVERT_READBACK",

@@ -45,3 +45,4 @@
 - **Gary 10 Oct ~02:00**: S3 dune set D is PARKED; the scene is already framed. The S3 MetaHuman material rendering and clothing colour is **CRITICAL**: the black, shiny, untextured hessian; the white T-shirts; the underwear colour; the no-shroud and translucent figures. Next: pass-2 item 0 (S3 diag v2) feeds a fix job straight away.
 - **Gary ~02:05**: S3 T-shirts MATCH the hessian (desaturated sackcloth tone), so the shroud/shirt overlap does not create visual interference.
 - **Gary ~02:20 10 Oct**: the P02 Top wings now flip nicely. The S2 hangar is still the wrong size for Klara's scene: job 92 (fixed in 112, envelope 85x160 m) is not applied yet; it is pass 2 item 13. The S2 floor has the wrong texture: to clarify with Gary (since 8 Oct it is MI_Floor_DarkWet on S2 Hangar Floor 1-3 + Apron).
+- **Gary ~02:35**: S2 floor: the easiest fix is to REPLACE it with a copy of the P01 floor (his drag test reflected correctly) → Codex job 119.
