@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+import ast
 import json
 import os
 import tempfile
@@ -89,7 +90,26 @@ def main():
     check("POS pre-existing master read-only", "PREEXISTING_MASTER_INCOMPATIBLE" in main_import and "if master_exists:" in main_import)
     check("POS never deletes material nodes", "delete_material_expression" not in main_import and "delete_all_material_expressions" not in main_import)
     check("POS mask strengths drive clean-to-dusty blend", all(x in main_import for x in
-          ("MaterialExpressionComponentMask", "MaterialExpressionSaturate", "MaterialExpressionLinearInterpolate", "CONNECT_BLEND_ALPHA")))
+          ("MASTER_MASK_CHANNELS", "MaterialExpressionSaturate", "MaterialExpressionLinearInterpolate", "CONNECT_BLEND_ALPHA")))
+    check("POS direct mask pins are uppercase", C.MASTER_MASK_CHANNELS == (("R", "DustStrength"), ("G", "SootStrength"), ("A", "PeelStrength")) and
+          'connect_material_expressions(nodes["Masks"], channel, mul, "A")' in main_import)
+    check("NEG lowercase texture outputs rejected", C.master_output_pin_problem(("RGB", "r", "G", "B", "A"), "R").startswith("MASK_OUTPUT_PIN_CASE") and
+          "master_output_pin_problem(outputs, channel)" in main_import)
+    check("POS uppercase texture output accepted", C.master_output_pin_problem(("RGB", "R", "G", "B", "A"), "R") is None)
+    tree = ast.parse(main_import)
+    connect_calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call) and
+                     isinstance(node.func, ast.Attribute) and node.func.attr == "connect_material_expressions"]
+    check("POS UE58 connect signature has four positional args", bool(connect_calls) and all(len(x.args) == 4 for x in connect_calls))
+    check("POS masks use linear grayscale sampler", '"SAMPLERTYPE_LINEAR_GRAYSCALE"' in main_import and
+          '"SAMPLERTYPE_LINEAR_COLOR"' not in main_import)
+    check("POS full graph readback precedes all material saves", "MASTER_GRAPH_NODE_COUNT" in main_import and
+          "MASTER_GRAPH_LINK_" in main_import and "MASTER_GRAPH_PROPERTY_" in main_import and
+          "MASTER_GRAPH_COMPILE" in main_import and
+          main_import.index("graph = verify_master_graph_in_memory(c, mat") < main_import.index("for path in save"))
+    check("NEG unsaved in-memory master refused", C.master_presence_problem(True, False) == "PARTIAL_UNSAVED_MASTER_IN_MEMORY" and
+          "master_presence_problem(master_registered, master_on_disk)" in main_import)
+    check("POS saved master remains reusable", C.master_presence_problem(True, True) is None)
+    check("POS no ClearCoat graph pins", "MP_CLEAR_COAT" not in main_import and "ClearCoat" not in main_import)
     check("POS create-only MI", "REFUSE_OVERWRITE|\" + mi_path" in main_import)
     check("POS placement attachment KEEP_WORLD", "AttachmentRule.KEEP_WORLD" in main_place)
     check("POS placement targeted map save", "save_map(world, C.WORLD)" in main_place and "save_dirty_packages" not in main_place)

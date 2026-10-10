@@ -55,9 +55,30 @@ MAP_KINDS = (
     ("Roughness", False, "TC_MASKS", "Roughness"),
 )
 
+MASTER_MASK_CHANNELS = (
+    ("R", "DustStrength"),
+    ("G", "SootStrength"),
+    ("A", "PeelStrength"),
+)
+
 
 class PlanError(RuntimeError):
     pass
+
+
+def master_presence_problem(registered_in_memory, exists_on_disk):
+    """Refuse an Asset Registry object that has never been saved as a package."""
+    if registered_in_memory and not exists_on_disk:
+        return "PARTIAL_UNSAVED_MASTER_IN_MEMORY"
+    return None
+
+
+def master_output_pin_problem(available_outputs, required_output):
+    """UE material output names are case-sensitive; reject aliases and lowercase guesses."""
+    available = tuple(str(x) for x in available_outputs)
+    if required_output not in available or required_output.lower() in available:
+        return "MASK_OUTPUT_PIN_CASE|wanted=%s|available=%s" % (required_output, list(available))
+    return None
 
 
 def sha256(path):
