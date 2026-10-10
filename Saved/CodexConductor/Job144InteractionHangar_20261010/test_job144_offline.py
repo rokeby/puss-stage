@@ -40,9 +40,10 @@ def rejects(name, fn, contains):
         FAIL += 1; ROWS.append({"name": name, "control": "-", "ok": False, "error": repr(exc)})
 
 
-def actor(label, candidate=True):
-    return {"label": label, "path": "/World/" + label, "class": "StaticMeshActor",
-            "outer_level": "/Game/Klara/S2", "tags": [], "scene_candidate": candidate}
+def actor(label, candidate=True, path=None, tags=None, binding_guids=None):
+    return {"label": label, "path": path or "/World/" + label, "class": "StaticMeshActor",
+            "outer_level": "/Game/Klara/S2", "tags": tags or [], "scene_candidate": candidate,
+            "sequence_binding_guids": binding_guids or []}
 
 
 def snap(n=2):
@@ -90,8 +91,22 @@ check("+ spot off at sleight", lambda: planned(2)["spot"]["intensity_keys"][-1],
 check("+ existing puppet census", lambda: planned(2)["puppet_bindings"], ["Shadow Cat", "Boy Gobo"])
 check("+ exact hide approval", lambda: len(planned(2, ["Shrine Prop"])["visibility"]["actors"]), 1)
 check("+ camera framing distance", lambda: planned(2)["camera_distance_cm"] > 700.0, True)
+check("+ measured camera override", lambda: C.camera_distance(C.merged_params(
+    {"camera_distance_override_cm": 714.009})), 714.009)
 check("+ scene wrapper only", lambda: planned(3)["save_packages"][0].startswith("/Game/I") or
       planned(3)["save_packages"][1].startswith("/Game/I"), True)
+
+duplicate_labels = [actor("Twin Prop", path="/World/A"), actor("Twin Prop", path="/World/B")]
+check("+ duplicate unselected labels accepted", lambda: len(C.inventory_plan(
+    duplicate_labels, C.merged_params({}))["all"]), 2)
+check("+ exact actor path selects one duplicate", lambda: C.inventory_plan(
+    duplicate_labels, C.merged_params({"hide_actor_paths": ["/World/B"]}))["approved_hide"][0]["path"],
+      "/World/B")
+tagged = [actor("Twin Prop", path="/World/A", tags=["Job144.I2.Hide"]),
+          actor("Twin Prop", path="/World/B")]
+check("+ exact tag selection", lambda: C.inventory_plan(
+    tagged, C.merged_params({"hide_actor_tags": ["Job144.I2.Hide"]}))["approved_hide"][0]["path"],
+      "/World/A")
 
 rejects("- interaction 1", lambda: C.merged_params({"interaction": 1}), "INTERACTION_MUST")
 bad = snap(); bad["cuts"][0]["guid"] = "NOPE"
@@ -110,6 +125,10 @@ bad = snap(); bad["fade_tracks"]["scene"] = 1
 rejects("- existing fade conflict", lambda: C.make_plan(bad, C.merged_params({"interaction": 2})), "FADE_TRACK_CONFLICT")
 rejects("- missing shadow source", lambda: C.make_plan(snap(), C.merged_params(
     {"interaction": 2, "approved_shadow_source_labels": ["Missing Puppet"]})), "SHADOW_SOURCE_LABELS_MISSING")
+rejects("- ambiguous selected label still refused", lambda: C.inventory_plan(
+    duplicate_labels, C.merged_params({"hide_actor_labels": ["Twin Prop"]})), "HIDE_LABEL_NOT_UNIQUE")
+rejects("- missing exact actor path", lambda: C.inventory_plan(
+    duplicate_labels, C.merged_params({"hide_actor_paths": ["/World/Missing"]})), "HIDE_PATHS_MISSING")
 
 before = [[0, 0.0], [1250, 50.0], [1400, 60.0]]
 after = C.merge_camera(before, 0, 100, 1250, 20.0)

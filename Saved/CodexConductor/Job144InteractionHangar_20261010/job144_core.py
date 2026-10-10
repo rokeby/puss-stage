@@ -37,6 +37,8 @@ DEFAULTS = {
     "spot_inner_cone_deg": 2.9185858080829434,
     "spot_source_radius_cm": 2.0,
     "hide_actor_labels": [],
+    "hide_actor_paths": [],
+    "hide_actor_tags": [],
     "approved_shadow_source_labels": [],
     "approved_inventory_digest": "",
     "wall_label": "AUTO",
@@ -85,6 +87,8 @@ def merged_params(raw):
     if out["spot_side"] not in ("front", "rear"):
         raise PlanError("SPOT_SIDE|%s" % out["spot_side"])
     out["hide_actor_labels"] = sorted(set(str(x) for x in out["hide_actor_labels"]))
+    out["hide_actor_paths"] = sorted(set(str(x) for x in out["hide_actor_paths"]))
+    out["hide_actor_tags"] = sorted(set(str(x) for x in out["hide_actor_tags"]))
     out["approved_shadow_source_labels"] = sorted(set(str(x) for x in out["approved_shadow_source_labels"]))
     out["keep_label_regex"] = [str(x) for x in out["keep_label_regex"]]
     return out
@@ -159,26 +163,45 @@ def select_back_wall(walls, wall_label="AUTO"):
 
 
 def inventory_plan(actor_rows, params):
-    labels = [r["label"] for r in actor_rows]
-    if len(labels) != len(set(labels)):
-        raise PlanError("ACTOR_LABELS_NOT_UNIQUE")
-    by_label = {r["label"]: r for r in actor_rows}
-    missing = [x for x in params["hide_actor_labels"] if x not in by_label]
-    if missing:
-        raise PlanError("HIDE_LABELS_MISSING|%s" % missing)
-    bad = []
+    by_path = {}
+    by_label = {}
+    for row in actor_rows:
+        path = row.get("path")
+        if not path or path in by_path:
+            raise PlanError("ACTOR_PATHS_NOT_UNIQUE|%s" % path)
+        by_path[path] = row
+        by_label.setdefault(row["label"], []).append(row)
+    selected = {}
+    missing_paths = [x for x in params["hide_actor_paths"] if x not in by_path]
+    if missing_paths:
+        raise PlanError("HIDE_PATHS_MISSING|%s" % missing_paths)
+    for path in params["hide_actor_paths"]:
+        selected[path] = by_path[path]
     for label in params["hide_actor_labels"]:
-        if any(re.search(pattern, label, re.I) for pattern in params["keep_label_regex"]):
-            bad.append(label)
+        rows = by_label.get(label, [])
+        if len(rows) != 1:
+            raise PlanError("HIDE_LABEL_NOT_UNIQUE|%s|%d|%s" %
+                            (label, len(rows), sorted(r.get("path") for r in rows)))
+        selected[rows[0]["path"]] = rows[0]
+    for tag in params["hide_actor_tags"]:
+        rows = [r for r in actor_rows if tag in r.get("tags", [])]
+        if not rows:
+            raise PlanError("HIDE_TAG_MISSING|%s" % tag)
+        for row in rows:
+            selected[row["path"]] = row
+    bad = []
+    for row in selected.values():
+        if any(re.search(pattern, row["label"], re.I) for pattern in params["keep_label_regex"]):
+            bad.append({"path": row["path"], "label": row["label"]})
     if bad:
         raise PlanError("HIDE_LIST_CONTAINS_INFRASTRUCTURE|%s" % bad)
     candidates = [r for r in actor_rows if r.get("scene_candidate") and not
                   any(re.search(pattern, r["label"], re.I) for pattern in params["keep_label_regex"])]
     census = {"all": actor_rows, "candidate_hide": candidates,
-              "approved_hide": [by_label[x] for x in params["hide_actor_labels"]]}
+              "approved_hide": [selected[x] for x in sorted(selected)]}
     census["digest"] = digest({"all": [[r.get("path"), r["label"], r.get("outer_level"), r.get("class")]
                                          for r in actor_rows],
-                                "candidate": [r["label"] for r in candidates]})
+                                "candidate": [[r.get("path"), r["label"]] for r in candidates]})
     return census
 
 
@@ -294,13 +317,14 @@ def make_plan(snapshot, params):
         warnings.append("SHADOW_SOURCE_NOT_APPROVED|review puppet_bindings; this staging tool does not invent a performance")
 
     inventory = inventory_plan(snapshot["actors"], params)
-    existing_by_name = {canonical_name(row["name"]): row for row in snapshot["bindings"]}
-    for label in params["hide_actor_labels"]:
-        binding = existing_by_name.get(canonical_name(label))
-        if binding and any(t.get("class") == "MovieSceneVisibilityTrack" for t in binding.get("tracks", [])):
-            raise PlanError("VISIBILITY_TRACK_CONFLICT|%s" % label)
+    existing_by_guid = {row["guid"]: row for row in snapshot["bindings"]}
+    for actor_row in inventory["approved_hide"]:
+        for guid in actor_row.get("sequence_binding_guids", []):
+            binding = existing_by_guid.get(guid)
+            if binding and any(t.get("class") == "MovieSceneVisibilityTrack" for t in binding.get("tracks", [])):
+                raise PlanError("VISIBILITY_TRACK_CONFLICT|%s|%s" % (actor_row["path"], guid))
     cuts = validate_cuts(snapshot["cuts"], snapshot["bindings"], snapshot["world_labels"])
-    if params["hide_actor_labels"] and params["approved_inventory_digest"] != inventory["digest"]:
+    if inventory["approved_hide"] and params["approved_inventory_digest"] != inventory["digest"]:
         raise PlanError("INVENTORY_DIGEST_NOT_APPROVED|%s" % inventory["digest"])
 
     spot_fade_end = reveal + params["shadow_fade_frames"]

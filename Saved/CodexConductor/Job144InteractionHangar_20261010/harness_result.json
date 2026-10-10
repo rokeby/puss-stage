@@ -1,6 +1,6 @@
 {
  "failed": 0,
- "passed": 26,
+ "passed": 32,
  "tests": [
   {
    "control": "+",
@@ -59,7 +59,27 @@
   },
   {
    "control": "+",
+   "name": "+ measured camera override",
+   "ok": true
+  },
+  {
+   "control": "+",
    "name": "+ scene wrapper only",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ duplicate unselected labels accepted",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ exact actor path selects one duplicate",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ exact tag selection",
    "ok": true
   },
   {
@@ -110,6 +130,16 @@
   {
    "control": "-",
    "name": "- missing shadow source",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- ambiguous selected label still refused",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- missing exact actor path",
    "ok": true
   },
   {

@@ -127,8 +127,21 @@ class UnrealBackend(object):
                              "guid": _guid(bid, self.u)})
         return rows
 
-    def _actor_rows(self, n):
+    def _actor_rows(self, n, seq):
         actors = list(self.u.get_editor_subsystem(self.u.EditorActorSubsystem).get_all_level_actors())
+        actor_paths = {str(actor.get_path_name()): actor for actor in actors}
+        binding_guids = {path: [] for path in actor_paths}
+        world = self.u.get_editor_subsystem(self.u.UnrealEditorSubsystem).get_editor_world()
+        for binding in seq.get_bindings():
+            guid = _guid(binding.get_id(), self.u)
+            try:
+                objects = list(seq.locate_bound_objects(binding, world))
+            except Exception as exc:
+                raise Stop("BINDING_OBJECT_RESOLUTION|%s|%r" % (guid, exc))
+            for obj in objects:
+                path = str(obj.get_path_name())
+                if path in binding_guids:
+                    binding_guids[path].append(guid)
         rows = []
         for actor in actors:
             label = str(actor.get_actor_label())
@@ -139,7 +152,8 @@ class UnrealBackend(object):
                          re.search(r"Scene[_ ]?0?%d|S%d" % (n, n), outer, re.I) is not None or
                          any(re.search(r"Scene.?%d|S%d" % (n, n), tag, re.I) for tag in tags))
             rows.append({"label": label, "path": path, "class": actor.get_class().get_name(),
-                         "outer_level": outer, "tags": tags, "scene_candidate": bool(candidate)})
+                         "outer_level": outer, "tags": tags, "scene_candidate": bool(candidate),
+                         "sequence_binding_guids": sorted(set(binding_guids[path]))})
         return actors, rows
 
     def _wall_rows(self, n, actors, root):
@@ -205,7 +219,7 @@ class UnrealBackend(object):
     def snapshot(self, params):
         n = params["interaction"]; seq = self.u.load_asset(SEQS[n]); scene = self.u.load_asset(SCENES[n])
         if seq is None or scene is None: raise Stop("ASSET_LOAD|I%d" % n)
-        actors, actor_rows = self._actor_rows(n)
+        actors, actor_rows = self._actor_rows(n, seq)
         labels = [str(a.get_actor_label()) for a in actors]
         roots = [a for a in actors if str(a.get_actor_label()) == "S%d Hangar Root" % n]
         if len(roots) != 1: raise Stop("HANGAR_ROOT_COUNT|I%d|%d" % (n, len(roots)))
@@ -320,15 +334,24 @@ class UnrealBackend(object):
         self._checkpoint(record)
 
     def _visibility(self, record, seq, plan, actors):
-        by_label = {str(a.get_actor_label()): a for a in actors}
+        by_path = {str(a.get_path_name()): a for a in actors}
+        by_guid = {_guid(binding.get_id(), self.u): binding for binding in seq.get_bindings()}
         for row in plan["visibility"]["actors"]:
-            label = row["label"]; actor = by_label[label]
-            matches = [b for b in seq.get_bindings() if canonical_name(b.get_display_name()) == label]
-            if len(matches) > 1: raise Stop("VIS_BINDING_AMBIGUOUS|%s" % label)
+            path = row["path"]
+            label = row["label"]
+            actor = by_path.get(path)
+            if actor is None: raise Stop("VIS_ACTOR_PATH_MISSING|%s" % path)
+            matches = [by_guid[guid] for guid in row.get("sequence_binding_guids", []) if guid in by_guid]
+            if len(matches) > 1: raise Stop("VIS_BINDING_AMBIGUOUS|%s|%s" % (path, row["sequence_binding_guids"]))
             created = False
             if matches: binding = matches[0]
             else:
-                binding = seq.add_possessable(actor); binding.set_display_name(label); created = True
+                before = set(by_guid)
+                binding = seq.add_possessable(actor)
+                guid = _guid(binding.get_id(), self.u)
+                if guid in before:
+                    raise Stop("VIS_EXISTING_BINDING_NOT_IN_SNAPSHOT|%s|%s" % (path, guid))
+                binding.set_display_name(label); created = True
                 record["created_bindings"].append({"package": plan["sequence"], "guid": _guid(binding.get_id(), self.u)})
                 self._checkpoint(record)
             for track in binding.get_tracks():
@@ -338,7 +361,8 @@ class UnrealBackend(object):
                         raise Stop("VISIBILITY_TRACK_EXISTS|%s|%s" % (label, prop))
             self._add_track(record, plan["sequence"], seq, binding, self.u.MovieSceneVisibilityTrack,
                             "bHidden", plan["visibility"]["keys"], plan["playback"][0], plan["playback"][1])
-            if created and canonical_name(binding.get_display_name()) != label: raise Stop("BINDING_RENAME_FAILED|%s" % label)
+            if created and canonical_name(binding.get_display_name()) != canonical_name(label):
+                raise Stop("BINDING_RENAME_FAILED|%s|%s" % (path, label))
 
     def _spot(self, record, seq, plan):
         name = plan["spot"]["name"]
@@ -607,7 +631,7 @@ def main(args, backend=None, root=None):
             report = backend.build_report(params, run)
             if pinned["params"] != params: raise Stop("DRY_ARGS_DRIFT|RERUN_DRY")
             if pinned["plan_digest"] != report["plan"]["digest"]: raise Stop("DRY_STATE_DRIFT|RERUN_DRY")
-            if not params["hide_actor_labels"]: raise Stop("HIDE_LIST_EMPTY|REVIEW_DRY_CENSUS")
+            if not report["plan"]["visibility"]["actors"]: raise Stop("HIDE_LIST_EMPTY|REVIEW_DRY_CENSUS")
             if report["plan"]["warnings"]: raise Stop("PLAN_WARNINGS|%s" % report["plan"]["warnings"])
             record = backend.apply(report, run)
             backend.log("JOB144_INTERACTION_HANGAR_APPLY_OK|run=%s|interaction=I%d|saved=%s|hide=%d|backup=%s|record=%s|dirty=0" %

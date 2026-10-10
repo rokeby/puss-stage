@@ -7,6 +7,7 @@ import importlib.util
 import json
 import pathlib
 import sys
+import tempfile
 import unittest
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -115,9 +116,37 @@ class Gates(unittest.TestCase):
     def test_p02_confirm_positive_and_negative(self):
         self.assertTrue(tool.p02_confirm_ok("DRY", ""))
         self.assertTrue(tool.p02_confirm_ok("APPLY", "APPLY J129P02P01FLOOR"))
+        self.assertTrue(tool.p02_confirm_ok("VERIFY", "VERIFY J129P02P01FLOOR"))
         self.assertTrue(tool.p02_confirm_ok("REVERT", "REVERT J129P02P01FLOOR"))
         self.assertFalse(tool.p02_confirm_ok("APPLY", "APPLY J119S2P01FLOOR"))
         self.assertFalse(tool.p02_confirm_ok("REVERT", "yes"))
+
+    def test_save_attempted_record_allows_verify_and_revert(self):
+        record = {"state": "save_attempted", "world": tool.WORLD, "target": "P02"}
+        self.assertTrue(tool.p02_record_context_ok(record, "VERIFY"))
+        self.assertTrue(tool.p02_record_context_ok(record, "REVERT"))
+        self.assertFalse(tool.p02_record_context_ok(dict(record, state="applying"), "REVERT"))
+
+    def test_revert_requires_recorded_backup_map(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder = pathlib.Path(temp)
+            map_path = folder / tool.UMAP_REL[-1]
+            map_path.write_bytes(b"backup")
+            got = tool._p02_backup_evidence({"backup": str(folder)})
+            self.assertEqual(got["size_bytes"], 6)
+        with self.assertRaises(tool.Refused):
+            tool._p02_backup_evidence({"backup": "missing"})
+
+    def test_verify_reports_parent_shift_frame_negative(self):
+        expected_bounds = {"origin": [10, 20, 0], "extent": [2, 3, .5],
+                           "min": [8, 17, -.5], "max": [12, 23, .5]}
+        got_bounds = {name: [value[0], value[1], value[2] - 100000]
+                      for name, value in expected_bounds.items()}
+        # Extent is invariant under translation.
+        got_bounds["extent"] = list(expected_bounds["extent"])
+        issues = tool.segment_diagnostics({"world_bounds": expected_bounds},
+                                          {"world_bounds": got_bounds}, .1, [0, 0, -100000])
+        self.assertEqual(issues[0]["cause"], "ATTACHED_TO_SHIFTED_TARGET_FRAME")
 
     def test_sequence_actor_tracks_inherit_positive(self):
         rows = [{"track_class": "MovieScene3DTransformTrack", "property": "", "object_kind": "actor"},
@@ -182,6 +211,13 @@ class StaticSafety(unittest.TestCase):
         self.assertLess(apply_body.index("P02_SEGMENT_FOOTPRINT_READBACK"),
                         apply_body.index('component.set_editor_property("relative_location"'))
 
+    def test_p02_attaches_after_parent_root_shift(self):
+        p02 = self.text[self.text.index("def _main_p02("):self.text.index("def main():")]
+        self.assertLess(p02.index('component.set_editor_property("relative_location"'),
+                        p02.index("duplicate.attach_to_actor"))
+        self.assertIn("P02_POST_SHIFT_ATTACHMENT_READBACK", p02)
+        self.assertIn("P02_POST_MATERIALIZE_SEGMENT_READBACK", p02)
+
     def test_bhidden_contract_and_no_inert_property(self):
         self.assertIn('"bhidden"', self.text.lower())
         self.assertNotIn("bHiddenInGame", self.text)
@@ -190,6 +226,12 @@ class StaticSafety(unittest.TestCase):
         self.assertIn("PreJ119S2P01Floor", self.text)
         self.assertLess(self.text.index("_write_json(record_path, record, True)"), self.text.index("duplicate_actor"))
         self.assertIn("save_current_level", self.text)
+
+    def test_verify_only_and_save_attempted_revert_contract(self):
+        self.assertIn('P02_MODES = ("DRY", "APPLY", "VERIFY", "REVERT")', self.text)
+        self.assertIn('record["state"] = "applied"', self.text)
+        self.assertIn('P02_VERIFY_MISMATCH', self.text)
+        self.assertIn('_p02_backup_evidence(record)', self.text)
 
     def test_request_is_guarded_saved_route(self):
         data = json.loads((HERE / "j119_s2_p01_floor_replace_request.json").read_text(encoding="utf-8"))
@@ -203,8 +245,8 @@ if __name__ == "__main__":
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     report = {"tests": result.testsRun, "failures": len(result.failures), "errors": len(result.errors),
-              "positive_controls": 20, "negative_controls": 15, "passed": result.wasSuccessful()}
+              "positive_controls": 25, "negative_controls": 18, "passed": result.wasSuccessful()}
     (HERE / "harness_result.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print("J119_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=20|negative_controls=15" %
+    print("J119_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=25|negative_controls=18" %
           (result.testsRun, len(result.failures), len(result.errors)))
     raise SystemExit(0 if result.wasSuccessful() else 1)

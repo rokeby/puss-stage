@@ -34,6 +34,7 @@ P02_MARK = "J129_P02_P01_FLOOR_REPLACE"
 KLARA_PACKAGES = ("/Game/Scenes/L_Animals", "/Game/Scenes/L_KK_children",
                   "/Game/Scenes/Japanese_Alley", "/Game/Scenes/L_KK_Void")
 MODES = ("DRY", "APPLY", "REVERT")
+P02_MODES = ("DRY", "APPLY", "VERIFY", "REVERT")
 
 
 class Refused(RuntimeError):
@@ -46,6 +47,45 @@ def confirm_ok(mode, value):
 
 def p02_confirm_ok(mode, value):
     return mode == "DRY" or value == "%s J129P02P01FLOOR" % mode
+
+
+def p02_record_context_ok(record, mode):
+    return (mode in ("VERIFY", "REVERT") and record.get("state") in ("save_attempted", "applied") and
+            record.get("world") == WORLD and record.get("target") == "P02")
+
+
+def segment_diagnostics(expected, got, bounds_tolerance_cm, target_shift=None):
+    """Return field-specific saved-state mismatches for one P02 replacement."""
+    issues = []
+    for field in ("actor_class", "mesh", "materials", "component_settings"):
+        if field in expected and got.get(field) != expected.get(field):
+            issues.append({"kind": field.upper() + "_MISMATCH", "expected": expected.get(field),
+                           "got": got.get(field)})
+    expected_transform = expected.get("component_world_transform")
+    if expected_transform:
+        tolerances = {"location": 0.02, "rotation": 0.001, "scale": 0.0001}
+        for field, tolerance in tolerances.items():
+            deltas = [float(got[field][i]) - float(expected_transform[field][i]) for i in range(3)]
+            if max(abs(value) for value in deltas) > tolerance:
+                issues.append({"kind": "WORLD_%s_MISMATCH" % field.upper(), "tolerance": tolerance,
+                               "deltas": deltas, "expected": expected_transform[field], "got": got[field]})
+    want_bounds = expected.get("world_bounds") or expected.get("expected_world_bounds")
+    got_bounds = got.get("world_bounds")
+    if want_bounds is None or got_bounds is None:
+        issues.append({"kind": "WORLD_BOUNDS_MISSING", "expected": want_bounds, "got": got_bounds})
+    else:
+        deltas = {name: [float(got_bounds[name][i]) - float(want_bounds[name][i]) for i in range(3)]
+                  for name in ("origin", "extent", "min", "max")}
+        worst = max(abs(value) for values in deltas.values() for value in values)
+        if worst > float(bounds_tolerance_cm):
+            issue = {"kind": "WORLD_BOUNDS_MISMATCH", "tolerance_cm": float(bounds_tolerance_cm),
+                     "max_abs_delta_cm": worst, "deltas": deltas,
+                     "expected": want_bounds, "got": got_bounds}
+            if target_shift is not None and all(abs(deltas["origin"][i] - float(target_shift[i])) <=
+                                                float(bounds_tolerance_cm) for i in range(3)):
+                issue["cause"] = "ATTACHED_TO_SHIFTED_TARGET_FRAME"
+            issues.append(issue)
+    return issues
 
 
 def digest(value):
@@ -541,11 +581,89 @@ def _p02_component_map(targets):
     return {_path(component): component for actor in targets for component in _p02_components(actor)}
 
 
+def _p02_backup_evidence(record):
+    folder = str(record.get("backup", ""))
+    path = os.path.join(folder, UMAP_REL[-1])
+    if not folder or not os.path.isdir(folder) or not os.path.isfile(path):
+        raise Refused("P02_RECORD_BACKUP_MISSING|folder=%s|map=%s" % (folder, path))
+    with open(path, "rb") as handle:
+        sha256 = hashlib.sha256(handle.read()).hexdigest()
+    return {"folder": folder, "map": path, "size_bytes": os.path.getsize(path), "sha256": sha256}
+
+
+def _verify_p02_saved(record, args, targets, initial, here):
+    issues = []
+    backup = _p02_backup_evidence(record)
+    owned = {_path(actor): actor for actor in _owned_p02()}
+    expected_paths = sorted(row["created_actor_path"] for row in record.get("actors", []))
+    actual_paths = sorted(owned)
+    if actual_paths != expected_paths:
+        issues.append({"kind": "OWNERSHIP_MISMATCH", "expected": expected_paths, "got": actual_paths,
+                       "missing": sorted(set(expected_paths) - set(actual_paths)),
+                       "unexpected": sorted(set(actual_paths) - set(expected_paths))})
+    component_map = _p02_component_map(targets)
+    component_records = {row["component_path"]: row for row in record.get("components", [])}
+    target_shift = {}
+    for target in targets:
+        components = _p02_components(target)
+        for component in components:
+            row = component_records.get(_path(component))
+            if row is None:
+                issues.append({"kind": "TARGET_COMPONENT_RECORD_MISSING", "component": _path(component)})
+                continue
+            got_location = v3(_prop(component, "relative_location"))
+            delta = [got_location[i] - float(row["shifted_relative_location"][i]) for i in range(3)]
+            if max(abs(value) for value in delta) > 0.02:
+                issues.append({"kind": "TARGET_COMPONENT_SHIFT_MISMATCH", "component": _path(component),
+                               "expected": row["shifted_relative_location"], "got": got_location,
+                               "deltas": delta})
+            target_shift[_path(target)] = [float(row["shifted_relative_location"][i]) -
+                                            float(row["old_relative_location"][i]) for i in range(3)]
+    source = record["plan"]["source"]
+    replacements = {row["segment"]["target_actor_path"]: row
+                    for row in record["plan"].get("replacements", [])}
+    actor_reports = []
+    for row in record.get("actors", []):
+        actor = owned.get(row["created_actor_path"])
+        actor_issues = []
+        if actor is not None:
+            if _level(actor) != WORLD:
+                actor_issues.append({"kind": "LEVEL_MISMATCH", "expected": WORLD, "got": _level(actor)})
+            parent = _path(actor.get_attach_parent_actor())
+            if parent != row["target_actor_path"]:
+                actor_issues.append({"kind": "ATTACHMENT_MISMATCH", "expected": row["target_actor_path"],
+                                     "got": parent})
+            got = _snapshot(actor, component_world=True)
+            replacement = replacements.get(row["target_actor_path"], {})
+            expected = {"actor_class": source["actor_class"], "mesh": source["mesh"],
+                        "materials": source["materials"], "component_settings": source["component_settings"],
+                        "world_bounds": row["expected_world_bounds"],
+                        "component_world_transform": replacement.get("expected_component_world_transform")}
+            actor_issues.extend(segment_diagnostics(expected, got, float(args["bounds_tolerance_cm"]),
+                                                    target_shift.get(row["target_actor_path"])))
+            actor_reports.append({"path": row["created_actor_path"], "target": row["target_actor_path"],
+                                  "got": {"parent": parent, "location": got["location"],
+                                          "rotation": got["rotation"], "scale": got["scale"],
+                                          "world_bounds": got["world_bounds"], "mesh": got["mesh"],
+                                          "materials": got["materials"]}, "issues": actor_issues})
+        else:
+            actor_reports.append({"path": row["created_actor_path"], "target": row["target_actor_path"],
+                                  "issues": [{"kind": "ACTOR_MISSING"}]})
+        issues.extend([dict(issue, actor_path=row["created_actor_path"]) for issue in actor_reports[-1]["issues"]])
+    report = {"schema": 1, "mode": "VERIFY", "record_run": record.get("run"), "world": WORLD,
+              "record_state_before": record.get("state"), "census": initial, "backup": backup,
+              "actors": actor_reports, "issues": issues, "correct": not issues}
+    report_path = os.path.join(here, "j129_p02_verify_%s.json" %
+                               datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+    _write_json(report_path, report, True)
+    return report, report_path
+
+
 def _main_p02(args, here):
     mode = str(args.get("mode", "DRY")).upper()
     run = "J129P02P01-%s" % datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     record_path = os.path.join(here, "j129_p02_p01_floor_replace_record.json")
-    if mode not in MODES:
+    if mode not in P02_MODES:
         raise Refused("BAD_MODE|" + mode)
     if not p02_confirm_ok(mode, str(args.get("confirm", ""))):
         raise Refused("CONFIRM_REQUIRED|%s J129P02P01FLOOR" % mode)
@@ -554,13 +672,38 @@ def _main_p02(args, here):
     if mode != "DRY" and initial != {"content": [], "maps": []}:
         raise Refused("DIRTY_AT_START|" + json.dumps(initial))
 
+    if mode == "VERIFY":
+        if not os.path.exists(record_path):
+            raise Refused("VERIFY_RECORD_MISSING")
+        with open(record_path, encoding="utf-8") as handle:
+            record = json.load(handle)
+        if not p02_record_context_ok(record, "VERIFY"):
+            raise Refused("VERIFY_RECORD_CONTEXT")
+        labels = _actors_by_label()
+        targets = [_one(labels, label) for label in P02_TARGET_LABELS]
+        report, report_path = _verify_p02_saved(record, args, targets, initial, here)
+        if report["issues"]:
+            unreal.log_error("%s_VERIFY_MISMATCH|run=%s|issues=%d|record_state=%s|report=%s" %
+                             (P02_MARK, record.get("run"), len(report["issues"]), record.get("state"), report_path))
+            raise Refused("P02_VERIFY_MISMATCH|issues=%d|report=%s" % (len(report["issues"]), report_path))
+        record["applied"] = True
+        record["state"] = "applied"
+        record["read_back"] = {"mode": "VERIFY", "report": report_path, "owned_actor_count": len(record["actors"]),
+                               "persistent_only": True, "materialized": True, "census": initial}
+        _write_json(record_path, record)
+        unreal.log("%s_VERIFY_OK|run=%s|created=%d|record_marked_applied=1|backup=%s|report=%s|census=%s" %
+                   (P02_MARK, record.get("run"), len(record["actors"]), report["backup"]["map"], report_path,
+                    json.dumps(initial)))
+        return
+
     if mode == "REVERT":
         if not os.path.exists(record_path):
             raise Refused("REVERT_RECORD_MISSING")
         with open(record_path, encoding="utf-8") as handle:
             record = json.load(handle)
-        if record.get("state") not in ("save_attempted", "applied") or record.get("world") != WORLD or record.get("target") != "P02":
+        if not p02_record_context_ok(record, "REVERT"):
             raise Refused("REVERT_RECORD_CONTEXT")
+        backup_evidence = _p02_backup_evidence(record)
         owned = {_path(actor): actor for actor in _owned_p02()}
         if sorted(owned) != sorted(row["created_actor_path"] for row in record["actors"]):
             raise Refused("REVERT_OWNERSHIP_DRIFT")
@@ -586,9 +729,9 @@ def _main_p02(args, here):
         save_before, final = _save_level_only()
         archived = record_path + ".reverted-" + run
         os.rename(record_path, archived)
-        unreal.log("%s_REVERT_OK|run=%s|restored_components=%d|destroyed=%d|materialized=1|saved=%s|klara_saved=0|backup=%s|record=%s|census_before_save=%s|census_after=%s" %
-                   (P02_MARK, run, len(record["components"]), len(owned), WORLD, backup, archived,
-                    json.dumps(save_before), json.dumps(final)))
+        unreal.log("%s_REVERT_OK|run=%s|restored_components=%d|destroyed=%d|materialized=1|saved=%s|klara_saved=0|source_backup=%s|safety_backup=%s|record=%s|census_before_save=%s|census_after=%s" %
+                   (P02_MARK, run, len(record["components"]), len(owned), WORLD, backup_evidence["map"],
+                    backup, archived, json.dumps(save_before), json.dumps(final)))
         return
 
     if _owned_p02() or os.path.exists(record_path):
@@ -623,6 +766,7 @@ def _main_p02(args, here):
     component_map = _p02_component_map(targets)
     subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     target_by_path = {_path(actor): actor for actor in targets}
+    created_by_path = {}
     for item in plan["replacements"]:
         target_actor = target_by_path[item["segment"]["target_actor_path"]]
         duplicate = subsystem.duplicate_actor(source_actor, world, unreal.Vector(0, 0, 0))
@@ -635,8 +779,7 @@ def _main_p02(args, here):
         duplicate.set_actor_rotation(unreal.Rotator(roll=transform["rotation"][0], pitch=transform["rotation"][1],
                                                      yaw=transform["rotation"][2]), False)
         duplicate.set_actor_scale3d(unreal.Vector(*transform["scale"]))
-        duplicate.attach_to_actor(target_actor, "", unreal.AttachmentRule.KEEP_WORLD,
-                                  unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, False)
+        created_by_path[_path(duplicate)] = duplicate
         record["actors"].append({"created_actor_path": _path(duplicate), "created_label": item["new_label"],
                                  "target_actor_path": item["segment"]["target_actor_path"],
                                  "expected_world_bounds": item["segment"]["world_bounds"]})
@@ -659,6 +802,25 @@ def _main_p02(args, here):
                                      "shifted_relative_location": shifted})
         component.set_editor_property("relative_location", unreal.Vector(*shifted))
         _write_json(record_path, record)
+    # Attach only after the target root components have moved. KEEP_WORLD now
+    # computes the replacement's relative transform in the final parent frame;
+    # attaching earlier made the later -100000 cm parent shift drag the new floor.
+    for row in record["actors"]:
+        duplicate = created_by_path[row["created_actor_path"]]
+        duplicate.attach_to_actor(target_by_path[row["target_actor_path"]], "", unreal.AttachmentRule.KEEP_WORLD,
+                                  unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, False)
+        got = _snapshot(duplicate, component_world=True)
+        item = next(value for value in plan["replacements"]
+                    if value["segment"]["target_actor_path"] == row["target_actor_path"])
+        expected = {"actor_class": plan["source"]["actor_class"], "mesh": plan["source"]["mesh"],
+                    "materials": plan["source"]["materials"],
+                    "component_settings": plan["source"]["component_settings"],
+                    "world_bounds": row["expected_world_bounds"],
+                    "component_world_transform": item["expected_component_world_transform"]}
+        issues = segment_diagnostics(expected, got, float(args["bounds_tolerance_cm"]))
+        if issues:
+            raise Refused("P02_POST_SHIFT_ATTACHMENT_READBACK|%s|%s|NOTHING_SAVED_DONT_SAVE_RESTART" %
+                          (row["created_actor_path"], json.dumps(issues)))
     if not bool(passage.materialize_passage()):
         raise Refused("P02_MATERIALIZE_FAILED|NOTHING_SAVED_DONT_SAVE_RESTART")
     for row in record["components"]:
@@ -666,6 +828,19 @@ def _main_p02(args, here):
         current = v3(_prop(component, "relative_location")) if component is not None else None
         if current is None or any(abs(current[i] - row["shifted_relative_location"][i]) > 0.02 for i in range(3)):
             raise Refused("P02_COMPONENT_POST_MATERIALIZE_READBACK|%s|NOTHING_SAVED_DONT_SAVE_RESTART" % row["component_path"])
+    for row in record["actors"]:
+        got = _snapshot(created_by_path[row["created_actor_path"]], component_world=True)
+        item = next(value for value in plan["replacements"]
+                    if value["segment"]["target_actor_path"] == row["target_actor_path"])
+        expected = {"actor_class": plan["source"]["actor_class"], "mesh": plan["source"]["mesh"],
+                    "materials": plan["source"]["materials"],
+                    "component_settings": plan["source"]["component_settings"],
+                    "world_bounds": row["expected_world_bounds"],
+                    "component_world_transform": item["expected_component_world_transform"]}
+        issues = segment_diagnostics(expected, got, float(args["bounds_tolerance_cm"]))
+        if issues:
+            raise Refused("P02_POST_MATERIALIZE_SEGMENT_READBACK|%s|%s|NOTHING_SAVED_DONT_SAVE_RESTART" %
+                          (row["created_actor_path"], json.dumps(issues)))
     record["state"] = "save_attempted"
     _write_json(record_path, record)
     save_before, final = _save_level_only()
@@ -677,9 +852,17 @@ def _main_p02(args, here):
         if _level(actor) != WORLD or _path(actor.get_attach_parent_actor()) != row["target_actor_path"]:
             raise Refused("POST_SAVE_LEVEL_OR_ATTACHMENT_READBACK|" + row["created_actor_path"])
         got = _snapshot(actor, component_world=True)
-        if (got["mesh"] != plan["source"]["mesh"] or got["materials"] != plan["source"]["materials"] or
-                not _bounds_close(got["world_bounds"], row["expected_world_bounds"], float(args["bounds_tolerance_cm"]))):
-            raise Refused("POST_SAVE_P02_SEGMENT_READBACK|" + row["created_actor_path"])
+        item = next(value for value in plan["replacements"]
+                    if value["segment"]["target_actor_path"] == row["target_actor_path"])
+        expected = {"actor_class": plan["source"]["actor_class"], "mesh": plan["source"]["mesh"],
+                    "materials": plan["source"]["materials"],
+                    "component_settings": plan["source"]["component_settings"],
+                    "world_bounds": row["expected_world_bounds"],
+                    "component_world_transform": item["expected_component_world_transform"]}
+        issues = segment_diagnostics(expected, got, float(args["bounds_tolerance_cm"]))
+        if issues:
+            raise Refused("POST_SAVE_P02_SEGMENT_READBACK|%s|%s" %
+                          (row["created_actor_path"], json.dumps(issues)))
     record["applied"] = True
     record["state"] = "applied"
     record["census_before_save"] = save_before
