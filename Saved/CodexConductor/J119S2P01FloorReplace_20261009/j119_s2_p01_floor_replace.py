@@ -66,7 +66,11 @@ def segment_diagnostics(expected, got, bounds_tolerance_cm, target_shift=None):
     if expected_transform:
         tolerances = {"location": 0.02, "rotation": 0.001, "scale": 0.0001}
         for field, tolerance in tolerances.items():
-            deltas = [float(got[field][i]) - float(expected_transform[field][i]) for i in range(3)]
+            if field == "rotation":
+                deltas = [((float(got[field][i]) - float(expected_transform[field][i]) + 180.0) % 360.0) -
+                          180.0 for i in range(3)]
+            else:
+                deltas = [float(got[field][i]) - float(expected_transform[field][i]) for i in range(3)]
             if max(abs(value) for value in deltas) > tolerance:
                 issues.append({"kind": "WORLD_%s_MISMATCH" % field.upper(), "tolerance": tolerance,
                                "deltas": deltas, "expected": expected_transform[field], "got": got[field]})
@@ -213,16 +217,17 @@ def actor_transform_for_component_world(component_world, component_relative, com
 
     A root component's relative transform *is* the actor transform in Unreal; it must
     not be composed a second time. Non-root components still require the inverse solve.
-    The representation is exact for the current zero-rotation component contract and
-    refuses rotations/shear rather than silently approximating them.
+    The representation supports yaw-only component rotation. Pitch/roll remain a hard
+    refusal because composing them with non-uniform scale can introduce shear that an
+    Unreal FTransform cannot represent exactly.
     """
+    rel_rotation = [float(x) for x in component_relative["rotation"]]
+    if abs(rel_rotation[0]) > 1e-4 or abs(rel_rotation[1]) > 1e-4:
+        raise ValueError("pitched/rolled source component rotation is unsupported")
     if component_is_root:
         return {"location": [float(x) for x in component_world["location"]],
                 "rotation": [float(x) for x in component_world["rotation"]],
                 "scale": [float(x) for x in component_world["scale"]]}
-    rel_rotation = [float(x) for x in component_relative["rotation"]]
-    if max(abs(x) for x in rel_rotation) > 1e-4:
-        raise ValueError("unsupported source component rotation")
     rel_scale = [float(x) for x in component_relative["scale"]]
     if min(abs(x) for x in rel_scale) <= 1e-6:
         raise ValueError("degenerate source component scale")
@@ -230,13 +235,41 @@ def actor_transform_for_component_world(component_world, component_relative, com
     rotation = [float(x) for x in component_world["rotation"]]
     if abs(rotation[0]) > 1e-6 or abs(rotation[1]) > 1e-6:
         raise ValueError("pitched/rolled component world transform is unsupported")
-    yaw = math.radians(rotation[2])
+    actor_rotation = [0.0, 0.0, rotation[2] - rel_rotation[2]]
+    yaw = math.radians(actor_rotation[2])
     c, s = math.cos(yaw), math.sin(yaw)
     rel_location = [float(component_relative["location"][i]) * actor_scale[i] for i in range(3)]
     offset = [c * rel_location[0] - s * rel_location[1],
               s * rel_location[0] + c * rel_location[1], rel_location[2]]
     return {"location": [float(component_world["location"][i]) - offset[i] for i in range(3)],
-            "rotation": rotation, "scale": actor_scale}
+            "rotation": actor_rotation, "scale": actor_scale}
+
+
+def component_world_transform_for_actor(actor_transform, component_relative, component_is_root=False):
+    """Compose the duplicated component pose exactly as the yaw-only spawn will."""
+    actor_rotation = [float(x) for x in actor_transform["rotation"]]
+    rel_rotation = [float(x) for x in component_relative["rotation"]]
+    if (abs(actor_rotation[0]) > 1e-4 or abs(actor_rotation[1]) > 1e-4 or
+            abs(rel_rotation[0]) > 1e-4 or abs(rel_rotation[1]) > 1e-4):
+        raise ValueError("pitched/rolled source component rotation is unsupported")
+    if component_is_root:
+        return {"location": [float(x) for x in actor_transform["location"]],
+                "rotation": [float(x) for x in actor_transform["rotation"]],
+                "scale": [float(x) for x in actor_transform["scale"]]}
+    actor_scale = [float(x) for x in actor_transform["scale"]]
+    rel_scale = [float(x) for x in component_relative["scale"]]
+    if min(abs(x) for x in actor_scale + rel_scale) <= 1e-6:
+        raise ValueError("degenerate source component scale")
+    yaw = math.radians(actor_rotation[2])
+    c, s = math.cos(yaw), math.sin(yaw)
+    rel_location = [float(component_relative["location"][i]) * actor_scale[i] for i in range(3)]
+    offset = [c * rel_location[0] - s * rel_location[1],
+              s * rel_location[0] + c * rel_location[1], rel_location[2]]
+    return {
+        "location": [float(actor_transform["location"][i]) + offset[i] for i in range(3)],
+        "rotation": [0.0, 0.0, actor_rotation[2] + rel_rotation[2]],
+        "scale": [actor_scale[i] * rel_scale[i] for i in range(3)],
+    }
 
 
 def sequence_binding_policy(rows, direct_actor_blocks=False):
@@ -316,7 +349,7 @@ def _snapshot(actor, component_world=False):
                          float(relative_rotation_value.yaw)]
     relative_scale = v3(_prop(component, "relative_scale3d"))
     if component_world:
-        if max(abs(x) for x in relative_rotation) > 1e-4:
+        if abs(relative_rotation[0]) > 1e-4 or abs(relative_rotation[1]) > 1e-4:
             raise Refused("UNSUPPORTED_SOURCE_COMPONENT_ROTATION|%s|%s" %
                           (actor.get_actor_label(), relative_rotation))
         if min(abs(x) for x in relative_scale) <= 1e-6:
@@ -632,11 +665,27 @@ def _p02_plan(args, world):
         fitted = fit_transform(source, segment)
         actor_transform = actor_transform_for_component_world(
             fitted, source["component_relative_transform"], source["component_is_root"])
-        predicted = dict(fitted, bbox_min=source["bbox_min"], bbox_max=source["bbox_max"])
+        planned_component_world = component_world_transform_for_actor(
+            actor_transform, source["component_relative_transform"], source["component_is_root"])
+        predicted = dict(planned_component_world, bbox_min=source["bbox_min"], bbox_max=source["bbox_max"])
         predicted_bounds = _bounds_for_row(predicted)
-        if not _bounds_close(predicted_bounds, segment["world_bounds"], float(args["bounds_tolerance_cm"])):
-            raise Refused("P02_PREFLIGHT_FOOTPRINT|%s|got=%s|want=%s" %
-                          (segment["target_label"], json.dumps(predicted_bounds), json.dumps(segment["world_bounds"])))
+        item = {"segment": segment,
+                "new_label": "J129 P01 route segment %03d - %s" % (index + 1, segment["target_label"]),
+                "new_transform": actor_transform,
+                "expected_component_world_transform": fitted,
+                "scale_ratio_vs_p01_component_world":
+                    [fitted["scale"][i] / source["scale"][i] for i in range(3)]}
+        planned_got = {"actor_class": source["actor_class"], "mesh": source["mesh"],
+                       "materials": source["materials"], "component_settings": source["component_settings"],
+                       "location": planned_component_world["location"],
+                       "rotation": planned_component_world["rotation"], "scale": planned_component_world["scale"],
+                       "world_bounds": predicted_bounds}
+        planned_issues = segment_diagnostics(
+            _p02_segment_expected(source, item, segment["world_bounds"]), planned_got,
+            float(args["bounds_tolerance_cm"]))
+        if planned_issues:
+            raise Refused("P02_DRY_PLANNED_READBACK|%s|%s" %
+                          (segment["target_label"], json.dumps(planned_issues)))
         live_relative = live_root_relative_transform(actor_transform, live_root)
         live_composed = live_root_world_transform(live_relative, live_root)
         if max(abs(live_composed[field][axis] - actor_transform[field][axis])
@@ -646,12 +695,9 @@ def _p02_plan(args, world):
         if not inside_box(expected_local_box, live_guard, float(args["bounds_tolerance_cm"])):
             raise Refused("P02_LIVE_ROOT_INSIDE_BOX_PREFLIGHT|%s|got=%s|guard=%s" %
                           (segment["target_label"], json.dumps(expected_local_box), json.dumps(live_guard)))
-        replacements.append({"segment": segment,
-                             "new_label": "J129 P01 route segment %03d - %s" % (index + 1, segment["target_label"]),
-                             "new_transform": actor_transform, "live_root_relative_transform": live_relative,
-                             "expected_component_world_transform": fitted,
-                             "scale_ratio_vs_p01_component_world":
-                                 [fitted["scale"][i] / source["scale"][i] for i in range(3)]})
+        item["live_root_relative_transform"] = live_relative
+        item["dry_readback"] = {"predicate": "segment_diagnostics", "passed": True, "issues": []}
+        replacements.append(item)
     sequence_rows, unclear = _sequence_audit_p02(world, targets)
     blockers, inherited = sequence_binding_policy(sequence_rows, direct_actor_blocks=True)
     plan = {
@@ -659,7 +705,8 @@ def _p02_plan(args, world):
         "target_actor_labels": list(P02_TARGET_LABELS), "route_segments": len(segments),
         "construction_methods": sorted(set(row["construction"] for row in segments)),
         "construction_contract": "duplicate the P01 floor actor once per existing P02 route component/ISM instance; never one corridor plane",
-        "source_component_transform_contract": "root component transform is the actor transform (never compose twice); inverse-solve only a non-root component; refuse unsupported rotation",
+        "source_component_transform_contract": "root component transform is the actor transform (never compose twice); inverse-solve yaw-only non-root components; refuse source pitch/roll",
+        "dry_readback_contract": "every planned transform must pass the same segment_diagnostics predicate used by APPLY and VERIFY",
         "replacements": replacements, "component_below_offset_cm": float(args["component_below_offset_cm"]),
         "sequence_bindings": sequence_rows, "sequence_scan_unclear": unclear,
         "sequence_component_blockers": blockers, "sequence_inherited_tracks": inherited,
@@ -683,6 +730,14 @@ def _p02_plan(args, world):
 
 def _p02_component_map(targets):
     return {_path(component): component for actor in targets for component in _p02_components(actor)}
+
+
+def _p02_segment_expected(source, item, world_bounds):
+    """Build the single expected shape consumed by DRY, APPLY and VERIFY read-back."""
+    return {"actor_class": source["actor_class"], "mesh": source["mesh"],
+            "materials": source["materials"], "component_settings": source["component_settings"],
+            "world_bounds": world_bounds,
+            "component_world_transform": item.get("expected_component_world_transform")}
 
 
 def _p02_backup_evidence(record):
@@ -740,10 +795,7 @@ def _verify_p02_saved(record, args, targets, initial, here):
                                      "got": parent})
             got = _snapshot(actor, component_world=True)
             replacement = replacements.get(row["target_actor_path"], {})
-            expected = {"actor_class": source["actor_class"], "mesh": source["mesh"],
-                        "materials": source["materials"], "component_settings": source["component_settings"],
-                        "world_bounds": row["expected_world_bounds"],
-                        "component_world_transform": replacement.get("expected_component_world_transform")}
+            expected = _p02_segment_expected(source, replacement, row["expected_world_bounds"])
             actor_issues.extend(segment_diagnostics(expected, got, float(args["bounds_tolerance_cm"]),
                                                     target_shift.get(row["target_actor_path"])))
             actor_reports.append({"path": row["created_actor_path"], "target": row["target_actor_path"],
@@ -898,13 +950,12 @@ def _main_p02(args, here):
                                  "expected_world_bounds": item["segment"]["world_bounds"]})
         _write_json(record_path, record)
         got = _snapshot(duplicate, component_world=True)
-        if (got["actor_class"] != plan["source"]["actor_class"] or got["mesh"] != plan["source"]["mesh"] or
-                got["materials"] != plan["source"]["materials"] or
-                got["component_settings"] != plan["source"]["component_settings"]):
-            raise Refused("P01_COMPONENT_COPY_READBACK|%s|NOTHING_SAVED_DONT_SAVE_RESTART" % item["new_label"])
-        if not _bounds_close(got["world_bounds"], item["segment"]["world_bounds"], float(args["bounds_tolerance_cm"])):
-            raise Refused("P02_SEGMENT_FOOTPRINT_READBACK|%s|got=%s|want=%s|NOTHING_SAVED_DONT_SAVE_RESTART" %
-                          (item["new_label"], json.dumps(got["world_bounds"]), json.dumps(item["segment"]["world_bounds"])))
+        issues = segment_diagnostics(
+            _p02_segment_expected(plan["source"], item, item["segment"]["world_bounds"]), got,
+            float(args["bounds_tolerance_cm"]))
+        if issues:
+            raise Refused("P02_SEGMENT_READBACK|%s|%s|NOTHING_SAVED_DONT_SAVE_RESTART" %
+                          (item["new_label"], json.dumps(issues)))
     # Only hide the old floors after every duplicate has passed mesh/material/settings
     # and footprint read-back. A duplicate failure now leaves the four live P02 floor
     # components untouched, while the durable record still identifies our new actors.
@@ -925,11 +976,7 @@ def _main_p02(args, here):
         got = _snapshot(duplicate, component_world=True)
         item = next(value for value in plan["replacements"]
                     if value["segment"]["target_actor_path"] == row["target_actor_path"])
-        expected = {"actor_class": plan["source"]["actor_class"], "mesh": plan["source"]["mesh"],
-                    "materials": plan["source"]["materials"],
-                    "component_settings": plan["source"]["component_settings"],
-                    "world_bounds": row["expected_world_bounds"],
-                    "component_world_transform": item["expected_component_world_transform"]}
+        expected = _p02_segment_expected(plan["source"], item, row["expected_world_bounds"])
         issues = segment_diagnostics(expected, got, float(args["bounds_tolerance_cm"]))
         if issues:
             raise Refused("P02_POST_SHIFT_ATTACHMENT_READBACK|%s|%s|NOTHING_SAVED_DONT_SAVE_RESTART" %
@@ -945,11 +992,7 @@ def _main_p02(args, here):
         got = _snapshot(created_by_path[row["created_actor_path"]], component_world=True)
         item = next(value for value in plan["replacements"]
                     if value["segment"]["target_actor_path"] == row["target_actor_path"])
-        expected = {"actor_class": plan["source"]["actor_class"], "mesh": plan["source"]["mesh"],
-                    "materials": plan["source"]["materials"],
-                    "component_settings": plan["source"]["component_settings"],
-                    "world_bounds": row["expected_world_bounds"],
-                    "component_world_transform": item["expected_component_world_transform"]}
+        expected = _p02_segment_expected(plan["source"], item, row["expected_world_bounds"])
         issues = segment_diagnostics(expected, got, float(args["bounds_tolerance_cm"]))
         z_issue = floor_world_z_issue(item["segment"]["location"][2], got["location"][2], 1.0)
         if z_issue:
@@ -974,11 +1017,7 @@ def _main_p02(args, here):
         got = _snapshot(actor, component_world=True)
         item = next(value for value in plan["replacements"]
                     if value["segment"]["target_actor_path"] == row["target_actor_path"])
-        expected = {"actor_class": plan["source"]["actor_class"], "mesh": plan["source"]["mesh"],
-                    "materials": plan["source"]["materials"],
-                    "component_settings": plan["source"]["component_settings"],
-                    "world_bounds": row["expected_world_bounds"],
-                    "component_world_transform": item["expected_component_world_transform"]}
+        expected = _p02_segment_expected(plan["source"], item, row["expected_world_bounds"])
         issues = segment_diagnostics(expected, got, float(args["bounds_tolerance_cm"]))
         if issues:
             raise Refused("POST_SAVE_P02_SEGMENT_READBACK|%s|%s" %

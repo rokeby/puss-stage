@@ -74,11 +74,38 @@ class Geometry(unittest.TestCase):
         self.assertEqual(tool.actor_transform_for_component_world(
             desired, actor_encoded_as_relative, component_is_root=True), desired)
 
-    def test_rotated_source_component_still_refused_negative(self):
+    def test_minus_43_5725_source_component_yaw_round_trips_positive(self):
+        desired = {"location": [100, 200, 3], "rotation": [0, 0, -43.5725], "scale": [6, 8, 1]}
+        relative = {"location": [10, -4, 2], "rotation": [0, 0, -43.5725], "scale": [2, 4, .5]}
+        actor = tool.actor_transform_for_component_world(desired, relative)
+        self.assertEqual(actor["rotation"], [0.0, 0.0, 0.0])
+        got = tool.component_world_transform_for_actor(actor, relative)
+        for field in ("location", "rotation", "scale"):
+            self.assertEqual([round(x, 6) for x in got[field]],
+                             [round(x, 6) for x in desired[field]])
+
+    def test_pitched_source_component_still_refused_negative(self):
         desired = {"location": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1]}
-        relative = {"location": [0, 0, 0], "rotation": [0, 0, 1], "scale": [1, 1, 1]}
+        relative = {"location": [0, 0, 0], "rotation": [0, 1, -43.5725], "scale": [1, 1, 1]}
         with self.assertRaises(ValueError):
             tool.actor_transform_for_component_world(desired, relative)
+
+    def test_dry_planned_transform_uses_apply_readback_predicate(self):
+        source = {"actor_class": "StaticMeshActor", "mesh": "P01", "materials": ["Floor"],
+                  "component_settings": {"collision": "BlockAll"}}
+        fitted = {"location": [100, 200, 3], "rotation": [0, 0, -43.5725], "scale": [6, 8, 1]}
+        bounds = {"origin": [100, 200, 3], "extent": [6, 8, 1],
+                  "min": [94, 192, 2], "max": [106, 208, 4]}
+        item = {"expected_component_world_transform": fitted}
+        expected = tool._p02_segment_expected(source, item, bounds)
+        planned = dict(source, location=list(fitted["location"]), rotation=list(fitted["rotation"]),
+                       scale=list(fitted["scale"]), world_bounds=bounds)
+        self.assertEqual(tool.segment_diagnostics(expected, planned, .1), [])
+        wrapped = dict(planned, rotation=[0, 0, 316.4275])
+        self.assertEqual(tool.segment_diagnostics(expected, wrapped, .1), [])
+        drifted = dict(planned, rotation=[0, 0, -42.0])
+        issues = tool.segment_diagnostics(expected, drifted, .1)
+        self.assertEqual(issues[0]["kind"], "WORLD_ROTATION_MISMATCH")
 
     def test_live_root_composition_reproduces_and_avoids_sunk_rest_offset(self):
         desired = {"location": [1200.0, 3400.0, 12.5], "rotation": [0.0, 0.0, 15.0],
@@ -228,10 +255,10 @@ class StaticSafety(unittest.TestCase):
     def test_p02_footprints_verify_before_old_floor_mutation(self):
         p02 = self.text[self.text.index("def _main_p02("):self.text.index("def main():")]
         apply_body = p02[p02.index('record = {"schema": 2'):]
-        self.assertLess(self.text.index("P02_PREFLIGHT_FOOTPRINT"),
+        self.assertLess(self.text.index("P02_DRY_PLANNED_READBACK"),
                         self.text.index('component.set_editor_property("relative_location"',
                                         self.text.index('record = {"schema": 2')))
-        self.assertLess(apply_body.index("P02_SEGMENT_FOOTPRINT_READBACK"),
+        self.assertLess(apply_body.index("P02_SEGMENT_READBACK"),
                         apply_body.index('component.set_editor_property("relative_location"'))
 
     def test_p02_attaches_to_live_root_after_old_floor_shift(self):
@@ -276,8 +303,8 @@ if __name__ == "__main__":
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     report = {"tests": result.testsRun, "failures": len(result.failures), "errors": len(result.errors),
-              "positive_controls": 28, "negative_controls": 22, "passed": result.wasSuccessful()}
+              "positive_controls": 31, "negative_controls": 23, "passed": result.wasSuccessful()}
     (HERE / "harness_result.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print("J119_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=28|negative_controls=22" %
+    print("J119_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=31|negative_controls=23" %
           (result.testsRun, len(result.failures), len(result.errors)))
     raise SystemExit(0 if result.wasSuccessful() else 1)
