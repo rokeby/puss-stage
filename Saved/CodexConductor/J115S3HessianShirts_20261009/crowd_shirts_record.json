@@ -1,0 +1,451 @@
+[
+ {
+  "label": "S3 Crowd 09 (from Shore03_M59)",
+  "slots": [
+   1,
+   3,
+   5,
+   7
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeA_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore03_M59_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 15 (from Shore04_F55)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 01 (from Shore04_F55)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 03 (from Shore04_F55)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 07 (from Shore04_F55)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 12 (from Shore04_F55)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore04_F55_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 14 (from Shore06_F25)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 02 (from Shore06_F25)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 04 (from Shore06_F25)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 05 (from Shore06_F25)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 06 (from Shore06_F25)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 08 (from Shore06_F25)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 10 (from Shore06_F25)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 11 (from Shore06_F25)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ]
+ },
+ {
+  "label": "S3 Crowd 13 (from Shore06_F25)",
+  "slots": [
+   0,
+   3,
+   4,
+   6
+  ],
+  "before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ],
+  "target": "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shirt_Hessian_v1",
+  "overrides_before": [
+   "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Clothing/MI_WI_DefaultGarment_M_DG_bodyShapeB_Shirt",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1",
+   null,
+   "/Game/Metahuman/ShoreCast_20260910/OutfitHessian/MI_Shore06_F25_Shorts_Hessian_v1"
+  ]
+ }
+]

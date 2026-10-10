@@ -1,0 +1,118 @@
+{
+  "after": {
+    "asset": "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian",
+    "dirty_census": {
+      "content": [],
+      "maps": []
+    },
+    "flags": {
+      "two_sided": true,
+      "used_with_clothing": true,
+      "used_with_skeletal_mesh": true
+    },
+    "normal": {
+      "marked_nodes": [
+        {
+          "class": "MaterialExpressionTwoSidedSign",
+          "name": "MaterialExpressionTwoSidedSign_0",
+          "output": null,
+          "path": "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian.M_Shroud_Hessian:MaterialExpressionTwoSidedSign_0"
+        },
+        {
+          "class": "MaterialExpressionCustom",
+          "name": "MaterialExpressionCustom_5",
+          "output": null,
+          "path": "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian.M_Shroud_Hessian:MaterialExpressionCustom_5"
+        }
+      ],
+      "terminal": {
+        "class": "MaterialExpressionCustom",
+        "name": "MaterialExpressionCustom_5",
+        "output": "",
+        "path": "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian.M_Shroud_Hessian:MaterialExpressionCustom_5"
+      },
+      "upstream": [
+        {
+          "class": "MaterialExpressionCustom",
+          "name": "MaterialExpressionCustom_3",
+          "output": null,
+          "path": "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian.M_Shroud_Hessian:MaterialExpressionCustom_3",
+          "pin": "N"
+        },
+        {
+          "class": "MaterialExpressionTwoSidedSign",
+          "name": "MaterialExpressionTwoSidedSign_0",
+          "output": null,
+          "path": "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian.M_Shroud_Hessian:MaterialExpressionTwoSidedSign_0",
+          "pin": "TwoSided"
+        }
+      ]
+    }
+  },
+  "backup": {
+    "copy": "E:\\PussStage\\Backups\\PreShroudHessianBackface-JOB121-APPLY-001\\M_Shroud_Hessian.uasset",
+    "run": "JOB121-APPLY-001",
+    "sha256": "ab88c925ef16d1f9fa1acfa61cf14bd059446a261dd561835a67d030e733da2d",
+    "source": "E:/PussStage/Content/Metahuman\\ShoreCast_20260910\\ShroudHessian\\Materials\\M_Shroud_Hessian.uasset",
+    "target": "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian"
+  },
+  "before": {
+    "asset": "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian",
+    "dirty_census": {
+      "content": [],
+      "maps": []
+    },
+    "flags": {
+      "two_sided": true,
+      "used_with_clothing": true,
+      "used_with_skeletal_mesh": false
+    },
+    "normal": {
+      "marked_nodes": [],
+      "terminal": {
+        "class": "MaterialExpressionCustom",
+        "name": "MaterialExpressionCustom_3",
+        "output": "",
+        "path": "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian.M_Shroud_Hessian:MaterialExpressionCustom_3"
+      },
+      "upstream": [
+        {
+          "class": "MaterialExpressionTextureSampleParameter2D",
+          "name": "MaterialExpressionTextureSampleParameter2D_1",
+          "output": null,
+          "path": "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian.M_Shroud_Hessian:MaterialExpressionTextureSampleParameter2D_1",
+          "pin": "N"
+        },
+        {
+          "class": "MaterialExpressionScalarParameter",
+          "name": "MaterialExpressionScalarParameter_3",
+          "output": null,
+          "path": "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian.M_Shroud_Hessian:MaterialExpressionScalarParameter_3",
+          "pin": "S"
+        }
+      ]
+    }
+  },
+  "compile": {
+    "lines_scanned": 3,
+    "logmaterial_errors": [],
+    "marker": "JOB121_COMPILE_START|run=JOB121-APPLY-001|mode=APPLY|asset=/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian",
+    "wait_seconds": 20.0
+  },
+  "dirty_before_save": {
+    "content": [
+      "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian"
+    ],
+    "maps": []
+  },
+  "normal_original": {
+    "class": "MaterialExpressionCustom",
+    "name": "MaterialExpressionCustom_3",
+    "output": "",
+    "path": "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian.M_Shroud_Hessian:MaterialExpressionCustom_3"
+  },
+  "run": "JOB121-APPLY-001",
+  "saved": true,
+  "status": "applied",
+  "target": "/Game/Metahuman/ShoreCast_20260910/ShroudHessian/Materials/M_Shroud_Hessian"
+}
