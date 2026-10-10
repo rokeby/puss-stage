@@ -23,11 +23,11 @@ import copy
 import csv
 import datetime
 import hashlib
-import importlib.util
 import json
 import math
 import os
 import re
+import shutil
 import struct
 
 try:
@@ -280,12 +280,45 @@ def parse_attachment_tag(actor):
     return None
 
 
-def load_helper():
-    path = os.path.join(HERE, "lighting_looks_apply.py")
-    spec = importlib.util.spec_from_file_location("_shadow_radius_helper", path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+def _package_file(package_path, content_dir):
+    base = os.path.normpath(os.path.join(
+        content_dir, package_path[len("/Game/"):].replace("/", os.sep)))
+    for extension in (".uasset", ".umap"):
+        if os.path.isfile(base + extension):
+            return base + extension
+    raise ReachError("PACKAGE_FILE_MISSING|package=" + package_path)
+
+
+def backup_assets(prefix, run_id, project_dir=None, content_dir=None,
+                  packages=(SHOW_PATH, EXPECTED_WORLD)):
+    """Copy and hash the two owned packages without importing a live tool.
+
+    Explicit paths keep this helper offline-testable.  Live execution obtains
+    the same paths from Unreal only when they were not supplied.
+    """
+    if project_dir is None:
+        require(unreal is not None, "UNREAL_MODULE_REQUIRED_FOR_BACKUP")
+        project_dir = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
+    if content_dir is None:
+        require(unreal is not None, "UNREAL_MODULE_REQUIRED_FOR_BACKUP")
+        content_dir = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_content_dir())
+    root = os.path.join(project_dir, "Backups", prefix + run_id)
+    os.makedirs(root, exist_ok=False)
+    rows = []
+    for package in packages:
+        source = _package_file(package, content_dir)
+        relative = package[len("/Game/"):].replace("/", os.sep) + os.path.splitext(source)[1]
+        destination = os.path.join(root, relative)
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        shutil.copy2(source, destination)
+        with open(source, "rb") as handle:
+            source_hash = hashlib.sha256(handle.read()).hexdigest()
+        with open(destination, "rb") as handle:
+            backup_hash = hashlib.sha256(handle.read()).hexdigest()
+        require(source_hash == backup_hash, "BACKUP_HASH_MISMATCH|package=" + package)
+        rows.append({"package": package, "source": source, "backup": destination,
+                     "bytes": os.path.getsize(source), "sha256": source_hash})
+    return {"root": root, "packages": rows}
 
 
 def dirty_census():
@@ -610,8 +643,7 @@ def run(raw):
             live = gather_live(args)
             live["args"] = args
             targets = record["targets"]
-            helper = load_helper()
-            backup = helper._backup("PreShadowRadiusReachRevert-", run_id)
+            backup = backup_assets("PreShadowRadiusReachRevert-", run_id)
             apply_values(live, targets, "before")
             save_narrow(targets)
             report["saved"] = True
@@ -652,8 +684,7 @@ def run(raw):
             unreal.log("%s_APPLY_OK|run=%s|rows=0|NO_OP|nothing_saved=1" % (MARK, run_id))
             return report
         require(not os.path.exists(RECORD), "ACTIVE_RECORD_EXISTS")
-        helper = load_helper()
-        backup = helper._backup("PreShadowRadiusReach-", run_id)
+        backup = backup_assets("PreShadowRadiusReach-", run_id)
         record = {"schema_version": 1, "status": "prepared", "run": run_id,
                   "backup": backup, "args": args, "targets": changes, "tiers": tiers}
         with open(RECORD, "w", encoding="utf-8") as handle:

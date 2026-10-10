@@ -20,6 +20,7 @@ def module(name, filename):
 
 F = module("fringe_fix", "fix_paperprosc_fringe.py")
 C = module("fringe_core", "paperprosc_fringe_core.py")
+I = module("fringe_import", "paperprosc_fringe_import.py")
 results = []
 
 
@@ -74,6 +75,25 @@ check("POS texture settings and source are read back", "TEXTURE_READBACK" in sou
 check("POS UE5.8 texture settings verified before save", "post_edit_change" not in source and
       "TEXTURE_SETTINGS_PRE_SAVE" in source and "TEXTURE_SOURCE_PRE_SAVE" in source and
       source.index("new.set_editor_property") < source.index("new.modify()") < source.index("save_only(expected_dirty)"))
+check("POS exact UE5.8-proven texture properties", I.TEXTURE_PROPS ==
+      ("srgb", "compression_settings", "lod_group"))
+check("NEG unproven texture properties excluded", all(prop not in I.TEXTURE_PROPS for prop in
+      ("mip_gen_settings", "flip_green_channel", "never_stream", "virtual_texture_streaming",
+       "filter", "address_x", "address_y")))
+check("POS SkinColor setter verified by value not return", "SET_SKINCOLOR_READBACK" in source and
+      'if not mel.set_material_instance_texture_parameter_value' not in source)
+
+
+class FakeTexture(object):
+    def __init__(self, **values): self.values = values
+    def get_editor_property(self, name): return self.values[name]
+
+
+old_texture = FakeTexture(srgb=True, compression_settings="TC_DEFAULT", lod_group="TEXTUREGROUP_WORLD")
+new_texture = FakeTexture(srgb=True, compression_settings="TC_DEFAULT", lod_group="TEXTUREGROUP_WORLD")
+bad_texture = FakeTexture(srgb=False, compression_settings="TC_DEFAULT", lod_group="TEXTUREGROUP_WORLD")
+check("POS three-property pre-save readback accepts match", I.texture_setting_mismatches(new_texture, old_texture) == [])
+check("NEG three-property pre-save readback reports mismatch", I.texture_setting_mismatches(bad_texture, old_texture) == ["srgb"])
 check("POS backups precede Unreal mutation calls", source.index("backup_path = backup(run, original_packages") < source.index("made = import_textures(plan)"))
 
 manifest_path = os.path.join(HERE, "fringe_fix_manifest.json")
@@ -105,7 +125,7 @@ report = {
     "tier": "measured offline pixel, pure-contract, generated-output and static safety checks; Unreal behavior unproven",
 }
 path = os.path.join(HERE, "test_paperprosc_fringe_offline_report.json")
-with open(path, "w", encoding="utf-8") as handle:
+with open(path, "w", encoding="utf-8", newline="\n") as handle:
     json.dump(report, handle, indent=2); handle.write("\n")
 print("PAPERPROSC_FRINGE_HARNESS|passed=%d|failed=%d|report=%s" % (report["passed"], report["failed"], path))
 sys.exit(0 if report["failed"] == 0 else 1)

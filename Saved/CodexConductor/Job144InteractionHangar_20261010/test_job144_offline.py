@@ -72,6 +72,26 @@ def snap(n=2):
             "puppet_bindings": ["Shadow Cat", "Boy Gobo"], "existing_tools": {"job89": "present"}}
 
 
+def visibility_binding(guid="VIS", label="S2 Ghost Light"):
+    return {"guid": guid, "name": label, "spawnable": False, "tracks": [{
+        "class": "MovieSceneVisibilityTrack", "track_index": 0, "display": "Visibility",
+        "property": "bHidden", "sections": [{"section_index": 0, "range": [0, 1301],
+        "channels": [{"channel_index": 0, "name": "None", "base": "None",
+                      "keys": [[0, False], [1300, True]]}]}]}]}
+
+
+def conflict_plan(policy):
+    s = snap(2)
+    ghost = actor("S2 Ghost Light", path="/World/Ghost", binding_guids=["VIS"])
+    s["actors"].append(ghost); s["world_labels"].append(ghost["label"])
+    s["bindings"].append(visibility_binding())
+    p = C.merged_params({"interaction": 2, "hide_actor_paths": ["/World/Ghost"],
+                         "approved_shadow_source_labels": ["Shadow Cat"],
+                         "visibility_conflict_policy": policy})
+    p["approved_inventory_digest"] = C.inventory_plan(s["actors"], p)["digest"]
+    return C.make_plan(s, p)
+
+
 def planned(n=2, labels=None):
     s = snap(n); p = C.merged_params({"interaction": n, "hide_actor_labels": labels or [],
                                      "approved_shadow_source_labels": ["Shadow Cat"]})
@@ -107,6 +127,12 @@ tagged = [actor("Twin Prop", path="/World/A", tags=["Job144.I2.Hide"]),
 check("+ exact tag selection", lambda: C.inventory_plan(
     tagged, C.merged_params({"hide_actor_tags": ["Job144.I2.Hide"]}))["approved_hide"][0]["path"],
       "/World/A")
+check("+ visibility conflict defaults safe", lambda: C.merged_params({})["visibility_conflict_policy"], "SAFE_SKIP")
+check("+ safe policy skips conflicting actor", lambda: len(conflict_plan("SAFE_SKIP")["visibility"]["actors"]), 0)
+check("+ safe policy reports exact conflict", lambda: conflict_plan("SAFE_SKIP")["visibility"]["skipped"][0]["tracks"][0]["guid"], "VIS")
+check("+ reuse policy selects existing track", lambda: conflict_plan("REUSE_EXISTING")["visibility"]["actors"][0]["visibility_action"], "REUSE_EXISTING")
+check("+ reuse policy extends section", lambda: conflict_plan("REUSE_EXISTING")["visibility"]["actors"][0]["visibility_section_range"], [0, 2227])
+check("+ reuse policy extends hidden keys", lambda: conflict_plan("REUSE_EXISTING")["visibility"]["actors"][0]["visibility_keys"][-2:], [[2225, False], [2226, True]])
 
 rejects("- interaction 1", lambda: C.merged_params({"interaction": 1}), "INTERACTION_MUST")
 bad = snap(); bad["cuts"][0]["guid"] = "NOPE"
@@ -129,6 +155,19 @@ rejects("- ambiguous selected label still refused", lambda: C.inventory_plan(
     duplicate_labels, C.merged_params({"hide_actor_labels": ["Twin Prop"]})), "HIDE_LABEL_NOT_UNIQUE")
 rejects("- missing exact actor path", lambda: C.inventory_plan(
     duplicate_labels, C.merged_params({"hide_actor_paths": ["/World/Missing"]})), "HIDE_PATHS_MISSING")
+rejects("- invalid visibility conflict policy", lambda: C.merged_params(
+    {"visibility_conflict_policy": "OVERWRITE"}), "VISIBILITY_CONFLICT_POLICY")
+
+ambiguous = snap(2)
+ghost = actor("S2 Ghost Light", path="/World/Ghost", binding_guids=["VIS"])
+ambiguous["actors"].append(ghost); ambiguous["world_labels"].append(ghost["label"])
+binding = visibility_binding(); binding["tracks"][0]["sections"].append(copy.deepcopy(binding["tracks"][0]["sections"][0]))
+ambiguous["bindings"].append(binding)
+params_ambiguous = C.merged_params({"hide_actor_paths": ["/World/Ghost"],
+                                    "visibility_conflict_policy": "REUSE_EXISTING"})
+params_ambiguous["approved_inventory_digest"] = C.inventory_plan(ambiguous["actors"], params_ambiguous)["digest"]
+rejects("- ambiguous visibility reuse refused", lambda: C.make_plan(ambiguous, params_ambiguous),
+        "VISIBILITY_TRACK_REUSE_AMBIGUOUS")
 
 before = [[0, 0.0], [1250, 50.0], [1400, 60.0]]
 after = C.merge_camera(before, 0, 100, 1250, 20.0)
@@ -159,7 +198,7 @@ with tempfile.TemporaryDirectory() as temp:
                                                "params": {"interaction": 2}}, fake), "CONFIRM")
 
 result = {"tool": "JOB144_INTERACTION_HANGAR_HARNESS", "passed": PASS, "failed": FAIL, "tests": ROWS}
-with open(os.path.join(HERE, "harness_result.json"), "w", encoding="utf-8") as handle:
+with open(os.path.join(HERE, "harness_result.json"), "w", encoding="utf-8", newline="\n") as handle:
     json.dump(result, handle, indent=1, sort_keys=True); handle.write("\n")
 print("JOB144_HARNESS_%s|passed=%d|failed=%d|report=%s" % ("OK" if FAIL == 0 else "FAILED", PASS, FAIL,
                                                             os.path.join(HERE, "harness_result.json")))

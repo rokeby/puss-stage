@@ -13,7 +13,12 @@ The single tool takes `params.interaction` = `2` or `3` and has DRY/APPLY/REVERT
    dressing, figures, props, emitters and scene lights into
    `hide_actor_labels`; never select walls, floor, roof, lattice, roots,
    cameras, curtain/drapes, or shadow rig. Copy `inventory.digest` to
-   `approved_inventory_digest`, then rerun DRY. Klara actors are possessed by
+   `approved_inventory_digest`, then rerun DRY. If an approved actor already
+   owns a visibility track, leave `visibility_conflict_policy` at `SAFE_SKIP`
+   (default): the actor is omitted and reported in `plan.visibility.skipped`.
+   `REUSE_EXISTING` is the explicit alternative: it extends the sole existing
+   section and records its exact prior keys/range for REVERT. Ambiguous tracks
+   are refused. Klara actors are possessed by
    the Interaction sequence; her levels are never saved.
 4. Review `puppet_bindings` and copy the exact binding(s) that genuinely cast
    the intended approved performance to `approved_shadow_source_labels`. The

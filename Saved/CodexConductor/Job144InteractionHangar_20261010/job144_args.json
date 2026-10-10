@@ -8,6 +8,7 @@
   "hide_actor_labels": [],
   "hide_actor_paths": [],
   "hide_actor_tags": [],
+  "visibility_conflict_policy": "SAFE_SKIP",
   "approved_shadow_source_labels": [],
   "approved_inventory_digest": "",
   "spot_side": "front",

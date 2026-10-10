@@ -1,5 +1,5 @@
 {
-  "passed": 28,
+  "passed": 33,
   "failed": 0,
   "results": [
     {
@@ -84,6 +84,26 @@
     },
     {
       "check": "POS UE5.8 texture settings verified before save",
+      "ok": true
+    },
+    {
+      "check": "POS exact UE5.8-proven texture properties",
+      "ok": true
+    },
+    {
+      "check": "NEG unproven texture properties excluded",
+      "ok": true
+    },
+    {
+      "check": "POS SkinColor setter verified by value not return",
+      "ok": true
+    },
+    {
+      "check": "POS three-property pre-save readback accepts match",
+      "ok": true
+    },
+    {
+      "check": "NEG three-property pre-save readback reports mismatch",
       "ok": true
     },
     {

@@ -22,8 +22,9 @@ PROJECT = os.path.normpath(os.path.join(HERE, "..", "..", "..", ".."))
 ARGS = os.path.join(HERE, "paperprosc_fringe_args.json")
 MANIFEST = os.path.join(HERE, "fringe_fix_manifest.json")
 RECORD = os.path.join(HERE, "paperprosc_fringe_record.json")
-TEXTURE_PROPS = ("compression_settings", "srgb", "lod_group", "mip_gen_settings", "flip_green_channel",
-                 "never_stream", "virtual_texture_streaming", "filter", "address_x", "address_y")
+# UE 5.8 live-proven Texture2D editor properties for this colour texture repair.
+# Do not expand this list without a separate live probe.
+TEXTURE_PROPS = ("srgb", "compression_settings", "lod_group")
 
 
 def load_core():
@@ -108,6 +109,11 @@ def texture_readback(plan):
     return out
 
 
+def texture_setting_mismatches(new, old):
+    return [prop for prop in TEXTURE_PROPS
+            if str(new.get_editor_property(prop)) != str(old.get_editor_property(prop))]
+
+
 def set_skin(plan, use_new):
     mel = unreal.MaterialEditingLibrary
     touched = []
@@ -116,9 +122,15 @@ def set_skin(plan, use_new):
         for mi_path in row["mis"]:
             mi = load(mi_path, unreal.MaterialInstanceConstant)
             mi.modify()
-            if not mel.set_material_instance_texture_parameter_value(mi, "SkinColor", texture):
-                raise RuntimeError("SET_SKINCOLOR|" + mi_path)
-            mel.update_material_instance(mi); touched.append(mi_path)
+            # UE 5.8 can return False even when this setter succeeds.  The value,
+            # not the return token, is authoritative.
+            mel.set_material_instance_texture_parameter_value(mi, "SkinColor", texture)
+            mel.update_material_instance(mi)
+            got = mel.get_material_instance_texture_parameter_value(mi, "SkinColor")
+            if package_path(got) != package_path(texture):
+                raise RuntimeError("SET_SKINCOLOR_READBACK|%s|got=%s|want=%s" %
+                                   (mi_path, package_path(got), package_path(texture)))
+            touched.append(mi_path)
     return touched
 
 
@@ -146,8 +158,7 @@ def import_textures(plan):
         # imported object modified, then prove the settings and source filename
         # while the asset is still unsaved.
         new.modify()
-        bad = [prop for prop in TEXTURE_PROPS
-               if str(new.get_editor_property(prop)) != str(old.get_editor_property(prop))]
+        bad = texture_setting_mismatches(new, old)
         if bad:
             raise RuntimeError("TEXTURE_SETTINGS_PRE_SAVE|%s|%s" % (row["new"], bad))
         import_data = new.get_editor_property("asset_import_data")

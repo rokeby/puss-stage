@@ -308,10 +308,17 @@ class UnrealBackend(object):
         if path:
             _write(path, record)
 
-    def _record_channel(self, record, package, locator, channel, after):
+    def _record_channel(self, record, package, locator, channel, after, section=None,
+                        before_range=None, after_range=None):
         before = self._keys(channel)
         row = {"package": package, "locator": locator, "before": before, "after": after}
-        record["channels"].append(row); self._checkpoint(record); self._rewrite(channel, after)
+        if section is not None:
+            row["before_range"] = list(before_range)
+            row["after_range"] = list(after_range)
+        record["channels"].append(row); self._checkpoint(record)
+        if section is not None:
+            section.set_range(int(after_range[0]), int(after_range[1]))
+        self._rewrite(channel, after)
 
     def _add_track(self, record, package, seq, binding, cls, prop, keys, start, end, path=None):
         track = binding.add_track(cls)
@@ -343,6 +350,22 @@ class UnrealBackend(object):
             if actor is None: raise Stop("VIS_ACTOR_PATH_MISSING|%s" % path)
             matches = [by_guid[guid] for guid in row.get("sequence_binding_guids", []) if guid in by_guid]
             if len(matches) > 1: raise Stop("VIS_BINDING_AMBIGUOUS|%s|%s" % (path, row["sequence_binding_guids"]))
+            if row.get("visibility_action") == "REUSE_EXISTING":
+                locator = row["visibility_locator"]
+                channel = self._channel(seq, locator)
+                binding = self._binding_guid(seq, locator[0])
+                track = list(binding.get_tracks())[locator[1]]
+                if track.get_class().get_name() != "MovieSceneVisibilityTrack":
+                    raise Stop("VIS_REUSE_TRACK_DRIFT|%s" % path)
+                prop = str(track.get_property_name()) if hasattr(track, "get_property_name") else ""
+                if prop not in ("bHidden", ""):
+                    raise Stop("VIS_REUSE_PROPERTY_DRIFT|%s|%s" % (path, prop))
+                section = list(track.get_sections())[locator[2]]
+                before_range = self._span(section, seq)
+                self._record_channel(record, plan["sequence"], locator, channel,
+                                     row["visibility_keys"], section, before_range,
+                                     row["visibility_section_range"])
+                continue
             created = False
             if matches: binding = matches[0]
             else:
@@ -534,6 +557,13 @@ class UnrealBackend(object):
         for row in record["channels"]:
             seq = self.u.load_asset(row["package"]); got = self._keys(self._channel(seq, row["locator"]))
             if not self._same(got, row["after"] if applied else row["before"]): raise Stop("READBACK_CHANNEL|%s" % row["locator"])
+            if "before_range" in row:
+                binding = self._binding_guid(seq, row["locator"][0])
+                section = list(list(binding.get_tracks())[row["locator"][1]].get_sections())[row["locator"][2]]
+                want_range = row["after_range"] if applied else row["before_range"]
+                if self._span(section, seq) != want_range:
+                    raise Stop("READBACK_SECTION_RANGE|%s|got=%s|want=%s" %
+                               (row["locator"], self._span(section, seq), want_range))
         if applied:
             for row in record["created_tracks"]:
                 seq = self.u.load_asset(row["package"]); binding = self._binding_guid(seq, row["binding_guid"])
@@ -569,6 +599,12 @@ class UnrealBackend(object):
         for row in record["channels"]:
             seq = self.u.load_asset(row["package"]); channel = self._channel(seq, row["locator"])
             if not self._same(self._keys(channel), row["after"]): raise Stop("REVERT_CHANNEL_DRIFT|%s" % row["locator"])
+            if "after_range" in row:
+                binding = self._binding_guid(seq, row["locator"][0])
+                section = list(list(binding.get_tracks())[row["locator"][1]].get_sections())[row["locator"][2]]
+                if self._span(section, seq) != row["after_range"]:
+                    raise Stop("REVERT_SECTION_RANGE_DRIFT|%s" % row["locator"])
+                section.set_range(int(row["before_range"][0]), int(row["before_range"][1]))
             self._rewrite(channel, row["before"])
         for row in reversed(record["created_root_tracks"]):
             seq = self.u.load_asset(row["package"]); tracks = list(seq.get_tracks())

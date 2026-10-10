@@ -1,6 +1,6 @@
 {
  "failed": 0,
- "passed": 32,
+ "passed": 40,
  "tests": [
   {
    "control": "+",
@@ -83,6 +83,36 @@
    "ok": true
   },
   {
+   "control": "+",
+   "name": "+ visibility conflict defaults safe",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ safe policy skips conflicting actor",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ safe policy reports exact conflict",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ reuse policy selects existing track",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ reuse policy extends section",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ reuse policy extends hidden keys",
+   "ok": true
+  },
+  {
    "control": "-",
    "name": "- interaction 1",
    "ok": true
@@ -140,6 +170,16 @@
   {
    "control": "-",
    "name": "- missing exact actor path",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- invalid visibility conflict policy",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- ambiguous visibility reuse refused",
    "ok": true
   },
   {

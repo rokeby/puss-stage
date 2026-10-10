@@ -90,8 +90,25 @@ source = open(TOOL, encoding="utf-8").read()
 check("static apply setter only radius component", 'set_editor_property("attenuation_radius", float(want))' in source)
 check("static show setter only radius field", 'set_editor_property("attenuation_radius_cm", float(value))' in source)
 check("static no fog mutation", 'set_editor_property("cast_volumetric_shadow"' not in source)
-check("static backup before apply", source.index('_backup("PreShadowRadiusReach-"') < source.index('apply_values(live, changes, "after")'))
+check("static backup before apply", source.index('backup_assets("PreShadowRadiusReach-"') < source.index('apply_values(live, changes, "after")'))
+check("negative unrelated live tool is never imported", "lighting_looks_apply.py" not in source)
 check("static success markers", all(x in source for x in ("_DRY_OK", "_APPLY_OK", "_REVERT_OK")))
+
+with tempfile.TemporaryDirectory() as temp:
+    content = os.path.join(temp, "Content")
+    packages = ("/Game/Test/Show", "/Game/Test/Map")
+    paths = (os.path.join(content, "Test", "Show.uasset"),
+             os.path.join(content, "Test", "Map.umap"))
+    for index, path in enumerate(paths):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as handle:
+            handle.write(("package-%d" % index).encode("ascii"))
+    copied = m.backup_assets("PreHarness-", "ONE", temp, content, packages)
+    check("positive pure backup copies both packages", len(copied["packages"]) == 2 and
+          all(os.path.isfile(row["backup"]) for row in copied["packages"]))
+    check("positive pure backup hashes match", all(len(row["sha256"]) == 64 for row in copied["packages"]))
+    rejects("negative duplicate backup refused", lambda: m.backup_assets(
+        "PreHarness-", "ONE", temp, content, packages), "WinError 183")
 
 print("SHADOW_RADIUS_REACH_HARNESS|passed=%d|failed=%d" % (passed, failed))
 raise SystemExit(1 if failed else 0)

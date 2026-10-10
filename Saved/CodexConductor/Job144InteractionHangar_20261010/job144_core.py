@@ -39,6 +39,7 @@ DEFAULTS = {
     "hide_actor_labels": [],
     "hide_actor_paths": [],
     "hide_actor_tags": [],
+    "visibility_conflict_policy": "SAFE_SKIP",
     "approved_shadow_source_labels": [],
     "approved_inventory_digest": "",
     "wall_label": "AUTO",
@@ -86,6 +87,9 @@ def merged_params(raw):
         out["camera_distance_override_cm"] = float(out["camera_distance_override_cm"])
     if out["spot_side"] not in ("front", "rear"):
         raise PlanError("SPOT_SIDE|%s" % out["spot_side"])
+    out["visibility_conflict_policy"] = str(out["visibility_conflict_policy"]).upper()
+    if out["visibility_conflict_policy"] not in ("SAFE_SKIP", "REUSE_EXISTING"):
+        raise PlanError("VISIBILITY_CONFLICT_POLICY|%s" % out["visibility_conflict_policy"])
     out["hide_actor_labels"] = sorted(set(str(x) for x in out["hide_actor_labels"]))
     out["hide_actor_paths"] = sorted(set(str(x) for x in out["hide_actor_paths"]))
     out["hide_actor_tags"] = sorted(set(str(x) for x in out["hide_actor_tags"]))
@@ -213,6 +217,14 @@ def visibility_keys(start, end):
     return [[int(start), False], [int(end) - 1, False], [int(end), True]]
 
 
+def merge_visibility_keys(existing, start, end):
+    """Replace only this interaction span and preserve keys outside it."""
+    wanted = visibility_keys(start, end)
+    outside = [[int(frame), bool(value)] for frame, value in existing
+               if int(frame) < int(start) or int(frame) > int(end)]
+    return sorted(outside + wanted, key=lambda row: int(row[0]))
+
+
 def merge_camera(keys, start, settle, hold_end, target, rotation=False):
     if not (start < settle < hold_end):
         raise PlanError("CAMERA_FRAME_ORDER")
@@ -318,11 +330,49 @@ def make_plan(snapshot, params):
 
     inventory = inventory_plan(snapshot["actors"], params)
     existing_by_guid = {row["guid"]: row for row in snapshot["bindings"]}
+    visibility_actors = []
+    visibility_conflicts = []
     for actor_row in inventory["approved_hide"]:
+        action_row = copy.deepcopy(actor_row)
+        conflicts = []
         for guid in actor_row.get("sequence_binding_guids", []):
             binding = existing_by_guid.get(guid)
-            if binding and any(t.get("class") == "MovieSceneVisibilityTrack" for t in binding.get("tracks", [])):
-                raise PlanError("VISIBILITY_TRACK_CONFLICT|%s|%s" % (actor_row["path"], guid))
+            if binding:
+                for track in binding.get("tracks", []):
+                    if track.get("class") == "MovieSceneVisibilityTrack":
+                        conflicts.append({"guid": guid, "binding": binding.get("name"),
+                                          "track_index": int(track.get("track_index", 0)),
+                                          "property": track.get("property"),
+                                          "sections": copy.deepcopy(track.get("sections", []))})
+        if conflicts:
+            conflict = {"path": actor_row["path"], "label": actor_row["label"],
+                        "policy": params["visibility_conflict_policy"], "tracks": conflicts}
+            if params["visibility_conflict_policy"] == "SAFE_SKIP":
+                conflict["action"] = "SKIP_ACTOR_AND_REPORT"
+                visibility_conflicts.append(conflict)
+                continue
+            if len(conflicts) != 1 or len(conflicts[0]["sections"]) != 1 or \
+                    len(conflicts[0]["sections"][0].get("channels", [])) != 1:
+                raise PlanError("VISIBILITY_TRACK_REUSE_AMBIGUOUS|%s|%s" %
+                                (actor_row["path"], stable(conflicts)))
+            track = conflicts[0]
+            if track.get("property") not in ("bHidden", ""):
+                raise PlanError("VISIBILITY_TRACK_REUSE_PROPERTY|%s|%s" %
+                                (actor_row["path"], track.get("property")))
+            section = track["sections"][0]
+            channel = section["channels"][0]
+            action_row["visibility_action"] = "REUSE_EXISTING"
+            action_row["visibility_locator"] = [track["guid"], track["track_index"],
+                                                  int(section.get("section_index", 0)),
+                                                  int(channel.get("channel_index", 0))]
+            action_row["visibility_keys"] = merge_visibility_keys(channel.get("keys", []), start, end)
+            action_row["visibility_section_range"] = [
+                min(int(section["range"][0]), start), max(int(section["range"][1]), end + 1)]
+            conflict["action"] = "REUSE_AND_EXTEND_EXISTING_TRACK"
+            visibility_conflicts.append(conflict)
+        else:
+            action_row["visibility_action"] = "CREATE_TRACK"
+        visibility_actors.append(action_row)
     cuts = validate_cuts(snapshot["cuts"], snapshot["bindings"], snapshot["world_labels"])
     if inventory["approved_hide"] and params["approved_inventory_digest"] != inventory["digest"]:
         raise PlanError("INVENTORY_DIGEST_NOT_APPROVED|%s" % inventory["digest"])
@@ -347,7 +397,11 @@ def make_plan(snapshot, params):
         "scene_tail_black_keys": [[int(snapshot["scene_playback"][1]) - params["scene_tail_black_frames"], 0.0],
                                   [int(snapshot["scene_playback"][1]) - 1, 1.0]],
         "visibility": {"property": "bHidden", "path": "bHidden", "channel_semantics": "VISIBLE",
-                       "keys": visibility_keys(start, end), "actors": inventory["approved_hide"]},
+                       "policy": params["visibility_conflict_policy"],
+                       "keys": visibility_keys(start, end), "actors": visibility_actors,
+                       "conflicts": visibility_conflicts,
+                       "skipped": [row for row in visibility_conflicts
+                                   if row["action"] == "SKIP_ACTOR_AND_REPORT"]},
         "inventory": inventory, "cut_resolution": cuts, "puppet_bindings": snapshot["puppet_bindings"],
         "approved_shadow_sources": params["approved_shadow_source_labels"],
         "existing_tools": snapshot.get("existing_tools", {}), "warnings": warnings, "params": params,
