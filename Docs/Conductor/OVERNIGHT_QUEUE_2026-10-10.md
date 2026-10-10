@@ -43,7 +43,8 @@ Status values: `TODO` · `RUNNING` · `DONE (marker)` · `SKIPPED (reason)` · `
    - Raise-only APPLY.
    - Perf check.
    - Auto-REVERT if the frame time regresses beyond the gate.
-3. **Jobs 126 / 127 / 128 / 129**, as each lands, after an import and a harness rerun:
+3. **S2 hangar resize (job 92) FIRST**, if pass 2 has not applied it; then the still from Klara's S2 camera.
+4. **Jobs 126 / 127 / 128 / 129 / 130 (S2 shrine fires in PIE)**, as each lands, after an import and a harness rerun:
    - 126: **P06** parcan in the arrival shot plus the sun disc.
    - 127: **P04** smoke-machine prop hidden.
    - 128: **P05** LEFT wings +20 cm on local X.
