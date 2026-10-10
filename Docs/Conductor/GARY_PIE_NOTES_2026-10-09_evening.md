@@ -93,3 +93,9 @@
 - **The gold particle cloud** seen in the P06 chandelier still (176_05) is a LEFTOVER from preparing Scene 6, NOT the P56 candles. Ignore it (Gary may delete it himself). Do not treat it as candle evidence.
 - **3D stage front (opening, main/front stage):** in the wide stills Gary sees the uplights but NOT the new 3D front geometry (likely in the dark). If the pieces are there, **they need uplights too**.
 - **P06 sun disc (end of the passage):** not visible in the still. **The sun disc should be small enough to fit in the end window of the passage.** (Resolves the 0.5 deg vs 1.22 deg question: size = fits the P06 end window.)
+
+## Gary, 10 Oct ~19:20 decisions
+- **P02 lighting:** TRIM BACK the haze and the beams; leave a reasonable amount of the lighting-rig infrastructure in place. Gary will re-tune it himself afterwards.
+- **Shadow reach:** find a MIDDLE point. Not 100 m, but at least reaching the neighbouring few wings or the wings across. Perf-gated.
+- **S3 hair:** keep the current hairstyle for now. Its purpose is mainly to cover the faces. Gary did not see it in the last still.
+- **Lighting workflow:** Gary wants an efficient way to light a few bays by hand (as he did in P01), then have them replicated across a sequence of bays with variation. The parcans should follow the lights he moves.
