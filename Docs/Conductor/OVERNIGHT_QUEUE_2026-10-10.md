@@ -46,9 +46,11 @@ Status values: `TODO` · `RUNNING` · `DONE (marker)` · `SKIPPED (reason)` · `
 3. **S2 hangar resize (job 92) FIRST**, if pass 2 has not applied it; then the still from Klara's S2 camera.
 4. **Jobs 126 / 127 / 128 / 129 / 130 (S2 shrine fires in PIE)**, as each lands, after an import and a harness rerun:
    - 126: **P06** parcan in the arrival shot plus the sun disc.
-   - 127: **P04** smoke-machine prop hidden.
-   - 128: **P05** LEFT wings +20 cm on local X.
+   - 127: **P04** smoke-machine prop hidden (tool IN main tree, harness rerun; needs a DRY, then plan_sha256 into args, then APPLY with ack_clear_apparatus_mesh_for_pie=true).
+   - 128: **P05** LEFT wings +20 cm on local X (tool IN main tree; DRY → copy the confirm into args → APPLY).
    - 129: **P02** floor = P01 floor copy.
+   - 130: **S2** shrine fires in PIE.
+   - 131: **3D STAGE FRONT** (Arch/Gilt/Wall FBX + Crest/Column/CatCandelabra; baked in Blender 9 Oct, NEVER imported: found 10 Oct on Gary's question). Import + place next to the paper proscenium, then the wide stills.
 4. **Retry** any pass-2 items skipped because Gary was in PIE.
 5. **Build window** (editor closed):
    - Shadow-cat v2 patch (job 123 output, reviewed first).
