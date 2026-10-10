@@ -1,0 +1,958 @@
+{
+  "actors": [
+    {
+      "got": {
+        "location": [
+          5996.18,
+          95225.6,
+          -100000.0
+        ],
+        "materials": [
+          "/Game/InfinityStage/RigAtmos/MI_Floor_DarkWet.MI_Floor_DarkWet"
+        ],
+        "mesh": "/Engine/BasicShapes/Cube.Cube",
+        "parent": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_246",
+        "rotation": [
+          -0.0,
+          -0.0,
+          -43.57249832153321
+        ],
+        "scale": [
+          270.7546,
+          712.5424,
+          0.01
+        ],
+        "world_bounds": {
+          "extent": [
+            34364.89464654806,
+            35143.124317062524,
+            0.5
+          ],
+          "max": [
+            40361.07464654806,
+            130368.72431706253,
+            -99999.5
+          ],
+          "min": [
+            -28368.714646548062,
+            60082.47568293748,
+            -100000.5
+          ],
+          "origin": [
+            5996.18,
+            95225.6,
+            -100000.0
+          ]
+        }
+      },
+      "issues": [
+        {
+          "deltas": [
+            0.0,
+            0.0,
+            -100000.0
+          ],
+          "expected": [
+            5996.18,
+            95225.6,
+            0.0
+          ],
+          "got": [
+            5996.18,
+            95225.6,
+            -100000.0
+          ],
+          "kind": "WORLD_LOCATION_MISMATCH",
+          "tolerance": 0.02
+        },
+        {
+          "cause": "ATTACHED_TO_SHIFTED_TARGET_FRAME",
+          "deltas": {
+            "extent": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "max": [
+              0.0,
+              0.0,
+              -100000.0
+            ],
+            "min": [
+              0.0,
+              0.0,
+              -100000.0
+            ],
+            "origin": [
+              0.0,
+              0.0,
+              -100000.0
+            ]
+          },
+          "expected": {
+            "extent": [
+              34364.89464654806,
+              35143.124317062524,
+              0.5
+            ],
+            "max": [
+              40361.07464654806,
+              130368.72431706253,
+              0.5
+            ],
+            "min": [
+              -28368.714646548062,
+              60082.47568293748,
+              -0.5
+            ],
+            "origin": [
+              5996.18,
+              95225.6,
+              0.0
+            ]
+          },
+          "got": {
+            "extent": [
+              34364.89464654806,
+              35143.124317062524,
+              0.5
+            ],
+            "max": [
+              40361.07464654806,
+              130368.72431706253,
+              -99999.5
+            ],
+            "min": [
+              -28368.714646548062,
+              60082.47568293748,
+              -100000.5
+            ],
+            "origin": [
+              5996.18,
+              95225.6,
+              -100000.0
+            ]
+          },
+          "kind": "WORLD_BOUNDS_MISMATCH",
+          "max_abs_delta_cm": 100000.0,
+          "tolerance_cm": 0.1
+        }
+      ],
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1569",
+      "target": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_246"
+    },
+    {
+      "got": {
+        "location": [
+          16774.87,
+          54867.19,
+          -100000.0
+        ],
+        "materials": [
+          "/Game/InfinityStage/RigAtmos/MI_Floor_DarkWet.MI_Floor_DarkWet"
+        ],
+        "mesh": "/Engine/BasicShapes/Cube.Cube",
+        "parent": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_247",
+        "rotation": [
+          -0.0,
+          -0.0,
+          -43.57249832153321
+        ],
+        "scale": [
+          441.7878,
+          276.336,
+          0.01
+        ],
+        "world_bounds": {
+          "extent": [
+            25527.356236623935,
+            25235.905228243835,
+            0.5
+          ],
+          "max": [
+            42302.22623662393,
+            80103.09522824384,
+            -99999.5
+          ],
+          "min": [
+            -8752.486236623936,
+            29631.284771756167,
+            -100000.5
+          ],
+          "origin": [
+            16774.87,
+            54867.19,
+            -100000.0
+          ]
+        }
+      },
+      "issues": [
+        {
+          "deltas": [
+            0.0,
+            0.0,
+            -100000.0
+          ],
+          "expected": [
+            16774.87,
+            54867.19,
+            0.0
+          ],
+          "got": [
+            16774.87,
+            54867.19,
+            -100000.0
+          ],
+          "kind": "WORLD_LOCATION_MISMATCH",
+          "tolerance": 0.02
+        },
+        {
+          "cause": "ATTACHED_TO_SHIFTED_TARGET_FRAME",
+          "deltas": {
+            "extent": [
+              3.637978807091713e-12,
+              -3.637978807091713e-12,
+              0.0
+            ],
+            "max": [
+              0.0,
+              0.0,
+              -100000.0
+            ],
+            "min": [
+              -1.8189894035458565e-12,
+              7.275957614183426e-12,
+              -100000.0
+            ],
+            "origin": [
+              0.0,
+              0.0,
+              -100000.0
+            ]
+          },
+          "expected": {
+            "extent": [
+              25527.35623662393,
+              25235.90522824384,
+              0.5
+            ],
+            "max": [
+              42302.22623662393,
+              80103.09522824384,
+              0.5
+            ],
+            "min": [
+              -8752.486236623934,
+              29631.28477175616,
+              -0.5
+            ],
+            "origin": [
+              16774.87,
+              54867.19,
+              0.0
+            ]
+          },
+          "got": {
+            "extent": [
+              25527.356236623935,
+              25235.905228243835,
+              0.5
+            ],
+            "max": [
+              42302.22623662393,
+              80103.09522824384,
+              -99999.5
+            ],
+            "min": [
+              -8752.486236623936,
+              29631.284771756167,
+              -100000.5
+            ],
+            "origin": [
+              16774.87,
+              54867.19,
+              -100000.0
+            ]
+          },
+          "kind": "WORLD_BOUNDS_MISMATCH",
+          "max_abs_delta_cm": 100000.0,
+          "tolerance_cm": 0.1
+        }
+      ],
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1570",
+      "target": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_247"
+    },
+    {
+      "got": {
+        "location": [
+          42141.55,
+          81530.42,
+          -100000.0
+        ],
+        "materials": [
+          "/Game/InfinityStage/RigAtmos/MI_Floor_DarkWet.MI_Floor_DarkWet"
+        ],
+        "mesh": "/Engine/BasicShapes/Cube.Cube",
+        "parent": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_248",
+        "rotation": [
+          -0.0,
+          -0.0,
+          -43.57249832153321
+        ],
+        "scale": [
+          441.7878,
+          412.7064,
+          0.01
+        ],
+        "world_bounds": {
+          "extent": [
+            30227.17023731709,
+            30175.942004350727,
+            0.5
+          ],
+          "max": [
+            72368.72023731709,
+            111706.36200435073,
+            -99999.5
+          ],
+          "min": [
+            11914.379762682915,
+            51354.47799564927,
+            -100000.5
+          ],
+          "origin": [
+            42141.55,
+            81530.42,
+            -100000.0
+          ]
+        }
+      },
+      "issues": [
+        {
+          "deltas": [
+            0.0,
+            0.0,
+            -100000.0
+          ],
+          "expected": [
+            42141.55,
+            81530.42,
+            0.0
+          ],
+          "got": [
+            42141.55,
+            81530.42,
+            -100000.0
+          ],
+          "kind": "WORLD_LOCATION_MISMATCH",
+          "tolerance": 0.02
+        },
+        {
+          "cause": "ATTACHED_TO_SHIFTED_TARGET_FRAME",
+          "deltas": {
+            "extent": [
+              -7.275957614183426e-12,
+              0.0,
+              0.0
+            ],
+            "max": [
+              -1.4551915228366852e-11,
+              0.0,
+              -100000.0
+            ],
+            "min": [
+              5.4569682106375694e-12,
+              0.0,
+              -100000.0
+            ],
+            "origin": [
+              0.0,
+              0.0,
+              -100000.0
+            ]
+          },
+          "expected": {
+            "extent": [
+              30227.170237317096,
+              30175.942004350727,
+              0.5
+            ],
+            "max": [
+              72368.7202373171,
+              111706.36200435073,
+              0.5
+            ],
+            "min": [
+              11914.37976268291,
+              51354.47799564927,
+              -0.5
+            ],
+            "origin": [
+              42141.55,
+              81530.42,
+              0.0
+            ]
+          },
+          "got": {
+            "extent": [
+              30227.17023731709,
+              30175.942004350727,
+              0.5
+            ],
+            "max": [
+              72368.72023731709,
+              111706.36200435073,
+              -99999.5
+            ],
+            "min": [
+              11914.379762682915,
+              51354.47799564927,
+              -100000.5
+            ],
+            "origin": [
+              42141.55,
+              81530.42,
+              -100000.0
+            ]
+          },
+          "kind": "WORLD_BOUNDS_MISMATCH",
+          "max_abs_delta_cm": 100000.0,
+          "tolerance_cm": 0.1
+        }
+      ],
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1571",
+      "target": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_248"
+    },
+    {
+      "got": {
+        "location": [
+          31094.52,
+          61936.41,
+          -100000.0
+        ],
+        "materials": [
+          "/Game/InfinityStage/RigAtmos/MI_Floor_DarkWet.MI_Floor_DarkWet"
+        ],
+        "mesh": "/Engine/BasicShapes/Cube.Cube",
+        "parent": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_249",
+        "rotation": [
+          -0.0,
+          -0.0,
+          -43.57249832153321
+        ],
+        "scale": [
+          331.7478,
+          23.5,
+          0.01
+        ],
+        "world_bounds": {
+          "extent": [
+            12827.504806093126,
+            12284.512030306185,
+            0.5
+          ],
+          "max": [
+            43922.024806093126,
+            74220.92203030619,
+            -99999.5
+          ],
+          "min": [
+            18267.015193906875,
+            49651.89796969382,
+            -100000.5
+          ],
+          "origin": [
+            31094.52,
+            61936.41,
+            -100000.0
+          ]
+        }
+      },
+      "issues": [
+        {
+          "deltas": [
+            0.0,
+            0.0,
+            -100000.0
+          ],
+          "expected": [
+            31094.52,
+            61936.41,
+            0.0
+          ],
+          "got": [
+            31094.52,
+            61936.41,
+            -100000.0
+          ],
+          "kind": "WORLD_LOCATION_MISMATCH",
+          "tolerance": 0.02
+        },
+        {
+          "cause": "ATTACHED_TO_SHIFTED_TARGET_FRAME",
+          "deltas": {
+            "extent": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "max": [
+              0.0,
+              0.0,
+              -100000.0
+            ],
+            "min": [
+              0.0,
+              0.0,
+              -100000.0
+            ],
+            "origin": [
+              0.0,
+              0.0,
+              -100000.0
+            ]
+          },
+          "expected": {
+            "extent": [
+              12827.504806093126,
+              12284.512030306185,
+              0.5
+            ],
+            "max": [
+              43922.024806093126,
+              74220.92203030619,
+              0.5
+            ],
+            "min": [
+              18267.015193906875,
+              49651.89796969382,
+              -0.5
+            ],
+            "origin": [
+              31094.52,
+              61936.41,
+              0.0
+            ]
+          },
+          "got": {
+            "extent": [
+              12827.504806093126,
+              12284.512030306185,
+              0.5
+            ],
+            "max": [
+              43922.024806093126,
+              74220.92203030619,
+              -99999.5
+            ],
+            "min": [
+              18267.015193906875,
+              49651.89796969382,
+              -100000.5
+            ],
+            "origin": [
+              31094.52,
+              61936.41,
+              -100000.0
+            ]
+          },
+          "kind": "WORLD_BOUNDS_MISMATCH",
+          "max_abs_delta_cm": 100000.0,
+          "tolerance_cm": 0.1
+        }
+      ],
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1572",
+      "target": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_249"
+    }
+  ],
+  "backup": {
+    "folder": "E:/PussStage/Backups\\PreJ129P02P01Floor-J129P02P01-20261010-030518",
+    "map": "E:/PussStage/Backups\\PreJ129P02P01Floor-J129P02P01-20261010-030518\\L_InfinityStage_V1VerticalSlice.umap",
+    "sha256": "39f0d860b6986b5f8c7bf1e79f532f5ab885c0692840eba67e198fb045766367",
+    "size_bytes": 37893282
+  },
+  "census": {
+    "content": [],
+    "maps": []
+  },
+  "correct": false,
+  "issues": [
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1569",
+      "deltas": [
+        0.0,
+        0.0,
+        -100000.0
+      ],
+      "expected": [
+        5996.18,
+        95225.6,
+        0.0
+      ],
+      "got": [
+        5996.18,
+        95225.6,
+        -100000.0
+      ],
+      "kind": "WORLD_LOCATION_MISMATCH",
+      "tolerance": 0.02
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1569",
+      "cause": "ATTACHED_TO_SHIFTED_TARGET_FRAME",
+      "deltas": {
+        "extent": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max": [
+          0.0,
+          0.0,
+          -100000.0
+        ],
+        "min": [
+          0.0,
+          0.0,
+          -100000.0
+        ],
+        "origin": [
+          0.0,
+          0.0,
+          -100000.0
+        ]
+      },
+      "expected": {
+        "extent": [
+          34364.89464654806,
+          35143.124317062524,
+          0.5
+        ],
+        "max": [
+          40361.07464654806,
+          130368.72431706253,
+          0.5
+        ],
+        "min": [
+          -28368.714646548062,
+          60082.47568293748,
+          -0.5
+        ],
+        "origin": [
+          5996.18,
+          95225.6,
+          0.0
+        ]
+      },
+      "got": {
+        "extent": [
+          34364.89464654806,
+          35143.124317062524,
+          0.5
+        ],
+        "max": [
+          40361.07464654806,
+          130368.72431706253,
+          -99999.5
+        ],
+        "min": [
+          -28368.714646548062,
+          60082.47568293748,
+          -100000.5
+        ],
+        "origin": [
+          5996.18,
+          95225.6,
+          -100000.0
+        ]
+      },
+      "kind": "WORLD_BOUNDS_MISMATCH",
+      "max_abs_delta_cm": 100000.0,
+      "tolerance_cm": 0.1
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1570",
+      "deltas": [
+        0.0,
+        0.0,
+        -100000.0
+      ],
+      "expected": [
+        16774.87,
+        54867.19,
+        0.0
+      ],
+      "got": [
+        16774.87,
+        54867.19,
+        -100000.0
+      ],
+      "kind": "WORLD_LOCATION_MISMATCH",
+      "tolerance": 0.02
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1570",
+      "cause": "ATTACHED_TO_SHIFTED_TARGET_FRAME",
+      "deltas": {
+        "extent": [
+          3.637978807091713e-12,
+          -3.637978807091713e-12,
+          0.0
+        ],
+        "max": [
+          0.0,
+          0.0,
+          -100000.0
+        ],
+        "min": [
+          -1.8189894035458565e-12,
+          7.275957614183426e-12,
+          -100000.0
+        ],
+        "origin": [
+          0.0,
+          0.0,
+          -100000.0
+        ]
+      },
+      "expected": {
+        "extent": [
+          25527.35623662393,
+          25235.90522824384,
+          0.5
+        ],
+        "max": [
+          42302.22623662393,
+          80103.09522824384,
+          0.5
+        ],
+        "min": [
+          -8752.486236623934,
+          29631.28477175616,
+          -0.5
+        ],
+        "origin": [
+          16774.87,
+          54867.19,
+          0.0
+        ]
+      },
+      "got": {
+        "extent": [
+          25527.356236623935,
+          25235.905228243835,
+          0.5
+        ],
+        "max": [
+          42302.22623662393,
+          80103.09522824384,
+          -99999.5
+        ],
+        "min": [
+          -8752.486236623936,
+          29631.284771756167,
+          -100000.5
+        ],
+        "origin": [
+          16774.87,
+          54867.19,
+          -100000.0
+        ]
+      },
+      "kind": "WORLD_BOUNDS_MISMATCH",
+      "max_abs_delta_cm": 100000.0,
+      "tolerance_cm": 0.1
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1571",
+      "deltas": [
+        0.0,
+        0.0,
+        -100000.0
+      ],
+      "expected": [
+        42141.55,
+        81530.42,
+        0.0
+      ],
+      "got": [
+        42141.55,
+        81530.42,
+        -100000.0
+      ],
+      "kind": "WORLD_LOCATION_MISMATCH",
+      "tolerance": 0.02
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1571",
+      "cause": "ATTACHED_TO_SHIFTED_TARGET_FRAME",
+      "deltas": {
+        "extent": [
+          -7.275957614183426e-12,
+          0.0,
+          0.0
+        ],
+        "max": [
+          -1.4551915228366852e-11,
+          0.0,
+          -100000.0
+        ],
+        "min": [
+          5.4569682106375694e-12,
+          0.0,
+          -100000.0
+        ],
+        "origin": [
+          0.0,
+          0.0,
+          -100000.0
+        ]
+      },
+      "expected": {
+        "extent": [
+          30227.170237317096,
+          30175.942004350727,
+          0.5
+        ],
+        "max": [
+          72368.7202373171,
+          111706.36200435073,
+          0.5
+        ],
+        "min": [
+          11914.37976268291,
+          51354.47799564927,
+          -0.5
+        ],
+        "origin": [
+          42141.55,
+          81530.42,
+          0.0
+        ]
+      },
+      "got": {
+        "extent": [
+          30227.17023731709,
+          30175.942004350727,
+          0.5
+        ],
+        "max": [
+          72368.72023731709,
+          111706.36200435073,
+          -99999.5
+        ],
+        "min": [
+          11914.379762682915,
+          51354.47799564927,
+          -100000.5
+        ],
+        "origin": [
+          42141.55,
+          81530.42,
+          -100000.0
+        ]
+      },
+      "kind": "WORLD_BOUNDS_MISMATCH",
+      "max_abs_delta_cm": 100000.0,
+      "tolerance_cm": 0.1
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1572",
+      "deltas": [
+        0.0,
+        0.0,
+        -100000.0
+      ],
+      "expected": [
+        31094.52,
+        61936.41,
+        0.0
+      ],
+      "got": [
+        31094.52,
+        61936.41,
+        -100000.0
+      ],
+      "kind": "WORLD_LOCATION_MISMATCH",
+      "tolerance": 0.02
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1572",
+      "cause": "ATTACHED_TO_SHIFTED_TARGET_FRAME",
+      "deltas": {
+        "extent": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "max": [
+          0.0,
+          0.0,
+          -100000.0
+        ],
+        "min": [
+          0.0,
+          0.0,
+          -100000.0
+        ],
+        "origin": [
+          0.0,
+          0.0,
+          -100000.0
+        ]
+      },
+      "expected": {
+        "extent": [
+          12827.504806093126,
+          12284.512030306185,
+          0.5
+        ],
+        "max": [
+          43922.024806093126,
+          74220.92203030619,
+          0.5
+        ],
+        "min": [
+          18267.015193906875,
+          49651.89796969382,
+          -0.5
+        ],
+        "origin": [
+          31094.52,
+          61936.41,
+          0.0
+        ]
+      },
+      "got": {
+        "extent": [
+          12827.504806093126,
+          12284.512030306185,
+          0.5
+        ],
+        "max": [
+          43922.024806093126,
+          74220.92203030619,
+          -99999.5
+        ],
+        "min": [
+          18267.015193906875,
+          49651.89796969382,
+          -100000.5
+        ],
+        "origin": [
+          31094.52,
+          61936.41,
+          -100000.0
+        ]
+      },
+      "kind": "WORLD_BOUNDS_MISMATCH",
+      "max_abs_delta_cm": 100000.0,
+      "tolerance_cm": 0.1
+    }
+  ],
+  "mode": "VERIFY",
+  "record_run": "J129P02P01-20261010-030518",
+  "record_state_before": "save_attempted",
+  "schema": 1,
+  "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+}

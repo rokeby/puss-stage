@@ -1,0 +1,545 @@
+{
+  "census_after": {
+    "content": [],
+    "maps": []
+  },
+  "census_before": {
+    "content": [],
+    "maps": []
+  },
+  "mode": "DRY",
+  "plan": {
+    "component_below_offset_cm": 100000.0,
+    "construction_contract": "duplicate the P01 floor actor once per existing P02 route component/ISM instance; never one corridor plane",
+    "construction_methods": [
+      "route_static_mesh_component"
+    ],
+    "klara_packages_forbidden": [
+      "/Game/Scenes/L_Animals",
+      "/Game/Scenes/L_KK_children",
+      "/Game/Scenes/Japanese_Alley",
+      "/Game/Scenes/L_KK_Void"
+    ],
+    "passage_materialization": {
+      "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStagePassageActor_1",
+      "apply_and_revert_required": true,
+      "label": "Passage 02 \u2014 Fixed Wings"
+    },
+    "plan_sha256": "7e0b08d4c546a5a3b504ba41539b654b03379c9bc32fc23a88d0c483957cf0fd",
+    "replacements": [
+      {
+        "expected_component_world_transform": {
+          "location": [
+            5996.18,
+            95225.6,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -43.57249832153321
+          ],
+          "scale": [
+            270.7546,
+            712.5424,
+            0.01
+          ]
+        },
+        "new_label": "J129 P01 route segment 001 - Passage 02 - Floor Near",
+        "new_transform": {
+          "location": [
+            -266.16038382469196,
+            101183.4169853626,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -43.57249832153321
+          ],
+          "scale": [
+            0.7694577737320256,
+            3.5627120000000003,
+            1.0
+          ]
+        },
+        "scale_ratio_vs_p01_component_world": [
+          0.7694577737320256,
+          3.5627120000000003,
+          1.0
+        ],
+        "segment": {
+          "bbox_max": [
+            50.0,
+            50.0,
+            50.0
+          ],
+          "bbox_min": [
+            -50.0,
+            -50.0,
+            -50.0
+          ],
+          "component_index": 0,
+          "construction": "route_static_mesh_component",
+          "instance_index": null,
+          "location": [
+            5996.18,
+            95225.6,
+            0.0
+          ],
+          "mesh": "/Engine/BasicShapes/Cube.Cube",
+          "rotation": [
+            0.0,
+            0.0,
+            -43.57249832153321
+          ],
+          "scale": [
+            270.7546,
+            712.5424,
+            0.01
+          ],
+          "target_actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_246",
+          "target_component_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_246.StaticMeshComponent0",
+          "target_label": "Passage 02 - Floor Near",
+          "world_bounds": {
+            "extent": [
+              34364.89464654806,
+              35143.124317062524,
+              0.5
+            ],
+            "max": [
+              40361.07464654806,
+              130368.72431706253,
+              0.5
+            ],
+            "min": [
+              -28368.714646548062,
+              60082.47568293748,
+              -0.5
+            ],
+            "origin": [
+              5996.18,
+              95225.6,
+              0.0
+            ]
+          }
+        }
+      },
+      {
+        "expected_component_world_transform": {
+          "location": [
+            16774.87,
+            54867.19,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -43.57249832153321
+          ],
+          "scale": [
+            441.7878,
+            276.336,
+            0.01
+          ]
+        },
+        "new_label": "J129 P01 route segment 002 - Passage 02 - Floor Left",
+        "new_transform": {
+          "location": [
+            6556.666575123503,
+            64588.50538583637,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -43.57249832153321
+          ],
+          "scale": [
+            1.2555171991536593,
+            1.38168,
+            1.0
+          ]
+        },
+        "scale_ratio_vs_p01_component_world": [
+          1.2555171991536593,
+          1.38168,
+          1.0
+        ],
+        "segment": {
+          "bbox_max": [
+            50.0,
+            50.0,
+            50.0
+          ],
+          "bbox_min": [
+            -50.0,
+            -50.0,
+            -50.0
+          ],
+          "component_index": 0,
+          "construction": "route_static_mesh_component",
+          "instance_index": null,
+          "location": [
+            16774.87,
+            54867.19,
+            0.0
+          ],
+          "mesh": "/Engine/BasicShapes/Cube.Cube",
+          "rotation": [
+            0.0,
+            0.0,
+            -43.57249832153321
+          ],
+          "scale": [
+            441.7878,
+            276.336,
+            0.01
+          ],
+          "target_actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_247",
+          "target_component_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_247.StaticMeshComponent0",
+          "target_label": "Passage 02 - Floor Left",
+          "world_bounds": {
+            "extent": [
+              25527.35623662393,
+              25235.90522824384,
+              0.5
+            ],
+            "max": [
+              42302.22623662393,
+              80103.09522824384,
+              0.5
+            ],
+            "min": [
+              -8752.486236623934,
+              29631.28477175616,
+              -0.5
+            ],
+            "origin": [
+              16774.87,
+              54867.19,
+              0.0
+            ]
+          }
+        }
+      },
+      {
+        "expected_component_world_transform": {
+          "location": [
+            42141.55,
+            81530.42,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -43.57249832153321
+          ],
+          "scale": [
+            441.7878,
+            412.7064,
+            0.01
+          ]
+        },
+        "new_label": "J129 P01 route segment 003 - Passage 02 - Floor Right",
+        "new_transform": {
+          "location": [
+            31923.346575123505,
+            91251.73538583636,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -43.57249832153321
+          ],
+          "scale": [
+            1.2555171991536593,
+            2.063532,
+            1.0
+          ]
+        },
+        "scale_ratio_vs_p01_component_world": [
+          1.2555171991536593,
+          2.063532,
+          1.0
+        ],
+        "segment": {
+          "bbox_max": [
+            50.0,
+            50.0,
+            50.0
+          ],
+          "bbox_min": [
+            -50.0,
+            -50.0,
+            -50.0
+          ],
+          "component_index": 0,
+          "construction": "route_static_mesh_component",
+          "instance_index": null,
+          "location": [
+            42141.55,
+            81530.42,
+            0.0
+          ],
+          "mesh": "/Engine/BasicShapes/Cube.Cube",
+          "rotation": [
+            0.0,
+            0.0,
+            -43.57249832153321
+          ],
+          "scale": [
+            441.7878,
+            412.7064,
+            0.01
+          ],
+          "target_actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_248",
+          "target_component_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_248.StaticMeshComponent0",
+          "target_label": "Passage 02 - Floor Right",
+          "world_bounds": {
+            "extent": [
+              30227.170237317096,
+              30175.942004350727,
+              0.5
+            ],
+            "max": [
+              72368.7202373171,
+              111706.36200435073,
+              0.5
+            ],
+            "min": [
+              11914.37976268291,
+              51354.47799564927,
+              -0.5
+            ],
+            "origin": [
+              42141.55,
+              81530.42,
+              0.0
+            ]
+          }
+        }
+      },
+      {
+        "expected_component_world_transform": {
+          "location": [
+            31094.52,
+            61936.41,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -43.57249832153321
+          ],
+          "scale": [
+            331.7478,
+            23.5,
+            0.01
+          ]
+        },
+        "new_label": "J129 P01 route segment 004 - Passage 02 - Floor Far",
+        "new_transform": {
+          "location": [
+            23421.454998759036,
+            69236.35126672889,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -43.57249832153321
+          ],
+          "scale": [
+            0.9427944109850664,
+            0.1175,
+            1.0
+          ]
+        },
+        "scale_ratio_vs_p01_component_world": [
+          0.9427944109850664,
+          0.1175,
+          1.0
+        ],
+        "segment": {
+          "bbox_max": [
+            50.0,
+            50.0,
+            50.0
+          ],
+          "bbox_min": [
+            -50.0,
+            -50.0,
+            -50.0
+          ],
+          "component_index": 0,
+          "construction": "route_static_mesh_component",
+          "instance_index": null,
+          "location": [
+            31094.52,
+            61936.41,
+            0.0
+          ],
+          "mesh": "/Engine/BasicShapes/Cube.Cube",
+          "rotation": [
+            0.0,
+            0.0,
+            -43.57249832153321
+          ],
+          "scale": [
+            331.7478,
+            23.5,
+            0.01
+          ],
+          "target_actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_249",
+          "target_component_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_249.StaticMeshComponent0",
+          "target_label": "Passage 02 - Floor Far",
+          "world_bounds": {
+            "extent": [
+              12827.504806093126,
+              12284.512030306185,
+              0.5
+            ],
+            "max": [
+              43922.024806093126,
+              74220.92203030619,
+              0.5
+            ],
+            "min": [
+              18267.015193906875,
+              49651.89796969382,
+              -0.5
+            ],
+            "origin": [
+              31094.52,
+              61936.41,
+              0.0
+            ]
+          }
+        }
+      }
+    ],
+    "route_segments": 4,
+    "save_allowlist": [
+      "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+    ],
+    "schema": 2,
+    "sequence_bindings": [],
+    "sequence_component_blockers": [],
+    "sequence_inherited_tracks": [],
+    "sequence_scan_unclear": [],
+    "source": {
+      "actor_class": "/Script/Engine.StaticMeshActor",
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_0",
+      "bbox_max": [
+        50.0,
+        50.0,
+        50.0
+      ],
+      "bbox_min": [
+        -50.0,
+        -50.0,
+        -50.0
+      ],
+      "component_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_0.StaticMeshComponent0",
+      "component_relative_location": [
+        11233.41528881836,
+        0.0,
+        0.0
+      ],
+      "component_relative_transform": {
+        "location": [
+          11233.41528881836,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          351.8771389972259,
+          200.0,
+          0.01
+        ]
+      },
+      "component_settings": {
+        "cast_shadow": true,
+        "collision_enabled": null,
+        "collision_profile_name": null,
+        "hidden_in_game": false,
+        "mobility": "<ComponentMobility.STATIC: 0>",
+        "visible": true
+      },
+      "label": "Passage 01 - Opening Floor",
+      "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+      "location": [
+        11233.41528881836,
+        0.0,
+        0.0
+      ],
+      "materials": [
+        "/Game/InfinityStage/RigAtmos/MI_Floor_DarkWet.MI_Floor_DarkWet"
+      ],
+      "mesh": "/Engine/BasicShapes/Cube.Cube",
+      "parent_actor": null,
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        351.8771389972259,
+        200.0,
+        0.01
+      ],
+      "tags": [],
+      "world_bounds": {
+        "extent": [
+          17593.856949861296,
+          10000.0,
+          0.5
+        ],
+        "max": [
+          28827.272238679656,
+          10000.0,
+          0.5
+        ],
+        "min": [
+          -6360.441661042936,
+          -10000.0,
+          -0.5
+        ],
+        "origin": [
+          11233.41528881836,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "source_component_transform_contract": "preserve P01 component-relative location/scale; solve actor transform from desired component world transform; refuse any component-relative rotation",
+    "stills_plan": [
+      "Matched P01/P02 grazing-angle stills with identical exposure and camera height.",
+      "P02 full route stills proving every Near/Left/Right/Far segment is covered without a corridor-spanning plane.",
+      "Every P02 floor visibility section before/during/after; replacements must inherit AActor::bHidden.",
+      "Passage 02 start/mid/end after materialize_passage; route joins and any curve must remain aligned.",
+      "Collision walk/trace across every segment join after visual approval."
+    ],
+    "target": "P02",
+    "target_actor_labels": [
+      "Passage 02 - Floor Near",
+      "Passage 02 - Floor Left",
+      "Passage 02 - Floor Right",
+      "Passage 02 - Floor Far"
+    ],
+    "texel_density": {
+      "apply_ack_required": true,
+      "basis": "same P01 mesh/material per route segment; live mapping and stills pending",
+      "status": "inferred"
+    },
+    "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+  },
+  "run": "J129P02P01-20261010-015500"
+}
