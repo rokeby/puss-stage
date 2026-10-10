@@ -108,3 +108,9 @@
 - He likes the I2 shadow still as it is (`Saved/CodexConductor/ApplyPass_20261010/stills/177_01_job144_I2_shadow_frame712.png`): the boy's profile in the lit window on the bare back wall. Parked.
 - CURRENT aim is unchanged: the curtain-based transition (the curtain falls again, revealing the next scene).
 - LATER idea: a DOORWAY-based transition. The back-wall surface has no curtain on it; now that the right wall is set up, build a doorway in it that opens through onto the next scene. Not now.
+
+## Gary, 10 Oct ~20:40: P06 chandelier
+- The gold cluster in 176_05 / 177_03 / 177_04 is a **Niagara SWARM** (one of the swarms, not in the right place). It is NOT the candles. Codex's job 177 "lit candle field" verdict was WRONG. The candles use NS_Stylish_Fire_1 via BP_Effect_ChandelierCandle.
+- APPROVED: a little light on the P06 chandelier. IDEALLY the chandelier is lit BY its candles: small flame lights at the candle tips.
+- Fallback: Gary can place them by hand, at least in one frame.
+- Swarm placement: note for later (job 100 swarm).
