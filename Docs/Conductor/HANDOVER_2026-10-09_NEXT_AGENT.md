@@ -139,3 +139,22 @@ Check `Saved/CodexRuns/ledger.tsv`, the codex_p102 log, and the report file abov
 - **Cameron**: timings.
 - Other Claude streams (Wings & Textures, Finishing Touches, Hyper3D, Museum, Cueing, Gobo) are mostly offline now. Their files are their own; never commit them.
 - Cue Book: GitHub Pages `rokeby/puss-cue-book` plus a private Sheet/Apps Script. Gary owns the passcode.
+
+## Next build window (after live queue job 102 finishes and the editor is closed)
+Held patches, checked 9 Oct ~23:40. These two apply cleanly together (9 files, +960/−84):
+- `Scripts/patches/2026-10-09_shadow_cat_actions.patch`: Finishing Touches.
+- `Scripts/patches/2026-10-09_sway_kick.patch`: job 52, the chandelier/bulb sway kick.
+
+Job 95's patch is still pending. It needs `#include "CineCameraComponent.h"` added to `Go1LookResetAtCutTests.cpp`, and a fix for `FreeLookReturnsDuringPassageSettle`, before it goes in.
+
+Already applied: `fixtures_bulb_light_sway`.
+
+`cueing_P78_dog_directions_cuedirector` and `stack_0919_surtitles_*` CONFLICT with the current tree. They need rebasing by Cueing; or check first whether they are already in.
+
+Procedure:
+1. Confirm no UnrealEditor.exe is running anywhere.
+2. `git apply` both patches.
+3. Run `build_p86.cmd`-style Build.bat.
+4. Tests: `Automation RunTests InfinityStage` (full), or at least the patches' own test prefixes.
+5. Red → `git apply -R` and rebuild.
+6. Green → commit the source paths explicitly.
