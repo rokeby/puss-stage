@@ -41,13 +41,15 @@ def channel_base(raw):
     return re.sub(r"_\d+$", "", text)
 
 
-def is_target_label(label, include_variants=True):
-    return label in FIXED_LABELS or (include_variants and label.startswith(VARIANT_PREFIX))
+CROWD_PREFIX = "S3 Crowd "  # 10 Oct: Gary moved crowd copies too; admitted only when named in extra_target_labels
+
+def is_target_label(label, include_variants=True, extra=()):
+    return label in FIXED_LABELS or (include_variants and label.startswith(VARIANT_PREFIX)) or label in tuple(extra)
 
 
 def binding_aliases(label):
     """Known asset display names, deliberately excluding body and float-hold bindings."""
-    if label.startswith(VARIANT_PREFIX) or label == "Shore05_M53 Clam":
+    if label.startswith(VARIANT_PREFIX) or label.startswith(CROWD_PREFIX) or label == "Shore05_M53 Clam":
         return (label,)
     require(label in FIXED_LABELS, "UNKNOWN_TARGET_LABEL|" + label)
     return (label, label[:-4] + "Shore")
@@ -65,6 +67,8 @@ def validate_config(cfg):
     require(cfg.get("root_sequence") == ROOT_SEQUENCE, "ROOT_SEQUENCE")
     require(cfg.get("world") == WORLD, "WORLD")
     require(cfg.get("confirm", "") in ("", "APPLY S3 FEET", "REVERT S3 FEET"), "CONFIRM_VALUE")
+    extra = cfg.setdefault("extra_target_labels", [])
+    require(isinstance(extra, list) and all(isinstance(x, str) and x.startswith(CROWD_PREFIX) for x in extra), "EXTRA_TARGET_LABELS")
     return cfg
 
 
@@ -86,7 +90,10 @@ def capture_delta(before, after, cfg, label):
             "ROTATION_CHANGED|%s|%r" % (label, rot))
     require(max(abs(x) for x in scale) <= float(cfg["scale_tolerance"]),
             "SCALE_CHANGED|%s|%r" % (label, scale))
-    require(abs(loc[2]) >= float(cfg["min_z_delta_cm"]),
+    # 10 Oct: Gary moved only some figures; an UNMOVED target is a zero, no-op row (not a refusal).
+    if max(abs(x) for x in loc) < float(cfg["min_z_delta_cm"]):
+        return {"reported_location_delta_cm": loc, "applied_location_delta_cm": [0.0, 0.0, 0.0], "unmoved": True}
+    require(abs(loc[2]) >= float(cfg["min_z_delta_cm"]) or cfg["apply_xy"],
             "Z_DELTA_REQUIRED|%s|%.6f" % (label, loc[2]))
     require(max(abs(x) for x in loc) <= float(cfg["max_delta_cm"]),
             "DELTA_AXIS_OVER_LIMIT|%s|%r" % (label, loc))
@@ -98,12 +105,13 @@ def capture_delta(before, after, cfg, label):
             "xy_policy": "apply" if cfg["apply_xy"] else "report_only"}
 
 
-def validate_target_labels(labels, include_variants=True):
+def validate_target_labels(labels, include_variants=True, extra=()):
     require(len(labels) == len(set(labels)), "DUPLICATE_TARGET_LABEL")
     missing = sorted(set(FIXED_LABELS) - set(labels))
-    extra = sorted(x for x in labels if not is_target_label(x, include_variants))
+    extra_found = sorted(x for x in labels if not is_target_label(x, include_variants, extra))
     require(not missing, "MISSING_FIXED_TARGETS|" + repr(missing))
-    require(not extra, "UNEXPECTED_TARGETS|" + repr(extra))
+    require(not extra_found, "UNEXPECTED_TARGETS|" + repr(extra_found))
+    require(set(extra) <= set(labels), "EXTRA_TARGET_NOT_FOUND|" + repr(sorted(set(extra) - set(labels))))
     return sorted(labels)
 
 

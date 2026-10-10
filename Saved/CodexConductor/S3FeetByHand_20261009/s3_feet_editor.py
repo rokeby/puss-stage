@@ -110,9 +110,9 @@ def target_actors(actors, cfg):
     by_label = {}
     for actor in actors:
         label = str(actor.get_actor_label())
-        if core.is_target_label(label, cfg["include_p40_variants"]):
+        if core.is_target_label(label, cfg["include_p40_variants"], cfg.get("extra_target_labels", [])):
             by_label.setdefault(label, []).append(actor)
-    core.validate_target_labels(list(by_label), cfg["include_p40_variants"])
+    core.validate_target_labels(list(by_label), cfg["include_p40_variants"], cfg.get("extra_target_labels", []))
     for label, hits in by_label.items():
         require(len(hits) == 1, "TARGET_ACTOR_COUNT|%s|%d" % (label, len(hits)))
     return {label: hits[0] for label, hits in by_label.items()}
@@ -343,6 +343,14 @@ def capture(cfg):
     _world, actors, targets = inventory(cfg, require_clean=False)
     current = {row["label"]: row for row in targets}
     prior = {row["label"]: row for row in snap["targets"]}
+    # 10 Oct: crowd copies Gary also moved (extra_target_labels) were not snapshot targets. Their pre-move pose is the
+    # snapshot's all_actors row; their binding is taken from now (hand moves cannot rewrite keys; asserted below).
+    by_path = {row["path"]: row for row in snap["all_actors"]}
+    for label in cfg.get("extra_target_labels", []):
+        if label in current and label not in prior:
+            old_row = by_path.get(current[label]["actor_path"])
+            require(old_row is not None, "EXTRA_TARGET_NOT_IN_SNAPSHOT|" + label)
+            prior[label] = dict(current[label], actor_transform=old_row["transform"])
     require(set(current) == set(prior), "TARGET_SET_DRIFT")
     target_paths = [row["actor_path"] for row in targets]
     verify_non_target_actors(snap["all_actors"], actor_rows(actors), target_paths)

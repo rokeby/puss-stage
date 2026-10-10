@@ -1,5 +1,5 @@
 {
-  "apply_xy": false,
+  "apply_xy": true,
   "confirm": "",
   "include_p40_variants": true,
   "max_delta_cm": 200.0,
@@ -9,5 +9,8 @@
   "root_sequence": "/Game/Scenes/LS_Clams",
   "rotation_tolerance_deg": 0.01,
   "scale_tolerance": 0.0001,
-  "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+  "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+  "extra_target_labels": [
+    "S3 Crowd 06 (from Shore06_F25)"
+  ]
 }

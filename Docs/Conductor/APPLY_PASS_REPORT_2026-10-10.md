@@ -78,3 +78,21 @@
 ## First terminal STOP reason
 
 **Measured:** Job 105 APPLY run `20261009-213557` stopped at `p02_beam_bootstrap.py:259` because UE 5.8's `Transform` wrapper has no `rotator()` method. There was no APPLY_OK. The record was retired as `failed_rolled_back_in_memory`, with zero spawned actors and clean content/map censuses. Per P113, this ended the whole pass (`Saved/Logs/PussStage.log:4744`; `Saved/CodexFlatV3/p02lighting/p02_beam_bootstrap_record.json.failed-20261009-213557:644-645`; `Docs/Conductor/codex_briefs/p113_apply_pass.md:9-11`).
+
+## Resume attempt: item 0 rerun at 01:43 UTC
+
+- **Measured:** the resumed pass purged the Saved-module cache first; Unreal reported `SAVED_MODULE_CACHE_PURGED|count=0|modules=` (`Saved/Logs/PussStage.log:4775`). It then dispatched `s3_visual_diag_v2_request.json` exactly once.
+- **Measured:** S3 diagnosis v2 did not produce `S3_VISUAL_DIAG_V2_SUCCESS`. UE 5.8 did not expose a settable `restore_state` field, and after the transient `LS_Clams` evaluation the figure-state fingerprint changed from `c8ee3a64...ca13` to `be011283...708` (`Saved/Logs/PussStage.log:4784-4785`). The script raised `FIGURE_STATE_NOT_RESTORED` at its immediate restoration guard (`Saved/CodexConductor/s3_visual_diag_20261009.py:1152-1158`).
+- **Declaration-proven:** the final dirty-package and actor censuses are below that guard (`Saved/CodexConductor/s3_visual_diag_20261009.py:1201-1213`), so they were not executed. Consequently actor identity and dirty-census equality after the run are **UNCLEAR**, and no clean-census claim is made.
+- **Measured:** no fresh S3 diagnostic report was written. The existing `Saved/CodexConductor/S3_VISUAL_DIAG_20261009.json` predates this attempt (last modified 2026-10-09 19:42:35 local) and is not evidence for the resumed run. Nonzero foot samples and the requested per-figure findings were therefore not established.
+- **Declaration-proven / terminal stop:** the resume instruction says to stop if actor identity or the census is not identical afterwards. The stronger in-script figure-state restoration guard failed, while the final identity/census checks were never reached. The pass stopped immediately: Job 105 beams, P02 lighting, and items 3-14 were not run.
+- **Measured:** after the failure, this pass made no further Unreal/MCP call, issued no save, did not start or end PIE, and did not quit or restart the editor.
+
+### Files updated by the resume attempt
+
+- **Measured:** `Saved/Logs/PussStage.log` (Unreal appended the purge, warning, and failure evidence).
+- **Measured:** `Docs/Conductor/APPLY_PASS_REPORT_2026-10-10.md` (this appended resume record).
+
+### Resume terminal STOP reason
+
+**Measured:** `S3_VISUAL_DIAG_V2_FAILED|FIGURE_STATE_NOT_RESTORED` after the one permitted item-0 run. Because the script failed before its final actor and dirty-package censuses, post-run cleanliness is UNCLEAR rather than clean (`Saved/Logs/PussStage.log:4785`; `Saved/CodexConductor/s3_visual_diag_20261009.py:1152-1158`, `:1201-1213`).

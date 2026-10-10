@@ -104,8 +104,9 @@ t = copy.deepcopy(T1); t["rotation"][0] = 1.0
 refuses("rotation change", "ROTATION_CHANGED", lambda: C.capture_delta(T0, t, CFG, "A"))
 t = copy.deepcopy(T1); t["scale"][0] = 1.2
 refuses("scale change", "SCALE_CHANGED", lambda: C.capture_delta(T0, t, CFG, "A"))
-t = copy.deepcopy(T0)
-refuses("z delta required", "Z_DELTA_REQUIRED", lambda: C.capture_delta(T0, t, CFG, "A"))
+t = copy.deepcopy(T0); t["location"][0] += 5.0
+refuses("z delta required (xy-only move, apply_xy off)", "Z_DELTA_REQUIRED", lambda: C.capture_delta(T0, t, CFG, "A"))
+ok("unmoved target is a zero no-op row", lambda: C.capture_delta(T0, copy.deepcopy(T0), CFG, "A")["unmoved"])
 t = copy.deepcopy(T1); t["location"][2] = 231.0
 refuses("delta axis over 200", "DELTA_AXIS_OVER_LIMIT", lambda: C.capture_delta(T0, t, CFG, "A"))
 t = copy.deepcopy(T1); t["location"] = [160.0, 170.0, 31.0]
