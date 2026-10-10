@@ -115,3 +115,24 @@ Verdicts on stills are by the conductor's eye. "Applied" means saved and read ba
   - Then reboot.
   - Undo: `Remove-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers' -Name TdrDelay`
   - It is a system setting, so Claude cannot change it.
+
+## Afternoon slot (job 167, safe launcher): no GPU errors
+- **Applied and verified:**
+  - **3D stage front placed** (8 actors).
+  - **Chandelier staging** for the opening (28 actors, 2 tracks).
+  - **P02 floor = P01 copy** (4 replacements).
+  - **Proscenium fringe** (3 textures, 6 MIs).
+  - P02 lean lighting and shadow radii: both reverted on perf.
+- **Conductor's eye on the stills:**
+  - **Stage-front wide**: looks RICH; the paper proscenium plus the 3D arch/columns frame the stage, with the curtain pile in front (`03_job167_stagefront_opening_wide_pre87_revealed.png`). Codex marked it a visual fail; Gary to judge.
+  - **P06 dusk**: passes.
+  - **P02 floor reflection**: too dark to judge.
+  - **S2 from outside** and **P05 wings**: inconclusive.
+- **Not done** (stopped at their guards):
+  - Job 87 (opening camera/uplights/bulbs)
+  - Ending 101
+  - I2/I3 back wall
+  - Chandelier P06 part, candles, swing
+- **Waiting:**
+  - S1 job 168 (Gary to choose: shrink vs real fade vs darkness)
+  - P06 parcan (job 126; Gary's pick: the body at "P06 EVT B02 BLACK F00 CAMERA")
