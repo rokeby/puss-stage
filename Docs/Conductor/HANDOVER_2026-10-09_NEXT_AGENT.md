@@ -145,7 +145,7 @@ Held patches, checked 9 Oct ~23:40. These two apply cleanly together (9 files, +
 - `Scripts/patches/2026-10-09_shadow_cat_actions.patch`: Finishing Touches.
 - `Scripts/patches/2026-10-09_sway_kick.patch`: job 52, the chandelier/bulb sway kick.
 
-Job 95's patch is still pending. It needs `#include "CineCameraComponent.h"` added to `Go1LookResetAtCutTests.cpp`, and a fix for `FreeLookReturnsDuringPassageSettle`, before it goes in.
+Job 95: use `Scripts/patches/2026-10-09_job95_v2.patch` (job 108). It adds the CineCameraComponent include and fixes a sign error in the test fixture (the expected pitch is -10, not +10). Not yet built.
 
 Already applied: `fixtures_bulb_light_sway`.
 
