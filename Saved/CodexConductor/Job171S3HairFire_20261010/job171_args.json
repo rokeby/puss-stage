@@ -1,0 +1,20 @@
+{
+  "mode": "DRY",
+  "confirm": "DRY JOB171",
+  "run_id": "J171-DRY-REPLACE-ME",
+  "parts": ["hair", "fires"],
+  "dry_record": "",
+  "dark_brown": {
+    "hairMelanin": 0.72,
+    "WhiteAmount": 0.03,
+    "HairRoughness": 0.58
+  },
+  "grey": {
+    "hairMelanin": 0.30,
+    "WhiteAmount": 0.72,
+    "HairRoughness": 0.64
+  },
+  "fire_linear": [0.35, 0.42, 0.50, 1.0],
+  "fire_temperature": 9000.0,
+  "fire_emissive_compensation": 2.0
+}

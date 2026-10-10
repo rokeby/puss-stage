@@ -1,0 +1,145 @@
+{
+  "checks": [
+    {
+      "control": "positive",
+      "name": "P01.target_count",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P02.shore_count",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P03.p40_count",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P04.crowd_count",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P05.hangar_count",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P06.figure_parse",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P07.parts_default",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P08.parts_subset",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P09.binding_unique",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P10.palette_coverage",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P11.variation_coverage",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P12.palette_stable",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P13.fingerprint_order",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P14.numeric_tolerance",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P15.fire_count",
+      "ok": true
+    },
+    {
+      "control": "positive",
+      "name": "P16.look_defaults",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "name": "N01.bad_parts",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "name": "N02.duplicate_parts",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "name": "N03.missing_target",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "name": "N04.bad_figure",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "name": "N05.bad_binding",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "name": "N06.bad_style",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "name": "N07.bad_hair_look",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "name": "N08.bad_fire_temp",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "name": "N09.numeric_drift",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "name": "N10.mutated_label",
+      "ok": true
+    },
+    {
+      "control": "negative",
+      "name": "N11.seeded_mutation",
+      "ok": true
+    }
+  ],
+  "failed": 0,
+  "negative": 11,
+  "passed": 27,
+  "positive": 16,
+  "tool": "JOB171_S3_HAIR_FIRE",
+  "tool_version": 1
+}

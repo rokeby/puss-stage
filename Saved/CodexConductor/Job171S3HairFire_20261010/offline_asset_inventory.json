@@ -1,0 +1,60 @@
+{
+  "census_date": "2026-10-10",
+  "root_read_only": "E:/PussStage/Content",
+  "current_shore_hair_from_blueprint_binary_strings": {
+    "Shore01_M56": "Hair_S_BobLayered",
+    "Shore02_F52": "Hair_S_Pixie",
+    "Shore03_M59": "Hair_S_UpdoBuns",
+    "Shore04_F55": "Hair_S_BobLayered",
+    "Shore05_M53": "Hair_M_Layered",
+    "Shore06_F25": "Hair_L_StraightBangs"
+  },
+  "selected_long_styles": {
+    "primary_messier": {
+      "groom": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Grooms/Hair_L_StraightBangs",
+      "source_face": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Face/SKM_MHC_Shore06_F25_FaceMesh",
+      "binding": "Hair_L_StraightBangs_Binding",
+      "cards": "two groups, LOD0-4",
+      "helmet": "LOD5-7"
+    },
+    "secondary_neater": {
+      "groom": "/Game/MetaHumans/MHC_Elder_Female/Grooms/Hair_L_Straight",
+      "source_face": "/Game/MetaHumans/MHC_Elder_Female/Face/SKM_MHC_VoidWoman_FaceMesh",
+      "binding": "Hair_L_Straight_Binding",
+      "cards": "two groups, LOD0-4",
+      "helmet": "LOD5-7"
+    }
+  },
+  "other_closest_full_hair_options": [
+    "Hair_M_Layered",
+    "Hair_S_BobLayered",
+    "Hair_S_Pixie",
+    "Hair_S_UpdoBuns",
+    "Hair_M_BobBangs (child)"
+  ],
+  "hair_material_parameters_found": [
+    "hairMelanin",
+    "HairRoughness",
+    "WhiteAmount"
+  ],
+  "fire_assets_found": [
+    "/Game/StarterContent/Particles/P_Fire",
+    "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1",
+    "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_2",
+    "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_3",
+    "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_4"
+  ],
+  "current_fire_evidence": {
+    "actor_class": "Emitter",
+    "template": "/Game/StarterContent/Particles/P_Fire",
+    "labels": ["S3 Ghost Light Flame", "S3 Fire A", "S3 Fire B", "S3 Fire C"],
+    "material_slots": {
+      "0_1": "M_Fire_SubUV",
+      "2": "M_FX_Invisible after S3 fire-look",
+      "3_4": "M_Radial_Gradient",
+      "5": "M_Heat_Distortion"
+    },
+    "M_Fire_SubUV_vector_tint_parameter_found": false
+  },
+  "offline_limit": "Filesystem and binary-string census only; Unreal class/property state must be re-read by Job171 DRY."
+}
