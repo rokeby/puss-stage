@@ -1,0 +1,9 @@
+{
+  "mode": "DRY",
+  "confirm": "",
+  "plan_sha256": "",
+  "component_below_offset_cm": 100000.0,
+  "bounds_tolerance_cm": 0.1,
+  "ack_sequence_scan_unclear": false,
+  "ack_texel_density_inferred": false
+}
