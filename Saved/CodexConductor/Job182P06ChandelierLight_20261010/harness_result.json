@@ -1,9 +1,9 @@
 {
   "ok": true,
-  "pass": 23,
+  "pass": 27,
   "fail": 0,
-  "total": 23,
-  "positive": 14,
+  "total": 27,
+  "positive": 18,
   "negative": 9,
   "passed": [
     {
@@ -118,6 +118,26 @@
     },
     {
       "name": "+ PIE world guard uses the live PIE package because editor world is absent in UE 5.8",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ dirty census uses the UE 5.8-proven loading-and-saving surface",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ DRY is dispatched to the clean editor world and REVIEW alone uses PIE",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ REVIEW holds and verifies its camera against Passage camera reclaim",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ REVIEW avoids the absent UE 5.8 StaticMeshActor.is_hidden wrapper",
       "control": "positive",
       "passed": true
     }

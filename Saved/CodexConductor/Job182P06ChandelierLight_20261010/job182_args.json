@@ -1,7 +1,7 @@
 {
-  "mode": "DRY",
+  "mode": "REVIEW",
   "confirm": "",
-  "reviewed_plan_sha256": "",
+  "reviewed_plan_sha256": "29ca4dc623c86dc9c6987f7e10b7e44a6dc6977874462d13f221f2c1be4638ce",
   "body_actor_label": "P75 P06 Chandelier Body",
   "body_mesh": "/Game/Scenes/Props/Chandelier/SM_Chandelier_Iron3",
   "candle_actor_prefix": "P56_P75_P06_Chandelier_Body_Candle_",
@@ -27,5 +27,5 @@
   "review_margin": 1.25,
   "review_resolution": [1600, 900],
   "review_camera_actor_label": "Shore Cast Review Camera",
-  "review_output": "E:/PussStage/Saved/CodexConductor/Job182P06ChandelierLight_20261010/job182_p06_chandelier_review.png"
+  "review_output": "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/184_02_p06_chandelier_mesh_bounds_attempt2.png"
 }

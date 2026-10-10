@@ -130,7 +130,7 @@ def gather(world,args):
  for name,t in times.items():
   p=pose_row(show,args,t);w=clearance(world,p,args);phase=(p06["entry_phase_offset_cycles"]+t/p06["cycle_duration_seconds"])%1.0;elev=C.phase_elevation(phase);d=sun_dir(az,elev);samples[name]={"camera":p,"window":w,"sun":{"phase":phase,"elevation_deg":elev,"azimuth_deg":az,"projection":project(p,d),"direction":d},"centre_ray_occluded":trace_hit(world,p,w["center_h_deg"],w["center_v_deg"],args) is not None}
  fit=samples[args["fit_sample"]]["window"];size=C.target_size(fit,args["fit_fraction"]);cs=samples[args["center_sample"]];target=world_direction(cs["camera"],cs["window"]["center_h_deg"],cs["window"]["center_v_deg"]);center=C.center_plan(p06,target,times[args["center_sample"]],p06["cycle_duration_seconds"],args["max_sunset_shift_seconds"])
- return {"show":show,"master":master,"rig":rig,"sun":sun,"sun_comp":sun_comp,"sky":sky,"sky_comp":sky_comp,"scope":scope,"cycles":cycles,"p06":p06,"samples":samples,"times":times,"target_size_deg":size,"center":center,"current_source_angle_deg":float(sun_comp.get_editor_property("light_source_angle")),"sky_hidden":bool(sky.is_hidden()),"sky_component_visible":bool(sky_comp.get_editor_property("visible"))}
+ return {"show":show,"master":master,"rig":rig,"sun":sun,"sun_comp":sun_comp,"sky":sky,"sky_comp":sky_comp,"scope":scope,"cycles":cycles,"p06":p06,"samples":samples,"times":times,"target_size_deg":size,"center":center,"current_source_angle_deg":float(sun_comp.get_editor_property("light_source_angle")),"sky_hidden":bool(sky.get_editor_property("hidden")),"sky_component_visible":bool(sky_comp.get_editor_property("visible"))}
 def bindings_for(seq,obj,world):
  want=str(obj.get_path_name());out=[]
  for b in seq.get_bindings():

@@ -105,6 +105,21 @@ check("+ run id uses Python datetime supported by the live interpreter",
 check("+ PIE world guard uses the live PIE package because editor world is absent in UE 5.8",
       "get_editor_world()) == WORLD" not in runtime
       and 're.sub(r"/UEDPIE_\\d+_", "/", pie_id or "")' in runtime, "positive")
+check("+ dirty census uses the UE 5.8-proven loading-and-saving surface",
+      "unreal.EditorLoadingAndSavingUtils" in runtime
+      and "EditorAssetLibrary.get_dirty_" not in runtime, "positive")
+check("+ DRY is dispatched to the clean editor world and REVIEW alone uses PIE",
+      'if args["mode"] == "DRY":' in runtime
+      and "return _run_editor_dry(args, proposal, run_id)" in runtime
+      and 'if args["mode"] == "REVIEW":' in runtime, "positive")
+check("+ REVIEW holds and verifies its camera against Passage camera reclaim",
+      "REVIEW_VIEW_TARGET_RECLAIMED" in runtime
+      and "REVIEW_CAMERA_MANAGER_DRIFT" in runtime
+      and 'controller.set_view_target_with_blend(review_camera, 0.0)' in runtime,
+      "positive")
+check("+ REVIEW avoids the absent UE 5.8 StaticMeshActor.is_hidden wrapper",
+      'context["body"].is_hidden()' not in runtime
+      and 'context["mesh"].is_visible()' in runtime, "positive")
 
 result = {"ok": not failed, "pass": len(passed), "fail": len(failed),
           "total": len(passed) + len(failed),

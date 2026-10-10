@@ -29,4 +29,5 @@ check("setting phase mirror",abs(C.phase_elevation(C.setting_phase_for_elevation
 live_source=open(os.path.join(HERE,"job178_p06_sun_disc.py"),encoding="utf-8").read()
 check("UE58 visibility trace query", "TraceTypeQuery.TRACE_TYPE_QUERY1" in live_source and "convert_to_trace_type" not in live_source,"positive")
 check("live fallback binds the bounded S6 hangar mouth geometry", "S6 Hangar Apron" in live_source and "S6 Hangar Lattice Beam 01" in live_source and "gary_one_edge_rule" in live_source,"positive")
+check("UE58 editor actor hidden state avoids absent is_hidden wrapper", ".is_hidden()" not in live_source and 'get_editor_property("hidden")' in live_source,"positive")
 bad=[x for x in r if not x[1]];print("JOB178B_OFFLINE_%s|pass=%d|fail=%d|positive=%d|negative=%d"%("OK" if not bad else "FAILED",len(r)-len(bad),len(bad),sum(x[2]=="positive" for x in r),sum(x[2]=="negative" for x in r)));sys.exit(1 if bad else 0)

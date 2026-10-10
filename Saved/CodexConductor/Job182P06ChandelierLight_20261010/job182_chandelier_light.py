@@ -1,8 +1,9 @@
 """Job 182 live-ready P06 chandelier inspection, lighting, review and revert.
 
-DRY and REVIEW require owned PIE and never save. APPLY/READBACK/REVERT require
-the clean editor world. No code path queries, selects, moves or deletes a swarm
-actor; ownership is exact tags plus exact labels on the nine Job 182 lights.
+DRY/APPLY/READBACK/REVERT require the clean editor world. REVIEW requires an
+owned PIE and never saves. No code path queries, selects, moves or deletes a
+swarm actor; ownership is exact tags plus exact labels on the nine Job 182
+lights.
 """
 from __future__ import annotations
 
@@ -77,7 +78,8 @@ def _run_id() -> str:
 
 
 def _census() -> dict[str, list[str]]:
-    library = unreal.EditorAssetLibrary
+    # UE 5.8 exposes the dirty-package census here, not on EditorAssetLibrary.
+    library = unreal.EditorLoadingAndSavingUtils
     return {
         "content": sorted(_asset_id(item) for item in library.get_dirty_content_packages()),
         "maps": sorted(_asset_id(item) for item in library.get_dirty_map_packages()),
@@ -456,6 +458,32 @@ def _run_editor(args: dict[str, Any], proposal: dict[str, Any], run_id: str) -> 
     return result
 
 
+def _run_editor_dry(args: dict[str, Any], proposal: dict[str, Any], run_id: str) -> dict[str, Any]:
+    """Inspect the saved chandelier authority without entering or scrubbing PIE."""
+    _editor_world()
+    dirty_before = _require_clean("PRE")
+    actors = _actors_editor()
+    body, mesh = _body_and_mesh(actors, args)
+    require(not _owned_states(), "OWNED_LIGHTS_EXIST_BEFORE_DRY")
+    candles = _candle_rows(actors, body, mesh, args, False)
+    require(all(row["actor_at_socket"] and row["body_parent_ok"] and row["attached_socket_ok"]
+                for row in candles), "CANDLE_SOCKET_READBACK")
+    result = {
+        "ok": True, "mode": "DRY", "run": run_id, "world": WORLD,
+        "world_kind": "editor", "mesh_bounds_world": _mesh_bounds(body),
+        "candles": candles, "proposal": proposal, "dirty_before": dirty_before,
+        "dirty_after": _census(),
+        "niagara_scope": "exact 44 BP_Effect_ChandelierCandle actors; no swarm actor queried or changed",
+    }
+    require(result["dirty_after"] == dirty_before, "DRY_CHANGED_CENSUS")
+    unique = HERE + "/job182_DRY_%s.json" % run_id
+    _write(unique, result, exclusive=True)
+    _write(LATEST_REPORT, result)
+    unreal.log("JOB182_CHANDELIER_LIGHT_DRY_OK|run=%s|world=editor|mesh=Iron3|sockets=44|candles_at_sockets=44|plan=%s|mutated=0|dirty=0+0|report=%s" %
+               (run_id, proposal["plan_sha256"], unique))
+    return result
+
+
 def _pie_context(world: Any, args: dict[str, Any]) -> dict[str, Any]:
     actors = _actors_pie(world)
     body, mesh = _body_and_mesh(actors, args)
@@ -543,12 +571,21 @@ def _run_pie(args: dict[str, Any], proposal: dict[str, Any], run_id: str) -> Non
         candles = _candle_rows(context["actors"], context["body"], context["mesh"], args, probe_render)
         require(all(row["actor_at_socket"] and row["body_parent_ok"] and row["attached_socket_ok"]
                     for row in candles), "CANDLE_SOCKET_READBACK")
+        mesh_visible = bool(context["mesh"].is_visible())
+        mesh_recent = (bool(context["mesh"].was_recently_rendered(2.0))
+                       if probe_render and hasattr(context["mesh"], "was_recently_rendered") else None)
+        if probe_render:
+            require(mesh_visible and mesh_recent is not False,
+                    "BODY_NOT_RENDERING|visible=%s|recent=%s" %
+                    (mesh_visible, mesh_recent))
         result = {
             "ok": True, "mode": args["mode"], "run": run_id,
             "selected_master_frame": state["selected"]["master_frame"],
             "selected_fraction": state["selected"]["fraction"],
             "visibility_scan": state["samples"], "mesh_bounds_world": bounds,
             "candles": candles, "proposal": proposal,
+            "body_render": {"mesh_visible": mesh_visible,
+                            "mesh_recently_rendered_2s": mesh_recent},
             "niagara_scope": "exact 44 BP_Effect_ChandelierCandle actors; no swarm actor queried or changed",
         }
         return result
@@ -611,6 +648,8 @@ def _run_pie(args: dict[str, Any], proposal: dict[str, Any], run_id: str) -> Non
                     player.set_disable_camera_cuts(True)
                 review_camera.set_actor_location_and_rotation(location, rotation, False, True)
                 controller.set_view_target_with_blend(review_camera, 0.0)
+                state["review_location"] = location
+                state["review_rotation"] = rotation
                 state["review_camera"] = {
                     "source_passage_camera": source,
                     "location_cm": _vec(location), "rotation_deg": _rot(rotation),
@@ -622,9 +661,20 @@ def _run_pie(args: dict[str, Any], proposal: dict[str, Any], run_id: str) -> Non
                 state.update(phase="review_settle", wait=int(args.get("review_settle_ticks", 120)))
                 return
             if state["phase"] == "review_settle":
+                # Passage transport can reclaim its camera after a scrub. Hold the
+                # reviewed camera deterministically through the rendered settle.
+                if hasattr(player, "set_disable_camera_cuts"):
+                    player.set_disable_camera_cuts(True)
+                review_camera.set_actor_location_and_rotation(state["review_location"],
+                                                              state["review_rotation"], False, True)
+                controller.set_view_target_with_blend(review_camera, 0.0)
                 state["wait"] -= 1
                 if state["wait"] > 0:
                     return
+                require(controller.get_view_target() == review_camera, "REVIEW_VIEW_TARGET_RECLAIMED")
+                require(_distance(manager.get_camera_location(), state["review_location"]) <= 5.0,
+                        "REVIEW_CAMERA_MANAGER_DRIFT|%.3f" %
+                        _distance(manager.get_camera_location(), state["review_location"]))
                 output = args["review_output"].replace("\\", "/")
                 require(not os.path.exists(output), "REVIEW_OUTPUT_EXISTS|" + output)
                 os.makedirs(os.path.dirname(output), exist_ok=True)
@@ -659,7 +709,9 @@ def run(raw: dict[str, Any]) -> Any:
     try:
         args = core.validate_args(raw)
         proposal = core.build_proposal(args)
-        if args["mode"] in ("DRY", "REVIEW"):
+        if args["mode"] == "DRY":
+            return _run_editor_dry(args, proposal, run_id)
+        if args["mode"] == "REVIEW":
             return _run_pie(args, proposal, run_id)
         return _run_editor(args, proposal, run_id)
     except Exception as error:  # noqa: BLE001 - retain precise conductor marker.

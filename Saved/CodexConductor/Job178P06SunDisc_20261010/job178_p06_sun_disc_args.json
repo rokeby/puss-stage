@@ -1,6 +1,6 @@
 {
-  "mode": "DRY",
-  "confirm": "DRY JOB178B P06 SUN DISC",
+  "mode": "APPLY",
+  "confirm": "APPLY JOB178B P06 SUN DISC",
   "passage_guid": "9BFC29C45D47911FF7836BB8537230D2",
   "passage_label": "Passage 6",
   "arrival_seconds": 0.25,
@@ -12,7 +12,7 @@
   "fit_fraction": 0.8,
   "fit_sample": "near_end",
   "center_sample": "arrival",
-  "max_sunset_shift_seconds": 10.0,
+  "max_sunset_shift_seconds": 35.0,
   "center_tolerance_deg": 0.3,
   "sun_actor_label": "Infinity Stage - Dusk Sun",
   "sky_actor_label": "Infinity Stage - Dusk Sky Atmosphere"

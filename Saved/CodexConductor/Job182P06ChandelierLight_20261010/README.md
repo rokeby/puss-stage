@@ -13,11 +13,13 @@ The JSON defaults are proposals for Gary to tune, not approved look values:
 - 1.75 cm flame-tip offset, 0.5 cm candle/socket tolerance;
 - 1.25x mesh-bounds framing margin and 1600x900 review still.
 
-`DRY` and `REVIEW` require an owned PIE. They scan P06, choose a frame where the
-Iron3 mesh bounds are on screen, and restore transport/view state. `REVIEW`
-uses `Shore Cast Review Camera` only in the PIE copy, approaches the mesh from
-the active P06 passage camera side, fits the body-only bounds, sets post-process
-blend weight to zero, and never sets an exposure value. It requires all 44 exact
+`DRY` requires PIE stopped and inspects the clean editor world: the exact Iron3
+body, 44 sockets, 44 attached candle actors, the body-only bounds and the
+reviewed light proposal. `REVIEW` requires an owned PIE. It scans P06, chooses a
+frame where the Iron3 mesh bounds are on screen, then uses `Shore Cast Review
+Camera` only in the PIE copy, approaches the mesh from the active P06 passage
+camera side, fits the body-only bounds, sets post-process blend weight to zero,
+and never sets an exposure value. It requires all 44 exact
 `ChandelierFlameFX` components to be active, visible, registered (where exposed)
 and `was_recently_rendered(2.0)`.
 
@@ -37,10 +39,10 @@ python -m py_compile Saved/CodexConductor/Job182P06ChandelierLight_20261010/job1
 
 ## Live run order
 
-1. With a clean editor, start an owned PIE at P06. Leave `mode=DRY`, confirmation
-   and reviewed hash blank. Submit `job182_request.json`. Require
-   `JOB182_CHANDELIER_LIGHT_DRY_OK`, 44 socket rows, 44 `actor_at_socket=true`
-   rows, the exact Iron3 mesh, a chosen on-screen frame, and `dirty=0+0`.
+1. With a clean editor and PIE stopped, leave `mode=DRY`, confirmation and
+   reviewed hash blank. Submit `job182_request.json`. Require
+   `JOB182_CHANDELIER_LIGHT_DRY_OK|...|world=editor`, 44 socket rows, 44
+   `actor_at_socket=true` rows, the exact Iron3 mesh and `dirty=0+0`.
 2. Copy the reported `plan_sha256` into `reviewed_plan_sha256`. Review every
    value as a Gary-tunable proposal. Stop PIE without saving playback state.
 3. Set `mode=APPLY`, `confirm="APPLY JOB182 CHANDELIER LIGHT"`. Submit. Require
