@@ -43,3 +43,4 @@
   - Code.gs: up to date.
   - S6 old-lady cuts darker: eventually, after Gary directs them by hand.
 - **Gary 10 Oct ~02:00**: S3 dune set D is PARKED; the scene is already framed. The S3 MetaHuman material rendering and clothing colour is **CRITICAL**: the black, shiny, untextured hessian; the white T-shirts; the underwear colour; the no-shroud and translucent figures. Next: pass-2 item 0 (S3 diag v2) feeds a fix job straight away.
+- **Gary ~02:05**: S3 T-shirts MATCH the hessian (desaturated sackcloth tone), so the shroud/shirt overlap does not create visual interference.
