@@ -124,3 +124,11 @@ Stills are in `Saved/CodexConductor/ApplyPass_20261010/stills/`. Verdicts are by
 5. Shadow radii with the perf auto-revert.
 6. The chandelier chain.
 7. Ending 101.
+
+**Job 136 (merged):**
+- Fringe and P02 floor: ready for pass 5.
+- **P04 smoke prop: GARY DECISION.** The smoke actor is stale or outside the Show's identity contract. Options:
+  - (a) re-materialize P04 from the Show (its managed attachment actors get respawned), then re-DRY; or
+  - (b) decline / hide it by hand.
+
+  Waiting for Gary.
