@@ -99,3 +99,7 @@
 - **Shadow reach:** find a MIDDLE point. Not 100 m, but at least reaching the neighbouring few wings or the wings across. Perf-gated.
 - **S3 hair:** keep the current hairstyle for now. Its purpose is mainly to cover the faces. Gary did not see it in the last still.
 - **Lighting workflow:** Gary wants an efficient way to light a few bays by hand (as he did in P01), then have them replicated across a sequence of bays with variation. The parcans should follow the lights he moves.
+
+## Gary, 10 Oct ~19:50: lighting workflow
+- He will NOT use replication across all bays any more: there are too many lights, and they carry movements, to tune by hand.
+- WANTED: he moves a few parcans (light actors), and their fixture bodies **rebuild automatically**, with no Codex step. Job 180.
