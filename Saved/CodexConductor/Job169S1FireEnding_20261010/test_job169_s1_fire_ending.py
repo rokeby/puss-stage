@@ -176,6 +176,7 @@ class SourceContract(unittest.TestCase):
         self.assertIn("OWNED_SPAWNABLES", source)
         self.assertIn("camera_hierarchical_bias", source)
         self.assertIn("HIDDEN_OUTSIDE_WINDOW", source)
+        self.assertIn('label.endswith(": " + wanted)', source)
 
     def test_ue58_interpolation_and_component_binding_contract(self):
         source = self.source("job169_s1_fire_ending.py")

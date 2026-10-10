@@ -105,11 +105,12 @@ def run(args):
     hold_labels = {"S1 Hangar Root", "S1 Hangar Roof Hinge", "S1 Hangar Lattice Fly"}; held = {}
     for binding in seq.get_bindings():
         label = str(binding.get_display_name())
-        if label not in hold_labels:
+        matches = [wanted for wanted in hold_labels if label == wanted or label.endswith(": " + wanted)]
+        if len(matches) != 1:
             continue
-        held[label] = [helper._section_range(s, seq) for t in binding.get_tracks()
-                       if t.get_class().get_name() == "MovieScene3DTransformTrack"
-                       for s in t.get_sections() if s.is_active()]
+        held[matches[0]] = [helper._section_range(s, seq) for t in binding.get_tracks()
+                            if t.get_class().get_name() == "MovieScene3DTransformTrack"
+                            for s in t.get_sections() if s.is_active()]
     for label in sorted(hold_labels):
         if not any(span[0] <= 775 and span[1] == plan["new_end"] for span in held.get(label, [])):
             failures.append("HANGAR_HOLD|%s|%s" % (label, held.get(label)))

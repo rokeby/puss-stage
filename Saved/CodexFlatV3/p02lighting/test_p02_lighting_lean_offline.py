@@ -80,6 +80,54 @@ check("key radii cap", all(x["after"]["lighting"].get("attenuation_radius_cm", 0
 check("shadows only on hero keys", all(not x["after"]["lighting"].get("cast_shadows", False) or
                                         (x["role"] == "LOW_SIDE_L_KEY" and x["ordinal"] in L.HERO_ORDINALS)
                                         for x in plan["changes"]))
+
+
+class FakeStruct:
+    def __init__(self, **values):
+        self.values = values
+
+    def get_editor_property(self, name):
+        return self.values[name]
+
+    def set_editor_property(self, name, value):
+        self.values[name] = value
+
+
+class FakeShow:
+    def __init__(self, rows):
+        self.rows = rows
+
+
+fake_guid = "A" * 32
+fake_show = FakeShow({51: [FakeStruct(
+    attachment_guid=fake_guid,
+    enabled=False,
+    lighting=FakeStruct(cast_shadows=True, volumetric_scattering_intensity=1.0),
+)]})
+detached = copy.deepcopy(fake_show.rows[51])
+detached[0].get_editor_property("lighting").set_editor_property("cast_shadows", False)
+check("negative detached nested mutation does not reach Show",
+      fake_show.rows[51][0].get_editor_property("lighting").get_editor_property("cast_shadows") is True)
+original_pair = L.P._pair_attachments
+original_set_pair = L.P._set_pair_attachments
+original_guid_text = L.P._guid_text
+try:
+    L.P._pair_attachments = lambda show, index: copy.deepcopy(show.rows[index])
+    L.P._set_pair_attachments = lambda show, index, attachments: show.rows.__setitem__(
+        index, copy.deepcopy(attachments))
+    L.P._guid_text = str
+    L.mutate_rows(fake_show, {"changes": [{
+        "show_index": 51,
+        "guid": fake_guid,
+        "after": {"enabled": False, "lighting": {
+            "cast_shadows": False, "volumetric_scattering_intensity": 0.0}},
+    }]}, "after")
+finally:
+    L.P._pair_attachments = original_pair
+    L.P._set_pair_attachments = original_set_pair
+    L.P._guid_text = original_guid_text
+check("regression attachment writeback reaches Show",
+      fake_show.rows[51][0].get_editor_property("lighting").get_editor_property("cast_shadows") is False)
 check("negative origin run drift", raises(lambda: L.build_plan(dict(origin, run="OTHER"), car, args),
                                            "ORIGIN_RUN_DRIFT"))
 bad_car = copy.deepcopy(car)

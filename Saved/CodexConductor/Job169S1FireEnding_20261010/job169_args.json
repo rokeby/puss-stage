@@ -1,8 +1,8 @@
 {
-  "stage": "LIGHTS_OUT",
+  "stage": "VALIDATE",
   "mode": "DRY",
   "confirm": "DRY JOB169",
-  "run_id": "J181-J169-LIGHTS-20261010",
+  "run_id": "J183-J169-VALIDATE-20261010",
   "decided_by": "Gary, Codex job 169, 10 Oct 2026",
   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
   "klara_copy": "/Game/InfinityStage/KlaraHookin/LS_Animals_1_S1Hangar",

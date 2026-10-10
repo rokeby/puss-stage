@@ -100,6 +100,11 @@ check("+ APPLY binds the reviewed proposal digest",
       'args["reviewed_plan_sha256"] == proposal["plan_sha256"]' in runtime, "positive")
 check("+ REVERT owns actors by exact Job 182 tags",
       "OWNER_TAG in _tags(actor)" in runtime and "destroy_actor(actor)" in runtime, "positive")
+check("+ run id uses Python datetime supported by the live interpreter",
+      "unreal.DateTime.now()" not in runtime and "datetime.datetime.now().strftime" in runtime, "positive")
+check("+ PIE world guard uses the live PIE package because editor world is absent in UE 5.8",
+      "get_editor_world()) == WORLD" not in runtime
+      and 're.sub(r"/UEDPIE_\\d+_", "/", pie_id or "")' in runtime, "positive")
 
 result = {"ok": not failed, "pass": len(passed), "fail": len(failed),
           "total": len(passed) + len(failed),

@@ -7,6 +7,7 @@ actor; ownership is exact tags plus exact labels on the nine Job 182 lights.
 from __future__ import annotations
 
 import hashlib
+import datetime
 import json
 import math
 import os
@@ -72,7 +73,7 @@ def _read(path: str) -> Any:
 
 
 def _run_id() -> str:
-    return "J182-" + unreal.DateTime.now().to_string("%Y%m%d-%H%M%S")
+    return "J182-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 
 def _census() -> dict[str, list[str]]:
@@ -141,7 +142,11 @@ def _pie_world() -> Any:
     editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     world = editor.get_game_world()
     require(world is not None, "OWNED_PIE_REQUIRED")
-    require(_asset_id(editor.get_editor_world()) == WORLD, "WRONG_EDITOR_WORLD")
+    # UE 5.8 returns None for get_editor_world() while PIE is active. Validate
+    # the owned PIE copy directly after removing its UEDPIE_<n>_ package prefix.
+    pie_id = _asset_id(world)
+    source_id = re.sub(r"/UEDPIE_\d+_", "/", pie_id or "")
+    require(source_id == WORLD, "WRONG_PIE_WORLD|" + str(pie_id))
     return world
 
 

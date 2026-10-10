@@ -2,8 +2,9 @@
 
 DRY samples the authored Passage camera at arrival and near the end without
 opening/scrubbing Sequencer. Angular opening dimensions come from bounded
-Visibility traces. APPLY sizes the disc to 80% of the chosen window's smaller
-dimension, centres the existing dusk cycle within a strict retime budget, and
+Visibility traces. If exactly one edge is unbounded, APPLY sizes the disc to
+80% of the fully bounded axis and centres on that bounded extent; otherwise it
+uses the smaller bounded axis. It centres the existing dusk cycle within a strict retime budget, and
 shows the existing production SkyAtmosphere only for the P06 Master section.
 """
 from __future__ import annotations
@@ -85,6 +86,21 @@ def trace_hit(world,p,h,v,args):
  hit=res[1] if isinstance(res,tuple) and res[0] else None
  if hit is None:return None
  vals=hit.to_tuple();actor=vals[9] if len(vals)>9 else None;return {"actor":label(actor) if actor else None,"distance_cm":float(vals[3]) if len(vals)>3 else None}
+def project_point(p,point):
+ d=unit([float(point[i])-p["location"][i] for i in range(3)]);dot=lambda a,b:sum(a[i]*b[i] for i in range(3));f=dot(d,p["forward"])
+ return {"h_deg":math.degrees(math.atan2(dot(d,p["right"]),f)),"v_deg":math.degrees(math.atan2(dot(d,p["up"]),math.hypot(f,dot(d,p["right"]))))}
+def hangar_mouth_fallback(p,args):
+ by={label(a):a for a in actors()};root=by.get("S6 Hangar Root");apron=by.get("S6 Hangar Apron");beam=by.get("S6 Hangar Lattice Beam 01")
+ require(root and apron and beam,"HANGAR_MOUTH_GEOMETRY_MISSING")
+ ao,ae=apron.get_actor_bounds(False,False);bo,be=beam.get_actor_bounds(False,False);ro=root.get_actor_location()
+ require(abs(ae.y-1000.0)<1.0 and abs(be.y-1000.0)<1.0 and abs(bo.z-1200.0)<1.0,"HANGAR_MOUTH_GEOMETRY_DRIFT")
+ x=float(ro.x);y=float(ao.y);bottom=float(ao.z+ae.z);top=float(bo.z-be.z);mid=(bottom+top)*0.5
+ hp=[project_point(p,[x,y-ae.y,mid]),project_point(p,[x,y+ae.y,mid])]
+ down=project_point(p,[x,y,bottom]);up=project_point(p,[x,y,top])
+ require(down["v_deg"]<0.0<up["v_deg"],"HANGAR_MOUTH_VERTICAL_NOT_BOUNDED|%s|%s"%(down["v_deg"],up["v_deg"]))
+ positive=[row["h_deg"] for row in hp if row["h_deg"]>0.0];require(positive,"HANGAR_MOUTH_RIGHT_NOT_BOUNDED")
+ out={"left":None,"right":max(positive),"down":abs(down["v_deg"]),"up":abs(up["v_deg"])}
+ win=C.opening_from_clearance(out,args["trace_limit_deg"]);win["boundary_hits"]={"left":{"unbounded":True,"source":"gary_one_edge_rule"},"right":{"source":"S6 Hangar Apron bounds","projected_deg":max(positive)},"down":{"source":"S6 Hangar Apron top","projected_deg":down["v_deg"]},"up":{"source":"S6 Hangar Lattice Beam 01 bottom","projected_deg":up["v_deg"]}};win["geometry_source"]={"root":str(root.get_path_name()),"apron":str(apron.get_path_name()),"beam":str(beam.get_path_name()),"mouth_x_cm":x,"bottom_z_cm":bottom,"top_z_cm":top};return win
 def clearance(world,p,args):
  require(trace_hit(world,p,0,0,args) is None,"WINDOW_CENTRE_OCCLUDED")
  out={};details={}
@@ -95,8 +111,12 @@ def clearance(world,p,args):
    angle=sign*i*args["trace_step_deg"];hit=trace_hit(world,p,angle if axis=="h" else 0,angle if axis=="v" else 0,args)
    if hit is not None:boundary={"angle_deg":abs(angle),"hit":hit};break
    last=abs(angle)
-  require(boundary is not None,"WINDOW_UNBOUNDED|"+name);out[name]=last;details[name]=boundary
- win=C.opening_from_clearance(out);win["boundary_hits"]=details;return win
+  if boundary is None:
+   out[name]=None;details[name]={"unbounded":True,"trace_limit_deg":args["trace_limit_deg"]}
+  else:
+   out[name]=last;details[name]=boundary
+ if len([name for name,value in out.items() if value is None])>1:return hangar_mouth_fallback(p,args)
+ win=C.opening_from_clearance(out,args["trace_limit_deg"]);win["boundary_hits"]=details;return win
 def world_direction(p,h,v):return ray_dir(p,h,v)
 def project(p,d):
  dot=lambda a,b:sum(a[i]*b[i] for i in range(3));f=dot(d,p["forward"]);return {"h_deg":math.degrees(math.atan2(dot(d,p["right"]),f)),"v_deg":math.degrees(math.atan2(dot(d,p["up"]),math.hypot(f,dot(d,p["right"])))),"forward_dot":f}
@@ -148,6 +168,7 @@ def run_dry(args,run,g):
  out={k:v for k,v in g.items() if k not in ("show","master","rig","sun","sun_comp","sky","sky_comp")};out.update({"schema":"job178b_dry_v1","run":run,"mode":"DRY","mutated":0,"dirty_before":census(),"dirty_after":census(),"visibility_diagnosis":{"sun_inside_camera_at_arrival":g["samples"]["arrival"]["sun"]["projection"]["forward_dot"]>0,"sun_occluded_at_window_centre":g["samples"]["arrival"]["centre_ray_occluded"],"production_sky_actor_hidden":g["sky_hidden"],"production_sky_component_visible":g["sky_component_visible"],"source_conclusion":"disc cannot render while the production SkyAtmosphere actor/component is hidden"}});out["plan_hash"]=C.stable_hash(out);path=os.path.join(HERE,"job178b_dry_%s.json"%run);write(path,out,True);require(census()==out["dirty_before"],"DRY_DIRTIED")
  for name in ("arrival","near_end"):
   x=g["samples"][name];unreal.log("JOB178B_MEASURE|run=%s|sample=%s|window_h=%.3f|window_v=%.3f|window_small=%.3f|current_disc=%.3f|sun_h=%.3f|sun_v=%.3f"%(run,name,x["window"]["horizontal_deg"],x["window"]["vertical_deg"],x["window"]["smaller_deg"],g["current_source_angle_deg"],x["sun"]["projection"]["h_deg"],x["sun"]["projection"]["v_deg"]))
+  unreal.log("JOB178B_BOUNDED_AXIS_RULE|run=%s|sample=%s|axis=%s|extent=%.3f|fit=%.2f|unbounded=%s|center_h=%.3f|center_v=%.3f"%(run,name,x["window"]["fit_axis"],x["window"]["bounded_extent_deg"],args["fit_fraction"],",".join(x["window"]["unbounded_edges"]),x["window"]["center_h_deg"],x["window"]["center_v_deg"]))
  unreal.log("JOB178B_P06_SUN_DISC_DRY_OK|run=%s|arrival_window=%.3fx%.3f|near_end_window=%.3fx%.3f|current_disc=%.3f|target_disc=%.3f|fit=%.2f|sky_hidden=%d|mutated=0|dirty=0+0|report=%s"%(run,g["samples"]["arrival"]["window"]["horizontal_deg"],g["samples"]["arrival"]["window"]["vertical_deg"],g["samples"]["near_end"]["window"]["horizontal_deg"],g["samples"]["near_end"]["window"]["vertical_deg"],g["current_source_angle_deg"],g["target_size_deg"],args["fit_fraction"],g["sky_hidden"],path))
 def run_apply(args,run,g,world):
  require(not os.path.exists(ACTIVE),"ACTIVE_RECORD_EXISTS");packages=[SHOW,MASTER,WORLD];pre=backup(run,"",packages,{"samples":g["samples"],"target_size":g["target_size_deg"],"center":g["center"]});record={"schema":"job178b_active_v1","status":"prepared","run":run,"backup":pre,"packages":packages,"before":{"cycle":g["p06"],"sun_azimuth_degrees":float(g["rig"].get_editor_property("sun_azimuth_degrees"))},"tracks":[],"created_bindings":[]};write(ACTIVE,record,True)

@@ -1,6 +1,10 @@
 {
-  "name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset.ExecuteProjectPythonFile",
+  "name": "call_tool",
   "arguments": {
-    "script_path": "E:/PussStage/Saved/CodexConductor/Job182P06ChandelierLight_20261010/job182_run.py"
+    "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+    "tool_name": "ExecuteProjectPythonFile",
+    "arguments": {
+      "relativeSavedPath": "CodexConductor/Job182P06ChandelierLight_20261010/job182_run.py"
+    }
   }
 }

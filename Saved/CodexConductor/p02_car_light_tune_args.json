@@ -2,7 +2,7 @@
  "mode": "DRY",
  "confirm": "DRY P02CAR_TUNE",
  "expected": {
-  "attenuation_radius_cm": 3200.0,
+  "attenuation_radius_cm": 10000.0,
   "aim_target_local": [
    0.0,
    -2400.0,

@@ -217,7 +217,12 @@ def validate_live(show, plan, side):
 
 
 def mutate_rows(show, plan, side):
-    by_index = live_rows(show, [x["show_index"] for x in plan["changes"]])
+    indexes = sorted({x["show_index"] for x in plan["changes"]})
+    attachments_by_index = {index: P._pair_attachments(show, index) for index in indexes}
+    by_index = {
+        index: {P._guid_text(a.get_editor_property("attachment_guid")): a for a in attachments}
+        for index, attachments in attachments_by_index.items()
+    }
     for item in plan["changes"]:
         attachment = by_index[item["show_index"]][item["guid"]]
         values = item[side]
@@ -227,6 +232,11 @@ def mutate_rows(show, plan, side):
             for name, value in values["lighting"].items():
                 lighting.set_editor_property(name, value)
             attachment.set_editor_property("lighting", lighting)
+    # UE nested structs are value-like.  Mutating an attachment proxy alone does
+    # not serialize it into the Show; reassign the full attachments -> wing pair
+    # -> cue -> cues chain through the proven helper.
+    for index in indexes:
+        P._set_pair_attachments(show, index, attachments_by_index[index])
 
 
 def car_actor(plan):

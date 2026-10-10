@@ -1,9 +1,9 @@
 {
   "ok": true,
-  "pass": 21,
+  "pass": 23,
   "fail": 0,
-  "total": 21,
-  "positive": 12,
+  "total": 23,
+  "positive": 14,
   "negative": 9,
   "passed": [
     {
@@ -108,6 +108,16 @@
     },
     {
       "name": "+ REVERT owns actors by exact Job 182 tags",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ run id uses Python datetime supported by the live interpreter",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ PIE world guard uses the live PIE package because editor world is absent in UE 5.8",
       "control": "positive",
       "passed": true
     }

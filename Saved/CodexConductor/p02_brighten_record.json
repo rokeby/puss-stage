@@ -3,13 +3,15 @@
     "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
     "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P02.json",
     "E:\\PussStage\\Saved\\CodexConductor\\p02_rig_pattern_record.json",
-    "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P02.json"
+    "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P02.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\GlimmerBulbs_20261007\\glimmer_targets_from_records.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\MeshyFixtures_20261007\\meshy_swap_record_P02.json"
   ],
   "after_live": [
     {
       "attachment_guid": "A5129EB24DC33795F0C70F8C18F22D58",
       "path": "lighting.intensity",
-      "value": 300.0
+      "value": 102.0
     },
     {
       "attachment_guid": "A5129EB24DC33795F0C70F8C18F22D58",
@@ -24,7 +26,7 @@
     {
       "attachment_guid": "AD7A5FA9406B37C55441F3A2C67180BB",
       "path": "lighting.intensity",
-      "value": 300.0
+      "value": 68.0
     },
     {
       "attachment_guid": "AD7A5FA9406B37C55441F3A2C67180BB",
@@ -69,7 +71,7 @@
     {
       "attachment_guid": "B38648B94A1458CA951F4CB999B2E243",
       "path": "lighting.intensity",
-      "value": 800.0
+      "value": 120.0
     },
     {
       "attachment_guid": "B38648B94A1458CA951F4CB999B2E243",
@@ -84,7 +86,7 @@
     {
       "attachment_guid": "CDA82B164100EB867506FEB513DFC2B8",
       "path": "lighting.intensity",
-      "value": 300.0
+      "value": 88.80000305175781
     },
     {
       "attachment_guid": "CDA82B164100EB867506FEB513DFC2B8",
@@ -99,7 +101,7 @@
     {
       "attachment_guid": "8CECD9F042849B7B9FD3FEB3D9B08BB6",
       "path": "lighting.intensity",
-      "value": 300.0
+      "value": 60.0
     },
     {
       "attachment_guid": "8CECD9F042849B7B9FD3FEB3D9B08BB6",
@@ -144,7 +146,7 @@
     {
       "attachment_guid": "0B7A7FF040D3BE75C44ADF93EE8A2BCB",
       "path": "lighting.intensity",
-      "value": 800.0
+      "value": 120.0
     },
     {
       "attachment_guid": "0B7A7FF040D3BE75C44ADF93EE8A2BCB",
@@ -159,7 +161,7 @@
     {
       "attachment_guid": "D8084D8D4F0C686E5051AE9CB36F8BAF",
       "path": "lighting.intensity",
-      "value": 300.0
+      "value": 75.5999984741211
     },
     {
       "attachment_guid": "D8084D8D4F0C686E5051AE9CB36F8BAF",
@@ -174,7 +176,7 @@
     {
       "attachment_guid": "6A35DF3A4D0E330B3C2A2A893FA8BC70",
       "path": "lighting.intensity",
-      "value": 300.0
+      "value": 60.0
     },
     {
       "attachment_guid": "6A35DF3A4D0E330B3C2A2A893FA8BC70",
@@ -208,11 +210,6 @@
     },
     {
       "attachment_guid": "CD08CB8A4B444FB580A447AD1B1535A3",
-      "path": "lighting.intensity",
-      "value": 800.0
-    },
-    {
-      "attachment_guid": "CD08CB8A4B444FB580A447AD1B1535A3",
       "path": "lighting.drama.strike_distance_cm",
       "value": 2500.0
     },
@@ -224,7 +221,7 @@
     {
       "attachment_guid": "91FAEB9049CF6821A47BD8856E37DBDF",
       "path": "lighting.intensity",
-      "value": 800.0
+      "value": 120.0
     },
     {
       "attachment_guid": "91FAEB9049CF6821A47BD8856E37DBDF",
@@ -239,7 +236,7 @@
     {
       "attachment_guid": "01653216470B360E860D1B9299163BF3",
       "path": "lighting.intensity",
-      "value": 300.0
+      "value": 62.400001525878906
     },
     {
       "attachment_guid": "01653216470B360E860D1B9299163BF3",
@@ -288,11 +285,6 @@
     },
     {
       "attachment_guid": "5F380044498E3FAA1616B0A11A41D613",
-      "path": "lighting.intensity",
-      "value": 800.0
-    },
-    {
-      "attachment_guid": "5F380044498E3FAA1616B0A11A41D613",
       "path": "lighting.drama.strike_distance_cm",
       "value": 2500.0
     },
@@ -309,7 +301,7 @@
     {
       "attachment_guid": "0607BD6B4AC4E9A2762EA686E6D66C82",
       "path": "lighting.intensity",
-      "value": 800.0
+      "value": 120.0
     },
     {
       "attachment_guid": "0607BD6B4AC4E9A2762EA686E6D66C82",
@@ -358,11 +350,6 @@
     },
     {
       "attachment_guid": "5860E18B497EC0D66AF7DC8F515B22B0",
-      "path": "lighting.intensity",
-      "value": 800.0
-    },
-    {
-      "attachment_guid": "5860E18B497EC0D66AF7DC8F515B22B0",
       "path": "lighting.drama.strike_distance_cm",
       "value": 2500.0
     },
@@ -379,7 +366,7 @@
     {
       "attachment_guid": "865E9D3E45EE1EDE1EA24BB8C77F6DD3",
       "path": "lighting.intensity",
-      "value": 800.0
+      "value": 120.0
     },
     {
       "attachment_guid": "865E9D3E45EE1EDE1EA24BB8C77F6DD3",
@@ -428,11 +415,6 @@
     },
     {
       "attachment_guid": "A22ABC6946BC11C537090CB08DE5A5A0",
-      "path": "lighting.intensity",
-      "value": 800.0
-    },
-    {
-      "attachment_guid": "A22ABC6946BC11C537090CB08DE5A5A0",
       "path": "lighting.drama.strike_distance_cm",
       "value": 2500.0
     },
@@ -449,7 +431,7 @@
     {
       "attachment_guid": "A87FA13848C841365AF646A4DA39E256",
       "path": "lighting.intensity",
-      "value": 800.0
+      "value": 120.0
     },
     {
       "attachment_guid": "A87FA13848C841365AF646A4DA39E256",
@@ -480,11 +462,6 @@
       "attachment_guid": "4FAA76C141316DA43B867DA03AF292F2",
       "path": "lighting.drama.after_pass",
       "value": "<InfinityLightAfterPass.HOLD: 0>"
-    },
-    {
-      "attachment_guid": "C964018A414B3A689375FDAB38DB6649",
-      "path": "lighting.intensity",
-      "value": 800.0
     },
     {
       "attachment_guid": "C964018A414B3A689375FDAB38DB6649",
@@ -504,7 +481,7 @@
     {
       "attachment_guid": "AD435FD3486207A103B3A79E98284E4D",
       "path": "lighting.intensity",
-      "value": 800.0
+      "value": 120.0
     },
     {
       "attachment_guid": "AD435FD3486207A103B3A79E98284E4D",
@@ -539,7 +516,7 @@
     {
       "attachment_guid": "DB81ED1E4019C5A09B6BF0A837756A4D",
       "path": "lighting.intensity",
-      "value": 800.0
+      "value": 120.0
     },
     {
       "attachment_guid": "DB81ED1E4019C5A09B6BF0A837756A4D",
@@ -559,7 +536,7 @@
     {
       "attachment_guid": "BBD1D07E4E4233257330409CB6AE39BA",
       "path": "lighting.intensity",
-      "value": 800.0
+      "value": 120.0
     },
     {
       "attachment_guid": "BBD1D07E4E4233257330409CB6AE39BA",
@@ -579,7 +556,7 @@
     {
       "attachment_guid": "E237CFE54E48CFFDEDAB75AFEC76D397",
       "path": "lighting.intensity",
-      "value": 300.0
+      "value": 60.0
     },
     {
       "attachment_guid": "E237CFE54E48CFFDEDAB75AFEC76D397",
@@ -594,7 +571,7 @@
     {
       "attachment_guid": "DA15E4D54C1D4E4BD4C2AAA375C943A9",
       "path": "lighting.intensity",
-      "value": 300.0
+      "value": 60.0
     },
     {
       "attachment_guid": "DA15E4D54C1D4E4BD4C2AAA375C943A9",
@@ -639,7 +616,7 @@
     {
       "attachment_guid": "F64A9E7A4BA8757C07FF0D89661CB8FE",
       "path": "lighting.intensity",
-      "value": 800.0
+      "value": 120.0
     },
     {
       "attachment_guid": "F64A9E7A4BA8757C07FF0D89661CB8FE",
@@ -654,7 +631,7 @@
     {
       "attachment_guid": "74D9AA3543380838E58D66B56DA5E79F",
       "path": "lighting.intensity",
-      "value": 300.0
+      "value": 60.0
     },
     {
       "attachment_guid": "74D9AA3543380838E58D66B56DA5E79F",
@@ -669,7 +646,7 @@
     {
       "attachment_guid": "CEB19463483C0C27DC5BF281D2C9E66F",
       "path": "lighting.intensity",
-      "value": 300.0
+      "value": 60.0
     },
     {
       "attachment_guid": "CEB19463483C0C27DC5BF281D2C9E66F",
@@ -714,7 +691,7 @@
     {
       "attachment_guid": "1D28B92243A238822929DC92C9AE40DE",
       "path": "lighting.intensity",
-      "value": 800.0
+      "value": 120.0
     },
     {
       "attachment_guid": "1D28B92243A238822929DC92C9AE40DE",
@@ -725,11 +702,6 @@
       "attachment_guid": "1D28B92243A238822929DC92C9AE40DE",
       "path": "lighting.drama.strike_ramp_cm",
       "value": 600.0
-    },
-    {
-      "attachment_guid": "9E27B8A94E4D99DFD0D43CB56971C553",
-      "path": "lighting.intensity",
-      "value": 800.0
     },
     {
       "attachment_guid": "9E27B8A94E4D99DFD0D43CB56971C553",
@@ -744,7 +716,7 @@
     {
       "attachment_guid": "A718671046C11949C87B61B04F690EBC",
       "path": "lighting.intensity",
-      "value": 800.0
+      "value": 120.0
     },
     {
       "attachment_guid": "A718671046C11949C87B61B04F690EBC",
@@ -759,7 +731,7 @@
     {
       "attachment_guid": "B2132BCF4F39312546EAC78F1BD64508",
       "path": "lighting.intensity",
-      "value": 300.0
+      "value": 60.0
     },
     {
       "attachment_guid": "B2132BCF4F39312546EAC78F1BD64508",
@@ -774,7 +746,7 @@
     {
       "attachment_guid": "B63BFF7347C2297D2428C998CC72A7FE",
       "path": "lighting.intensity",
-      "value": 300.0
+      "value": 60.0
     },
     {
       "attachment_guid": "B63BFF7347C2297D2428C998CC72A7FE",
@@ -819,7 +791,7 @@
     {
       "attachment_guid": "0B58959246F3B49C8CEE0A81FDA7167C",
       "path": "lighting.intensity",
-      "value": 800.0
+      "value": 120.0
     },
     {
       "attachment_guid": "0B58959246F3B49C8CEE0A81FDA7167C",
@@ -837,12 +809,14 @@
       "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
       "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P02.json",
       "E:\\PussStage\\Saved\\CodexConductor\\p02_rig_pattern_record.json",
-      "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P02.json"
+      "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P02.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\GlimmerBulbs_20261007\\glimmer_targets_from_records.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\MeshyFixtures_20261007\\meshy_swap_record_P02.json"
     ],
     "allow_dirty": [],
     "confirm": "APPLY P02BRIGHTEN",
     "expected_bays": null,
-    "expected_targets": 165,
+    "expected_targets": 159,
     "mode": "APPLY",
     "params": {
       "after_pass_override": "HOLD",
@@ -851,40 +825,40 @@
         "BEAM_R"
       ],
       "from_fraction": 0.45,
-      "practical_floor": 800.0,
+      "practical_floor": 120.0,
       "practical_role_re": "^PRACTICAL(_[A-Z]+)*$",
       "practical_units": "LUMENS",
       "skip_labels": [],
       "strike_distance_cm": 2500.0,
       "strike_ramp_cm": 600.0,
-      "top_floor_cd": 300.0,
-      "top_max_cd": 800.0,
+      "top_floor_cd": 60.0,
+      "top_max_cd": 200.0,
       "top_roles": [
         "TOP_L",
         "TOP_R"
       ],
-      "top_scale": 4.0,
+      "top_scale": 2.0,
       "top_units": "CANDELAS"
     }
   },
   "backup": {
     "packages": [
       {
-        "backup": "E:/PussStage/Backups\\PreP02Brighten-20261007-025331\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
-        "bytes": 25217320,
+        "backup": "E:/PussStage/Backups\\PreP02Brighten-20261008-233607\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+        "bytes": 25616963,
         "package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
-        "sha256": "8793d49a27f7d6726c55a55634e34d3a4704adefef8199f6063d51607c3a42ef",
+        "sha256": "18d0e08f13bd9d9c1f81b1c0c2b8a578e70ff0a67992cc1ac6b065b53a7b886d",
         "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset"
       },
       {
-        "backup": "E:/PussStage/Backups\\PreP02Brighten-20261007-025331\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
-        "bytes": 19505801,
+        "backup": "E:/PussStage/Backups\\PreP02Brighten-20261008-233607\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 36270429,
         "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
-        "sha256": "4f832717165d2c89911ac9f03109f84f9c601c2c4392bec97de6de67f9f8a5f2",
+        "sha256": "715190e79a2a5d519d31c633ad7ea3f1611cbdd9484fe89a976482fa2afdc326",
         "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
       }
     ],
-    "root": "E:/PussStage/Backups\\PreP02Brighten-20261007-025331"
+    "root": "E:/PussStage/Backups\\PreP02Brighten-20261008-233607"
   },
   "before_cue_rows": {
     "0CEEA95DF14599EAFCEEF8BAB535CF74": [
@@ -2911,12 +2885,12 @@
           "use_temperature": false,
           "volumetric_scattering_intensity": 1.0
         },
-        "mesh": "/Engine/BasicShapes/Sphere.Sphere",
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_G95_Clear.SM_Bulb_G95_Clear",
         "relative_transform": {
           "location": [
-            -20.0,
-            700.0,
-            115.0
+            -19.936,
+            699.744,
+            141.64
           ],
           "rotation_xyzw": [
             0.0,
@@ -2925,9 +2899,9 @@
             1.0
           ],
           "scale": [
-            0.2,
-            0.2,
-            0.24
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -4665,12 +4639,12 @@
           "use_temperature": false,
           "volumetric_scattering_intensity": 1.0
         },
-        "mesh": "/Engine/BasicShapes/Sphere.Sphere",
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage.SM_Bulb_ST64_Cage",
         "relative_transform": {
           "location": [
-            -20.0,
-            700.0,
-            125.0
+            -39.4344,
+            702.5193,
+            140.0401
           ],
           "rotation_xyzw": [
             0.0,
@@ -4679,9 +4653,9 @@
             1.0
           ],
           "scale": [
-            0.18,
-            0.18,
-            0.22
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -6711,12 +6685,12 @@
           "use_temperature": false,
           "volumetric_scattering_intensity": 1.0
         },
-        "mesh": "/Engine/BasicShapes/Sphere.Sphere",
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_ST64_Cage.SM_Bulb_ST64_Cage",
         "relative_transform": {
           "location": [
-            -20.0,
-            700.0,
-            115.0
+            -20.496,
+            699.344,
+            141.88
           ],
           "rotation_xyzw": [
             0.0,
@@ -6725,9 +6699,9 @@
             1.0
           ],
           "scale": [
-            0.2,
-            0.2,
-            0.24
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -8465,12 +8439,12 @@
           "use_temperature": false,
           "volumetric_scattering_intensity": 1.0
         },
-        "mesh": "/Engine/BasicShapes/Sphere.Sphere",
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Opal.SM_Bulb_A60_Opal",
         "relative_transform": {
           "location": [
-            -20.0,
-            -700.0,
-            125.0
+            -46.2215,
+            713.712,
+            229.1526
           ],
           "rotation_xyzw": [
             0.0,
@@ -8479,9 +8453,9 @@
             1.0
           ],
           "scale": [
-            0.18,
-            0.18,
-            0.22
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -10657,12 +10631,12 @@
           "use_temperature": false,
           "volumetric_scattering_intensity": 1.0
         },
-        "mesh": "/Engine/BasicShapes/Sphere.Sphere",
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Opal.SM_Bulb_A60_Opal",
         "relative_transform": {
           "location": [
-            -20.0,
-            -700.0,
-            125.0
+            -47.7252,
+            683.7804,
+            200.114
           ],
           "rotation_xyzw": [
             0.0,
@@ -10671,9 +10645,9 @@
             1.0
           ],
           "scale": [
-            0.18,
-            0.18,
-            0.22
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -12557,12 +12531,12 @@
           "use_temperature": false,
           "volumetric_scattering_intensity": 1.0
         },
-        "mesh": "/Engine/BasicShapes/Sphere.Sphere",
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear.SM_Bulb_A60_Clear",
         "relative_transform": {
           "location": [
-            -20.0,
-            -700.0,
-            125.0
+            -66.9598,
+            684.7469,
+            235.1305
           ],
           "rotation_xyzw": [
             0.0,
@@ -12571,9 +12545,9 @@
             1.0
           ],
           "scale": [
-            0.18,
-            0.18,
-            0.22
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -14603,12 +14577,12 @@
           "use_temperature": false,
           "volumetric_scattering_intensity": 1.0
         },
-        "mesh": "/Engine/BasicShapes/Sphere.Sphere",
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost.SM_Bulb_A60_Frost",
         "relative_transform": {
           "location": [
-            -20.0,
-            700.0,
-            125.0
+            -8.8257,
+            700.0363,
+            136.055
           ],
           "rotation_xyzw": [
             0.0,
@@ -14617,9 +14591,9 @@
             1.0
           ],
           "scale": [
-            0.18,
-            0.18,
-            0.22
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -16211,12 +16185,12 @@
           "use_temperature": false,
           "volumetric_scattering_intensity": 1.0
         },
-        "mesh": "/Engine/BasicShapes/Sphere.Sphere",
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear.SM_Bulb_A60_Clear",
         "relative_transform": {
           "location": [
-            -20.0,
-            700.0,
-            125.0
+            -16.7479,
+            698.3718,
+            160.2656
           ],
           "rotation_xyzw": [
             0.0,
@@ -16225,9 +16199,9 @@
             1.0
           ],
           "scale": [
-            0.18,
-            0.18,
-            0.22
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -18111,12 +18085,12 @@
           "use_temperature": false,
           "volumetric_scattering_intensity": 1.0
         },
-        "mesh": "/Engine/BasicShapes/Sphere.Sphere",
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn.SM_Bulb_A60_Worn",
         "relative_transform": {
           "location": [
-            -20.0,
-            -700.0,
-            125.0
+            -57.2955,
+            675.1217,
+            209.4223
           ],
           "rotation_xyzw": [
             0.0,
@@ -18125,9 +18099,9 @@
             1.0
           ],
           "scale": [
-            0.18,
-            0.18,
-            0.22
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -19573,12 +19547,12 @@
           "use_temperature": false,
           "volumetric_scattering_intensity": 1.0
         },
-        "mesh": "/Engine/BasicShapes/Sphere.Sphere",
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Worn.SM_Bulb_A60_Worn",
         "relative_transform": {
           "location": [
-            -10.0,
-            700.0,
-            115.0
+            -10.112,
+            700.048,
+            137.592
           ],
           "rotation_xyzw": [
             0.0,
@@ -19587,9 +19561,9 @@
             1.0
           ],
           "scale": [
-            0.2,
-            0.2,
-            0.24
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -21619,12 +21593,12 @@
           "use_temperature": false,
           "volumetric_scattering_intensity": 1.0
         },
-        "mesh": "/Engine/BasicShapes/Sphere.Sphere",
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Opal.SM_Bulb_A60_Opal",
         "relative_transform": {
           "location": [
-            -20.0,
-            700.0,
-            115.0
+            -19.808,
+            699.488,
+            137.0
           ],
           "rotation_xyzw": [
             0.0,
@@ -21633,9 +21607,9 @@
             1.0
           ],
           "scale": [
-            0.2,
-            0.2,
-            0.24
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
@@ -23811,12 +23785,12 @@
           "use_temperature": false,
           "volumetric_scattering_intensity": 1.0
         },
-        "mesh": "/Engine/BasicShapes/Sphere.Sphere",
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear.SM_Bulb_A60_Clear",
         "relative_transform": {
           "location": [
-            -20.0,
-            700.0,
-            125.0
+            -40.7586,
+            692.7224,
+            130.2482
           ],
           "rotation_xyzw": [
             0.0,
@@ -23825,17 +23799,89 @@
             1.0
           ],
           "scale": [
-            0.18,
-            0.18,
-            0.22
+            3.2,
+            3.2,
+            3.2
           ]
         },
         "trigger_distance_cm": 800.0
       }
     ]
   },
-  "export_hash_before": "730fd3aaba32a1433887ccfa4d14e19163e202a3a45e22cc61686a582593d628",
+  "export_hash_before": "d7901fcacf2e01829d7865073a401773559c103f3b5a512522c5c519e29ab5a5",
   "foreign_records": [
+    {
+      "guids": [
+        "9E27B8A94E4D99DFD0D43CB56971C553"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\GlimmerBulbs_20261007\\glimmer_targets_from_records.json",
+      "sha256": "9979ddf02cfe80e8256b1615060b53dc7e4c0381710679e3bbfe667634ce8223",
+      "status": null
+    },
+    {
+      "guids": [
+        "01653216470B360E860D1B9299163BF3",
+        "0607BD6B4AC4E9A2762EA686E6D66C82",
+        "074A87ED41D1BEB2CB0A52B3EA3B3A62",
+        "0B58959246F3B49C8CEE0A81FDA7167C",
+        "0B7A7FF040D3BE75C44ADF93EE8A2BCB",
+        "10A2F69E454FCC7458029E8EF86F4F2B",
+        "13B6253F4E1B7C2BD5D5C0AD2DCABD3B",
+        "1D28B92243A238822929DC92C9AE40DE",
+        "21559DF14996D5F340C276B10537F996",
+        "2831FC7F4DFEE891F9D82697E6052056",
+        "2F6F4E364A36018341BC9DA506C10907",
+        "3CB822034BF0AE305E97E7BA88E09547",
+        "46ADF1BB45B413BCD07228A2A23D34D9",
+        "4FAA76C141316DA43B867DA03AF292F2",
+        "5860E18B497EC0D66AF7DC8F515B22B0",
+        "5F380044498E3FAA1616B0A11A41D613",
+        "6A35DF3A4D0E330B3C2A2A893FA8BC70",
+        "74D9AA3543380838E58D66B56DA5E79F",
+        "865E9D3E45EE1EDE1EA24BB8C77F6DD3",
+        "8CECD9F042849B7B9FD3FEB3D9B08BB6",
+        "91FAEB9049CF6821A47BD8856E37DBDF",
+        "9489CA864B2B29EBFA5793A7A186259E",
+        "96D675FE48BA025817B698AC32E34A8C",
+        "9E27B8A94E4D99DFD0D43CB56971C553",
+        "A22ABC6946BC11C537090CB08DE5A5A0",
+        "A2FC03BA497A8941AEE424A4454D2988",
+        "A34F27E341A7E290322AE7B031144CFE",
+        "A5129EB24DC33795F0C70F8C18F22D58",
+        "A718671046C11949C87B61B04F690EBC",
+        "A87FA13848C841365AF646A4DA39E256",
+        "AD435FD3486207A103B3A79E98284E4D",
+        "AD7A5FA9406B37C55441F3A2C67180BB",
+        "B0AC18CD4AFA9C91975E5AA81A9C6DF2",
+        "B2132BCF4F39312546EAC78F1BD64508",
+        "B38648B94A1458CA951F4CB999B2E243",
+        "B63BFF7347C2297D2428C998CC72A7FE",
+        "B7393C484EC9D390840B4287049B380C",
+        "BBD1D07E4E4233257330409CB6AE39BA",
+        "BD2B1EF642F884970E45C0968E4FE435",
+        "BF117125497921352459AA9E67BEB398",
+        "C35B0FC544307E31878C2299B049B93E",
+        "C964018A414B3A689375FDAB38DB6649",
+        "CD08CB8A4B444FB580A447AD1B1535A3",
+        "CDA82B164100EB867506FEB513DFC2B8",
+        "CEB19463483C0C27DC5BF281D2C9E66F",
+        "D14519264DB77714770DA9A0FCD8CEB6",
+        "D8084D8D4F0C686E5051AE9CB36F8BAF",
+        "DA15E4D54C1D4E4BD4C2AAA375C943A9",
+        "DB81ED1E4019C5A09B6BF0A837756A4D",
+        "E237CFE54E48CFFDEDAB75AFEC76D397",
+        "E31B4BB04D2C886A051DE29183E72A46",
+        "E6E50F49452D387D1493A49F89A66584",
+        "EF5DBA244DDFAA85F4B52E8537997B70",
+        "EF7B8F0F4D623075A76F28A90BC1D090",
+        "F64A9E7A4BA8757C07FF0D89661CB8FE",
+        "F707852E4FE97FE35A995493062CD431",
+        "FC709CD34F15E37AD40628976B09D35A"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\MeshyFixtures_20261007\\meshy_swap_record_P02.json",
+      "sha256": "fee24986068b9eada4db3f40b57e33df64783b4e8b045924bf457ca4fa271e36",
+      "status": "saved_readback_verified"
+    },
     {
       "guids": [
         "01653216470B360E860D1B9299163BF3",
@@ -24031,7 +24077,7 @@
     "passage": "Passage 02 \u2014 Fixed Wings",
     "structure": "Infinity Stage - Structure 02"
   },
-  "outside_before_hash": "4d5144eac2c721e312b8da2d6af8c81bd76c20264924fac714f5fc6ab25b0fda",
+  "outside_before_hash": "0829396081662ddfc448a870db40941837a6c47525f91dc91f22a4af3cfd40e4",
   "passage": "P02",
   "plan": {
     "bays": [
@@ -24250,15 +24296,15 @@
       "drama_fields": 133,
       "drama_rows": 57,
       "drama_untouched_listed": 2,
-      "intensity_rows": 32,
-      "practical": 19,
+      "intensity_rows": 26,
+      "practical": 13,
       "ramp_fields": 57,
       "rows": 57,
       "strike_fields": 57,
-      "struck_only": 32,
-      "targets": 165,
+      "struck_only": 26,
+      "targets": 159,
       "top": 13,
-      "untouched_listed": 5
+      "untouched_listed": 11
     },
     "drama_untouched": [
       {
@@ -24296,19 +24342,19 @@
         "BEAM_R"
       ],
       "from_fraction": 0.45,
-      "practical_floor": 800.0,
+      "practical_floor": 120.0,
       "practical_role_re": "^PRACTICAL(_[A-Z]+)*$",
       "practical_units": "LUMENS",
       "skip_labels": [],
       "strike_distance_cm": 2500.0,
       "strike_ramp_cm": 600.0,
-      "top_floor_cd": 300.0,
-      "top_max_cd": 800.0,
+      "top_floor_cd": 60.0,
+      "top_max_cd": 200.0,
       "top_roles": [
         "TOP_L",
         "TOP_R"
       ],
-      "top_scale": 4.0,
+      "top_scale": 2.0,
       "top_units": "CANDELAS"
     },
     "passage": "P02",
@@ -24403,7 +24449,7 @@
     ],
     "targets": [
       {
-        "after": 300.0,
+        "after": 102.0,
         "attachment_guid": "A5129EB24DC33795F0C70F8C18F22D58",
         "attachment_index": 6,
         "attachment_label": "P02 SCORE B12 P02_FAILING_STAGE TOP_L",
@@ -24475,7 +24521,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 300.0,
+        "after": 68.0,
         "attachment_guid": "AD7A5FA9406B37C55441F3A2C67180BB",
         "attachment_index": 7,
         "attachment_label": "P02 SCORE B12 P02_FAILING_STAGE TOP_R",
@@ -24691,7 +24737,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
+        "after": 120.0,
         "attachment_guid": "B38648B94A1458CA951F4CB999B2E243",
         "attachment_index": 13,
         "attachment_label": "P02 SCORE B12 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
@@ -24763,7 +24809,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 300.0,
+        "after": 88.80000305175781,
         "attachment_guid": "CDA82B164100EB867506FEB513DFC2B8",
         "attachment_index": 6,
         "attachment_label": "P02 SCORE B13 P02_FAILING_STAGE TOP_L",
@@ -24835,7 +24881,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 300.0,
+        "after": 60.0,
         "attachment_guid": "8CECD9F042849B7B9FD3FEB3D9B08BB6",
         "attachment_index": 7,
         "attachment_label": "P02 SCORE B13 P02_FAILING_STAGE TOP_R",
@@ -25051,7 +25097,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
+        "after": 120.0,
         "attachment_guid": "0B7A7FF040D3BE75C44ADF93EE8A2BCB",
         "attachment_index": 13,
         "attachment_label": "P02 SCORE B13 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
@@ -25123,7 +25169,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 300.0,
+        "after": 75.5999984741211,
         "attachment_guid": "D8084D8D4F0C686E5051AE9CB36F8BAF",
         "attachment_index": 6,
         "attachment_label": "P02 SCORE B14 P02_FAILING_STAGE TOP_L",
@@ -25195,7 +25241,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 300.0,
+        "after": 60.0,
         "attachment_guid": "6A35DF3A4D0E330B3C2A2A893FA8BC70",
         "attachment_index": 7,
         "attachment_label": "P02 SCORE B14 P02_FAILING_STAGE TOP_R",
@@ -25363,30 +25409,6 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
-        "attachment_guid": "CD08CB8A4B444FB580A447AD1B1535A3",
-        "attachment_index": 10,
-        "attachment_label": "P02 SCORE B14 P02_FAILING_STAGE PRACTICAL_CLAMP",
-        "bay_token": "14",
-        "before": 693.0,
-        "color": [
-          1.0,
-          0.8500000238418579,
-          0.550000011920929,
-          1.0
-        ],
-        "cue_guid": "B33756C20D448A5615012AABA066A78A",
-        "cue_label": "P02 Wing 003",
-        "fraction": 0.5692439036824135,
-        "kind": "practical",
-        "look": "P02_FAILING_STAGE",
-        "path": "lighting.intensity",
-        "role": "PRACTICAL_CLAMP",
-        "show_index": 64,
-        "struck_only": true,
-        "temperature_kelvin": 2100.0
-      },
-      {
         "after": 2500.0,
         "attachment_guid": "CD08CB8A4B444FB580A447AD1B1535A3",
         "attachment_index": 10,
@@ -25435,7 +25457,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
+        "after": 120.0,
         "attachment_guid": "91FAEB9049CF6821A47BD8856E37DBDF",
         "attachment_index": 12,
         "attachment_label": "P02 SCORE B14 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
@@ -25507,7 +25529,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 300.0,
+        "after": 62.400001525878906,
         "attachment_guid": "01653216470B360E860D1B9299163BF3",
         "attachment_index": 6,
         "attachment_label": "P02 SCORE B15 P02_FAILING_STAGE TOP_L",
@@ -25747,30 +25769,6 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
-        "attachment_guid": "5F380044498E3FAA1616B0A11A41D613",
-        "attachment_index": 9,
-        "attachment_label": "P02 SCORE B15 P02_FAILING_STAGE PRACTICAL_CLAMP",
-        "bay_token": "15",
-        "before": 572.0,
-        "color": [
-          1.0,
-          0.8500000238418579,
-          0.550000011920929,
-          1.0
-        ],
-        "cue_guid": "C8406F55D14E2B9D12D75CB414E57524",
-        "cue_label": "P02 Wing 015",
-        "fraction": 0.6114101187699997,
-        "kind": "practical",
-        "look": "P02_FAILING_STAGE",
-        "path": "lighting.intensity",
-        "role": "PRACTICAL_CLAMP",
-        "show_index": 65,
-        "struck_only": true,
-        "temperature_kelvin": 2100.0
-      },
-      {
         "after": 2500.0,
         "attachment_guid": "5F380044498E3FAA1616B0A11A41D613",
         "attachment_index": 9,
@@ -25843,7 +25841,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
+        "after": 120.0,
         "attachment_guid": "0607BD6B4AC4E9A2762EA686E6D66C82",
         "attachment_index": 11,
         "attachment_label": "P02 SCORE B15 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
@@ -26083,30 +26081,6 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
-        "attachment_guid": "5860E18B497EC0D66AF7DC8F515B22B0",
-        "attachment_index": 8,
-        "attachment_label": "P02 SCORE B16 P02_FAILING_STAGE PRACTICAL_CLAMP",
-        "bay_token": "16",
-        "before": 451.0,
-        "color": [
-          0.8999999761581421,
-          1.0,
-          0.8799999952316284,
-          1.0
-        ],
-        "cue_guid": "1C61F7124C4E4CDB9D572CBF37EA2AB2",
-        "cue_label": "P02 Wing 016",
-        "fraction": 0.653576333857586,
-        "kind": "practical",
-        "look": "P02_FAILING_STAGE",
-        "path": "lighting.intensity",
-        "role": "PRACTICAL_CLAMP",
-        "show_index": 66,
-        "struck_only": true,
-        "temperature_kelvin": 4300.0
-      },
-      {
         "after": 2500.0,
         "attachment_guid": "5860E18B497EC0D66AF7DC8F515B22B0",
         "attachment_index": 8,
@@ -26179,7 +26153,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
+        "after": 120.0,
         "attachment_guid": "865E9D3E45EE1EDE1EA24BB8C77F6DD3",
         "attachment_index": 10,
         "attachment_label": "P02 SCORE B16 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
@@ -26419,30 +26393,6 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
-        "attachment_guid": "A22ABC6946BC11C537090CB08DE5A5A0",
-        "attachment_index": 8,
-        "attachment_label": "P02 SCORE B17 P02_FAILING_STAGE PRACTICAL_CLAMP",
-        "bay_token": "17",
-        "before": 330.0,
-        "color": [
-          0.8999999761581421,
-          1.0,
-          0.8799999952316284,
-          1.0
-        ],
-        "cue_guid": "3A2A4913A048011774400A8BC6A2F500",
-        "cue_label": "P02 Wing 017",
-        "fraction": 0.6957425489451722,
-        "kind": "practical",
-        "look": "P02_FAILING_STAGE",
-        "path": "lighting.intensity",
-        "role": "PRACTICAL_CLAMP",
-        "show_index": 67,
-        "struck_only": true,
-        "temperature_kelvin": 4300.0
-      },
-      {
         "after": 2500.0,
         "attachment_guid": "A22ABC6946BC11C537090CB08DE5A5A0",
         "attachment_index": 8,
@@ -26515,7 +26465,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
+        "after": 120.0,
         "attachment_guid": "A87FA13848C841365AF646A4DA39E256",
         "attachment_index": 10,
         "attachment_label": "P02 SCORE B17 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
@@ -26683,30 +26633,6 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
-        "attachment_guid": "C964018A414B3A689375FDAB38DB6649",
-        "attachment_index": 7,
-        "attachment_label": "P02 SCORE B18 P02_FAILING_STAGE PRACTICAL_CLAMP",
-        "bay_token": "18",
-        "before": 209.0,
-        "color": [
-          0.8999999761581421,
-          1.0,
-          0.8799999952316284,
-          1.0
-        ],
-        "cue_guid": "C01B9F971440183FDC7BEAB4535ED9A4",
-        "cue_label": "P02 Wing 018",
-        "fraction": 0.7379087640327583,
-        "kind": "practical",
-        "look": "P02_FAILING_STAGE",
-        "path": "lighting.intensity",
-        "role": "PRACTICAL_CLAMP",
-        "show_index": 68,
-        "struck_only": true,
-        "temperature_kelvin": 4300.0
-      },
-      {
         "after": 2500.0,
         "attachment_guid": "C964018A414B3A689375FDAB38DB6649",
         "attachment_index": 7,
@@ -26779,7 +26705,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
+        "after": 120.0,
         "attachment_guid": "AD435FD3486207A103B3A79E98284E4D",
         "attachment_index": 9,
         "attachment_label": "P02 SCORE B18 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
@@ -26947,7 +26873,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
+        "after": 120.0,
         "attachment_guid": "DB81ED1E4019C5A09B6BF0A837756A4D",
         "attachment_index": 9,
         "attachment_label": "P02 SCORE B19 P02_FAILING_STAGE PRACTICAL_CLAMP",
@@ -27043,7 +26969,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
+        "after": 120.0,
         "attachment_guid": "BBD1D07E4E4233257330409CB6AE39BA",
         "attachment_index": 11,
         "attachment_label": "P02 SCORE B19 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
@@ -27139,7 +27065,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 300.0,
+        "after": 60.0,
         "attachment_guid": "E237CFE54E48CFFDEDAB75AFEC76D397",
         "attachment_index": 6,
         "attachment_label": "P02 SCORE B20 P02_MYSTIC TOP_L",
@@ -27211,7 +27137,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 300.0,
+        "after": 60.0,
         "attachment_guid": "DA15E4D54C1D4E4BD4C2AAA375C943A9",
         "attachment_index": 7,
         "attachment_label": "P02 SCORE B20 P02_MYSTIC TOP_R",
@@ -27427,7 +27353,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
+        "after": 120.0,
         "attachment_guid": "F64A9E7A4BA8757C07FF0D89661CB8FE",
         "attachment_index": 12,
         "attachment_label": "P02 SCORE B20 P02_MYSTIC PRACTICAL_R",
@@ -27499,7 +27425,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 300.0,
+        "after": 60.0,
         "attachment_guid": "74D9AA3543380838E58D66B56DA5E79F",
         "attachment_index": 6,
         "attachment_label": "P02 SCORE B21 P02_MYSTIC TOP_L",
@@ -27571,7 +27497,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 300.0,
+        "after": 60.0,
         "attachment_guid": "CEB19463483C0C27DC5BF281D2C9E66F",
         "attachment_index": 7,
         "attachment_label": "P02 SCORE B21 P02_MYSTIC TOP_R",
@@ -27787,7 +27713,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
+        "after": 120.0,
         "attachment_guid": "1D28B92243A238822929DC92C9AE40DE",
         "attachment_index": 12,
         "attachment_label": "P02 SCORE B21 P02_MYSTIC PRACTICAL_R",
@@ -27859,30 +27785,6 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
-        "attachment_guid": "9E27B8A94E4D99DFD0D43CB56971C553",
-        "attachment_index": 6,
-        "attachment_label": "P02 SCORE B22 GAP PRACTICAL_GLIMMER",
-        "bay_token": "22",
-        "before": 160.0,
-        "color": [
-          1.0,
-          0.699999988079071,
-          0.4000000059604645,
-          1.0
-        ],
-        "cue_guid": "E75FE3E4AA44C0D53E3FB6A99D63F91C",
-        "cue_label": "P02 Wing 022",
-        "fraction": 0.9065736243831031,
-        "kind": "practical",
-        "look": "GAP",
-        "path": "lighting.intensity",
-        "role": "PRACTICAL_GLIMMER",
-        "show_index": 72,
-        "struck_only": true,
-        "temperature_kelvin": 2500.0
-      },
-      {
         "after": 2500.0,
         "attachment_guid": "9E27B8A94E4D99DFD0D43CB56971C553",
         "attachment_index": 6,
@@ -27931,7 +27833,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
+        "after": 120.0,
         "attachment_guid": "A718671046C11949C87B61B04F690EBC",
         "attachment_index": 8,
         "attachment_label": "P02 SCORE B22 GAP PRACTICAL_DEAD",
@@ -28003,7 +27905,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 300.0,
+        "after": 60.0,
         "attachment_guid": "B2132BCF4F39312546EAC78F1BD64508",
         "attachment_index": 6,
         "attachment_label": "P02 SCORE B23 P02_MYSTIC TOP_L",
@@ -28075,7 +27977,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 300.0,
+        "after": 60.0,
         "attachment_guid": "B63BFF7347C2297D2428C998CC72A7FE",
         "attachment_index": 7,
         "attachment_label": "P02 SCORE B23 P02_MYSTIC TOP_R",
@@ -28291,7 +28193,7 @@
         "unstruck_intensity_scale": 0.0
       },
       {
-        "after": 800.0,
+        "after": 120.0,
         "attachment_guid": "0B58959246F3B49C8CEE0A81FDA7167C",
         "attachment_index": 12,
         "attachment_label": "P02 SCORE B23 P02_MYSTIC PRACTICAL_R",
@@ -28379,6 +28281,41 @@
         "why": "AT_OR_ABOVE_TARGET"
       },
       {
+        "cue_label": "P02 Wing 003",
+        "intensity": 693.0,
+        "label": "P02 SCORE B14 P02_FAILING_STAGE PRACTICAL_CLAMP",
+        "role": "PRACTICAL_CLAMP",
+        "why": "AT_OR_ABOVE_TARGET"
+      },
+      {
+        "cue_label": "P02 Wing 015",
+        "intensity": 572.0,
+        "label": "P02 SCORE B15 P02_FAILING_STAGE PRACTICAL_CLAMP",
+        "role": "PRACTICAL_CLAMP",
+        "why": "AT_OR_ABOVE_TARGET"
+      },
+      {
+        "cue_label": "P02 Wing 016",
+        "intensity": 451.0,
+        "label": "P02 SCORE B16 P02_FAILING_STAGE PRACTICAL_CLAMP",
+        "role": "PRACTICAL_CLAMP",
+        "why": "AT_OR_ABOVE_TARGET"
+      },
+      {
+        "cue_label": "P02 Wing 017",
+        "intensity": 330.0,
+        "label": "P02 SCORE B17 P02_FAILING_STAGE PRACTICAL_CLAMP",
+        "role": "PRACTICAL_CLAMP",
+        "why": "AT_OR_ABOVE_TARGET"
+      },
+      {
+        "cue_label": "P02 Wing 018",
+        "intensity": 209.0,
+        "label": "P02 SCORE B18 P02_FAILING_STAGE PRACTICAL_CLAMP",
+        "role": "PRACTICAL_CLAMP",
+        "why": "AT_OR_ABOVE_TARGET"
+      },
+      {
         "cue_label": "P02 Wing 020",
         "intensity": 960.0,
         "label": "P02 SCORE B20 P02_MYSTIC PRACTICAL_L",
@@ -28390,6 +28327,13 @@
         "intensity": 1080.0,
         "label": "P02 SCORE B21 P02_MYSTIC PRACTICAL_L",
         "role": "PRACTICAL_L",
+        "why": "AT_OR_ABOVE_TARGET"
+      },
+      {
+        "cue_label": "P02 Wing 022",
+        "intensity": 160.0,
+        "label": "P02 SCORE B22 GAP PRACTICAL_GLIMMER",
+        "role": "PRACTICAL_GLIMMER",
         "why": "AT_OR_ABOVE_TARGET"
       },
       {
@@ -28408,7 +28352,7 @@
       "BAY_HAS_NO_TOP_ROWS|P02 Wing 022|B22 (only practicals can brighten it)"
     ]
   },
-  "run": "20261007-025331",
+  "run": "20261008-233607",
   "saved_census": {
     "content": [],
     "maps": []

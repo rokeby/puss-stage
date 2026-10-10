@@ -1,8 +1,8 @@
 {
-  "mode": "DRY",
-  "confirm": "",
+  "mode": "APPLY",
+  "confirm": "APPLY SHADOWRADIUSREACH",
   "params": {
-    "passages": ["P01", "P02", "P03", "P04", "P05", "P06"],
+    "passages": ["P01", "P02", "P03", "P05", "P06"],
     "neighbour_wings": 2,
     "margin_cm": 100.0,
     "min_radius_cm": 500.0,
@@ -10,7 +10,7 @@
     "large_source_radius_cm": 20.0,
     "sequence_roots": ["/Game"]
   },
-  "expected_changes": null,
-  "expected_plan_sha256": "",
+  "expected_changes": 136,
+  "expected_plan_sha256": "c859f4c9050b761dfbcdebc1083ee350b3fb18ec26f3cf6945b691e81b1beaa4",
   "allow_dirty": []
 }

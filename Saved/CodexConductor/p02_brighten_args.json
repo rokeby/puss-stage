@@ -1,12 +1,12 @@
 {
-  "mode": "APPLY",
+  "mode": "DRY",
   "params": {
     "from_fraction": 0.45,
-    "practical_floor": 800.0,
+    "practical_floor": 120.0,
     "practical_units": "LUMENS",
-    "top_scale": 4.0,
-    "top_floor_cd": 300.0,
-    "top_max_cd": 800.0,
+    "top_scale": 2.0,
+    "top_floor_cd": 60.0,
+    "top_max_cd": 200.0,
     "top_units": "CANDELAS",
     "drama": true,
     "strike_distance_cm": 2500.0,
@@ -16,14 +16,17 @@
       "BEAM_R"
     ]
   },
-  "expected_targets": 165,
+  "expected_targets": 159,
   "expected_bays": null,
   "ack_records": [
     "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
     "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P02.json",
     "E:\\PussStage\\Saved\\CodexConductor\\p02_rig_pattern_record.json",
-    "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P02.json"
+    "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P02.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\GlimmerBulbs_20261007\\glimmer_targets_from_records.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\MeshyFixtures_20261007\\meshy_swap_record_P02.json"
   ],
   "allow_dirty": [],
-  "confirm": "APPLY P02BRIGHTEN"
+  "confirm": "",
+  "_note": "F8 fix (Gary 9 Oct 'sure, apply it and send stills'): APPLY1 levels + drama; APPLY needs expected_targets = this DRY's plan.counts.targets"
 }
