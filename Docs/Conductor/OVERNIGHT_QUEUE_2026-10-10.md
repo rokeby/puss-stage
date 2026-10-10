@@ -77,3 +77,16 @@ Status values: `TODO` · `RUNNING` · `DONE (marker)` · `SKIPPED (reason)` · `
   - `set_actor_transform` needs sweep and teleport.
   - `MovieSceneSequencePlaybackSettings(restore_state=)` fails.
 - **Evaluating a sequence from Python cannot restore figure state.** Never do it on a level that might be saved.
+
+## D. Priority order beyond tonight (Gary, 10 Oct)
+
+1. **Key fixes first:**
+   - S4 blackout cut (96).
+   - S2 hangar fits Klara's scene (92).
+   - S2 shrine fires (130).
+   - The P02 floor (129), P05 wings (128), P06 parcan + sun (126), P04 smoke machine (127).
+   - The S3 fabrics.
+2. **Then a gate.** Passages look basically to a standard, and every scene PLAYS to a standard. Verify by a stills/recording run-through, S1–S6 and P01–P06.
+3. **After that gate, the focus is SHADOW SCENES and TRANSITIONS:**
+   - The interactions I1–I5: gobo/shadow-puppetry content, curtain timing, shadow spots off after each sequence.
+   - Every passage↔scene seam: arrivals, rig jumps, dog-view ease, darkness handoffs.
