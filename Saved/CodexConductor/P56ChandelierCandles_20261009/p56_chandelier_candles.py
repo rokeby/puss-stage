@@ -293,8 +293,7 @@ def _verify_child_blueprint(args: dict[str, Any], plan: dict[str, Any]) -> dict[
     generated = bp.generated_class()
     source_class = unreal.EditorAssetLibrary.load_blueprint_class(args["source_blueprint"])
     require(generated is not None and source_class is not None, "BP_CLASS_LOAD")
-    cdo = unreal.get_default_object(generated)
-    require(isinstance(cdo, source_class), "CHILD_BP_PARENT")
+    require(generated.is_child_of(source_class), "CHILD_BP_PARENT")
     component = _subobject(bp, COMPONENT_NAME)
     require(isinstance(component, unreal.NiagaraComponent), "CHILD_NIAGARA_COMPONENT")
     got_scale = component.get_editor_property("relative_scale3d")
@@ -340,13 +339,18 @@ def _create_child_blueprint(args: dict[str, Any], plan: dict[str, Any]) -> dict[
 
 def _actor_state(actor: Any) -> dict[str, Any]:
     parent = actor.get_attach_parent_actor()
-    component = actor.get_root_component().get_attach_parent()
+    # UE 5.8's generated Python surface does not expose Actor.get_root_component
+    # on every concrete actor class. The reflected root_component property is
+    # stable across StaticMeshActor and spawned Blueprint actors.
+    root_component = actor.get_editor_property("root_component")
+    require(root_component is not None, "ACTOR_ROOT_COMPONENT|" + str(actor.get_actor_label()))
+    component = root_component.get_attach_parent()
     return {
         "label": str(actor.get_actor_label()),
         "path": str(actor.get_path_name()),
         "tags": sorted(str(x) for x in actor.get_editor_property("tags")),
         "parent_label": str(parent.get_actor_label()) if parent else None,
-        "socket": str(actor.get_root_component().get_attach_socket_name()),
+        "socket": str(root_component.get_attach_socket_name()),
         "parent_component": str(component.get_name()) if component else None,
         "class": _asset_id(actor.get_class()),
     }

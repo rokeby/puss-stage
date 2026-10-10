@@ -469,7 +469,9 @@ def _transform_track(binding, span, keys, label):
     section = track.add_section(); section.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
     section.set_range(int(span[0]), int(span[1]))
     channels = {_channel_name(c): c for c in section.get_all_channels()}
-    cubic, linear = unreal.MovieSceneKeyInterpolation.CUBIC, unreal.MovieSceneKeyInterpolation.LINEAR
+    # UE 5.8 exposes the smooth cubic/default tangent mode as AUTO; there is no
+    # MovieSceneKeyInterpolation.CUBIC enum member on the generated Python API.
+    cubic, linear = unreal.MovieSceneKeyInterpolation.AUTO, unreal.MovieSceneKeyInterpolation.LINEAR
     for name, rows in keys.items():
         if name not in channels:
             raise Refusal("TRANSFORM_CHANNEL_MISSING|%s|%s" % (label, name))

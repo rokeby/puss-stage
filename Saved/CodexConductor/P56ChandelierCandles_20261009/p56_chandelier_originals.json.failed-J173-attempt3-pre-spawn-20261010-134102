@@ -1,0 +1,477 @@
+{
+  "args": {
+    "actor_label": "P75 P06 Chandelier Body",
+    "child_blueprint": "/Game/Scenes/Effects/BP_Effect_ChandelierCandle",
+    "confirm": "APPLY P56CHANDELIER",
+    "flame_height_cm": 3.5,
+    "flame_niagara": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1",
+    "flame_z_offset_cm": 1.75,
+    "mode": "APPLY",
+    "niagara_reference_height_cm": 100.0,
+    "socket_json": "E:/PussStage/DerivedAssets/ChandelierBuild/Output/Iron3/chandelier_Iron3_sockets.json",
+    "source_blueprint": "/Game/Scenes/Effects/BP_Effect_Candle"
+  },
+  "backup": {
+    "packages": [
+      {
+        "backup": "E:\\PussStage\\Backups\\PreP56ChandelierCandles-P56CANDLE-20261010-134051\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 38063222,
+        "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+        "sha256": "8acf696373dfa371c6e510d2c358bde1010c9f4a2afb4812a903bc9d7f4fa1ad",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+      },
+      {
+        "backup": "E:\\PussStage\\Backups\\PreP56ChandelierCandles-P56CANDLE-20261010-134051\\Scenes\\Effects\\BP_Effect_Candle.uasset",
+        "bytes": 37086,
+        "package": "/Game/Scenes/Effects/BP_Effect_Candle",
+        "sha256": "6bf71925ce47a2dfcd304b882d68b2d74ef3ed0fd83cb7a26de1e81410fd99b7",
+        "source": "E:\\PussStage\\Content\\Scenes\\Effects\\BP_Effect_Candle.uasset"
+      },
+      {
+        "backup": "E:\\PussStage\\Backups\\PreP56ChandelierCandles-P56CANDLE-20261010-134051\\Stylish_Fire_VFX\\Niagara\\NS_Stylish_Fire_1.uasset",
+        "bytes": 2783884,
+        "package": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1",
+        "sha256": "e29b00a9e1d5527a691295fa10e4c218e92b3eaeb41dfd431e6688778435f2ec",
+        "source": "E:\\PussStage\\Content\\Stylish_Fire_VFX\\Niagara\\NS_Stylish_Fire_1.uasset"
+      }
+    ],
+    "root": "E:\\PussStage\\Backups\\PreP56ChandelierCandles-P56CANDLE-20261010-134051"
+  },
+  "child_blueprint_existed_before": true,
+  "dirty_before": {
+    "content": [],
+    "maps": []
+  },
+  "owned_actors_before": [],
+  "plan": {
+    "child_blueprint": "/Game/Scenes/Effects/BP_Effect_ChandelierCandle",
+    "component": "ChandelierFlameFX",
+    "component_auto_activate": false,
+    "flame_height_cm": 3.5,
+    "flame_scale": [
+      0.035,
+      0.035,
+      0.035
+    ],
+    "flame_z_offset_cm": 1.75,
+    "niagara": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1",
+    "placements": [
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_01_Flame",
+        "socket": "Candle_01",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_01"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_02_Flame",
+        "socket": "Candle_02",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_02"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_03_Flame",
+        "socket": "Candle_03",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_03"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_04_Flame",
+        "socket": "Candle_04",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_04"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_05_Flame",
+        "socket": "Candle_05",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_05"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_06_Flame",
+        "socket": "Candle_06",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_06"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_07_Flame",
+        "socket": "Candle_07",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_07"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_08_Flame",
+        "socket": "Candle_08",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_08"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_09_Flame",
+        "socket": "Candle_09",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_09"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_10_Flame",
+        "socket": "Candle_10",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_10"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_11_Flame",
+        "socket": "Candle_11",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_11"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_12_Flame",
+        "socket": "Candle_12",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_12"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_13_Flame",
+        "socket": "Candle_13",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_13"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_14_Flame",
+        "socket": "Candle_14",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_14"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_15_Flame",
+        "socket": "Candle_15",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_15"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_16_Flame",
+        "socket": "Candle_16",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_16"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_17_Flame",
+        "socket": "Candle_17",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_17"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_18_Flame",
+        "socket": "Candle_18",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_18"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_19_Flame",
+        "socket": "Candle_19",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_19"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_20_Flame",
+        "socket": "Candle_20",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_20"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_21_Flame",
+        "socket": "Candle_21",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_21"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_22_Flame",
+        "socket": "Candle_22",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_22"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_23_Flame",
+        "socket": "Candle_23",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_23"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_24_Flame",
+        "socket": "Candle_24",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_24"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_25_Flame",
+        "socket": "Candle_25",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_25"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_26_Flame",
+        "socket": "Candle_26",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_26"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_27_Flame",
+        "socket": "Candle_27",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_27"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_28_Flame",
+        "socket": "Candle_28",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_28"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_29_Flame",
+        "socket": "Candle_29",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_29"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_30_Flame",
+        "socket": "Candle_30",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_30"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_31_Flame",
+        "socket": "Candle_31",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_31"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_32_Flame",
+        "socket": "Candle_32",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_32"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_33_Flame",
+        "socket": "Candle_33",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_33"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_34_Flame",
+        "socket": "Candle_34",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_34"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_35_Flame",
+        "socket": "Candle_35",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_35"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_36_Flame",
+        "socket": "Candle_36",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_36"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_37_Flame",
+        "socket": "Candle_37",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_37"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_38_Flame",
+        "socket": "Candle_38",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_38"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_39_Flame",
+        "socket": "Candle_39",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_39"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_40_Flame",
+        "socket": "Candle_40",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_40"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_41_Flame",
+        "socket": "Candle_41",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_41"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_42_Flame",
+        "socket": "Candle_42",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_42"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_43_Flame",
+        "socket": "Candle_43",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_43"
+        ]
+      },
+      {
+        "actor_label": "P56_P75_P06_Chandelier_Body_Candle_44_Flame",
+        "socket": "Candle_44",
+        "tags": [
+          "P56_CHANDELIER_CANDLE",
+          "P56_TARGET_P75_P06_Chandelier_Body",
+          "P56_SOCKET_Candle_44"
+        ]
+      }
+    ],
+    "source_blueprint": "/Game/Scenes/Effects/BP_Effect_Candle",
+    "target_actor": "P75 P06 Chandelier Body",
+    "uses_point_light": false
+  },
+  "run": "P56CANDLE-20261010-134051",
+  "schema": "p56_chandelier_originals_v1",
+  "status": "prepared",
+  "target": {
+    "class": "/Script/Engine",
+    "label": "P75 P06 Chandelier Body",
+    "parent_component": null,
+    "parent_label": null,
+    "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1882",
+    "socket": "None",
+    "tags": [
+      "P75_CHANDELIER_STAGING",
+      "P75_PART_P06",
+      "P75_ROLE_BODY",
+      "P75_RUN_P75CHAN-20261010-133902"
+    ]
+  }
+}

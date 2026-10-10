@@ -1,13 +1,13 @@
 {
   "mode": "DRY",
   "confirm": "DRY JOB144",
-  "run_id": "J144-YYYYMMDD-HHMMSS",
+  "run_id": "J144-I3-J173-APPLY1-20261010",
   "params": {
-    "interaction": 2,
+    "interaction": 3,
     "wall_label": "AUTO",
     "hide_actor_labels": [],
-    "hide_actor_paths": [],
-    "i2_hide_actor_paths_archive": [
+    "i2_hide_actor_paths_archive": [],
+    "hide_actor_paths": [
       "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_372",
       "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_373",
       "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_312",
@@ -60,8 +60,10 @@
     ],
     "hide_actor_tags": [],
     "visibility_conflict_policy": "SAFE_SKIP",
-    "approved_shadow_source_labels": [],
-    "approved_inventory_digest": "",
+    "approved_shadow_source_labels": [
+      "Sleight Hangar Shadow Card"
+    ],
+    "approved_inventory_digest": "25dba03adb2d215d032dd9b897c38a12ee37dbeabb152799dbe7dd2d6ca0f6ca",
     "spot_side": "front",
     "spot_throw_cm": 3000,
     "curtain_wall_gap_cm": 50,

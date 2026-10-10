@@ -1,0 +1,12 @@
+{
+  "mode": "DRY",
+  "confirm": "",
+  "actor_label": "P75 P06 Chandelier Body",
+  "socket_json": "E:/PussStage/DerivedAssets/ChandelierBuild/Output/Iron3/chandelier_Iron3_sockets.json",
+  "source_blueprint": "/Game/Scenes/Effects/BP_Effect_Candle",
+  "child_blueprint": "/Game/Scenes/Effects/BP_Effect_ChandelierCandle",
+  "flame_niagara": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1",
+  "flame_height_cm": 3.5,
+  "niagara_reference_height_cm": 100.0,
+  "flame_z_offset_cm": 1.75
+}

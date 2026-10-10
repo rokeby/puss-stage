@@ -1,0 +1,28 @@
+Codex job 56 — chandelier candle flames — DONE (offline build only)
+9 Oct 2026
+
+WHAT WAS BUILT
+
+- [declaration-proven] `Saved/CodexConductor/P56ChandelierCandles_20261009/p56_chandelier_candles.py` parses p55 socket JSON, validates an exact chandelier actor label and canonical asset paths, and builds one placement per contiguous `Candle_01..NN` socket (`p56_chandelier_candles.py:69-154`).
+- [declaration-proven] APPLY creates/verifies `/Game/Scenes/Effects/BP_Effect_ChandelierCandle` as a child of `/Game/Scenes/Effects/BP_Effect_Candle`, adds `ChandelierFlameFX` using `/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1`, scales it from args to a 3.5 cm default, and asserts Auto Activate is false (`p56_chandelier_candles.py:30-52,294-339`).
+- [declaration-proven] No point light is created. The inspected bulb-body runtime offers Stable/Slight/Fail modes and separately defaults light-driving flicker off (`Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBulbBody.h:23-30,84-87`); omitting a light avoids duplicating that authority.
+- [declaration-proven] APPLY records originals and a hashed `Backups/PreP56ChandelierCandles-<run>` snapshot before Unreal mutation, tags/socket-attaches each child actor, enforces the exact dirty-package scope, saves only the new Blueprint and current level, reads back, then emits success (`p56_chandelier_candles.py:228-247,403-465`).
+- [declaration-proven] REVERT selects the exact tagged actors, refuses drift, snapshots the level, removes those actors, saves/read-backs, and preserves the child Blueprint because permanent asset deletion was not authorized (`p56_chandelier_candles.py:467-493`).
+- [measured] Offline harness passed 3 positive controls and all 4 required negatives: no sockets, missing source BP, non-chandelier actor, APPLY without confirm (`test_p56_chandelier_candles_offline.py:47-84`). Python syntax compilation and both JSON parses passed in this worktree.
+- [measured] Offline preview generated at `Saved/CodexConductor/P56ChandelierCandles_20261009/p56_chandelier_candle_preview.png`; it is explicitly a scale diagram, not rendered acceptance (`make_p56_preview.py:1-29`).
+- [declaration-proven] No Unreal, MCP, PIE, Blender, build, or git commit was run. Commit: NONE, per job instruction.
+
+CONDUCTOR 5 ORDER
+
+1. [declaration-proven] In `p56_chandelier_candles_args.json`, replace `actor_label` and `socket_json`; set `mode=DRY`, `confirm=""`.
+2. [declaration-proven] From `E:\PussStage`, run: `python Saved/CodexMocap/mcp_request.py tools/call --params-file Saved/CodexConductor/P56ChandelierCandles_20261009/p56_chandelier_candles_request.json`; require `P56_CHANDELIER_DRY_OK` and review every socket/asset path.
+3. [declaration-proven] Set `mode=APPLY`, `confirm="APPLY P56CHANDELIER"`; run the same command; require `P56_CHANDELIER_APPLY_OK`.
+4. [declaration-proven] Set `mode=READBACK`, `confirm=""`; run the same command; require `P56_CHANDELIER_READBACK_OK|state=applied`.
+5. [declaration-proven] Set `mode=REVERT`, `confirm="REVERT P56CHANDELIER"`; run the same command; require `P56_CHANDELIER_REVERT_OK`.
+6. [declaration-proven] Set `mode=READBACK`, `confirm=""`; run the same command; require `P56_CHANDELIER_READBACK_OK|state=reverted|actors=0` (`README.md:9-24`).
+
+OPEN / ACCEPTANCE BOUNDARY
+
+- [UNCLEAR] Job 55 socket JSONs were not present in either this worktree or `E:\PussStage`, so socket counts and exact p55 envelope keys cannot be measured. The parser accepts flat `location_cm`/`rotation_deg` and transform-wrapped equivalents; Conductor must compare the first real p55 file before DRY (`p56_chandelier_candles.py:69-100`).
+- [inferred] `niagara_reference_height_cm=100` makes the default scale 0.035; the 3.5 cm target is specified, but the marketplace system’s rendered native bounds were not measured offline (`p56_chandelier_candles.py:38-51,128-151`).
+- [inferred] Cue ownership depends on the chandelier’s existing Effect/Passage lifecycle. The child component cannot self-start (`auto_activate=false`), but only a live cue test can prove temporal activation and the final flame look. `InfinityStageEffectSource` is declared as Passage-owned and drives UFX components from Show settings (`Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageEffectSource.h:22-26`).

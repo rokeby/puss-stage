@@ -1,6 +1,6 @@
 {
  "params": {
-  "approved_inventory_digest": "a880fb31d186d04eeef13123442e0a34c4b4bd4708b0aba4a7a34859a6aea2bd",
+  "approved_inventory_digest": "c6b74acf49395887302a876c3930c928c8028ce4260a15bc96bcbf762394c2c1",
   "approved_shadow_source_labels": [
    "Sleight Hangar Shadow Card"
   ],
@@ -66,6 +66,7 @@
    "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.StaticMeshActor_24"
   ],
   "hide_actor_tags": [],
+  "i2_hide_actor_paths_archive": [],
   "interaction": 2,
   "keep_label_regex": [
    "^S[23] Hangar (Root|.*Wall|Roof|Floor|Lattice)",
@@ -87,6 +88,6 @@
   "visibility_conflict_policy": "SAFE_SKIP",
   "wall_label": "AUTO"
  },
- "plan_digest": "b1fd01dca3ce21c9c9c6fc2c4bf1619699b955aab51e7e2ebc095b1c6b5ea185",
- "report": "E:\\PussStage\\Saved\\CodexConductor\\Job144InteractionHangar_20261010\\job144_dry_I2_J144-I2-J167-REDRY-20261010.json"
+ "plan_digest": "d8c974e5ac802bce389695130e8d1a99548fb863aee3c0ee919670b9b067dce0",
+ "report": "E:\\PussStage\\Saved\\CodexConductor\\Job144InteractionHangar_20261010\\job144_dry_I2_J144-I2-J173-REDRY1-20261010.json"
 }
