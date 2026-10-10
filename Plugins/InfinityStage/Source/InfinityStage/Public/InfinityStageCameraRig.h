@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "InfinityStageTypes.h"
 #include "InfinityStageCameraRig.generated.h"
 
 class ACineCameraActor;
@@ -25,6 +26,19 @@ struct FInfinityGaitBob
 {
     double HeightCm = 0.0;
     double RollDeg = 0.0;
+};
+
+struct FInfinityShadowCatVariation
+{
+    double PlayRateScale = 1.0;
+    double BobGainScale = 1.0;
+};
+
+struct FInfinityShadowCatActionTiming
+{
+    bool bActive = false;
+    double PositionSeconds = 0.0;
+    double Weight = 0.0;
 };
 
 /**
@@ -168,6 +182,16 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Rendering")
     bool bShadowCatVisibleInReflections = true;
 
+    /** HeadPOV perspective near plane. Creative value; guarded against HeadPOVOffsetCm.X below. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|POV",
+        meta = (ClampMin = "0.00001", Units = "cm"))
+    double ShadowCatHeadPOVNearClipCm = 3.0;
+
+    /** Required space between the near plane and the hidden head origin. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|POV",
+        meta = (ClampMin = "0.0", Units = "cm"))
+    double ShadowCatHeadPOVNearClipClearanceCm = 2.0;
+
     /** Extra placement controls exposed on the parent passage camera instance. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Placement", meta = (Units = "cm"))
     FVector ShadowCatPositionOffset = FVector::ZeroVector;
@@ -219,6 +243,79 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Animation", meta = (ClampMin = "0.0"))
     double ShadowCatMaxPlayRate = 1.25;
+
+    /** Off by default: seeded Master-time drift and bounded per-stride variation. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation")
+    bool bShadowCatBobVariation = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation")
+    int32 ShadowCatVariationSeed = 1847;
+
+    /** Slow play-rate drift amplitude; 0.03 plus the 0.02 stride default stays within +/-5%. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation",
+        meta = (ClampMin = "0.0", ClampMax = "0.25", EditCondition = "bShadowCatBobVariation"))
+    double ShadowCatPlayRateDriftAmplitude = 0.03;
+
+    /** Slow bob-gain drift amplitude; 0.03 plus the 0.02 stride default stays within +/-5%. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation",
+        meta = (ClampMin = "0.0", ClampMax = "0.25", EditCondition = "bShadowCatBobVariation"))
+    double ShadowCatBobGainDriftAmplitude = 0.03;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation",
+        meta = (ClampMin = "0.0", ClampMax = "0.25", EditCondition = "bShadowCatBobVariation"))
+    double ShadowCatPerStrideVariationAmplitude = 0.02;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation",
+        meta = (ClampMin = "1.0", UIMin = "8.0", UIMax = "20.0", Units = "s", EditCondition = "bShadowCatBobVariation"))
+    double ShadowCatVariationDriftSeconds = 12.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation",
+        meta = (ClampMin = "0.1", UIMax = "2.0", Units = "s", EditCondition = "bShadowCatBobVariation"))
+    double ShadowCatVariationStrideSeconds = 0.8;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Variation",
+        meta = (ClampMin = "0.0", ClampMax = "1.0", EditCondition = "bShadowCatBobVariation"))
+    double ShadowCatPerStrideVariationChance = 0.25;
+
+    /** Pure helpers shared by runtime, automation and the offline Python port. */
+    static double IntegrateShadowCatPlayRates(const TArray<double>& IntervalPlayRates, double IntervalSeconds);
+    static double PassageSecondsAtMasterFrame(FFrameNumber MasterFrame, FFrameNumber PassageStartFrame, FFrameRate TickResolution);
+    static FInfinityShadowCatActionTiming EvaluateShadowCatActionTiming(
+        double PassageSeconds,
+        double PassageDurationSeconds,
+        double ActionStartSeconds,
+        double ClipLengthSeconds,
+        double PlayRate,
+        double BlendInSeconds,
+        double BlendOutSeconds,
+        bool bHoldLastFrame);
+    static FInfinityShadowCatVariation EvaluateShadowCatVariation(
+        int32 Seed,
+        double PassageSeconds,
+        double DriftSeconds,
+        double PlayRateDriftAmplitude,
+        double BobGainDriftAmplitude,
+        double PerStrideAmplitude,
+        double StrideSeconds,
+        double PerStrideChance);
+
+    /** Pure camera blend used by runtime, automation and the offline port. */
+    static FTransform BlendShadowCatCameraTransform(
+        const FTransform& RouteCameraTransform,
+        const FTransform& HeadBoneTransform,
+        const FVector& HeadLocalOffsetCm,
+        double Weight);
+
+    /** Conservative configuration gate: the eye offset must clear the perspective near plane. */
+    static bool IsShadowCatHeadPOVNearClipSafe(
+        const FVector& HeadLocalOffsetCm,
+        double NearClipCm,
+        double ClearanceCm);
+
+    /** Action modes switch only on the action's active interval; outside it the legacy mode wins. */
+    static EInfinityShadowCatBodyVisibility ResolveShadowCatBodyVisibility(
+        const FInfinityShadowCatActionTiming& Timing,
+        EInfinityShadowCatBodyVisibility RequestedMode);
 
     /**
      * Lift the camera with the cat's gait. The vertical travel of the reference
@@ -315,6 +412,18 @@ public:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat")
     double CurrentShadowCatPlayRate = 0.0;
 
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat")
+    double CurrentShadowCatActionWeight = 0.0;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat|POV")
+    EInfinityShadowCatCameraMode CurrentShadowCatCameraMode = EInfinityShadowCatCameraMode::Route;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat|POV")
+    EInfinityShadowCatBodyVisibility CurrentShadowCatBodyVisibility = EInfinityShadowCatBodyVisibility::ShadowOnly;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat|Variation")
+    double CurrentShadowCatBobGainScale = 1.0;
+
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage")
     bool EvaluateAtMasterFrame(FFrameNumber MasterFrame);
 
@@ -366,6 +475,8 @@ private:
     FTransform BuildShadowCatRelativeTransform() const;
     void ConfigureShadowCat();
     void ApplyShadowFigureVisibility();
+    void ApplyShadowCatActionRendering();
+    void ApplyShadowCatPOVCamera(const FTransform& RouteCameraTransform);
 
     /**
      * Whether the cat's BODY is drawn. Never in a game world: the camera IS the
@@ -392,10 +503,21 @@ private:
         const FInfinityCompiledPassage& Passage) const;
 
     /** Current gait lift of the reference bone over its rest pose, in world cm, scaled by the bob gain. */
-    double SampleShadowCatGaitLiftCm() const;
+    double SampleShadowCatGaitLiftCm(double VariationGainScale) const;
+
+    /** Integral of the varied, clamped play rate from the Passage start to MasterFrame. Pure in Master time. */
+    double EvaluateShadowCatGaitPhaseSeconds(
+        FFrameNumber MasterFrame,
+        const FInfinityCompiledPassage& Passage) const;
 
     bool bShadowCatBobReported = false;
     FInfinityGaitBobState ShadowCatGaitBobState;
+    FName CurrentShadowCatHeadPOVBone = TEXT("Head");
+    FVector CurrentShadowCatHeadPOVOffsetCm = FVector(12.0, 0.0, 3.0);
+    FName ShadowCatLastHiddenPOVBone = NAME_None;
+    bool bShadowCatRouteNearClipCached = false;
+    bool bShadowCatRouteNearClipOverride = false;
+    float ShadowCatRouteNearClipCm = 0.0f;
 
     bool GetCameraStateAtMasterFrame(
         FFrameNumber MasterFrame,

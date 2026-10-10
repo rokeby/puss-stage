@@ -21,6 +21,9 @@ public class InfinityStage : ModuleRules
 
         PrivateDependencyModuleNames.AddRange(new[]
         {
+            // UAnimSequencerInstance provides explicit-position, weighted pose
+            // evaluation for the Master-time-locked shadow-cat action layer.
+            "AnimGraphRuntime",
             "UMG",
             // The rehearsal bar (Cue Director) is a Slate widget shown in the game viewport too.
             "Slate",

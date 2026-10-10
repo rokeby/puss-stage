@@ -14,9 +14,25 @@
 #include "InfinityStageTypes.generated.h"
 
 class ULevelSequence;
+class UAnimSequence;
 class UInfinityStageMusicMapAsset;
 class UMaterialInterface;
 class UStaticMesh;
+
+UENUM(BlueprintType)
+enum class EInfinityShadowCatCameraMode : uint8
+{
+    Route,
+    HeadPOV
+};
+
+UENUM(BlueprintType)
+enum class EInfinityShadowCatBodyVisibility : uint8
+{
+    ShadowOnly,
+    POVBody,
+    ReflectionOnly
+};
 class UTexture;
 class UTextureLightProfile;
 
@@ -959,6 +975,58 @@ struct INFINITYSTAGE_API FInfinityShowCue
     FInfinitySceneCueData Scene;
 };
 
+/**
+ * One scripted shadow-cat action, timed relative to its owning Passage.
+ * StartFrame uses the Show's tick resolution; it therefore moves with the
+ * Passage when the managed Master is rebuilt or earlier material is retimed.
+ */
+USTRUCT(BlueprintType)
+struct INFINITYSTAGE_API FInfinityShadowCatAction
+{
+    GENERATED_BODY()
+
+    /** Animation on the AnimX cat skeleton. Leave empty as a slot for a not-yet-authored clip (for example Arch). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action")
+    TSoftObjectPtr<UAnimSequence> Animation;
+
+    /** Route leaves the scored Passage camera alone; HeadPOV follows the posed cat head in Master time. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action|POV")
+    EInfinityShadowCatCameraMode CameraMode = EInfinityShadowCatCameraMode::Route;
+
+    /** ShadowOnly is the legacy game view; POVBody exposes paws/body; ReflectionOnly is capture-oriented. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action|POV")
+    EInfinityShadowCatBodyVisibility BodyVisibility = EInfinityShadowCatBodyVisibility::ShadowOnly;
+
+    /** AnimX bone used as the HeadPOV origin. Binary asset strings prove Head exists. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action|POV")
+    FName HeadPOVBone = TEXT("Head");
+
+    /** Creative/rehearsal knob: camera offset in the head bone's local space. Positive X is forward. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action|POV", meta = (Units = "cm"))
+    FVector HeadPOVOffsetCm = FVector(12.0, 0.0, 3.0);
+
+    /** Start in Show ticks after this Passage's compiled segment start. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action", meta = (ClampMin = "0"))
+    FFrameNumber StartFrame = 0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action", meta = (ClampMin = "0.01", UIMax = "3.0"))
+    double PlayRate = 1.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action", meta = (ClampMin = "0.0", Units = "s"))
+    double BlendInSeconds = 0.25;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action", meta = (ClampMin = "0.0", Units = "s"))
+    double BlendOutSeconds = 0.25;
+
+    /** Hold the clip's last pose until the Passage ends; otherwise blend back to the gait at the clip end. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action")
+    bool bHoldLastFrame = false;
+
+    /** Rehearsal note only; not evaluated. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Action")
+    FString Label;
+};
+
 USTRUCT(BlueprintType)
 struct INFINITYSTAGE_API FInfinityPassageSettings
 {
@@ -1005,6 +1073,14 @@ struct INFINITYSTAGE_API FInfinityPassageSettings
      * travel with the Passage on retime. Empty: nothing is nested. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Choreography")
     TSoftObjectPtr<ULevelSequence> Choreography;
+
+    /**
+     * Scripted cat poses for this Passage. Relative frames are Show authority,
+     * so rehearsal may move WHEN an action happens without editing the camera
+     * rig, the managed Master, or any other Passage.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shadow Cat Actions")
+    TArray<FInfinityShadowCatAction> ShadowCatActions;
 
     /** When enabled, Continuous Loop rows derive their phase from their current
      * order in this Passage. Reordering rows therefore immediately preserves the
