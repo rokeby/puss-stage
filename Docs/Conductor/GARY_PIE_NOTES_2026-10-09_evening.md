@@ -78,3 +78,4 @@
 - **S1 (Gary 10 Oct ~12:40)**: the animals story finishes around S1 frame ~3600; just before that the animals disappear. That disappearance is correct, but it should be a **3 s FADE OUT**, not a pop. After that there is no need to keep playing: the **"lights out" sequence should begin from around frame 3800** (shorten S1 / move lights-out earlier). → Codex job 168.
 - **Gobo timings** are arbitrary for now; when made, the shadow scenes will probably be ~60 s each.
 - **The 12:19 local editor crash**: Python access violation during a Codex tool call (Codex's fault, not Gary's viewing).
+- **S1 ending (Gary ~13:30)**: NO shrinking animals. Instead, around ~3600 the CAMERA PANS over to a WING in the corner where a SMALL FIRE has started (the animals vanish off-camera during the pan), then lights out from ~3800. → Codex job 169 revises job 168.
