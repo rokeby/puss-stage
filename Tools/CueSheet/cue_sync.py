@@ -860,7 +860,9 @@ def cuebook_pull():
                   ensure_ascii=False, indent=1)
     print('CUE_SYNC_CUEBOOK_DOWNLOADED cues=%d surtitles=%d file=%s' %
           (len(res['cues']), len(res.get('surtitles', [])), out))
-    webpull(out)
+    # Use the same guarded export path as a downloaded backup. This merges and renders
+    # the cue sheet, and also exports surtitles when the payload contains them.
+    cuebook_export(out)
 
 
 def _no_crlf(value):

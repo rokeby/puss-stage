@@ -48,6 +48,12 @@ Saved/Codex*/**
 !Saved/Codex*/**/light_adjust.json
 !Saved/Codex*/**/expected_changes.json
 
+# Job 142: version the editor-side Cue Book launcher, never Gary's local passcode.
+!Saved/CueBook/
+Saved/CueBook/*
+!Saved/CueBook/cuebook_pull_editor.py
+Saved/CueBook/cuebook_pass.txt
+
 *.pdb
 *.sln
 Thumbs.db
