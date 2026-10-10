@@ -30,6 +30,22 @@ Verdicts on stills are by the conductor's eye. "Applied" means saved and read ba
 - **P02 is a wall of milky haze** in PIE at 30% and 60% of the passage (`Saved/CodexConductor/PassageStills/PSTILLS-P02-20261010-070928-*`). Inferred: tonight's P02 lighting = P01 (beams + atmosphere). It is also over the perf budget (p95 40.7 ms vs 33.4 ms). Job 125 has trim options. **Your call: keep, trim or revert.**
 - Tonight's early stills were taken without sequence evaluation, so the method was fixed mid-night. Trust only stills dated pass 7 onwards.
 
+## Later in the night (passes 8–12)
+
+**Done:**
+- **P04 smoke props**: all three pots hidden (the smoke stays).
+- **P02 floor**: the copy landed 1,000 m too low, so it was **reverted from the backup**. P02 has its original floor back. Job 152 fixed the maths (33/0); it is ready for the next slot.
+
+**Not done**, each with a fixed tool ready for the next slot:
+- **Shadow radii**: the survey found 310 candidates; APPLY refused pre-mutation. Nothing changed.
+- **I2/I3 back wall (job 144)**: an existing visibility-track conflict on I2; nothing applied.
+- **3D stage front**: meshes and textures imported; the **Arch** material instance is saved; the other five pieces and the placement are not done.
+- **Chandelier chain** and **Ending 101**: not run.
+- **Fringe**: held after two failures.
+- **Shadow-cat build**: v2 failed to compile (header include order), so it was reverted and rebuilt clean. Job 154 is fixing it (v3).
+
+**Machine:** the editor is closed after a clean build. Metamall has the build window, then its ~3 h slot.
+
 ## Still in the queue (as of writing)
 - **Pass 9:**
   - the 3D stage front (all six pieces, Dusty, Iron3, materials, placement, wide still)
