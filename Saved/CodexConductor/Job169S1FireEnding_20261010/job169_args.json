@@ -2,7 +2,7 @@
   "stage": "CAMERA_FIRE",
   "mode": "DRY",
   "confirm": "DRY JOB169",
-  "run_id": "JOB169-CAMERA-J173-A3-20261010",
+  "run_id": "J176-J169-CAMERA-A3-DRY-20261010",
   "decided_by": "Gary, Codex job 169, 10 Oct 2026",
   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
   "klara_copy": "/Game/InfinityStage/KlaraHookin/LS_Animals_1_S1Hangar",

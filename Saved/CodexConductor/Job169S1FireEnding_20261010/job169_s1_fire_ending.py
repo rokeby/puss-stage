@@ -495,9 +495,22 @@ def _transform_track(binding, span, keys, label):
 
 
 def _float_track(binding, prop, path, span, rows, label, eased=True):
-    track = binding.add_track(unreal.MovieSceneFloatTrack)
+    # UE 5.8 may auto-create the CineCameraComponent's property track along
+    # with its spawnable child binding. Reuse that exact empty track before
+    # asking the proxy to add a duplicate (which returns None on this build).
+    existing = [track for track in binding.get_tracks()
+                if track.get_class().get_name() == "MovieSceneFloatTrack"
+                and str(track.get_property_name()) == prop]
+    if len(existing) > 1:
+        raise Refusal("FLOAT_TRACK_AMBIGUOUS|%s|%s|%d" % (label, prop, len(existing)))
+    track = existing[0] if existing else binding.add_track(unreal.MovieSceneFloatTrack)
     if track is None:
-        raise Refusal("FLOAT_TRACK_CREATE|%s|%s" % (label, prop))
+        inventory = [(str(t.get_name()), t.get_class().get_name(),
+                      str(t.get_property_name()) if hasattr(t, "get_property_name") else "")
+                     for t in binding.get_tracks()]
+        raise Refusal("FLOAT_TRACK_CREATE|%s|%s|existing=%s" % (label, prop, inventory))
+    if existing and list(track.get_sections()):
+        raise Refusal("FLOAT_TRACK_EXISTING_SECTIONS|%s|%s" % (label, prop))
     track.set_property_name_and_path(unreal.Name(prop), path); track.set_display_name(label)
     section = track.add_section(); section.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
     section.set_range(int(span[0]), int(span[1]))
@@ -517,7 +530,9 @@ def _component_child_binding(seq, parent, component, display_name):
     if len(children) > 1:
         raise Refusal("COMPONENT_CHILD_AMBIGUOUS|%s|%d" % (display_name, len(children)))
     if children:
-        child = children[0]
+        # UE 5.8 returns an auto-child proxy whose sequence context may be
+        # missing; rehydrate it explicitly before adding property tracks.
+        child = unreal.MovieSceneBindingProxy(binding_id=children[0].get_id(), sequence=seq)
     else:
         child = seq.add_possessable(component)
         if child is None:

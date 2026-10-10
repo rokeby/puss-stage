@@ -105,6 +105,9 @@ def planned(n=2, labels=None):
 
 check("+ I2 plan", lambda: planned(2)["interaction"], 2)
 check("+ I3 plan", lambda: planned(3)["interaction"], 3)
+check("+ UE 5.8 binding removal contract", lambda: (
+    "binding.remove()" in open(J.__file__, encoding="utf-8").read() and
+    "seq.remove_possessable(" not in open(J.__file__, encoding="utf-8").read()), True)
 check("+ farthest wall", lambda: planned(2)["wall"]["label"], "S2 Hangar Back Wall")
 check("+ bHidden property", lambda: planned(2)["visibility"]["property"], "bHidden")
 check("+ visibility channel is visible-state", lambda: planned(2)["visibility"]["channel_semantics"], "VISIBLE")

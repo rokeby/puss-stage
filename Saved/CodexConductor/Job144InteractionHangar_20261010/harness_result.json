@@ -1,6 +1,6 @@
 {
  "failed": 0,
- "passed": 44,
+ "passed": 45,
  "tests": [
   {
    "control": "+",
@@ -10,6 +10,11 @@
   {
    "control": "+",
    "name": "+ I3 plan",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ UE 5.8 binding removal contract",
    "ok": true
   },
   {

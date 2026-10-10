@@ -1,8 +1,8 @@
 {
   "mode": "DRY",
   "confirm": null,
-  "passage_label": "Passage 1",
-  "target_actor_label": "Swinging Candle Chandelier",
+  "passage_label": "Passage 6",
+  "target_actor_label": "P75 P06 Chandelier Body",
   "length_cm": 300.0,
   "damping_ratio": 0.12,
   "fixed_step_hz": 120.0,

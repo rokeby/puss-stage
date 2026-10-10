@@ -1,6 +1,6 @@
 {
  "params": {
-  "approved_inventory_digest": "c6b74acf49395887302a876c3930c928c8028ce4260a15bc96bcbf762394c2c1",
+  "approved_inventory_digest": "f0644cf26f6acc1f7175f061814137d3aae9ba1123db2ecbb01c0f28309ab575",
   "approved_shadow_source_labels": [
    "Sleight Hangar Shadow Card"
   ],
@@ -73,6 +73,7 @@
    "Sleight|Curtain|Drape|Camera|Shadow|Puppet|Gobo|Boy|Cat|Transition"
   ],
   "scene_tail_black_frames": 25,
+  "shadow_card_gap_cm": 2.0,
   "shadow_end_lead_frames": 1,
   "shadow_fade_frames": 12,
   "spot_attenuation_radius_cm": 4500.0,
@@ -88,6 +89,6 @@
   "visibility_conflict_policy": "SAFE_SKIP",
   "wall_label": "AUTO"
  },
- "plan_digest": "d8c974e5ac802bce389695130e8d1a99548fb863aee3c0ee919670b9b067dce0",
- "report": "E:\\PussStage\\Saved\\CodexConductor\\Job144InteractionHangar_20261010\\job144_dry_I2_J144-I2-J173-REDRY1-20261010.json"
+ "plan_digest": "4ca5b739317527beda2214e2546385512dbae26d03fa16884c2ec133c1115ab5",
+ "report": "E:\\PussStage\\Saved\\CodexConductor\\Job144InteractionHangar_20261010\\job144_dry_I2_J176-J144-I2-REDRY-20261010.json"
 }

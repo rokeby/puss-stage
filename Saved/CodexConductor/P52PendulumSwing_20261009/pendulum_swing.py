@@ -273,11 +273,15 @@ def _track_snapshot(binding):
 
 
 def _base_transform(actor):
-    root = actor.get_root_component()
+    # StaticMeshActor does not expose get_root_component() in UE 5.8's
+    # generated Python API; the reflected root_component property is stable.
+    root = actor.get_editor_property("root_component")
     require(root is not None, "TARGET_ROOT_MISSING")
     # Actor transform tracks drive the root's relative transform. World values
     # would double an attached chandelier's support transform.
-    loc, rot, scale = root.get_relative_location(), root.get_relative_rotation(), root.get_relative_scale3d()
+    loc = root.get_editor_property("relative_location")
+    rot = root.get_editor_property("relative_rotation")
+    scale = root.get_editor_property("relative_scale3d")
     return {"location": [float(loc.x), float(loc.y), float(loc.z)],
             "rotation": [float(rot.roll), float(rot.pitch), float(rot.yaw)],
             "scale": [float(scale.x), float(scale.y), float(scale.z)]}

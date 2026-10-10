@@ -1,7 +1,7 @@
 {
   "mode": "DRY",
   "confirm": "DRY JOB144",
-  "run_id": "J144-I3-J173-APPLY1-20261010",
+  "run_id": "J176-J144-I3-FINAL-DRY-20261010",
   "params": {
     "interaction": 3,
     "wall_label": "AUTO",
@@ -63,7 +63,7 @@
     "approved_shadow_source_labels": [
       "Sleight Hangar Shadow Card"
     ],
-    "approved_inventory_digest": "25dba03adb2d215d032dd9b897c38a12ee37dbeabb152799dbe7dd2d6ca0f6ca",
+    "approved_inventory_digest": "75ba5bf0647a1a45f327077b7f8ff6dc4df03f86d2be3a51955abeb840c120fd",
     "spot_side": "front",
     "spot_throw_cm": 3000,
     "curtain_wall_gap_cm": 50,

@@ -1,0 +1,12 @@
+{
+  "run_id": "JOB176-P56-P06-REVIEW-B-20261010",
+  "passage": "P6",
+  "fraction": 0.5,
+  "body_actor_label": "P75 P06 Chandelier Body",
+  "camera_actor_label": "Shore Cast Review Camera",
+  "camera_offset_local_cm": [-650.0, -175.0, 190.0],
+  "target_offset_local_cm": [0.0, 0.0, 70.0],
+  "focal_mm": 32.0,
+  "exposure_bias": 3.0,
+  "output": "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/176_05b_p56_p06_chandelier_lit_candles_close.png"
+}

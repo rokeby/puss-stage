@@ -677,7 +677,9 @@ class UnrealBackend(object):
                 seq.remove_spawnable(binding.get_id())
             else:
                 if list(binding.get_tracks()): raise Stop("REVERT_CREATED_BINDING_HAS_TRACKS|%s" % row["guid"])
-                seq.remove_possessable(binding.get_id())
+                # UE 5.8 removes a binding through the binding proxy itself;
+                # LevelSequence no longer exposes remove_possessable().
+                binding.remove()
         actual = sorted(self.census()["content"] + self.census()["maps"])
         if actual != sorted(record["packages"]): raise Stop("REVERT_DIRTY_SCOPE|%s" % actual)
         for package in record["packages"]:

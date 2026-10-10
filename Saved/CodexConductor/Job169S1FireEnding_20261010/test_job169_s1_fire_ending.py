@@ -157,6 +157,9 @@ class SourceContract(unittest.TestCase):
         self.assertNotIn("MovieSceneKeyInterpolation.CUBIC", source)
         self.assertIn("MovieSceneKeyInterpolation.AUTO", source)
         self.assertIn("parent.get_child_possessables()", source)
+        self.assertIn("MovieSceneBindingProxy(binding_id=children[0].get_id(), sequence=seq)", source)
+        self.assertIn("FLOAT_TRACK_EXISTING_SECTIONS", source)
+        self.assertIn("existing else binding.add_track(unreal.MovieSceneFloatTrack)", source)
         self.assertIn("unique_artifact_path", source)
 
 

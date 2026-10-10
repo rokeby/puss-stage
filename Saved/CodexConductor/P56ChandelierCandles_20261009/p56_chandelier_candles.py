@@ -295,9 +295,9 @@ def _verify_child_blueprint(args: dict[str, Any], plan: dict[str, Any]) -> dict[
     require(generated is not None and source_class is not None, "BP_CLASS_LOAD")
     # Reflected UClass objects are values, not Python types: isinstance(...,
     # source_class) raises TypeError, and BlueprintGeneratedClass does not expose
-    # is_child_of in UE 5.8.  This child is created with the source as its direct
-    # parent, so compare the reflected parent-class asset identity instead.
-    parent_class = bp.get_editor_property("parent_class")
+    # is_child_of in UE 5.8.  BlueprintEditorLibrary is the supported 5.8 route
+    # for reading a Blueprint asset's direct parent class.
+    parent_class = unreal.BlueprintEditorLibrary.get_blueprint_parent_class(bp)
     require(parent_class is not None and _asset_id(parent_class) == _asset_id(source_class),
             "CHILD_BP_PARENT")
     component = _subobject(bp, COMPONENT_NAME)

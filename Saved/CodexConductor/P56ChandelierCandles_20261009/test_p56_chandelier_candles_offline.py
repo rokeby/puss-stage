@@ -82,7 +82,8 @@ def main():
 
     source = open(os.path.join(os.path.dirname(__file__), "p56_chandelier_candles.py"),
                   "r", encoding="utf-8").read()
-    if ('get_editor_property("parent_class")' in source
+    if ("BlueprintEditorLibrary.get_blueprint_parent_class(bp)" in source
+            and 'get_editor_property("parent_class")' not in source
             and "isinstance(cdo, source_class)" not in source
             and ".is_child_of(source_class)" not in source
             and "actor.get_root_component()" not in source):
