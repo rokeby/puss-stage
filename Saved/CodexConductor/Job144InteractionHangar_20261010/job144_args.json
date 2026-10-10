@@ -1,0 +1,25 @@
+{
+ "mode": "DRY",
+ "confirm": "DRY JOB144",
+ "run_id": null,
+ "params": {
+  "interaction": 2,
+  "wall_label": "AUTO",
+  "hide_actor_labels": [],
+  "approved_shadow_source_labels": [],
+  "approved_inventory_digest": "",
+  "spot_side": "front",
+  "spot_throw_cm": 3000.0,
+  "curtain_wall_gap_cm": 50.0,
+  "curtain_width_cm": 480.0,
+  "curtain_height_cm": 270.0,
+  "curtain_frame_margin_cm": 20.0,
+  "camera_focal_mm": 35.0,
+  "camera_distance_override_cm": null,
+  "dark_setup_frames": 75,
+  "camera_settle_frames": 100,
+  "shadow_fade_frames": 12,
+  "shadow_end_lead_frames": 1,
+  "scene_tail_black_frames": 25
+ }
+}

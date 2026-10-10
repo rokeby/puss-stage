@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+ <rect width="1200" height="720" fill="#11151b"/>
+ <text x="50" y="52" fill="#f4ead5" font-family="sans-serif" font-size="27">Job 144 analytical preview — live DRY supplies exact geometry</text>
+ <text x="50" y="82" fill="#aab5c3" font-family="sans-serif" font-size="15">Not a render; dimensions below are editable defaults and recorded patterns.</text>
+ <rect x="70" y="135" width="690" height="365" rx="8" fill="#1b222c" stroke="#697788" stroke-width="2"/>
+ <text x="90" y="170" fill="#d8e2ec" font-family="sans-serif" font-size="18">PLAN VIEW — hangar retained, scene contents hidden by owned bHidden tracks</text>
+ <line x1="700" y1="205" x2="700" y2="450" stroke="#b89d78" stroke-width="20"/>
+ <text x="655" y="480" fill="#d5bd9c" font-family="sans-serif" font-size="15">BACK WALL</text>
+ <line x1="665" y1="235" x2="665" y2="420" stroke="#b32032" stroke-width="8"/>
+ <text x="600" y="220" fill="#ff7181" font-family="sans-serif" font-size="15">curtain, 50 cm proud</text>
+ <circle cx="260" cy="327" r="19" fill="#ffd166"/>
+ <line x1="280" y1="327" x2="660" y2="327" stroke="#ffd166" stroke-width="3" stroke-dasharray="9 7"/>
+ <text x="150" y="295" fill="#ffe29a" font-family="sans-serif" font-size="15">one shadow spot, ~30 m front throw</text>
+ <polygon points="500,305 530,327 500,349" fill="#67c7ff"/>
+ <text x="445" y="382" fill="#8fd6ff" font-family="sans-serif" font-size="15">interaction camera frames curtain</text>
+ <rect x="810" y="135" width="325" height="365" rx="8" fill="#1b222c" stroke="#697788" stroke-width="2"/>
+ <text x="830" y="170" fill="#d8e2ec" font-family="sans-serif" font-size="18">FAIL GATES</text>
+ <text x="830" y="215" fill="#f2c879" font-family="sans-serif" font-size="15">• rear throw &lt; 32 m clearance</text>
+ <text x="830" y="250" fill="#f2c879" font-family="sans-serif" font-size="15">• spot pool shorter than curtain height</text>
+ <text x="830" y="285" fill="#f2c879" font-family="sans-serif" font-size="15">• camera cut absent in show level</text>
+ <text x="830" y="320" fill="#f2c879" font-family="sans-serif" font-size="15">• wall selection ambiguous</text>
+ <text x="830" y="355" fill="#f2c879" font-family="sans-serif" font-size="15">• unapproved hide census</text>
+ <text x="830" y="390" fill="#f2c879" font-family="sans-serif" font-size="15">• any plan warning / dirty package</text>
+ <text x="830" y="440" fill="#8fd6ff" font-family="sans-serif" font-size="15">True rear projection behind a wall</text>
+ <text x="830" y="464" fill="#8fd6ff" font-family="sans-serif" font-size="15">is expected to fail without a cavity.</text>
+ <line x1="80" y1="590" x2="1110" y2="590" stroke="#7a8796" stroke-width="3"/>
+ <circle cx="120" cy="590" r="9" fill="#18202a" stroke="#aab5c3"/>
+ <circle cx="240" cy="590" r="9" fill="#18202a" stroke="#aab5c3"/>
+ <circle cx="420" cy="590" r="9" fill="#ffd166"/>
+ <circle cx="930" cy="590" r="9" fill="#ffd166"/>
+ <circle cx="970" cy="590" r="9" fill="#11151b" stroke="#ffd166"/>
+ <circle cx="1110" cy="590" r="9" fill="#67c7ff"/>
+ <text x="92" y="625" fill="#aab5c3" font-family="sans-serif" font-size="14">DARK</text>
+ <text x="200" y="625" fill="#aab5c3" font-family="sans-serif" font-size="14">curtain hung</text>
+ <text x="370" y="625" fill="#ffe29a" font-family="sans-serif" font-size="14">spot up</text>
+ <text x="870" y="625" fill="#ffe29a" font-family="sans-serif" font-size="14">shadow end</text>
+ <text x="938" y="653" fill="#ffe29a" font-family="sans-serif" font-size="14">spot OFF</text>
+ <text x="1055" y="625" fill="#8fd6ff" font-family="sans-serif" font-size="14">sleight</text>
+ <text x="50" y="690" fill="#aab5c3" font-family="sans-serif" font-size="14">Visibility channel: False = hidden, despite binding AActor::bHidden. Existing sleight keys at and after the cut are preserved.</text>
+</svg>

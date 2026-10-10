@@ -1,0 +1,137 @@
+{
+ "failed": 0,
+ "passed": 26,
+ "tests": [
+  {
+   "control": "+",
+   "name": "+ I2 plan",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ I3 plan",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ farthest wall",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ bHidden property",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ visibility channel is visible-state",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ hidden false",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ restored true",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ spot off at sleight",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ existing puppet census",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ exact hide approval",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ camera framing distance",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ scene wrapper only",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- interaction 1",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- unresolved cut",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- cut absent from show world",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- infrastructure cannot hide",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- unapproved census",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- rear throw too close",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- ambiguous back wall",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- invalid frame range",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- existing fade conflict",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- missing shadow source",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ sleight and later keys preserved",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ curtain offset bounded",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ DRY dispatch",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- confirmation",
+   "ok": true
+  }
+ ],
+ "tool": "JOB144_INTERACTION_HANGAR_HARNESS"
+}
