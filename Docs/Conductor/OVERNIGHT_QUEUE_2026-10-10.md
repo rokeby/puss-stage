@@ -25,11 +25,11 @@ Status values: `TODO` · `RUNNING` · `DONE (marker)` · `SKIPPED (reason)` · `
 | 90b | I2/I3 | I2, I3 | SKIPPED (DRY I2_NOT_THR..., zero mutation); investigate |
 | 89 | Curtain before shadow | I1/I3/I4/I5 | RUNNING (I1, I3 done) |
 | 3 | Chandelier: P75 adopt/clean → staging → P56 candles → P52 swing | opening + P06 | TODO |
-| 8 | **S4 dark cut (96), KEY (Gary E17)**: arrive in a blacked-out hangar, then a straight cut to Klara's sequence (it begins dark); P04 lights off; curtain stays down. Verify with stills at the P04 end, the cut frame and S4+1 s | P04→S4 | APPLIED (96 R6). **STILL FAILS VISUALLY:** the P04 end still shows rig bulbs and glows; the S4 cut is dark but not black → job 134 |
+| 8 | **S4 dark cut (96), KEY (Gary E17)**: arrive in a blacked-out hangar, then a straight cut to Klara's sequence (it begins dark); P04 lights off; curtain stays down. Verify with stills at the P04 end, the cut frame and S4+1 s | P04→S4 | APPLIED (96 R6). **STILL FAILS VISUALLY:** the P04 end still shows rig bulbs and glows; the S4 cut is dark but not black → job 134 (tool fixed and merged, 18/18; runs AFTER pass 3) |
 | 9 | Girders (98) | S5 | TODO |
 | 10 | Proscenium fringe (88) | opening | TODO |
 | 11 | P05 → 42.04 s (103) | P05 | DONE (P103-E26-P05) |
-| 11b | P06 → Walking6, 125 s (104, IMPORT_AND_SWAP approved) | P06 | PARTIAL: swap + 125 s SAVED; retime FAILED (unbounded Spawn section) → Don't-Save restart; job 134 RESUME |
+| 11b | P06 → Walking6, 125 s (104, IMPORT_AND_SWAP approved) | P06 | PARTIAL: swap + 125 s SAVED; retime FAILED (unbounded Spawn section) → Don't-Save restart; job 134 RESUME (tool fixed and merged, 46/46; runs AFTER pass 3) |
 | 12 | Car drive-by radius 10000 (110) | **P02** | TODO |
 | 13 | (87 opening HELD: its requests renamed; it runs AFTER job 131 places the 3D stage front, because stage scale and camera angle change all opening visuals; then RE-DRY, and possibly re-plan the camera/uplights) **92 S2 hangar size [APPLIED R6: 99 actors + 3 lattice keys; Klara-camera still is INCONCLUSIVE (it looks up at the shrine) → needs a wide/outside still] (BIG DEAL, Gary 10 Oct: fully fit Klara's scene; verify with a still from inside her S2 camera)**, 94 S3 arrival, 97 Nap, pearl 2 s, 99 (S6 non-PIE), 101 ending | as listed | TODO. Note: 99 was mis-scoped (Gary: it is P06); job 126 replaces it |
 | — | Job 119/129 floor tool | **P02** floor (args target=P02; the S2 target is never used) | TODO: probe J118 P02 vs P01, then DRY (review segments + bindings) → APPLY → stills |
