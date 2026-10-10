@@ -1,1 +1,7 @@
-{"mode": "DRY", "confirm": "", "run": "PEARLGLOW-DRY-1", "factor": 0.15, "pie_scene_frame": 4400}
+{
+ "mode": "PIEREAD",
+ "confirm": "PIEREAD PEARLGLOW",
+ "run": "PEARLGLOW-PIEREAD-1",
+ "factor": 0.15,
+ "pie_scene_frame": 4400
+}

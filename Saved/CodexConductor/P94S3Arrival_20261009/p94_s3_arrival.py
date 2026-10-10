@@ -308,7 +308,9 @@ def _load_sequences(run):
 
 def _track_property(track):
     try:
-        return str(track.get_property_name()), str(track.get_property_path())
+        name = track.get_property_name()
+        path = track.get_property_path()
+        return ("" if name is None else str(name), "" if path is None else str(path))
     except Exception:  # noqa: BLE001
         return "", ""
 
