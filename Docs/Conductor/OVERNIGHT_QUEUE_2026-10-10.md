@@ -100,3 +100,27 @@ Status values: `TODO` · `RUNNING` · `DONE (marker)` · `SKIPPED (reason)` · `
 ## E. Metamall (other project, the same machine; Gary: lower priority than Puss)
 - After the Puss build in B.5: send "BUILD WINDOW OPEN" (their UBT build, 3–10 min, no editor), then wait for "build done".
 - After the Puss overnight queue is complete and the editor is CLOSED: "SLOT OPEN" (about 3 h; Metamall peaks ~36 GB, so the Puss editor must stay closed). Their GPU items are cleared with the conductor one at a time.
+
+## Pass 3 results (job 135) and pass 4 (job 137, running)
+
+Stills are in `Saved/CodexConductor/ApplyPass_20261010/stills/`. Verdicts are by the conductor's eye.
+
+| Item | Result | Visual verdict |
+|---|---|---|
+| S2 hangar fit (92) | already applied | **probably passed.** From outside/above the set sits inside the box with nothing visible poking out, but the image is very dark. Gary to confirm in PIE |
+| P05 deer curtain | applied | **passed.** The deer looks at camera, small |
+| P05 left wings (128) | applied as **−20 cm** local X (the tool's geometry chose the direction that removes the overlap); minimum gap 0.15 cm | inconclusive. Gary to check |
+| P02 car radius 10000 (110) | applied | still too dark to judge |
+| S5 girders (98) | applied | still too dark to judge |
+| P02 floor (119/129) | DRY guard stopped it, zero mutation | → job 136 |
+| P04 smoke prop (127) | DRY guard stopped it, zero mutation | → job 136 |
+| Fringe (88) | FAILED mid-import (5.8 API); Don't-Save restart; record retired | → job 136 |
+
+**Pass 4 (job 137), in order:**
+1. 96 RESUME (P04 black + cut fade).
+2. 104 RESUME (P06 retime).
+3. 94, the pearl 2 s fade, 90b.
+4. The 3D stage front (all six pieces, Dusty, Iron3).
+5. Shadow radii with the perf auto-revert.
+6. The chandelier chain.
+7. Ending 101.
