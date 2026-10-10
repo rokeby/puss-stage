@@ -75,3 +75,6 @@
 - **P06 parcan (Gary 10 Oct ~12:30, screenshot)**: the parcan standing in the middle of the P06 arrival shot is the fixture body associated with / collocated with the light **"P06 EVT B02 BLACK F00 CAMERA"** (a SpotLight; a P06 lighting-score event light, bay 02). This is Gary's selection for job 126 (tool P99S6ArrivalSun_20261009): hide that body only (bHidden, revertible); the light stays unless the light itself is the problem.
 - **Filming (Gary)**: the whole show run-through is best, but it should include all current improvements plus Gary's gobo animations. To save usage, Gary will probably run it through a collaborator.
 - **Cue Book**: Gary has added the passcode to Saved/CueBook/cuebook_pass.txt. **Puss > Pull Cue Book** works after the next editor restart.
+- **S1 (Gary 10 Oct ~12:40)**: the animals story finishes around S1 frame ~3600; just before that the animals disappear. That disappearance is correct, but it should be a **3 s FADE OUT**, not a pop. After that there is no need to keep playing: the **"lights out" sequence should begin from around frame 3800** (shorten S1 / move lights-out earlier). → Codex job 168.
+- **Gobo timings** are arbitrary for now; when made, the shadow scenes will probably be ~60 s each.
+- **The 12:19 local editor crash**: Python access violation during a Codex tool call (Codex's fault, not Gary's viewing).
