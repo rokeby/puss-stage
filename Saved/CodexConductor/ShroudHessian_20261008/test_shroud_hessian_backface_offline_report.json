@@ -1,0 +1,143 @@
+{
+  "checks": 27,
+  "passes": 27,
+  "fails": 0,
+  "failures": [],
+  "results": [
+    {
+      "check": "+ DRY accepted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ APPLY accepted with exact confirm",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ REVERT accepted with active record",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "- APPLY rejects wrong confirm",
+      "pass": true,
+      "detail": "CONFIRM|expected APPLY SHROUD HESSIAN BACKFACE"
+    },
+    {
+      "check": "- APPLY rejects active record",
+      "pass": true,
+      "detail": "ACTIVE_RECORD_EXISTS"
+    },
+    {
+      "check": "- REVERT rejects missing record",
+      "pass": true,
+      "detail": "NO_APPLY_RECORD"
+    },
+    {
+      "check": "- compile wait cannot undercut async check",
+      "pass": true,
+      "detail": "COMPILE_WAIT|1.0"
+    },
+    {
+      "check": "- placeholder run rejected",
+      "pass": true,
+      "detail": "RUN_ID_PLACEHOLDER"
+    },
+    {
+      "check": "+ clean LogMaterial window passes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "- LogMaterial Error is caught",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "- failed-to-compile warning is caught",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ unrelated log category is not a material compile failure",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ expected terminal, flags and chain pass",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "- skeletal false is caught",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "- clothing false is caught",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "- missing TwoSidedSign chain is caught",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ imports offline without unreal",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ no material-expression deletion API",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ no Save All API",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ exact target is hard-coded",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ APPLY record and backup precede modify",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ REVERT backup precedes modify",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ only final Normal terminal is rewired",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ REVERT reconnects recorded original",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ compile check precedes target save",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ setter return values are not trusted",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "check": "+ builder regeneration contains TwoSidedSign",
+      "pass": true,
+      "detail": null
+    }
+  ]
+}

@@ -32,6 +32,7 @@
       300.0,
       220.0
     ],
+    "cleanup_failed_run_id": "P75CHAN-20261009-204553",
     "confirm": "",
     "drive_by_color_linear": [
       1.0,
@@ -132,6 +133,7 @@
       "p06"
     ],
     "proscenium_plane_x_cm": 0.0,
+    "reviewed_cleanup_sha256": "",
     "reviewed_plan_sha256": {
       "opening": "",
       "p06": ""

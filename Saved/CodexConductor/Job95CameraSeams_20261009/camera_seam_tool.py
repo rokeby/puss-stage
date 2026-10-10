@@ -111,7 +111,7 @@ def set_camera(actor, state):
     actor.set_actor_transform(unreal.Transform(
         location=unreal.Vector(*state["location"]),
         rotation=unreal.Rotator(roll=state["rotation"][0], pitch=state["rotation"][1], yaw=state["rotation"][2]),
-        scale=unreal.Vector(*state["scale"])))
+        scale=unreal.Vector(*state["scale"])), False, True)  # UE 5.8: sweep, teleport are required (live 10 Oct)
     component = actor.get_cine_camera_component()
     component.set_editor_property("current_focal_length", float(state["focal_mm"]))
     focus = component.get_editor_property("focus_settings")

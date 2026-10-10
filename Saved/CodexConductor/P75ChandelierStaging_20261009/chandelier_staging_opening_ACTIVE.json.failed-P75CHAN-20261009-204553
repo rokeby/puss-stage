@@ -1,0 +1,692 @@
+{
+  "backup": {
+    "packages": [
+      {
+        "backup": "E:\\PussStage\\Backups\\PreP75ChandelierOpening-P75CHAN-20261009-204553\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 23742472,
+        "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+        "sha256": "25c25c21c15d8986886be23dd5d86354e6cc5bb65b35dd49b9b7ee2022bdb8ab",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+      },
+      {
+        "backup": "E:\\PussStage\\Backups\\PreP75ChandelierOpening-P75CHAN-20261009-204553\\InfinityStage\\Interactions\\LS_Opening_Curtain_Baked.uasset",
+        "bytes": 156798,
+        "package": "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked",
+        "sha256": "8c9aced6098210b5560d582884277ef06248b114893386814e14db7dde2f023c",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Interactions\\LS_Opening_Curtain_Baked.uasset"
+      }
+    ],
+    "root": "E:\\PussStage\\Backups\\PreP75ChandelierOpening-P75CHAN-20261009-204553"
+  },
+  "dirty_before": {
+    "content": [],
+    "maps": []
+  },
+  "packages": [
+    "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+    "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked"
+  ],
+  "part": "opening",
+  "part_plan_sha256": "017e07a786ff771bac63311d310ed9c050baa3c9604015f13d428e2e5326c86f",
+  "plan": {
+    "args": {
+      "body_mesh": "/Game/Scenes/Props/Chandelier/SM_Chandelier_Iron3",
+      "chain_layout_json": "DerivedAssets/ChandelierBuild/Output/Iron3/chandelier_Iron3_chain.json",
+      "chain_meshes": [
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_00",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_01",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_02",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_03",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_04",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_05",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_06",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_07",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_08",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_09",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_10",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_11",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_12",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_13",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_14",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_15",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_16",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_17",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_18",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_19",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_20",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_21",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_22",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_23"
+      ],
+      "chandelier_shadow_size_cm": [
+        300.0,
+        220.0
+      ],
+      "confirm": "APPLY P75 CHANDELIER",
+      "drive_by_color_linear": [
+        1.0,
+        0.9,
+        0.75
+      ],
+      "drive_by_light_location_cm": [
+        -4200.0,
+        -900.0,
+        850.0
+      ],
+      "drive_by_outer_cone_deg": 34.0,
+      "drive_by_peak_intensity_cd": 2500.0,
+      "drive_by_soft_source_radius_cm": 15.0,
+      "drive_by_target_end_cm": [
+        0.0,
+        -1200.0,
+        550.0
+      ],
+      "drive_by_target_start_cm": [
+        0.0,
+        1200.0,
+        550.0
+      ],
+      "grouped_light_attenuation_cm": 650.0,
+      "grouped_light_intensity_cd": 85.0,
+      "material": "/Game/Scenes/Props/Chandelier/MI_Chandelier_Iron3",
+      "minimum_topple_clearance_cm": 1200.0,
+      "minimum_wing_station_clearance_cm": 400.0,
+      "mode": "APPLY",
+      "new_sound": false,
+      "opening_body_location_cm": [
+        -400.0,
+        600.0,
+        900.0
+      ],
+      "opening_body_rotation_deg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "opening_duration_s": 96.36,
+      "opening_group_light_count": 2,
+      "opening_group_lights_enabled": true,
+      "opening_group_shadow_caster_count": 1,
+      "opening_sequence": "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked",
+      "opening_shadow_end_s": 39.18,
+      "opening_shadow_peak_s": 37.68,
+      "opening_shadow_start_s": 36.18,
+      "p06_body_z_cm": 1050.0,
+      "p06_first_chain_creak_s": 24.89,
+      "p06_group_light_count": 1,
+      "p06_group_lights_enabled": false,
+      "p06_group_shadow_caster_count": 0,
+      "p06_hang_station_cm": 5700.0,
+      "p06_lateral_cm": 0.0,
+      "p06_topple_stations_cm": [
+        9450.0,
+        10450.0,
+        10950.0,
+        11450.0,
+        11950.0,
+        12450.0,
+        15150.0,
+        16350.0,
+        17550.0,
+        18750.0,
+        19950.0,
+        21150.0,
+        22350.0,
+        23550.0,
+        24750.0,
+        25950.0,
+        27250.0
+      ],
+      "p06_wing_stations_cm": [
+        250.0,
+        1050.0,
+        1950.0,
+        2950.0,
+        4050.0,
+        5150.0,
+        6250.0,
+        7350.0,
+        8450.0,
+        9450.0,
+        10450.0,
+        10950.0,
+        11450.0,
+        11950.0,
+        12450.0,
+        12950.0,
+        13450.0,
+        13950.0
+      ],
+      "parts": [
+        "opening"
+      ],
+      "proscenium_plane_x_cm": 0.0,
+      "reviewed_plan_sha256": {
+        "opening": "017e07a786ff771bac63311d310ed9c050baa3c9604015f13d428e2e5326c86f",
+        "p06": ""
+      },
+      "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+    },
+    "assets": {
+      "body_mesh": "/Game/Scenes/Props/Chandelier/SM_Chandelier_Iron3",
+      "chain_layout_json": "DerivedAssets/ChandelierBuild/Output/Iron3/chandelier_Iron3_chain.json",
+      "chain_meshes": [
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_00",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_01",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_02",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_03",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_04",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_05",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_06",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_07",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_08",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_09",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_10",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_11",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_12",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_13",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_14",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_15",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_16",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_17",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_18",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_19",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_20",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_21",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_22",
+        "/Game/Scenes/Props/Chandelier/Chain/ChainLink_23"
+      ],
+      "material": "/Game/Scenes/Props/Chandelier/MI_Chandelier_Iron3"
+    },
+    "chain": {
+      "body": {
+        "attach_cm": [
+          0.0,
+          0.0,
+          -300.0
+        ],
+        "mass_kg": 1665.1720271691452
+      },
+      "count": 24,
+      "length_cm": 300.0,
+      "links": [
+        {
+          "index": 0,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "index": 1,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -12.5
+          ]
+        },
+        {
+          "index": 2,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -25.0
+          ]
+        },
+        {
+          "index": 3,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -37.5
+          ]
+        },
+        {
+          "index": 4,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -50.0
+          ]
+        },
+        {
+          "index": 5,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -62.5
+          ]
+        },
+        {
+          "index": 6,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -75.0
+          ]
+        },
+        {
+          "index": 7,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -87.5
+          ]
+        },
+        {
+          "index": 8,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -100.0
+          ]
+        },
+        {
+          "index": 9,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -112.5
+          ]
+        },
+        {
+          "index": 10,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -125.0
+          ]
+        },
+        {
+          "index": 11,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -137.5
+          ]
+        },
+        {
+          "index": 12,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -150.0
+          ]
+        },
+        {
+          "index": 13,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -162.5
+          ]
+        },
+        {
+          "index": 14,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -175.0
+          ]
+        },
+        {
+          "index": 15,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -187.5
+          ]
+        },
+        {
+          "index": 16,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -200.0
+          ]
+        },
+        {
+          "index": 17,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -212.5
+          ]
+        },
+        {
+          "index": 18,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -225.0
+          ]
+        },
+        {
+          "index": 19,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -237.5
+          ]
+        },
+        {
+          "index": 20,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -250.0
+          ]
+        },
+        {
+          "index": 21,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -262.5
+          ]
+        },
+        {
+          "index": 22,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -275.0
+          ]
+        },
+        {
+          "index": 23,
+          "length_cm": 12.5,
+          "mass_kg": 1.2028580363827657,
+          "pivot_cm": [
+            0.0,
+            0.0,
+            -287.5
+          ]
+        }
+      ],
+      "schema": "chandelier_chain_v1"
+    },
+    "forbidden_writes": [
+      "candle_flame_actors",
+      "candle_visibility_keys",
+      "swing_keys"
+    ],
+    "global_light_budget": {
+      "lights": 4,
+      "shadow_casters": 2
+    },
+    "instance_actor_labels": {
+      "opening": {
+        "body_actor_label": "P75 Opening Chandelier Body",
+        "link_actor_labels": [
+          "P75 Opening Chain Link 00",
+          "P75 Opening Chain Link 01",
+          "P75 Opening Chain Link 02",
+          "P75 Opening Chain Link 03",
+          "P75 Opening Chain Link 04",
+          "P75 Opening Chain Link 05",
+          "P75 Opening Chain Link 06",
+          "P75 Opening Chain Link 07",
+          "P75 Opening Chain Link 08",
+          "P75 Opening Chain Link 09",
+          "P75 Opening Chain Link 10",
+          "P75 Opening Chain Link 11",
+          "P75 Opening Chain Link 12",
+          "P75 Opening Chain Link 13",
+          "P75 Opening Chain Link 14",
+          "P75 Opening Chain Link 15",
+          "P75 Opening Chain Link 16",
+          "P75 Opening Chain Link 17",
+          "P75 Opening Chain Link 18",
+          "P75 Opening Chain Link 19",
+          "P75 Opening Chain Link 20",
+          "P75 Opening Chain Link 21",
+          "P75 Opening Chain Link 22",
+          "P75 Opening Chain Link 23"
+        ]
+      },
+      "p06": {
+        "body_actor_label": "P75 P06 Chandelier Body",
+        "link_actor_labels": [
+          "P75 P06 Chain Link 00",
+          "P75 P06 Chain Link 01",
+          "P75 P06 Chain Link 02",
+          "P75 P06 Chain Link 03",
+          "P75 P06 Chain Link 04",
+          "P75 P06 Chain Link 05",
+          "P75 P06 Chain Link 06",
+          "P75 P06 Chain Link 07",
+          "P75 P06 Chain Link 08",
+          "P75 P06 Chain Link 09",
+          "P75 P06 Chain Link 10",
+          "P75 P06 Chain Link 11",
+          "P75 P06 Chain Link 12",
+          "P75 P06 Chain Link 13",
+          "P75 P06 Chain Link 14",
+          "P75 P06 Chain Link 15",
+          "P75 P06 Chain Link 16",
+          "P75 P06 Chain Link 17",
+          "P75 P06 Chain Link 18",
+          "P75 P06 Chain Link 19",
+          "P75 P06 Chain Link 20",
+          "P75 P06 Chain Link 21",
+          "P75 P06 Chain Link 22",
+          "P75 P06 Chain Link 23"
+        ]
+      }
+    },
+    "ownership": {
+      "flames": "P56",
+      "p75_sequence_writes": "Opening drive-by light only",
+      "swing_keys": [
+        "P52",
+        "P52B"
+      ]
+    },
+    "parts": {
+      "opening": {
+        "body_actor_label": "P75 Opening Chandelier Body",
+        "body_location_cm": [
+          -400.0,
+          600.0,
+          900.0
+        ],
+        "body_rotation_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cast_hidden_shadow": true,
+        "drive_by": {
+          "color_linear": [
+            1.0,
+            0.9,
+            0.75
+          ],
+          "end_s": 39.18,
+          "outer_cone_deg": 34.0,
+          "passes": 1,
+          "peak_intensity_cd": 2500.0,
+          "peak_s": 37.68,
+          "soft_source_radius_cm": 15.0,
+          "start_s": 36.18,
+          "target_end_cm": [
+            0.0,
+            -1200.0,
+            550.0
+          ],
+          "target_motion": "ARC_YAW",
+          "target_start_cm": [
+            0.0,
+            1200.0,
+            550.0
+          ]
+        },
+        "hidden_in_game": true,
+        "lights": [
+          {
+            "cast_shadows": true,
+            "enabled_default": false,
+            "kind": "spot",
+            "label": "P75 Opening Drive-By",
+            "owner_part": "opening"
+          },
+          {
+            "cast_shadows": true,
+            "enabled_default": true,
+            "kind": "point",
+            "label": "P75 Opening Candle Group 01",
+            "owner_part": "opening"
+          },
+          {
+            "cast_shadows": false,
+            "enabled_default": true,
+            "kind": "point",
+            "label": "P75 Opening Candle Group 02",
+            "owner_part": "opening"
+          }
+        ],
+        "link_actor_labels": [
+          "P75 Opening Chain Link 00",
+          "P75 Opening Chain Link 01",
+          "P75 Opening Chain Link 02",
+          "P75 Opening Chain Link 03",
+          "P75 Opening Chain Link 04",
+          "P75 Opening Chain Link 05",
+          "P75 Opening Chain Link 06",
+          "P75 Opening Chain Link 07",
+          "P75 Opening Chain Link 08",
+          "P75 Opening Chain Link 09",
+          "P75 Opening Chain Link 10",
+          "P75 Opening Chain Link 11",
+          "P75 Opening Chain Link 12",
+          "P75 Opening Chain Link 13",
+          "P75 Opening Chain Link 14",
+          "P75 Opening Chain Link 15",
+          "P75 Opening Chain Link 16",
+          "P75 Opening Chain Link 17",
+          "P75 Opening Chain Link 18",
+          "P75 Opening Chain Link 19",
+          "P75 Opening Chain Link 20",
+          "P75 Opening Chain Link 21",
+          "P75 Opening Chain Link 22",
+          "P75 Opening Chain Link 23"
+        ],
+        "owned_sequence_writes": [
+          "drive_by_intensity",
+          "drive_by_arc_rotation"
+        ],
+        "plan_sha256": "017e07a786ff771bac63311d310ed9c050baa3c9604015f13d428e2e5326c86f",
+        "projected_shadow_at_peak": {
+          "height_cm": 243.15789473684214,
+          "magnification": 1.105263157894737,
+          "width_cm": 331.5789473684211
+        }
+      },
+      "p06": {
+        "body_actor_label": "P75 P06 Chandelier Body",
+        "body_z_cm": 1050.0,
+        "cast_hidden_shadow": false,
+        "clearances_cm": {
+          "nearest_topple_row": 3750.0,
+          "nearest_wing_station": 550.0
+        },
+        "first_chain_creak_s": 24.89,
+        "hang_station_cm": 5700.0,
+        "hidden_in_game": false,
+        "lateral_cm": 0.0,
+        "lights": [
+          {
+            "cast_shadows": false,
+            "enabled_default": false,
+            "kind": "point",
+            "label": "P75 P06 Candle Group 01",
+            "owner_part": "p06"
+          }
+        ],
+        "link_actor_labels": [
+          "P75 P06 Chain Link 00",
+          "P75 P06 Chain Link 01",
+          "P75 P06 Chain Link 02",
+          "P75 P06 Chain Link 03",
+          "P75 P06 Chain Link 04",
+          "P75 P06 Chain Link 05",
+          "P75 P06 Chain Link 06",
+          "P75 P06 Chain Link 07",
+          "P75 P06 Chain Link 08",
+          "P75 P06 Chain Link 09",
+          "P75 P06 Chain Link 10",
+          "P75 P06 Chain Link 11",
+          "P75 P06 Chain Link 12",
+          "P75 P06 Chain Link 13",
+          "P75 P06 Chain Link 14",
+          "P75 P06 Chain Link 15",
+          "P75 P06 Chain Link 16",
+          "P75 P06 Chain Link 17",
+          "P75 P06 Chain Link 18",
+          "P75 P06 Chain Link 19",
+          "P75 P06 Chain Link 20",
+          "P75 P06 Chain Link 21",
+          "P75 P06 Chain Link 22",
+          "P75 P06 Chain Link 23"
+        ],
+        "owned_sequence_writes": [],
+        "plan_sha256": "3411fb3a8ed18d88a8b2c7c4152bc465a3721c92b78c21bdc602061c2c6b16b4"
+      }
+    },
+    "schema": "p75_chandelier_staging_v2",
+    "selected_parts": [
+      "opening"
+    ]
+  },
+  "run": "P75CHAN-20261009-204553",
+  "schema": "p75_chandelier_part_active_v2",
+  "status": "prepared"
+}

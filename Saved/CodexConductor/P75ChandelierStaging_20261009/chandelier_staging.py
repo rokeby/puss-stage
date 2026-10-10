@@ -31,6 +31,7 @@ SPEC.loader.exec_module(CORE)
 
 MARK = "P75_CHANDELIER"
 OWNER_TAG = "P75_CHANDELIER_STAGING"
+RUN_TAG_PREFIX = "P75_RUN_"
 WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 OPENING_SEQUENCE = "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked"
 PASSAGE_LABEL = "Passage 6"
@@ -154,9 +155,25 @@ def _actor_tags(actor: Any) -> set[str]:
     return {str(tag) for tag in actor.get_editor_property("tags")}
 
 
-def _tag(actor: Any, part: str, role: str) -> None:
+def _run_tag(run: str) -> str:
+    return RUN_TAG_PREFIX + run
+
+
+def cleanup_tag_decision(tags: Iterable[str], part: str, failed_run: str) -> dict[str, Any]:
+    """Classify a live match without using its label or folder as authority."""
+    values = {str(tag) for tag in tags}
+    run_tags = sorted(tag for tag in values if tag.startswith(RUN_TAG_PREFIX))
+    owned = OWNER_TAG in values and _part_tag(part) in values
+    expected = _run_tag(failed_run)
+    eligible = owned and (not run_tags or run_tags == [expected])
+    reason = ("failed_run" if run_tags == [expected] else "legacy_no_run_tag" if owned and not run_tags
+              else "different_or_ambiguous_run" if owned else "not_tool_owned")
+    return {"eligible": eligible, "reason": reason, "run_tags": run_tags}
+
+
+def _tag(actor: Any, part: str, role: str, run: str) -> None:
     actor.set_editor_property("tags", [unreal.Name(OWNER_TAG), unreal.Name(_part_tag(part)),
-                                       unreal.Name("P75_ROLE_" + role)])
+                                       unreal.Name("P75_ROLE_" + role), unreal.Name(_run_tag(run))])
 
 
 def _find_actor(label: str) -> Any:
@@ -212,11 +229,18 @@ def _component_state(component: Any) -> dict[str, Any]:
 
 def _actor_state(actor: Any) -> dict[str, Any]:
     location, rotation = actor.get_actor_location(), actor.get_actor_rotation()
+    scale = actor.get_actor_scale3d()
     meshes = list(actor.get_components_by_class(unreal.StaticMeshComponent))
     lights = list(actor.get_components_by_class(unreal.LightComponent))
-    return {"label": str(actor.get_actor_label()), "tags": sorted(_actor_tags(actor)),
+    try:
+        folder = str(actor.get_folder_path())
+    except Exception:  # noqa: BLE001 - folder is diagnostic, never an ownership guard.
+        folder = ""
+    return {"label": str(actor.get_actor_label()), "object_path": _object_path(actor),
+            "folder": folder, "tags": sorted(_actor_tags(actor)),
             "location_cm": [float(location.x), float(location.y), float(location.z)],
             "rotation_deg": [float(rotation.roll), float(rotation.pitch), float(rotation.yaw)],
+            "scale": [float(scale.x), float(scale.y), float(scale.z)],
             "mesh": _asset_id(meshes[0].get_editor_property("static_mesh")) if meshes else None,
             "materials": [_asset_id(value) for value in meshes[0].get_materials()] if meshes else [],
             "mesh_flags": _component_state(meshes[0]) if meshes else None,
@@ -229,6 +253,17 @@ def _part_owned_states(part: str) -> list[dict[str, Any]]:
     rows = [_actor_state(actor) for actor in _actors()
             if OWNER_TAG in _actor_tags(actor) and _part_tag(part) in _actor_tags(actor)]
     return sorted(rows, key=lambda row: row["label"])
+
+
+def _cleanup_report(part: str, failed_run: str) -> dict[str, Any]:
+    matches = []
+    for state in _part_owned_states(part):
+        decision = cleanup_tag_decision(state["tags"], part, failed_run)
+        matches.append(dict(state, cleanup=decision))
+    basis = {"owner_tag": OWNER_TAG, "part_tag": _part_tag(part), "part": part,
+             "failed_run": failed_run, "matches": matches}
+    wire = json.dumps(basis, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    return dict(basis, cleanup_sha256=hashlib.sha256(wire.encode("utf-8")).hexdigest())
 
 
 def _actor_states_match(recorded: list[dict[str, Any]], live: list[dict[str, Any]]) -> bool:
@@ -301,12 +336,12 @@ def _verify_part_readback(plan: dict[str, Any], part: str, rows: list[dict[str, 
 
 
 def _spawn_mesh(label: str, mesh: Any, material: Any, transform: Any, hidden: bool,
-                hidden_shadow: bool, part: str, role: str) -> Any:
+                hidden_shadow: bool, part: str, role: str, run: str) -> Any:
     subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     actor = subsystem.spawn_actor_from_class(unreal.StaticMeshActor, transform.translation, transform.rotation.rotator())
     require(actor is not None, "SPAWN_MESH|" + label)
     actor.set_actor_label(label, mark_dirty=True)
-    _tag(actor, part, role)
+    _tag(actor, part, role, run)
     component = actor.get_editor_property("static_mesh_component")
     component.set_editor_property("static_mesh", mesh)
     component.set_material(0, material)
@@ -318,11 +353,11 @@ def _spawn_mesh(label: str, mesh: Any, material: Any, transform: Any, hidden: bo
     return actor
 
 
-def _spawn_assembly(plan: dict[str, Any], assets: dict[str, Any], part: str) -> tuple[Any, list[Any]]:
+def _spawn_assembly(plan: dict[str, Any], assets: dict[str, Any], part: str, run: str) -> tuple[Any, list[Any]]:
     row, labels = plan["parts"][part], plan["instance_actor_labels"][part]
     body_transform = _body_transform(plan, part)
     body = _spawn_mesh(labels["body_actor_label"], assets["body_mesh"], assets["material"], body_transform,
-                       row["hidden_in_game"], row["cast_hidden_shadow"], part, "BODY")
+                       row["hidden_in_game"], row["cast_hidden_shadow"], part, "BODY", run)
     component = body.get_editor_property("static_mesh_component")
     socket_transform = component.get_socket_transform(unreal.Name("ChainAttach"),
                                                        unreal.RelativeTransformSpace.RTS_WORLD)
@@ -337,19 +372,19 @@ def _spawn_assembly(plan: dict[str, Any], assets: dict[str, Any], part: str) -> 
         transform = unreal.Transform(location, rotation, unreal.Vector(1.0, 1.0, 1.0))
         links.append(_spawn_mesh(labels["link_actor_labels"][index], assets["chain_%02d" % index],
                                  assets["material"], transform, row["hidden_in_game"],
-                                 row["cast_hidden_shadow"], part, "CHAIN_LINK_%02d" % index))
+                                  row["cast_hidden_shadow"], part, "CHAIN_LINK_%02d" % index, run))
     require(len(links) == 24, "CHAIN_ASSEMBLY_COUNT_24")
     return body, links
 
 
-def _spawn_spot(plan: dict[str, Any]) -> Any:
+def _spawn_spot(plan: dict[str, Any], run: str) -> Any:
     row = plan["parts"]["opening"]["drive_by"]
     location = unreal.Vector(*plan["args"]["drive_by_light_location_cm"])
     actor = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).spawn_actor_from_class(
         unreal.SpotLight, location, unreal.Rotator())
     require(actor is not None, "SPAWN_DRIVE_BY")
     actor.set_actor_label("P75 Opening Drive-By", mark_dirty=True)
-    _tag(actor, "opening", "DRIVE_BY")
+    _tag(actor, "opening", "DRIVE_BY", run)
     component = actor.get_editor_property("spot_light_component")
     component.set_editor_property("intensity", 0.0)
     component.set_editor_property("outer_cone_angle", row["outer_cone_deg"])
@@ -361,7 +396,7 @@ def _spawn_spot(plan: dict[str, Any]) -> Any:
     return actor
 
 
-def _spawn_group_lights(plan: dict[str, Any], part: str, body: Any) -> list[Any]:
+def _spawn_group_lights(plan: dict[str, Any], part: str, body: Any, run: str) -> list[Any]:
     rows = [row for row in plan["parts"][part]["lights"] if row["kind"] == "point"]
     actors = []
     for index, row in enumerate(rows):
@@ -369,7 +404,7 @@ def _spawn_group_lights(plan: dict[str, Any], part: str, body: Any) -> list[Any]
             unreal.PointLight, body.get_actor_location(), unreal.Rotator())
         require(actor is not None, "SPAWN_POINT|" + row["label"])
         actor.set_actor_label(row["label"], mark_dirty=True)
-        _tag(actor, part, "GROUP_LIGHT_%02d" % (index + 1))
+        _tag(actor, part, "GROUP_LIGHT_%02d" % (index + 1), run)
         angle = math.tau * index / max(1, len(rows))
         actor.attach_to_actor(body, unreal.Name(), unreal.AttachmentRule.KEEP_WORLD,
                               unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, False)
@@ -518,6 +553,23 @@ def _save_named(packages: Iterable[str]) -> None:
     _require_clean("POST_SAVE")
 
 
+def _cleanup_owned_actors(part: str, failed_run: str, expected_paths: set[str]) -> int:
+    subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    candidates = []
+    for actor in _actors():
+        tags = _actor_tags(actor)
+        if OWNER_TAG not in tags or _part_tag(part) not in tags:
+            continue
+        decision = cleanup_tag_decision(tags, part, failed_run)
+        require(decision["eligible"], "CLEAN_FOREIGN_RUN|%s|%s" %
+                (_object_path(actor), ",".join(decision["run_tags"])))
+        candidates.append(actor)
+    require({_object_path(actor) for actor in candidates} == expected_paths, "CLEAN_MATCH_SET_DRIFT")
+    for actor in candidates:
+        require(subsystem.destroy_actor(actor), "CLEAN_DESTROY_ACTOR|" + _object_path(actor))
+    return len(candidates)
+
+
 def _apply_opening_tracks(plan: dict[str, Any], sequence: Any, drive_by: Any, world: Any) -> list[dict[str, Any]]:
     row = plan["parts"]["opening"]["drive_by"]
     intensity = [(row["start_s"], 0.0), (row["peak_s"], row["peak_intensity_cd"]), (row["end_s"], 0.0)]
@@ -539,6 +591,61 @@ def run(raw: dict[str, Any]) -> dict[str, Any]:
     validated = CORE.validate_args(raw)
     _guard_result, world = _guard()
     dirty_before = _require_clean("PRE")
+    args, parts = validated, validated["parts"]
+
+    if args["mode"] in ("ADOPT_OR_CLEAN", "CLEAN"):
+        part, failed_run = parts[0], args["cleanup_failed_run_id"]
+        cleanup = _cleanup_report(part, failed_run)
+        if args["mode"] == "ADOPT_OR_CLEAN":
+            result = {"ok": True, "run": run_id, "mode": "ADOPT_OR_CLEAN", "mutated": False,
+                      "query": "tags contain exact %s and %s; label/folder are diagnostic only" %
+                               (OWNER_TAG, _part_tag(part)),
+                      "cleanup": cleanup, "dirty_before": dirty_before}
+            path = os.path.join(HERE, "chandelier_staging_ADOPT_OR_CLEAN_%s.json" % run_id)
+            _write(path, result, exclusive=True)
+            require(_census() == dirty_before, "ADOPT_OR_CLEAN_CHANGED_CENSUS")
+            unreal.log("%s_ADOPT_OR_CLEAN_DRY_OK|run=%s|part=%s|matches=%d|eligible=%d|cleanup_sha256=%s|mutated=0|dirty=0+0|report=%s" %
+                       (MARK, run_id, part, len(cleanup["matches"]),
+                        sum(int(row["cleanup"]["eligible"]) for row in cleanup["matches"]),
+                        cleanup["cleanup_sha256"], path))
+            return result
+
+        require(cleanup["matches"], "CLEAN_NO_MATCHES|" + part)
+        require(all(row["cleanup"]["eligible"] for row in cleanup["matches"]),
+                "CLEAN_HAS_FOREIGN_RUN|" + json.dumps(cleanup["matches"], sort_keys=True))
+        require(args["reviewed_cleanup_sha256"] == cleanup["cleanup_sha256"],
+                "REVIEWED_CLEANUP_HASH|expected=" + cleanup["cleanup_sha256"])
+        require(not os.path.exists(_active_record(part)), "ACTIVE_RECORD_EXISTS|" + part)
+        record_path = os.path.join(HERE, "chandelier_staging_cleanup_%s.json" % run_id)
+        backup = _backup(run_id, part + "Cleanup", [WORLD],
+                         "Before deleting only failed-run or legacy untagged P75-owned %s actors." % part)
+        record = {"schema": "p75_chandelier_cleanup_v1", "status": "prepared", "run": run_id,
+                  "failed_run": failed_run, "part": part, "cleanup_sha256": cleanup["cleanup_sha256"],
+                  "before": cleanup, "backup": backup, "packages": [WORLD], "dirty_before": dirty_before}
+        _write(record_path, record, exclusive=True)
+        expected_paths = {row["object_path"] for row in cleanup["matches"]}
+        removed = _cleanup_owned_actors(part, failed_run, expected_paths)
+        presave = _cleanup_report(part, failed_run)
+        require(not presave["matches"], "CLEAN_PRESAVE_ACTORS_REMAIN")
+        require(_census() == {"content": [], "maps": [WORLD]},
+                "CLEAN_DIRTY_SCOPE|" + json.dumps(_census(), sort_keys=True))
+        record.update({"status": "cleaned_in_memory", "removed_actors": removed,
+                       "presave_readback": presave})
+        _write(record_path, record)
+        _save_named([WORLD])
+        post = _cleanup_report(part, failed_run)
+        require(not post["matches"], "CLEAN_POSTSAVE_ACTORS_REMAIN")
+        record.update({"status": "saved_readback_verified", "postsave_readback": post,
+                       "dirty_after": _census()})
+        _write(record_path, record)
+        result = {"ok": True, "run": run_id, "mode": "CLEAN", "part": part,
+                  "removed_actors": removed, "backup": backup, "record": record_path,
+                  "dirty_after": _census()}
+        _write(REPORT_PATH, result)
+        unreal.log("%s_CLEAN_OK|run=%s|failed_run=%s|part=%s|actors=%d|saved=1|readback=1|dirty=0+0|backup=%s|record=%s" %
+                   (MARK, run_id, failed_run, part, removed, backup["root"], record_path))
+        return result
+
     chain_path = _chain_path(validated)
     chain_raw = _read(chain_path)
     plan = CORE.build_plan(raw, chain_raw)
@@ -576,11 +683,11 @@ def run(raw: dict[str, Any]) -> dict[str, Any]:
                   "run": run_id, "part_plan_sha256": plan["parts"][part]["plan_sha256"],
                   "plan": plan, "packages": packages, "backup": backup, "dirty_before": dirty_before}
         _write(record_path, record, exclusive=True)
-        body, links = _spawn_assembly(plan, assets, part)
-        lights = _spawn_group_lights(plan, part, body)
+        body, links = _spawn_assembly(plan, assets, part, run_id)
+        lights = _spawn_group_lights(plan, part, body, run_id)
         tracks_written = []
         if part == "opening":
-            drive_by = _spawn_spot(plan)
+            drive_by = _spawn_spot(plan, run_id)
             lights.append(drive_by)
             tracks_written = _apply_opening_tracks(plan, sequence, drive_by, world)
             CORE.verify_hidden_shadow(_actor_state(body)["mesh_flags"],

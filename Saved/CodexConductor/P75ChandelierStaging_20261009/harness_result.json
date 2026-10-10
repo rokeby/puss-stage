@@ -42,6 +42,16 @@
       "ok": true
     },
     {
+      "kind": "POSITIVE",
+      "name": "cleanup accepts exact failed-run and legacy no-run tags",
+      "ok": true
+    },
+    {
+      "kind": "POSITIVE",
+      "name": "ADOPT_OR_CLEAN has exact dry confirmation",
+      "ok": true
+    },
+    {
       "kind": "NEGATIVE",
       "name": "global light cap across parts",
       "ok": true
@@ -100,13 +110,23 @@
       "kind": "NEGATIVE",
       "name": "P75 may not add sound",
       "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "cleanup refuses a different run tag",
+      "ok": true
+    },
+    {
+      "kind": "NEGATIVE",
+      "name": "cleanup exact confirmation",
+      "ok": true
     }
   ],
   "fail": 0,
-  "negative": 12,
+  "negative": 14,
   "offline": true,
-  "pass": 20,
-  "positive": 8,
-  "total": 20,
+  "pass": 24,
+  "positive": 10,
+  "total": 24,
   "unreal": false
 }

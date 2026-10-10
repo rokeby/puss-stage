@@ -1,0 +1,6 @@
+{
+  "mode": "DRY",
+  "run": "JOB121-DRY-001",
+  "compile_wait_seconds": 20.0,
+  "confirm": ""
+}

@@ -3,6 +3,8 @@
   "parts": ["opening", "p06"],
   "confirm": "",
   "reviewed_plan_sha256": {"opening": "", "p06": ""},
+  "cleanup_failed_run_id": "P75CHAN-20261009-204553",
+  "reviewed_cleanup_sha256": "",
   "opening_sequence": "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked",
   "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
   "body_mesh": "/Game/Scenes/Props/Chandelier/SM_Chandelier_Iron3",

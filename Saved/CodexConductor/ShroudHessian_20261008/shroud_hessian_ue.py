@@ -127,7 +127,8 @@ VECTOR_DEFAULTS = {"StainOffset": [0.0, 0.0, 0.0, 0.0], "WeaveTint": [1.0, 1.0, 
 UV_CODE = ("float2 p=UV-0.5; float a=R*6.28318530718; float s=sin(a), c=cos(a); "
            "return float2(c*p.x-s*p.y,s*p.x+c*p.y)+0.5+O.xy;")
 BASE_CODE = "return W.rgb * C.rgb * lerp(float3(1,1,1), T.rgb, saturate(S));"
-NORMAL_CODE = "return normalize(float3(N.xy * max(S,0.0), max(N.z,0.001)));"
+NORMAL_CODE = ("float3 NN=normalize(float3(N.xy * max(S,0.0), max(N.z,0.001))); "
+               "return NN * float3(1.0,1.0,TwoSided);")
 ROUGH_CODE = ("float wet=saturate(M.r*W); float soot=saturate(M.g*S); "
               "return lerp(lerp(D, WR, wet), SR, soot);")
 
@@ -144,6 +145,7 @@ def material_spec():
         "StainTint": ("texture", "Stain03Tint"),
         "StainMask": ("texture", "Stain03Mask"),
         "WeaveTint": ("vector", VECTOR_DEFAULTS["WeaveTint"]),
+        "TwoSidedSign": ("twosided", None),
     }
     nodes.update({k: ("scalar", v) for k, v in SCALAR_DEFAULTS.items()
                   if k not in ("WeaveTiling", "StainRotate")})
@@ -151,7 +153,7 @@ def material_spec():
         "WeaveUV": ("custom", ("return UV*S;", ["UV", "S"], "F2")),
         "StainUV": ("custom", (UV_CODE, ["UV", "O", "R"], "F2")),
         "BaseOut": ("custom", (BASE_CODE, ["W", "T", "C", "S"], "F3")),
-        "NormalOut": ("custom", (NORMAL_CODE, ["N", "S"], "F3")),
+        "NormalOut": ("custom", (NORMAL_CODE, ["N", "S", "TwoSided"], "F3")),
         "RoughOut": ("custom", (ROUGH_CODE, ["M", "D", "WR", "SR", "W", "S"], "F1")),
     })
     edges = [
@@ -163,6 +165,7 @@ def material_spec():
         ("WeaveBase", "RGB", "BaseOut", "W"), ("StainTint", "RGB", "BaseOut", "T"),
         ("WeaveTint", "", "BaseOut", "C"), ("StainTintStrength", "", "BaseOut", "S"),
         ("WeaveNormal", "RGB", "NormalOut", "N"), ("NormalStrength", "", "NormalOut", "S"),
+        ("TwoSidedSign", "", "NormalOut", "TwoSided"),
         ("StainMask", "RGBA", "RoughOut", "M"), ("RoughnessDry", "", "RoughOut", "D"),
         ("RoughnessWet", "", "RoughOut", "WR"), ("RoughnessSoot", "", "RoughOut", "SR"),
         ("WetMaskStrength", "", "RoughOut", "W"), ("SootMaskStrength", "", "RoughOut", "S"),
@@ -386,6 +389,7 @@ def _build_master(textures):
     mat.modify()
     mat.set_editor_property("two_sided", True)
     mat.set_editor_property("used_with_clothing", True)
+    mat.set_editor_property("used_with_skeletal_mesh", True)
     mat.set_editor_property("shading_model", u.MaterialShadingModel.MSM_DEFAULT_LIT)
     spec, made = material_spec(), {}
     for index, (key, (kind, value)) in enumerate(spec["nodes"].items()):
@@ -406,6 +410,8 @@ def _build_master(textures):
             node = mel.create_material_expression(mat, u.MaterialExpressionVectorParameter, x, y)
             node.set_editor_property("parameter_name", key)
             node.set_editor_property("default_value", u.LinearColor(*[float(v) for v in value]))
+        elif kind == "twosided":
+            node = mel.create_material_expression(mat, u.MaterialExpressionTwoSidedSign, x, y)
         else:
             code, inputs, output = value
             node = mel.create_material_expression(mat, u.MaterialExpressionCustom, x, y)
@@ -506,7 +512,28 @@ def _material_check_problems(rec):
     u = _u()
     mat = u.load_asset(rec["master"])
     require(mat is not None, "MASTER_MISSING")
+    mel = u.MaterialEditingLibrary
     inv, spec, problems = _expression_inventory(mat), material_spec(), []
+    for flag in ("two_sided", "used_with_clothing", "used_with_skeletal_mesh"):
+        if not bool(mat.get_editor_property(flag)):
+            problems.append("MASTER_FLAG|" + flag)
+    terminal = mel.get_material_property_input_node(mat, u.MaterialProperty.MP_NORMAL)
+    if terminal is None or str(terminal.get_class().get_name()) != "MaterialExpressionCustom" or \
+            str(terminal.get_editor_property("code")) != NORMAL_CODE:
+        problems.append("NORMAL_TERMINAL")
+    else:
+        names = [str(x) for x in mel.get_material_expression_input_names(terminal)]
+        upstream = list(mel.get_inputs_for_material_expression(mat, terminal))
+        links = dict(zip(names, upstream)) if len(names) == len(upstream) else {}
+        want = {"N": ("MaterialExpressionTextureSampleParameter2D", "WeaveNormal"),
+                "S": ("MaterialExpressionScalarParameter", "NormalStrength"),
+                "TwoSided": ("MaterialExpressionTwoSidedSign", None)}
+        for pin, (cls, parameter) in want.items():
+            node = links.get(pin)
+            if node is None or str(node.get_class().get_name()) != cls:
+                problems.append("NORMAL_LINK|%s|%s" % (pin, None if node is None else node.get_class().get_name()))
+            elif parameter is not None and str(node.get_editor_property("parameter_name")) != parameter:
+                problems.append("NORMAL_LINK_PARAMETER|%s" % pin)
     if sorted(inv["texture_parameters"]) != sorted(spec["texture_parameters"]):
         problems.append("TEX_PARAMS|%r" % inv["texture_parameters"])
     if inv["scalar_parameters"] != sorted(spec["scalar_parameters"]):

@@ -13,6 +13,10 @@ SPEC = importlib.util.spec_from_file_location("p75_core", os.path.join(HERE, "ch
 CORE = importlib.util.module_from_spec(SPEC)
 assert SPEC and SPEC.loader
 SPEC.loader.exec_module(CORE)
+LIVE_SPEC = importlib.util.spec_from_file_location("p75_live_offline", os.path.join(HERE, "chandelier_staging.py"))
+LIVE = importlib.util.module_from_spec(LIVE_SPEC)
+assert LIVE_SPEC and LIVE_SPEC.loader
+LIVE_SPEC.loader.exec_module(LIVE)
 
 
 def _json(name: str) -> dict:
@@ -108,6 +112,19 @@ def main() -> None:
         assert plan["parts"]["p06"]["clearances_cm"] == {
             "nearest_topple_row": 3750.0, "nearest_wing_station": 550.0}
 
+    def positive_cleanup_classifies_failed_and_legacy_tags() -> None:
+        base = [LIVE.OWNER_TAG, "P75_PART_OPENING", "P75_ROLE_BODY"]
+        legacy = LIVE.cleanup_tag_decision(base, "opening", "P75CHAN-20261009-204553")
+        tagged = LIVE.cleanup_tag_decision(base + ["P75_RUN_P75CHAN-20261009-204553"],
+                                           "opening", "P75CHAN-20261009-204553")
+        assert legacy == {"eligible": True, "reason": "legacy_no_run_tag", "run_tags": []}
+        assert tagged["eligible"] and tagged["reason"] == "failed_run"
+
+    def positive_adopt_or_clean_confirmation() -> None:
+        plan = _plan({**_args(), "mode": "ADOPT_OR_CLEAN", "parts": ["opening"],
+                      "confirm": "DRY ADOPT_OR_CLEAN P75"})
+        assert plan["args"]["cleanup_failed_run_id"] == "P75CHAN-20261009-204553"
+
     add("POSITIVE", "global cap includes drive-by", positive_global_cap)
     add("POSITIVE", "opening and p06 part isolation", positive_parts_isolated)
     add("POSITIVE", "no flames or swing keys", positive_no_foreign_writes)
@@ -116,6 +133,9 @@ def main() -> None:
     add("POSITIVE", "P06 light off by default", positive_p06_off)
     add("POSITIVE", "hidden-shadow flags for body plus links", positive_hidden)
     add("POSITIVE", "shadow forecast and P06 clearances", positive_shadow_and_clearance)
+    add("POSITIVE", "cleanup accepts exact failed-run and legacy no-run tags",
+        positive_cleanup_classifies_failed_and_legacy_tags)
+    add("POSITIVE", "ADOPT_OR_CLEAN has exact dry confirmation", positive_adopt_or_clean_confirmation)
 
     add("NEGATIVE", "global light cap across parts", lambda: _fails(
         lambda: _plan({**_args(), "p06_group_light_count": 2}), "GLOBAL_GPU_LIGHT_CAP_4"))
@@ -164,6 +184,14 @@ def main() -> None:
         lambda: _plan({**_args(), "p06_hang_station_cm": 9450.0}), "TOPPLE_ROW_OVERLAP"))
     add("NEGATIVE", "P75 may not add sound", lambda: _fails(
         lambda: _plan({**_args(), "new_sound": True}), "SILENT_DEFAULT_REQUIRED"))
+    add("NEGATIVE", "cleanup refuses a different run tag", lambda: (
+        (_ for _ in ()).throw(AssertionError("different run incorrectly eligible"))
+        if LIVE.cleanup_tag_decision(
+            [LIVE.OWNER_TAG, "P75_PART_OPENING", "P75_RUN_P75CHAN-20261009-999999"],
+            "opening", "P75CHAN-20261009-204553")["eligible"] else None))
+    add("NEGATIVE", "cleanup exact confirmation", lambda: _fails(
+        lambda: _plan({**_args(), "mode": "CLEAN", "parts": ["opening"],
+                       "confirm": "CLEAN P75"}), "CONFIRM"))
 
     passed, failed, details = 0, 0, []
     for kind, name, fn in tests:

@@ -53,6 +53,8 @@ DEFAULTS: dict[str, Any] = {
     "parts": ["opening", "p06"],
     "confirm": "",
     "reviewed_plan_sha256": {"opening": "", "p06": ""},
+    "cleanup_failed_run_id": "P75CHAN-20261009-204553",
+    "reviewed_cleanup_sha256": "",
     "opening_duration_s": 96.36,
     "opening_shadow_start_s": 36.18,
     "opening_shadow_peak_s": 37.68,
@@ -127,7 +129,7 @@ def validate_args(raw: Any) -> dict[str, Any]:
     args = copy.deepcopy(DEFAULTS)
     args.update(raw)
     mode = str(args.get("mode", "DRY")).upper()
-    require(mode in ("DRY", "APPLY", "REVERT"), "MODE")
+    require(mode in ("DRY", "APPLY", "REVERT", "ADOPT_OR_CLEAN", "CLEAN"), "MODE")
     args["mode"] = mode
     parts = args.get("parts")
     require(isinstance(parts, list) and parts, "PARTS_NONEMPTY_LIST")
@@ -138,6 +140,13 @@ def validate_args(raw: Any) -> dict[str, Any]:
     args["parts"] = parts
     if mode in ("APPLY", "REVERT"):
         require(args.get("confirm") == "%s P75 CHANDELIER" % mode, "CONFIRM")
+    elif mode == "ADOPT_OR_CLEAN":
+        require(args.get("confirm") == "DRY ADOPT_OR_CLEAN P75", "CONFIRM")
+    elif mode == "CLEAN":
+        require(args.get("confirm") == "CLEAN P75 FAILED %s" % args.get("cleanup_failed_run_id"), "CONFIRM")
+    args["cleanup_failed_run_id"] = str(args.get("cleanup_failed_run_id", ""))
+    require(args["cleanup_failed_run_id"].startswith("P75CHAN-"), "CLEANUP_FAILED_RUN_ID")
+    args["reviewed_cleanup_sha256"] = str(args.get("reviewed_cleanup_sha256", ""))
     reviewed = args.get("reviewed_plan_sha256")
     require(isinstance(reviewed, dict), "REVIEWED_HASHES_OBJECT")
     args["reviewed_plan_sha256"] = {part: str(reviewed.get(part, "")) for part in PARTS}

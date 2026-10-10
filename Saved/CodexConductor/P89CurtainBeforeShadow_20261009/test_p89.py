@@ -68,6 +68,13 @@ check("P channel suffix normalised", P.norm_channel("Location.Y_183") == "Locati
 check("P unsuffixed channel preserved", P.norm_channel("Location.Y") == "Location.Y")
 check("P enum wrapper normalised", P.enum_token("<MovieSceneCompletionMode.RESTORE_STATE: 1>") == "RESTORE_STATE")
 check("P normal enum preserved", P.enum_token("LightUnits.CANDELAS") == "CANDELAS")
+check("P infinite section uses playback range",
+      P.effective_section_range(False, None, False, None, [0, 2183]) == [0, 2183])
+check("P half-infinite section preserves bounded start",
+      P.effective_section_range(True, 1250, False, None, [0, 2183]) == [1250, 2183])
+rejects("N empty effective section refused",
+        lambda: P.effective_section_range(True, 2200, False, None, [0, 2183]),
+        "SECTION_RANGE_EMPTY")
 
 # Negative: the validator refuses curtain-after-spot and inadequate margin.
 bad = fixture(curtain_start=10, hung_frame=20, dark_key=15, peak_frame=25)

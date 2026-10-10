@@ -78,6 +78,16 @@ def channel_base(value):
     return re.sub(r"(?:_[0-9]+|\s*\([^)]*\))$", "", text)
 
 
+def channel_readback_tolerance(channel_name, configured=1.0e-4):
+    """Use the project's measured float-channel tolerances by physical unit."""
+    name = channel_base(channel_name)
+    if name.startswith("Location."):
+        return max(float(configured), 0.01)
+    if name.startswith("Rotation."):
+        return max(float(configured), 0.001)
+    return float(configured)
+
+
 def merged_params(raw):
     out = dict(DEFAULTS)
     out.update(raw or {})
@@ -412,8 +422,11 @@ class UnrealBackend(BASE.UnrealBackend):
                     continue
                 got = self._keys(self._locate(seq, row))
                 want = row["after"] if applied else row["before"]
-                if not BASE.UnrealBackend._keys_match(self, got, want, 1.0e-4):
-                    raise Stop("READBACK_%s|%s" % (group.upper(), row["id"]))
+                tolerance = channel_readback_tolerance(row.get("channel", ""))
+                if not BASE.UnrealBackend._keys_match(self, got, want, tolerance):
+                    raise Stop("READBACK_%s|%s|channel=%s|tolerance=%g|got=%s|want=%s" %
+                               (group.upper(), row["id"], row.get("raw_channel", row.get("channel")),
+                                tolerance, got, want))
                 checks.append("%s:%s=%dkeys" % (group, row["id"], len(got)))
         for row in record["f17"]:
             bindings = [b for b in seq.get_bindings() if BASE._guid(b.get_id()) == row["binding_guid"]]
@@ -460,10 +473,13 @@ class UnrealBackend(BASE.UnrealBackend):
             record["f17"].append(self._new_fix_track(seq, step))
         if self.census() != {"content": [I1_PATH], "maps": []}:
             raise Stop("DIRTY_SCOPE|expected=%s|actual=%s|NOTHING_SAVED" % (I1_PATH, json.dumps(self.census())))
+        record["presave_readback"] = self._readback(seq, record, True)
+        _json(path, record)
         if not self.u.EditorAssetLibrary.save_asset(I1_PATH, only_if_is_dirty=True):
             raise Stop("SAVE_FAILED|%s" % I1_PATH)
         if self.census() != {"content": [], "maps": []}:
             raise Stop("DIRTY_AFTER_SAVE|%s" % json.dumps(self.census()))
+        seq = self.u.load_asset(I1_PATH)
         record["readback"] = self._readback(seq, record, True)
         record["applied"], record["report"] = True, report
         _json(path, record)
@@ -499,14 +515,17 @@ class UnrealBackend(BASE.UnrealBackend):
                     made[0].remove()
         if self.census() != {"content": [I1_PATH], "maps": []}:
             raise Stop("REVERT_DIRTY_SCOPE|%s" % json.dumps(self.census()))
+        presave_readback = self._readback(seq, record, False)
         if not self.u.EditorAssetLibrary.save_asset(I1_PATH, only_if_is_dirty=True):
             raise Stop("REVERT_SAVE_FAILED")
         if self.census() != {"content": [], "maps": []}:
             raise Stop("REVERT_DIRTY_AFTER_SAVE")
+        seq = self.u.load_asset(I1_PATH)
         readback = self._readback(seq, record, False)
         archived = path + ".reverted-" + run
         os.rename(path, archived)
-        return {"backup": backup, "backup_file": copied, "archived_record": archived, "readback": readback}
+        return {"backup": backup, "backup_file": copied, "archived_record": archived,
+                "presave_readback": presave_readback, "readback": readback}
 
 
 def _run_id():

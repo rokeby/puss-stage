@@ -54,6 +54,15 @@ class Job90Tests(unittest.TestCase):
     def test_positive_channel_type_suffix(self):
         self.assertEqual("Rotation.Y", TOOL.channel_base("Rotation.Y (Double)"))
 
+    def test_positive_location_suffix_uses_centimetre_tolerance(self):
+        tolerance = TOOL.channel_readback_tolerance("Location.X_183")
+        self.assertEqual(0.01, tolerance)
+        self.assertTrue(TOOL.BASE.UnrealBackend._keys_match(
+            None, [[1250, 7482.8046875]], [[1250, 7482.8042]], tolerance))
+
+    def test_positive_rotation_uses_degree_tolerance(self):
+        self.assertEqual(0.001, TOOL.channel_readback_tolerance("Rotation.Z"))
+
     def test_positive_fit_horizontal_governs_i1(self):
         got = TOOL.fit_distance([1880.0, 1000.0], 35.0, [23.76, 13.365], 1.03)
         self.assertAlmostEqual(2852.4410774410776, got)
@@ -109,6 +118,13 @@ class Job90Tests(unittest.TestCase):
                             backend=FakeBackend(root))
             self.assertEqual("R", got["archived_record"])
 
+    def test_positive_apply_readback_precedes_save(self):
+        source = open(os.path.join(HERE, "i1_polish.py"), "r", encoding="utf-8").read()
+        apply_start, revert_start = source.index("    def apply("), source.index("    def revert(")
+        apply_source = source[apply_start:revert_start]
+        self.assertLess(apply_source.index('record["presave_readback"]'),
+                        apply_source.index("EditorAssetLibrary.save_asset"))
+
     def test_positive_job89_timing_is_out_of_scope(self):
         source = open(os.path.join(HERE, "i1_polish.py"), "r", encoding="utf-8").read()
         for forbidden in ("set_playback_end(", "set_start_frame(", "set_end_frame(",
@@ -118,6 +134,12 @@ class Job90Tests(unittest.TestCase):
     def test_negative_bad_bounds(self):
         with self.assertRaisesRegex(TOOL.PlanError, "CURTAIN_BOUNDS_INVALID"):
             TOOL.merged_params({"curtain_bounds_cm": [0, 1000]})
+
+    def test_negative_non_pose_channel_keeps_strict_tolerance(self):
+        tolerance = TOOL.channel_readback_tolerance("Intensity_0")
+        self.assertEqual(1.0e-4, tolerance)
+        self.assertFalse(TOOL.BASE.UnrealBackend._keys_match(
+            None, [[1250, 100.0002]], [[1250, 100.0]], tolerance))
 
     def test_negative_bad_margin_low(self):
         with self.assertRaisesRegex(TOOL.PlanError, "CAMERA_MARGIN"):
@@ -183,7 +205,7 @@ if __name__ == "__main__":
     with open(os.path.join(HERE, "harness_result.json"), "w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=1, sort_keys=True)
         handle.write("\n")
-    print("HARNESS_RESULT|positive=%d/15|negative=%d/9|total=%d/24" %
-          (len(positive), len(negative), len(passed)))
-    print("HARNESS_STATUS|%s" % ("PASS" if result.wasSuccessful() and len(positive) == 15 and len(negative) == 9 else "FAIL"))
+    print("HARNESS_RESULT|positive=%d/18|negative=%d/10|total=%d/28" %
+           (len(positive), len(negative), len(passed)))
+    print("HARNESS_STATUS|%s" % ("PASS" if result.wasSuccessful() and len(positive) == 18 and len(negative) == 10 else "FAIL"))
     raise SystemExit(0 if result.wasSuccessful() else 1)

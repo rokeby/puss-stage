@@ -1,0 +1,18 @@
+{
+  "mode": "DRY",
+  "run_id": "I1POLISH-DRY-20261009-2104",
+  "confirm": "DRY I1POLISH",
+  "params": {
+    "camera_fit": true,
+    "camera_fit_margin": 1.03,
+    "curtain_bounds_cm": [1880.0, 1000.0],
+    "current_matched_distance_cm": 1200.0,
+    "camera_center_z_adjust_cm": 10.0,
+    "f17_fix_steps": [],
+    "f18_hold_frame": 1675,
+    "f18_auto_bindings": [
+      "I1 Sleight Mouth Camera",
+      "I1 Sleight Mouth Camera/CameraComponent"
+    ]
+  }
+}

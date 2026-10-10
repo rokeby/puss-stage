@@ -1,0 +1,32 @@
+{
+ "input_digest": "aae72633cac00c02f007e477da4341562fb5f9bc1be99ae01e3855b335feea36",
+ "params": {
+  "camera_center_z_adjust_cm": 10.0,
+  "camera_fit": true,
+  "camera_fit_margin": 1.03,
+  "current_matched_distance_cm": 1200.0,
+  "curtain_bounds_cm": [
+   1880.0,
+   1000.0
+  ],
+  "curtain_bounds_source": "GC_CurtainDrop_Opening final13_opening_a06_w188 hang AABB",
+  "f17_fix_steps": [],
+  "f18_auto_bindings": [
+   "I1 Sleight Mouth Camera",
+   "I1 Sleight Mouth Camera/CameraComponent"
+  ],
+  "f18_hold_frame": 1675,
+  "numeric_tolerance": 0.0001,
+  "stills_frames": [
+   274,
+   1249,
+   1250,
+   1674,
+   1675,
+   1701,
+   2182
+  ]
+ },
+ "report": "E:\\PussStage\\Saved\\CodexConductor\\I1Polish_20261009\\i1_polish_dry_I1POLISH-R3-DRY-20261009-2253.json",
+ "run": "I1POLISH-R3-DRY-20261009-2253"
+}

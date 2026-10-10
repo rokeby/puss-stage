@@ -1,0 +1,11 @@
+{
+ "interaction": 5,
+ "needs_change": true,
+ "params": {
+  "hung_tolerance_cm": 1.0,
+  "intensity_epsilon": 0.0001,
+  "margin_seconds": 0.5
+ },
+ "plan_digest": "6e8f877aea5c58db68af",
+ "run": "P89-R3-DRY-20261009-2250"
+}

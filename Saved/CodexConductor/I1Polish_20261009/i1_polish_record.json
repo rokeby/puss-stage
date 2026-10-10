@@ -1,0 +1,16 @@
+{
+ "applied": false,
+ "backup": "E:/PussStage/Backups\\PreI1Polish-I1POLISH-R3-APPLY-20261009-2254",
+ "backup_file": {
+  "backup": "E:/PussStage/Backups\\PreI1Polish-I1POLISH-R3-APPLY-20261009-2254\\LS_Interaction_01_WashingTheBoy.uasset",
+  "package": "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy",
+  "sha256": "f79ab294cf9cc3a63d9bfe29c61ce1296686d069dc9ec8c2efc196a4139940b4",
+  "source": "E:/PussStage/Content/InfinityStage\\Interactions\\LS_Interaction_01_WashingTheBoy.uasset"
+ },
+ "camera_fit": [],
+ "f17": [],
+ "f18": [],
+ "input_digest": "aae72633cac00c02f007e477da4341562fb5f9bc1be99ae01e3855b335feea36",
+ "package": "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy",
+ "run": "I1POLISH-R3-APPLY-20261009-2254"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "call_tool",
+  "arguments": {
+    "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+    "tool_name": "ExecuteProjectPythonFile",
+    "arguments": {
+      "relativeSavedPath": "CodexConductor/P75ChandelierStaging_20261009/p75_postfailure_census.py"
+    }
+  }
+}

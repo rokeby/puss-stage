@@ -520,7 +520,18 @@ def _channel_row(channel):
     return {"name": norm_channel(raw), "raw": raw, "default": default, "keys": keys, "key_modes": key_modes}
 
 
-def _track_spec(track):
+def effective_section_range(has_start, start, has_end, end, playback):
+    """Represent infinite section endpoints by the sequence playback boundary."""
+    if not isinstance(playback, (list, tuple)) or len(playback) != 2:
+        raise PlanError("PLAYBACK_RANGE_REQUIRED")
+    lo = int(start) if has_start else int(playback[0])
+    hi = int(end) if has_end else int(playback[1])
+    if hi <= lo:
+        raise PlanError("SECTION_RANGE_EMPTY|%d|%d" % (lo, hi))
+    return [lo, hi]
+
+
+def _track_spec(track, playback):
     cls = track.get_class().get_name()
     prop = path = ""
     try:
@@ -529,9 +540,10 @@ def _track_spec(track):
         pass
     sections = []
     for sec in track.get_sections():
-        if not sec.has_start_frame() or not sec.has_end_frame():
-            raise PlanError("UNBOUNDED_SECTION|%s" % cls)
-        row = {"range": [int(sec.get_start_frame()), int(sec.get_end_frame())],
+        has_start, has_end = bool(sec.has_start_frame()), bool(sec.has_end_frame())
+        row = {"range": effective_section_range(
+                    has_start, sec.get_start_frame() if has_start else None,
+                    has_end, sec.get_end_frame() if has_end else None, playback),
                "channels": [_channel_row(ch) for ch in sec.get_all_channels()]}
         try:
             row["completion"] = enum_token(sec.get_completion_mode())
@@ -613,23 +625,24 @@ def _evaluate_float_range(seq, track, start, count):
 
 
 def _snapshot(seq):
+    playback = [int(seq.get_playback_start()), int(seq.get_playback_end())]
     bindings = []
     for binding in seq.get_bindings():
         parent = binding.get_parent()
         bindings.append({"guid": _guid(binding.get_id()), "name": str(binding.get_display_name()),
                          "parent": _guid(parent.get_id()) if parent is not None and parent.is_valid() else "",
-                         "tracks": sorted((_track_spec(t) for t in binding.get_tracks()),
-                                          key=lambda x: (x["class"], x["name"], x["prop"]))})
+                         "tracks": sorted((_track_spec(t, playback) for t in binding.get_tracks()),
+                                           key=lambda x: (x["class"], x["name"], x["prop"]))})
     bindings.sort(key=lambda x: (x["name"], x["guid"]))
-    return {"playback": [int(seq.get_playback_start()), int(seq.get_playback_end())], "bindings": bindings}
+    return {"playback": playback, "bindings": bindings}
 
 
 def _facts(n, seq, run):
     handles = _handles(seq, run)
     rate = seq.get_display_rate()
     playback = [int(seq.get_playback_start()), int(seq.get_playback_end())]
-    specs = {key: _track_spec(handles[key]) for key in ("spawn", "transform", "gc", "spot_intensity")}
-    specs["visibility"] = [_track_spec(t) for t in handles["visibility"]]
+    specs = {key: _track_spec(handles[key], playback) for key in ("spawn", "transform", "gc", "spot_intensity")}
+    specs["visibility"] = [_track_spec(t, playback) for t in handles["visibility"]]
     count = playback[1] - playback[0]
     spot_eval = _evaluate_float_range(seq, handles["spot_intensity"], playback[0], count)
     sp = list(channels(specs["spawn"]).values())[0]
@@ -688,25 +701,30 @@ def _write_spec(track, spec, run):
 
 def _owned_live(seq, run):
     h = _handles(seq, run)
-    return {"spawn": _track_spec(h["spawn"]), "transform": _track_spec(h["transform"]), "gc": _track_spec(h["gc"]),
-            "visibility": [_track_spec(t) for t in h["visibility"]], "spot_intensity": _track_spec(h["spot_intensity"])}
+    playback = [int(seq.get_playback_start()), int(seq.get_playback_end())]
+    return {"spawn": _track_spec(h["spawn"], playback),
+            "transform": _track_spec(h["transform"], playback),
+            "gc": _track_spec(h["gc"], playback),
+            "visibility": [_track_spec(t, playback) for t in h["visibility"]],
+            "spot_intensity": _track_spec(h["spot_intensity"], playback)}
 
 
 def _apply_owned(seq, wanted, run):
     h = _handles(seq, run)
+    playback = [int(seq.get_playback_start()), int(seq.get_playback_end())]
     seq.modify()
-    if compare(_track_spec(h["spawn"]), wanted["spawn"]):
+    if compare(_track_spec(h["spawn"], playback), wanted["spawn"]):
         _write_spec(h["spawn"], wanted["spawn"], run)
-    if compare(_track_spec(h["transform"]), wanted["transform"]):
+    if compare(_track_spec(h["transform"], playback), wanted["transform"]):
         _write_spec(h["transform"], wanted["transform"], run)
-    if compare(_track_spec(h["gc"]), wanted["gc"]):
+    if compare(_track_spec(h["gc"], playback), wanted["gc"]):
         _write_spec(h["gc"], wanted["gc"], run)
     if len(h["visibility"]) != len(wanted["visibility"]):
         _stop(run, "VISIBILITY_TRACK_COUNT_DRIFT")
     for track, spec in zip(h["visibility"], wanted["visibility"]):
-        if compare(_track_spec(track), spec):
+        if compare(_track_spec(track, playback), spec):
             _write_spec(track, spec, run)
-    if compare(_track_spec(h["spot_intensity"]), wanted["spot_intensity"]):
+    if compare(_track_spec(h["spot_intensity"], playback), wanted["spot_intensity"]):
         _write_spec(h["spot_intensity"], wanted["spot_intensity"], run)
 
 

@@ -128,9 +128,12 @@ def t_material_spec():
     check("stain UV rotates and offsets without tiling", "6.283185" in U.UV_CODE and "+O.xy" in U.UV_CODE)
     check("roughness wet lowers and soot raises via two lerps", U.ROUGH_CODE.count("lerp") == 2)
     check("normal strength is parameterised", "max(S,0.0)" in U.NORMAL_CODE)
+    check("normal flips only Z for back faces", "float3(1.0,1.0,TwoSided)" in U.NORMAL_CODE)
+    check("builder declares a TwoSidedSign node", spec["nodes"].get("TwoSidedSign") == ("twosided", None))
     connected = {(e[0], e[2], e[3]) for e in spec["edges"]}
     for expected in (("WeaveUV", "WeaveBase", "UVs"), ("StainUV", "StainTint", "UVs"),
-                     ("StainMask", "RoughOut", "M"), ("WeaveNormal", "NormalOut", "N")):
+                     ("StainMask", "RoughOut", "M"), ("WeaveNormal", "NormalOut", "N"),
+                     ("TwoSidedSign", "NormalOut", "TwoSided")):
         check("graph edge " + "/".join(expected), expected in connected)
     check("master defaults match brief roughness", U.SCALAR_DEFAULTS["RoughnessDry"] == 0.85 and
           U.SCALAR_DEFAULTS["RoughnessWet"] == 0.45 and U.SCALAR_DEFAULTS["RoughnessSoot"] > 0.85)
@@ -215,6 +218,10 @@ def t_static_safety():
     revert_src = inspect.getsource(U._revert)
     check("REVERT backup precedes first material write", revert_src.index("_backup(") < revert_src.index("cloth.modify()"))
     check("APPLY saves only BPs plus named level", "_save_exact(content, maps)" in apply_src and "[WORLD]" in apply_src)
+    build_src = inspect.getsource(U._build_master)
+    check("regeneration keeps skeletal and clothing usage flags",
+          'set_editor_property("used_with_skeletal_mesh", True)' in build_src and
+          'set_editor_property("used_with_clothing", True)' in build_src)
 
 
 def main():
