@@ -164,3 +164,4 @@ Stills are in `Saved/CodexConductor/ApplyPass_20261010/stills/`. Verdicts are by
 - **Metamall**: build done 03:53 local; **SLOT OPEN** until 06:30 local (soak + one visual check cleared). The Puss editor stays CLOSED until they send "slot done".
 - **Shadow-cat v3 (job 154)**: still fails to compile (ShadowCatActionTolerance undeclared in the tests; a bad dereference + nodiscard at InfinityStageCameraRig.cpp:1329). REVERTED, clean rebuild Succeeded. Needs a proper compile-fix round in the morning.
 - **END OF NIGHT**: the GPU device was removed in pass 14 (no mutation); the editor was closed with Don't-Save. Live work stopped; Gary to reboot. Next-slot order is in the morning report.
+- **Tonight (Gary, 10 Oct)**: Puss SATURDAY FILMING gets the machine first (Tools/Fallbacks/saturday_night_film.ps1). Metamall: its 3-min UBT build in the gap after the current Puss slot; its 6-8 h soak only after filming, or another night.
