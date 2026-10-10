@@ -181,3 +181,5 @@ Stills are in `Saved/CodexConductor/ApplyPass_20261010/stills/`. Verdicts are by
 - 20:10 Gary NOTE (not to build): doorway-in-back-wall transition as a later alternative to the curtain; he likes the I2 shadow still. Curtain transition stays the aim.
 
 - 20:40 Gary: the gold cluster = misplaced Niagara SWARM, not candles (177 verdict wrong). Approved: candle-tip flame lights + a little fill on the P06 chandelier. Job 182 after 181: frame the chandelier mesh itself, prove the flames render at the sockets, add candle lights.
+
+- 21:00 Surtitles: 8 S3 song lines written to Content/InfinityStage/CueSheet/Puss_Surtitles.csv (Gary timings 2:09-3:07, S3-relative); parser 8 rows / 0 warnings. Not yet seen on screen. Add them to the Cue Book too, or a pull may not carry them.
