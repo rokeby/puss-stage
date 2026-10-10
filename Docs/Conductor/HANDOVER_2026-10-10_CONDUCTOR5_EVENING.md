@@ -94,3 +94,17 @@ Earlier on 10 Oct: S4 blackout, pearl fade, S3 arrival and garments, P04 smoke p
   6. Reopen Puss only after the soak.
 - If Puss filming happens tonight, it goes BEFORE the Metamall soak (Gary's earlier order).
 - Reply to the Metamall session with the actual times, via its message pipe `cc-msg-c5492486b5ce5635724c47b7053752bf`.
+
+## Metamall night run: LAUNCHED 18:00 (unattended, no AI)
+- Script: `Saved/CodexConductor/conductor_helpers/metamall_night_20261010.ps1` (PowerShell pid 38416).
+- Status log: `D:\Metamall_Backups\slot_logs\night_20261010_1800\night_status.log`.
+- Steps:
+  1. Wait for Codex job 184 to finish.
+  2. Close the Puss editor with Don't-Save.
+  3. UBT build of the Metamall proving project (`Build.bat UnrealEditor ... -Project=`).
+  4. If the build passed, a 3 h soak: `-game` on L_MainSim with the janitor on, the same launch as 10 Oct 03:56. No package.
+  5. The soak report.
+  6. A robocopy backup to `F:\Metamall_UE58_Proving_backup_20261010_1800`, excluding Saved, Intermediate, DerivedDataCache, Binaries, node_modules and .vs at any depth.
+- The source project is COPIED, not moved.
+- The 9–10 Oct Codex Metamall changes were "NOT yet compiled", so the build may fail. If it does, the soak is skipped and the backup still runs.
+- Job 184's report must be read and committed by the next session. Puss stays CLOSED until then.
