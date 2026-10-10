@@ -59,3 +59,10 @@
   - **S2 shrine fires (Gary)**: the Niagara fires on the S2 shrine are visible in the editor but do NOT play in PIE, so the shrine is unlit → job 130 (diagnose; never save Klara's levels).
 - **Nap camera (Gary ~01:00 10 Oct local)**: in LS_Nap_BatteryChange, RAISE +20 cm; head TILT (roll) 35°, as if resting on a paw; look UP-FORWARD to the LEFT, as if lying on its side looking up at the wings, a little upside down. Conductor values: Z +20 cm, roll 35°, yaw −20° (left), pitch +15° (up), all offset uniformly on every key so the breathing loop and seam survive. A still at Master 24:51.2; Gary fine-tunes.
 - **3D stage front (Gary ~01:15 local 10 Oct)**: use the **Dusty** maps. Export the missing Crest / Solomonic Column / Cat Candelabra FBXs tonight (headless Blender, no bake). The chandelier is **Iron3**. Order: job 133 (export) → job 131 import + place (all six pieces) → wide still → job 87 re-DRY / re-plan → opening stills.
+- **I2/I3 staging (Gary ~02:30 local 10 Oct, answers the 90b question)**: stage I2 and I3 at the HANGAR BACK WALL.
+  1. During the dark transition the hangar/scene is EMPTIED (its set hidden).
+  2. The curtain hangs on the back wall.
+  3. The camera moves into the interaction, and the shadow scene plays on that curtain.
+  4. Then the sleight move into the passage.
+
+  → Codex job 144. It replaces the "missing I3 hangar/mouth spots" question, so 90b is superseded for those spots.
