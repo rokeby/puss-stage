@@ -171,3 +171,5 @@ Stills are in `Saved/CodexConductor/ApplyPass_20261010/stills/`. Verdicts are by
 - 19:00 Gary: S6-prep particle cloud = ignore (not candles); 3D stage front needs its own uplights; P06 sun disc sized to fit the passage end window (job 178, after 177).
 
 - 19:20 Gary: P02 trim haze+beams keep rig (job 179); shadow reach middle = neighbouring/opposite wings, perf-gated (job 179); keep S3 hair.
+
+- 19:40 Job 178 imported (4ddf2990): 3D front uplights 14/0, P06 sun disc 13/0; live after 177. Sun disc invisible because the Dusk Sky Atmosphere was hidden in PIE (measured in the job 126 probe); the tool adds P06-only visibility tracks. Job 179 (P02 trim + shadow reach) running offline.
