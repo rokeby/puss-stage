@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "job": 169,
+  "date": "2026-10-10",
+  "offline_only": true,
+  "results": [
+    {
+      "command": "python Saved/CodexConductor/Job169S1FireEnding_20261010/test_job169_s1_fire_ending.py",
+      "passed": 25,
+      "failed": 0,
+      "controls": "positive+negative+source"
+    },
+    {
+      "command": "python Saved/CodexConductor/S1RigFade_20261009/test_s1_rig_fade.py",
+      "passed": 24,
+      "failed": 0,
+      "controls": "positive+negative"
+    },
+    {
+      "command": "python Saved/CodexSoftGoods/test_shrink_scene_playback_offline.py",
+      "passed": 12,
+      "failed": 0,
+      "controls": "positive+negative"
+    }
+  ],
+  "python_files_compiled": 6,
+  "unreal_run": false,
+  "pie_run": false
+}

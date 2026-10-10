@@ -1,0 +1,11 @@
+{
+  "jsonrpc": "2.0",
+  "id": "job169",
+  "method": "tools/call",
+  "params": {
+    "name": "ExecuteProjectPythonFile",
+    "arguments": {
+      "FilePath": "CodexConductor/Job169S1FireEnding_20261010/job169_run.py"
+    }
+  }
+}

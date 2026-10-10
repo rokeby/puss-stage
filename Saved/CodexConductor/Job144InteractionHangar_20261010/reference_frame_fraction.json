@@ -1,0 +1,334 @@
+{
+ "job144_camera_distance_for_480cm": 714.008604445133,
+ "proof": "measured live read-only",
+ "rows": [
+  {
+   "camera_binding": "S1 Sleight Hangar Camera",
+   "camera_pose_relative": {
+    "loc": [
+     2747.509033203125,
+     0.0,
+     520.0
+    ],
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "yaw": 0.0
+   },
+   "camera_to_curtain_centre_cm": 2852.5124250383187,
+   "camera_world_loc": [
+    32031.522533203126,
+    0.0,
+    520.0
+   ],
+   "curtain_asset_bounds_cm": [
+    1880.0,
+    1000.0
+   ],
+   "curtain_binding": "Sleight Hangar Drape",
+   "curtain_centre_world": [
+    34883.96484375,
+    0.0,
+    500.0
+   ],
+   "curtain_pose_world": {
+    "loc": [
+     34883.96484375,
+     0.0,
+     0.0
+    ],
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "yaw": 0.0
+   },
+   "curtain_scaled_bounds_cm": [
+    1880.0,
+    1000.0
+   ],
+   "curtain_template": {
+    "class": "GeometryCacheActor",
+    "components": [
+     {
+      "class": "GeometryCacheComponent",
+      "geometry_cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening.GC_CurtainDrop_Opening",
+      "geometry_cache_bounds_error": "AttributeError(\"'GeometryCache' object has no attribute 'get_bounds'\")",
+      "name": "GeometryCacheComponent"
+     }
+    ],
+    "template": "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy.LS_Interaction_01_WashingTheBoy:MovieScene_0.GeometryCacheActor_1"
+   },
+   "focal_mm": 35.0,
+   "interaction": 1,
+   "markers": {
+    "CST curtain hung": 175,
+    "CST curtain in": 75,
+    "CST drop": 1675,
+    "CST fold end": 1000,
+    "CST fold start": 250,
+    "CST hangar strike": 1300,
+    "CST play start": 175,
+    "CST sleight": 1250,
+    "CST walk start": 1701,
+    "CST wide": 0,
+    "GO 10 PASS curtain": 1675,
+    "InfinityStage.BoyCatStart": 75,
+    "InfinityStage.CurtainFullyDown": 75,
+    "InfinityStage.CurtainFullyOpen": 500,
+    "InfinityStage.CurtainRiseStart": 400,
+    "InfinityStage.HiddenChangeover": 375
+   },
+   "occupied_height_fraction": 0.9180610112051757,
+   "occupied_width_fraction": 0.9708494933709592,
+   "projected_height_fraction": 0.9180610112051757,
+   "projected_width_fraction": 0.9708494933709592,
+   "sensor_mm": [
+    23.760000228881836,
+    13.364999771118164
+   ],
+   "sequence": "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy",
+   "shadow_frame": 275,
+   "shadow_sources": [
+    {
+     "binding": "Shadow Play Spot (Mouth)",
+     "frames": [
+      275
+     ]
+    },
+    {
+     "binding": "Shadow Play Spot (Hangar)",
+     "frames": [
+      275
+     ]
+    }
+   ]
+  },
+  {
+   "camera_binding": "S4 Sleight Hangar Camera",
+   "camera_pose_relative": {
+    "loc": [
+     4399.9501953125,
+     0.0,
+     510.0
+    ],
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "yaw": 0.0
+   },
+   "camera_to_curtain_centre_cm": 1200.0418924979447,
+   "camera_world_loc": [
+    15568.419695312501,
+    240000.0,
+    510.0
+   ],
+   "curtain_asset_bounds_cm": [
+    1880.0,
+    1000.0
+   ],
+   "curtain_binding": "Sleight Hangar Drape",
+   "curtain_centre_world": [
+    16768.419921875,
+    240000.0,
+    500.0
+   ],
+   "curtain_pose_world": {
+    "loc": [
+     16768.419921875,
+     240000.0,
+     0.0
+    ],
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "yaw": 0.0
+   },
+   "curtain_scaled_bounds_cm": [
+    1880.0,
+    1000.0
+   ],
+   "curtain_template": {
+    "class": "GeometryCacheActor",
+    "components": [
+     {
+      "class": "GeometryCacheComponent",
+      "geometry_cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening.GC_CurtainDrop_Opening",
+      "geometry_cache_bounds_error": "AttributeError(\"'GeometryCache' object has no attribute 'get_bounds'\")",
+      "name": "GeometryCacheComponent"
+     }
+    ],
+    "template": "/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName.LS_Interaction_04_GetsAName:MovieScene_0.GeometryCacheActor_1"
+   },
+   "focal_mm": 35.0,
+   "interaction": 4,
+   "markers": {
+    "CST curtain hung": 175,
+    "CST curtain in": 75,
+    "CST drop": 1675,
+    "CST fold end": 1000,
+    "CST fold start": 250,
+    "CST hangar strike": 1300,
+    "CST play start": 175,
+    "CST sleight": 1250,
+    "CST walk start": 1700,
+    "CST wide": 0,
+    "GO 40 PASS curtain": 1675,
+    "InfinityStage.BoyCatStart": 75,
+    "InfinityStage.CurtainFullyDown": 75,
+    "InfinityStage.CurtainFullyOpen": 500,
+    "InfinityStage.CurtainRiseStart": 400,
+    "InfinityStage.HiddenChangeover": 375
+   },
+   "occupied_height_fraction": 1.0,
+   "occupied_width_fraction": 1.0,
+   "projected_height_fraction": 2.1822408515713474,
+   "projected_width_fraction": 2.3077196387854944,
+   "sensor_mm": [
+    23.760000228881836,
+    13.364999771118164
+   ],
+   "sequence": "/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName",
+   "shadow_frame": 275,
+   "shadow_sources": [
+    {
+     "binding": "Shadow Play Spot (Mouth)",
+     "frames": [
+      275
+     ]
+    },
+    {
+     "binding": "Shadow Play Spot (Hangar)",
+     "frames": [
+      275
+     ]
+    }
+   ]
+  },
+  {
+   "camera_binding": "S5 Sleight Hangar Camera",
+   "camera_pose_relative": {
+    "loc": [
+     13399.9501953125,
+     0.0,
+     510.0
+    ],
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "yaw": 0.0
+   },
+   "camera_to_curtain_centre_cm": 1200.0417831267407,
+   "camera_world_loc": [
+    60490.8514453125,
+    320000.0,
+    510.0
+   ],
+   "curtain_asset_bounds_cm": [
+    1880.0,
+    1000.0
+   ],
+   "curtain_binding": "Sleight Hangar Drape",
+   "curtain_centre_world": [
+    61690.8515625,
+    320000.0,
+    500.0
+   ],
+   "curtain_pose_world": {
+    "loc": [
+     61690.8515625,
+     320000.0,
+     0.0
+    ],
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "yaw": 0.0
+   },
+   "curtain_scaled_bounds_cm": [
+    1880.0,
+    1000.0
+   ],
+   "curtain_template": {
+    "class": "GeometryCacheActor",
+    "components": [
+     {
+      "class": "GeometryCacheComponent",
+      "geometry_cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening.GC_CurtainDrop_Opening",
+      "geometry_cache_bounds_error": "AttributeError(\"'GeometryCache' object has no attribute 'get_bounds'\")",
+      "name": "GeometryCacheComponent"
+     }
+    ],
+    "template": "/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing.LS_Interaction_05_BecomesKing:MovieScene_0.GeometryCacheActor_1"
+   },
+   "focal_mm": 35.0,
+   "interaction": 5,
+   "markers": {
+    "CST curtain hung": 175,
+    "CST curtain in": 75,
+    "CST drop": 1675,
+    "CST fold end": 1000,
+    "CST fold start": 250,
+    "CST hangar strike": 1300,
+    "CST play start": 175,
+    "CST sleight": 1250,
+    "CST walk start": 1700,
+    "CST wide": 0,
+    "GO 50 PASS curtain": 1675,
+    "InfinityStage.BoyCatStart": 75,
+    "InfinityStage.CurtainFullyDown": 75,
+    "InfinityStage.CurtainFullyOpen": 500,
+    "InfinityStage.CurtainRiseStart": 400,
+    "InfinityStage.HiddenChangeover": 375
+   },
+   "occupied_height_fraction": 1.0,
+   "occupied_width_fraction": 1.0,
+   "projected_height_fraction": 2.1822410504596803,
+   "projected_width_fraction": 2.3077198491099007,
+   "sensor_mm": [
+    23.760000228881836,
+    13.364999771118164
+   ],
+   "sequence": "/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing",
+   "shadow_frame": 275,
+   "shadow_sources": [
+    {
+     "binding": "Shadow Play Spot (Hangar)",
+     "frames": [
+      275
+     ]
+    },
+    {
+     "binding": "Shadow Play Spot (Mouth)",
+     "frames": [
+      275
+     ]
+    }
+   ]
+  }
+ ],
+ "target_occupied_width_fraction_mean": 0.9902831644569864
+}

@@ -299,9 +299,17 @@ class UnrealBackend(object):
     def _rewrite(self, channel, keys):
         for key in list(channel.get_keys()): channel.remove_key(key)
         for frame, value in keys:
-            channel.add_key(self.u.FrameNumber(int(frame)), value,
-                            time_unit=self.u.MovieSceneTimeUnit.DISPLAY_RATE,
-                            interpolation=self.u.MovieSceneKeyInterpolation.LINEAR)
+            try:
+                channel.add_key(self.u.FrameNumber(int(frame)), value,
+                                time_unit=self.u.MovieSceneTimeUnit.DISPLAY_RATE,
+                                interpolation=self.u.MovieSceneKeyInterpolation.LINEAR)
+            except TypeError as exc:
+                # UE 5.8 scripting bool/visibility channels reject the optional
+                # interpolation keyword; their keys are discrete by definition.
+                if "'interpolation' is an invalid keyword argument" not in str(exc):
+                    raise
+                channel.add_key(self.u.FrameNumber(int(frame)), value,
+                                time_unit=self.u.MovieSceneTimeUnit.DISPLAY_RATE)
 
     def _checkpoint(self, record):
         path = getattr(self, "active_record_path", None)

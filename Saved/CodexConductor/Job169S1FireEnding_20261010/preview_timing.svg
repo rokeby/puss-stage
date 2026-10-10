@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="310" viewBox="0 0 1200 310">
+  <rect width="1200" height="310" fill="#11151b"/>
+  <text x="55" y="42" fill="#f1f4f7" font-family="sans-serif" font-size="25">Job 169 — S1 corner-wing fire ending (analytical, not rendered)</text>
+  <line x1="70" y1="155" x2="1130" y2="155" stroke="#65717f" stroke-width="3"/>
+  <rect x="150" y="102" width="398" height="38" rx="8" fill="#4f78b8"/>
+  <text x="165" y="128" fill="white" font-family="sans-serif" font-size="18">eased camera pan 3559–3634</text>
+  <rect x="208" y="166" width="822" height="38" rx="8" fill="#c55d24"/>
+  <text x="225" y="192" fill="white" font-family="sans-serif" font-size="18">small fire + warm practical 3570–3899 (last light)</text>
+  <rect x="989" y="102" width="41" height="38" rx="5" fill="#303640" stroke="#aaa"/>
+  <text x="903" y="91" fill="#d8dde3" font-family="sans-serif" font-size="16">rig fade 3800–3838</text>
+  <g fill="#d8dde3" font-family="sans-serif" font-size="15" text-anchor="middle">
+    <text x="70" y="235">3550</text><text x="202" y="235">3600</text><text x="335" y="235">3650</text>
+    <text x="468" y="235">3700</text><text x="999" y="235">3800</text><text x="1130" y="235">3899</text>
+  </g>
+  <g stroke="#8d98a5" stroke-width="2"><line x1="70" y1="147" x2="70" y2="215"/><line x1="202" y1="147" x2="202" y2="215"/><line x1="335" y1="147" x2="335" y2="215"/><line x1="468" y1="147" x2="468" y2="215"/><line x1="999" y1="147" x2="999" y2="215"/><line x1="1130" y1="147" x2="1130" y2="215"/></g>
+  <text x="70" y="278" fill="#aeb7c2" font-family="sans-serif" font-size="16">3900 is exclusive; verify next cue owns the camera.</text>
+</svg>
