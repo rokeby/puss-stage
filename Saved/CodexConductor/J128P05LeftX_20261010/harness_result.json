@@ -1,0 +1,8 @@
+{
+  "errors": 0,
+  "failures": 0,
+  "negative_controls": 10,
+  "ok": true,
+  "positive_controls": 8,
+  "tests": 18
+}
