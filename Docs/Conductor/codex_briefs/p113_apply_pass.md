@@ -54,3 +54,5 @@ Write `Docs/Conductor/APPLY_PASS_REPORT_2026-10-10.md`:
 - Tier every claim.
 - List the files you changed.
 - Commit nothing.
+
+0. **S3 diagnosis v2, READ-ONLY, FIRST** (job 109): `Saved/CodexConductor/s3_visual_diag_v2_request.json`. Require `S3_VISUAL_DIAG_V2_SUCCESS`, nonzero foot samples and identical censuses. Report per figure: shading model and blend, the missing-shroud and translucent figures, foot depth, and the hessian likely-cause readings. No fixes.

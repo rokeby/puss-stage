@@ -1,7 +1,10 @@
-"""Read-only S3 visual diagnosis requested by Gary on 2026-10-09.
+"""Read-only S3 visual diagnosis v2 requested by Gary on 2026-10-09.
 
 The only filesystem write is the requested JSON report.  This script does not
-modify/save assets or actors, spawn anything, evaluate Sequencer, or start PIE.
+modify/save assets or actors or start PIE.  It temporarily creates a transient
+LevelSequencePlayer to evaluate LS_Clams at two requested frames, then stops it,
+destroys its transient actor, and requires dirty/actor/figure state to match the
+pre-run census exactly before writing the report.  It never calls Save.
 """
 from __future__ import annotations
 
@@ -33,6 +36,13 @@ P40_RECORD = SAVED + "/CodexConductor/P40Shore05Settle_20261009/p40_apply_record
 FEET_PLAN = SAVED + "/CodexConductor/s3_crowd_feet_plan.json"
 FEET_RECORD = SAVED + "/CodexConductor/s3_crowd_feet_record.json"
 LOG = SAVED + "/Logs/PussStage.log"
+EVALUATED_FRAMES = (300, 2400)
+FOOT_NAME_HINTS = (
+    "foot_l", "foot_r", "ball_l", "ball_r", "toe_l", "toe_r",
+    "ankle_l", "ankle_r", "LeftFoot", "RightFoot", "LeftToeBase", "RightToeBase",
+)
+OPACITY_TERMS = ("opacity", "alpha", "mask", "transluc", "transmission")
+SURFACE_TERMS = ("rough", "specular", "metallic", "tiling", "tile", "uv", "scale", "weave")
 
 
 # Required first action: purge Python modules loaded from project Saved/ so no
@@ -154,6 +164,63 @@ def component_materials(component):
     return {"slot_count": count, "raw_override_materials": overrides, "slots": rows}
 
 
+def component_render_state(component):
+    owner = component.get_owner() if component is not None and hasattr(component, "get_owner") else None
+    actor_hidden = bool(owner.is_hidden()) if owner is not None and hasattr(owner, "is_hidden") else bool(prop(owner, "hidden", False))
+    visible_property = bool(prop(component, "visible", True))
+    hidden_in_game = bool(prop(component, "hidden_in_game", False))
+    render_in_main_pass = bool(prop(component, "render_in_main_pass", True))
+    is_visible = bool(component.is_visible()) if hasattr(component, "is_visible") else visible_property
+    return {
+        "component": full_path(component),
+        "component_name": str(component.get_name()),
+        "component_class": str(component.get_class().get_name()),
+        "owner": full_path(owner),
+        "owner_hidden": actor_hidden,
+        "visible": visible_property,
+        "is_visible": is_visible,
+        "hidden_in_game": hidden_in_game,
+        "render_in_main_pass": render_in_main_pass,
+        "effective_main_pass_visible": bool(not actor_hidden and visible_property and is_visible and
+                                             not hidden_in_game and render_in_main_pass),
+    }
+
+
+def relevant_component_rows(actor):
+    rows = []
+    for component in actor.get_components_by_class(unreal.ActorComponent):
+        name = str(component.get_name())
+        cls = str(component.get_class().get_name())
+        is_cloth = isinstance(component, unreal.ChaosClothComponent) or "cloth" in name.lower()
+        is_outfit = False
+        if isinstance(component, unreal.SkeletalMeshComponent):
+            mesh = component.get_skeletal_mesh_asset()
+            is_outfit = bool(mesh is not None and "_outfits" in (path_of(mesh) or "").lower())
+        if not (is_cloth or is_outfit):
+            continue
+        row = component_render_state(component)
+        row["role"] = "shroud_cloth" if is_cloth else "outfit_shirt_and_shorts"
+        if hasattr(component, "get_num_materials"):
+            row["materials"] = component_materials(component)
+        rows.append(row)
+    return sorted(rows, key=lambda row: (row["role"], row["component_name"], row["component"]))
+
+
+def figure_state_census(actors):
+    rows = []
+    for actor in sorted(actors, key=lambda value: (str(value.get_actor_label()), full_path(value))):
+        rows.append({
+            "actor": full_path(actor),
+            "label": str(actor.get_actor_label()),
+            "location": vec(actor.get_actor_location()),
+            "rotation": rot(actor.get_actor_rotation()),
+            "hidden": bool(actor.is_hidden()) if hasattr(actor, "is_hidden") else bool(prop(actor, "hidden", False)),
+            "components": relevant_component_rows(actor),
+        })
+    blob = json.dumps(rows, sort_keys=True, default=str).encode("utf-8")
+    return {"sha256": hashlib.sha256(blob).hexdigest(), "rows": rows}
+
+
 def one_component(actor, name, cls=None):
     hits = [c for c in actor.get_components_by_class(unreal.ActorComponent) if str(c.get_name()) == name]
     if cls is not None:
@@ -193,9 +260,13 @@ def blueprint_templates(figure):
         "cloth_class": str(cloth.get_class().get_name()),
         "cloth_asset": path_of(cloth.get_asset() if hasattr(cloth, "get_asset") else prop(cloth, "cloth_asset")),
         "cloth_materials": component_materials(cloth),
+        "cloth_render_state": component_render_state(cloth),
+        "cloth_uv_audit": mesh_uv_info(cloth),
         "outfit_component": full_path(outfit),
         "outfit_mesh": path_of(outfit.get_skeletal_mesh_asset()),
         "outfit_materials": component_materials(outfit),
+        "outfit_render_state": component_render_state(outfit),
+        "outfit_uv_audit": mesh_uv_info(outfit),
     }
 
 
@@ -230,9 +301,38 @@ def serialized_mi(mi):
             "scalars": scalars, "vectors": vectors}
 
 
+def master_flags(material):
+    if material is None:
+        return {"error": "material is null"}
+    flags = {}
+    for name in ("material_domain", "blend_mode", "shading_model", "shading_models"):
+        value = prop(material, name)
+        flags[name] = enum_name(value)
+    for name in ("two_sided", "dithered_lod_transition", "cast_dynamic_shadow_as_masked",
+                 "use_material_attributes", "used_with_skeletal_mesh", "used_with_clothing"):
+        value = prop(material, name)
+        flags[name] = None if value is None else bool(value)
+    clip = prop(material, "opacity_mask_clip_value")
+    flags["opacity_mask_clip_value"] = None if clip is None else float(clip)
+    return flags
+
+
+def expression_detail(node):
+    cls = str(node.get_class().get_name())
+    row = {"class": cls, "name": str(prop(node, "parameter_name", ""))}
+    if cls == "MaterialExpressionTextureCoordinate":
+        row.update({
+            "coordinate_index": int(prop(node, "coordinate_index", 0)),
+            "u_tiling": float(prop(node, "u_tiling", 1.0)),
+            "v_tiling": float(prop(node, "v_tiling", 1.0)),
+        })
+    return row
+
+
 def master_inventory(material):
     result = {"path": path_of(material), "textures": {}, "scalars": {}, "vectors": {},
-              "expression_classes": {}, "errors": []}
+              "master_properties": master_flags(material), "expression_classes": {},
+              "texture_coordinates": [], "opacity_related_expressions": [], "errors": []}
     try:
         expressions = list(unreal.MaterialEditingLibrary.get_material_expressions(material))
     except Exception as exc:
@@ -242,6 +342,11 @@ def master_inventory(material):
         cls = str(node.get_class().get_name())
         result["expression_classes"][cls] = result["expression_classes"].get(cls, 0) + 1
         name = str(prop(node, "parameter_name", ""))
+        detail = expression_detail(node)
+        if cls == "MaterialExpressionTextureCoordinate":
+            result["texture_coordinates"].append(detail)
+        if any(term in (name + " " + cls).lower() for term in OPACITY_TERMS):
+            result["opacity_related_expressions"].append(detail)
         if cls == "MaterialExpressionTextureSampleParameter2D":
             result["textures"][name] = path_of(prop(node, "texture"))
         elif cls == "MaterialExpressionScalarParameter":
@@ -251,6 +356,65 @@ def master_inventory(material):
             if value is not None:
                 result["vectors"][name] = [float(value.r), float(value.g), float(value.b), float(value.a)]
     return result
+
+
+def resolved_material_parameters(material):
+    """Read inherited/effective parameters, not only the child MI overrides."""
+    if material is None:
+        return {"error": "material is null"}
+    mel = unreal.MaterialEditingLibrary
+    result = {"textures": {}, "scalars": {}, "vectors": {}, "overridden": {}, "errors": []}
+    if not isinstance(material, unreal.MaterialInstance):
+        inv = master_inventory(material)
+        result.update({key: inv.get(key, {}) for key in ("textures", "scalars", "vectors")})
+        return result
+    accessors = (
+        ("textures", "get_texture_parameter_names", "get_material_instance_texture_parameter_value"),
+        ("scalars", "get_scalar_parameter_names", "get_material_instance_scalar_parameter_value"),
+        ("vectors", "get_vector_parameter_names", "get_material_instance_vector_parameter_value"),
+    )
+    for bucket, names_method, value_method in accessors:
+        try:
+            names = [str(value) for value in getattr(mel, names_method)(material)]
+        except Exception as exc:
+            result["errors"].append("%s: %r" % (names_method, exc))
+            continue
+        for name in names:
+            try:
+                value = getattr(mel, value_method)(material, name)
+                if bucket == "textures":
+                    result[bucket][name] = path_of(value)
+                elif bucket == "scalars":
+                    result[bucket][name] = float(value)
+                else:
+                    result[bucket][name] = [float(value.r), float(value.g), float(value.b), float(value.a)]
+                result["overridden"][name] = bool(mel.is_material_instance_parameter_overridden(material, name))
+            except Exception as exc:
+                result["errors"].append("%s/%s: %r" % (value_method, name, exc))
+    return result
+
+
+def material_audit_row(path):
+    asset = unreal.load_asset(path) if path else None
+    row = {"path": path, "loaded": asset is not None,
+           "class": str(asset.get_class().get_name()) if asset is not None else None}
+    if asset is None:
+        return row
+    base = asset.get_base_material() if isinstance(asset, unreal.MaterialInstance) and hasattr(asset, "get_base_material") else asset
+    resolved = resolved_material_parameters(asset)
+    diagnostic = {}
+    for bucket in ("textures", "scalars", "vectors"):
+        diagnostic[bucket] = {name: value for name, value in resolved.get(bucket, {}).items()
+                              if any(term in name.lower() for term in OPACITY_TERMS + SURFACE_TERMS)}
+    row.update({
+        "base_material": path_of(base),
+        "base_properties": master_flags(base),
+        "serialized_overrides": serialized_mi(asset) if isinstance(asset, unreal.MaterialInstance) else None,
+        "resolved_parameters": resolved,
+        "diagnostic_parameter_subset": diagnostic,
+        "parent_chain": parent_chain(asset),
+    })
+    return row
 
 
 def parent_chain(material):
@@ -333,7 +497,23 @@ def texture_info(path):
     return row
 
 
-def material_audit():
+def assigned_material_paths(actor_rows, templates):
+    paths = set(MATERIALS)
+    for row in list(actor_rows) + list(templates):
+        for key in ("head_cloth_materials", "cloth_materials", "outfit_materials"):
+            block = row.get(key) or {}
+            for slot in block.get("slots", []):
+                for field in ("resolved_material", "override_material"):
+                    if slot.get(field):
+                        paths.add(slot[field])
+        for component in row.get("relevant_components", []):
+            for slot in component.get("materials", {}).get("slots", []):
+                if slot.get("resolved_material"):
+                    paths.add(slot["resolved_material"])
+    return sorted(paths)
+
+
+def material_audit(actor_rows, templates):
     master = unreal.load_asset(MASTER)
     master_row = master_inventory(master) if master is not None else {"path": MASTER, "missing": True}
     rows, texture_paths = [], set(master_row.get("textures", {}).values())
@@ -346,8 +526,53 @@ def material_audit():
             row["parent_chain"] = parent_chain(material)
             texture_paths.update(row["serialized"]["textures"].values())
         rows.append(row)
-    return {"master": master_row, "instances": rows,
+    assigned = [material_audit_row(path) for path in assigned_material_paths(actor_rows, templates)]
+    for row in assigned:
+        texture_paths.update((row.get("resolved_parameters") or {}).get("textures", {}).values())
+    return {"master": master_row, "instances": rows, "assigned_materials": assigned,
             "textures": [texture_info(path) for path in sorted(x for x in texture_paths if x)]}
+
+
+def mesh_uv_info(component):
+    row = {"component": full_path(component), "queries": {}, "errors": []}
+    asset = None
+    if isinstance(component, unreal.SkeletalMeshComponent):
+        asset = component.get_skeletal_mesh_asset()
+    elif isinstance(component, unreal.StaticMeshComponent):
+        asset = prop(component, "static_mesh")
+    elif isinstance(component, unreal.ChaosClothComponent):
+        asset = component.get_asset() if hasattr(component, "get_asset") else prop(component, "cloth_asset")
+    row.update({"asset": path_of(asset), "asset_class": str(asset.get_class().get_name()) if asset else None})
+    if asset is None:
+        row["errors"].append("asset not resolved")
+        return row
+    for name in ("num_uv_channels", "uv_channel_count", "num_uv_sets"):
+        try:
+            value = asset.get_editor_property(name)
+            row["queries"]["asset.%s" % name] = int(value)
+        except Exception as exc:
+            row["errors"].append("asset.%s: %r" % (name, exc))
+    subsystem_classes = []
+    static_mesh_class = getattr(unreal, "StaticMesh", None)
+    skeletal_mesh_class = getattr(unreal, "SkeletalMesh", None)
+    if static_mesh_class is not None and isinstance(asset, static_mesh_class):
+        subsystem_classes.append(("StaticMeshEditorSubsystem", getattr(unreal, "StaticMeshEditorSubsystem", None)))
+    if skeletal_mesh_class is not None and isinstance(asset, skeletal_mesh_class):
+        subsystem_classes.extend([
+            ("SkeletalMeshEditorSubsystem", getattr(unreal, "SkeletalMeshEditorSubsystem", None)),
+            ("EditorSkeletalMeshLibrary", getattr(unreal, "EditorSkeletalMeshLibrary", None)),
+        ])
+    for label, cls in subsystem_classes:
+        if cls is None:
+            row["errors"].append(label + ": unavailable")
+            continue
+        try:
+            obj = unreal.get_editor_subsystem(cls) if "Subsystem" in label else cls
+            fn = getattr(obj, "get_num_uv_channels")
+            row["queries"][label + ".get_num_uv_channels(LOD0)"] = int(fn(asset, 0))
+        except Exception as exc:
+            row["errors"].append(label + ".get_num_uv_channels: %r" % exc)
+    return row
 
 
 def mesh_triangles(component):
@@ -374,13 +599,32 @@ def mesh_triangles(component):
             rows.append((min(p[0] for p in tri), max(p[0] for p in tri),
                          min(p[1] for p in tri), max(p[1] for p in tri), tri))
     require(rows, "DUNE_TRIANGLES_EMPTY")
-    return mesh, rows
+    cell_size = 100.0
+    bins = {}
+    overflow = []
+    for row_index, (min_x, max_x, min_y, max_y, _tri) in enumerate(rows):
+        x0, x1 = int(math.floor(min_x / cell_size)), int(math.floor(max_x / cell_size))
+        y0, y1 = int(math.floor(min_y / cell_size)), int(math.floor(max_y / cell_size))
+        if (x1 - x0 + 1) * (y1 - y0 + 1) > 64:
+            overflow.append(row_index)
+            continue
+        for cell_x in range(x0, x1 + 1):
+            for cell_y in range(y0, y1 + 1):
+                bins.setdefault((cell_x, cell_y), []).append(row_index)
+    return mesh, {"rows": rows, "cell_size_cm": cell_size, "bins": bins, "overflow": overflow}
 
 
 def vertical_raycast(triangles, x, y, start_z):
     hits = []
     eps = 1.0e-6
-    for min_x, max_x, min_y, max_y, tri in triangles:
+    if isinstance(triangles, dict):
+        cell = triangles["cell_size_cm"]
+        key = (int(math.floor(x / cell)), int(math.floor(y / cell)))
+        indices = list(triangles["bins"].get(key, [])) + list(triangles["overflow"])
+        candidates = (triangles["rows"][index] for index in indices)
+    else:
+        candidates = iter(triangles)
+    for min_x, max_x, min_y, max_y, tri in candidates:
         if x < min_x - eps or x > max_x + eps or y < min_y - eps or y > max_y + eps:
             continue
         (x1, y1, z1), (x2, y2, z2), (x3, y3, z3) = tri
@@ -400,18 +644,46 @@ def vertical_raycast(triangles, x, y, start_z):
 
 
 def foot_bones(body):
+    names = {}
+    errors = []
+    try:
+        count = int(body.get_num_bones())
+    except Exception as exc:
+        count = -1
+        errors.append("get_num_bones: %r" % exc)
+    if count > 0:
+        for index in range(count):
+            try:
+                names[str(body.get_bone_name(index))] = "component.get_bone_name"
+            except Exception as exc:
+                errors.append("get_bone_name(%d): %r" % (index, exc))
+    try:
+        for value in body.get_all_socket_names():
+            names.setdefault(str(value), "component.get_all_socket_names")
+    except Exception as exc:
+        errors.append("get_all_socket_names: %r" % exc)
+    for value in FOOT_NAME_HINTS:
+        names.setdefault(value, "explicit MetaHuman/UE mannequin foot-name probe")
+
+    candidates = []
     rows = []
-    count = int(body.get_num_bones())
-    for index in range(count):
-        name = str(body.get_bone_name(index))
+    for name, source in sorted(names.items()):
         if not any(token in name.lower() for token in ("foot", "ball", "toe", "ankle")):
             continue
         try:
+            index = int(body.get_bone_index(name))
+        except Exception as exc:
+            index = -1
+            errors.append("get_bone_index(%s): %r" % (name, exc))
+        candidates.append({"name": name, "source": source, "bone_index": index})
+        if index < 0:
+            continue
+        try:
             loc = body.get_bone_location(name, unreal.BoneSpaces.WORLD_SPACE)
-            rows.append({"bone": name, "location": vec(loc)})
-        except Exception:
-            pass
-    return rows
+            rows.append({"bone": name, "bone_index": index, "discovery": source, "location": vec(loc)})
+        except Exception as exc:
+            errors.append("get_bone_location(%s): %r" % (name, exc))
+    return {"component_bone_count": count, "candidate_names": candidates, "samples": rows, "errors": errors}
 
 
 def pelvis_or_root(body, actor):
@@ -424,8 +696,9 @@ def pelvis_or_root(body, actor):
     return {"bone": "actor_root_fallback", "location": vec(actor.get_actor_location())}
 
 
-def feet_audit(target_actors, ground_actor, ground_component):
-    mesh, triangles = mesh_triangles(ground_component)
+def feet_audit(target_actors, ground_actor, ground_component, triangles=None, mesh=None, evaluated_frame=None):
+    if triangles is None or mesh is None:
+        mesh, triangles = mesh_triangles(ground_component)
     plan = read_json(FEET_PLAN) if os.path.isfile(FEET_PLAN) else {"level": {}, "ocean": {}}
     record = read_json(FEET_RECORD) if os.path.isfile(FEET_RECORD) else {}
     rows = []
@@ -435,14 +708,18 @@ def feet_audit(target_actors, ground_actor, ground_component):
             rows.append({"label": str(actor.get_actor_label()), "error": "Body component not uniquely resolved"})
             continue
         pelvis = pelvis_or_root(body, actor)
-        bones = foot_bones(body)
+        bone_diag = foot_bones(body)
+        bones = bone_diag["samples"]
         samples = []
         for bone in bones:
             loc = bone["location"]
-            surface = vertical_raycast(triangles, loc[0], loc[1], pelvis["location"][2])
+            trace_start_z = max(float(loc[2]) + 5000.0, float(pelvis["location"][2]) + 1000.0)
+            surface = vertical_raycast(triangles, loc[0], loc[1], trace_start_z)
             samples.append({"bone": bone["bone"], "foot_z_cm": loc[2], "xy_cm": loc[:2],
+                            "trace_start_z_cm": trace_start_z,
                             "surface_z_cm": surface,
-                            "foot_minus_surface_cm": None if surface is None else loc[2] - surface})
+                            "foot_minus_surface_cm": None if surface is None else loc[2] - surface,
+                            "trace_method": "downward XY ray against Ground B LOD0 mesh triangles"})
         valid = [x for x in samples if x["surface_z_cm"] is not None]
         lowest = min(valid, key=lambda x: x["foot_minus_surface_cm"]) if valid else None
         label = str(actor.get_actor_label())
@@ -461,11 +738,16 @@ def feet_audit(target_actors, ground_actor, ground_component):
             }
         rows.append({"label": label, "figure": figure_from_actor(actor), "actor_path": full_path(actor),
                      "actor_location": vec(actor.get_actor_location()), "pelvis_or_root": pelvis,
-                     "foot_samples": samples, "lowest_gap": lowest, "s3_crowd_feet_comparison": compare,
+                     "foot_bone_discovery": bone_diag, "foot_samples": samples, "lowest_gap": lowest,
+                     "s3_crowd_feet_comparison": compare,
                      "tier": "measured current editor pose; mesh-description vertical raycast against Ground B LOD0"})
     return {"ground_actor": str(ground_actor.get_actor_label()), "ground_actor_path": full_path(ground_actor),
             "ground_component": full_path(ground_component), "ground_mesh": path_of(mesh),
-            "triangle_count": len(triangles), "figures": rows,
+            "triangle_count": len(triangles["rows"]) if isinstance(triangles, dict) else len(triangles),
+            "raycast_index": ({"cell_size_cm": triangles["cell_size_cm"], "bin_count": len(triangles["bins"]),
+                               "overflow_triangle_count": len(triangles["overflow"])}
+                              if isinstance(triangles, dict) else None),
+            "evaluated_frame": evaluated_frame, "figures": rows,
             "record_run": record.get("run"), "record_formula_source": FEET_PLAN.replace("/", "\\")}
 
 
@@ -492,13 +774,106 @@ def actor_row(actor):
            "head_cloth_materials": component_materials(cloth) if cloth is not None else None,
            "body_component": full_path(body), "outfit_component_count": outfit_count,
            "outfit_component": full_path(outfit),
-           "outfit_mesh": path_of(outfit.get_skeletal_mesh_asset()) if outfit is not None else None}
+           "outfit_mesh": path_of(outfit.get_skeletal_mesh_asset()) if outfit is not None else None,
+           "relevant_components": relevant_component_rows(actor),
+           "head_cloth_uv_audit": mesh_uv_info(cloth) if cloth is not None else None,
+           "outfit_uv_audit": mesh_uv_info(outfit) if outfit is not None else None}
     if outfit is not None:
         mats = component_materials(outfit)
         for slot in mats["slots"]:
             slot["role"] = classify_outfit_material(slot["resolved_material"])
         row["outfit_materials"] = mats
     return row
+
+
+def sequence_frame_params(frame):
+    frame_time = unreal.FrameTime(unreal.FrameNumber(int(frame)))
+    return unreal.MovieSceneSequencePlaybackParams(
+        frame=frame_time,
+        position_type=unreal.MovieScenePositionType.FRAME,
+        update_method=unreal.UpdatePositionMethod.PLAY,
+    )
+
+
+def evaluated_figure_rows(target_actors, frame, ground_actor, ground_component, ground_mesh, triangles):
+    actor_rows = [actor_row(actor) for actor in target_actors]
+    feet = feet_audit(target_actors, ground_actor, ground_component, triangles, ground_mesh, frame)
+    return {
+        "frame": int(frame),
+        "actors": actor_rows,
+        "feet": feet,
+        "foot_sample_count": sum(len(row.get("foot_samples", [])) for row in feet["figures"]),
+        "tier": "measured after transient LS_Clams evaluation; no package save",
+    }
+
+
+def evaluate_sequence_frames(world, sequence, target_actors, ground_actor, ground_component, ground_mesh, triangles):
+    """Evaluate without opening editor Sequencer, then restore and destroy all transient state."""
+    settings = unreal.MovieSceneSequencePlaybackSettings(restore_state=True)
+    player = None
+    sequence_actor = None
+    rows = []
+    try:
+        created = unreal.LevelSequencePlayer.create_level_sequence_player(world, sequence, settings)
+        if isinstance(created, tuple):
+            player = created[0]
+            sequence_actor = created[1] if len(created) > 1 else None
+        else:
+            player = created
+        require(player is not None, "SEQUENCE_PLAYER_CREATE_FAILED")
+        for frame in EVALUATED_FRAMES:
+            player.set_playback_position(sequence_frame_params(frame))
+            rows.append(evaluated_figure_rows(target_actors, frame, ground_actor, ground_component,
+                                              ground_mesh, triangles))
+    finally:
+        if player is not None:
+            try:
+                player.stop()
+            except Exception:
+                pass
+        if sequence_actor is not None:
+            try:
+                sequence_actor.destroy_actor()
+            except Exception:
+                pass
+    return rows
+
+
+def material_trait_index(materials):
+    return {row.get("path"): row for row in materials.get("assigned_materials", []) if row.get("path")}
+
+
+def frame_visibility_findings(evaluated_frames, materials):
+    traits = material_trait_index(materials)
+    rows = []
+    no_visible = set()
+    translucent = set()
+    translucent_modes = {"BLEND_TRANSLUCENT", "BLEND_ADDITIVE", "BLEND_MODULATE", "BLEND_ALPHA_COMPOSITE", "BLEND_ALPHA_HOLDOUT"}
+    for frame_row in evaluated_frames:
+        for actor in frame_row["actors"]:
+            shrouds = [component for component in actor.get("relevant_components", [])
+                       if component.get("role") == "shroud_cloth"]
+            visible_shrouds = [component for component in shrouds if component.get("effective_main_pass_visible")]
+            modes = []
+            for component in visible_shrouds:
+                for slot in component.get("materials", {}).get("slots", []):
+                    material = traits.get(slot.get("resolved_material"), {})
+                    mode = (material.get("base_properties") or {}).get("blend_mode")
+                    modes.append({"material": slot.get("resolved_material"), "base_material": material.get("base_material"),
+                                  "blend_mode": mode})
+                    if mode in translucent_modes:
+                        translucent.add(actor["label"])
+            if not visible_shrouds:
+                no_visible.add(actor["label"])
+            rows.append({"frame": frame_row["frame"], "label": actor["label"], "figure": actor.get("figure"),
+                         "shroud_component_count": len(shrouds), "visible_shroud_component_count": len(visible_shrouds),
+                         "visible_shroud_material_blend_modes": modes})
+    return {
+        "per_frame": rows,
+        "figures_with_no_visible_shroud_at_one_or_more_requested_frames": sorted(no_visible),
+        "figures_with_translucent_visible_shroud_at_one_or_more_requested_frames": sorted(translucent),
+        "tier": "measured component flags plus declaration-proven base-material blend mode; rendered appearance remains unproved",
+    }
 
 
 def p40_summary():
@@ -537,6 +912,25 @@ def sequence_crowd_labels():
                 guid_value = guid.export_text() if hasattr(guid, "export_text") else "UNREADABLE"
             labels.append({"display_name": label, "guid": guid_value})
     return {"asset": CLAMS, "loaded": True, "labels": labels}
+
+
+def sequence_binding_resolution(sequence, world, target_actors):
+    target_paths = {full_path(actor) for actor in target_actors}
+    rows = []
+    resolved_targets = set()
+    for binding in sequence.get_bindings():
+        try:
+            objects = list(sequence.locate_bound_objects(binding, world))
+            error = None
+        except Exception as exc:
+            objects = []
+            error = repr(exc)
+        paths = [full_path(value) for value in objects]
+        resolved_targets.update(path for path in paths if path in target_paths)
+        rows.append({"display_name": str(binding.get_display_name()), "objects": paths, "error": error})
+    return {"bindings": rows, "target_actor_count": len(target_paths),
+            "resolved_target_actor_count": len(resolved_targets),
+            "unresolved_target_actors": sorted(target_paths - resolved_targets)}
 
 
 SOURCE_EXT_RE = re.compile(r"(?i)([A-Z]:[/\\][^\"'<>|\r\n]+?\.(?:png|jpe?g|tga|exr|fbx|abc|wav|mp3|csv|json))")
@@ -596,10 +990,11 @@ def infer_findings(report):
               and re.search(r"Error|Failed|Warning", row.get("text", ""), re.I)]
     p40 = report["job40"]
     gaps = []
-    for row in report["feet"]["figures"]:
-        low = row.get("lowest_gap")
-        if low and low.get("foot_minus_surface_cm") is not None:
-            gaps.append((row["label"], low["foot_minus_surface_cm"]))
+    for frame_row in report.get("evaluated_frames", []):
+        for row in frame_row["feet"]["figures"]:
+            low = row.get("lowest_gap")
+            if low and low.get("foot_minus_surface_cm") is not None:
+                gaps.append((frame_row["frame"], row["label"], low["foot_minus_surface_cm"]))
     shroud_assigned = {}
     for row in report["actors"]:
         mats_row = row.get("head_cloth_materials") or {}
@@ -618,6 +1013,56 @@ def infer_findings(report):
                               "not explained by the ShroudHessian apply record"),
         })
     auto_sources = report["logs"].get("source_files_from_auto_reimport_lines", [])
+    visibility = frame_visibility_findings(report.get("evaluated_frames", []), mats)
+    visibility["binding_resolution"] = report.get("ls_clams_binding_resolution")
+    binding = report.get("ls_clams_binding_resolution", {})
+    if binding.get("resolved_target_actor_count") != binding.get("target_actor_count"):
+        visibility["qualification"] = "UNCLEAR for unresolved actors: LS_Clams did not directly resolve every target binding in the editor world"
+    likely_causes = [
+        {
+            "cause": "surface response is too glossy/dark",
+            "exact_properties": [
+                "MaterialEditingLibrary.get_material_instance_scalar_parameter_value(MI, Roughness-like parameter)",
+                "MaterialEditingLibrary.get_material_instance_scalar_parameter_value(MI, Specular-like parameter)",
+                "Material master scalar defaults and base_properties.shading_model",
+            ],
+            "report_paths": ["shroud_materials.assigned_materials[].resolved_parameters.scalars",
+                             "shroud_materials.assigned_materials[].parent_chain[].master_defaults.scalars",
+                             "shroud_materials.assigned_materials[].base_properties.shading_model"],
+        },
+        {
+            "cause": "cloth/render mesh lacks the UV channel sampled by the material",
+            "exact_properties": [
+                "StaticMeshEditorSubsystem.get_num_uv_channels(asset, 0) where applicable",
+                "SkeletalMeshEditorSubsystem or EditorSkeletalMeshLibrary get_num_uv_channels(asset, 0) where exposed",
+                "MaterialExpressionTextureCoordinate.coordinate_index",
+            ],
+            "report_paths": ["actors[].head_cloth_uv_audit", "actors[].outfit_uv_audit",
+                             "shroud_materials.assigned_materials[].parent_chain[].master_defaults.texture_coordinates"],
+        },
+        {
+            "cause": "weave texture tiling/scale makes the texture effectively flat or unresolved",
+            "exact_properties": [
+                "MaterialExpressionTextureCoordinate.u_tiling/v_tiling/coordinate_index",
+                "resolved scalar parameters whose names contain Tiling, Tile, UV, Scale, or Weave",
+            ],
+            "report_paths": ["shroud_materials.assigned_materials[].parent_chain[].master_defaults.texture_coordinates",
+                             "shroud_materials.assigned_materials[].resolved_parameters.scalars"],
+        },
+        {
+            "cause": "texture color-space/compression is wrong for its role",
+            "exact_properties": ["Texture2D.compression_settings", "Texture2D.srgb", "Texture2D.flip_green_channel"],
+            "report_paths": ["shroud_materials.textures[].compression_settings", "shroud_materials.textures[].srgb",
+                             "shroud_materials.textures[].flip_green_channel"],
+        },
+        {
+            "cause": "opacity/translucency or two-sided material state is unexpected",
+            "exact_properties": ["Material.blend_mode", "Material.shading_model", "Material.two_sided",
+                                 "Material.opacity_mask_clip_value", "opacity/alpha/mask scalar and texture parameters"],
+            "report_paths": ["shroud_materials.assigned_materials[].base_properties",
+                             "shroud_materials.assigned_materials[].resolved_parameters"],
+        },
+    ]
     return {
         "shroud_black": {
             "tier": "inferred from measured assignment/asset/log evidence",
@@ -638,11 +1083,15 @@ def infer_findings(report):
             "proposed_fix_not_applied": "decide whether the tee should also match; if yes, make separate tee child MIs and target only shirt-role slots after rendered approval",
         },
         "feet_sunk": {
-            "tier": "measured current editor-pose bones and Ground B LOD0 raycasts; compared with recorded formula targets",
-            "sunk_figures": [{"label": label, "foot_minus_surface_cm": gap} for label, gap in gaps if gap < -2.5],
+            "tier": "measured Sequencer-evaluated foot bones and Ground B LOD0 downward raycasts; compared with recorded formula targets",
+            "sunk_figures": [{"frame": frame, "label": label, "foot_minus_surface_cm": gap}
+                             for frame, label, gap in gaps if gap < -2.5],
+            "sample_count": sum(frame.get("foot_sample_count", 0) for frame in report.get("evaluated_frames", [])),
             "root_cause": "the saved placement used a pose-specific root-to-foot offset/height formula; current editor-pose bone offsets and actual Ground B geometry do not necessarily match that approximation",
             "proposed_fix_not_applied": "recompute root Z from a chosen stable reference pose using actual Ground B triangle hits per foot, or add runtime foot IK; do not reuse a single source offset across changing poses",
         },
+        "evaluated_shroud_visibility": visibility,
+        "hessian_black_shiny_untextured_likely_causes": likely_causes,
         "source_content_popup": {
             "tier": "measured from current PussStage.log where lines exist; otherwise UNCLEAR",
             "source_file_count_from_matching_log_lines": len(auto_sources),
@@ -665,6 +1114,7 @@ def main():
 
     targets = [a for a in actors_before if figure_from_actor(a) is not None]
     targets.sort(key=lambda a: (str(a.get_actor_label()), full_path(a)))
+    figure_state_before = figure_state_census(targets)
     actor_rows = [actor_row(a) for a in targets]
     templates = [blueprint_templates(f) for f in FIGURES]
 
@@ -679,8 +1129,9 @@ def main():
     require(len(exact_b) == 1, "GROUND_B_COUNT|%d|candidates=%r" %
             (len(exact_b), [(str(a.get_actor_label()), p) for a, _c, p in ground_candidates]))
     ground_actor, ground_component, _ground_path = exact_b[0]
+    ground_mesh, ground_triangles = mesh_triangles(ground_component)
 
-    materials = material_audit()
+    materials = material_audit(actor_rows, templates)
     logs = log_audit()
     known_assets = {MASTER, CLAMS, _ground_path} | set(MATERIALS) | set(BP_PATHS.values())
     known_assets |= {row["path"] for row in materials["textures"] if row.get("path")}
@@ -688,47 +1139,83 @@ def main():
     known_assets |= {row.get("path") for row in p40.get("outfit_children", []) if row.get("path")}
     source_map = source_asset_map(logs.get("source_files_from_auto_reimport_lines", []), known_assets)
 
+    sequence = require(unreal.load_asset(CLAMS), "SEQUENCE_MISSING|" + CLAMS)
+    binding_resolution = sequence_binding_resolution(sequence, world, targets)
+    evaluated_frames = evaluate_sequence_frames(world, sequence, targets, ground_actor, ground_component,
+                                                ground_mesh, ground_triangles)
+    figure_state_after_evaluation = figure_state_census(targets)
+    require(figure_state_before == figure_state_after_evaluation,
+            "FIGURE_STATE_NOT_RESTORED|before=%s|after=%s" %
+            (figure_state_before["sha256"], figure_state_after_evaluation["sha256"]))
+
     report = {
-        "schema": "s3_visual_diag/1",
-        "request": "Gary read-only diagnosis 2026-10-09",
+        "schema": "s3_visual_diag/2",
+        "request": "Codex job 109, Gary read-only S3 figure diagnosis v2, 2026-10-09",
         "world": world_path,
-        "guardrails": {"pie_or_sie": False, "assets_saved": 0, "actors_spawned": 0,
-                       "sequencer_evaluated": False, "set_editor_property_calls": 0,
+        "guardrails": {"pie_or_sie": False, "assets_saved": 0, "persistent_actors_spawned": 0,
+                       "transient_sequence_actor_created_then_destroyed": True,
+                       "sequencer_evaluated": True, "evaluated_frames": list(EVALUATED_FRAMES),
+                       "set_editor_property_calls": 0,
                        "module_cache_purged_first": True, "purged_saved_modules": PURGED_MODULES},
         "census_before": {"dirty_packages": dirty_before, "actors": actor_before},
+        "figure_state_before": figure_state_before,
+        "figure_state_after_evaluation_restore": figure_state_after_evaluation,
         "actors": actor_rows,
         "blueprint_templates": templates,
         "ls_clams_bindings": sequence_crowd_labels(),
+        "ls_clams_binding_resolution": binding_resolution,
         "shroud_materials": materials,
         "job40": p40,
-        "feet": feet_audit(targets, ground_actor, ground_component),
+        "feet": feet_audit(targets, ground_actor, ground_component, ground_triangles, ground_mesh, None),
+        "evaluated_frames": evaluated_frames,
         "logs": logs,
         "source_asset_mapping": source_map,
         "evidence_notes": [
-            {"tier": "measured", "claim": "live editor instance/template/material/texture/outfit/bone and Ground B mesh data in this run"},
+            {"tier": "measured", "claim": "live editor instance/template/material/texture/outfit/bone and Ground B mesh data, including transient LS_Clams evaluation at frames 300 and 2400"},
             {"tier": "declaration-proven", "claim": "job 40 and s3_crowd_feet historical records state what their apply runs targeted"},
             {"tier": "inferred", "claim": "root causes combine current measurements with record intent; no rendered intervention was allowed"},
         ],
+    }
+    missing_foot_samples = [
+        {"frame": frame_row["frame"], "label": row.get("label"),
+         "bone_discovery": row.get("foot_bone_discovery"), "error": row.get("error")}
+        for frame_row in evaluated_frames for row in frame_row["feet"]["figures"]
+        if not row.get("foot_samples")
+    ]
+    report["foot_sample_coverage"] = {
+        "expected_actor_frames": len(targets) * len(EVALUATED_FRAMES),
+        "actor_frames_with_samples": len(targets) * len(EVALUATED_FRAMES) - len(missing_foot_samples),
+        "missing": missing_foot_samples,
     }
     report["findings"] = infer_findings(report)
 
     actors_after = list(unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor))
     dirty_after = census()
     actor_after = actor_census(actors_after)
+    figure_state_final = figure_state_census([a for a in actors_after if figure_from_actor(a) is not None])
     report["census_after"] = {"dirty_packages": dirty_after, "actors": actor_after}
     report["census_identical"] = {"dirty_packages": dirty_before == dirty_after,
-                                  "actors": actor_before == actor_after}
+                                  "actors": actor_before == actor_after,
+                                  "figure_state": figure_state_before == figure_state_final}
     require(dirty_before == dirty_after, "DIRTY_CENSUS_CHANGED|before=%r|after=%r" % (dirty_before, dirty_after))
     require(actor_before == actor_after, "ACTOR_CENSUS_CHANGED|before=%r|after=%r" % (actor_before, actor_after))
+    require(figure_state_before == figure_state_final,
+            "FIGURE_STATE_CENSUS_CHANGED|before=%s|after=%s" %
+            (figure_state_before["sha256"], figure_state_final["sha256"]))
     write_json(OUT, report)
-    unreal.log("S3_VISUAL_DIAG_SUCCESS|actors=%d|templates=%d|materials=%d|feet=%d|dirty_identical=1|actor_identical=1|output=%s" %
-               (len(actor_rows), len(templates), len(materials["instances"]), len(report["feet"]["figures"]), OUT))
+    require(not missing_foot_samples,
+            "FOOT_SAMPLE_COVERAGE|missing_actor_frames=%d|output=%s" % (len(missing_foot_samples), OUT))
+    foot_count = sum(frame["foot_sample_count"] for frame in evaluated_frames)
+    unreal.log("S3_VISUAL_DIAG_V2_SUCCESS|actors=%d|templates=%d|assigned_materials=%d|evaluated_frames=%s|foot_samples=%d|direct_bindings=%d/%d|dirty_identical=1|actor_identical=1|figure_state_identical=1|output=%s" %
+               (len(actor_rows), len(templates), len(materials["assigned_materials"]),
+                list(EVALUATED_FRAMES), foot_count, binding_resolution["resolved_target_actor_count"],
+                binding_resolution["target_actor_count"], OUT))
     return report
 
 
 try:
     main()
 except Exception as exc:
-    unreal.log_error("S3_VISUAL_DIAG_FAILED|%s|trace=%s" %
+    unreal.log_error("S3_VISUAL_DIAG_V2_FAILED|%s|trace=%s" %
                      (str(exc).replace("\n", " "), traceback.format_exc().replace("\n", "\\n")))
     raise
