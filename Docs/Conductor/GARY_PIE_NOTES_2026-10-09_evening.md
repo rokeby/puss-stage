@@ -54,3 +54,4 @@
   - **P04**: hide the smoke-machine object near the final wing → job 127.
   - **P05**: every LEFT wing is offset 20 cm on its LOCAL X relative to the right, so the two don't overlap → job 128.
   - **Shadow radii (E29)**: run overnight: the job 111 DRY survey, then the raise-only APPLY, then the perf check; auto-REVERT if frame time regresses beyond the gate.
+  - **P02 floor is NOT reflective** (the dark-wet MI was applied 9 Oct). Same symptom as S2 → job 129: compare with the P01 floor, then the job-119-style P01 floor copy for P02.
