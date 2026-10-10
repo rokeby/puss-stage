@@ -80,3 +80,17 @@ Earlier on 10 Oct: S4 blackout, pearl fade, S3 arrival and garments, P04 smoke p
   Look at every still yourself.
 - **Before a live run, check each tool's UE 5.8 API calls** against proven working tools. Most capped attempts today were API trivia: `DateTime.now`, `get_root_component`, `is_child_of`, focal-length tracks.
 - **Gary's location words are exact** (P0n vs S0n). Record each instruction in the notes with his words.
+
+## Metamall test tonight (Gary, 10 Oct late)
+- Metamall needs two things:
+  1. A **~3 min UBT build** with EVERY Unreal editor closed (the build gate is machine-wide).
+  2. Then its **~3 h soak**, with the GPU to itself: no Puss editor or PIE running.
+- Order:
+  1. Let Codex job 184 finish.
+  2. Confirm the Puss census is clean (`pie=false`).
+  3. Close the Puss editor with Don't-Save (Stop-Process, then rename `PackageRestoreData.json`).
+  4. Metamall builds.
+  5. The Metamall soak runs.
+  6. Reopen Puss only after the soak.
+- If Puss filming happens tonight, it goes BEFORE the Metamall soak (Gary's earlier order).
+- Reply to the Metamall session with the actual times, via its message pipe `cc-msg-c5492486b5ce5635724c47b7053752bf`.
