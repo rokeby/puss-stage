@@ -597,3 +597,100 @@
 ### Pass 11 terminal STOP reason
 
 **Measured:** P75 opening APPLY `P75CHAN-20261010-033246` crossed its mutation boundary after writing a prepared record and spawning owned actors/lights, then failed on missing UE 5.8 `MovieSceneFloatSection.get_channels` before any targeted save and without `P75_CHANDELIER_APPLY_OK`. Per the Pass-11 rule, no subsequent Unreal/MCP call was issued; this job did not quit or restart the editor.
+
+## Pass 12
+
+### Outcome and terminal boundary
+
+- **Measured:** Pass 12 opened after the conductor's Don't-Save restart with PIE/SIE off and zero dirty content/map packages (`Saved/Logs/PussStage.log:2841,2857`). The stale Pass-11 P75 ACTIVE record had already been retired by the conductor; Pass 12 did not delete it.
+- **Measured:** Job 111 DRY `SRR-20261010-034009` completed with 381 shadow casters, 310 raise-only candidates, zero Sequencer-keyed radius changes and 362 report-only fog flags (`Saved/Logs/PussStage.log:2872`; `Saved/CodexConductor/shadow_radius_reach_report_DRY_SRR-20261010-034009.json:54,107-110`).
+- **Measured:** inside a PIE started and ended by this pass, three 20-second before samples at Passage 1/3/6 +10 s measured p95 frame times of 40.67, 42.43 and 40.55 ms respectively (`Saved/Logs/PussStage.log:3027-3028,3054-3055,3094-3095`). The owned PIE ended with a clean census and PIE off (`Saved/Logs/PussStage.log:3140`).
+- **Measured:** Job 111 APPLY `SRR-20261010-034334` refused before its own mutation because loading its backup helper executed `lighting_looks_apply.py`, whose unrelated active-revert-record guard raised `ACTIVE_REVERT_RECORD_EXISTS`. Its marker says `saved=0|NOTHING SAVED`, and the independent post-refusal census was clean with PIE off (`Saved/Logs/PussStage.log:3153,3182`). **Declaration-proven:** no after sample or auto-REVERT decision exists because no radius change was applied.
+- **Measured:** Job 144 I2 inventory DRY `J144-20261010-034352` was read-only/clean and found 7,030 actors plus two existing card bindings, `Sleight Hangar Shadow Card` and `Sleight Mouth Shadow Card` (`Saved/Logs/PussStage.log:3194`; `Saved/CodexConductor/Job144InteractionHangar_20261010/job144_dry_I2_J144-20261010-034352.json:83791-83792`). After review, the approved source was limited to the Hangar card and the hide set excluded walls, floors, roof/lattice, roots, cameras, curtains and shadow rigs.
+- **Measured:** the reviewed I2 DRY `J144-20261010-034524` then refused before mutation on the existing visibility track for `S2 Ghost Light` / `PointLight_75`; the independent census remained clean with PIE off (`Saved/Logs/PussStage.log:3206,3232`). **Declaration-proven:** I2 was not applied and I3 was skipped because the requested I3 setup reuses I2's gobo/puppet result. No Job-144 still was taken.
+- **Measured:** StageFront3D MATERIAL DRY `SF3DI-20261010-034553` found the exact five expected texture parameters on existing parent `/Game/Scenes/Props/Chandelier/M_AgedMaskedMetal_CreateOnly`, selected Dusty inputs for `arch`, made no mutation and reported `dirty=0` (`Saved/Logs/PussStage.log:3244-3246`).
+- **Measured / terminal stop:** `arch` MATERIAL run `SF3DI-20261010-034601` created `MI_StageFront_Arch`, assigned it to `SM_StageFront_Arch`, and saved those two targets, then failed its post-save clean-census assertion with `DIRTY_AFTER_SAVE`; no `STAGEFRONT3D_MATERIAL_OK` exists (`Saved/Logs/PussStage.log:3258,3278`; save/control-flow boundary `Saved/CodexConductor/StageFront3D_20261010/stage_front_3d_import.py:296-320`). The two asset timestamps are 03:46:03 local, but the durable record remains `state="imported"`, `materials={}`, with pending run `SF3DI-20261010-034601` (`Saved/CodexConductor/StageFront3D_20261010/stage_front_3d_import_record.json:648-656`). Therefore saved material state and the live dirty census are **UNCLEAR** and require the conductor's prescribed Don't-Save recovery/reconciliation.
+- **Declaration-proven:** after the StageFront3D post-mutation/no-OK failure, the remaining wall/gilt/crest/column/cat MATERIAL calls, PLACE DRY/APPLY/VERIFY, Iron3, opening-wide still, P75 ADOPT_OR_CLEAN/staging, P56 candles, P52 swing, chandelier stills, Ending 101 and the P06 dusk still were not run. Fringe, P02 floor 152, 87, 90b, 99/126, 127 and `LS_Nap_BatteryChange` were not run anywhere in Pass 12. No Save All, editor quit/restart, Klara-level save or permanent deletion was issued.
+
+### Pass 12 result table
+
+| item | target | run id | APPLY marker | census | still path | visual verdict |
+|---|---|---|---|---|---|---|
+| 1 | Job 111 P01-P06 shadow radii plus three-spot p95 gate | DRY `SRR-20261010-034009`; APPLY refusal `SRR-20261010-034334`; before probes `FT-20261010-034112`, `FT-20261010-034153`, `FT-20261010-034239` | **Measured:** none; APPLY refused before mutation with `saved=0|NOTHING SAVED` | **Measured:** clean after refusal, PIE off | none | not applied; before p95 only, so no performance verdict or visual acceptance |
+| 2a | Job 144 I2 back-wall interaction | inventory DRY `J144-20261010-034352`; reviewed DRY `J144-20261010-034524` | **Measured:** none; reviewed DRY failed on existing visibility-track conflict | **Measured:** clean, PIE off after failure | none | **Declaration-proven: VISUAL NOT CAPTURED** |
+| 2b | Job 144 I3 reusing I2 gobo/puppet | - | **Declaration-proven:** not run after dependent I2 DRY failure | not re-probed | none | not run |
+| 3a | StageFront3D MATERIAL, `arch` using Dusty maps and existing aged-metal parent | DRY `SF3DI-20261010-034553`; MATERIAL `SF3DI-20261010-034601` | **Measured:** none; MATERIAL failed after target saves at `DIRTY_AFTER_SAVE` | **UNCLEAR:** terminal rule prohibited a post-failure Unreal call | none | **Declaration-proven: VISUAL NOT CAPTURED** |
+| 3b | StageFront3D wall/gilt/crest/column/cat, PLACE/VERIFY, Iron3 and opening wide | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+| 4 | P75 ADOPT_OR_CLEAN, opening/P06 staging, P56 candles, P52 swing | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+| 5 | Ending 101 | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+| 6 | P06 dusk still | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+
+### Pass 12 files, saves and recovery boundary
+
+- **Measured:** evidence written before the stop includes the Job-111 DRY JSON/CSV, three frame-time probe JSONs, the Job-144 I2 inventory DRY report, and the StageFront3D `arch` safety backup at `Backups/PreStageFront3DMaterial-SF3DI-20261010-034601/` (`Saved/CodexConductor/StageFront3D_20261010/stage_front_3d_import_record.json:649-653`).
+- **Measured:** `Content/Scenes/Props/StageFront3D/Materials/Instances/MI_StageFront_Arch.uasset` and `Content/Scenes/Props/StageFront3D/Meshes/SM_StageFront_Arch.uasset` both received 03:46:03 local filesystem timestamps. **Declaration-proven:** the tool saved exactly those target paths before checking the whole-editor census (`Saved/CodexConductor/StageFront3D_20261010/stage_front_3d_import.py:290-313`), but its record-commit and success marker occur later (`:314-320`) and were not reached.
+- **Measured:** Job-111, Job-144, StageFront3D, PIE-goto and frame-probe args were restored to their pre-pass DRY/default forms by filesystem edit. Pass 12 added `Saved/CodexConductor/job153_shadow_radius_request.json` solely as the current guarded MCP envelope for the shipped legacy Job-111 request shape; no live tool source was patched.
+- **Inferred / recovery guidance:** perform the prescribed Don't-Save editor restart before another live call, preserve the StageFront backup and pending record, then reconcile whether the saved Arch MI/mesh should be adopted or reverted. Diagnose which package remained dirty after the two target saves; do not broaden the save to Save All.
+
+### Pass 12 terminal STOP reason
+
+**Measured:** StageFront3D MATERIAL `SF3DI-20261010-034601` mutated and saved the Arch MI/mesh, then failed the whole-editor clean-census gate without `STAGEFRONT3D_MATERIAL_OK`. Per the Pass-12 rule, no further Unreal/MCP call was issued; this job did not quit or restart the editor.
+
+## Pass 13
+
+### Outcome and terminal boundary
+
+- **Measured:** after the freshly launched editor settled, the opening census was clean with PIE off: `content=[]`, `maps=[]`, `pie=false` (`Saved/Logs/PussStage.log:2856`). The Saved-module cache was purged before the floor DRY and APPLY (`Saved/Logs/PussStage.log:2862,2878`).
+- **Measured:** P02 floor DRY `J129P02P01-20261010-044458` completed with four target actors, four route segments, zero bindings/blockers/unclear rows and plan SHA `681e5ff2...d5414`; its before/after censuses were clean (`Saved/Logs/PussStage.log:2871`; `Saved/CodexConductor/J119S2P01FloorReplace_20261009/j129_p02_dry_J129P02P01-20261010-044458.json:1-13`). **Declaration-proven:** the plan uses the live Passage 02 root for composition and requires the inferred-texel-density acknowledgement (`Saved/CodexConductor/J119S2P01FloorReplace_20261009/j129_p02_dry_J129P02P01-20261010-044458.json:21-39,638-641`).
+- **Measured / terminal stop:** APPLY `J129P02P01-20261010-044517` duplicated, labelled and transformed the first replacement actor, recorded it, then failed its first in-memory duplicate snapshot because `_snapshot(..., component_world=True)` rejected the expected `-43.572498...` yaw as `UNSUPPORTED_SOURCE_COMPONENT_ROTATION`; no `J129_P02_P01_FLOOR_REPLACE_APPLY_OK` exists (`Saved/Logs/PussStage.log:2884-2896`; mutation/read-back boundary `Saved/CodexConductor/J119S2P01FloorReplace_20261009/j119_s2_p01_floor_replace.py:883-904`). The durable record is `state="applying"`, `applied=false`, contains one owned actor and no shifted old-floor components (`Saved/CodexConductor/J119S2P01FloorReplace_20261009/j129_p02_p01_floor_replace_record.json:2-34,669-671`).
+- **Declaration-proven:** the failure occurred before the old P02 components are shifted, before Passage 02 materialization, and before the targeted level save (`Saved/CodexConductor/J119S2P01FloorReplace_20261009/j119_s2_p01_floor_replace.py:908-925,937-966`). Therefore no authoring package was saved by Pass 13, but the live editor contains one uncommitted replacement actor and its current dirty census is **UNCLEAR** because the stop rule forbids another editor call.
+- **Declaration-proven:** because this was a mutation without APPLY_OK, Pass 13 stopped immediately. Shadow radii, StageFront3D, the P75/P56/P52 chandelier chain, Ending 101 and the P06 dusk still were not run. No PIE was started, so none was ended. Fringe, Job 144, 87, 90b, 99/126, 127 and `LS_Nap_BatteryChange` were not run. No Save All, editor quit/restart, Klara-level save or permanent deletion was issued.
+
+### Pass 13 result table
+
+| item | target | run id | APPLY marker | census | still path | visual verdict |
+|---|---|---|---|---|---|---|
+| 1 | J119/J129 P02 floor = P01 floor | DRY `J129P02P01-20261010-044458`; APPLY `J129P02P01-20261010-044517` | **Measured:** none; failed after the first replacement actor was created and recorded | **Measured:** clean after DRY; **UNCLEAR after APPLY failure** because no post-mutation editor call was permitted | none | **Declaration-proven: VISUAL NOT CAPTURED;** owned PIE was never started |
+| 2 | Job 111 P01-P06 shadow radii + performance gate | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+| 3 | StageFront3D wall/gilt/crest/column/cat MATERIAL, PLACE/VERIFY, Iron3 and opening wide | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+| 4 | P75 ADOPT_OR_CLEAN, opening/P06 staging, P56 candles, P52 swing | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+| 5 | Ending 101 | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+| 6 | P06 dusk still | - | **Declaration-proven:** not run after terminal stop | not re-probed | none | not run |
+
+### Pass 13 files, saves and recovery boundary
+
+- **Measured:** evidence created by the stopped floor item is `Saved/CodexConductor/J119S2P01FloorReplace_20261009/j129_p02_dry_J129P02P01-20261010-044458.json`, `Saved/CodexConductor/J119S2P01FloorReplace_20261009/j129_p02_p01_floor_replace_record.json`, `Backups/PreJ129P02P01Floor-J129P02P01-20261010-044517/` and the appended `Saved/Logs/PussStage.log`.
+- **Measured:** the floor args were restored by filesystem edit to their pre-pass DRY form: blank plan digest and both acknowledgements false (`Saved/CodexConductor/J119S2P01FloorReplace_20261009/j119_s2_p01_floor_replace_args.json:1-10`).
+- **Declaration-proven:** Pass 13 saved no Unreal package and captured no still. The conductor should preserve the record and backup and perform the prescribed Don't-Save recovery before another live call; this pass intentionally did not quit or restart the editor.
+
+### Pass 13 terminal STOP reason
+
+**Measured:** P02 floor APPLY `J129P02P01-20261010-044517` created one replacement actor and then failed before its in-memory Z/footprint verification completed, with no APPLY_OK. Per the explicit Pass-13 rule, the pass stopped immediately and made no later Unreal/MCP/PIE call (`Saved/Logs/PussStage.log:2884-2896`).
+
+## Pass 14
+
+### Outcome and terminal boundary
+
+- **Declaration-proven:** Pass 12's Job-111 refusal is not repairable by changing the shadow args from its DRY output. The refused APPLY already carried the exact confirm string and `expected_changes=310` (`Saved/CodexConductor/shadow_radius_reach_report_APPLY_SRR-20261010-034334.json:4-6`). The shadow tool instead imports `lighting_looks_apply.py` solely to obtain its backup helper (`Saved/CodexConductor/shadow_radius_reach.py:283-288`); that imported module unconditionally runs `main()` when Unreal is present (`Saved/CodexConductor/lighting_looks_apply.py:2259-2267`), and a live lighting-looks revert record still exists (`Saved/CodexConductor/lighting_looks_revert_record.json:1-9`). Therefore no args-only correction can bypass `ACTIVE_REVERT_RECORD_EXISTS` without changing tool code or the unrelated record. Pass 14 did not re-run Job 111, did not patch tool source, and did not take an after-performance sample.
+- **Measured:** after the conductor's clean Don't-Save restart, the live log reported `content=[]`, `maps=[]`, `pie=false` (`Saved/Logs/PussStage.log:2830-2841`). Before StageFront3D MATERIAL could begin, the editor logged a D3D12 device reset / removal while rendering frame 3150 (`Saved/Logs/PussStage.log:2847-2889`). The process retained a listening socket but stopped servicing MCP initialization; a second read-only census request timed out and produced no Unreal log marker. No mutation tool had started.
+- **Declaration-proven:** because the existing editor could no longer service the guarded MCP route and this job is forbidden to quit or restart it, StageFront3D wall/gilt/crest/column/cat MATERIAL, PLACE DRY/APPLY/VERIFY, Iron3, every still, the P75/P56/P52 chandelier chain, Ending 101 and the P06 dusk still were not run. This was an external pre-mutation transport/render failure, not a mutation-without-APPLY_OK stop.
+- **Declaration-proven:** the P02 floor (job 156), fringe, Job 144, 87, 90b, 99/126, 127 and `LS_Nap_BatteryChange` were not run. No Save All, package save, editor quit/restart, permanent deletion or Klara-level save was issued. This pass started no PIE and therefore ended no PIE.
+
+### Pass 14 result table
+
+| item | target | run id | APPLY marker | census | still path | visual verdict |
+|---|---|---|---|---|---|---|
+| 1 | Job 111 P01-P06 shadow radii plus three-spot p95 gate | prior DRY `SRR-20261010-034009`; prior refusal `SRR-20261010-034334` | **Declaration-proven:** none; prior refusal is caused by helper import side effects, while its args already contain the exact confirm and 310 expected changes | **Measured:** clean before the editor GPU failure | none | not applied; no after sample, perf verdict or visual acceptance |
+| 2 | StageFront3D wall/gilt/crest/column/cat MATERIAL, PLACE/VERIFY, Iron3 and opening wide | - | **Declaration-proven:** not run; editor became unavailable before the first MATERIAL call | **Measured:** last live census was clean; post-GPU-failure census unavailable because MCP stopped responding | none | **Declaration-proven: VISUAL NOT CAPTURED** |
+| 3 | P75 ADOPT_OR_CLEAN, opening/P06 staging, P56 candles, P52 swing | - | **Declaration-proven:** not run | not re-probed | none | not run |
+| 4 | Ending 101 | - | **Declaration-proven:** not run | not re-probed | none | not run |
+| 5 | P06 dusk | - | **Declaration-proven:** no mutation requested; still not run | not re-probed | none | **Declaration-proven: VISUAL NOT CAPTURED** |
+
+### Pass 14 files, saves and recovery boundary
+
+- **Measured:** Pass 14 changed only this report. Shadow, StageFront3D, P75/P56/P52, Ending and PassageStills args remained in their pre-pass forms. No Unreal package or still was written.
+- **Inferred / recovery guidance:** the conductor must recover or restart the editor under its own authority before another live pass. After recovery, require a fresh clean census and PIE-off read-back before resuming at StageFront3D MATERIAL `wall`; preserve the already saved Arch MI/mesh and do not re-run Arch MATERIAL.
+
+### Pass 14 terminal condition
+
+**Measured:** no mutation boundary was crossed. Pass 14 could not continue after the editor's D3D12 device removal left the guarded MCP listener non-responsive (`Saved/Logs/PussStage.log:2847-2889`). In accordance with the no-quit/no-restart rule, this job did not attempt editor recovery.

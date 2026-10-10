@@ -44,7 +44,21 @@ Verdicts on stills are by the conductor's eye. "Applied" means saved and read ba
 - **Fringe**: held after two failures.
 - **Shadow-cat build**: v2 and v3 both failed to compile, so both were reverted and the editor rebuilt clean. It needs a compile-fix round with Gary around.
 
-**Machine:** the editor is closed after a clean build. Metamall has the build window, then its ~3 h slot.
+**Machine (end of night):**
+- Metamall's build + slot are done (slot ended 04:37).
+- Then **the GPU device was REMOVED** (`DXGI_ERROR_DEVICE_REMOVED`) during pass 14, before any mutation. The editor was hung and is now CLOSED, with nothing saved.
+- Last time (8 Oct) a GPU loss needed a **REBOOT**. **Please reboot before opening Unreal.** If it happens again, the 8 Oct runbook points at the volumetric fog plus heavy relights: P02's new lighting is the prime suspect (haze + over budget).
+
+**Ready for the next slot, in order:**
+1. Shadow radii: the APPLY refusal comes from a helper's import side effect, not the args, so it needs a small fix.
+2. The 3D stage front: resume at MATERIAL `wall` (Arch is done), then gilt, crest, column, cat, PLACE, then the wide opening still. After that, job 87 is re-planned against the new stage.
+3. The P75 chandelier chain.
+4. Ending 101.
+5. A P06 dusk still.
+6. The P02 floor (job 156: yawed curved-route segments, and its DRY now runs the APPLY check).
+7. I2/I3 back wall (job 144): an I2 visibility-track conflict, which needs your eye.
+8. Fringe (held).
+9. Shadow-cat build: v2/v3 compile errors; needs a fix round.
 
 ## Still in the queue (as of writing)
 - **Pass 9:**
