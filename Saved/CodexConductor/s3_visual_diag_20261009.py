@@ -1150,11 +1150,13 @@ def main():
 
     sequence = require(unreal.load_asset(CLAMS), "SEQUENCE_MISSING|" + CLAMS)
     binding_resolution = sequence_binding_resolution(sequence, world, targets)
-    evaluated_frames = evaluate_sequence_frames(world, sequence, targets, ground_actor, ground_component,
-                                                ground_mesh, ground_triangles)
+    # 10 Oct live: transient LS_Clams evaluation could NOT restore the figures in UE 5.8 (FIGURE_STATE_NOT_RESTORED,
+    # restore_state not settable), so it needs a Don't-Save restart. Read the CURRENT level pose only (no Sequencer).
+    evaluated_frames = [evaluated_figure_rows(targets, -1, ground_actor, ground_component, ground_mesh, ground_triangles)]
+    evaluated_frames[0]["tier"] = "measured at the CURRENT level pose (no Sequencer evaluation); frame=-1"
     figure_state_after_evaluation = figure_state_census(targets)
     require(figure_state_before == figure_state_after_evaluation,
-            "FIGURE_STATE_NOT_RESTORED|before=%s|after=%s" %
+            "FIGURE_STATE_CHANGED|before=%s|after=%s" %
             (figure_state_before["sha256"], figure_state_after_evaluation["sha256"]))
 
     report = {
@@ -1163,7 +1165,7 @@ def main():
         "world": world_path,
         "guardrails": {"pie_or_sie": False, "assets_saved": 0, "persistent_actors_spawned": 0,
                        "transient_sequence_actor_created_then_destroyed": True,
-                       "sequencer_evaluated": True, "evaluated_frames": list(EVALUATED_FRAMES),
+                       "sequencer_evaluated": False, "evaluated_frames": [-1],
                        "set_editor_property_calls": 0,
                        "module_cache_purged_first": True, "purged_saved_modules": PURGED_MODULES},
         "census_before": {"dirty_packages": dirty_before, "actors": actor_before},
