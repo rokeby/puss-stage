@@ -238,7 +238,7 @@ def apply(run, args, world):
         record["visibility"].append({"path": row["path"], "binding_guid": _guid(binding),
                                      "track_index": list(binding.get_tracks()).index(track), "created_binding": created})
         _write(RECORD, record)
-    fade = master.add_master_track(unreal.MovieSceneFadeTrack)
+    fade = master.add_track(unreal.MovieSceneFadeTrack)  # UE 5.8: add_master_track removed (live 10 Oct); add_track per SequenceExtensions.h
     section = fade.add_section(); section.set_range(*plan["window"]["fade_section_range"])
     section.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
     channel = list(section.get_all_channels())[0]
@@ -278,7 +278,7 @@ def revert(run, args, world):
             if list(binding.get_tracks()) or list(binding.get_child_possessables()):
                 raise RuntimeError("CREATED_BINDING_NOT_EMPTY|NOTHING_SAVED_DONT_SAVE_RESTART")
             binding.remove()
-    master.remove_master_track(list(master.get_tracks())[record["fade"]["track_index"]])
+    master.remove_track(list(master.get_tracks())[record["fade"]["track_index"]])
     errors = _verify_reverted(master, record)
     if errors:
         raise RuntimeError("REVERT_PRE_SAVE_READBACK|%s|NOTHING_SAVED_DONT_SAVE_RESTART" % errors)

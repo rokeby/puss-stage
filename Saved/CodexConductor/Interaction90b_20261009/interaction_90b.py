@@ -565,7 +565,7 @@ class UnrealBackend(object):
     def _add_fade(self, seq, keys):
         existing = [t for t in seq.get_tracks() if t.get_class().get_name() == "MovieSceneFadeTrack"]
         if existing: raise Stop("I3_FADE_TRACK_EXISTS")
-        track = seq.add_master_track(self.u.MovieSceneFadeTrack)
+        track = seq.add_track(self.u.MovieSceneFadeTrack)  # UE 5.8: add_master_track removed
         section = track.add_section(); section.set_range(seq.get_playback_start(), seq.get_playback_end())
         channel = list(section.get_all_channels())[0]
         self._rewrite(channel, keys)
@@ -706,7 +706,7 @@ class UnrealBackend(object):
         for fade in reversed(record.get("fades", [])):
             seq = self.u.load_asset(fade["package"]); tracks = list(seq.get_tracks()); idx = fade["track_index"]
             if idx >= len(tracks) or tracks[idx].get_class().get_name() != "MovieSceneFadeTrack": raise Stop("REVERT_FADE_DRIFT")
-            seq.remove_master_track(tracks[idx])
+            seq.remove_track(tracks[idx])
         # F17-style fix tracks are deliberately required to be the last track on their binding.
         for row in reversed(record["fixes"]):
             seq = self.u.load_asset(SEQS[int(row["step"]["interaction"])]); matches = [b for b in seq.get_bindings() if guid_text(b.get_id()) == row["binding_guid"]]
