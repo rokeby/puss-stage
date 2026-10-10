@@ -103,3 +103,15 @@ Verdicts on stills are by the conductor's eye. "Applied" means saved and read ba
 7. I2/I3 back wall (SAFE_SKIP).
 8. Fringe.
 9. Stills: P06 dusk, S2 from outside, P05 wings.
+
+## GPU diagnosis (10 Oct ~11:45 local)
+- **Measured:** the RTX 5070 Ti on driver 610.88 is healthy at idle (33 °C, no throttle, 1.3/16 GB).
+- **04:49 was a real Windows TDR**: event 4101, nvlddmkm recovered.
+- **11:34 was only Unreal's 5 s GPU-timeout WARNING**, on frame 7 after launch. There was no Windows reset.
+- **Inferred cause of both:** heavy first frames (distance fields, Lumen, skinning, plus the new 2M-tri Nanite stage-front pieces).
+- **Lever 1**: the job 166 safe editor launcher (opt-in, resets the settings in PIE).
+- **Lever 2 (GARY, LATER):** raise the Windows TDR timeout. In an Administrator PowerShell:
+  - Set: `New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers' -Name TdrDelay -PropertyType DWord -Value 10 -Force`
+  - Then reboot.
+  - Undo: `Remove-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers' -Name TdrDelay`
+  - It is a system setting, so Claude cannot change it.
