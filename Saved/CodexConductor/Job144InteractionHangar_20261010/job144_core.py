@@ -23,6 +23,7 @@ DEFAULTS = {
     "curtain_width_cm": 480.0,
     "curtain_height_cm": 270.0,
     "curtain_frame_margin_cm": 20.0,
+    "shadow_card_gap_cm": 2.0,
     "camera_focal_mm": 35.0,
     "camera_sensor_width_mm": 23.76,
     "camera_distance_override_cm": None,
@@ -78,7 +79,7 @@ def merged_params(raw):
         if out[key] < 1:
             raise PlanError("POSITIVE_FRAME_VALUE|%s" % key)
     for key in ("curtain_wall_gap_cm", "curtain_width_cm", "curtain_height_cm",
-                "curtain_frame_margin_cm", "camera_focal_mm", "camera_sensor_width_mm",
+                "curtain_frame_margin_cm", "shadow_card_gap_cm", "camera_focal_mm", "camera_sensor_width_mm",
                 "spot_throw_cm", "spot_rear_min_clearance_cm", "spot_elevation_deg",
                 "spot_intensity_cd", "spot_kelvin", "spot_attenuation_radius_cm",
                 "spot_outer_cone_deg", "spot_inner_cone_deg", "spot_source_radius_cm"):
@@ -328,6 +329,32 @@ def make_plan(snapshot, params):
     if not params["approved_shadow_source_labels"]:
         warnings.append("SHADOW_SOURCE_NOT_APPROVED|review puppet_bindings; this staging tool does not invent a performance")
 
+    # Job 173 proved that merely approving a card label is insufficient: both
+    # cards were still keyed not to spawn and retained their old-stage pose.
+    # Make the approved source an explicit, reversible part of this plan.
+    binding_by_name = {canonical_name(row["name"]): row for row in snapshot["bindings"]}
+    source_loc = _add(centre, forward, -params["shadow_card_gap_cm"])
+    source_pose = {"Location.X": source_loc[0], "Location.Y": source_loc[1], "Location.Z": source_loc[2],
+                   "Rotation.X": curtain["roll"], "Rotation.Y": curtain["pitch"],
+                   "Rotation.Z": curtain["yaw"]}
+    shadow_sources = []
+    for label in params["approved_shadow_source_labels"]:
+        binding = binding_by_name.get(canonical_name(label))
+        if binding is None:
+            raise PlanError("SHADOW_SOURCE_BINDING_MISSING|%s" % label)
+        if not binding.get("spawnable"):
+            raise PlanError("SHADOW_SOURCE_NOT_SPAWNABLE|%s" % label)
+        spawn_tracks = [track for track in binding.get("tracks", [])
+                        if track.get("class") == "MovieSceneSpawnTrack"]
+        transform_tracks = [track for track in binding.get("tracks", [])
+                            if track.get("class") == "MovieScene3DTransformTrack"]
+        if len(spawn_tracks) != 1 or len(spawn_tracks[0].get("sections", [])) != 1:
+            raise PlanError("SHADOW_SOURCE_SPAWN_TRACK|%s" % label)
+        if len(transform_tracks) != 1 or len(transform_tracks[0].get("sections", [])) != 1:
+            raise PlanError("SHADOW_SOURCE_TRANSFORM_TRACK|%s" % label)
+        shadow_sources.append({"label": label, "guid": binding["guid"], "pose": copy.deepcopy(source_pose),
+                               "spawn_keys": [[max(start, reveal - 25), True], [sleight + 1, False]]})
+
     inventory = inventory_plan(snapshot["actors"], params)
     existing_by_guid = {row["guid"]: row for row in snapshot["bindings"]}
     visibility_actors = []
@@ -374,6 +401,11 @@ def make_plan(snapshot, params):
             action_row["visibility_action"] = "CREATE_TRACK"
         visibility_actors.append(action_row)
     cuts = validate_cuts(snapshot["cuts"], snapshot["bindings"], snapshot["world_labels"])
+    shadow_frame = (reveal + shadow_end) // 2
+    shadow_cuts = [row for row in cuts
+                   if int(row["range"][0]) <= shadow_frame < int(row["range"][1])]
+    if len(shadow_cuts) != 1:
+        raise PlanError("SHADOW_CAMERA_CUT_COUNT|frame=%d|count=%d" % (shadow_frame, len(shadow_cuts)))
     if inventory["approved_hide"] and params["approved_inventory_digest"] != inventory["digest"]:
         raise PlanError("INVENTORY_DIGEST_NOT_APPROVED|%s" % inventory["digest"])
 
@@ -402,8 +434,10 @@ def make_plan(snapshot, params):
                        "conflicts": visibility_conflicts,
                        "skipped": [row for row in visibility_conflicts
                                    if row["action"] == "SKIP_ACTOR_AND_REPORT"]},
-        "inventory": inventory, "cut_resolution": cuts, "puppet_bindings": snapshot["puppet_bindings"],
+        "inventory": inventory, "cut_resolution": cuts, "shadow_frame": shadow_frame,
+        "shadow_camera": shadow_cuts[0], "puppet_bindings": snapshot["puppet_bindings"],
         "approved_shadow_sources": params["approved_shadow_source_labels"],
+        "shadow_sources": shadow_sources,
         "existing_tools": snapshot.get("existing_tools", {}), "warnings": warnings, "params": params,
         "save_packages": sorted([snapshot["sequence"], snapshot["scene_wrapper"]]),
     }

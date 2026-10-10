@@ -1,6 +1,7 @@
 """Pure-Python positive and required negative controls for job 56."""
 from __future__ import annotations
 
+import os
 import sys
 
 from p56_chandelier_candles import (
@@ -78,6 +79,17 @@ def main():
     failures += negative("non-chandelier actor", lambda: validate_args({
         "mode": "DRY", "actor_label": "SM_Table", "socket_json": "sockets.json"}))
     failures += negative("APPLY without confirm", lambda: validate_args(args("APPLY")))
+
+    source = open(os.path.join(os.path.dirname(__file__), "p56_chandelier_candles.py"),
+                  "r", encoding="utf-8").read()
+    if ('get_editor_property("parent_class")' in source
+            and "isinstance(cdo, source_class)" not in source
+            and ".is_child_of(source_class)" not in source
+            and "actor.get_root_component()" not in source):
+        positive += 1
+        print("PASS positive UE5.8 parent/root API contract")
+    else:
+        failures += 1
 
     if failures == 0:
         print("P56_CHANDELIER_HARNESS_OK|positive=%d|negative=4" % positive)

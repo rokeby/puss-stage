@@ -47,7 +47,7 @@ def actor(label, candidate=True, path=None, tags=None, binding_guids=None):
 
 
 def snap(n=2):
-    cam = "S%d Sleight Hangar Camera" % n
+    cam = "I2 Hangar Hold Camera" if n == 2 else "S3 Sleight Hangar Camera"
     mouth = "I%d Sleight Mouth Camera" % n
     actors = [actor("Shrine Prop" if n == 2 else "Shore Figure"),
               actor("S%d Hangar Back Wall" % n, False), actor("S%d Hangar Root" % n, False)]
@@ -65,7 +65,10 @@ def snap(n=2):
             "curtain_pose": {"loc": [5600, 0, 0], "roll": 0, "pitch": 0, "yaw": 0},
             "actors": actors, "world_labels": [cam, mouth] + [r["label"] for r in actors],
             "bindings": [{"guid": "A", "name": cam, "spawnable": False},
-                         {"guid": "B", "name": mouth, "spawnable": False}],
+                         {"guid": "B", "name": mouth, "spawnable": False},
+                         {"guid": "C", "name": "Shadow Cat", "spawnable": True,
+                          "tracks": [{"class": "MovieSceneSpawnTrack", "sections": [{}]},
+                                     {"class": "MovieScene3DTransformTrack", "sections": [{}]}]}],
             "cuts": [{"guid": "A", "range": [0, 1250], "active": True},
                      {"guid": "B", "range": [1250, 2226], "active": True}],
             "fade_tracks": {"interaction": 0, "scene": 0},
@@ -109,6 +112,11 @@ check("+ hidden false", lambda: C.visibility_keys(0, 20)[0][1], False)
 check("+ restored true", lambda: C.visibility_keys(0, 20)[-1], [20, True])
 check("+ spot off at sleight", lambda: planned(2)["spot"]["intensity_keys"][-1], [1250, 0.0])
 check("+ existing puppet census", lambda: planned(2)["puppet_bindings"], ["Shadow Cat", "Boy Gobo"])
+check("+ active I2 cut camera", lambda: planned(2)["shadow_camera"]["binding"], "I2 Hangar Hold Camera")
+check("+ approved card is spawned", lambda: planned(2)["shadow_sources"][0]["spawn_keys"][0][1], True)
+check("+ approved card follows moved curtain", lambda: abs(
+    planned(2)["shadow_sources"][0]["pose"]["Location.X"] -
+    planned(2)["curtain_target"]["loc"][0]) < 3.0, True)
 check("+ exact hide approval", lambda: len(planned(2, ["Shrine Prop"])["visibility"]["actors"]), 1)
 check("+ camera framing distance", lambda: planned(2)["camera_distance_cm"] > 700.0, True)
 check("+ measured camera override", lambda: C.camera_distance(C.merged_params(
@@ -137,7 +145,7 @@ check("+ reuse policy extends hidden keys", lambda: conflict_plan("REUSE_EXISTIN
 rejects("- interaction 1", lambda: C.merged_params({"interaction": 1}), "INTERACTION_MUST")
 bad = snap(); bad["cuts"][0]["guid"] = "NOPE"
 rejects("- unresolved cut", lambda: C.make_plan(bad, C.merged_params({"interaction": 2})), "CUT_BINDING_MISSING")
-bad = snap(); bad["world_labels"].remove("S2 Sleight Hangar Camera")
+bad = snap(); bad["world_labels"].remove("I2 Hangar Hold Camera")
 rejects("- cut absent from show world", lambda: C.make_plan(bad, C.merged_params({"interaction": 2})), "CUT_NOT_RESOLVED")
 rejects("- infrastructure cannot hide", lambda: planned(2, ["S2 Hangar Back Wall"]), "INFRASTRUCTURE")
 rejects("- unapproved census", lambda: C.make_plan(snap(), C.merged_params(
@@ -151,6 +159,10 @@ bad = snap(); bad["fade_tracks"]["scene"] = 1
 rejects("- existing fade conflict", lambda: C.make_plan(bad, C.merged_params({"interaction": 2})), "FADE_TRACK_CONFLICT")
 rejects("- missing shadow source", lambda: C.make_plan(snap(), C.merged_params(
     {"interaction": 2, "approved_shadow_source_labels": ["Missing Puppet"]})), "SHADOW_SOURCE_LABELS_MISSING")
+bad = snap(); bad["bindings"][2]["tracks"][0]["sections"] = []
+rejects("- approved shadow source must have spawn section", lambda: C.make_plan(
+    bad, C.merged_params({"interaction": 2, "approved_shadow_source_labels": ["Shadow Cat"]})),
+    "SHADOW_SOURCE_SPAWN_TRACK")
 rejects("- ambiguous selected label still refused", lambda: C.inventory_plan(
     duplicate_labels, C.merged_params({"hide_actor_labels": ["Twin Prop"]})), "HIDE_LABEL_NOT_UNIQUE")
 rejects("- missing exact actor path", lambda: C.inventory_plan(

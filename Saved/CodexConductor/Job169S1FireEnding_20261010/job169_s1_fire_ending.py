@@ -426,7 +426,8 @@ def _report(args):
 
 
 def _backup(run, suffix=""):
-    folder = os.path.join(_project_root(), "Backups", "PreJob169S1Fire%s-%s" % (suffix, run))
+    base = os.path.join(_project_root(), "Backups", "PreJob169S1Fire%s-%s" % (suffix, run))
+    folder = unique_artifact_path(base)
     os.makedirs(folder, exist_ok=False)
     source = _asset_file(SCENE)
     target = os.path.join(folder, os.path.basename(source))
@@ -435,6 +436,16 @@ def _backup(run, suffix=""):
         raise Refusal("BACKUP_VERIFY")
     return {"root": folder, "files": [{"asset": SCENE, "source": source, "backup": target,
                                         "sha256": _sha(target), "bytes": os.path.getsize(target)}]}
+
+
+def unique_artifact_path(path):
+    """Return a non-existing path without deleting evidence from failed attempts."""
+    if not os.path.exists(path):
+        return path
+    attempt = 2
+    while os.path.exists("%s-attempt%d" % (path, attempt)):
+        attempt += 1
+    return "%s-attempt%d" % (path, attempt)
 
 
 def _spawn_track(binding, start, end):
@@ -469,8 +480,7 @@ def _transform_track(binding, span, keys, label):
     section = track.add_section(); section.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
     section.set_range(int(span[0]), int(span[1]))
     channels = {_channel_name(c): c for c in section.get_all_channels()}
-    # UE 5.8 exposes the smooth cubic/default tangent mode as AUTO; there is no
-    # MovieSceneKeyInterpolation.CUBIC enum member on the generated Python API.
+    # UE 5.8 exposes the smooth/default cubic tangent mode as AUTO.
     cubic, linear = unreal.MovieSceneKeyInterpolation.AUTO, unreal.MovieSceneKeyInterpolation.LINEAR
     for name, rows in keys.items():
         if name not in channels:
@@ -486,6 +496,8 @@ def _transform_track(binding, span, keys, label):
 
 def _float_track(binding, prop, path, span, rows, label, eased=True):
     track = binding.add_track(unreal.MovieSceneFloatTrack)
+    if track is None:
+        raise Refusal("FLOAT_TRACK_CREATE|%s|%s" % (label, prop))
     track.set_property_name_and_path(unreal.Name(prop), path); track.set_display_name(label)
     section = track.add_section(); section.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
     section.set_range(int(span[0]), int(span[1]))
@@ -493,10 +505,26 @@ def _float_track(binding, prop, path, span, rows, label, eased=True):
     for frame, value in rows:
         key = channel.add_key(unreal.FrameNumber(int(frame)), float(value),
                               time_unit=unreal.MovieSceneTimeUnit.DISPLAY_RATE,
-                              interpolation=unreal.MovieSceneKeyInterpolation.CUBIC if eased else unreal.MovieSceneKeyInterpolation.LINEAR)
+                              interpolation=unreal.MovieSceneKeyInterpolation.AUTO if eased else unreal.MovieSceneKeyInterpolation.LINEAR)
         if eased and key is not None:
             key.set_tangent_mode(unreal.RichCurveTangentMode.RCTM_AUTO)
     return track
+
+
+def _component_child_binding(seq, parent, component, display_name):
+    """Reuse the child binding auto-created for a spawnable before adding one."""
+    children = list(parent.get_child_possessables())
+    if len(children) > 1:
+        raise Refusal("COMPONENT_CHILD_AMBIGUOUS|%s|%d" % (display_name, len(children)))
+    if children:
+        child = children[0]
+    else:
+        child = seq.add_possessable(component)
+        if child is None:
+            raise Refusal("COMPONENT_CHILD_CREATE|%s" % display_name)
+        child.set_parent(parent)
+    child.set_display_name(display_name)
+    return child
 
 
 def _make_camera(seq, plan):
@@ -518,7 +546,7 @@ def _make_camera(seq, plan):
         keys["Scale." + axis] = [(start, plan["camera"]["start_scale"][i], False),
                                   (end, plan["camera"]["start_scale"][i], False)]
     _transform_track(binding, [start, end], keys, CAMERA_NAME + " Transform")
-    child = seq.add_possessable(component); child.set_parent(binding); child.set_display_name(CAMERA_COMPONENT_NAME)
+    child = _component_child_binding(seq, binding, component, CAMERA_COMPONENT_NAME)
     _float_track(child, "CurrentFocalLength", "CurrentFocalLength", [start, end],
                  [(start, plan["camera"]["start_focal_mm"]), (pan_end, plan["camera"]["end_focal_mm"]),
                   (end, plan["camera"]["end_focal_mm"])], CAMERA_NAME + " Focal")
@@ -559,7 +587,7 @@ def _make_fire(seq, args, plan):
         light_keys["Rotation." + axis] = [(a, 0.0, False), (end, 0.0, False)]
         light_keys["Scale." + axis] = [(a, 1.0, False), (end, 1.0, False)]
     _transform_track(light, [a, end], light_keys, LIGHT_NAME + " Transform")
-    child = seq.add_possessable(component); child.set_parent(light); child.set_display_name(LIGHT_COMPONENT_NAME)
+    child = _component_child_binding(seq, light, component, LIGHT_COMPONENT_NAME)
     _float_track(child, "Intensity", "Intensity", [a, end],
                  [(a, 0.0), (b, float(args["fire_light_intensity_lm"])),
                   (end, float(args["fire_light_intensity_lm"]))], LIGHT_NAME + " Intensity")
@@ -626,7 +654,7 @@ def run_apply(args):
     if gate.get("digest") != review_digest(report):
         raise Refusal("CHANGED_SINCE_DRY")
     run = args["run_id"]; backup = _backup(run)
-    transaction = os.path.join(_here(), "job169_camera_fire_transaction_%s.json" % run)
+    transaction = unique_artifact_path(os.path.join(_here(), "job169_camera_fire_transaction_%s.json" % run))
     record = {"schema": 1, "tool": TOOL, "run": run, "applied": False, "written_before_mutation": True,
               "backup": backup, "report": report, "before": report["before"]}
     _json_write(transaction, record, exclusive=True)

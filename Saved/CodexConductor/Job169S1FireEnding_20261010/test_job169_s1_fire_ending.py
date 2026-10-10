@@ -3,6 +3,7 @@ import importlib.util
 import json
 import math
 import os
+import tempfile
 import unittest
 
 
@@ -61,6 +62,14 @@ class TimingPositive(unittest.TestCase):
                 "before_digest": "a", "guards": {}, "mode": "DRY", "run": "dry"}
         other = dict(base, mode="APPLY", run="apply")
         self.assertEqual(J.review_digest(base), J.review_digest(other))
+
+    def test_retry_artifact_path_preserves_prior_attempt(self):
+        with tempfile.TemporaryDirectory() as root:
+            first = os.path.join(root, "artifact")
+            os.mkdir(first)
+            self.assertEqual(J.unique_artifact_path(first), first + "-attempt2")
+            os.mkdir(first + "-attempt2")
+            self.assertEqual(J.unique_artifact_path(first), first + "-attempt3")
 
 
 class NegativeControls(unittest.TestCase):
@@ -142,6 +151,13 @@ class SourceContract(unittest.TestCase):
         self.assertIn("OWNED_SPAWNABLES", source)
         self.assertIn("camera_hierarchical_bias", source)
         self.assertIn("HIDDEN_OUTSIDE_WINDOW", source)
+
+    def test_ue58_interpolation_and_component_binding_contract(self):
+        source = self.source("job169_s1_fire_ending.py")
+        self.assertNotIn("MovieSceneKeyInterpolation.CUBIC", source)
+        self.assertIn("MovieSceneKeyInterpolation.AUTO", source)
+        self.assertIn("parent.get_child_possessables()", source)
+        self.assertIn("unique_artifact_path", source)
 
 
 if __name__ == "__main__":

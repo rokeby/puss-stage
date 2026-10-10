@@ -293,7 +293,13 @@ def _verify_child_blueprint(args: dict[str, Any], plan: dict[str, Any]) -> dict[
     generated = bp.generated_class()
     source_class = unreal.EditorAssetLibrary.load_blueprint_class(args["source_blueprint"])
     require(generated is not None and source_class is not None, "BP_CLASS_LOAD")
-    require(generated.is_child_of(source_class), "CHILD_BP_PARENT")
+    # Reflected UClass objects are values, not Python types: isinstance(...,
+    # source_class) raises TypeError, and BlueprintGeneratedClass does not expose
+    # is_child_of in UE 5.8.  This child is created with the source as its direct
+    # parent, so compare the reflected parent-class asset identity instead.
+    parent_class = bp.get_editor_property("parent_class")
+    require(parent_class is not None and _asset_id(parent_class) == _asset_id(source_class),
+            "CHILD_BP_PARENT")
     component = _subobject(bp, COMPONENT_NAME)
     require(isinstance(component, unreal.NiagaraComponent), "CHILD_NIAGARA_COMPONENT")
     got_scale = component.get_editor_property("relative_scale3d")
@@ -339,9 +345,9 @@ def _create_child_blueprint(args: dict[str, Any], plan: dict[str, Any]) -> dict[
 
 def _actor_state(actor: Any) -> dict[str, Any]:
     parent = actor.get_attach_parent_actor()
-    # UE 5.8's generated Python surface does not expose Actor.get_root_component
-    # on every concrete actor class. The reflected root_component property is
-    # stable across StaticMeshActor and spawned Blueprint actors.
+    # StaticMeshActor.get_root_component is absent from UE 5.8's generated
+    # Python surface.  The reflected root_component property is available on
+    # both the target mesh actor and spawned Blueprint actors.
     root_component = actor.get_editor_property("root_component")
     require(root_component is not None, "ACTOR_ROOT_COMPONENT|" + str(actor.get_actor_label()))
     component = root_component.get_attach_parent()

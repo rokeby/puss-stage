@@ -1,6 +1,6 @@
 {
  "failed": 0,
- "passed": 40,
+ "passed": 44,
  "tests": [
   {
    "control": "+",
@@ -45,6 +45,21 @@
   {
    "control": "+",
    "name": "+ existing puppet census",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ active I2 cut camera",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ approved card is spawned",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ approved card follows moved curtain",
    "ok": true
   },
   {
@@ -160,6 +175,11 @@
   {
    "control": "-",
    "name": "- missing shadow source",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- approved shadow source must have spawn section",
    "ok": true
   },
   {

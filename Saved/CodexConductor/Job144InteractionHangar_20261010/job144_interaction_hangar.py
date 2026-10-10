@@ -225,7 +225,17 @@ class UnrealBackend(object):
         if len(roots) != 1: raise Stop("HANGAR_ROOT_COUNT|I%d|%d" % (n, len(roots)))
         markers = self._markers(seq)
         curtain_binding = self._binding_one(seq, "Sleight Hangar Drape")
-        camera_binding = self._binding_one(seq, "S%d Sleight Hangar Camera" % n)
+        cuts = self._cuts(seq)
+        # Select the camera that is actually cut during the shadow hold.  I2's
+        # active cut is I2 Hangar Hold Camera, not the similarly named S2
+        # Sleight Hangar Camera that Job 173 moved while the render stayed black.
+        shadow_frame = markers["CST sleight"] - 1
+        active = [row for row in cuts if row["active"] and
+                  int(row["range"][0]) <= shadow_frame < int(row["range"][1])]
+        if len(active) != 1: raise Stop("SHADOW_CAMERA_CUT_COUNT|%d" % len(active))
+        camera_binding = self._binding_guid(seq, active[0]["guid"])
+        if "camera" not in str(camera_binding.get_display_name()).lower():
+            raise Stop("SHADOW_CUT_NOT_CAMERA|%s" % camera_binding.get_display_name())
         bindings = self._bindings(seq)
         puppets = [r["name"] for r in bindings if re.search(r"gobo|puppet|boy|cat|card", r["name"], re.I)
                    and not re.search(r"camera|component", r["name"], re.I)]
@@ -239,11 +249,13 @@ class UnrealBackend(object):
         return {"sequence": SEQS[n], "scene_wrapper": SCENES[n],
                 "playback": [int(seq.get_playback_start()), int(seq.get_playback_end())],
                 "scene_playback": [int(scene.get_playback_start()), int(scene.get_playback_end())],
-                "markers": markers, "bindings": bindings, "cuts": self._cuts(seq),
+                 "markers": markers, "bindings": bindings, "cuts": cuts,
                 "world_labels": labels, "actors": actor_rows, "wall_candidates": self._wall_rows(n, actors, roots[0]),
                 "root_transform": roots[0].get_actor_transform(), "curtain_pose": curtain_pose,
                 "curtain_template_pose": self._template_pose(curtain_binding),
                 "curtain_transform": curtain_transform, "camera_transform": self._pose(camera_binding),
+                 "shadow_camera_binding": {"guid": _guid(camera_binding.get_id(), self.u),
+                                           "name": str(camera_binding.get_display_name())},
                 "fade_tracks": {"interaction": sum(1 for t in seq.get_tracks() if t.get_class().get_name() == "MovieSceneFadeTrack"),
                                 "scene": sum(1 for t in scene.get_tracks() if t.get_class().get_name() == "MovieSceneFadeTrack")},
                 "puppet_bindings": sorted(puppets),
@@ -501,6 +513,30 @@ class UnrealBackend(object):
                     self._record_channel(record, plan["sequence"], loc, channel,
                                          [[plan["playback"][0], False], [plan["playback"][1], False]])
 
+    def _shadow_sources(self, record, seq, plan):
+        """Spawn and place each reviewed shadow card in front of the moved drape."""
+        for row in plan["shadow_sources"]:
+            binding = self._binding_guid(seq, row["guid"])
+            spawn = [t for t in binding.get_tracks()
+                     if t.get_class().get_name() == "MovieSceneSpawnTrack"]
+            transforms = [t for t in binding.get_tracks()
+                          if t.get_class().get_name() == "MovieScene3DTransformTrack"]
+            if len(spawn) != 1 or len(spawn[0].get_sections()) != 1:
+                raise Stop("SHADOW_SOURCE_SPAWN_TRACK|%s" % row["label"])
+            if len(transforms) != 1 or len(transforms[0].get_sections()) != 1:
+                raise Stop("SHADOW_SOURCE_TRANSFORM_TRACK|%s" % row["label"])
+            spawn_channel = list(spawn[0].get_sections()[0].get_all_channels())[0]
+            spawn_locator = [_guid(binding.get_id(), self.u), list(binding.get_tracks()).index(spawn[0]), 0, 0]
+            self._record_channel(record, plan["sequence"], spawn_locator, spawn_channel, row["spawn_keys"])
+            section = transforms[0].get_sections()[0]
+            for ci, channel in enumerate(section.get_all_channels()):
+                base = channel_name(channel.channel_name)
+                if base not in row["pose"]: continue
+                locator = [_guid(binding.get_id(), self.u), list(binding.get_tracks()).index(transforms[0]), 0, ci]
+                keys = [[plan["playback"][0], row["pose"][base]],
+                        [plan["playback"][1], row["pose"][base]]]
+                self._record_channel(record, plan["sequence"], locator, channel, keys)
+
     def _apply_pose_plans(self, record, report):
         from job144_core import merge_camera, offset_curtain
         plan = report["plan"]; snap = report["snapshot"]; seq = self.u.load_asset(plan["sequence"])
@@ -541,6 +577,7 @@ class UnrealBackend(object):
         self._add_fade(record, plan["sequence"], seq, plan["blackout_keys"])
         self._add_fade(record, plan["scene_wrapper"], scene, plan["scene_tail_black_keys"])
         self._spot(record, seq, plan)
+        self._shadow_sources(record, seq, plan)
         _write(path, record)
         actual = sorted(self.census()["content"] + self.census()["maps"])
         if actual != sorted(packages): raise Stop("DIRTY_SCOPE|expected=%s|actual=%s|NOTHING_SAVED" % (packages, actual))
