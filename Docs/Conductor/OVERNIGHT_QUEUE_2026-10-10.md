@@ -25,7 +25,7 @@ Status values: `TODO` · `RUNNING` · `DONE (marker)` · `SKIPPED (reason)` · `
 | 90b | I2/I3 | I2, I3 | SKIPPED (DRY I2_NOT_THR..., zero mutation); investigate |
 | 89 | Curtain before shadow | I1/I3/I4/I5 | RUNNING (I1, I3 done) |
 | 3 | Chandelier: P75 adopt/clean → staging → P56 candles → P52 swing | opening + P06 | TODO |
-| 8 | S4 dark cut (96) | P04→S4 | TODO |
+| 8 | **S4 dark cut (96), KEY (Gary E17)**: arrive in a blacked-out hangar, then a straight cut to Klara's sequence (it begins dark); P04 lights off; curtain stays down. Verify with stills at the P04 end, the cut frame and S4+1 s | P04→S4 | TODO (pass-1 DRY OK: 209 additions) |
 | 9 | Girders (98) | S5 | TODO |
 | 10 | Proscenium fringe (88) | opening | TODO |
 | 11 | P05 → 42.04 s (103) | P05 | TODO |
