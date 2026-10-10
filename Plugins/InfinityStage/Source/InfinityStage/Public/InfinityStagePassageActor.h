@@ -243,6 +243,7 @@ private:
         FTransform AuthoredBodyRelative = FTransform::Identity;
         FTransform AuthoredCordRelative = FTransform::Identity;
         FVector CordTopRelative = FVector::ZeroVector;
+        TArray<double> KickTimesSeconds;
         float FullIntensity = 1.0f;
         float Level = -1.0f;
         bool bPrepared = false;

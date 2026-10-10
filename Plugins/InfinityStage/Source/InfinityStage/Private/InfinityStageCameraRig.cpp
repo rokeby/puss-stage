@@ -700,9 +700,10 @@ FInfinityGaitBob AInfinityStageCameraRig::StepGaitBob(
 
     if (DeltaSeconds == 0.0)
     {
+        const double CentredLiftCm = RawLiftCm - State.LiftMeanCm;
         return {
-            State.WalkWeight * RawLiftCm,
-            State.WalkWeight * (RawLiftCm - State.LiftMeanCm) * RollDegPerCm};
+            State.WalkWeight * CentredLiftCm,
+            State.WalkWeight * CentredLiftCm * RollDegPerCm};
     }
 
     State.LastMasterSeconds = MasterSeconds;
@@ -720,9 +721,10 @@ FInfinityGaitBob AInfinityStageCameraRig::StepGaitBob(
         : 1.0;
     State.WalkWeight += (TargetWeight - State.WalkWeight) * WeightAlpha;
 
+    const double CentredLiftCm = RawLiftCm - State.LiftMeanCm;
     return {
-        State.WalkWeight * RawLiftCm,
-        State.WalkWeight * (RawLiftCm - State.LiftMeanCm) * RollDegPerCm};
+        State.WalkWeight * CentredLiftCm,
+        State.WalkWeight * CentredLiftCm * RollDegPerCm};
 }
 
 FInfinityGaitBob AInfinityStageCameraRig::SettleGaitBob(const FInfinityGaitBob& Bob, const double SettleWeight)
@@ -766,9 +768,10 @@ double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
         return 0.0;
     }
 
-    // Rest height comes from the reference (bind) pose. That is not the walk's
-    // mean: a walking cat sits lower, so the raw lift can stay biased negative.
-    // Height keeps that bias; StepGaitBob centres only the roll on the raw mean.
+    // The bind pose is only the stable measurement reference. A walking cat sits
+    // lower than that pose, so RawLiftCm carries a persistent negative bias.
+    // StepGaitBob removes its running mean from BOTH height and roll: only the
+    // gait excursion moves the camera, never the walk-vs-bind pose difference.
     TArray<FTransform> RestComponentSpace;
     FAnimationRuntime::FillUpComponentSpaceTransforms(RefSkeleton, RefSkeleton.GetRefBonePose(), RestComponentSpace);
     if (!RestComponentSpace.IsValidIndex(BoneIndex))

@@ -66,7 +66,8 @@ float BodyIntensity(const float FullIntensity, const float DramaScale, const flo
 FRotator CordSwingRotation(
     const FInfinityBulbBodySettings& Settings,
     const FGuid& Identity,
-    const double ShowSeconds)
+    const double ShowSeconds,
+    const TConstArrayView<double> KickTimesSeconds)
 {
     if (!Settings.bSwingOnCord)
     {
@@ -75,9 +76,63 @@ FRotator CordSwingRotation(
     const double Period = FMath::Max(0.25, static_cast<double>(Settings.SwingPeriodSeconds));
     const double Phase = static_cast<double>(HashUnit(Identity, Settings.SwaySeed, 0, 4u)) * UE_TWO_PI;
     const double Angle = ShowSeconds * UE_TWO_PI / Period + Phase;
-    return FRotator(
+    const FRotator Idle(
         Settings.SwingPitchAmplitudeDegrees * FMath::Sin(Angle + UE_HALF_PI),
         Settings.SwingYawAmplitudeDegrees * FMath::Sin(Angle),
         0.0);
+    // Keep the established sway's arithmetic path bit-identical when no kick is
+    // authored. This is an explicit compatibility contract, not an optimisation.
+    if (Settings.KickAmplitudeDegrees <= 0.0f || KickTimesSeconds.IsEmpty())
+    {
+        return Idle;
+    }
+
+    const double Decay = FMath::Max(0.05, static_cast<double>(Settings.KickDecaySeconds));
+    double Kick = 0.0;
+    for (const double KickTime : KickTimesSeconds)
+    {
+        const double Since = ShowSeconds - KickTime;
+        if (Since >= 0.0)
+        {
+            // An impulse begins at zero displacement and maximum velocity, then
+            // oscillates at the prop's idle frequency under exponential damping.
+            Kick += static_cast<double>(Settings.KickAmplitudeDegrees)
+                * FMath::Exp(-Since / Decay) * FMath::Sin(Since * UE_TWO_PI / Period);
+        }
+    }
+    return FRotator(Idle.Pitch + Kick * 0.6, Idle.Yaw + Kick, 0.0);
+}
+
+bool ResolveCordSwingKickTimes(
+    const FInfinityBulbBodySettings& Settings,
+    const TConstArrayView<TPair<FGuid, double>> AvailableCueTimes,
+    TArray<double>& OutKickTimesSeconds,
+    FString& OutError)
+{
+    OutKickTimesSeconds.Reset();
+    OutError.Reset();
+    if (Settings.KickAmplitudeDegrees <= 0.0f)
+    {
+        return true;
+    }
+    if (Settings.KickCueIds.IsEmpty())
+    {
+        OutError = TEXT("KickAmplitudeDegrees requires at least one Show cue id; raw kick seconds are not supported");
+        return false;
+    }
+    for (const FGuid& CueId : Settings.KickCueIds)
+    {
+        const TPair<FGuid, double>* Match = AvailableCueTimes.FindByPredicate(
+            [&CueId](const TPair<FGuid, double>& Row) { return Row.Key == CueId; });
+        if (!Match)
+        {
+            OutError = FString::Printf(TEXT("Cue kick id %s is not in this compiled Passage"), *CueId.ToString());
+            OutKickTimesSeconds.Reset();
+            return false;
+        }
+        OutKickTimesSeconds.AddUnique(Match->Value);
+    }
+    OutKickTimesSeconds.Sort();
+    return true;
 }
 }

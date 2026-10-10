@@ -279,8 +279,8 @@ public:
      * 0 disables it exactly.
      */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Camera|Crossing Settle",
-        meta = (ClampMin = "0.0", UIMax = "3.0", Units = "s"))
-    double CrossingSettleSeconds = 1.0;
+        meta = (ClampMin = "0.0", UIMax = "5.0", Units = "s"))
+    double CrossingSettleSeconds = 3.0;
 
     /** This master frame's settle share: 1 outside the window, 0 at the Passage end. */
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Camera|Crossing Settle")

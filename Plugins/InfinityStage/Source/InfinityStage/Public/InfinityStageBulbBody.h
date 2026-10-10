@@ -134,6 +134,21 @@ struct INFINITYSTAGE_API FInfinityBulbBodySettings
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway", meta = (EditCondition = "bSwingOnCord"))
     int32 SwaySeed = 0;
+
+    /** Extra damped swing injected when one of these Show cue ids passes. Cue ids
+     * are resolved to compiled Show time; raw seconds are deliberately not stored. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway",
+        meta = (EditCondition = "bSwingOnCord"))
+    TArray<FGuid> KickCueIds;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway",
+        meta = (ClampMin = "0.0", ClampMax = "45.0", Units = "deg", EditCondition = "bSwingOnCord"))
+    float KickAmplitudeDegrees = 0.0f;
+
+    /** Exponential e-folding time for cue kicks. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body|Cord Sway",
+        meta = (ClampMin = "0.05", Units = "s", EditCondition = "bSwingOnCord"))
+    float KickDecaySeconds = 2.5f;
 };
 
 namespace InfinityStageBulbBody
@@ -159,5 +174,15 @@ INFINITYSTAGE_API float BodyIntensity(float FullIntensity, float DramaScale, flo
 INFINITYSTAGE_API FRotator CordSwingRotation(
     const FInfinityBulbBodySettings& Settings,
     const FGuid& Identity,
-    double ShowSeconds);
+    double ShowSeconds,
+    TConstArrayView<double> KickTimesSeconds = {});
+
+/** Resolve authored cue ids against compiled (cue id, seconds) rows. A non-zero
+ * kick with no cue id, or an unknown cue id, is refused instead of becoming a
+ * fragile raw-time effect. */
+INFINITYSTAGE_API bool ResolveCordSwingKickTimes(
+    const FInfinityBulbBodySettings& Settings,
+    TConstArrayView<TPair<FGuid, double>> AvailableCueTimes,
+    TArray<double>& OutKickTimesSeconds,
+    FString& OutError);
 }

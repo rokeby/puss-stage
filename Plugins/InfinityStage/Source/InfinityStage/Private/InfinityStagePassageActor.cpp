@@ -2110,6 +2110,22 @@ void AInfinityStagePassageActor::UpdateBulbBodies(
                     }
                 }
             }
+            if (Settings.bSwingOnCord && Settings.KickAmplitudeDegrees > 0.0f)
+            {
+                TArray<TPair<FGuid, double>> CueTimes;
+                CueTimes.Reserve(Passage.Wings.Num());
+                for (const FInfinityCompiledWing& CompiledWing : Passage.Wings)
+                {
+                    CueTimes.Emplace(CompiledWing.CueGuid, ShowAsset->TickResolution.AsSeconds(CompiledWing.PassFrame));
+                }
+                FString KickError;
+                if (!InfinityStageBulbBody::ResolveCordSwingKickTimes(
+                    Settings, CueTimes, Runtime.KickTimesSeconds, KickError))
+                {
+                    UE_LOG(LogInfinityStageMaterialization, Error, TEXT("Cord sway cue kick refused for attachment %s: %s"),
+                        *AttachmentGuid.ToString(), *KickError);
+                }
+            }
         }
         const float Level = InfinityStageBulbBody::BodyIntensity(Runtime.FullIntensity, DramaScale, Flicker);
         if (Level != Runtime.Level)
@@ -2130,7 +2146,8 @@ void AInfinityStagePassageActor::UpdateBulbBodies(
 
         if (Settings.bSwingOnCord && Runtime.Cord.IsValid())
         {
-            const FQuat Swing = InfinityStageBulbBody::CordSwingRotation(Settings, AttachmentGuid, ShowSeconds).Quaternion();
+            const FQuat Swing = InfinityStageBulbBody::CordSwingRotation(
+                Settings, AttachmentGuid, ShowSeconds, Runtime.KickTimesSeconds).Quaternion();
             const FVector Pivot = Runtime.CordTopRelative;
             const auto SwingAroundPivot = [&Swing, &Pivot](const FTransform& Authored)
             {

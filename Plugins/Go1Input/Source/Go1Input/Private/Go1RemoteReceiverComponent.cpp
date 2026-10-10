@@ -10,6 +10,7 @@
 #include "EngineUtils.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
+#include "InfinityStageCameraRig.h"
 #include "InfinityStageShowRoot.h"
 #include "InfinityStageTypes.h"
 #include "Kismet/GameplayStatics.h"
@@ -462,6 +463,20 @@ void UGo1RemoteReceiverComponent::UpdateLook(
 		AccumulatedLook.Roll = 0.0;
 
 		Target = AccumulatedLook;
+		// A Passage rig's Master-time crossing envelope is already the authored
+		// ease to its Scene Entry pose. Free Look uses that same envelope, so a
+		// dog/mouse look returns to the route aim BEFORE the cut rather than
+		// disappearing on it. Gaze remains live, and non-Passage cameras keep
+		// their existing behavior. At the boundary the weight is exactly zero.
+		if (!bGaze)
+		{
+			if (const AInfinityStageCameraRig* PassageRig = Cast<AInfinityStageCameraRig>(TargetActor))
+			{
+				const double Weight = FMath::Clamp(PassageRig->CurrentCrossingSettleWeight, 0.0, 1.0);
+				Target.Pitch *= Weight;
+				Target.Yaw *= Weight;
+			}
+		}
 		if (bGaze)
 		{
 			// Stick position IS the angle, so there is nothing to integrate; the

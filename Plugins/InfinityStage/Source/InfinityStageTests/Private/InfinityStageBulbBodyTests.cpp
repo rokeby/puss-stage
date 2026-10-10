@@ -101,6 +101,38 @@ bool FInfinityStageBulbBodyFlickerTest::RunTest(const FString& Parameters)
     FInfinityBulbBodySettings Still = Settings;
     Still.bSwingOnCord = false;
     TestTrue(TEXT("Cord sway is opt-in"), CordSwingRotation(Still, Bulb, 1.25).IsNearlyZero());
+
+    // Compatibility gate: an empty kick score takes the exact established path,
+    // not merely a numerically close rewrite of it.
+    const FRotator BeforeKickFeature = CordSwingRotation(Settings, Bulb, 1.25);
+    Settings.KickAmplitudeDegrees = 8.0f;
+    const FRotator NoKickNow = CordSwingRotation(Settings, Bulb, 1.25, {});
+    TestTrue(TEXT("No cue kick is bit-identical to the 9 Oct sway"),
+        BeforeKickFeature.Pitch == NoKickNow.Pitch && BeforeKickFeature.Yaw == NoKickNow.Yaw);
+
+    TArray<double> Resolved;
+    FString ResolveError;
+    TestFalse(TEXT("A kick without a Show cue id is refused"),
+        ResolveCordSwingKickTimes(Settings, {}, Resolved, ResolveError));
+    TestTrue(TEXT("The missing-cue refusal explains the cue-id contract"), ResolveError.Contains(TEXT("cue id")));
+    const FGuid KickCue = FGuid::NewGuid();
+    Settings.KickCueIds = { KickCue };
+    const TArray<TPair<FGuid, double>> Available = { TPair<FGuid, double>(KickCue, 3.0) };
+    TestTrue(TEXT("A Show cue id resolves to compiled Show time"),
+        ResolveCordSwingKickTimes(Settings, Available, Resolved, ResolveError));
+    TestEqual(TEXT("Exactly one kick time resolved"), Resolved.Num(), 1);
+    TestEqual(TEXT("The resolved time came from compiled Show data"), Resolved[0], 3.0);
+    const FRotator AtImpulse = CordSwingRotation(Settings, Bulb, 3.0, Resolved);
+    const FRotator QuarterKick = CordSwingRotation(Settings, Bulb, 3.0 + Settings.SwingPeriodSeconds * 0.25, Resolved);
+    const FRotator LateKick = CordSwingRotation(Settings, Bulb, 3.0 + Settings.SwingPeriodSeconds * 4.0, Resolved);
+    const FRotator LateIdle = CordSwingRotation(FInfinityBulbBodySettings(Settings), Bulb,
+        3.0 + Settings.SwingPeriodSeconds * 4.0, {});
+    TestTrue(TEXT("An impulse starts without an angle discontinuity"), AtImpulse.Equals(CordSwingRotation(Settings, Bulb, 3.0, {}), 1.0e-6f));
+    TestTrue(TEXT("A cue kick adds a dramatic quarter-cycle displacement"),
+        FMath::Abs(QuarterKick.Yaw - CordSwingRotation(Settings, Bulb, 3.0 + Settings.SwingPeriodSeconds * 0.25, {}).Yaw) > 1.0f);
+    TestTrue(TEXT("Cue kick decay returns toward idle sway"), FMath::Abs(LateKick.Yaw - LateIdle.Yaw) < 0.01f);
+    TestTrue(TEXT("Cue kick is deterministic under scrub/jump"),
+        QuarterKick.Equals(CordSwingRotation(Settings, Bulb, 3.0 + Settings.SwingPeriodSeconds * 0.25, Resolved), 1.0e-6f));
     return true;
 }
 

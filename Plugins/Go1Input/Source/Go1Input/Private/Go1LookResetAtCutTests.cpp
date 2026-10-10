@@ -1,10 +1,12 @@
 #include "Go1RemoteReceiverComponent.h"
+#include "CineCameraComponent.h"
 
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
+#include "InfinityStageCameraRig.h"
 #include "Kismet/GameplayStatics.h"
 #include "Misc/AutomationTest.h"
 
@@ -192,6 +194,52 @@ bool FGo1LookResetEasesAcrossBlendTest::RunTest(const FString& Parameters)
 		Receiver->GetLookOffset().IsNearlyZero(0.001));
 	TestTrue(TEXT("...and the left-behind camera is restored only after landing"),
 		ShotA->GetCameraComponent()->GetRelativeRotation().IsNearlyZero(0.001));
+
+	Receiver->ReleaseLook();
+	World->DestroyWorld(false);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FGo1FreeLookReturnsDuringPassageSettleTest,
+	"InfinityStage.Go1.FreeLookReturnsDuringPassageSettle",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FGo1FreeLookReturnsDuringPassageSettleTest::RunTest(const FString& Parameters)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	AInfinityStageCameraRig* Rig = World->SpawnActor<AInfinityStageCameraRig>();
+	AActor* Host = World->SpawnActor<AActor>();
+	UGo1RemoteReceiverComponent* Receiver = Host ? NewObject<UGo1RemoteReceiverComponent>(Host) : nullptr;
+	if (!TestTrue(TEXT("Fixture: Passage rig and receiver"), Rig && Receiver))
+	{
+		World->DestroyWorld(false);
+		return true;
+	}
+	if (!Rig->Camera->IsActive())
+	{
+		Rig->Camera->Activate(true);
+	}
+	Receiver->RotationMode = EGo1RotationMode::Velocity;
+	Receiver->LookHandoverSeconds = 0.0f;
+	constexpr float Frame = 1.0f / 60.0f;
+
+	Rig->CurrentCrossingSettleWeight = 1.0;
+	Receiver->UpdateLook(Rig, false, false, FVector2D(5.0, -2.5), Frame);
+	const FRotator Full = Receiver->GetLookOffset();
+	TestTrue(TEXT("Control: Free Look is non-zero before the settle"),
+		FMath::IsNearlyEqual(Full.Yaw, 20.0, 0.01) && FMath::IsNearlyEqual(Full.Pitch, -10.0, 0.01));
+
+	Rig->CurrentCrossingSettleWeight = 0.5;
+	Receiver->UpdateLook(Rig, false, false, FVector2D::ZeroVector, Frame);
+	const FRotator Half = Receiver->GetLookOffset();
+	TestTrue(TEXT("Halfway through the settle, Free Look is halfway home"),
+		FMath::IsNearlyEqual(Half.Yaw, 10.0, 0.01) && FMath::IsNearlyEqual(Half.Pitch, -5.0, 0.01));
+
+	Rig->CurrentCrossingSettleWeight = 0.0;
+	Receiver->UpdateLook(Rig, false, false, FVector2D::ZeroVector, Frame);
+	TestTrue(TEXT("At the Passage boundary, Free Look is exactly authored default"),
+		Receiver->GetLookOffset().IsNearlyZero(0.001));
 
 	Receiver->ReleaseLook();
 	World->DestroyWorld(false);

@@ -16,7 +16,7 @@ bool FInfinityStageGaitBobMasterTimedTest::RunTest(const FString& Parameters)
     constexpr double FadeSeconds = 0.5;
     constexpr double RollDegPerCm = 0.12;
 
-    // (a) A biased constant lift remains as height but converges to no roll.
+    // (a) The bind-vs-walk bias is not gait: a constant lift converges to no height or roll.
     {
         FInfinityGaitBobState State;
         FInfinityGaitBob Bob = AInfinityStageCameraRig::StepGaitBob(
@@ -30,8 +30,8 @@ bool FInfinityStageGaitBobMasterTimedTest::RunTest(const FString& Parameters)
                 State, Frame * FrameSeconds, -15.0, ReferenceSpeed, ReferenceSpeed,
                 RollMeanSeconds, FadeSeconds, RollDegPerCm);
         }
-        TestEqual(TEXT("Walking weight converges to the full -15 cm height"), Bob.HeightCm, -15.0, 0.001);
-        TestTrue(TEXT("A constant biased raw lift converges to zero roll"), FMath::Abs(Bob.RollDeg) < 1.0e-9);
+        TestTrue(TEXT("A constant bind-pose bias converges to zero height"), FMath::Abs(Bob.HeightCm) < 1.0e-9);
+        TestTrue(TEXT("A constant bind-pose bias converges to zero roll"), FMath::Abs(Bob.RollDeg) < 1.0e-9);
     }
 
     // (b) Wall time is absent from the state. After a pause with no evaluations,
@@ -123,6 +123,7 @@ bool FInfinityStageGaitBobMasterTimedTest::RunTest(const FString& Parameters)
     // (f) At full weight, a -15 +/- 8 cm gait rolls both ways and averages near zero.
     {
         FInfinityGaitBobState State;
+        double MaxAbsHeight = 0.0;
         State.bPrimed = true;
         State.LastMasterSeconds = 0.0;
         State.LiftMeanCm = -15.0;
@@ -140,12 +141,14 @@ bool FInfinityStageGaitBobMasterTimedTest::RunTest(const FString& Parameters)
                 RollMeanSeconds, FadeSeconds, RollDegPerCm);
             if (Frame > 300)
             {
+                MaxAbsHeight = FMath::Max(MaxAbsHeight, FMath::Abs(Bob.HeightCm));
                 MinRoll = FMath::Min(MinRoll, Bob.RollDeg);
                 MaxRoll = FMath::Max(MaxRoll, Bob.RollDeg);
                 RollSum += Bob.RollDeg;
                 ++Samples;
             }
         }
+        TestTrue(TEXT("The centred gait still carries a visible height excursion"), MaxAbsHeight > 5.0);
         TestTrue(TEXT("A biased oscillating gait rolls to both sides"), MinRoll < -0.5 && MaxRoll > 0.5);
         TestTrue(TEXT("A biased oscillating gait averages near zero roll"), FMath::Abs(RollSum / Samples) < 0.02);
     }
