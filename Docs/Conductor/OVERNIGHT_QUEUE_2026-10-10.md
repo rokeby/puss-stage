@@ -96,3 +96,7 @@ Status values: `TODO` · `RUNNING` · `DONE (marker)` · `SKIPPED (reason)` · `
    - Every passage↔scene seam: arrivals, rig jumps, dog-view ease, darkness handoffs.
 
 **Tonight (Gary):** ONLY the fixes, plus VISUAL confirmation of each (a still per fix: before/after where possible) into `Saved/CodexConductor/ApplyPass_20261010/stills/`, linked in the morning report.
+
+## E. Metamall (other project, the same machine; Gary: lower priority than Puss)
+- After the Puss build in B.5: send "BUILD WINDOW OPEN" (their UBT build, 3–10 min, no editor), then wait for "build done".
+- After the Puss overnight queue is complete and the editor is CLOSED: "SLOT OPEN" (about 3 h; Metamall peaks ~36 GB, so the Puss editor must stay closed). Their GPU items are cleared with the conductor one at a time.
