@@ -143,13 +143,33 @@ class SourceContract(unittest.TestCase):
 
     def test_all_mutating_stages_have_revert(self):
         self.assertIn('"REVERT": run_revert', self.source("job169_s1_fire_ending.py"))
-        self.assertIn('"REVERT": namespace["run_revert"]', self.source("job169_stage_lights_out.py"))
+        self.assertIn('"REVERT": _run_revert', self.source("job169_stage_lights_out.py"))
         self.assertIn('"REVERT": namespace["run_revert"]', self.source("job169_stage_shrink.py"))
 
     def test_lights_out_accepts_definition_only_legacy_shape(self):
         source = self.source("job169_stage_lights_out.py")
         self.assertIn('elif "def main(args):" not in source', source)
         self.assertIn('namespace["merged_params"](_params(args))', source)
+
+    def test_lights_out_selects_exact_applied_job29_transaction(self):
+        source = self.source("job169_stage_lights_out.py")
+        self.assertIn("SOURCE_SWITCH_FRAME = 783", source)
+        self.assertIn('len(targets) != 28', source)
+        self.assertIn('len(visibility_ops) != 28', source)
+        self.assertIn('len(ramp_ops) != 28', source)
+        self.assertIn('_locate_recorded_track(namespace, seq, binding, operation["track_after"]', source)
+        self.assertIn('namespace["_track_row"](track, seq) != spec', source)
+
+    def test_lights_out_retimes_existing_tracks_without_adding_tracks(self):
+        source = self.source("job169_stage_lights_out.py")
+        self.assertIn("def _retime_existing", source)
+        self.assertIn("def _light_snapshot", source)
+        self.assertIn('"owned_tracks": owned', source)
+        self.assertIn('"UNSCOPED_MANIFEST_CHANGE|%s"', source)
+        self.assertIn('source_op["kind"] == "retime_visibility"', source)
+        self.assertIn('keys[0].set_time', source)
+        self.assertIn('keys[1].set_time', source)
+        self.assertNotIn("seq.add_possessable", source)
 
     def test_validator_checks_spawnables_and_bias(self):
         source = self.source("job169_validate.py")

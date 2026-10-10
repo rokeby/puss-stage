@@ -1,11 +1,10 @@
 {
-  "jsonrpc": "2.0",
-  "id": "job169",
-  "method": "tools/call",
-  "params": {
-    "name": "ExecuteProjectPythonFile",
+  "name": "call_tool",
+  "arguments": {
+    "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+    "tool_name": "ExecuteProjectPythonFile",
     "arguments": {
-      "FilePath": "CodexConductor/Job169S1FireEnding_20261010/job169_run.py"
+      "relativeSavedPath": "CodexConductor/Job169S1FireEnding_20261010/job169_run.py"
     }
   }
 }

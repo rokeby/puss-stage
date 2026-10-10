@@ -81,7 +81,7 @@ def unit(v):
 def ray_dir(p,h,v):
  h=math.tan(math.radians(h));v=math.tan(math.radians(v));return unit([p["forward"][i]+h*p["right"][i]+v*p["up"][i] for i in range(3)])
 def trace_hit(world,p,h,v,args):
- d=ray_dir(p,h,v);a=unreal.Vector(*p["location"]);b=unreal.Vector(*(p["location"][i]+d[i]*args["trace_distance_cm"] for i in range(3)));tt=unreal.SystemLibrary.convert_to_trace_type(unreal.CollisionChannel.ECC_VISIBILITY);res=unreal.SystemLibrary.line_trace_single(world,a,b,tt,True,[],unreal.DrawDebugTrace.NONE,True)
+ d=ray_dir(p,h,v);a=unreal.Vector(*p["location"]);b=unreal.Vector(*(p["location"][i]+d[i]*args["trace_distance_cm"] for i in range(3)));tt=unreal.TraceTypeQuery.TRACE_TYPE_QUERY1;res=unreal.SystemLibrary.line_trace_single(world,a,b,tt,True,[],unreal.DrawDebugTrace.NONE,True)
  hit=res[1] if isinstance(res,tuple) and res[0] else None
  if hit is None:return None
  vals=hit.to_tuple();actor=vals[9] if len(vals)>9 else None;return {"actor":label(actor) if actor else None,"distance_cm":float(vals[3]) if len(vals)>3 else None}
