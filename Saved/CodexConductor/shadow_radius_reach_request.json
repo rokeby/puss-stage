@@ -1,0 +1,7 @@
+{
+  "toolset": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+  "tool": "ExecuteProjectPythonFile",
+  "arguments": {
+    "path": "Saved/CodexConductor/shadow_radius_reach_run.py"
+  }
+}

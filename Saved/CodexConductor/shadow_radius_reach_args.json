@@ -1,0 +1,13 @@
+{
+  "mode": "DRY",
+  "params": {
+    "passages": ["P01", "P02", "P03", "P04", "P05", "P06"],
+    "margin_cm": 300.0,
+    "cap_cm": null,
+    "large_source_radius_cm": 20.0,
+    "membership_radius_cm": 5000.0,
+    "sequence_roots": ["/Game"]
+  },
+  "expected_changes": null,
+  "allow_dirty": []
+}
