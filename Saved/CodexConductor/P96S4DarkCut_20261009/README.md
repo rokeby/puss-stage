@@ -9,11 +9,16 @@ the Show asset, `/Game/L_KK_children`, or the Klara sequence copy.
 1. Keep the existing S4 Entry Handoff camera from scene frame 0 through frame 405.
 2. Deactivate, but do not delete, the v4 glide-camera cut.
 3. At frame 405 let the existing nested `LS_Children_S4Hangar` camera cut take over.
-4. Hide every live P04 materialized light for all of S4.
-5. Hide every live S4-hangar light and emissive bulb/glow for all of S4.
-6. Hide Klara's S4 lights/environment only before frame 405; RESTORE_STATE hands them
+4. Hide every live P04 materialized light for all of S4. The census walks all
+   attachment descendants, not only direct children of the Passage actor.
+5. Hide P04 bulb/practical/glimmer body meshes and other emissive descendants from
+   frame 0 through the cut frame (the half-open range is `[0,406)`). It also audits
+   S4 Arrival's pre-scene light drives. Hiding the body actor suppresses both its
+   emissive mesh and any transient bulb-owned point-light component.
+6. Hide every live S4-hangar light and emissive bulb/glow for all of S4.
+7. Hide Klara's S4 lights/environment only before frame 405; RESTORE_STATE hands them
    back to her sequence at the cut.
-7. Hide `P04 Backcloth (baked)` from frame 405 through scene end. Its existing fall
+8. Hide `P04 Backcloth (baked)` from frame 405 through scene end. Its existing fall
    before the cut remains untouched; the unproven Geometry Cache hold tool is not a
    dependency.
 
@@ -36,13 +41,16 @@ match refuses APPLY.
    `state.target_groups`. Require exactly one curtain and one resolved camera for
    `root_entry`, `root_exit`, and `klara_at_cut`.
 5. Edit `p96_args.json`:
-   - `mode`: `APPLY`
+   - for a fresh edit, `mode`: `APPLY`
+   - when `p96_record.json` already records the saved Job 96 cut, `mode`: `RESUME`
    - `run_id`: a new APPLY id
    - `dry_run`: the DRY id
-   - `confirm`: `APPLY P96 S4 DARK CUT`
+   - `confirm`: `APPLY P96 S4 DARK CUT` or `RESUME P96 S4 DARK CUT`
    - `decided_by`: Gary's E17 note and the conductor identity.
-6. Send the same request. Require
-   `P96_S4_DARK_CUT_APPLY_OK|run=<id>|...|saved=/Game/InfinityStage/Dev/Sequences/LS_DevScene_04|...|dirty=0`.
+6. Send the same request. Require `P96_S4_DARK_CUT_APPLY_OK` for a fresh edit or
+   `P96_S4_DARK_CUT_RESUME_OK` for the saved Job 96 extension. RESUME verifies the
+   original applied record/camera/tracks, adds only newly discovered darkness tracks,
+   and reports `camera_repeated=0`.
    The tool creates `Backups/PreP96S4DarkCut-<run>` and `p96_record.json` before
    mutation, admits exactly LS_DevScene_04 in the dirty census, target-saves it,
    and reads it back.
@@ -68,4 +76,4 @@ LS_DevScene_04, reads back, and archives (does not delete) the record.
 
 ## Offline verification
 
-`python test_p96.py` -> `P96_HARNESS_OK|passed=15|total=15|positive=2|negative=9|trap=4`.
+`python test_p96.py` -> `P96_HARNESS_OK|passed=18|total=18|positive=3|negative=10|trap=5`.

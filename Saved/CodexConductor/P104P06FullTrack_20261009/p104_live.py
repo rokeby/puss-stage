@@ -268,27 +268,34 @@ def write_mechanisms(show, values):
 
 
 def sequence_state(sequence, choreo):
+    def section_row(kind, owner, track, section, track_index, section_index, binding_index=None):
+        keys = []
+        for ci, channel in enumerate(section.get_all_channels()):
+            for ki, key in enumerate(channel.get_keys()):
+                keys.append([ci, ki, int(key.get_time().frame_number.value), str(key.get_value())])
+        row = {"kind": kind, "track_index": track_index, "owner": owner,
+               "track": str(track.get_display_name()), "section": section_index,
+               "range": [int(section.get_start_frame()) if section.has_start_frame() else None,
+                         int(section.get_end_frame()) if section.has_end_frame() else None],
+               "keys": keys}
+        if binding_index is not None:
+            row["binding_index"] = binding_index
+        return row
+
     rows = []
     for bi, binding in enumerate(sequence.get_bindings()):
         for ti, track in enumerate(binding.get_tracks()):
             for si, section in enumerate(track.get_sections()):
-                keys = []
-                for ci, channel in enumerate(section.get_all_channels()):
-                    for ki, key in enumerate(channel.get_keys()):
-                        keys.append([ci, ki, int(key.get_time().frame_number.value), str(key.get_value())])
-                rows.append({"kind": "binding", "binding_index": bi, "track_index": ti,
-                             "owner": str(binding.get_display_name()), "track": str(track.get_display_name()),
-                             "section": si, "range": [int(section.get_start_frame()), int(section.get_end_frame())],
-                             "keys": keys})
+                rows.append(section_row("binding", str(binding.get_display_name()), track, section, ti, si, bi))
     for ti, track in enumerate(sequence.get_tracks()):
         for si, section in enumerate(track.get_sections()):
-            rows.append({"kind": "root", "track_index": ti, "owner": "ROOT", "track": str(track.get_display_name()), "section": si,
-                         "range": [int(section.get_start_frame()), int(section.get_end_frame())], "keys": []})
+            rows.append(section_row("root", "ROOT", track, section, ti, si))
     sub = []
     for track in choreo.get_tracks():
         for section in track.get_sections():
             if asset_path(section.get_sequence()) == DOMINO:
-                sub.append([int(section.get_start_frame()), int(section.get_end_frame())])
+                sub.append([int(section.get_start_frame()) if section.has_start_frame() else None,
+                            int(section.get_end_frame()) if section.has_end_frame() else None])
     return {"playback": [int(sequence.get_playback_start()), int(sequence.get_playback_end())],
             "rows": rows, "subtrack": sub}
 
@@ -300,8 +307,17 @@ def scale_sequence(sequence, choreo, factor):
     tracks = [t for b in sequence.get_bindings() for t in b.get_tracks()] + list(sequence.get_tracks())
     for track in tracks:
         for section in track.get_sections():
-            start, end = int(section.get_start_frame()), int(section.get_end_frame())
-            section.set_range(C.scale_frame(start, factor), C.scale_frame(end, factor))
+            span = [int(section.get_start_frame()) if section.has_start_frame() else None,
+                    int(section.get_end_frame()) if section.has_end_frame() else None]
+            scaled = C.scale_span(span, factor)
+            if span[0] is not None and span[1] is not None:
+                section.set_range(*scaled)
+            elif span[0] is not None:
+                section.set_start_frame(scaled[0])
+            elif span[1] is not None:
+                section.set_end_frame(scaled[1])
+            # Fully unbounded sections (notably Spawn) remain unbounded containers;
+            # their timed channel keys below are still scaled.
             for channel in section.get_all_channels():
                 for key in channel.get_keys():
                     key.set_time(unreal.FrameNumber(C.scale_frame(key.get_time().frame_number.value, factor)), 0.0,
@@ -309,16 +325,18 @@ def scale_sequence(sequence, choreo, factor):
     for track in choreo.get_tracks():
         for section in track.get_sections():
             if asset_path(section.get_sequence()) == DOMINO:
-                section.set_range(C.scale_frame(section.get_start_frame(), factor),
-                                  C.scale_frame(section.get_end_frame(), factor))
+                span = [int(section.get_start_frame()) if section.has_start_frame() else None,
+                        int(section.get_end_frame()) if section.has_end_frame() else None]
+                require(None not in span, "DOMINO_SUBSECTION_UNBOUNDED")
+                section.set_range(*C.scale_span(span, factor))
 
 
 def scaled_sequence_state(before, factor):
     out = copy.deepcopy(before)
     out["playback"] = [C.scale_frame(x, factor) for x in before["playback"]]
-    out["subtrack"] = [[C.scale_frame(x, factor) for x in span] for span in before["subtrack"]]
+    out["subtrack"] = [C.scale_span(span, factor) for span in before["subtrack"]]
     for row in out["rows"]:
-        row["range"] = [C.scale_frame(x, factor) for x in row["range"]]
+        row["range"] = C.scale_span(row["range"], factor)
         for key in row["keys"]:
             key[2] = C.scale_frame(key[2], factor)
     return out
@@ -346,7 +364,17 @@ def restore_sequence(sequence, choreo, state):
         track = (list(bindings[row["binding_index"]].get_tracks())[row["track_index"]]
                  if row["kind"] == "binding" else roots[row["track_index"]])
         section = list(track.get_sections())[row["section"]]
-        section.set_range(int(row["range"][0]), int(row["range"][1]))
+        current = [int(section.get_start_frame()) if section.has_start_frame() else None,
+                   int(section.get_end_frame()) if section.has_end_frame() else None]
+        wanted = row["range"]
+        require([x is not None for x in current] == [x is not None for x in wanted],
+                "RESTORE_SECTION_BOUNDEDNESS_DRIFT")
+        if wanted[0] is not None and wanted[1] is not None:
+            section.set_range(int(wanted[0]), int(wanted[1]))
+        elif wanted[0] is not None:
+            section.set_start_frame(int(wanted[0]))
+        elif wanted[1] is not None:
+            section.set_end_frame(int(wanted[1]))
         channels = list(section.get_all_channels())
         for ci, ki, frame, _value in row["keys"]:
             key = list(channels[ci].get_keys())[ki]
@@ -358,10 +386,24 @@ def restore_sequence(sequence, choreo, state):
                 owned.append(section)
     require(len(owned) == len(state["subtrack"]), "RESTORE_SUBTRACK_COUNT")
     for section, span in zip(owned, state["subtrack"]):
+        require(None not in span, "RESTORE_DOMINO_SUBSECTION_UNBOUNDED")
         section.set_range(int(span[0]), int(span[1]))
 
 
-def apply_custom(run, plan, old_pass_frames):
+def verify_custom(R, after, after_mech, all_guids, sequence, choreo):
+    post = R._live()["plain"]
+    require(not R.state_matches({"sunset": post["sunset"], "car": post["car"],
+                                 "bee": post["bee"], "fx": post["fx"]},
+                                {"sunset": after["sunset"], "car": after["car"],
+                                 "bee": after["bee"], "fx": after["fx"]}),
+            "JOB42_READBACK")
+    require(all(abs(mechanism_state(unreal.load_asset(SHOW), all_guids)[g][k] - after_mech[g][k]) <= 1e-4
+                for g in all_guids for k in ("rate", "offset")), "MECHANISM_READBACK")
+    require(sequence_state(sequence, choreo) == after["domino"], "P37_SEQUENCE_READBACK")
+    require(chandelier_state() == after["chandelier"], "CHANDELIER_DRIFT")
+
+
+def apply_custom(run, plan, old_pass_frames, coordinator_run=None):
     R = load_module("p104_job42", "CodexConductor/p06_retime.py", "P06_RETIME_IMPORT_ONLY")
     live = R._live()
     show = live["show"]
@@ -386,7 +428,8 @@ def apply_custom(run, plan, old_pass_frames):
     after["domino"] = scaled_sequence_state(before["domino"], plan["scale"])
     custom_backup = backup(run, "Retime", [SHOW, WORLD, GLINTS, CHOREO, DOMINO])
     record = read(RECORD_PATH)
-    require(record.get("status") == "prepared" and record.get("run") == run, "P104_COORDINATOR_RECORD_CONTEXT")
+    require(record.get("status") == "prepared" and record.get("run") == (coordinator_run or run),
+            "P104_COORDINATOR_RECORD_CONTEXT")
     record.update({"backup": custom_backup, "before": before, "after": after,
                    "old_pass_frames": old_pass_frames, "new_pass_frames": new_pass_frames,
                    "stage": "custom_recorded"})
@@ -398,22 +441,16 @@ def apply_custom(run, plan, old_pass_frames):
              if a.get_class().get_name() == "InfinityStagePassageActor" and str(a.get_actor_label()).startswith("Passage 06")
              and a.get_editor_property("show_asset") == show]
     require(len(actor) == 1 and actor[0].materialize_passage(), "P06_MATERIALIZE")
+    verify_custom(R, after, after_mech, all_guids, sequence, choreo)
     expected = {"content": sorted([SHOW, GLINTS, CHOREO, DOMINO]), "maps": [WORLD]}
     require(census() == expected, "CUSTOM_DIRTY_SCOPE|got=%s|want=%s" % (census(), expected))
     for package in (SHOW, GLINTS, CHOREO, DOMINO):
         require(unreal.EditorAssetLibrary.save_asset(package, only_if_is_dirty=False), "SAVE_FAILED|" + package)
     require(unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level(), "SAVE_WORLD")
     require(census() == {"content": [], "maps": []}, "DIRTY_AFTER_CUSTOM_SAVE")
-    post = R._live()["plain"]
-    require(not R.state_matches({"sunset": post["sunset"], "car": post["car"], "bee": post["bee"], "fx": post["fx"]},
-                                {"sunset": after["sunset"], "car": after["car"], "bee": after["bee"], "fx": after["fx"]}),
-            "JOB42_READBACK")
-    require(all(abs(mechanism_state(unreal.load_asset(SHOW), all_guids)[g][k] - after_mech[g][k]) <= 1e-4
-                for g in all_guids for k in ("rate", "offset")), "MECHANISM_READBACK")
-    require(sequence_state(unreal.load_asset(DOMINO), unreal.load_asset(CHOREO)) == after["domino"],
-            "P37_SEQUENCE_READBACK")
-    require(chandelier_state() == after["chandelier"], "CHANDELIER_DRIFT")
-    record.update({"status": "applied", "after": after, "dirty_after": census()})
+    verify_custom(R, after, after_mech, all_guids, unreal.load_asset(DOMINO), unreal.load_asset(CHOREO))
+    record.update({"status": "applied", "after": after, "dirty_after": census(),
+                   "resume_run": run if coordinator_run else None})
     write(RECORD_PATH, record)
     return custom_backup
 
@@ -478,13 +515,22 @@ def main(raw):
     mode = C.validate_args(raw); guard()
     unreal.log("%s_START|run=%s|mode=%s" % (MARK, run, mode))
     if mode == "DRY":
-        plan = C.build_plan(gather_facts())
+        resume = os.path.isfile(RECORD_PATH)
+        if resume:
+            coordinator = read(RECORD_PATH)
+            plan = C.validate_resume(coordinator, gather_facts())
+            require(os.path.isfile(coordinator["audio_record"]), "RESUME_AUDIO_SUBRECORD_MISSING")
+            require(os.path.isfile(coordinator["length_record"]), "RESUME_LENGTH_SUBRECORD_MISSING")
+        else:
+            plan = C.build_plan(gather_facts())
         report = {"run": run, "mode": mode, "apply_ready": True, "plan": plan,
+                  "resume_ready": resume, "next_mode": "RESUME" if resume else "APPLY",
                   "census_before": census(), "census_after": census(), "mutated": False}
         write(DRY_PATH, report)
-        unreal.log("%s_DRY_OK|run=%s|decision=%s|old=%.6f|target=%.3f|scale=%.9f|A=%d|B=%d|mutated=0|census=clean|plan=%s" %
-                   (MARK, run, plan["decision"]["action"], plan["old_track_s"], plan["target_track_s"], plan["scale"],
-                    plan["chain_a_rows"], plan["chain_b_rows"], plan["plan_sha256"]))
+        decision = "RESUME_RETIME_ONLY" if resume else plan["decision"]["action"]
+        unreal.log("%s_DRY_OK|run=%s|decision=%s|next=%s|old=%.6f|target=%.3f|scale=%.9f|A=%d|B=%d|mutated=0|census=clean|plan=%s" %
+                   (MARK, run, decision, report["next_mode"], plan["old_track_s"], plan["target_track_s"],
+                    plan["scale"], plan["chain_a_rows"], plan["chain_b_rows"], plan["plan_sha256"]))
         return
     if mode == "APPLY":
         require(not os.path.exists(RECORD_PATH), "P104_ACTIVE_RECORD_EXISTS")
@@ -509,6 +555,22 @@ def main(raw):
         write(RECORD_PATH, record)
         unreal.log("%s_APPLY_OK|run=%s|decision=%s|length=125.000|scale=%.9f|A=%d|B=%d|p37=scaled|fx=kept|chandelier=kept|saved_readback=1|dirty=0+0|record=%s" %
                    (MARK, run, plan["decision"]["action"], plan["scale"], plan["chain_a_rows"],
+                    plan["chain_b_rows"], RECORD_PATH))
+        return
+    if mode == "RESUME":
+        require(os.path.isfile(RECORD_PATH), "P104_ACTIVE_RECORD_MISSING")
+        record = read(RECORD_PATH)
+        plan = C.validate_resume(record, gather_facts())
+        require(raw["reviewed_plan_sha256"] == plan["plan_sha256"], "PLAN_SHA256_CHANGED")
+        require(os.path.isfile(record["audio_record"]), "RESUME_AUDIO_SUBRECORD_MISSING")
+        require(os.path.isfile(record["length_record"]), "RESUME_LENGTH_SUBRECORD_MISSING")
+        custom_backup = apply_custom(run, plan, record["old_pass_frames"], coordinator_run=record["run"])
+        record = read(RECORD_PATH)
+        record.update({"custom_backup": custom_backup,
+                       "ordered_steps": ["audio(saved earlier)", "length(saved earlier)", "retime(resumed)"]})
+        write(RECORD_PATH, record)
+        unreal.log("%s_RESUME_OK|run=%s|original_run=%s|audio_repeated=0|length_repeated=0|rail=%s|length=125.000|scale=%.9f|A=%d|B=%d|p37=scaled|fx=kept|chandelier=kept|saved_readback=1|dirty=0+0|record=%s" %
+                   (MARK, run, record["run"], C.CAMERON, plan["scale"], plan["chain_a_rows"],
                     plan["chain_b_rows"], RECORD_PATH))
         return
     require(os.path.isfile(RECORD_PATH), "P104_ACTIVE_RECORD_MISSING")

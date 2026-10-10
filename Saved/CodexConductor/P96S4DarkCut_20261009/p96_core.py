@@ -19,6 +19,7 @@ EXIT = "Scene 4 — External Sound — Exit Handoff Camera"
 CURTAIN = "P04 Backcloth (baked)"
 EXPECTED_END = 4890
 EXPECTED_CUT = 405
+DARK_THROUGH_CUT_END = EXPECTED_CUT + 1  # Sequencer ranges are half-open; includes frame 405.
 
 
 class PlanError(ValueError):
@@ -91,7 +92,17 @@ def _track_action(target):
     return "already_dark" if exact else "add", inert
 
 
-def plan_change(state):
+def is_darkness_extension(label, has_light=False, emissive_material=False,
+                          passage_descendant=False, arrival_driven=False):
+    """Pure selection rule for P04 contributors missed by the light-only census."""
+    upper = str(label or "").upper()
+    visual_name = (upper.endswith("_BODY") or any(token in upper for token in
+                   ("BULB", "GLIMMER", "PRACTICAL", "GLOW", "EMISSIVE", "LIGHT FUNCTION")))
+    return bool(arrival_driven or
+                (not has_light and passage_descendant and (visual_name or emissive_material)))
+
+
+def plan_change(state, camera_baseline="original"):
     """Validate a live census and return a deterministic, minimal edit plan."""
     if state.get("world") != WORLD:
         raise PlanError("WORLD|got=%s" % state.get("world"))
@@ -111,10 +122,15 @@ def plan_change(state):
     cut = int(slot["range"][0])
     if cut != EXPECTED_CUT:
         raise PlanError("CUT_FRAME|got=%d|want=%d" % (cut, EXPECTED_CUT))
-    if (list(entry.get("range") or []) != [0, 119] or not entry.get("active")
-            or list(glide.get("range") or []) != [119, 4865] or not glide.get("active")
-            or list(exit_cut.get("range") or []) != [4865, EXPECTED_END]
-            or not exit_cut.get("active")):
+    original_camera = (list(entry.get("range") or []) == [0, 119] and entry.get("active")
+                       and list(glide.get("range") or []) == [119, 4865] and glide.get("active"))
+    applied_camera = (list(entry.get("range") or []) == [0, EXPECTED_CUT] and entry.get("active")
+                      and list(glide.get("range") or []) == [119, 4865] and not glide.get("active"))
+    if camera_baseline not in ("original", "applied"):
+        raise PlanError("CAMERA_BASELINE_MODE|%s" % camera_baseline)
+    if not (original_camera if camera_baseline == "original" else applied_camera) \
+            or list(exit_cut.get("range") or []) != [4865, EXPECTED_END] \
+            or not exit_cut.get("active"):
         raise PlanError("ROOT_CUT_BASELINE|%s" % canonical(cuts))
     if list(slot.get("range") or []) != [EXPECTED_CUT, 4500]:
         raise PlanError("KLARA_SLOT_RANGE|%s" % (slot.get("range"),))
@@ -130,11 +146,14 @@ def plan_change(state):
                             (row.get("role"), row.get("resolved_count")))
 
     groups = state.get("target_groups") or {}
-    expected_groups = {"p04_lights", "hangar_lights_and_emissives", "klara_precut", "curtain"}
+    expected_groups = {"p04_lights", "p04_darkness_extensions",
+                       "hangar_lights_and_emissives", "klara_precut", "curtain"}
     if set(groups) != expected_groups:
         raise PlanError("TARGET_GROUPS|got=%s" % sorted(groups))
     if not groups["p04_lights"]:
         raise PlanError("P04_LIGHTS_EMPTY")
+    if not groups["p04_darkness_extensions"]:
+        raise PlanError("P04_DARKNESS_EXTENSIONS_EMPTY")
     if not groups["hangar_lights_and_emissives"]:
         raise PlanError("HANGAR_DARK_TARGETS_EMPTY")
     if not groups["klara_precut"]:
@@ -164,6 +183,7 @@ def plan_change(state):
         "cut_frame": cut,
         "scene_end": EXPECTED_END,
         "camera": {
+            "action": "apply" if camera_baseline == "original" else "keep_applied",
             "entry_section_index": entry["section_index"],
             "entry_before": entry,
             "entry_after_range": [0, cut],
@@ -185,6 +205,7 @@ def applied_state(plan, state):
     """Expected pure-state camera projection used by harness and live checks."""
     out = json.loads(json.dumps(state))
     cuts = out["root_cuts"]
-    cuts[plan["camera"]["entry_section_index"]]["range"] = list(plan["camera"]["entry_after_range"])
-    cuts[plan["camera"]["glide_section_index"]]["active"] = False
+    if plan["camera"]["action"] == "apply":
+        cuts[plan["camera"]["entry_section_index"]]["range"] = list(plan["camera"]["entry_after_range"])
+        cuts[plan["camera"]["glide_section_index"]]["active"] = False
     return out

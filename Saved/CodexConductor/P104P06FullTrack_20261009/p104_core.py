@@ -36,12 +36,40 @@ def stable_hash(value):
 
 def validate_args(raw):
     mode = str(raw.get("mode") or "").upper()
-    require(mode in ("DRY", "APPLY", "REVERT"), "MODE_INVALID")
+    require(mode in ("DRY", "APPLY", "REVERT", "RESUME"), "MODE_INVALID")
     require(raw.get("confirm") == "%s P06 FULL 125" % mode, "CONFIRM_MISMATCH")
     require(raw.get("decided_by") == DECIDED_BY, "DECIDED_BY_MUST_EQUAL_GARY_E27")
-    if mode == "APPLY":
+    if mode in ("APPLY", "RESUME"):
         require(len(str(raw.get("reviewed_plan_sha256") or "")) == 64, "REVIEW_HASH_REQUIRED")
     return mode
+
+
+def validate_resume(record, facts):
+    """Refuse to repeat import/length work unless the saved partial state is exact."""
+    require(record.get("tool") == "p104" and record.get("status") == "prepared",
+            "RESUME_RECORD_CONTEXT")
+    require(record.get("stage") == "length_applied", "RESUME_STAGE_NOT_LENGTH_APPLIED")
+    require(record.get("audio_record") and record.get("length_record"), "RESUME_SUBRECORDS_MISSING")
+    plan = record.get("plan") or {}
+    decision = plan.get("decision") or {}
+    require(decision.get("action") == "IMPORT_AND_SWAP", "RESUME_ORIGINAL_DECISION")
+    require(decision.get("target_sound") == CAMERON, "RESUME_TARGET_SOUND")
+    require(close(plan.get("target_track_s", 0.0), DELIVERED_TRACK_S, 1.0e-6),
+            "RESUME_PLAN_TARGET")
+    require(facts.get("assigned_sound") == CAMERON, "RESUME_AUDIO_RAIL_NOT_WALKING6")
+    require(bool(facts.get("cameron_asset_exists")), "RESUME_WALKING6_ASSET_MISSING")
+    require(close(facts.get("cameron_duration_s", 0.0), DELIVERED_TRACK_S),
+            "RESUME_WALKING6_DURATION")
+    require(close(facts.get("delivered_wav_duration_s", 0.0), DELIVERED_TRACK_S, 1.0e-6),
+            "RESUME_DELIVERED_WAV_DURATION")
+    require(close(facts.get("p06_length_s", 0.0), facts.get("cameron_duration_s", 0.0)),
+            "RESUME_P06_LENGTH_NOT_WALKING6")
+    require(int(facts.get("chain_a_rows", 0)) == int(plan.get("chain_a_rows", -1)),
+            "RESUME_CHAIN_A_DRIFT")
+    require(int(facts.get("chain_b_rows", 0)) == int(plan.get("chain_b_rows", -1)),
+            "RESUME_CHAIN_B_DRIFT")
+    require(bool(facts.get("p37_sequence_present")), "RESUME_P37_SEQUENCE_MISSING")
+    return plan
 
 
 def audio_decision(into_void_s, delivered_s, assigned_sound, cameron_exists, cameron_s=None, tolerance=0.02):
@@ -109,6 +137,12 @@ def build_plan(facts):
 
 def scale_frame(frame, scale):
     return int(round(int(frame) * float(scale)))
+
+
+def scale_span(span, scale):
+    """Scale finite section bounds and preserve infinite ends as infinite."""
+    require(isinstance(span, (list, tuple)) and len(span) == 2, "SECTION_SPAN_SHAPE")
+    return [None if value is None else scale_frame(value, scale) for value in span]
 
 
 def retime_phase(rate, offset, old_pass_s, new_pass_s, scale):

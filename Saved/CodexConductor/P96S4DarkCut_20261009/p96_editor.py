@@ -30,6 +30,7 @@ RECORD = os.path.join(HERE, "p96_record.json")
 MARK = "P96_S4_DARK_CUT"
 APPLY_CONFIRM = "APPLY P96 S4 DARK CUT"
 REVERT_CONFIRM = "REVERT P96 S4 DARK CUT"
+RESUME_CONFIRM = "RESUME P96 S4 DARK CUT"
 HANGAR_TAG = "RigAtmos.Scene4Hangar"
 KLARA_LEVEL = "/Game/L_KK_children"
 ENV_CLASSES = {"DirectionalLight", "SkyLight", "SkyAtmosphere",
@@ -248,6 +249,42 @@ def _has_light(actor):
     return bool(list(actor.get_components_by_class(unreal.LightComponent)))
 
 
+def _is_descendant(actor, parent):
+    current = actor.get_attach_parent_actor()
+    seen = set()
+    while current is not None and current.get_path_name() not in seen:
+        if current == parent:
+            return True
+        seen.add(current.get_path_name())
+        current = current.get_attach_parent_actor()
+    return False
+
+
+def _emissive_material_evidence(actor):
+    names = []
+    for component in actor.get_components_by_class(unreal.MeshComponent):
+        for material in component.get_materials():
+            path = _path(material) or ""
+            if any(token in path.upper() for token in ("EMISSIVE", "BULB", "GLOW", "TUBE")):
+                names.append(path)
+    return sorted(set(names))
+
+
+def _s4_arrival_light_owners(actors):
+    arrivals = [actor for actor in actors if str(actor.get_actor_label()) == "S4 Arrival"]
+    if len(arrivals) != 1:
+        raise core.PlanError("S4_ARRIVAL_COUNT|%d" % len(arrivals))
+    owners = {}
+    for drive in arrivals[0].get_editor_property("pre_scene_float_drives"):
+        target = drive.get_editor_property("target")
+        if target is not None and hasattr(target, "load_synchronous"):
+            target = target.load_synchronous()
+        owner = target.get_owner() if target is not None and hasattr(target, "get_owner") else None
+        if owner is not None and _has_light(owner):
+            owners[owner.get_path_name()] = owner
+    return owners
+
+
 def _targets(scene, world, args):
     actors = list(unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors())
     passages = [actor for actor in actors if actor.get_class().get_name() == "InfinityStagePassageActor"
@@ -255,7 +292,7 @@ def _targets(scene, world, args):
     if len(passages) != 1:
         raise core.PlanError("P04_PASSAGE_COUNT|%d" % len(passages))
     passage = passages[0]
-    p04 = [actor for actor in actors if actor.get_attach_parent_actor() == passage and _has_light(actor)]
+    p04 = [actor for actor in actors if _is_descendant(actor, passage) and _has_light(actor)]
     hangar = []
     for actor in actors:
         tags = {str(value) for value in actor.tags}
@@ -266,12 +303,50 @@ def _targets(scene, world, args):
     klara = [actor for actor in actors if _package(actor) == KLARA_LEVEL
              and (_has_light(actor) or actor.get_class().get_name() in ENV_CLASSES)]
     curtain = [actor for actor in actors if str(actor.get_actor_label()) == core.CURTAIN]
+    claimed = {actor.get_path_name() for actor in p04 + hangar + klara + curtain}
+    arrival_owners = _s4_arrival_light_owners(actors)
+    extensions = []
+    extension_reasons = {}
+    for actor in actors:
+        path = actor.get_path_name()
+        if path in claimed:
+            continue
+        materials = _emissive_material_evidence(actor)
+        descendant = _is_descendant(actor, passage)
+        arrival_driven = path in arrival_owners
+        if core.is_darkness_extension(str(actor.get_actor_label()), _has_light(actor), bool(materials),
+                                      descendant, arrival_driven):
+            extensions.append(actor)
+            extension_reasons[path] = {"passage_descendant": descendant,
+                                       "arrival_driven": arrival_driven,
+                                       "emissive_materials": materials,
+                                       "label_rule": True}
+
+    def extension_target(actor):
+        row = _target(scene, actor, world, "p04_darkness_extensions",
+                      [0, core.DARK_THROUGH_CUT_END])
+        row["discovery"] = extension_reasons[actor.get_path_name()]
+        return row
+
+    def p04_light_target(actor):
+        row = _target(scene, actor, world, "p04_lights", [0, core.EXPECTED_END])
+        row["discovery"] = {"passage_descendant": True, "light_component": True}
+        return row
+
+    def hangar_target(actor):
+        row = _target(scene, actor, world, "hangar_lights_and_emissives",
+                      [0, core.EXPECTED_END])
+        row["discovery"] = {"hangar_tag": True,
+                            "arrival_driven": actor.get_path_name() in arrival_owners}
+        return row
+
     return {
-        "p04_lights": [_target(scene, actor, world, "p04_lights", [0, core.EXPECTED_END])
+        "p04_lights": [p04_light_target(actor)
                        for actor in sorted(p04, key=lambda item: item.get_path_name())],
-        "hangar_lights_and_emissives": [
-            _target(scene, actor, world, "hangar_lights_and_emissives", [0, core.EXPECTED_END])
-            for actor in sorted(hangar, key=lambda item: item.get_path_name())],
+        "p04_darkness_extensions": [extension_target(actor)
+                                     for actor in sorted(extensions, key=lambda item: item.get_path_name())],
+        "hangar_lights_and_emissives": [hangar_target(actor)
+                                         for actor in sorted(hangar, key=lambda item: item.get_path_name())],
         "klara_precut": [_target(scene, actor, world, "klara_precut", [0, core.EXPECTED_CUT])
                          for actor in sorted(klara, key=lambda item: item.get_path_name())],
         "curtain": [_target(scene, actor, world, "curtain", [core.EXPECTED_CUT, core.EXPECTED_END])
@@ -415,11 +490,20 @@ def _save_scene(run):
 
 def dry(run, args, world):
     state, _scene = gather(world, args)
+    baseline = "original"
+    resume_record = None
+    if os.path.isfile(RECORD):
+        resume_record = _json(RECORD)
+        if resume_record.get("status") != "applied":
+            _stop(run, "ACTIVE_RECORD_NOT_APPLIED")
+        baseline = "applied"
     report = {"schema": "p96_s4_dark_cut_dry/1", "run": run,
               "written": datetime.datetime.now().isoformat(timespec="seconds"),
               "state": state, "state_digest": core.digest(state), "census": _census()}
     try:
-        report["plan"] = core.plan_change(state)
+        report["plan"] = core.plan_change(state, camera_baseline=baseline)
+        report["resume"] = baseline == "applied"
+        report["active_record_run"] = resume_record.get("run") if resume_record else None
         report["apply_ready"] = True
         report["refusals"] = []
     except core.PlanError as exc:
@@ -451,7 +535,7 @@ def apply(run, args, world):
     state, scene = gather(world, args)
     if core.digest(state) != report.get("state_digest"):
         _stop(run, "DRY_STATE_DRIFT|dry_run=" + dry_run)
-    plan = core.plan_change(state)
+    plan = core.plan_change(state, camera_baseline="original")
     backup = _backup(run, dry_path)
     record = {"schema": "p96_s4_dark_cut_record/1", "status": "prepared", "run": run,
               "dry_run": dry_run, "decided_by": args["decided_by"], "world": core.WORLD,
@@ -461,8 +545,9 @@ def apply(run, args, world):
     _write(RECORD, record, exclusive=True)
     scene.modify()
     entry, glide = _camera_sections(scene, plan)
-    entry.set_range(*plan["camera"]["entry_after_range"])
-    glide.set_is_active(False)
+    if plan["camera"]["action"] == "apply":
+        entry.set_range(*plan["camera"]["entry_after_range"])
+        glide.set_is_active(False)
     for row in plan["visibility"]:
         if row["action"] == "add":
             record["created_tracks"].append(_add_hidden(scene, world, row))
@@ -481,6 +566,89 @@ def apply(run, args, world):
     unreal.log("%s_APPLY_OK|run=%s|dry_run=%s|cut=%d|counts=%s|tracks_added=%d|saved=%s|backup=%s|dirty=0" %
                (MARK, run, dry_run, plan["cut_frame"], core.canonical(plan["counts"]),
                 len(record["created_tracks"]), core.SCENE, backup["root"]))
+
+
+def _recover_pending_resume(run, scene, record):
+    pending = record.get("pending_resume")
+    if not pending:
+        return False
+    items = list(pending.get("created_tracks") or [])
+    present = [_created_track(scene, item)[1] is not None for item in items]
+    if items and all(present):
+        known = {item["binding_guid"] + ":" + str(item["track_index"])
+                 for item in record["created_tracks"]}
+        record["created_tracks"].extend(item for item in items
+                                         if item["binding_guid"] + ":" + str(item["track_index"]) not in known)
+        record.setdefault("resume_history", []).append(dict(pending, recovered_after_save=True))
+        record.pop("pending_resume", None)
+        _write(RECORD, record)
+        unreal.log("%s_RESUME_OK|run=%s|recovered_saved_pending=1|tracks_added=%d|saved=%s|dirty=0" %
+                   (MARK, run, len(items), core.SCENE))
+        return True
+    if any(present):
+        _stop(run, "PENDING_RESUME_PARTIAL_SAVED_STATE")
+    record.pop("pending_resume", None)
+    _write(RECORD, record)
+    return False
+
+
+def resume(run, args, world):
+    if args.get("confirm") != RESUME_CONFIRM or not str(args.get("decided_by") or "").strip():
+        _stop(run, "CONFIRM_OR_DECIDED_BY|want=" + RESUME_CONFIRM)
+    if not os.path.isfile(RECORD):
+        _stop(run, "RECORD_MISSING")
+    record = _json(RECORD)
+    if record.get("status") != "applied" or record.get("scene") != core.SCENE:
+        _stop(run, "RECORD_CONTEXT_OR_STATUS")
+    scene = unreal.load_asset(core.SCENE)
+    if _verify_applied(scene, record):
+        _stop(run, "ORIGINAL_APPLIED_STATE_DRIFT")
+    if _recover_pending_resume(run, scene, record):
+        return
+    dry_run = str(args.get("dry_run") or "")
+    dry_path = os.path.join(HERE, "p96_dry_%s.json" % dry_run)
+    if not dry_run or not os.path.isfile(dry_path):
+        _stop(run, "DRY_REPORT_MISSING|" + dry_run)
+    report = _json(dry_path)
+    if not report.get("apply_ready") or not report.get("resume") \
+            or report.get("active_record_run") != record.get("run"):
+        _stop(run, "DRY_NOT_RESUME_READY")
+    state, scene = gather(world, args)
+    if core.digest(state) != report.get("state_digest"):
+        _stop(run, "DRY_STATE_DRIFT|dry_run=" + dry_run)
+    plan = core.plan_change(state, camera_baseline="applied")
+    if plan["to_add"] == 0:
+        unreal.log("%s_RESUME_NOOP|run=%s|all_darkness_targets_already_covered=1|dirty=0" % (MARK, run))
+        return
+    backup = _backup(run + "-RESUME", dry_path)
+    pending = {"run": run, "dry_run": dry_run, "backup": backup, "plan": plan,
+               "created_tracks": [], "written": datetime.datetime.now().isoformat(timespec="seconds")}
+    record["pending_resume"] = pending
+    _write(RECORD, record)
+    scene.modify()
+    for row in plan["visibility"]:
+        if row["action"] == "add":
+            pending["created_tracks"].append(_add_hidden(scene, world, row))
+            record["pending_resume"] = pending
+            _write(RECORD, record)
+    combined = dict(record)
+    combined["created_tracks"] = list(record["created_tracks"]) + list(pending["created_tracks"])
+    errors = _verify_applied(scene, combined)
+    if errors:
+        _stop(run, "RESUME_PRE_SAVE_READBACK|%s|NOTHING_SAVED_DONT_SAVE_RESTART" % errors)
+    _save_scene(run)
+    errors = _verify_applied(unreal.load_asset(core.SCENE), combined)
+    if errors:
+        _stop(run, "RESUME_POST_SAVE_READBACK|%s" % errors)
+    record["created_tracks"] = combined["created_tracks"]
+    record.setdefault("resume_history", []).append(pending)
+    record.pop("pending_resume", None)
+    record["saved_sha256"] = _sha(_asset_file(core.SCENE))
+    record["post_save_census"] = _census()
+    _write(RECORD, record)
+    unreal.log("%s_RESUME_OK|run=%s|original_run=%s|counts=%s|tracks_added=%d|camera_repeated=0|saved=%s|backup=%s|dirty=0" %
+               (MARK, run, record["run"], core.canonical(plan["counts"]),
+                len(pending["created_tracks"]), core.SCENE, backup["root"]))
 
 
 def revert(run, args, world):
@@ -538,15 +706,17 @@ def main():
     mode = str(args.get("mode") or "").upper()
     if not re.match(r"^[A-Za-z0-9][A-Za-z0-9_.-]{5,100}$", run):
         raise RuntimeError("INVALID_RUN_ID")
-    if mode not in ("DRY", "APPLY", "REVERT"):
+    if mode not in ("DRY", "APPLY", "REVERT", "RESUME"):
         raise RuntimeError("INVALID_MODE|" + mode)
-    world = _context(run, mutating=mode in ("APPLY", "REVERT"))
+    world = _context(run, mutating=mode in ("APPLY", "REVERT", "RESUME"))
     if mode == "DRY":
         dry(run, args, world)
     elif mode == "APPLY":
         apply(run, args, world)
-    else:
+    elif mode == "REVERT":
         revert(run, args, world)
+    else:
+        resume(run, args, world)
 
 
 if unreal is not None and not getattr(unreal, "_PUSS_FAKE", False):

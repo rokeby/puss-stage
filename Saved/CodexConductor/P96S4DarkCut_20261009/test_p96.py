@@ -40,6 +40,8 @@ def state():
         "target_groups": {
             "p04_lights": [target("p04_lights", "P04 SCORE B01 TOP_L", [0, 4890]),
                            target("p04_lights", "P04 Strobe", [0, 4890])],
+            "p04_darkness_extensions": [
+                target("p04_darkness_extensions", "P04 SCORE B01 PRACTICAL_L_BODY", [0, 406])],
             "hangar_lights_and_emissives": [
                 target("hangar_lights_and_emissives", "S4 Ghost Light", [0, 4890]),
                 target("hangar_lights_and_emissives", "S4 Lattice Bulb 1-1", [0, 4890])],
@@ -65,9 +67,10 @@ class Positive(unittest.TestCase):
         self.assertEqual(plan["cut_frame"], 405)
         self.assertEqual(plan["camera"]["entry_after_range"], [0, 405])
         self.assertFalse(plan["camera"]["glide_after_active"])
-        self.assertEqual(plan["counts"], {"p04_lights": 2, "hangar_lights_and_emissives": 2,
+        self.assertEqual(plan["counts"], {"p04_lights": 2, "p04_darkness_extensions": 1,
+                                           "hangar_lights_and_emissives": 2,
                                            "klara_precut": 2, "curtain": 1})
-        self.assertEqual((plan["already_dark"], plan["to_add"]), (1, 6))
+        self.assertEqual((plan["already_dark"], plan["to_add"]), (1, 7))
         self.assertEqual(len(plan["inert_tracks_reported"]), 1)
 
     def test_applied_projection_changes_only_two_camera_fields(self):
@@ -78,6 +81,23 @@ class Positive(unittest.TestCase):
         self.assertFalse(after["root_cuts"][1]["active"])
         self.assertEqual(after["root_cuts"][2], fixture["root_cuts"][2])
         self.assertEqual(after["nested_slots"], fixture["nested_slots"])
+
+    def test_resume_keeps_applied_camera_and_adds_only_uncovered_targets(self):
+        fixture = state()
+        fixture["root_cuts"][0]["range"] = [0, 405]
+        fixture["root_cuts"][1]["active"] = False
+        for group, rows in fixture["target_groups"].items():
+            if group == "p04_darkness_extensions":
+                continue
+            for row in rows:
+                row["visibility_tracks"] = [{"property": "bHidden", "sections": [{
+                    "range": row["range"], "default": False, "keys": [],
+                    "completion": "RESTORE_STATE"}]}]
+        plan = C.plan_change(fixture, camera_baseline="applied")
+        self.assertEqual(plan["camera"]["action"], "keep_applied")
+        self.assertEqual(plan["to_add"], 1)
+        self.assertEqual([row["group"] for row in plan["visibility"] if row["action"] == "add"],
+                         ["p04_darkness_extensions"])
 
 
 class Negative(unittest.TestCase):
@@ -106,6 +126,10 @@ class Negative(unittest.TestCase):
     def test_missing_p04_lights(self):
         self.reject("P04_LIGHTS_EMPTY", lambda x: x["target_groups"].update(p04_lights=[]))
 
+    def test_missing_darkness_extensions(self):
+        self.reject("P04_DARKNESS_EXTENSIONS_EMPTY",
+                    lambda x: x["target_groups"].update(p04_darkness_extensions=[]))
+
     def test_duplicate_curtain(self):
         self.reject("CURTAIN_COUNT", lambda x: x["target_groups"]["curtain"].append(
             target("curtain", "P04 Backcloth duplicate", [405, 4890])))
@@ -130,6 +154,16 @@ class Traps(unittest.TestCase):
     def test_channel_suffix_normalises(self):
         self.assertEqual(C.channel_base("Visibility_17"), "Visibility")
 
+    def test_darkness_extension_rules(self):
+        self.assertTrue(C.is_darkness_extension("P04 PRACTICAL_L_BODY", passage_descendant=True))
+        self.assertTrue(C.is_darkness_extension("P04 mesh", emissive_material=True,
+                                                passage_descendant=True))
+        self.assertTrue(C.is_darkness_extension("Arrival fixture", has_light=True,
+                                                arrival_driven=True))
+        self.assertFalse(C.is_darkness_extension("P04 TOP_L", has_light=True,
+                                                 passage_descendant=True))
+        self.assertFalse(C.is_darkness_extension("Foreign bulb", passage_descendant=False))
+
     def test_shipped_args_are_dry(self):
         args = json.load(open(os.path.join(HERE, "p96_args.json"), encoding="utf-8"))
         self.assertEqual((args["mode"], args["confirm"], args["decided_by"]), ("DRY", "", ""))
@@ -138,6 +172,8 @@ class Traps(unittest.TestCase):
         source = open(os.path.join(HERE, "p96_editor.py"), encoding="utf-8").read()
         self.assertIn("GuidLibrary.conv_guid_to_string", source)
         self.assertIn('set_property_name_and_path("bHidden", "bHidden")', source)
+        self.assertIn("RESUME P96 S4 DARK CUT", source)
+        self.assertIn("pre_scene_float_drives", source)
         self.assertNotIn("save_all", source.lower())
         self.assertNotIn("delete_asset", source)
         self.assertNotIn("os.remove", source)
@@ -149,6 +185,6 @@ if __name__ == "__main__":
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     failures = len(result.failures) + len(result.errors)
-    print("P96_HARNESS_%s|passed=%d|total=%d|positive=2|negative=9|trap=4" %
+    print("P96_HARNESS_%s|passed=%d|total=%d|positive=3|negative=10|trap=5" %
           ("OK" if not failures else "FAILED", result.testsRun - failures, result.testsRun))
     raise SystemExit(1 if failures else 0)
