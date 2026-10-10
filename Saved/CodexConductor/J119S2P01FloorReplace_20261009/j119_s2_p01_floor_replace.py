@@ -83,6 +83,33 @@ def fit_transform(source, target):
             "rotation": list(target["rotation"]), "scale": scale}
 
 
+def actor_transform_for_component_world(component_world, component_relative):
+    """Solve an actor transform for a duplicated component's desired world transform.
+
+    P01's floor component is intentionally scaled relative to its actor.  Duplication
+    preserves that relative transform, so treating it as identity compounds the scale.
+    The representation is exact for the current zero-rotation component contract and
+    refuses rotations/shear rather than silently approximating them.
+    """
+    rel_rotation = [float(x) for x in component_relative["rotation"]]
+    if max(abs(x) for x in rel_rotation) > 1e-4:
+        raise ValueError("unsupported source component rotation")
+    rel_scale = [float(x) for x in component_relative["scale"]]
+    if min(abs(x) for x in rel_scale) <= 1e-6:
+        raise ValueError("degenerate source component scale")
+    actor_scale = [float(component_world["scale"][i]) / rel_scale[i] for i in range(3)]
+    rotation = [float(x) for x in component_world["rotation"]]
+    if abs(rotation[0]) > 1e-6 or abs(rotation[1]) > 1e-6:
+        raise ValueError("pitched/rolled component world transform is unsupported")
+    yaw = math.radians(rotation[2])
+    c, s = math.cos(yaw), math.sin(yaw)
+    rel_location = [float(component_relative["location"][i]) * actor_scale[i] for i in range(3)]
+    offset = [c * rel_location[0] - s * rel_location[1],
+              s * rel_location[0] + c * rel_location[1], rel_location[2]]
+    return {"location": [float(component_world["location"][i]) - offset[i] for i in range(3)],
+            "rotation": rotation, "scale": actor_scale}
+
+
 def sequence_binding_policy(rows):
     """Return hard blockers and the actor/ancestor tracks preserved by attachment."""
     blockers, inherited = [], []
@@ -147,27 +174,49 @@ def _identity_component(component):
     return max(abs(x) for x in loc + r + [scl[i] - 1.0 for i in range(3)]) <= 1e-4
 
 
-def _snapshot(actor):
+def _snapshot(actor, component_world=False):
     component = _one_component(actor)
     mesh = _prop(component, "static_mesh")
     if mesh is None:
         raise Refused("NO_STATIC_MESH|" + str(actor.get_actor_label()))
-    if not _identity_component(component):
+    if not component_world and not _identity_component(component):
         raise Refused("NON_IDENTITY_COMPONENT_TRANSFORM|" + str(actor.get_actor_label()))
+    relative_location = v3(_prop(component, "relative_location"))
+    relative_rotation_value = _prop(component, "relative_rotation")
+    relative_rotation = [float(relative_rotation_value.roll), float(relative_rotation_value.pitch),
+                         float(relative_rotation_value.yaw)]
+    relative_scale = v3(_prop(component, "relative_scale3d"))
+    if component_world:
+        if max(abs(x) for x in relative_rotation) > 1e-4:
+            raise Refused("UNSUPPORTED_SOURCE_COMPONENT_ROTATION|%s|%s" %
+                          (actor.get_actor_label(), relative_rotation))
+        if min(abs(x) for x in relative_scale) <= 1e-6:
+            raise Refused("DEGENERATE_SOURCE_COMPONENT_SCALE|%s|%s" %
+                          (actor.get_actor_label(), relative_scale))
+        transform = component.get_component_transform()
+        transform_rotation = transform.rotation.rotator()
+        location = v3(transform.translation)
+        rotation = [float(transform_rotation.roll), float(transform_rotation.pitch), float(transform_rotation.yaw)]
+        scale = v3(transform.scale3d)
+    else:
+        actor_rotation = actor.get_actor_rotation()
+        location = v3(actor.get_actor_location())
+        rotation = [float(actor_rotation.roll), float(actor_rotation.pitch), float(actor_rotation.yaw)]
+        scale = v3(actor.get_actor_scale3d())
     bmin, bmax = _bbox(mesh)
-    rot = actor.get_actor_rotation()
     origin, extent = unreal.SystemLibrary.get_actor_bounds(actor, False)
     return {
         "label": str(actor.get_actor_label()), "actor_path": _path(actor), "level": _level(actor),
         "actor_class": _path(actor.get_class()), "component_path": _path(component), "mesh": _path(mesh),
         "materials": [_path(component.get_material(i)) for i in range(int(component.get_num_materials()))],
-        "location": v3(actor.get_actor_location()),
-        "rotation": [float(rot.roll), float(rot.pitch), float(rot.yaw)], "scale": v3(actor.get_actor_scale3d()),
+        "location": location, "rotation": rotation, "scale": scale,
         "bbox_min": bmin, "bbox_max": bmax,
         "world_bounds": {"origin": v3(origin), "extent": v3(extent),
                          "min": [v3(origin)[i] - v3(extent)[i] for i in range(3)],
                          "max": [v3(origin)[i] + v3(extent)[i] for i in range(3)]},
-        "component_relative_location": v3(_prop(component, "relative_location")),
+        "component_relative_location": relative_location,
+        "component_relative_transform": {"location": relative_location, "rotation": relative_rotation,
+                                         "scale": relative_scale},
         "component_settings": {
             name: _plain(_prop(component, name)) for name in
             ("mobility", "collision_profile_name", "collision_enabled", "cast_shadow", "visible", "hidden_in_game")
@@ -436,15 +485,17 @@ def _p02_plan(args, world):
     for actor in [source_actor] + targets:
         if _level(actor) != WORLD:
             raise Refused("ACTOR_NOT_PERSISTENT|label=%s|level=%s" % (actor.get_actor_label(), _level(actor)))
-    source = _snapshot(source_actor)
+    source = _snapshot(source_actor, component_world=True)
     segments = _p02_segments(targets)
     replacements = []
     for index, segment in enumerate(segments):
         fitted = fit_transform(source, segment)
+        actor_transform = actor_transform_for_component_world(fitted, source["component_relative_transform"])
         replacements.append({"segment": segment,
                              "new_label": "J129 P01 route segment %03d - %s" % (index + 1, segment["target_label"]),
-                             "new_transform": fitted,
-                             "scale_ratio_vs_p01": [fitted["scale"][i] / source["scale"][i] for i in range(3)]})
+                             "new_transform": actor_transform, "expected_component_world_transform": fitted,
+                             "scale_ratio_vs_p01_component_world":
+                                 [fitted["scale"][i] / source["scale"][i] for i in range(3)]})
     sequence_rows, unclear = _sequence_audit_p02(world, targets)
     blockers, inherited = sequence_binding_policy(sequence_rows)
     passage = _p02_passage_actor()
@@ -453,6 +504,7 @@ def _p02_plan(args, world):
         "target_actor_labels": list(P02_TARGET_LABELS), "route_segments": len(segments),
         "construction_methods": sorted(set(row["construction"] for row in segments)),
         "construction_contract": "duplicate the P01 floor actor once per existing P02 route component/ISM instance; never one corridor plane",
+        "source_component_transform_contract": "preserve P01 component-relative location/scale; solve actor transform from desired component world transform; refuse any component-relative rotation",
         "replacements": replacements, "component_below_offset_cm": float(args["component_below_offset_cm"]),
         "sequence_bindings": sequence_rows, "sequence_scan_unclear": unclear,
         "sequence_component_blockers": blockers, "sequence_inherited_tracks": inherited,
@@ -583,7 +635,7 @@ def _main_p02(args, here):
                                  "target_actor_path": item["segment"]["target_actor_path"],
                                  "expected_world_bounds": item["segment"]["world_bounds"]})
         _write_json(record_path, record)
-        got = _snapshot(duplicate)
+        got = _snapshot(duplicate, component_world=True)
         if (got["actor_class"] != plan["source"]["actor_class"] or got["mesh"] != plan["source"]["mesh"] or
                 got["materials"] != plan["source"]["materials"] or
                 got["component_settings"] != plan["source"]["component_settings"]):
@@ -608,7 +660,7 @@ def _main_p02(args, here):
         actor = owned[row["created_actor_path"]]
         if _level(actor) != WORLD or _path(actor.get_attach_parent_actor()) != row["target_actor_path"]:
             raise Refused("POST_SAVE_LEVEL_OR_ATTACHMENT_READBACK|" + row["created_actor_path"])
-        got = _snapshot(actor)
+        got = _snapshot(actor, component_world=True)
         if (got["mesh"] != plan["source"]["mesh"] or got["materials"] != plan["source"]["materials"] or
                 not _bounds_close(got["world_bounds"], row["expected_world_bounds"], float(args["bounds_tolerance_cm"]))):
             raise Refused("POST_SAVE_P02_SEGMENT_READBACK|" + row["created_actor_path"])

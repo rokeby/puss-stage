@@ -94,7 +94,12 @@ def choose_candidate(rows, expected_label, final_ordinal, max_gap):
     _req(0 <= final_ordinal - ordinal <= max_gap,
          "FINAL_WING_GAP|target=%d|final=%d|max=%d" % (ordinal, final_ordinal, max_gap))
     _req(row.get("class") == TARGET_CLASS, "TARGET_CLASS|%s" % row.get("class"))
-    _req(row.get("identity") is not None, "TARGET_IDENTITY_TAG_MISSING")
+    if row.get("identity") is None:
+        expected = row.get("expected_identity")
+        found = row.get("all_identities", [])
+        reason = "TARGET_IDENTITY_TAG_MISMATCH" if found else "TARGET_IDENTITY_TAG_MISSING"
+        raise Refused("%s|expected=%s|found=%s|DECISION_REQUIRED=REMATERIALIZE_P04_OR_REVISE_SCOPE" %
+                      (reason, expected, found))
     _req(int(row.get("apparatus_count", 0)) == 1, "APPARATUS_COUNT|%s" % row.get("apparatus_count"))
     _req(int(row.get("plume_count", 0)) >= 1, "PLUME_COUNT|%s" % row.get("plume_count"))
     return row
@@ -243,7 +248,7 @@ def _actor_row(actor, show_plan):
     return {"label": str(actor.get_actor_label()), "path": _path(actor),
             "class": actor.get_class().get_name(), "level": actor.get_outermost().get_name(),
             "location": _v3(actor.get_actor_location()), "tags": tags,
-            "identity": wanted if wanted in identities else None,
+            "identity": wanted if wanted in identities else None, "expected_identity": wanted,
             "all_identities": identities, "apparatus_count": len(apparatus), "plume_count": len(plumes),
             "actor_hidden": bool(_prop(actor, "hidden")),
             "apparatus": [_component_snapshot(x) for x in apparatus],

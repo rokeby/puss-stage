@@ -1,7 +1,7 @@
 {
-  "passed": 25,
+  "passed": 26,
   "failed": 0,
-  "total": 25,
+  "total": 26,
   "cases": [
     {
       "name": "P.identity tag parses",
@@ -79,7 +79,13 @@
       "name": "N.identity missing",
       "control": "-",
       "passed": true,
-      "detail": "Refused('TARGET_IDENTITY_TAG_MISSING')"
+      "detail": "Refused('TARGET_IDENTITY_TAG_MISSING|expected=None|found=[]|DECISION_REQUIRED=REMATERIALIZE_P04_OR_REVISE_SCOPE')"
+    },
+    {
+      "name": "N.stale identity reports rematerialize decision",
+      "control": "-",
+      "passed": true,
+      "detail": "Refused(\"TARGET_IDENTITY_TAG_MISMATCH|expected=('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB')|found=[('CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC', 'DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD')]|DECISION_REQUIRED=REMATERIALIZE_P04_OR_REVISE_SCOPE\")"
     },
     {
       "name": "N.no apparatus",

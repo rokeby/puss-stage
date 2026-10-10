@@ -61,6 +61,10 @@ check("N.wrong class", lambda: T.choose_candidate(GOOD[:-1] + [dict(GOOD[-1], **
       T.TARGET_LABEL, 21, 3), False, "TARGET_CLASS")
 check("N.identity missing", lambda: T.choose_candidate(GOOD[:-1] + [dict(GOOD[-1], **{"identity": None})],
       T.TARGET_LABEL, 21, 3), False, "TARGET_IDENTITY_TAG_MISSING")
+check("N.stale identity reports rematerialize decision", lambda: T.choose_candidate(
+      GOOD[:-1] + [dict(GOOD[-1], **{"identity": None, "expected_identity": ("A" * 32, "B" * 32),
+                                    "all_identities": [("C" * 32, "D" * 32)]})],
+      T.TARGET_LABEL, 21, 3), False, "TARGET_IDENTITY_TAG_MISMATCH")
 check("N.no apparatus", lambda: T.choose_candidate(GOOD[:-1] + [dict(GOOD[-1], **{"apparatus_count": 0})],
       T.TARGET_LABEL, 21, 3), False, "APPARATUS_COUNT")
 check("N.multiple apparatus", lambda: T.choose_candidate(GOOD[:-1] + [dict(GOOD[-1], **{"apparatus_count": 2})],

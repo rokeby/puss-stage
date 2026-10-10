@@ -71,6 +71,9 @@ check("POS no permanent asset deletion", "delete_asset" not in source and "os.re
 check("POS exact dirty census gates present", source.count("DIRTY_SCOPE") >= 2 and "DIRTY_BEFORE" in source)
 check("POS read-back gates both mutation modes", "READBACK" in source and "REVERT_READBACK" in source)
 check("POS texture settings and source are read back", "TEXTURE_READBACK" in source and "texture_readback=texture_state" in source)
+check("POS UE5.8 texture settings verified before save", "post_edit_change" not in source and
+      "TEXTURE_SETTINGS_PRE_SAVE" in source and "TEXTURE_SOURCE_PRE_SAVE" in source and
+      source.index("new.set_editor_property") < source.index("new.modify()") < source.index("save_only(expected_dirty)"))
 check("POS backups precede Unreal mutation calls", source.index("backup_path = backup(run, original_packages") < source.index("made = import_textures(plan)"))
 
 manifest_path = os.path.join(HERE, "fringe_fix_manifest.json")

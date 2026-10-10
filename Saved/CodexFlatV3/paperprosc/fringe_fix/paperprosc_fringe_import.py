@@ -138,10 +138,24 @@ def import_textures(plan):
     for row, task in zip(plan["rows"], tasks):
         if not unreal.EditorAssetLibrary.does_asset_exist(row["new"]):
             raise RuntimeError("IMPORT_MISSING|%s|%s" % (row["owner"], list(task.imported_object_paths)))
-        old = load(row["old"], unreal.Texture2D); new = load(row["new"], unreal.Texture2D); new.modify()
+        old = load(row["old"], unreal.Texture2D); new = load(row["new"], unreal.Texture2D)
         for prop in TEXTURE_PROPS:
             new.set_editor_property(prop, old.get_editor_property(prop))
-        new.post_edit_change(); made.append(row["new"])
+        # UE 5.8 Python does not expose the legacy Texture2D editor-change
+        # callback. The editor-property writes above are the supported mutation path; mark the
+        # imported object modified, then prove the settings and source filename
+        # while the asset is still unsaved.
+        new.modify()
+        bad = [prop for prop in TEXTURE_PROPS
+               if str(new.get_editor_property(prop)) != str(old.get_editor_property(prop))]
+        if bad:
+            raise RuntimeError("TEXTURE_SETTINGS_PRE_SAVE|%s|%s" % (row["new"], bad))
+        import_data = new.get_editor_property("asset_import_data")
+        imported_from = str(import_data.get_first_filename()).replace("\\", "/") if import_data is not None else ""
+        if os.path.normcase(os.path.abspath(imported_from)) != os.path.normcase(os.path.abspath(row["png"])):
+            raise RuntimeError("TEXTURE_SOURCE_PRE_SAVE|%s|got=%s|want=%s" %
+                               (row["new"], imported_from, row["png"]))
+        made.append(row["new"])
     return made
 
 

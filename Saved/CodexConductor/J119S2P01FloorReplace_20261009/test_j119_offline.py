@@ -59,6 +59,20 @@ class Geometry(unittest.TestCase):
         with self.assertRaises(tool.Refused):
             tool._bounds_for_row(row)
 
+    def test_non_identity_source_component_is_solved_positive(self):
+        desired = {"location": [100, 200, 3], "rotation": [0, 0, 90], "scale": [6, 8, 1]}
+        relative = {"location": [10, 0, 0], "rotation": [0, 0, 0], "scale": [2, 4, .5]}
+        got = tool.actor_transform_for_component_world(desired, relative)
+        self.assertEqual([round(x, 6) for x in got["location"]], [100, 170, 3])
+        self.assertEqual(got["rotation"], [0, 0, 90])
+        self.assertEqual(got["scale"], [3, 2, 2])
+
+    def test_rotated_source_component_still_refused_negative(self):
+        desired = {"location": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1]}
+        relative = {"location": [0, 0, 0], "rotation": [0, 0, 1], "scale": [1, 1, 1]}
+        with self.assertRaises(ValueError):
+            tool.actor_transform_for_component_world(desired, relative)
+
 
 class Gates(unittest.TestCase):
     def test_confirm_positive_and_negative(self):
@@ -144,6 +158,14 @@ class StaticSafety(unittest.TestCase):
         self.assertIn("P02_TAG", self.text)
         self.assertIn("PreJ129P02P01Floor", self.text)
 
+    def test_p02_non_identity_component_handling_is_scoped(self):
+        s2 = self.text[self.text.index("def _make_plan("):self.text.index("def _bounds_for_row(")]
+        p02 = self.text[self.text.index("def _p02_plan("):self.text.index("def _p02_component_map(")]
+        self.assertIn("source = _snapshot(source_actor)\n", s2)
+        self.assertNotIn("component_world=True", s2)
+        self.assertIn("source = _snapshot(source_actor, component_world=True)", p02)
+        self.assertIn("actor_transform_for_component_world", p02)
+
     def test_bhidden_contract_and_no_inert_property(self):
         self.assertIn('"bhidden"', self.text.lower())
         self.assertNotIn("bHiddenInGame", self.text)
@@ -165,8 +187,8 @@ if __name__ == "__main__":
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     report = {"tests": result.testsRun, "failures": len(result.failures), "errors": len(result.errors),
-              "positive_controls": 16, "negative_controls": 14, "passed": result.wasSuccessful()}
+              "positive_controls": 18, "negative_controls": 15, "passed": result.wasSuccessful()}
     (HERE / "harness_result.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print("J119_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=16|negative_controls=14" %
+    print("J119_HARNESS|tests=%d|failures=%d|errors=%d|positive_controls=18|negative_controls=15" %
           (result.testsRun, len(result.failures), len(result.errors)))
     raise SystemExit(0 if result.wasSuccessful() else 1)

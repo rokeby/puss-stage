@@ -1,5 +1,5 @@
 {
-  "passed": 27,
+  "passed": 28,
   "failed": 0,
   "results": [
     {
@@ -80,6 +80,10 @@
     },
     {
       "check": "POS texture settings and source are read back",
+      "ok": true
+    },
+    {
+      "check": "POS UE5.8 texture settings verified before save",
       "ok": true
     },
     {
