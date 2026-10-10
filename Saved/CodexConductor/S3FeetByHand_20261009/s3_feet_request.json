@@ -1,0 +1,10 @@
+{
+  "name": "call_tool",
+  "arguments": {
+    "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+    "tool_name": "ExecuteProjectPythonFile",
+    "arguments": {
+      "relativeSavedPath": "CodexConductor/S3FeetByHand_20261009/s3_feet_run.py"
+    }
+  }
+}

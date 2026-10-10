@@ -1,0 +1,22 @@
+{
+  "schema": "s3_feet_by_hand_harness/1",
+  "date": "2026-10-09",
+  "offline_only": true,
+  "unreal_started": false,
+  "result": "PASS",
+  "positive": {
+    "passed": 21,
+    "total": 21
+  },
+  "negative": {
+    "passed": 22,
+    "total": 22
+  },
+  "total": {
+    "passed": 43,
+    "total": 43
+  },
+  "command": "python Saved/CodexConductor/S3FeetByHand_20261009/test_s3_feet_offline.py",
+  "marker": "S3_FEET_OFFLINE_PASS|positive=21/21|negative=22/22|total=43/43",
+  "proof_boundary": "Python policy and source-contract controls only; no Unreal API, saved asset, runtime, or rendered result was measured."
+}
