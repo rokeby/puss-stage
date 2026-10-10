@@ -37,6 +37,8 @@ Status values: `TODO` · `RUNNING` · `DONE (marker)` · `SKIPPED (reason)` · `
 
 ## B. After pass 2 (conductor runs these, in order)
 
+0. **Nap camera offset** (LS_Nap_BatteryChange, all keys): Z +20, roll 35, yaw −20, pitch +15, then a still at 24:51.2 (Gary).
+
 1. **P05 deer curtain** (Finishing Touches): `curtain_image_request.json`, run CI-20261009-SETDEER-P05. Report the "previous" texture to FT.
 2. **Shadow radii, all P01–P06 casters** (job 111; Gary approved overnight):
    - DRY survey.
