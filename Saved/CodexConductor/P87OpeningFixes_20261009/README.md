@@ -12,10 +12,13 @@ the Master and Opening-local clocks.
 - `p87_unreal_adapter.py`: UE 5.8 discovery/mutation adapter; composes P13 helpers.
 - `p87_opening_run.py`: guarded project-Python entrypoint.
 - `p87_opening_args.json`: Gary-owned look/timing values.
+- `p87_stage_front_replan_20261010.json`: Job 160's computed paper + 3D bounds, exact filmback framing,
+  stage-lip uplights and geometry-clear bulb rule.
 - `p87_opening_request.json`: mode/confirm/run-id control.
 - `p87_execute_request.json`: guarded MCP request body for the conductor.
 - `test_p87_opening.py`: offline positive and negative harness.
 - `p87_preview.py`: PIL-only preview generator.
+- `DerivedAssets/P87OpeningFixes/p87_stage_front_camera_frusta.svg`: combined top/front review sheet.
 - `P87_OPENING_FIXES_REPORT_2026-10-09.md`: tiered handoff and open questions.
 
 ## Ordered live run (conductor only)
@@ -40,5 +43,9 @@ the Master and Opening-local clocks.
    parts, and run. REVERT refuses any drift, makes a second backup, restores the
    recorded before-state, reads back, and archives the APPLY record.
 
-Never use Save All. Never run APPLY with an unresolved clock or unreviewed
-foreign record.
+The Job 160 revision also refuses a changed Opening end pose, a WIDE whose
+23.76 x 13.365 mm frustum leaves less than 10% margin around the full new
+front, and any uplight/bulb proposal that enters a named paper/3D occupancy
+box. Never use Save All. Never run APPLY with an unresolved clock or
+unreviewed foreign record. The two request files remain HELD until the
+conductor has placed and verified the 3D front.

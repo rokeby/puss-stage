@@ -148,6 +148,21 @@ def main():
     rejects("uplight lumens cap", lambda: C.merge_args({"uplight_lumens": 9000}), "ARG_uplight_lumens")
     rejects("uplight shadows", lambda: C.merge_args({"uplight_cast_shadows": True}), "UPLIGHT_SHADOWS")
     rejects("mesh path", lambda: C.merge_args({"uplight_mesh": "Engine/Thing"}), "UPLIGHT_MESH")
+    rejects("wide framing too tight", lambda: C.build_plan(
+        C.merge_args({"first_flurry_frame": 950, "wide_pose": {"location": [-3000, 0, 819.54],
+        "rotation": [0, 0, 0], "focal_mm": 30, "focus_cm": 2644.54}}, True), live_fixture()), "WIDE_FRAME_MARGIN")
+    bad_end = live_fixture(); bad_end["camera_end_pose"]["location"][0] = 1.0
+    rejects("end pose drift", lambda: C.build_plan(C.merge_args({"first_flurry_frame": 950}, True), bad_end),
+            "CAMERA_END_POSE_DRIFT")
+    blocks_uplight = [{"name": "trap", "min": [-500, -2000, 0], "max": [-400, 2000, 100]}]
+    rejects("uplight inside geometry", lambda: C.uplight_plan(C.merge_args(
+        {"first_flurry_frame": 950, "stage_front_occupancy_boxes_cm": blocks_uplight}, True)),
+        "UPLIGHT_STAGE_FRONT_INTERSECTION")
+    blocks_bulb = [{"name": "trap", "min": [-1000, -1000, -100], "max": [1000, 1000, 100]}]
+    rejects("bulb inside geometry", lambda: C.bulb_scatter_plan(C.merge_args(
+        {"first_flurry_frame": 950, "stage_front_occupancy_boxes_cm": blocks_bulb}, True),
+        [{"id": "TRAP", "wing_location": [100, 0, 0], "floor_z_cm": 0, "side_sign": 1}]),
+        "BULB_STAGE_FRONT_INTERSECTION")
 
     p = C.merge_args({"first_flurry_frame": 950}, True)
     live = live_fixture()
@@ -158,12 +173,22 @@ def main():
     check("camera holds to fall", plan["camera"]["hold_end_frame"] == 950)
     check("camera end pose exact", plan["camera"]["keys"][-1] == dict({"frame": 2409}, **live["camera_end_pose"]))
     check("camera slow", plan["camera"]["move_seconds"] > 50.0)
+    check("new filmback exact", plan["camera"]["filmback_mm"] == [23.76, 13.365])
+    check("whole front horizontal margin", plan["camera"]["wide_framing"]["horizontal_margin_fraction"] >= .10)
+    check("whole front vertical margin", plan["camera"]["wide_framing"]["vertical_margin_fraction"] >= .10)
+    check("combined front bounds", plan["camera"]["framed_bounds_cm"] ==
+          {"min": [-681.0, -1660.0, -120.0], "max": [-21.0, 1660.0, 1759.08]})
     check("uplights after flash", all(r["intensity_keys"][1] == [950, 0.0] for r in plan["uplights"]["rows"]))
     check("uplight count", len(plan["uplights"]["rows"]) == 6)
     check("no new caster", plan["uplights"]["new_shadow_casters"] == 0)
+    check("uplights clear new geometry", all(C.point_box_hit(r["location"], p["stage_front_occupancy_boxes_cm"],
+          p["uplight_geometry_clearance_cm"]) is None for r in plan["uplights"]["rows"]))
     check("one model", len({r["mesh"] for r in plan["uplights"]["rows"]}) == 1)
     check("bulb count", len(plan["bulbs"]["rows"]) == len(live["bulbs"]))
     check("bulb clear", min(r["wing_clearance_cm"] for r in plan["bulbs"]["rows"]) >= p["bulb_wing_clearance_cm"])
+    check("bulbs clear new geometry", all(C.point_box_hit([*r["location_xy_proposal"], r["floor_z_fallback_cm"]],
+          p["stage_front_occupancy_boxes_cm"], p["bulb_stage_front_clearance_cm"]) is None
+          for r in plan["bulbs"]["rows"]))
     check("catfloor trace", all(r["trace"]["channel"] == "ECC_CAT_FLOOR" for r in plan["bulbs"]["rows"]))
     check("deterministic scatter", C.bulb_scatter_plan(p, live["bulbs"]) == C.bulb_scatter_plan(p, list(reversed(live["bulbs"]))))
     p2 = C.merge_args({"first_flurry_frame": 950, "bulb_yaw_deg": 5}, True)
@@ -207,7 +232,7 @@ def main():
         check("two backups", len(backend.backups) == 2)
 
     total = PASS + FAIL
-    print("P87_HARNESS_RESULT|pass=%d|fail=%d|total=%d|negative=17|positive=%d" % (PASS, FAIL, total, total - 17))
+    print("P87_HARNESS_RESULT|pass=%d|fail=%d|total=%d|negative=21|positive=%d" % (PASS, FAIL, total, total - 21))
     return 0 if FAIL == 0 else 1
 
 

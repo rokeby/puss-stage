@@ -1,0 +1,59 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000' viewBox='0 0 1600 1000'>
+<rect width='100%' height='100%' fill='#17191e'/>
+<style>text{font-family:Segoe UI,Arial,sans-serif;fill:#e8e2d5;font-size:15px}.small{font-size:12px}.axis{stroke:#59616d;stroke-width:1}.geom{fill:#8b6b45;stroke:#d4aa70;stroke-width:1}.paper{fill:#a58565}.frustum{fill:none;stroke:#6fc7ff;stroke-width:2}.end{stroke:#7fe0a3}.light{fill:#ffc15c;stroke:#fff0ba}.bulb{fill:#bce0ff}</style>
+<text x='45' y='35' font-size='22'>P87 opening re-plan — NEW 3D STAGE FRONT — PROPOSAL, NOT APPLIED</text>
+<text x='45' y='62'>TOP VIEW (X upstage →, Y across stage)</text>
+<text x='845' y='62'>FRONT VIEW (Y across, Z up)</text>
+<rect class='geom' x='520.50' y='121.90' width='2.83' height='316.19'><title>stage_lip</title></rect>
+<rect class='geom' x='537.00' y='399.05' width='11.33' height='39.05'><title>outer_bay_l</title></rect>
+<rect class='geom' x='537.00' y='121.90' width='11.33' height='39.05'><title>outer_bay_r</title></rect>
+<rect class='geom' x='544.33' y='397.14' width='54.00' height='5.71'><title>vestibule_l</title></rect>
+<rect class='geom' x='544.33' y='157.14' width='54.00' height='5.71'><title>vestibule_r</title></rect>
+<rect class='geom' x='544.33' y='157.62' width='4.00' height='244.76'><title>arch_head</title></rect>
+<rect class='geom' x='489.83' y='121.90' width='58.50' height='316.19'><title>entablature</title></rect>
+<rect class='geom' x='505.41' y='400.28' width='60.85' height='32.27'><title>column_l</title></rect>
+<rect class='geom' x='505.41' y='127.44' width='60.85' height='32.27'><title>column_r</title></rect>
+<rect class='geom' x='495.53' y='241.90' width='24.47' height='76.19'><title>crest</title></rect>
+<rect class='geom' x='574.27' y='378.42' width='23.22' height='10.79'><title>cat_l</title></rect>
+<rect class='geom' x='574.27' y='170.80' width='23.22' height='10.79'><title>cat_r</title></rect>
+<rect class='paper' x='590.66' y='363.32' width='3.31' height='33.92'><title>paper_side_l</title></rect>
+<rect class='paper' x='590.66' y='165.90' width='3.31' height='30.77'><title>paper_side_r</title></rect>
+<rect class='paper' x='593.16' y='161.52' width='2.68' height='236.97'><title>paper_valance</title></rect>
+<polyline class='frustum' points='103.33,280.00 489.83,460.95 489.83,99.05'/>
+<circle cx='103.33' cy='280.00' r='6' fill='#6fc7ff'/>
+<polyline class='frustum end' points='603.33,280.00 753.33,320.73 753.33,239.27'/>
+<circle cx='603.33' cy='280.00' r='6' fill='#7fe0a3'/>
+<circle class='light' cx='530.00' cy='375.24' r='6'/>
+<circle class='light' cx='530.00' cy='337.14' r='6'/>
+<circle class='light' cx='530.00' cy='299.05' r='6'/>
+<circle class='light' cx='530.00' cy='260.95' r='6'/>
+<circle class='light' cx='530.00' cy='222.86' r='6'/>
+<circle class='light' cx='530.00' cy='184.76' r='6'/>
+<circle class='bulb' cx='586.03' cy='232.18' r='3'/>
+<circle class='bulb' cx='639.21' cy='331.15' r='3'/>
+<circle class='bulb' cx='693.16' cy='226.81' r='3'/>
+<circle class='bulb' cx='757.17' cy='338.55' r='3'/>
+<circle class='bulb' cx='819.98' cy='221.64' r='3'/>
+<circle class='bulb' cx='872.00' cy='341.50' r='3'/>
+<circle class='bulb' cx='922.21' cy='217.18' r='3'/>
+<circle class='bulb' cx='981.95' cy='348.09' r='3'/>
+<circle class='bulb' cx='1045.94' cy='212.12' r='3'/>
+<circle class='bulb' cx='1115.90' cy='351.90' r='3'/>
+<circle class='bulb' cx='1163.20' cy='205.07' r='3'/>
+<circle class='bulb' cx='1218.43' cy='359.01' r='3'/>
+<rect x='939.14' y='114.97' width='521.71' height='350.76' fill='#8b6b45' fill-opacity='.42' stroke='#d4aa70' stroke-width='2'/>
+<rect x='901.43' y='90.85' width='597.14' height='399.00' fill='none' stroke='#6fc7ff' stroke-width='2' stroke-dasharray='8 5'/>
+<circle class='light' cx='1042.86' cy='434.93' r='6'/>
+<circle class='light' cx='1105.71' cy='434.93' r='6'/>
+<circle class='light' cx='1168.57' cy='434.93' r='6'/>
+<circle class='light' cx='1231.43' cy='434.93' r='6'/>
+<circle class='light' cx='1294.29' cy='434.93' r='6'/>
+<circle class='light' cx='1357.14' cy='434.93' r='6'/>
+<text x='45' y='535'>WIDE: loc (−3000, 0, 819.54) cm · 14.5 mm · filmback 23.76 × 13.365 mm</text>
+<text x='45' y='560'>Blue frustum fits the full paper + 3D envelope; horizontal margin 12.63%, vertical margin 12.09%.</text>
+<text x='45' y='585'>Green: exact guarded move-in end / P01 start: (0,0,150) cm, 25 mm. The move begins at the single fall.</text>
+<text x='45' y='625'>Orange: six shadowless uplights at X −440 cm, Y −1000…1000 cm, clear of all occupancy boxes by ≥10 cm.</text>
+<text x='45' y='650'>Blue dots: seeded bulb proposals; every proposal is refused if within 25 cm of any new-front occupancy box.</text>
+<text x='45' y='690'>Combined AABB: min (−681, −1660, −120), max (−21, 1660, 1759.08) cm.</text>
+<text x='45' y='730'>Opening acceptance remains rendered review after stage-front placement. Requests remain HELD.</text>
+</svg>

@@ -4,12 +4,32 @@
   "first_flurry_frame": null,
   "first_flurry_clock": "UNRESOLVED: Gary 00:37:50; live DRY must print Master and Opening-local clocks",
   "wide_pose": {
-    "location": [-2400.0, 0.0, 150.0],
-    "rotation": [9.0, 0.0, 0.0],
-    "focal_mm": 15.0,
-    "focus_cm": 100000.0
+    "location": [-3000.0, 0.0, 819.54],
+    "rotation": [0.0, 0.0, 0.0],
+    "focal_mm": 14.5,
+    "focus_cm": 2644.54
   },
+  "expected_end_pose": {
+    "location": [0.0, 0.0, 150.0],
+    "rotation": [0.0, 0.0, 0.0],
+    "focal_mm": 25.0,
+    "focus_cm": 600.0
+  },
+  "stage_front_bbox_cm": {
+    "min": [-681.0, -1660.0, -120.0],
+    "max": [-21.0, 1660.0, 1759.08]
+  },
+  "sensor_width_mm": 23.76,
+  "sensor_height_mm": 13.365,
+  "wide_min_margin_fraction": 0.10,
   "uplight_count": 6,
+  "uplight_x_cm": -440.0,
+  "uplight_y_min_cm": -1000.0,
+  "uplight_y_max_cm": 1000.0,
+  "uplight_z_cm": 45.0,
+  "uplight_aim_x_cm": -330.0,
+  "uplight_aim_z_cm": 1120.0,
+  "uplight_geometry_clearance_cm": 10.0,
   "uplight_lumens": 350.0,
   "uplight_kelvin": 3200.0,
   "uplight_cast_shadows": false,
@@ -18,5 +38,23 @@
   "bulb_front_max_cm": 190.0,
   "bulb_side_jitter_cm": 55.0,
   "bulb_yaw_deg": 28.0,
-  "bulb_tilt_deg": 18.0
+  "bulb_tilt_deg": 18.0,
+  "bulb_stage_front_clearance_cm": 25.0,
+  "stage_front_occupancy_boxes_cm": [
+    {"name": "stage_lip", "min": [-497.0, -1660.0, -120.0], "max": [-480.0, 1660.0, 0.0]},
+    {"name": "outer_bay_l", "min": [-398.0, -1660.0, 0.0], "max": [-330.0, -1250.0, 1400.0]},
+    {"name": "outer_bay_r", "min": [-398.0, 1250.0, 0.0], "max": [-330.0, 1660.0, 1400.0]},
+    {"name": "vestibule_l", "min": [-354.0, -1290.0, 0.0], "max": [-30.0, -1230.0, 1400.0]},
+    {"name": "vestibule_r", "min": [-354.0, 1230.0, 0.0], "max": [-30.0, 1290.0, 1400.0]},
+    {"name": "arch_head", "min": [-354.0, -1285.0, 1350.0], "max": [-330.0, 1285.0, 1405.0]},
+    {"name": "entablature", "min": [-681.0, -1660.0, 1400.0], "max": [-330.0, 1660.0, 1700.0]},
+    {"name": "column_l", "min": [-587.56, -1601.84, 0.0], "max": [-222.44, -1262.96, 1400.0]},
+    {"name": "column_r", "min": [-587.56, 1262.96, 0.0], "max": [-222.44, 1601.84, 1400.0]},
+    {"name": "crest", "min": [-646.84, -400.0, 1260.0], "max": [-500.0, 400.0, 1759.08]},
+    {"name": "cat_l", "min": [-174.37, -1146.64, 0.0], "max": [-35.03, -1033.36, 550.0]},
+    {"name": "cat_r", "min": [-174.37, 1033.36, 0.0], "max": [-35.03, 1146.64, 550.0]},
+    {"name": "paper_side_l", "min": [-76.05, -1231.0, -100.0], "max": [-56.20, -874.87, 1100.0]},
+    {"name": "paper_side_r", "min": [-76.05, 874.90, -100.0], "max": [-56.20, 1198.0, 1100.0]},
+    {"name": "paper_valance", "min": [-61.05, -1244.08, 930.0], "max": [-45.0, 1244.08, 1330.0]}
+  ]
 }

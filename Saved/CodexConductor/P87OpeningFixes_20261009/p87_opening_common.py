@@ -21,6 +21,24 @@ FLOAT_TOL = 1.0e-4
 POSE_POS_TOL_CM = 0.01
 POSE_ROT_TOL_DEG = 0.001
 
+STAGE_FRONT_OCCUPANCY_BOXES = [
+    {"name": "stage_lip", "min": [-497, -1660, -120], "max": [-480, 1660, 0]},
+    {"name": "outer_bay_l", "min": [-398, -1660, 0], "max": [-330, -1250, 1400]},
+    {"name": "outer_bay_r", "min": [-398, 1250, 0], "max": [-330, 1660, 1400]},
+    {"name": "vestibule_l", "min": [-354, -1290, 0], "max": [-30, -1230, 1400]},
+    {"name": "vestibule_r", "min": [-354, 1230, 0], "max": [-30, 1290, 1400]},
+    {"name": "arch_head", "min": [-354, -1285, 1350], "max": [-330, 1285, 1405]},
+    {"name": "entablature", "min": [-681, -1660, 1400], "max": [-330, 1660, 1700]},
+    {"name": "column_l", "min": [-587.56, -1601.84, 0], "max": [-222.44, -1262.96, 1400]},
+    {"name": "column_r", "min": [-587.56, 1262.96, 0], "max": [-222.44, 1601.84, 1400]},
+    {"name": "crest", "min": [-646.84, -400, 1260], "max": [-500, 400, 1759.08]},
+    {"name": "cat_l", "min": [-174.37, -1146.64, 0], "max": [-35.03, -1033.36, 550]},
+    {"name": "cat_r", "min": [-174.37, 1033.36, 0], "max": [-35.03, 1146.64, 550]},
+    {"name": "paper_side_l", "min": [-76.05, -1231, -100], "max": [-56.20, -874.87, 1100]},
+    {"name": "paper_side_r", "min": [-76.05, 874.90, -100], "max": [-56.20, 1198, 1100]},
+    {"name": "paper_valance", "min": [-61.05, -1244.08, 930], "max": [-45, 1244.08, 1330]},
+]
+
 DEFAULTS = {
     "parts": list(PARTS),
     "ack_records": [],
@@ -32,21 +50,26 @@ DEFAULTS = {
     "curtain_fall_frames": 250,
     "curtain_hold_offset_ticks": 23200,
     "curtain_pile_offset_ticks": 263999,
-    "wide_pose": {"location": [-2400.0, 0.0, 150.0],
-                  "rotation": [9.0, 0.0, 0.0], "focal_mm": 15.0, "focus_cm": 100000.0},
+    "wide_pose": {"location": [-3000.0, 0.0, 819.54],
+                  "rotation": [0.0, 0.0, 0.0], "focal_mm": 14.5, "focus_cm": 2644.54},
+    "expected_end_pose": {"location": [0.0, 0.0, 150.0],
+                          "rotation": [0.0, 0.0, 0.0], "focal_mm": 25.0, "focus_cm": 600.0},
+    "stage_front_bbox_cm": {"min": [-681.0, -1660.0, -120.0],
+                            "max": [-21.0, 1660.0, 1759.08]},
     "camera_ease": "smootherstep",
     "camera_sample_step_frames": 1,
     "proscenium_half_width_cm": 1050.0,
     "proscenium_bottom_cm": -120.0,
     "proscenium_top_cm": 1250.0,
-    "sensor_width_mm": 36.0,
-    "sensor_height_mm": 20.25,
+    "sensor_width_mm": 23.76,
+    "sensor_height_mm": 13.365,
+    "wide_min_margin_fraction": 0.10,
     "uplight_count": 6,
-    "uplight_x_cm": -135.0,
-    "uplight_y_min_cm": -850.0,
-    "uplight_y_max_cm": 850.0,
+    "uplight_x_cm": -440.0,
+    "uplight_y_min_cm": -1000.0,
+    "uplight_y_max_cm": 1000.0,
     "uplight_z_cm": 45.0,
-    "uplight_aim_x_cm": -60.0,
+    "uplight_aim_x_cm": -330.0,
     "uplight_aim_z_cm": 1120.0,
     "uplight_lumens": 350.0,
     "uplight_kelvin": 3200.0,
@@ -56,6 +79,7 @@ DEFAULTS = {
     "uplight_fade_frames": 20,
     "uplight_mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan",
     "uplight_cast_shadows": False,
+    "uplight_geometry_clearance_cm": 10.0,
     "bulb_seed": "P87-GARY-20261009",
     "bulb_front_min_cm": 70.0,
     "bulb_front_max_cm": 190.0,
@@ -63,8 +87,10 @@ DEFAULTS = {
     "bulb_yaw_deg": 28.0,
     "bulb_tilt_deg": 18.0,
     "bulb_wing_clearance_cm": 35.0,
+    "bulb_stage_front_clearance_cm": 25.0,
     "bulb_trace_up_cm": 120.0,
     "bulb_trace_down_cm": 300.0,
+    "stage_front_occupancy_boxes_cm": STAGE_FRONT_OCCUPANCY_BOXES,
 }
 
 
@@ -119,6 +145,8 @@ def merge_args(raw=None, require_flurry=False):
         ("bulb_front_min_cm", 1, 1000), ("bulb_front_max_cm", 1, 2000),
         ("bulb_side_jitter_cm", 0, 500), ("bulb_yaw_deg", 0, 180),
         ("bulb_tilt_deg", 0, 89), ("bulb_wing_clearance_cm", 0, 500),
+        ("bulb_stage_front_clearance_cm", 0, 500), ("uplight_geometry_clearance_cm", 0, 200),
+        ("wide_min_margin_fraction", 0, 0.4),
     ):
         _num(p, name, lo, hi, name in {"opening_end_frame", "curtain_fall_frames", "camera_sample_step_frames",
                                        "uplight_count", "uplight_fade_frames"})
@@ -138,7 +166,71 @@ def merge_args(raw=None, require_flurry=False):
         raise P87Error("UPLIGHT_MESH|must be /Game path")
     if p["uplight_cast_shadows"] is not False:
         raise P87Error("UPLIGHT_SHADOWS|P87 GPU gate requires false by default")
+    _validate_geometry_args(p)
     return p
+
+
+def _triple(value, label):
+    if not isinstance(value, list) or len(value) != 3:
+        raise P87Error("%s|three numbers required" % label)
+    try:
+        return [float(x) for x in value]
+    except (TypeError, ValueError):
+        raise P87Error("%s|three numbers required" % label)
+
+
+def _validate_geometry_args(p):
+    bbox = p.get("stage_front_bbox_cm")
+    if not isinstance(bbox, dict):
+        raise P87Error("STAGE_FRONT_BBOX")
+    bbox["min"], bbox["max"] = _triple(bbox.get("min"), "STAGE_FRONT_BBOX_MIN"), _triple(bbox.get("max"), "STAGE_FRONT_BBOX_MAX")
+    if any(a >= b for a, b in zip(bbox["min"], bbox["max"])):
+        raise P87Error("STAGE_FRONT_BBOX_ORDER")
+    for label in ("wide_pose", "expected_end_pose"):
+        row = p.get(label)
+        if not isinstance(row, dict):
+            raise P87Error(label.upper())
+        row["location"] = _triple(row.get("location"), label.upper() + "_LOCATION")
+        row["rotation"] = _triple(row.get("rotation"), label.upper() + "_ROTATION")
+        for field in ("focal_mm", "focus_cm"):
+            row[field] = float(row[field])
+            if row[field] <= 0: raise P87Error("%s_%s" % (label.upper(), field.upper()))
+    if any(abs(x) > FLOAT_TOL for x in p["wide_pose"]["rotation"]):
+        raise P87Error("WIDE_ROTATION|offline bbox proof requires axis-aligned +X camera")
+    boxes = p.get("stage_front_occupancy_boxes_cm")
+    if not isinstance(boxes, list) or not boxes:
+        raise P87Error("STAGE_FRONT_BOXES|non-empty list required")
+    names = set()
+    for row in boxes:
+        if not isinstance(row, dict) or not row.get("name") or row["name"] in names:
+            raise P87Error("STAGE_FRONT_BOX_NAME")
+        names.add(row["name"])
+        row["min"], row["max"] = _triple(row.get("min"), "BOX_MIN"), _triple(row.get("max"), "BOX_MAX")
+        if any(a >= b for a, b in zip(row["min"], row["max"])):
+            raise P87Error("STAGE_FRONT_BOX_ORDER|%s" % row["name"])
+
+
+def point_box_hit(point, boxes, clearance=0.0):
+    point = [float(x) for x in point]
+    for row in boxes:
+        if all(float(row["min"][i]) - clearance <= point[i] <= float(row["max"][i]) + clearance for i in range(3)):
+            return row["name"]
+    return None
+
+
+def framing_metrics(pose, bbox, sensor_width_mm, sensor_height_mm):
+    """Axis-aligned +X camera proof over all eight conservative AABB corners."""
+    cx, cy, cz = pose["location"]; focal = float(pose["focal_mm"])
+    worst_h = worst_v = 0.0
+    for x in (bbox["min"][0], bbox["max"][0]):
+        depth = x - cx
+        if depth <= 0: raise P87Error("WIDE_BBOX_BEHIND_CAMERA")
+        for y in (bbox["min"][1], bbox["max"][1]):
+            worst_h = max(worst_h, abs(y - cy) * 2.0 * focal / (depth * sensor_width_mm))
+        for z in (bbox["min"][2], bbox["max"][2]):
+            worst_v = max(worst_v, abs(z - cz) * 2.0 * focal / (depth * sensor_height_mm))
+    return {"horizontal_fill_fraction": worst_h, "vertical_fill_fraction": worst_v,
+            "horizontal_margin_fraction": 1.0 - worst_h, "vertical_margin_fraction": 1.0 - worst_v}
 
 
 def preflight(mode, confirm, context, record, parts):
@@ -183,6 +275,18 @@ def camera_plan(p, live_end_pose):
     if start + 2 >= end:
         raise P87Error("CAMERA_DURATION|too short")
     wide = p["wide_pose"]
+    expected_end = p["expected_end_pose"]
+    for field, tolerance in (("location", POSE_POS_TOL_CM), ("rotation", POSE_ROT_TOL_DEG)):
+        if any(abs(float(a) - float(b)) > tolerance for a, b in zip(live_end_pose[field], expected_end[field])):
+            raise P87Error("CAMERA_END_POSE_DRIFT|%s|live=%s|expected=%s" %
+                           (field, live_end_pose[field], expected_end[field]))
+    for field, tolerance in (("focal_mm", FLOAT_TOL), ("focus_cm", POSE_POS_TOL_CM)):
+        if abs(float(live_end_pose[field]) - float(expected_end[field])) > tolerance:
+            raise P87Error("CAMERA_END_POSE_DRIFT|%s|live=%s|expected=%s" %
+                           (field, live_end_pose[field], expected_end[field]))
+    framing = framing_metrics(wide, p["stage_front_bbox_cm"], p["sensor_width_mm"], p["sensor_height_mm"])
+    if min(framing["horizontal_margin_fraction"], framing["vertical_margin_fraction"]) + FLOAT_TOL < p["wide_min_margin_fraction"]:
+        raise P87Error("WIDE_FRAME_MARGIN|%s" % canonical(framing))
     fields = ("location", "rotation")
     if any(len(wide[k]) != 3 or len(live_end_pose[k]) != 3 for k in fields):
         raise P87Error("CAMERA_POSE|location/rotation triples required")
@@ -199,7 +303,10 @@ def camera_plan(p, live_end_pose):
         raise P87Error("CAMERA_END_IDENTITY")
     return {"status": "planned", "hold_end_frame": start, "move_frames": end - start,
             "move_seconds": (end - start) / p["fps"], "wide_pose": copy.deepcopy(wide),
-            "end_pose": copy.deepcopy(live_end_pose), "keys": keys}
+            "wide_framing": framing, "filmback_mm": [p["sensor_width_mm"], p["sensor_height_mm"]],
+            "framed_bounds_cm": copy.deepcopy(p["stage_front_bbox_cm"]),
+            "end_pose": copy.deepcopy(live_end_pose), "end_framing": "exact guarded P01 start pose",
+            "keys": keys}
 
 
 def curtain_plan(p, live_sections):
@@ -236,6 +343,9 @@ def uplight_plan(p):
     rows = []
     for i, y in enumerate(ys, 1):
         loc = [p["uplight_x_cm"], y, p["uplight_z_cm"]]
+        hit = point_box_hit(loc, p["stage_front_occupancy_boxes_cm"], p["uplight_geometry_clearance_cm"])
+        if hit:
+            raise P87Error("UPLIGHT_STAGE_FRONT_INTERSECTION|%02d|%s" % (i, hit))
         aim = [p["uplight_aim_x_cm"], y, p["uplight_aim_z_cm"]]
         rows.append({"label": "P87 Stage Front Uplight %02d" % i, "location": loc,
                      "rotation": aim_rotation(loc, aim), "mesh": p["uplight_mesh"],
@@ -243,6 +353,7 @@ def uplight_plan(p):
                      "inner_cone_deg": p["uplight_inner_cone_deg"],
                      "outer_cone_deg": p["uplight_outer_cone_deg"],
                      "attenuation_cm": p["uplight_attenuation_cm"], "cast_shadows": False,
+                     "geometry_clearance_cm": p["uplight_geometry_clearance_cm"],
                      "intensity_keys": [[0, 0.0], [f, 0.0], [f + p["uplight_fade_frames"], p["uplight_lumens"]]]})
     return {"status": "planned", "rows": rows, "on_after_first_flurry": True,
             "new_shadow_casters": sum(bool(r["cast_shadows"]) for r in rows)}
@@ -265,8 +376,12 @@ def bulb_scatter_plan(p, bulbs):
         distance = math.hypot(loc[0] - float(bulb["wing_location"][0]), loc[1] - float(bulb["wing_location"][1]))
         if distance < p["bulb_wing_clearance_cm"]:
             raise P87Error("BULB_CLEARANCE|%s|%.3f" % (identity, distance))
+        hit = point_box_hit(loc, p["stage_front_occupancy_boxes_cm"], p["bulb_stage_front_clearance_cm"])
+        if hit:
+            raise P87Error("BULB_STAGE_FRONT_INTERSECTION|%s|%s" % (identity, hit))
         rows.append({"id": identity, "location_xy_proposal": loc[:2], "floor_z_fallback_cm": loc[2],
                      "rotation_pyr": [pitch, yaw, roll], "wing_clearance_cm": distance,
+                     "stage_front_clearance_cm": p["bulb_stage_front_clearance_cm"],
                      "trace": {"start_z": loc[2] + p["bulb_trace_up_cm"],
                                "end_z": loc[2] - p["bulb_trace_down_cm"], "channel": "ECC_CAT_FLOOR"},
                      "draws": {name: stable_unit(p["bulb_seed"], identity, name)

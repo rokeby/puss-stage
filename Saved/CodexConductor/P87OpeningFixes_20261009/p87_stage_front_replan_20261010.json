@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "job": 160,
+  "replans_job": 87,
+  "status": "OFFLINE_PLAN_ONLY_REQUESTS_HELD",
+  "coordinate_system": "+X upstage, Y across stage, Z up; centimetres unless suffixed _m",
+  "sources": {
+    "inventory": "Saved/CodexConductor/StageFront3D_20261010/stage_front_3d_inventory.json",
+    "place_plan": "Saved/CodexConductor/StageFront3D_20261010/stage_front_3d_core.py:31-49",
+    "paper_record": "Saved/CodexFlatV3/paperprosc/paperprosc_record.json",
+    "paper_mesh_bounds": "Saved/CodexFlatV3/paperprosc/rzimport_plan_paperprosc.json:17-387",
+    "hero_sidecars": "E:/PussStage/DerivedAssets/StageFrontBuild/BakedStageFront/SM_StageFront_{Crest,Column,CatCandelabra}.json",
+    "architecture_fbx": "E:/PussStage/DerivedAssets/StageFrontBuild/BakedStageFront/SM_StageFront_{Arch,Wall,Gilt}.fbx"
+  },
+  "fbx_vertex_bounds_m": {
+    "arch": {"min": [-6.81, -16.6, -1.2], "max": [-0.21, 16.6, 17.0]},
+    "wall": {"min": [-3.55, -16.6, 0.0], "max": [-0.3, 16.6, 14.0]},
+    "gilt": {"min": [-6.39, -16.54, 0.0], "max": [-0.39, 16.53, 16.13]},
+    "crest_local": {"min": [-1.468389273, -3.999999762, 0.0], "max": [0.0, 3.999999762, 4.990802765]},
+    "column_local": {"min": [-1.825552821, -1.694435239, 0.0], "max": [1.825552821, 1.694435239, 14.0]},
+    "cat_local": {"min": [-0.696713209, -0.566442788, 0.0], "max": [0.696713209, 0.566442728, 5.5]}
+  },
+  "world_bounds_cm": {
+    "stage_front_3d": {"min": [-681.0, -1660.0, -120.0], "max": [-21.0, 1660.0, 1759.080277]},
+    "paper_proscenium": {"min": [-76.050036, -1244.084263, -99.999982], "max": [-44.999934, 1244.084263, 1330.0]},
+    "combined_full_stage_front": {"min": [-681.0, -1660.0, -120.0], "max": [-21.0, 1660.0, 1759.080277]}
+  },
+  "wide_first_frame": {
+    "location_cm": [-3000.0, 0.0, 819.54],
+    "rotation_pyr_deg": [0.0, 0.0, 0.0],
+    "focal_mm": 14.5,
+    "focus_cm": 2644.54,
+    "filmback_mm": [23.76, 13.365],
+    "horizontal_fill_fraction": 0.8736930902,
+    "vertical_fill_fraction": 0.8791106891,
+    "horizontal_margin_fraction": 0.1263069098,
+    "vertical_margin_fraction": 0.1208893109,
+    "proof": "all eight corners of the combined AABB fit an axis-aligned +X pinhole frustum"
+  },
+  "move_in_end": {
+    "location_cm": [0.0, 0.0, 150.0],
+    "rotation_pyr_deg": [0.0, 0.0, 0.0],
+    "focal_mm": 25.0,
+    "focus_cm": 600.0,
+    "rule": "must equal the live Opening end / P01 start pose; any drift refuses before mutation"
+  },
+  "uplights": {
+    "locations_cm": [[-440.0, -1000.0, 45.0], [-440.0, -600.0, 45.0], [-440.0, -200.0, 45.0], [-440.0, 200.0, 45.0], [-440.0, 600.0, 45.0], [-440.0, 1000.0, 45.0]],
+    "aim_xz_cm": [-330.0, 1120.0],
+    "geometry_clearance_cm": 10.0,
+    "cast_shadows": false,
+    "look_values_remain_args": ["lumens", "kelvin", "cone angles", "fade frames"]
+  },
+  "bulbs": {
+    "seed": "P87-GARY-20261009",
+    "existing_wing_scatter_rule_retained": true,
+    "new_rule": "refuse any proposed floor point within 25 cm of a named paper/3D occupancy box before trace or mutation",
+    "stage_front_clearance_cm": 25.0
+  },
+  "opening_acceptance": "rendered opening: one fall at 00:37:50, WIDE whole-front hold, slow move to exact P01 start, uplights, and geometry-clear bulb scatter",
+  "requests_held": true
+}
