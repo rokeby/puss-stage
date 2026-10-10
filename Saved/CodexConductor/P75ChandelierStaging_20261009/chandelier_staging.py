@@ -460,7 +460,7 @@ def _float_track(sequence: Any, component: Any, world: Any, keys: list[tuple[flo
     track.set_display_name(_track_prefix("opening") + " DriveBy Intensity")
     section = track.add_section()
     section.set_range_seconds(0.0, duration_s)
-    channels = list(section.get_channels())
+    channels = list(section.get_all_channels())
     require(len(channels) == 1, "FLOAT_CHANNEL_COUNT")
     for seconds, value in keys:
         channels[0].add_key(unreal.FrameNumber(round(seconds * 25.0)), float(value))
@@ -475,7 +475,7 @@ def _rotation_track(sequence: Any, actor: Any, world: Any, timed_rotations: list
     track.set_display_name(_track_prefix("opening") + " DriveBy Arc Rotation")
     section = track.add_section()
     section.set_range_seconds(0.0, duration_s)
-    channels = {str(channel.get_name()).lower(): channel for channel in section.get_channels()}
+    channels = {str(channel.get_name()).lower(): channel for channel in section.get_all_channels()}
 
     def pick(*needles: str) -> Any:
         hits = [channel for name, channel in channels.items() if any(needle in name for needle in needles)]
@@ -513,7 +513,7 @@ def _track_state(sequence: Any, part: str) -> list[dict[str, Any]]:
             sections = []
             for section in track.get_sections():
                 channels = []
-                for channel in section.get_channels():
+                for channel in section.get_all_channels():
                     keys = [[int(key.get_time().frame_number.value), _key_value(key)] for key in channel.get_keys()]
                     channels.append({"name": str(channel.get_name()), "keys": keys})
                 sections.append(channels)
