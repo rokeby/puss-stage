@@ -1,0 +1,10 @@
+{
+  "mode": "DRY",
+  "confirm": "",
+  "template_p01_ppv_label": "",
+  "target_label": "J118 S2 Hangar Reflection PPV",
+  "xy_padding_cm": 500.0,
+  "below_floor_cm": 200.0,
+  "above_floor_cm": 4500.0,
+  "priority_margin": 1.0
+}
