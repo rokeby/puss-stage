@@ -72,3 +72,6 @@
   3. I3: reuse ANY existing gobo for now; real gobos are coming.
 - **P02 lighting (Gary, morning 10 Oct)**: needs an AUDIT: both too HEAVY (perf, haze, possibly the GPU hang) and SHOWING UP TOO LITTLE. → Codex job 161 (offline, from the records).
 - **P02 lean lighting (Gary: "Sure")**: APPROVED for the first slot after the reboot: job 161 p02_lighting_lean DRY → APPLY → PIE perf (p95 at 3 P02 spots) + stills; auto-REVERT if p95 is not better than 40.7 ms or the look is worse. Car radius 10000 → 4600 cm approved.
+- **P06 parcan (Gary 10 Oct ~12:30, screenshot)**: the parcan standing in the middle of the P06 arrival shot is the fixture body associated with / collocated with the light **"P06 EVT B02 BLACK F00 CAMERA"** (a SpotLight; a P06 lighting-score event light, bay 02). This is Gary's selection for job 126 (tool P99S6ArrivalSun_20261009): hide that body only (bHidden, revertible); the light stays unless the light itself is the problem.
+- **Filming (Gary)**: the whole show run-through is best, but it should include all current improvements plus Gary's gobo animations. To save usage, Gary will probably run it through a collaborator.
+- **Cue Book**: Gary has added the passcode to Saved/CueBook/cuebook_pass.txt. **Puss > Pull Cue Book** works after the next editor restart.
