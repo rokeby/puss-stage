@@ -108,3 +108,8 @@ Earlier on 10 Oct: S4 blackout, pearl fade, S3 arrival and garments, P04 smoke p
 - The source project is COPIED, not moved.
 - The 9–10 Oct Codex Metamall changes were "NOT yet compiled", so the build may fail. If it does, the soak is skipped and the backup still runs.
 - Job 184's report must be read and committed by the next session. Puss stays CLOSED until then.
+
+## Job 184 result (committed aa5f366a), all VISUAL FAIL
+- **P06 chandelier:** 9 lights saved and read back. The flame mass obscures the body. Next: smaller and fewer flames, then re-frame.
+- **P06 sun disc:** tracks saved and read back, but no disc is visible in the end window. Next: probe why the SkyAtmosphere disc does not render (hidden sky policy? exposure?).
+- **S1 lights-out:** a 213-target extension was saved in `LS_DevScene_01`, but the stage stays bright. Fire/emissive materials and other sources keep it lit. Next: identify which sources remain (emissives, the sky, Lumen GI, Klara's level lights) before adding more targets. Consider a post-process/exposure fade to black as the actual "lights out".
