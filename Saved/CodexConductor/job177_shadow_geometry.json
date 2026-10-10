@@ -1,0 +1,1383 @@
+{
+  "run": "J177-J144-GEOMETRY-20261010",
+  "rows": [
+    {
+      "passage": "I2",
+      "spot": {
+        "label": "Spot Light",
+        "name": "Spot Light_6",
+        "class": "SpotLight",
+        "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Spot Light_6",
+        "location": [
+          16874.418,
+          75465.023,
+          -6185.0
+        ],
+        "distance_cm": 0.003,
+        "bounds_origin": [
+          16961.358,
+          75382.311,
+          -6185.0
+        ],
+        "bounds_extent": [
+          142.082,
+          140.673,
+          80.0
+        ],
+        "components": [
+          {
+            "class": "SpotLightComponent",
+            "name": "LightComponent0",
+            "visible": true
+          },
+          {
+            "class": "ArrowComponent",
+            "name": "ArrowComponent0",
+            "visible": false
+          }
+        ]
+      },
+      "points": {
+        "camera_target": [
+          18530.624,
+          73889.35,
+          -6185.0
+        ],
+        "card": [
+          19046.476,
+          73398.582,
+          -6185.0
+        ],
+        "curtain": [
+          19047.925,
+          73397.204,
+          -6320.0
+        ],
+        "wall": [
+          19084.15,
+          73362.74,
+          -6320.0
+        ]
+      },
+      "nearest": {
+        "camera_target": [
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_4",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Static Mesh Actor_4",
+            "location": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "distance_cm": 712.007,
+            "bounds_origin": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "bounds_extent": [
+              165.788,
+              174.225,
+              135.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Geometry Cache Actor2",
+            "name": "Geometry Cache Actor2_6",
+            "class": "GeometryCacheActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Geometry Cache Actor2_6",
+            "location": [
+              19045.709,
+              73399.312,
+              -6316.394
+            ],
+            "distance_cm": 722.99,
+            "bounds_origin": [
+              19044.999,
+              73400.169,
+              -5796.676
+            ],
+            "bounds_extent": [
+              677.171,
+              708.875,
+              500.265
+            ],
+            "components": [
+              {
+                "class": "GeometryCacheComponent",
+                "name": "GeometryCacheComponent",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "S2 Hangar Far Wall Above Exit",
+            "name": "StaticMeshActor_267",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_267",
+            "location": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "distance_cm": 2031.302,
+            "bounds_origin": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "bounds_extent": [
+              11526.284,
+              11553.588,
+              25.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_6",
+            "class": "SpotLight",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Spot Light_6",
+            "location": [
+              16874.418,
+              75465.023,
+              -6185.0
+            ],
+            "distance_cm": 2285.993,
+            "bounds_origin": [
+              16961.358,
+              75382.311,
+              -6185.0
+            ],
+            "bounds_extent": [
+              142.082,
+              140.673,
+              80.0
+            ],
+            "components": [
+              {
+                "class": "SpotLightComponent",
+                "name": "LightComponent0",
+                "visible": true
+              },
+              {
+                "class": "ArrowComponent",
+                "name": "ArrowComponent0",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "label": "S2 Pit Liner Far Wall",
+            "name": "StaticMeshActor_251",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_251",
+            "location": [
+              19084.15,
+              73362.74,
+              -3163.5
+            ],
+            "distance_cm": 3116.596,
+            "bounds_origin": [
+              19084.15,
+              73362.74,
+              -3163.5
+            ],
+            "bounds_extent": [
+              830.925,
+              872.674,
+              3156.5
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          }
+        ],
+        "card": [
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_4",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Static Mesh Actor_4",
+            "location": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "distance_cm": 0.004,
+            "bounds_origin": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "bounds_extent": [
+              165.788,
+              174.225,
+              135.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Geometry Cache Actor2",
+            "name": "Geometry Cache Actor2_6",
+            "class": "GeometryCacheActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Geometry Cache Actor2_6",
+            "location": [
+              19045.709,
+              73399.312,
+              -6316.394
+            ],
+            "distance_cm": 131.399,
+            "bounds_origin": [
+              19044.999,
+              73400.169,
+              -5796.676
+            ],
+            "bounds_extent": [
+              677.171,
+              708.875,
+              500.265
+            ],
+            "components": [
+              {
+                "class": "GeometryCacheComponent",
+                "name": "GeometryCacheComponent",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "S2 Hangar Far Wall Above Exit",
+            "name": "StaticMeshActor_267",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_267",
+            "location": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "distance_cm": 2741.673,
+            "bounds_origin": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "bounds_extent": [
+              11526.284,
+              11553.588,
+              25.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_6",
+            "class": "SpotLight",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Spot Light_6",
+            "location": [
+              16874.418,
+              75465.023,
+              -6185.0
+            ],
+            "distance_cm": 2998.002,
+            "bounds_origin": [
+              16961.358,
+              75382.311,
+              -6185.0
+            ],
+            "bounds_extent": [
+              142.082,
+              140.673,
+              80.0
+            ],
+            "components": [
+              {
+                "class": "SpotLightComponent",
+                "name": "LightComponent0",
+                "visible": true
+              },
+              {
+                "class": "ArrowComponent",
+                "name": "ArrowComponent0",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "label": "S2 Pit Liner Far Wall",
+            "name": "StaticMeshActor_251",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_251",
+            "location": [
+              19084.15,
+              73362.74,
+              -3163.5
+            ],
+            "distance_cm": 3021.947,
+            "bounds_origin": [
+              19084.15,
+              73362.74,
+              -3163.5
+            ],
+            "bounds_extent": [
+              830.925,
+              872.674,
+              3156.5
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          }
+        ],
+        "curtain": [
+          {
+            "label": "Geometry Cache Actor2",
+            "name": "Geometry Cache Actor2_6",
+            "class": "GeometryCacheActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Geometry Cache Actor2_6",
+            "location": [
+              19045.709,
+              73399.312,
+              -6316.394
+            ],
+            "distance_cm": 4.729,
+            "bounds_origin": [
+              19044.999,
+              73400.169,
+              -5796.676
+            ],
+            "bounds_extent": [
+              677.171,
+              708.875,
+              500.265
+            ],
+            "components": [
+              {
+                "class": "GeometryCacheComponent",
+                "name": "GeometryCacheComponent",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_4",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Static Mesh Actor_4",
+            "location": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "distance_cm": 135.015,
+            "bounds_origin": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "bounds_extent": [
+              165.788,
+              174.225,
+              135.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "S2 Hangar Far Wall Above Exit",
+            "name": "StaticMeshActor_267",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_267",
+            "location": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "distance_cm": 2754.841,
+            "bounds_origin": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "bounds_extent": [
+              11526.284,
+              11553.588,
+              25.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_6",
+            "class": "SpotLight",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Spot Light_6",
+            "location": [
+              16874.418,
+              75465.023,
+              -6185.0
+            ],
+            "distance_cm": 3003.038,
+            "bounds_origin": [
+              16961.358,
+              75382.311,
+              -6185.0
+            ],
+            "bounds_extent": [
+              142.082,
+              140.673,
+              80.0
+            ],
+            "components": [
+              {
+                "class": "SpotLightComponent",
+                "name": "LightComponent0",
+                "visible": true
+              },
+              {
+                "class": "ArrowComponent",
+                "name": "ArrowComponent0",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "label": "S2 Pit Liner Far Wall",
+            "name": "StaticMeshActor_251",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_251",
+            "location": [
+              19084.15,
+              73362.74,
+              -3163.5
+            ],
+            "distance_cm": 3156.896,
+            "bounds_origin": [
+              19084.15,
+              73362.74,
+              -3163.5
+            ],
+            "bounds_extent": [
+              830.925,
+              872.674,
+              3156.5
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          }
+        ],
+        "wall": [
+          {
+            "label": "Geometry Cache Actor2",
+            "name": "Geometry Cache Actor2_6",
+            "class": "GeometryCacheActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Geometry Cache Actor2_6",
+            "location": [
+              19045.709,
+              73399.312,
+              -6316.394
+            ],
+            "distance_cm": 53.182,
+            "bounds_origin": [
+              19044.999,
+              73400.169,
+              -5796.676
+            ],
+            "bounds_extent": [
+              677.171,
+              708.875,
+              500.265
+            ],
+            "components": [
+              {
+                "class": "GeometryCacheComponent",
+                "name": "GeometryCacheComponent",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_4",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Static Mesh Actor_4",
+            "location": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "distance_cm": 144.669,
+            "bounds_origin": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "bounds_extent": [
+              165.788,
+              174.225,
+              135.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "S2 Hangar Far Wall Above Exit",
+            "name": "StaticMeshActor_267",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_267",
+            "location": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "distance_cm": 2804.558,
+            "bounds_origin": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "bounds_extent": [
+              11526.284,
+              11553.588,
+              25.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_6",
+            "class": "SpotLight",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Spot Light_6",
+            "location": [
+              16874.418,
+              75465.023,
+              -6185.0
+            ],
+            "distance_cm": 3052.988,
+            "bounds_origin": [
+              16961.358,
+              75382.311,
+              -6185.0
+            ],
+            "bounds_extent": [
+              142.082,
+              140.673,
+              80.0
+            ],
+            "components": [
+              {
+                "class": "SpotLightComponent",
+                "name": "LightComponent0",
+                "visible": true
+              },
+              {
+                "class": "ArrowComponent",
+                "name": "ArrowComponent0",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "label": "S2 Pit Liner Far Wall",
+            "name": "StaticMeshActor_251",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_251",
+            "location": [
+              19084.15,
+              73362.74,
+              -3163.5
+            ],
+            "distance_cm": 3156.5,
+            "bounds_origin": [
+              19084.15,
+              73362.74,
+              -3163.5
+            ],
+            "bounds_extent": [
+              830.925,
+              872.674,
+              3156.5
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          }
+        ]
+      },
+      "traces": {
+        "camera_target": {
+          "error": "AttributeError(\"'NoneType' object has no attribute 'get_actor'\")"
+        },
+        "card": {
+          "error": "AttributeError(\"'HitResult' object has no attribute 'get_actor'\")"
+        },
+        "curtain": {
+          "error": "AttributeError(\"'HitResult' object has no attribute 'get_actor'\")"
+        },
+        "wall": {
+          "error": "AttributeError(\"'HitResult' object has no attribute 'get_actor'\")"
+        }
+      },
+      "distances_cm": {
+        "camera_target": 2285.993,
+        "card": 2998.002,
+        "curtain": 3003.038,
+        "wall": 3052.988
+      }
+    },
+    {
+      "passage": "I3",
+      "spot": {
+        "label": "Spot Light",
+        "name": "Spot Light_7",
+        "class": "SpotLight",
+        "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Spot Light_7",
+        "location": [
+          19385.973,
+          160000.0,
+          -6305.0
+        ],
+        "distance_cm": 0.0,
+        "bounds_origin": [
+          19505.973,
+          160000.0,
+          -6305.0
+        ],
+        "bounds_extent": [
+          120.0,
+          80.0,
+          80.0
+        ],
+        "components": [
+          {
+            "class": "SpotLightComponent",
+            "name": "LightComponent0",
+            "visible": true
+          },
+          {
+            "class": "ArrowComponent",
+            "name": "ArrowComponent0",
+            "visible": false
+          }
+        ]
+      },
+      "points": {
+        "camera_target": [
+          21671.964,
+          160000.0,
+          -6305.0
+        ],
+        "card": [
+          22383.973,
+          160000.0,
+          -6305.0
+        ],
+        "curtain": [
+          22385.973,
+          160000.0,
+          -6440.0
+        ],
+        "wall": [
+          22435.973,
+          160000.0,
+          -6440.0
+        ]
+      },
+      "nearest": {
+        "camera_target": [
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_5",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Static Mesh Actor_5",
+            "location": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 712.009,
+            "bounds_origin": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              0.5,
+              240.0,
+              135.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Geometry Cache Actor2",
+            "name": "Geometry Cache Actor2_7",
+            "class": "GeometryCacheActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Geometry Cache Actor2_7",
+            "location": [
+              22382.911,
+              160000.0,
+              -6436.326
+            ],
+            "distance_cm": 722.974,
+            "bounds_origin": [
+              22381.806,
+              160000.131,
+              -5916.608
+            ],
+            "bounds_extent": [
+              40.239,
+              940.148,
+              500.265
+            ],
+            "components": [
+              {
+                "class": "GeometryCacheComponent",
+                "name": "GeometryCacheComponent",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_7",
+            "class": "SpotLight",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Spot Light_7",
+            "location": [
+              19385.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 2285.991,
+            "bounds_origin": [
+              19505.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              120.0,
+              80.0,
+              80.0
+            ],
+            "components": [
+              {
+                "class": "SpotLightComponent",
+                "name": "LightComponent0",
+                "visible": true
+              },
+              {
+                "class": "ArrowComponent",
+                "name": "ArrowComponent0",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "label": "S3 Pit Liner Far Wall",
+            "name": "StaticMeshActor_239",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_239",
+            "location": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "distance_cm": 3174.8,
+            "bounds_origin": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "bounds_extent": [
+              10.0,
+              1195.0,
+              3216.5
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "S3 Pit Liner Floor",
+            "name": "StaticMeshActor_223",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_223",
+            "location": [
+              16923.973,
+              160000.0,
+              -6430.0
+            ],
+            "distance_cm": 4749.636,
+            "bounds_origin": [
+              16923.973,
+              160000.0,
+              -6430.0
+            ],
+            "bounds_extent": [
+              5502.0,
+              1175.0,
+              10.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          }
+        ],
+        "card": [
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_5",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Static Mesh Actor_5",
+            "location": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 0.0,
+            "bounds_origin": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              0.5,
+              240.0,
+              135.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Geometry Cache Actor2",
+            "name": "Geometry Cache Actor2_7",
+            "class": "GeometryCacheActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Geometry Cache Actor2_7",
+            "location": [
+              22382.911,
+              160000.0,
+              -6436.326
+            ],
+            "distance_cm": 131.33,
+            "bounds_origin": [
+              22381.806,
+              160000.131,
+              -5916.608
+            ],
+            "bounds_extent": [
+              40.239,
+              940.148,
+              500.265
+            ],
+            "components": [
+              {
+                "class": "GeometryCacheComponent",
+                "name": "GeometryCacheComponent",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_7",
+            "class": "SpotLight",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Spot Light_7",
+            "location": [
+              19385.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 2998.0,
+            "bounds_origin": [
+              19505.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              120.0,
+              80.0,
+              80.0
+            ],
+            "components": [
+              {
+                "class": "SpotLightComponent",
+                "name": "LightComponent0",
+                "visible": true
+              },
+              {
+                "class": "ArrowComponent",
+                "name": "ArrowComponent0",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "label": "S3 Pit Liner Far Wall",
+            "name": "StaticMeshActor_239",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_239",
+            "location": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "distance_cm": 3081.939,
+            "bounds_origin": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "bounds_extent": [
+              10.0,
+              1195.0,
+              3216.5
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "S3 Pit Liner Floor",
+            "name": "StaticMeshActor_223",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_223",
+            "location": [
+              16923.973,
+              160000.0,
+              -6430.0
+            ],
+            "distance_cm": 5461.431,
+            "bounds_origin": [
+              16923.973,
+              160000.0,
+              -6430.0
+            ],
+            "bounds_extent": [
+              5502.0,
+              1175.0,
+              10.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          }
+        ],
+        "curtain": [
+          {
+            "label": "Geometry Cache Actor2",
+            "name": "Geometry Cache Actor2_7",
+            "class": "GeometryCacheActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Geometry Cache Actor2_7",
+            "location": [
+              22382.911,
+              160000.0,
+              -6436.326
+            ],
+            "distance_cm": 4.783,
+            "bounds_origin": [
+              22381.806,
+              160000.131,
+              -5916.608
+            ],
+            "bounds_extent": [
+              40.239,
+              940.148,
+              500.265
+            ],
+            "components": [
+              {
+                "class": "GeometryCacheComponent",
+                "name": "GeometryCacheComponent",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_5",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Static Mesh Actor_5",
+            "location": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 135.015,
+            "bounds_origin": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              0.5,
+              240.0,
+              135.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_7",
+            "class": "SpotLight",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Spot Light_7",
+            "location": [
+              19385.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 3003.036,
+            "bounds_origin": [
+              19505.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              120.0,
+              80.0,
+              80.0
+            ],
+            "components": [
+              {
+                "class": "SpotLightComponent",
+                "name": "LightComponent0",
+                "visible": true
+              },
+              {
+                "class": "ArrowComponent",
+                "name": "ArrowComponent0",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "label": "S3 Pit Liner Far Wall",
+            "name": "StaticMeshActor_239",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_239",
+            "location": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "distance_cm": 3216.889,
+            "bounds_origin": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "bounds_extent": [
+              10.0,
+              1195.0,
+              3216.5
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "S3 Pit Liner Floor",
+            "name": "StaticMeshActor_223",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_223",
+            "location": [
+              16923.973,
+              160000.0,
+              -6430.0
+            ],
+            "distance_cm": 5462.009,
+            "bounds_origin": [
+              16923.973,
+              160000.0,
+              -6430.0
+            ],
+            "bounds_extent": [
+              5502.0,
+              1175.0,
+              10.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          }
+        ],
+        "wall": [
+          {
+            "label": "Geometry Cache Actor2",
+            "name": "Geometry Cache Actor2_7",
+            "class": "GeometryCacheActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Geometry Cache Actor2_7",
+            "location": [
+              22382.911,
+              160000.0,
+              -6436.326
+            ],
+            "distance_cm": 53.189,
+            "bounds_origin": [
+              22381.806,
+              160000.131,
+              -5916.608
+            ],
+            "bounds_extent": [
+              40.239,
+              940.148,
+              500.265
+            ],
+            "components": [
+              {
+                "class": "GeometryCacheComponent",
+                "name": "GeometryCacheComponent",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_5",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Static Mesh Actor_5",
+            "location": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 144.669,
+            "bounds_origin": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              0.5,
+              240.0,
+              135.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_7",
+            "class": "SpotLight",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Spot Light_7",
+            "location": [
+              19385.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 3052.986,
+            "bounds_origin": [
+              19505.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              120.0,
+              80.0,
+              80.0
+            ],
+            "components": [
+              {
+                "class": "SpotLightComponent",
+                "name": "LightComponent0",
+                "visible": true
+              },
+              {
+                "class": "ArrowComponent",
+                "name": "ArrowComponent0",
+                "visible": false
+              }
+            ]
+          },
+          {
+            "label": "S3 Pit Liner Far Wall",
+            "name": "StaticMeshActor_239",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_239",
+            "location": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "distance_cm": 3216.5,
+            "bounds_origin": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "bounds_extent": [
+              10.0,
+              1195.0,
+              3216.5
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "label": "S3 Pit Liner Floor",
+            "name": "StaticMeshActor_223",
+            "class": "StaticMeshActor",
+            "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_223",
+            "location": [
+              16923.973,
+              160000.0,
+              -6430.0
+            ],
+            "distance_cm": 5512.009,
+            "bounds_origin": [
+              16923.973,
+              160000.0,
+              -6430.0
+            ],
+            "bounds_extent": [
+              5502.0,
+              1175.0,
+              10.0
+            ],
+            "components": [
+              {
+                "class": "StaticMeshComponent",
+                "name": "StaticMeshComponent0",
+                "visible": true
+              }
+            ]
+          }
+        ]
+      },
+      "traces": {
+        "camera_target": {
+          "error": "AttributeError(\"'NoneType' object has no attribute 'get_actor'\")"
+        },
+        "card": {
+          "error": "AttributeError(\"'HitResult' object has no attribute 'get_actor'\")"
+        },
+        "curtain": {
+          "error": "AttributeError(\"'HitResult' object has no attribute 'get_actor'\")"
+        },
+        "wall": {
+          "error": "AttributeError(\"'HitResult' object has no attribute 'get_actor'\")"
+        }
+      },
+      "distances_cm": {
+        "camera_target": 2285.991,
+        "card": 2998.0,
+        "curtain": 3003.036,
+        "wall": 3052.986
+      }
+    }
+  ]
+}

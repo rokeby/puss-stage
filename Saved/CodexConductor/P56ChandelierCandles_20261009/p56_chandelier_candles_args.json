@@ -8,5 +8,7 @@
   "flame_niagara": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1",
   "flame_height_cm": 3.5,
   "niagara_reference_height_cm": 100.0,
-  "flame_z_offset_cm": 1.75
+  "flame_z_offset_cm": 1.75,
+  "body_units_scale": 100.0,
+  "attached_actor_scale_compensation": 0.01
 }

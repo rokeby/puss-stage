@@ -1,11 +1,24 @@
 {
  "params": {
-  "approved_inventory_digest": "75ba5bf0647a1a45f327077b7f8ff6dc4df03f86d2be3a51955abeb840c120fd",
+  "approved_inventory_digest": "c09d3f48a94df624f90db24f792d9ee51163270f4323341f3feeb58325bd4428",
   "approved_shadow_source_labels": [
    "Sleight Hangar Shadow Card"
   ],
   "camera_distance_override_cm": 714.009,
   "camera_focal_mm": 35.0,
+  "camera_parent_runtime_world": {
+   "label": "S3 Hangar Root",
+   "location": [
+    11421.9728,
+    160000.0,
+    -120.0
+   ],
+   "rotation": [
+    0.0,
+    -90.0,
+    0.0
+   ]
+  },
   "camera_sensor_width_mm": 23.76,
   "camera_settle_frames": 100,
   "curtain_frame_margin_cm": 20.0,
@@ -89,6 +102,6 @@
   "visibility_conflict_policy": "SAFE_SKIP",
   "wall_label": "AUTO"
  },
- "plan_digest": "318fefb07e73859f989b99d96dc0d0fa77e918ea11009c7deda9b8f0bf83284c",
- "report": "E:\\PussStage\\Saved\\CodexConductor\\Job144InteractionHangar_20261010\\job144_dry_I3_J176-J144-I3-REDRY-20261010.json"
+ "plan_digest": "fd2b834bc5c8a57659f79d5965dd6b2a8b7d1af0c7f2ad7d5862fd9664512e44",
+ "report": "E:\\PussStage\\Saved\\CodexConductor\\Job144InteractionHangar_20261010\\job144_dry_I3_J177-J144-I3-REDRY-20261010.json"
 }

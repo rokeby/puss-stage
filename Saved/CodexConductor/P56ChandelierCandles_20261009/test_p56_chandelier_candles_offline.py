@@ -55,7 +55,9 @@ def main():
     valid = validate_args(args())
     plan = build_plan(valid, rows)
     if (len(plan["placements"]) == 3 and plan["component_auto_activate"] is False
-            and plan["uses_point_light"] is False and plan["flame_scale"] == [0.035] * 3):
+            and plan["uses_point_light"] is False and plan["flame_scale"] == [0.035] * 3
+            and plan["body_units_scale"] == 100.0
+            and plan["attached_actor_scale_compensation"] == 0.01):
         positive += 1
         print("PASS positive plan builder")
     else:
@@ -79,6 +81,9 @@ def main():
     failures += negative("non-chandelier actor", lambda: validate_args({
         "mode": "DRY", "actor_label": "SM_Table", "socket_json": "sockets.json"}))
     failures += negative("APPLY without confirm", lambda: validate_args(args("APPLY")))
+    failures += negative("REPAIR without confirm", lambda: validate_args(args("REPAIR")))
+    failures += negative("unit compensation drift", lambda: validate_args({
+        **args(), "attached_actor_scale_compensation": 0.02}))
 
     source = open(os.path.join(os.path.dirname(__file__), "p56_chandelier_candles.py"),
                   "r", encoding="utf-8").read()
@@ -93,7 +98,7 @@ def main():
         failures += 1
 
     if failures == 0:
-        print("P56_CHANDELIER_HARNESS_OK|positive=%d|negative=4" % positive)
+        print("P56_CHANDELIER_HARNESS_OK|positive=%d|negative=6" % positive)
     return failures
 
 

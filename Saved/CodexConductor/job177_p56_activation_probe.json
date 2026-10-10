@@ -1,0 +1,15 @@
+{
+  "passages": [
+    {
+      "label": "Passage 6",
+      "guid": "9BFC29C45D47911FF7836BB8537230D2",
+      "range": "(40227840, 43227840)"
+    }
+  ],
+  "particle_key": {
+    "ACTIVATE": "<ParticleKey.ACTIVATE: 0>",
+    "DEACTIVATE": "<ParticleKey.DEACTIVATE: 1>",
+    "TRIGGER": "<ParticleKey.TRIGGER: 2>"
+  },
+  "bindings": []
+}

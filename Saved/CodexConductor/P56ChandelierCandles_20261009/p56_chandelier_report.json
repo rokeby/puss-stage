@@ -1,0 +1,267 @@
+{
+  "backup": {
+    "packages": [
+      {
+        "backup": "E:\\PussStage\\Backups\\PreP56ChandelierCandles-P56CANDLE-20261010-153116\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 38480326,
+        "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+        "sha256": "aa3a1f7360df45472e9869913042839e556cd1b3ba2ead363e42e7dc2d3bf628",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+      },
+      {
+        "backup": "E:\\PussStage\\Backups\\PreP56ChandelierCandles-P56CANDLE-20261010-153116\\Scenes\\Effects\\BP_Effect_ChandelierCandle.uasset",
+        "bytes": 46186,
+        "package": "/Game/Scenes/Effects/BP_Effect_ChandelierCandle",
+        "sha256": "f390b94db36a1d32b7032775a43603ac0deded065c1eb8fdf37b58b851ac2edf",
+        "source": "E:\\PussStage\\Content\\Scenes\\Effects\\BP_Effect_ChandelierCandle.uasset"
+      }
+    ],
+    "root": "E:\\PussStage\\Backups\\PreP56ChandelierCandles-P56CANDLE-20261010-153116"
+  },
+  "child": {
+    "auto_activate": true,
+    "niagara": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1",
+    "parent": "/Game/Scenes/Effects/BP_Effect_Candle",
+    "scale": [
+      0.035,
+      0.035,
+      0.035
+    ]
+  },
+  "dirty_after": {
+    "content": [],
+    "maps": []
+  },
+  "mode": "REPAIR",
+  "ok": true,
+  "run": "P56CANDLE-20261010-153116",
+  "scale_readback": {
+    "body_scale": [
+      100.0,
+      100.0,
+      100.0
+    ],
+    "candle_scales": {
+      "P56_P75_P06_Chandelier_Body_Candle_01_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_02_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_03_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_04_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_05_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_06_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_07_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_08_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_09_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_10_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_11_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_12_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_13_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_14_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_15_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_16_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_17_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_18_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_19_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_20_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_21_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_22_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_23_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_24_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_25_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_26_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_27_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_28_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_29_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_30_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_31_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_32_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_33_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_34_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_35_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_36_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_37_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_38_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_39_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_40_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_41_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_42_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_43_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ],
+      "P56_P75_P06_Chandelier_Body_Candle_44_Flame": [
+        0.01,
+        0.009999999999999997,
+        0.009999999999999997
+      ]
+    }
+  }
+}

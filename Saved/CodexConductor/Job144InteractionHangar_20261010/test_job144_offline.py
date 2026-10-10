@@ -108,6 +108,14 @@ check("+ I3 plan", lambda: planned(3)["interaction"], 3)
 check("+ UE 5.8 binding removal contract", lambda: (
     "binding.remove()" in open(J.__file__, encoding="utf-8").read() and
     "seq.remove_possessable(" not in open(J.__file__, encoding="utf-8").read()), True)
+check("+ camera binding-space regression contract", lambda: (
+    "inverse_transform_location(parent_xf, world_loc)" in open(J.__file__, encoding="utf-8").read() and
+    "inverse_transform_rotation(parent_xf, world_rot)" in open(J.__file__, encoding="utf-8").read() and
+    'camera_binding_space\"] = \"WORLD_UNPARENTED\"' in open(J.__file__, encoding="utf-8").read() and
+    "CAMERA_PARENT_RUNTIME_MEASUREMENT_REQUIRED" in open(J.__file__, encoding="utf-8").read()), True)
+rejects("- malformed camera parent runtime measurement", lambda: C.merged_params(
+    {"camera_parent_runtime_world": {"label": "S3 Hangar Root", "location": [1, 2], "rotation": [0, -90, 0]}}),
+    "CAMERA_PARENT_RUNTIME_LOCATION")
 check("+ farthest wall", lambda: planned(2)["wall"]["label"], "S2 Hangar Back Wall")
 check("+ bHidden property", lambda: planned(2)["visibility"]["property"], "bHidden")
 check("+ visibility channel is visible-state", lambda: planned(2)["visibility"]["channel_semantics"], "VISIBLE")

@@ -1,0 +1,1290 @@
+{
+  "run": "J177-P56-DIAG-20261010",
+  "master_frame": 41727340,
+  "camera": {
+    "label": "Passage 06 \u2014 Camera + Shadow Figures",
+    "class": "InfinityStageCameraRig",
+    "location": [
+      15936.052,
+      400000.0,
+      180.0
+    ],
+    "rotation": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "body": {
+    "label": "P75 P06 Chandelier Body",
+    "hidden": null,
+    "location": [
+      5700.0,
+      400000.0,
+      1050.0
+    ],
+    "rotation": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "bounds_origin": [
+      5700.0,
+      400000.0,
+      900.0
+    ],
+    "bounds_extent": [
+      133.461,
+      131.093,
+      150.0
+    ],
+    "meshes": [
+      {
+        "name": "StaticMeshComponent0",
+        "static_mesh": "/Game/Scenes/Props/Chandelier/SM_Chandelier_Iron3.SM_Chandelier_Iron3",
+        "visible": true,
+        "active": false,
+        "materials": [
+          "/Game/Scenes/Props/Chandelier/MI_Chandelier_Iron3.MI_Chandelier_Iron3"
+        ]
+      }
+    ]
+  },
+  "flames": [
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_01_Flame",
+      "hidden": null,
+      "location": [
+        5622.988,
+        400000.568,
+        945.848
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_02_Flame",
+      "hidden": null,
+      "location": [
+        5627.553,
+        400024.104,
+        946.464
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_03_Flame",
+      "hidden": null,
+      "location": [
+        5639.229,
+        400044.169,
+        946.408
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_04_Flame",
+      "hidden": null,
+      "location": [
+        5654.105,
+        400059.93,
+        946.479
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_05_Flame",
+      "hidden": null,
+      "location": [
+        5675.829,
+        400071.941,
+        946.638
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_06_Flame",
+      "hidden": null,
+      "location": [
+        5700.106,
+        400076.61,
+        943.158
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_07_Flame",
+      "hidden": null,
+      "location": [
+        5723.654,
+        400071.463,
+        946.292
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_08_Flame",
+      "hidden": null,
+      "location": [
+        5744.653,
+        400060.45,
+        946.622
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_09_Flame",
+      "hidden": null,
+      "location": [
+        5759.965,
+        400044.207,
+        946.406
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_10_Flame",
+      "hidden": null,
+      "location": [
+        5772.205,
+        400024.706,
+        945.667
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_11_Flame",
+      "hidden": null,
+      "location": [
+        5776.773,
+        400000.971,
+        945.675
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_12_Flame",
+      "hidden": null,
+      "location": [
+        5772.22,
+        399976.856,
+        946.544
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_13_Flame",
+      "hidden": null,
+      "location": [
+        5760.813,
+        399956.473,
+        946.007
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_14_Flame",
+      "hidden": null,
+      "location": [
+        5746.135,
+        399940.032,
+        946.687
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_15_Flame",
+      "hidden": null,
+      "location": [
+        5724.373,
+        399928.186,
+        945.773
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_16_Flame",
+      "hidden": null,
+      "location": [
+        5699.806,
+        399924.222,
+        946.697
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_17_Flame",
+      "hidden": null,
+      "location": [
+        5675.484,
+        399928.426,
+        946.386
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_18_Flame",
+      "hidden": null,
+      "location": [
+        5653.982,
+        399939.918,
+        946.704
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_19_Flame",
+      "hidden": null,
+      "location": [
+        5639.511,
+        399955.593,
+        946.695
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_20_Flame",
+      "hidden": null,
+      "location": [
+        5627.636,
+        399976.266,
+        946.219
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_21_Flame",
+      "hidden": null,
+      "location": [
+        5586.766,
+        400031.898,
+        875.645
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_22_Flame",
+      "hidden": null,
+      "location": [
+        5598.935,
+        400061.499,
+        877.265
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_23_Flame",
+      "hidden": null,
+      "location": [
+        5613.699,
+        400081.573,
+        877.083
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_24_Flame",
+      "hidden": null,
+      "location": [
+        5637.048,
+        400097.204,
+        877.277
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_25_Flame",
+      "hidden": null,
+      "location": [
+        5666.963,
+        400112.694,
+        876.958
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_26_Flame",
+      "hidden": null,
+      "location": [
+        5699.592,
+        400118.096,
+        876.01
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_27_Flame",
+      "hidden": null,
+      "location": [
+        5732.718,
+        400113.685,
+        877.377
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_28_Flame",
+      "hidden": null,
+      "location": [
+        5758.775,
+        400102.965,
+        871.507
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_29_Flame",
+      "hidden": null,
+      "location": [
+        5785.344,
+        400081.901,
+        876.873
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_30_Flame",
+      "hidden": null,
+      "location": [
+        5799.75,
+        400061.949,
+        877.303
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_31_Flame",
+      "hidden": null,
+      "location": [
+        5812.181,
+        400032.147,
+        875.574
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_32_Flame",
+      "hidden": null,
+      "location": [
+        5819.349,
+        400000.393,
+        880.066
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_33_Flame",
+      "hidden": null,
+      "location": [
+        5813.535,
+        399968.077,
+        877.421
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_34_Flame",
+      "hidden": null,
+      "location": [
+        5801.022,
+        399939.042,
+        876.685
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_35_Flame",
+      "hidden": null,
+      "location": [
+        5785.86,
+        399919.543,
+        877.261
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_36_Flame",
+      "hidden": null,
+      "location": [
+        5762.53,
+        399903.982,
+        878.613
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_37_Flame",
+      "hidden": null,
+      "location": [
+        5733.086,
+        399887.773,
+        876.025
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_38_Flame",
+      "hidden": null,
+      "location": [
+        5700.227,
+        399882.212,
+        877.112
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_39_Flame",
+      "hidden": null,
+      "location": [
+        5667.047,
+        399886.137,
+        877.095
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_40_Flame",
+      "hidden": null,
+      "location": [
+        5642.232,
+        399898.27,
+        868.388
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_41_Flame",
+      "hidden": null,
+      "location": [
+        5614.985,
+        399918.812,
+        877.699
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_42_Flame",
+      "hidden": null,
+      "location": [
+        5599.79,
+        399938.56,
+        876.704
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_43_Flame",
+      "hidden": null,
+      "location": [
+        5587.597,
+        399967.458,
+        877.475
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    },
+    {
+      "label": "P56_P75_P06_Chandelier_Body_Candle_44_Flame",
+      "hidden": null,
+      "location": [
+        5580.787,
+        399999.936,
+        879.947
+      ],
+      "parent": "P75 P06 Chandelier Body",
+      "components": [
+        {
+          "name": "FlameFX",
+          "asset": null,
+          "auto_activate": false,
+          "active": false,
+          "visible": false,
+          "registered": null
+        },
+        {
+          "name": "ChandelierFlameFX",
+          "asset": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1.NS_Stylish_Fire_1",
+          "auto_activate": false,
+          "active": false,
+          "visible": true,
+          "registered": null
+        }
+      ]
+    }
+  ],
+  "active_niagara": 0,
+  "auto_activate_niagara": 0,
+  "activation_contract": "P56 tool creates attached level actors only; no activation track or activate call"
+}

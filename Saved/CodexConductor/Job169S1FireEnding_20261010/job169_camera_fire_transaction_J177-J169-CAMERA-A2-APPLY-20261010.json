@@ -1,0 +1,1552 @@
+{
+  "after": {
+    "owned": [
+      {
+        "guid": "B164ECA342E993EE04D840A1484651DB",
+        "name": "JOB169 S1 Corner Fire Camera",
+        "spawnable": true,
+        "template_class": "CineCameraActor",
+        "tracks": [
+          {
+            "class": "MovieSceneSpawnTrack",
+            "property": [
+              "",
+              ""
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "None": [
+                    [
+                      3559,
+                      true
+                    ],
+                    [
+                      3900,
+                      false
+                    ]
+                  ]
+                },
+                "range": [
+                  0,
+                  3901
+                ]
+              }
+            ]
+          },
+          {
+            "class": "MovieScene3DTransformTrack",
+            "property": [
+              "Transform",
+              "Transform"
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "Location.X": [
+                    [
+                      3559,
+                      29944.013671875
+                    ],
+                    [
+                      3634,
+                      29634.4453125
+                    ],
+                    [
+                      3900,
+                      29634.4453125
+                    ]
+                  ],
+                  "Location.Y": [
+                    [
+                      3559,
+                      -21.0
+                    ],
+                    [
+                      3634,
+                      58.67778396606445
+                    ],
+                    [
+                      3900,
+                      58.67778396606445
+                    ]
+                  ],
+                  "Location.Z": [
+                    [
+                      3559,
+                      38.0
+                    ],
+                    [
+                      3634,
+                      51.06193161010742
+                    ],
+                    [
+                      3900,
+                      51.06193161010742
+                    ]
+                  ],
+                  "Rotation.X": [
+                    [
+                      3559,
+                      4.304617626298092e-15
+                    ],
+                    [
+                      3634,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Rotation.Y": [
+                    [
+                      3559,
+                      3.0
+                    ],
+                    [
+                      3634,
+                      -2.339935779571533
+                    ],
+                    [
+                      3900,
+                      -2.339935779571533
+                    ]
+                  ],
+                  "Rotation.Z": [
+                    [
+                      3559,
+                      3.0
+                    ],
+                    [
+                      3634,
+                      -14.433730125427246
+                    ],
+                    [
+                      3900,
+                      -14.433730125427246
+                    ]
+                  ],
+                  "Scale.X": [
+                    [
+                      3559,
+                      1.0
+                    ],
+                    [
+                      3900,
+                      1.0
+                    ]
+                  ],
+                  "Scale.Y": [
+                    [
+                      3559,
+                      1.0
+                    ],
+                    [
+                      3900,
+                      1.0
+                    ]
+                  ],
+                  "Scale.Z": [
+                    [
+                      3559,
+                      1.0
+                    ],
+                    [
+                      3900,
+                      1.0
+                    ]
+                  ]
+                },
+                "range": [
+                  3559,
+                  3900
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "guid": "5CF97D3442227E7839F9F7B066A57989",
+        "name": "JOB169 S1 Corner Wing Fire",
+        "spawnable": true,
+        "template_class": "NiagaraActor",
+        "tracks": [
+          {
+            "class": "MovieSceneSpawnTrack",
+            "property": [
+              "",
+              ""
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "None": [
+                    [
+                      3570,
+                      true
+                    ],
+                    [
+                      3900,
+                      false
+                    ]
+                  ]
+                },
+                "range": [
+                  0,
+                  3901
+                ]
+              }
+            ]
+          },
+          {
+            "class": "MovieSceneVisibilityTrack",
+            "property": [
+              "bHidden",
+              "bHidden"
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "None": [
+                    [
+                      0,
+                      false
+                    ],
+                    [
+                      3570,
+                      true
+                    ],
+                    [
+                      3900,
+                      false
+                    ]
+                  ]
+                },
+                "range": [
+                  0,
+                  3901
+                ]
+              }
+            ]
+          },
+          {
+            "class": "MovieScene3DTransformTrack",
+            "property": [
+              "Transform",
+              "Transform"
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "Location.X": [
+                    [
+                      3570,
+                      30418.013671875
+                    ],
+                    [
+                      3900,
+                      30418.013671875
+                    ]
+                  ],
+                  "Location.Y": [
+                    [
+                      3570,
+                      -143.0
+                    ],
+                    [
+                      3900,
+                      -143.0
+                    ]
+                  ],
+                  "Location.Z": [
+                    [
+                      3570,
+                      -32.0
+                    ],
+                    [
+                      3900,
+                      -32.0
+                    ]
+                  ],
+                  "Rotation.X": [
+                    [
+                      3570,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Rotation.Y": [
+                    [
+                      3570,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Rotation.Z": [
+                    [
+                      3570,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Scale.X": [
+                    [
+                      3570,
+                      0.009999999776482582
+                    ],
+                    [
+                      3590,
+                      0.2800000011920929
+                    ],
+                    [
+                      3900,
+                      0.2800000011920929
+                    ]
+                  ],
+                  "Scale.Y": [
+                    [
+                      3570,
+                      0.009999999776482582
+                    ],
+                    [
+                      3590,
+                      0.2800000011920929
+                    ],
+                    [
+                      3900,
+                      0.2800000011920929
+                    ]
+                  ],
+                  "Scale.Z": [
+                    [
+                      3570,
+                      0.009999999776482582
+                    ],
+                    [
+                      3590,
+                      0.2800000011920929
+                    ],
+                    [
+                      3900,
+                      0.2800000011920929
+                    ]
+                  ]
+                },
+                "range": [
+                  3570,
+                  3900
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "guid": "2342A1A44883FB3CB1022E9C8CBA31CF",
+        "name": "JOB169 S1 Corner Wing Fire Light",
+        "spawnable": true,
+        "template_class": "PointLight",
+        "tracks": [
+          {
+            "class": "MovieSceneSpawnTrack",
+            "property": [
+              "",
+              ""
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "None": [
+                    [
+                      3570,
+                      true
+                    ],
+                    [
+                      3900,
+                      false
+                    ]
+                  ]
+                },
+                "range": [
+                  0,
+                  3901
+                ]
+              }
+            ]
+          },
+          {
+            "class": "MovieSceneVisibilityTrack",
+            "property": [
+              "bHidden",
+              "bHidden"
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "None": [
+                    [
+                      0,
+                      false
+                    ],
+                    [
+                      3570,
+                      true
+                    ],
+                    [
+                      3900,
+                      false
+                    ]
+                  ]
+                },
+                "range": [
+                  0,
+                  3901
+                ]
+              }
+            ]
+          },
+          {
+            "class": "MovieScene3DTransformTrack",
+            "property": [
+              "Transform",
+              "Transform"
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "Location.X": [
+                    [
+                      3570,
+                      30418.013671875
+                    ],
+                    [
+                      3900,
+                      30418.013671875
+                    ]
+                  ],
+                  "Location.Y": [
+                    [
+                      3570,
+                      -143.0
+                    ],
+                    [
+                      3900,
+                      -143.0
+                    ]
+                  ],
+                  "Location.Z": [
+                    [
+                      3570,
+                      38.0
+                    ],
+                    [
+                      3900,
+                      38.0
+                    ]
+                  ],
+                  "Rotation.X": [
+                    [
+                      3570,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Rotation.Y": [
+                    [
+                      3570,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Rotation.Z": [
+                    [
+                      3570,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Scale.X": [
+                    [
+                      3570,
+                      1.0
+                    ],
+                    [
+                      3900,
+                      1.0
+                    ]
+                  ],
+                  "Scale.Y": [
+                    [
+                      3570,
+                      1.0
+                    ],
+                    [
+                      3900,
+                      1.0
+                    ]
+                  ],
+                  "Scale.Z": [
+                    [
+                      3570,
+                      1.0
+                    ],
+                    [
+                      3900,
+                      1.0
+                    ]
+                  ]
+                },
+                "range": [
+                  3570,
+                  3900
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "timeline": {
+      "cuts": [
+        {
+          "active": true,
+          "camera": "Scene 1 \u2014 External Sound \u2014 Entry Handoff Camera",
+          "camera_guid": "5264B448384A9D11181911B00EF0B9D7",
+          "range": [
+            0,
+            119
+          ],
+          "section_index": 0,
+          "track_index": 6
+        },
+        {
+          "active": true,
+          "camera": "Klara Reveal - S1 Reveal Glide Camera",
+          "camera_guid": "97D6134A4431DFDD6B37FF8EBDECCEEC",
+          "range": [
+            119,
+            3559
+          ],
+          "section_index": 1,
+          "track_index": 6
+        },
+        {
+          "active": true,
+          "camera": "Scene 1 \u2014 External Sound \u2014 Exit Handoff Camera",
+          "camera_guid": "609D24C3A94564B50497A0B55008EAC9",
+          "range": [
+            6151,
+            6176
+          ],
+          "section_index": 2,
+          "track_index": 6
+        },
+        {
+          "active": true,
+          "camera": "JOB169 S1 Corner Fire Camera",
+          "camera_guid": "B164ECA342E993EE04D840A1484651DB",
+          "range": [
+            3559,
+            6176
+          ],
+          "section_index": 3,
+          "track_index": 6
+        }
+      ],
+      "playback": [
+        0,
+        6176
+      ],
+      "shots": [
+        {
+          "active": true,
+          "bias": 100,
+          "class": "MovieSceneCinematicShotTrack",
+          "offset": 86400,
+          "range": [
+            594,
+            3559
+          ],
+          "section_index": 0,
+          "track_index": 0
+        },
+        {
+          "active": true,
+          "bias": -1000,
+          "class": "MovieSceneCinematicShotTrack",
+          "offset": 2932800,
+          "range": [
+            3559,
+            5769
+          ],
+          "section_index": 1,
+          "track_index": 0
+        }
+      ]
+    }
+  },
+  "applied": true,
+  "backup": {
+    "files": [
+      {
+        "asset": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
+        "backup": "E:/PussStage/Backups\\PreJob169S1Fire-J177-J169-CAMERA-A2-APPLY-20261010\\LS_DevScene_01.uasset",
+        "bytes": 647662,
+        "sha256": "d5a4fd84f00b3459da26957f6329cc452e5f5f4aabbb38e443186555a079b174",
+        "source": "E:/PussStage/Content\\InfinityStage\\Dev\\Sequences\\LS_DevScene_01.uasset"
+      }
+    ],
+    "root": "E:/PussStage/Backups\\PreJob169S1Fire-J177-J169-CAMERA-A2-APPLY-20261010"
+  },
+  "before": {
+    "owned": [],
+    "timeline": {
+      "cuts": [
+        {
+          "active": true,
+          "camera": "Scene 1 \u2014 External Sound \u2014 Entry Handoff Camera",
+          "camera_guid": "5264B448384A9D11181911B00EF0B9D7",
+          "range": [
+            0,
+            119
+          ],
+          "section_index": 0,
+          "track_index": 6
+        },
+        {
+          "active": true,
+          "camera": "Klara Reveal - S1 Reveal Glide Camera",
+          "camera_guid": "97D6134A4431DFDD6B37FF8EBDECCEEC",
+          "range": [
+            119,
+            6151
+          ],
+          "section_index": 1,
+          "track_index": 6
+        },
+        {
+          "active": true,
+          "camera": "Scene 1 \u2014 External Sound \u2014 Exit Handoff Camera",
+          "camera_guid": "609D24C3A94564B50497A0B55008EAC9",
+          "range": [
+            6151,
+            6176
+          ],
+          "section_index": 2,
+          "track_index": 6
+        }
+      ],
+      "playback": [
+        0,
+        6176
+      ],
+      "shots": [
+        {
+          "active": true,
+          "bias": 100,
+          "class": "MovieSceneCinematicShotTrack",
+          "offset": 86400,
+          "range": [
+            594,
+            5769
+          ],
+          "section_index": 0,
+          "track_index": 0
+        }
+      ]
+    }
+  },
+  "census_after": {
+    "content": [],
+    "maps": []
+  },
+  "created_guids": [
+    "B164ECA342E993EE04D840A1484651DB",
+    "5CF97D3442227E7839F9F7B066A57989",
+    "2342A1A44883FB3CB1022E9C8CBA31CF"
+  ],
+  "report": {
+    "before": {
+      "owned": [],
+      "timeline": {
+        "cuts": [
+          {
+            "active": true,
+            "camera": "Scene 1 \u2014 External Sound \u2014 Entry Handoff Camera",
+            "camera_guid": "5264B448384A9D11181911B00EF0B9D7",
+            "range": [
+              0,
+              119
+            ],
+            "section_index": 0,
+            "track_index": 6
+          },
+          {
+            "active": true,
+            "camera": "Klara Reveal - S1 Reveal Glide Camera",
+            "camera_guid": "97D6134A4431DFDD6B37FF8EBDECCEEC",
+            "range": [
+              119,
+              6151
+            ],
+            "section_index": 1,
+            "track_index": 6
+          },
+          {
+            "active": true,
+            "camera": "Scene 1 \u2014 External Sound \u2014 Exit Handoff Camera",
+            "camera_guid": "609D24C3A94564B50497A0B55008EAC9",
+            "range": [
+              6151,
+              6176
+            ],
+            "section_index": 2,
+            "track_index": 6
+          }
+        ],
+        "playback": [
+          0,
+          6176
+        ],
+        "shots": [
+          {
+            "active": true,
+            "bias": 100,
+            "class": "MovieSceneCinematicShotTrack",
+            "offset": 86400,
+            "range": [
+              594,
+              5769
+            ],
+            "section_index": 0,
+            "track_index": 0
+          }
+        ]
+      }
+    },
+    "before_digest": "55fa9bb97b830f90c0bc7d0ad916c046c04b57e559ab807a9fe8f7dd84eb4b7f",
+    "census": {
+      "content": [],
+      "maps": []
+    },
+    "choice": "Fire Niagara and warm point light remain through frame 3899 and are the last light after the rig fade.",
+    "claims": {
+      "declaration_proven": "only LS_DevScene_01 is save-eligible",
+      "inferred": "30-50 percent analytical framing must be judged in PIE stills",
+      "measured_when_run": "live layout, source-camera channels, dry census, saved read-back"
+    },
+    "decided_by": "Gary, Codex job 169, 10 Oct 2026",
+    "guards": {
+      "/Game/InfinityStage/KlaraHookin/LS_Animals_1_S1Hangar": {
+        "file": "E:/PussStage/Content\\InfinityStage\\KlaraHookin\\LS_Animals_1_S1Hangar.uasset",
+        "sha256": "7d0e9eaa74aaec782ac762aaca9c2d063bcb61bad50148cf37db1e8cf9f998bf"
+      },
+      "/Game/KK_S1_Animals/L_Animals": {
+        "file": "E:/PussStage/Content\\KK_S1_Animals\\L_Animals.umap",
+        "sha256": "2482c8c1300e95936b2102743334ffa03a76f50db558b25cb7ab6c8aa5750541"
+      }
+    },
+    "layout_authority": {
+      "candidate_labels": [
+        "SM_L_Wing_2_Animals2",
+        "SM_Celing_Animals_Wing_Final4",
+        "SM_R__Wing_2_Animals2",
+        "SM_L_Wing_2_Animals3",
+        "SM_Celing_Animals_Wing_Final5",
+        "SM_R__Wing_2_Animals3",
+        "SM_L_Wing_2_Animals4",
+        "SM_Celing_Animals_Wing_Final6",
+        "SM_R__Wing_2_Animals4",
+        "SM_L_Wing_2_Animals5",
+        "SM_Celing_Animals_Wing_Final7",
+        "SM_R__Wing_2_Animals5",
+        "SM_L_Wing_2_Animals6",
+        "SM_Celing_Animals_Wing_Final8"
+      ],
+      "path": "E:/PussStage/Saved/CodexConductor\\KlaraIngest\\klara_reveal_record_S1.json",
+      "record_run": "KLARAREVEAL-20261007-104054",
+      "sha256": "f583a2c730c8533cc0ffd63170e3e1f0436576843fb6b16409bb3c63ead1a444"
+    },
+    "mode": "APPLY",
+    "plan": {
+      "camera": {
+        "constant_focal_mm": 23.884634017944336,
+        "end_focal_mm": 18.0,
+        "end_focus_cm": 489.85712342994714,
+        "end_location": [
+          29634.445712488534,
+          58.67778472796141,
+          51.06193196659801
+        ],
+        "end_rotation": [
+          0.0,
+          -2.3399357512483574,
+          -14.433730068204833
+        ],
+        "framing_mode": "TRANSFORM_ONLY_CONSTANT_FOCAL",
+        "sensor_mm": [
+          23.760000228881836,
+          13.364999771118164
+        ],
+        "start_focal_mm": 23.884634017944336,
+        "start_focus_cm": 427.3858337402344,
+        "start_location": [
+          29944.0135,
+          -21.0,
+          38.0
+        ],
+        "start_rotation": [
+          4.304617626298092e-15,
+          3.0,
+          3.0
+        ],
+        "start_scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "camera_hold": [
+        3634,
+        3900
+      ],
+      "camera_pan": [
+        3559,
+        3634
+      ],
+      "fire": {
+        "light_location": [
+          30418.013501447647,
+          -143.0,
+          37.99999990096639
+        ],
+        "location": [
+          30418.013501447647,
+          -143.0,
+          -32.00000009903361
+        ],
+        "scale": 0.28,
+        "system": "/Game/Stylish_Fire_VFX/Niagara/NS_Stylish_Fire_1"
+      },
+      "fire_ramp": [
+        3570,
+        3590
+      ],
+      "fire_window": [
+        3570,
+        3900
+      ],
+      "fps": 25.0,
+      "framing": {
+        "distance_cm": 489.85712342994714,
+        "projected_height_fraction": 0.4,
+        "requested_fraction": 0.4,
+        "target": [
+          30418.013501447647,
+          -143.0,
+          17.999999932657147
+        ],
+        "wing_height_cm": 181.25000009903363
+      },
+      "lights_out": [
+        3800,
+        3838
+      ],
+      "new_end": 3900,
+      "source_frame": 3666,
+      "tail_bias": -1000
+    },
+    "run": "J177-J169-CAMERA-A2-APPLY-20261010",
+    "schema": 1,
+    "source_camera": {
+      "binding": "CineCameraActor",
+      "cut_range": [
+        2137,
+        6008
+      ],
+      "focal_mm": 23.884634017944336,
+      "focus_cm": 427.3858337402344,
+      "frame": 3666,
+      "guid": "9DC04E2B624ACE65EC0AD7A0F2AA7CD5",
+      "location": [
+        29944.0135,
+        -21.0,
+        38.0
+      ],
+      "rotation": [
+        4.304617626298092e-15,
+        3.0,
+        3.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "tool": "JOB169_S1_FIRE_ENDING",
+    "version": 1,
+    "wing": {
+      "bounds_center": [
+        30418.013501447647,
+        -143.0,
+        50.6249999504832
+      ],
+      "bounds_extent": [
+        0.4531324543058872,
+        67.96875,
+        90.62500004951681
+      ],
+      "label": "SM_R__Wing_2_Animals5",
+      "path": "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.StaticMeshActor_34"
+    }
+  },
+  "run": "J177-J169-CAMERA-A2-APPLY-20261010",
+  "saved_readback": {
+    "owned": [
+      {
+        "guid": "B164ECA342E993EE04D840A1484651DB",
+        "name": "JOB169 S1 Corner Fire Camera",
+        "spawnable": true,
+        "template_class": "CineCameraActor",
+        "tracks": [
+          {
+            "class": "MovieSceneSpawnTrack",
+            "property": [
+              "",
+              ""
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "None": [
+                    [
+                      3559,
+                      true
+                    ],
+                    [
+                      3900,
+                      false
+                    ]
+                  ]
+                },
+                "range": [
+                  0,
+                  3901
+                ]
+              }
+            ]
+          },
+          {
+            "class": "MovieScene3DTransformTrack",
+            "property": [
+              "Transform",
+              "Transform"
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "Location.X": [
+                    [
+                      3559,
+                      29944.013671875
+                    ],
+                    [
+                      3634,
+                      29634.4453125
+                    ],
+                    [
+                      3900,
+                      29634.4453125
+                    ]
+                  ],
+                  "Location.Y": [
+                    [
+                      3559,
+                      -21.0
+                    ],
+                    [
+                      3634,
+                      58.67778396606445
+                    ],
+                    [
+                      3900,
+                      58.67778396606445
+                    ]
+                  ],
+                  "Location.Z": [
+                    [
+                      3559,
+                      38.0
+                    ],
+                    [
+                      3634,
+                      51.06193161010742
+                    ],
+                    [
+                      3900,
+                      51.06193161010742
+                    ]
+                  ],
+                  "Rotation.X": [
+                    [
+                      3559,
+                      4.304617626298092e-15
+                    ],
+                    [
+                      3634,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Rotation.Y": [
+                    [
+                      3559,
+                      3.0
+                    ],
+                    [
+                      3634,
+                      -2.339935779571533
+                    ],
+                    [
+                      3900,
+                      -2.339935779571533
+                    ]
+                  ],
+                  "Rotation.Z": [
+                    [
+                      3559,
+                      3.0
+                    ],
+                    [
+                      3634,
+                      -14.433730125427246
+                    ],
+                    [
+                      3900,
+                      -14.433730125427246
+                    ]
+                  ],
+                  "Scale.X": [
+                    [
+                      3559,
+                      1.0
+                    ],
+                    [
+                      3900,
+                      1.0
+                    ]
+                  ],
+                  "Scale.Y": [
+                    [
+                      3559,
+                      1.0
+                    ],
+                    [
+                      3900,
+                      1.0
+                    ]
+                  ],
+                  "Scale.Z": [
+                    [
+                      3559,
+                      1.0
+                    ],
+                    [
+                      3900,
+                      1.0
+                    ]
+                  ]
+                },
+                "range": [
+                  3559,
+                  3900
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "guid": "5CF97D3442227E7839F9F7B066A57989",
+        "name": "JOB169 S1 Corner Wing Fire",
+        "spawnable": true,
+        "template_class": "NiagaraActor",
+        "tracks": [
+          {
+            "class": "MovieSceneSpawnTrack",
+            "property": [
+              "",
+              ""
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "None": [
+                    [
+                      3570,
+                      true
+                    ],
+                    [
+                      3900,
+                      false
+                    ]
+                  ]
+                },
+                "range": [
+                  0,
+                  3901
+                ]
+              }
+            ]
+          },
+          {
+            "class": "MovieSceneVisibilityTrack",
+            "property": [
+              "bHidden",
+              "bHidden"
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "None": [
+                    [
+                      0,
+                      false
+                    ],
+                    [
+                      3570,
+                      true
+                    ],
+                    [
+                      3900,
+                      false
+                    ]
+                  ]
+                },
+                "range": [
+                  0,
+                  3901
+                ]
+              }
+            ]
+          },
+          {
+            "class": "MovieScene3DTransformTrack",
+            "property": [
+              "Transform",
+              "Transform"
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "Location.X": [
+                    [
+                      3570,
+                      30418.013671875
+                    ],
+                    [
+                      3900,
+                      30418.013671875
+                    ]
+                  ],
+                  "Location.Y": [
+                    [
+                      3570,
+                      -143.0
+                    ],
+                    [
+                      3900,
+                      -143.0
+                    ]
+                  ],
+                  "Location.Z": [
+                    [
+                      3570,
+                      -32.0
+                    ],
+                    [
+                      3900,
+                      -32.0
+                    ]
+                  ],
+                  "Rotation.X": [
+                    [
+                      3570,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Rotation.Y": [
+                    [
+                      3570,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Rotation.Z": [
+                    [
+                      3570,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Scale.X": [
+                    [
+                      3570,
+                      0.009999999776482582
+                    ],
+                    [
+                      3590,
+                      0.2800000011920929
+                    ],
+                    [
+                      3900,
+                      0.2800000011920929
+                    ]
+                  ],
+                  "Scale.Y": [
+                    [
+                      3570,
+                      0.009999999776482582
+                    ],
+                    [
+                      3590,
+                      0.2800000011920929
+                    ],
+                    [
+                      3900,
+                      0.2800000011920929
+                    ]
+                  ],
+                  "Scale.Z": [
+                    [
+                      3570,
+                      0.009999999776482582
+                    ],
+                    [
+                      3590,
+                      0.2800000011920929
+                    ],
+                    [
+                      3900,
+                      0.2800000011920929
+                    ]
+                  ]
+                },
+                "range": [
+                  3570,
+                  3900
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "guid": "2342A1A44883FB3CB1022E9C8CBA31CF",
+        "name": "JOB169 S1 Corner Wing Fire Light",
+        "spawnable": true,
+        "template_class": "PointLight",
+        "tracks": [
+          {
+            "class": "MovieSceneSpawnTrack",
+            "property": [
+              "",
+              ""
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "None": [
+                    [
+                      3570,
+                      true
+                    ],
+                    [
+                      3900,
+                      false
+                    ]
+                  ]
+                },
+                "range": [
+                  0,
+                  3901
+                ]
+              }
+            ]
+          },
+          {
+            "class": "MovieSceneVisibilityTrack",
+            "property": [
+              "bHidden",
+              "bHidden"
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "None": [
+                    [
+                      0,
+                      false
+                    ],
+                    [
+                      3570,
+                      true
+                    ],
+                    [
+                      3900,
+                      false
+                    ]
+                  ]
+                },
+                "range": [
+                  0,
+                  3901
+                ]
+              }
+            ]
+          },
+          {
+            "class": "MovieScene3DTransformTrack",
+            "property": [
+              "Transform",
+              "Transform"
+            ],
+            "sections": [
+              {
+                "keys": {
+                  "Location.X": [
+                    [
+                      3570,
+                      30418.013671875
+                    ],
+                    [
+                      3900,
+                      30418.013671875
+                    ]
+                  ],
+                  "Location.Y": [
+                    [
+                      3570,
+                      -143.0
+                    ],
+                    [
+                      3900,
+                      -143.0
+                    ]
+                  ],
+                  "Location.Z": [
+                    [
+                      3570,
+                      38.0
+                    ],
+                    [
+                      3900,
+                      38.0
+                    ]
+                  ],
+                  "Rotation.X": [
+                    [
+                      3570,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Rotation.Y": [
+                    [
+                      3570,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Rotation.Z": [
+                    [
+                      3570,
+                      0.0
+                    ],
+                    [
+                      3900,
+                      0.0
+                    ]
+                  ],
+                  "Scale.X": [
+                    [
+                      3570,
+                      1.0
+                    ],
+                    [
+                      3900,
+                      1.0
+                    ]
+                  ],
+                  "Scale.Y": [
+                    [
+                      3570,
+                      1.0
+                    ],
+                    [
+                      3900,
+                      1.0
+                    ]
+                  ],
+                  "Scale.Z": [
+                    [
+                      3570,
+                      1.0
+                    ],
+                    [
+                      3900,
+                      1.0
+                    ]
+                  ]
+                },
+                "range": [
+                  3570,
+                  3900
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "timeline": {
+      "cuts": [
+        {
+          "active": true,
+          "camera": "Scene 1 \u2014 External Sound \u2014 Entry Handoff Camera",
+          "camera_guid": "5264B448384A9D11181911B00EF0B9D7",
+          "range": [
+            0,
+            119
+          ],
+          "section_index": 0,
+          "track_index": 6
+        },
+        {
+          "active": true,
+          "camera": "Klara Reveal - S1 Reveal Glide Camera",
+          "camera_guid": "97D6134A4431DFDD6B37FF8EBDECCEEC",
+          "range": [
+            119,
+            3559
+          ],
+          "section_index": 1,
+          "track_index": 6
+        },
+        {
+          "active": true,
+          "camera": "Scene 1 \u2014 External Sound \u2014 Exit Handoff Camera",
+          "camera_guid": "609D24C3A94564B50497A0B55008EAC9",
+          "range": [
+            6151,
+            6176
+          ],
+          "section_index": 2,
+          "track_index": 6
+        },
+        {
+          "active": true,
+          "camera": "JOB169 S1 Corner Fire Camera",
+          "camera_guid": "B164ECA342E993EE04D840A1484651DB",
+          "range": [
+            3559,
+            6176
+          ],
+          "section_index": 3,
+          "track_index": 6
+        }
+      ],
+      "playback": [
+        0,
+        6176
+      ],
+      "shots": [
+        {
+          "active": true,
+          "bias": 100,
+          "class": "MovieSceneCinematicShotTrack",
+          "offset": 86400,
+          "range": [
+            594,
+            3559
+          ],
+          "section_index": 0,
+          "track_index": 0
+        },
+        {
+          "active": true,
+          "bias": -1000,
+          "class": "MovieSceneCinematicShotTrack",
+          "offset": 2932800,
+          "range": [
+            3559,
+            5769
+          ],
+          "section_index": 1,
+          "track_index": 0
+        }
+      ]
+    }
+  },
+  "saved_readback_digest": "033f23fd2d96f2853f0b6c1701f5a26bb04431e2b8e9b433e100a7f8464b9a4d",
+  "schema": 1,
+  "timeline_edit": {
+    "cut": [
+      3559,
+      6176
+    ],
+    "head": [
+      594,
+      3559
+    ],
+    "tail": [
+      3559,
+      5769
+    ],
+    "tail_bias": -1000,
+    "tail_offset": 2932800
+  },
+  "tool": "JOB169_S1_FIRE_ENDING",
+  "transaction_complete": true,
+  "written_before_mutation": true
+}

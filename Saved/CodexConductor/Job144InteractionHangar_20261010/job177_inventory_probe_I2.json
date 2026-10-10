@@ -1,0 +1,682 @@
+{
+  "interaction": 2,
+  "old_digest": "f0644cf26f6acc1f7175f061814137d3aae9ba1123db2ecbb01c0f28309ab575",
+  "new_digest": "97ccf6ecdb0055bf23e3b86d7bcc25e33fa0b7b11121edc5276ab2e387ea4ac2",
+  "approved_hide": [
+    {
+      "label": "S2 Ghost Light",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_75",
+      "class": "PointLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=ghost"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "3A5F777F4AFC41EF78B82F923D660E72"
+      ]
+    },
+    {
+      "label": "S2 Practical L1",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_39",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "243537B04E97D1C6C6F81BADE3B67F5A"
+      ]
+    },
+    {
+      "label": "S2 Practical L2",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_40",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "A107BE3A436A40BEA4F1CEA839A62435"
+      ]
+    },
+    {
+      "label": "S2 Practical L3",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_41",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "EA74DE9344D280F0173FAD96C8FCD4B9"
+      ]
+    },
+    {
+      "label": "S2 Practical L4",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_42",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "96590B30450E1DEABAFE0DA205B32206"
+      ]
+    },
+    {
+      "label": "S2 Practical L5",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_43",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "BA7A6133413526AC28D62AB7868AF00A"
+      ]
+    },
+    {
+      "label": "S2 Practical L6",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_44",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "1557085A40EBFFD72270FBAD6C18017A"
+      ]
+    },
+    {
+      "label": "S2 Practical L7",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_45",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "417FF10C4EB6998F97DDFD9C5B59ACB8"
+      ]
+    },
+    {
+      "label": "S2 Practical R1",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_46",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "531A667F4E118489D8B3BEA653799882"
+      ]
+    },
+    {
+      "label": "S2 Practical R2",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_47",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "45968CD545366DC10205D9BE569E629F"
+      ]
+    },
+    {
+      "label": "S2 Practical R3",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_48",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "44DF997E4CDCE4E9AD3D15A2C0ADF81E"
+      ]
+    },
+    {
+      "label": "S2 Practical R4",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_49",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "BB6BFC3444B69A769C48A3B89AA7C7B9"
+      ]
+    },
+    {
+      "label": "S2 Practical R5",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_50",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "76386D11486B76A61CEDEB8FFFAF2A7A"
+      ]
+    },
+    {
+      "label": "S2 Practical R6",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_51",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "EA3741174A2BAB23E1E2DAB7A47CE399"
+      ]
+    },
+    {
+      "label": "S2 Practical R7",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_52",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "Light|role=practical"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "DD9978F44DFF4F5BF6535BA675186071"
+      ]
+    },
+    {
+      "label": "S2 Uplight 1",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_53",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "RigAtmos.Scene2Uplight",
+        "Light|role=uplight"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "D9B6A0804FDB8A91B4C14FA3400AAAB8"
+      ]
+    },
+    {
+      "label": "S2 Uplight 2",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_54",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "RigAtmos.Scene2Uplight",
+        "Light|role=uplight"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "3B68B4E54F334BC1999C919BA24FE384"
+      ]
+    },
+    {
+      "label": "S2 Uplight 3",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_55",
+      "class": "SpotLight",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder",
+        "RigAtmos.Scene2Uplight",
+        "Light|role=uplight"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "39BFC9A545CBCAC8A4248A829CFA4F84"
+      ]
+    },
+    {
+      "label": "S2 Ghost Light Stand",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_312",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "S2 Ghost Light Bulb",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_313",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "46D98BB84146F90C2EE9A8BAE20D9D2A"
+      ]
+    },
+    {
+      "label": "S2 Practical L1 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_314",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "6B9CC79B43F242ABF44ACCB5831D3F55"
+      ]
+    },
+    {
+      "label": "S2 Practical L2 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_315",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "9810A7694DB37668830C2B8A04293F61"
+      ]
+    },
+    {
+      "label": "S2 Practical L3 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_316",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "974675154046BFF49B4E6AA03781335A"
+      ]
+    },
+    {
+      "label": "S2 Practical L4 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_317",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "134DEA4F49684D82F79842B97E3CF0F4"
+      ]
+    },
+    {
+      "label": "S2 Practical L5 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_318",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "8A9B173D402CC1C1526247B055798824"
+      ]
+    },
+    {
+      "label": "S2 Practical L6 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_319",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "16DA73E74CA475DBEC15FF933912B2E6"
+      ]
+    },
+    {
+      "label": "S2 Practical L7 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_320",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "B311F04C4BC7CA6552DFEB8755404EB2"
+      ]
+    },
+    {
+      "label": "S2 Practical R1 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_321",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "6AAEDA714018D3E64EFBDD852FF811EC"
+      ]
+    },
+    {
+      "label": "S2 Practical R2 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_322",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "35CF038846B9BB4C9633B7BA363DDBD7"
+      ]
+    },
+    {
+      "label": "S2 Practical R3 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_323",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "668155244CAC31F36DC2A6A3C060F99C"
+      ]
+    },
+    {
+      "label": "S2 Practical R4 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_324",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "82336CD747C8AB8F6FA93E807D234324"
+      ]
+    },
+    {
+      "label": "S2 Practical R5 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_325",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "1BB1BE9049EA963D5040E38A5DBE6D08"
+      ]
+    },
+    {
+      "label": "S2 Practical R6 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_326",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "711C1FAD4E677DE665FF22AB60BA0215"
+      ]
+    },
+    {
+      "label": "S2 Practical R7 Body",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_327",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "RigAtmos.Scene2Hangar",
+        "RigAtmos.Hangar",
+        "RigAtmos.Placeholder"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": [
+        "22077F0D4EB12CE066C03BA5E45848BA"
+      ]
+    },
+    {
+      "label": "S2 Hangar Exit Door Leaf",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_372",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "HangarExitDoor",
+        "HangarExit.leaf"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "S2 Hangar Exit Black",
+      "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_373",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice",
+      "tags": [
+        "HangarExitDoor",
+        "HangarExit.black"
+      ],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "SM_Main_Windows2",
+      "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.SM_Main_Windows_0",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley",
+      "tags": [],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "SM_S2_L_Wing_Shrine2",
+      "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_10",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley",
+      "tags": [],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "SM_S2_R_Wing_Shrine3",
+      "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_13",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley",
+      "tags": [],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "SM_S2_L_Wing_Shrine3",
+      "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_20",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley",
+      "tags": [],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "SM_S2_R_Wing_Shrine4",
+      "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_29",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley",
+      "tags": [],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "SM_S2_R_Wing_Shrine",
+      "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_3",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley",
+      "tags": [],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "SM_S2_L_Wing_Shrine4",
+      "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_31",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley",
+      "tags": [],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "SM_S2_L_Wing_Shrine5",
+      "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_36",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley",
+      "tags": [],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "SM_S2_R_Wing_Shrine5",
+      "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_37",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley",
+      "tags": [],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "SM_S2_L_Wing_Shrine",
+      "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_5",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley",
+      "tags": [],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "SM_S2_R_Wing_Shrine2",
+      "path": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley:PersistentLevel.StaticMeshActor_9",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley",
+      "tags": [],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "SM_L_Wing_2_Animals2",
+      "path": "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.StaticMeshActor_22",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/KK_S1_Animals/L_Animals.L_Animals",
+      "tags": [],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    },
+    {
+      "label": "SM_R__Wing_2_Animals2",
+      "path": "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.StaticMeshActor_24",
+      "class": "StaticMeshActor",
+      "outer_level": "/Game/KK_S1_Animals/L_Animals.L_Animals",
+      "tags": [],
+      "scene_candidate": true,
+      "sequence_binding_guids": []
+    }
+  ],
+  "all_count": 7146,
+  "census": {
+    "content": [],
+    "maps": []
+  }
+}

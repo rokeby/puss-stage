@@ -1,0 +1,28 @@
+{
+  "census": {
+    "content": [],
+    "maps": []
+  },
+  "current": "6c4d712b44dafae7bc82897cbb74fb99eb87d36df4c1b776bf1be505330a8692",
+  "input": {
+    "passage_guid": "9BFC29C45D47911FF7836BB8537230D2",
+    "section_range": [
+      40227840,
+      43227840
+    ],
+    "speed_multiplier": {
+      "default": 1.0,
+      "keys": [
+        [
+          31171640,
+          1.0
+        ]
+      ]
+    },
+    "tick_rate": 24000.0
+  },
+  "mode": "CHECK",
+  "recorded": "6c4d712b44dafae7bc82897cbb74fb99eb87d36df4c1b776bf1be505330a8692",
+  "run": "P52-20261010-153852",
+  "stale": false
+}

@@ -1,0 +1,5453 @@
+{
+  "run": "J177-J144-SHADOW-DIAG-20261010",
+  "rows": [
+    {
+      "passage": "I1",
+      "local_frame": 712,
+      "master_frame": 10006792,
+      "view_target": {
+        "label": "S1 Sleight Hangar Camera",
+        "class": "CineCameraActor",
+        "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_26",
+        "hidden": false,
+        "location": [
+          29434.014,
+          0.0,
+          500.0
+        ],
+        "rotation": [
+          0.0,
+          -90.0,
+          -0.0
+        ],
+        "bounds_origin": [
+          29434.014,
+          0.0,
+          500.0
+        ],
+        "bounds_extent": [
+          1010.0,
+          1010.0,
+          1010.0
+        ],
+        "components": [
+          {
+            "class": "SceneComponent",
+            "name": "SceneComponent",
+            "visible": true,
+            "active": false
+          },
+          {
+            "class": "CineCameraComponent",
+            "name": "CameraComponent",
+            "visible": true,
+            "active": true
+          },
+          {
+            "class": "CameraProxyMeshComponent",
+            "name": "CameraProxyMeshComponent_0",
+            "visible": false,
+            "active": false
+          },
+          {
+            "class": "DrawFrustumComponent",
+            "name": "DrawFrustumComponent_0",
+            "visible": false,
+            "active": false
+          },
+          {
+            "class": "CameraProxyMeshComponent",
+            "name": "CameraProxyMeshComponent_1",
+            "visible": false,
+            "active": false
+          },
+          {
+            "class": "DrawFrustumComponent",
+            "name": "DrawFrustumComponent_1",
+            "visible": false,
+            "active": false
+          }
+        ],
+        "focal_mm": 28.0,
+        "post_process_blend_weight": 1.0,
+        "auto_exposure_bias": 1.0,
+        "override_auto_exposure_bias": false,
+        "auto_exposure_min_brightness": -10.0,
+        "auto_exposure_max_brightness": 20.0
+      },
+      "shadow_lights": [
+        {
+          "label": "Passage 01 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_0",
+          "hidden": false,
+          "location": [
+            21867.001,
+            0.0,
+            153.82
+          ],
+          "rotation": [
+            0.191,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            21867.001,
+            0.0,
+            153.82
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 02 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_1",
+          "hidden": false,
+          "location": [
+            2713.094,
+            88937.729,
+            180.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            2713.094,
+            88937.729,
+            180.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 03 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_2",
+          "hidden": false,
+          "location": [
+            0.0,
+            160000.0,
+            180.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            0.0,
+            160000.0,
+            180.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 04 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_3",
+          "hidden": false,
+          "location": [
+            252.505,
+            240000.0,
+            180.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            252.505,
+            240000.0,
+            180.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 05 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_4",
+          "hidden": false,
+          "location": [
+            43600.935,
+            320000.0,
+            90.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            43600.935,
+            320000.0,
+            90.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 06 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_5",
+          "hidden": false,
+          "location": [
+            2834.246,
+            400000.0,
+            180.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            2834.246,
+            400000.0,
+            180.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W008",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1024",
+          "hidden": false,
+          "location": [
+            4142.5,
+            238939.78,
+            465.41
+          ],
+          "rotation": [
+            0.0,
+            -21.455,
+            127.444
+          ],
+          "bounds_origin": [
+            4074.597,
+            239028.451,
+            421.517
+          ],
+          "bounds_extent": [
+            149.209,
+            160.543,
+            118.349
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 1717.7,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W009",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1029",
+          "hidden": false,
+          "location": [
+            4555.95,
+            239128.65,
+            1150.0
+          ],
+          "rotation": [
+            -0.0,
+            -49.484,
+            130.133
+          ],
+          "bounds_origin": [
+            4505.7,
+            239188.253,
+            1058.773
+          ],
+          "bounds_extent": [
+            150.615,
+            157.667,
+            143.2
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 2042.2,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W012",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1040",
+          "hidden": false,
+          "location": [
+            6142.5,
+            238939.78,
+            465.41
+          ],
+          "rotation": [
+            0.0,
+            -21.455,
+            127.444
+          ],
+          "bounds_origin": [
+            6074.597,
+            239028.451,
+            421.517
+          ],
+          "bounds_extent": [
+            149.209,
+            160.543,
+            118.349
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 1717.7,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W013",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1041",
+          "hidden": false,
+          "location": [
+            6555.95,
+            239128.65,
+            1150.0
+          ],
+          "rotation": [
+            -0.0,
+            -49.484,
+            130.133
+          ],
+          "bounds_origin": [
+            6505.7,
+            239188.253,
+            1058.773
+          ],
+          "bounds_extent": [
+            150.615,
+            157.667,
+            143.2
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 2042.2,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W016",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1051",
+          "hidden": false,
+          "location": [
+            8142.5,
+            239038.81,
+            465.41
+          ],
+          "rotation": [
+            0.0,
+            -22.799,
+            130.561
+          ],
+          "bounds_origin": [
+            8070.565,
+            239122.853,
+            418.911
+          ],
+          "bounds_extent": [
+            152.869,
+            159.614,
+            120.249
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 1621.5,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W020",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1067",
+          "hidden": false,
+          "location": [
+            10142.5,
+            238887.38,
+            465.41
+          ],
+          "rotation": [
+            0.0,
+            -20.784,
+            125.955
+          ],
+          "bounds_origin": [
+            10076.626,
+            238978.196,
+            422.829
+          ],
+          "bounds_extent": [
+            147.299,
+            160.767,
+            117.375
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 1770.7,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W021",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1072",
+          "hidden": false,
+          "location": [
+            10555.95,
+            239117.17,
+            1150.0
+          ],
+          "rotation": [
+            -0.0,
+            -49.232,
+            129.706
+          ],
+          "bounds_origin": [
+            10505.89,
+            239177.455,
+            1059.117
+          ],
+          "bounds_extent": [
+            150.314,
+            158.006,
+            143.123
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 2049.8999,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        }
+      ],
+      "cards": [],
+      "drapes": [],
+      "far_walls": [
+        {
+          "label": "S4 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_52",
+          "hidden": false,
+          "location": [
+            11168.469,
+            240000.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11168.469,
+            240000.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S1 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_93",
+          "hidden": false,
+          "location": [
+            29284.014,
+            0.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            29284.014,
+            0.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_597",
+          "hidden": false,
+          "location": [
+            11421.973,
+            160000.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11421.973,
+            160000.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S6 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_670",
+          "hidden": false,
+          "location": [
+            28140.283,
+            400000.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            28140.283,
+            400000.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S5 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_824",
+          "hidden": false,
+          "location": [
+            47090.901,
+            320000.0,
+            -15025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            47090.901,
+            320000.0,
+            -15025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S2 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_266",
+          "hidden": false,
+          "location": [
+            11104.483,
+            80954.388,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            11104.483,
+            80954.388,
+            -6025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S4 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_53",
+          "hidden": false,
+          "location": [
+            12893.47,
+            240000.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            12893.47,
+            240000.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            1275.0,
+            1450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S1 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_94",
+          "hidden": false,
+          "location": [
+            31009.014,
+            0.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            31009.014,
+            0.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            1275.0,
+            1050.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S6 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_671",
+          "hidden": false,
+          "location": [
+            29865.283,
+            400000.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            29865.283,
+            400000.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            1275.0,
+            1050.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S5 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_825",
+          "hidden": false,
+          "location": [
+            49815.901,
+            320000.0,
+            -15025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            49815.901,
+            320000.0,
+            -15025.0
+          ],
+          "bounds_extent": [
+            2275.0,
+            10050.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S2 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_267",
+          "hidden": false,
+          "location": [
+            17063.517,
+            75285.125,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            17063.517,
+            75285.125,
+            -6025.0
+          ],
+          "bounds_extent": [
+            11526.284,
+            11553.588,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S1 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_366",
+          "hidden": false,
+          "location": [
+            29509.014,
+            -600.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            29509.014,
+            -600.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S1 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_367",
+          "hidden": false,
+          "location": [
+            29509.014,
+            600.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            29509.014,
+            600.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S2 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_370",
+          "hidden": false,
+          "location": [
+            8269.163,
+            77647.716,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            8269.163,
+            77647.716,
+            -6025.0
+          ],
+          "bounds_extent": [
+            3057.956,
+            3197.997,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S2 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_371",
+          "hidden": false,
+          "location": [
+            14265.83,
+            83950.888,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            14265.83,
+            83950.888,
+            -6025.0
+          ],
+          "bounds_extent": [
+            3057.956,
+            3197.997,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S4 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_374",
+          "hidden": false,
+          "location": [
+            11393.469,
+            239200.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11393.469,
+            239200.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            650.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S4 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_375",
+          "hidden": false,
+          "location": [
+            11393.469,
+            240800.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11393.469,
+            240800.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            650.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S5 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_378",
+          "hidden": false,
+          "location": [
+            47315.901,
+            314900.0,
+            -15025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            47315.901,
+            314900.0,
+            -15025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            4950.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S5 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_379",
+          "hidden": false,
+          "location": [
+            47315.901,
+            325100.0,
+            -15025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            47315.901,
+            325100.0,
+            -15025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            4950.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S6 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_382",
+          "hidden": false,
+          "location": [
+            28365.283,
+            399400.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            28365.283,
+            399400.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S6 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_383",
+          "hidden": false,
+          "location": [
+            28365.283,
+            400600.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            28365.283,
+            400600.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_598",
+          "hidden": false,
+          "location": [
+            13206.973,
+            160000.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            13206.973,
+            160000.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            1215.0,
+            1050.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_335",
+          "hidden": false,
+          "location": [
+            11706.973,
+            159400.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11706.973,
+            159400.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            285.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_337",
+          "hidden": false,
+          "location": [
+            11706.973,
+            160600.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11706.973,
+            160600.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            285.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Below Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_338",
+          "hidden": false,
+          "location": [
+            11481.973,
+            160000.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11481.973,
+            160000.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            60.0,
+            150.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Exit Fill (door closed)",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_451",
+          "hidden": false,
+          "location": [
+            11766.973,
+            160000.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11766.973,
+            160000.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            225.0,
+            150.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        }
+      ],
+      "visible_shadow_light_count": 13
+    },
+    {
+      "passage": "I2",
+      "local_frame": 712,
+      "master_frame": 16930312,
+      "view_target": {
+        "label": "I2 Hangar Hold Camera",
+        "class": "CineCameraActor",
+        "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_40",
+        "hidden": false,
+        "location": [
+          13392.305,
+          78759.588,
+          508.52
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -43.56
+        ],
+        "bounds_origin": [
+          13392.305,
+          78759.588,
+          508.52
+        ],
+        "bounds_extent": [
+          1010.0,
+          1010.0,
+          1010.0
+        ],
+        "components": [
+          {
+            "class": "SceneComponent",
+            "name": "SceneComponent",
+            "visible": true,
+            "active": false
+          },
+          {
+            "class": "CineCameraComponent",
+            "name": "CameraComponent",
+            "visible": true,
+            "active": true
+          },
+          {
+            "class": "CameraProxyMeshComponent",
+            "name": "CameraProxyMeshComponent_0",
+            "visible": false,
+            "active": false
+          },
+          {
+            "class": "DrawFrustumComponent",
+            "name": "DrawFrustumComponent_0",
+            "visible": false,
+            "active": false
+          },
+          {
+            "class": "CameraProxyMeshComponent",
+            "name": "CameraProxyMeshComponent_1",
+            "visible": false,
+            "active": false
+          },
+          {
+            "class": "DrawFrustumComponent",
+            "name": "DrawFrustumComponent_1",
+            "visible": false,
+            "active": false
+          }
+        ],
+        "focal_mm": 38.6011,
+        "post_process_blend_weight": 1.0,
+        "auto_exposure_bias": 1.0,
+        "override_auto_exposure_bias": false,
+        "auto_exposure_min_brightness": -10.0,
+        "auto_exposure_max_brightness": 20.0
+      },
+      "shadow_lights": [
+        {
+          "label": "Passage 01 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_0",
+          "hidden": false,
+          "location": [
+            21867.001,
+            0.0,
+            153.82
+          ],
+          "rotation": [
+            0.191,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            21867.001,
+            0.0,
+            153.82
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 02 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_1",
+          "hidden": false,
+          "location": [
+            2713.094,
+            88937.729,
+            180.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            2713.094,
+            88937.729,
+            180.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 03 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_2",
+          "hidden": false,
+          "location": [
+            0.0,
+            160000.0,
+            180.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            0.0,
+            160000.0,
+            180.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 04 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_3",
+          "hidden": false,
+          "location": [
+            252.505,
+            240000.0,
+            180.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            252.505,
+            240000.0,
+            180.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 05 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_4",
+          "hidden": false,
+          "location": [
+            43600.935,
+            320000.0,
+            90.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            43600.935,
+            320000.0,
+            90.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 06 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_5",
+          "hidden": false,
+          "location": [
+            2834.246,
+            400000.0,
+            180.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            2834.246,
+            400000.0,
+            180.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W008",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1024",
+          "hidden": false,
+          "location": [
+            4142.5,
+            238939.78,
+            465.41
+          ],
+          "rotation": [
+            0.0,
+            -21.455,
+            127.444
+          ],
+          "bounds_origin": [
+            4074.597,
+            239028.451,
+            421.517
+          ],
+          "bounds_extent": [
+            149.209,
+            160.543,
+            118.349
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 1717.7,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W009",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1029",
+          "hidden": false,
+          "location": [
+            4555.95,
+            239128.65,
+            1150.0
+          ],
+          "rotation": [
+            -0.0,
+            -49.484,
+            130.133
+          ],
+          "bounds_origin": [
+            4505.7,
+            239188.253,
+            1058.773
+          ],
+          "bounds_extent": [
+            150.615,
+            157.667,
+            143.2
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 2042.2,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W012",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1040",
+          "hidden": false,
+          "location": [
+            6142.5,
+            238939.78,
+            465.41
+          ],
+          "rotation": [
+            0.0,
+            -21.455,
+            127.444
+          ],
+          "bounds_origin": [
+            6074.597,
+            239028.451,
+            421.517
+          ],
+          "bounds_extent": [
+            149.209,
+            160.543,
+            118.349
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 1717.7,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W013",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1041",
+          "hidden": false,
+          "location": [
+            6555.95,
+            239128.65,
+            1150.0
+          ],
+          "rotation": [
+            -0.0,
+            -49.484,
+            130.133
+          ],
+          "bounds_origin": [
+            6505.7,
+            239188.253,
+            1058.773
+          ],
+          "bounds_extent": [
+            150.615,
+            157.667,
+            143.2
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 2042.2,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W016",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1051",
+          "hidden": false,
+          "location": [
+            8142.5,
+            239038.81,
+            465.41
+          ],
+          "rotation": [
+            0.0,
+            -22.799,
+            130.561
+          ],
+          "bounds_origin": [
+            8070.565,
+            239122.853,
+            418.911
+          ],
+          "bounds_extent": [
+            152.869,
+            159.614,
+            120.249
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 1621.5,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W020",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1067",
+          "hidden": false,
+          "location": [
+            10142.5,
+            238887.38,
+            465.41
+          ],
+          "rotation": [
+            0.0,
+            -20.784,
+            125.955
+          ],
+          "bounds_origin": [
+            10076.626,
+            238978.196,
+            422.829
+          ],
+          "bounds_extent": [
+            147.299,
+            160.767,
+            117.375
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 1770.7,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W021",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1072",
+          "hidden": false,
+          "location": [
+            10555.95,
+            239117.17,
+            1150.0
+          ],
+          "rotation": [
+            -0.0,
+            -49.232,
+            129.706
+          ],
+          "bounds_origin": [
+            10505.89,
+            239177.455,
+            1059.117
+          ],
+          "bounds_extent": [
+            150.314,
+            158.006,
+            143.123
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 2049.8999,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        }
+      ],
+      "cards": [],
+      "drapes": [],
+      "far_walls": [
+        {
+          "label": "S4 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_52",
+          "hidden": false,
+          "location": [
+            11168.469,
+            240000.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11168.469,
+            240000.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S1 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_93",
+          "hidden": false,
+          "location": [
+            29284.014,
+            0.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            29284.014,
+            0.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_597",
+          "hidden": false,
+          "location": [
+            11421.973,
+            160000.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11421.973,
+            160000.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S6 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_670",
+          "hidden": false,
+          "location": [
+            28140.283,
+            400000.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            28140.283,
+            400000.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S5 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_824",
+          "hidden": false,
+          "location": [
+            47090.901,
+            320000.0,
+            -15025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            47090.901,
+            320000.0,
+            -15025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S2 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_266",
+          "hidden": false,
+          "location": [
+            11104.483,
+            80954.388,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            11104.483,
+            80954.388,
+            -6025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S4 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_53",
+          "hidden": false,
+          "location": [
+            12893.47,
+            240000.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            12893.47,
+            240000.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            1275.0,
+            1450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S1 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_94",
+          "hidden": false,
+          "location": [
+            31009.014,
+            0.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            31009.014,
+            0.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            1275.0,
+            1050.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S6 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_671",
+          "hidden": false,
+          "location": [
+            29865.283,
+            400000.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            29865.283,
+            400000.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            1275.0,
+            1050.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S5 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_825",
+          "hidden": false,
+          "location": [
+            49815.901,
+            320000.0,
+            -15025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            49815.901,
+            320000.0,
+            -15025.0
+          ],
+          "bounds_extent": [
+            2275.0,
+            10050.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S2 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_267",
+          "hidden": false,
+          "location": [
+            17063.517,
+            75285.125,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            17063.517,
+            75285.125,
+            -6025.0
+          ],
+          "bounds_extent": [
+            11526.284,
+            11553.588,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S1 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_366",
+          "hidden": false,
+          "location": [
+            29509.014,
+            -600.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            29509.014,
+            -600.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S1 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_367",
+          "hidden": false,
+          "location": [
+            29509.014,
+            600.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            29509.014,
+            600.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S2 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_370",
+          "hidden": false,
+          "location": [
+            8269.163,
+            77647.716,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            8269.163,
+            77647.716,
+            -6025.0
+          ],
+          "bounds_extent": [
+            3057.956,
+            3197.997,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S2 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_371",
+          "hidden": false,
+          "location": [
+            14265.83,
+            83950.888,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            14265.83,
+            83950.888,
+            -6025.0
+          ],
+          "bounds_extent": [
+            3057.956,
+            3197.997,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S4 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_374",
+          "hidden": false,
+          "location": [
+            11393.469,
+            239200.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11393.469,
+            239200.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            650.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S4 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_375",
+          "hidden": false,
+          "location": [
+            11393.469,
+            240800.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11393.469,
+            240800.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            650.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S5 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_378",
+          "hidden": false,
+          "location": [
+            47315.901,
+            314900.0,
+            -15025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            47315.901,
+            314900.0,
+            -15025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            4950.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S5 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_379",
+          "hidden": false,
+          "location": [
+            47315.901,
+            325100.0,
+            -15025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            47315.901,
+            325100.0,
+            -15025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            4950.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S6 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_382",
+          "hidden": false,
+          "location": [
+            28365.283,
+            399400.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            28365.283,
+            399400.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S6 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_383",
+          "hidden": false,
+          "location": [
+            28365.283,
+            400600.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            28365.283,
+            400600.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_598",
+          "hidden": false,
+          "location": [
+            13206.973,
+            160000.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            13206.973,
+            160000.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            1215.0,
+            1050.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_335",
+          "hidden": false,
+          "location": [
+            11706.973,
+            159400.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11706.973,
+            159400.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            285.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_337",
+          "hidden": false,
+          "location": [
+            11706.973,
+            160600.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11706.973,
+            160600.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            285.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Below Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_338",
+          "hidden": false,
+          "location": [
+            11481.973,
+            160000.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11481.973,
+            160000.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            60.0,
+            150.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Exit Fill (door closed)",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_451",
+          "hidden": false,
+          "location": [
+            11766.973,
+            160000.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11766.973,
+            160000.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            225.0,
+            150.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        }
+      ],
+      "visible_shadow_light_count": 13
+    },
+    {
+      "passage": "I3",
+      "local_frame": 712,
+      "master_frame": 26008072,
+      "view_target": {
+        "label": "S3 Sleight Hangar Camera",
+        "class": "CineCameraActor",
+        "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_30",
+        "hidden": false,
+        "location": [
+          11720.539,
+          160000.0,
+          377.624
+        ],
+        "rotation": [
+          0.0,
+          -90.0,
+          -0.0
+        ],
+        "bounds_origin": [
+          11720.539,
+          160000.0,
+          377.624
+        ],
+        "bounds_extent": [
+          1010.0,
+          1010.0,
+          1010.0
+        ],
+        "components": [
+          {
+            "class": "SceneComponent",
+            "name": "SceneComponent",
+            "visible": true,
+            "active": false
+          },
+          {
+            "class": "CineCameraComponent",
+            "name": "CameraComponent",
+            "visible": true,
+            "active": true
+          },
+          {
+            "class": "CameraProxyMeshComponent",
+            "name": "CameraProxyMeshComponent_0",
+            "visible": false,
+            "active": false
+          },
+          {
+            "class": "DrawFrustumComponent",
+            "name": "DrawFrustumComponent_0",
+            "visible": false,
+            "active": false
+          },
+          {
+            "class": "CameraProxyMeshComponent",
+            "name": "CameraProxyMeshComponent_1",
+            "visible": false,
+            "active": false
+          },
+          {
+            "class": "DrawFrustumComponent",
+            "name": "DrawFrustumComponent_1",
+            "visible": false,
+            "active": false
+          }
+        ],
+        "focal_mm": 28.0,
+        "post_process_blend_weight": 1.0,
+        "auto_exposure_bias": 1.0,
+        "override_auto_exposure_bias": false,
+        "auto_exposure_min_brightness": -10.0,
+        "auto_exposure_max_brightness": 20.0
+      },
+      "shadow_lights": [
+        {
+          "label": "Passage 01 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_0",
+          "hidden": false,
+          "location": [
+            21867.001,
+            0.0,
+            153.82
+          ],
+          "rotation": [
+            0.191,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            21867.001,
+            0.0,
+            153.82
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 02 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_1",
+          "hidden": false,
+          "location": [
+            2713.094,
+            88937.729,
+            180.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            2713.094,
+            88937.729,
+            180.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 03 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_2",
+          "hidden": false,
+          "location": [
+            0.0,
+            160000.0,
+            180.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            0.0,
+            160000.0,
+            180.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 04 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_3",
+          "hidden": false,
+          "location": [
+            252.505,
+            240000.0,
+            180.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            252.505,
+            240000.0,
+            180.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 05 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_4",
+          "hidden": false,
+          "location": [
+            43600.935,
+            320000.0,
+            90.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            43600.935,
+            320000.0,
+            90.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "Passage 06 \u2014 Camera + Shadow Figures",
+          "class": "InfinityStageCameraRig",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_5",
+          "hidden": false,
+          "location": [
+            2834.246,
+            400000.0,
+            180.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "bounds_origin": [
+            2834.246,
+            400000.0,
+            180.0
+          ],
+          "bounds_extent": [
+            1010.0,
+            1010.0,
+            1010.0
+          ],
+          "components": [
+            {
+              "class": "SceneComponent",
+              "name": "SceneRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "CineCameraComponent",
+              "name": "Camera",
+              "visible": true,
+              "active": true
+            },
+            {
+              "class": "SceneComponent",
+              "name": "ShadowFigureRoot",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "InfinityStageShadowCatComponent",
+              "name": "ShadowCat",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "SpotLightComponent",
+              "name": "FollowLight",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_0",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "CameraProxyMeshComponent",
+              "name": "CameraProxyMeshComponent_1",
+              "visible": false,
+              "active": false
+            },
+            {
+              "class": "DrawFrustumComponent",
+              "name": "DrawFrustumComponent_1",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 0.0,
+          "attenuation_radius": 2196.9648,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": false,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W008",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1024",
+          "hidden": false,
+          "location": [
+            4142.5,
+            238939.78,
+            465.41
+          ],
+          "rotation": [
+            0.0,
+            -21.455,
+            127.444
+          ],
+          "bounds_origin": [
+            4074.597,
+            239028.451,
+            421.517
+          ],
+          "bounds_extent": [
+            149.209,
+            160.543,
+            118.349
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 1717.7,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W009",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1029",
+          "hidden": false,
+          "location": [
+            4555.95,
+            239128.65,
+            1150.0
+          ],
+          "rotation": [
+            -0.0,
+            -49.484,
+            130.133
+          ],
+          "bounds_origin": [
+            4505.7,
+            239188.253,
+            1058.773
+          ],
+          "bounds_extent": [
+            150.615,
+            157.667,
+            143.2
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 2042.2,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W012",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1040",
+          "hidden": false,
+          "location": [
+            6142.5,
+            238939.78,
+            465.41
+          ],
+          "rotation": [
+            0.0,
+            -21.455,
+            127.444
+          ],
+          "bounds_origin": [
+            6074.597,
+            239028.451,
+            421.517
+          ],
+          "bounds_extent": [
+            149.209,
+            160.543,
+            118.349
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 1717.7,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W013",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1041",
+          "hidden": false,
+          "location": [
+            6555.95,
+            239128.65,
+            1150.0
+          ],
+          "rotation": [
+            -0.0,
+            -49.484,
+            130.133
+          ],
+          "bounds_origin": [
+            6505.7,
+            239188.253,
+            1058.773
+          ],
+          "bounds_extent": [
+            150.615,
+            157.667,
+            143.2
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 2042.2,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W016",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1051",
+          "hidden": false,
+          "location": [
+            8142.5,
+            239038.81,
+            465.41
+          ],
+          "rotation": [
+            0.0,
+            -22.799,
+            130.561
+          ],
+          "bounds_origin": [
+            8070.565,
+            239122.853,
+            418.911
+          ],
+          "bounds_extent": [
+            152.869,
+            159.614,
+            120.249
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 1621.5,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W020",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1067",
+          "hidden": false,
+          "location": [
+            10142.5,
+            238887.38,
+            465.41
+          ],
+          "rotation": [
+            0.0,
+            -20.784,
+            125.955
+          ],
+          "bounds_origin": [
+            10076.626,
+            238978.196,
+            422.829
+          ],
+          "bounds_extent": [
+            147.299,
+            160.767,
+            117.375
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 1770.7,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        },
+        {
+          "label": "P04 WINDOW SHADOW W021",
+          "class": "SpotLight",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_1072",
+          "hidden": false,
+          "location": [
+            10555.95,
+            239117.17,
+            1150.0
+          ],
+          "rotation": [
+            -0.0,
+            -49.232,
+            129.706
+          ],
+          "bounds_origin": [
+            10505.89,
+            239177.455,
+            1059.117
+          ],
+          "bounds_extent": [
+            150.314,
+            158.006,
+            143.123
+          ],
+          "components": [
+            {
+              "class": "SpotLightComponent",
+              "name": "LightComponent0",
+              "visible": true,
+              "active": false
+            },
+            {
+              "class": "ArrowComponent",
+              "name": "ArrowComponent0",
+              "visible": false,
+              "active": false
+            }
+          ],
+          "intensity": 220.0,
+          "attenuation_radius": 2049.8999,
+          "cast_shadows": true,
+          "affects_world": true,
+          "visible": true,
+          "component_active": false
+        }
+      ],
+      "cards": [],
+      "drapes": [],
+      "far_walls": [
+        {
+          "label": "S4 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_52",
+          "hidden": false,
+          "location": [
+            11168.469,
+            240000.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11168.469,
+            240000.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S1 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_93",
+          "hidden": false,
+          "location": [
+            29284.014,
+            0.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            29284.014,
+            0.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_597",
+          "hidden": false,
+          "location": [
+            11421.973,
+            160000.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11421.973,
+            160000.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S6 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_670",
+          "hidden": false,
+          "location": [
+            28140.283,
+            400000.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            28140.283,
+            400000.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S5 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_824",
+          "hidden": false,
+          "location": [
+            47090.901,
+            320000.0,
+            -15025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            47090.901,
+            320000.0,
+            -15025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S2 Hangar Far Wall Hinge",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_266",
+          "hidden": false,
+          "location": [
+            11104.483,
+            80954.388,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            11104.483,
+            80954.388,
+            -6025.0
+          ],
+          "bounds_extent": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S4 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_53",
+          "hidden": false,
+          "location": [
+            12893.47,
+            240000.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            12893.47,
+            240000.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            1275.0,
+            1450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S1 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_94",
+          "hidden": false,
+          "location": [
+            31009.014,
+            0.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            31009.014,
+            0.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            1275.0,
+            1050.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S6 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_671",
+          "hidden": false,
+          "location": [
+            29865.283,
+            400000.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            29865.283,
+            400000.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            1275.0,
+            1050.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S5 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_825",
+          "hidden": false,
+          "location": [
+            49815.901,
+            320000.0,
+            -15025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            49815.901,
+            320000.0,
+            -15025.0
+          ],
+          "bounds_extent": [
+            2275.0,
+            10050.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S2 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_267",
+          "hidden": false,
+          "location": [
+            17063.517,
+            75285.125,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            17063.517,
+            75285.125,
+            -6025.0
+          ],
+          "bounds_extent": [
+            11526.284,
+            11553.588,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S1 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_366",
+          "hidden": false,
+          "location": [
+            29509.014,
+            -600.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            29509.014,
+            -600.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S1 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_367",
+          "hidden": false,
+          "location": [
+            29509.014,
+            600.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            29509.014,
+            600.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S2 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_370",
+          "hidden": false,
+          "location": [
+            8269.163,
+            77647.716,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            8269.163,
+            77647.716,
+            -6025.0
+          ],
+          "bounds_extent": [
+            3057.956,
+            3197.997,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S2 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_371",
+          "hidden": false,
+          "location": [
+            14265.83,
+            83950.888,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -43.573
+          ],
+          "bounds_origin": [
+            14265.83,
+            83950.888,
+            -6025.0
+          ],
+          "bounds_extent": [
+            3057.956,
+            3197.997,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S4 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_374",
+          "hidden": false,
+          "location": [
+            11393.469,
+            239200.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11393.469,
+            239200.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            650.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S4 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_375",
+          "hidden": false,
+          "location": [
+            11393.469,
+            240800.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11393.469,
+            240800.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            650.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S5 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_378",
+          "hidden": false,
+          "location": [
+            47315.901,
+            314900.0,
+            -15025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            47315.901,
+            314900.0,
+            -15025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            4950.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S5 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_379",
+          "hidden": false,
+          "location": [
+            47315.901,
+            325100.0,
+            -15025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            47315.901,
+            325100.0,
+            -15025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            4950.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S6 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_382",
+          "hidden": false,
+          "location": [
+            28365.283,
+            399400.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            28365.283,
+            399400.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S6 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_383",
+          "hidden": false,
+          "location": [
+            28365.283,
+            400600.0,
+            -6025.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            28365.283,
+            400600.0,
+            -6025.0
+          ],
+          "bounds_extent": [
+            225.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Above Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_598",
+          "hidden": false,
+          "location": [
+            13206.973,
+            160000.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            13206.973,
+            160000.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            1215.0,
+            1050.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Left of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_335",
+          "hidden": false,
+          "location": [
+            11706.973,
+            159400.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11706.973,
+            159400.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            285.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Right of Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_337",
+          "hidden": false,
+          "location": [
+            11706.973,
+            160600.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11706.973,
+            160600.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            285.0,
+            450.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Below Exit",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_338",
+          "hidden": false,
+          "location": [
+            11481.973,
+            160000.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11481.973,
+            160000.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            60.0,
+            150.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        },
+        {
+          "label": "S3 Hangar Far Wall Exit Fill (door closed)",
+          "class": "StaticMeshActor",
+          "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_451",
+          "hidden": false,
+          "location": [
+            11766.973,
+            160000.0,
+            -6145.0
+          ],
+          "rotation": [
+            0.0,
+            -90.0,
+            -0.0
+          ],
+          "bounds_origin": [
+            11766.973,
+            160000.0,
+            -6145.0
+          ],
+          "bounds_extent": [
+            225.0,
+            150.0,
+            25.0
+          ],
+          "components": [
+            {
+              "class": "StaticMeshComponent",
+              "name": "StaticMeshComponent0",
+              "visible": true,
+              "active": false
+            }
+          ]
+        }
+      ],
+      "visible_shadow_light_count": 13
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "run": "J177-J144-CAMERA-BINDING-PROBE-20261010",
+  "rows": [
+    {
+      "interaction": "I2",
+      "binding": "I2 Hangar Hold Camera",
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_40",
+      "world_location": [
+        13393.0,
+        78777.0,
+        510.0
+      ],
+      "relative_location": [
+        13393.0,
+        78777.0,
+        510.0
+      ],
+      "attach_parent": null,
+      "track_location_at_712": [
+        10249.9912109375,
+        -0.006164540536701679,
+        -6185.0
+      ],
+      "track_rotation_at_712": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "interaction": "I3",
+      "binding": "S3 Sleight Hangar Camera",
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_30",
+      "world_location": [
+        10921.973,
+        160000.0,
+        180.0
+      ],
+      "relative_location": [
+        -500.0,
+        0.0,
+        300.0
+      ],
+      "attach_parent": "S3 Hangar Root",
+      "track_location_at_712": [
+        10249.9912109375,
+        0.0,
+        -6185.0
+      ],
+      "track_rotation_at_712": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

@@ -16,12 +16,13 @@ def _asset_path(value):
 def _load_legacy():
     with open(LEGACY, "r", encoding="utf-8") as handle:
         source = handle.read().rstrip()
-    if not source.endswith(TAIL.strip()):
+    if source.endswith(TAIL.strip()):
+        source = source[:-len(TAIL.strip())]
+    elif "def main(args):" not in source:
         raise RuntimeError("LEGACY_SHAPE_CHANGED")
-    source = source[:-len(TAIL.strip())]
     namespace = {"__name__": "job169_s1_rig_fade_definitions", "__file__": LEGACY}
     exec(compile(source, LEGACY, "exec"), namespace)
-    if any(name not in namespace for name in ("normalise_params", "run_dry", "run_apply", "run_revert")):
+    if any(name not in namespace for name in ("merged_params", "run_dry", "run_apply", "run_revert")):
         raise RuntimeError("LEGACY_HELPERS_MISSING")
     namespace["_here"] = lambda: HERE
 
@@ -71,7 +72,7 @@ def _params(args):
 def run(args):
     namespace = _load_legacy()
     mode = str(args["mode"]).upper()
-    params = namespace["normalise_params"](_params(args))
+    params = namespace["merged_params"](_params(args))
     expected_start = int(args["lights_out_start_frame"])
     if params["expected_target_scene_frame"] - params["fade_frames"] != expected_start:
         raise RuntimeError("LIGHTS_OUT_START_ROUNDING")

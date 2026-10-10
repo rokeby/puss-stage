@@ -236,6 +236,12 @@ class UnrealBackend(object):
         camera_binding = self._binding_guid(seq, active[0]["guid"])
         if "camera" not in str(camera_binding.get_display_name()).lower():
             raise Stop("SHADOW_CUT_NOT_CAMERA|%s" % camera_binding.get_display_name())
+        world = self.u.get_editor_subsystem(self.u.UnrealEditorSubsystem).get_editor_world()
+        camera_objects = list(seq.locate_bound_objects(camera_binding, world))
+        if len(camera_objects) != 1 or not isinstance(camera_objects[0], self.u.Actor):
+            raise Stop("SHADOW_CAMERA_OBJECT_COUNT|%d" % len(camera_objects))
+        camera_actor = camera_objects[0]
+        camera_parent = camera_actor.get_attach_parent_actor()
         bindings = self._bindings(seq)
         puppets = [r["name"] for r in bindings if re.search(r"gobo|puppet|boy|cat|card", r["name"], re.I)
                    and not re.search(r"camera|component", r["name"], re.I)]
@@ -252,6 +258,8 @@ class UnrealBackend(object):
                  "markers": markers, "bindings": bindings, "cuts": cuts,
                 "world_labels": labels, "actors": actor_rows, "wall_candidates": self._wall_rows(n, actors, roots[0]),
                 "root_transform": roots[0].get_actor_transform(), "curtain_pose": curtain_pose,
+                 "camera_parent_label": str(camera_parent.get_actor_label()) if camera_parent else None,
+                 "camera_parent_transform": camera_parent.get_actor_transform() if camera_parent else None,
                 "curtain_template_pose": self._template_pose(curtain_binding),
                 "curtain_transform": curtain_transform, "camera_transform": self._pose(camera_binding),
                  "shadow_camera_binding": {"guid": _guid(camera_binding.get_id(), self.u),
@@ -265,21 +273,45 @@ class UnrealBackend(object):
 
     def build_report(self, params, run):
         snap = self.snapshot(params); plan = make_plan(snap, params)
-        # Convert the computed world camera target into the hangar-root-relative
-        # transform expected by the existing camera binding.
+        # A possessable camera track is world-space when the actor is unparented,
+        # and parent-relative when it is attached.  Job 176 proved that treating
+        # both cases as hangar-root-relative displaced I2 by an entire passage;
+        # using make_relative_transform also composed S3's pitched parent in the
+        # wrong order.  Derive the exact binding space from the resolved actor.
         p = plan["camera_target_world"]
-        world_xf = self.u.Transform(location=self.u.Vector(*p["loc"]),
-                                    rotation=self.u.Rotator(roll=p["roll"], pitch=p["pitch"], yaw=p["yaw"]),
-                                    scale=self.u.Vector(1.0, 1.0, 1.0))
-        rel = self.u.MathLibrary.make_relative_transform(world_xf, snap["root_transform"])
-        rr = rel.rotation.rotator()
-        plan["camera_target_relative"] = {"Location.X": float(rel.translation.x),
-                                          "Location.Y": float(rel.translation.y), "Location.Z": float(rel.translation.z),
-                                          "Rotation.X": float(rr.roll), "Rotation.Y": float(rr.pitch),
-                                          "Rotation.Z": float(rr.yaw)}
+        world_loc = self.u.Vector(*p["loc"])
+        world_rot = self.u.Rotator(roll=p["roll"], pitch=p["pitch"], yaw=p["yaw"])
+        parent_xf = snap.get("camera_parent_transform")
+        if parent_xf is None:
+            if params.get("camera_parent_runtime_world") is not None:
+                raise Stop("CAMERA_PARENT_RUNTIME_WITHOUT_PARENT")
+            track_loc, track_rot = world_loc, world_rot
+            plan["camera_binding_space"] = "WORLD_UNPARENTED"
+        else:
+            measured = params.get("camera_parent_runtime_world")
+            if measured is None:
+                raise Stop("CAMERA_PARENT_RUNTIME_MEASUREMENT_REQUIRED|%s" % snap["camera_parent_label"])
+            if measured["label"] != snap["camera_parent_label"]:
+                raise Stop("CAMERA_PARENT_RUNTIME_LABEL|got=%s|want=%s" %
+                           (measured["label"], snap["camera_parent_label"]))
+            # The parent is itself sequence-evaluated.  Its editor transform is
+            # not the transform that composes the camera at the shadow frame.
+            # Use the Job-177 PIE measurement from that exact frame.
+            loc = measured["location"]; rot = measured["rotation"]
+            parent_xf = self.u.Transform(location=self.u.Vector(*loc),
+                                         rotation=self.u.Rotator(roll=rot[0], pitch=rot[1], yaw=rot[2]),
+                                         scale=self.u.Vector(1.0, 1.0, 1.0))
+            track_loc = self.u.MathLibrary.inverse_transform_location(parent_xf, world_loc)
+            track_rot = self.u.MathLibrary.inverse_transform_rotation(parent_xf, world_rot)
+            plan["camera_binding_space"] = "PARENT_RELATIVE"
+        plan["camera_target_relative"] = {"Location.X": float(track_loc.x),
+                                           "Location.Y": float(track_loc.y), "Location.Z": float(track_loc.z),
+                                           "Rotation.X": float(track_rot.roll), "Rotation.Y": float(track_rot.pitch),
+                                           "Rotation.Z": float(track_rot.yaw)}
         plan["digest"] = digest({k: v for k, v in plan.items() if k != "digest"})
         return {"schema": 1, "run": run, "proof": "measured live read-only; visual acceptance pending",
-                "snapshot": {k: v for k, v in snap.items() if k != "root_transform"}, "plan": plan,
+                "snapshot": {k: v for k, v in snap.items()
+                             if k not in ("root_transform", "camera_parent_transform")}, "plan": plan,
                 "census": self.census()}
 
     def _asset_file(self, package):

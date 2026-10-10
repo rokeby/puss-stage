@@ -1,0 +1,1315 @@
+{
+  "target": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+  "rows": [
+    {
+      "name": "S4 Lattice Glow 3-8",
+      "guid": "012156C443510E0E7475D1BCCD3F5793",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 17 [OWNED]",
+      "guid": "043C394542D439AE92FDA583AC631E3D",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Bulb 3-1",
+      "guid": "04E538DD43A1F20E13FC3C9D86382B78",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 33 [OWNED]",
+      "guid": "0737CE32425B3968657E5DA8B994A53C",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Practical L7",
+      "guid": "08A65BC441CD8847DF2A108C40E61E69",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 1-1",
+      "guid": "09D1FB66463324EE66B7ED98D5C37EC4",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 13 [OWNED]",
+      "guid": "09E9843549E06B97E28A6BBF7294164C",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 2-4",
+      "guid": "1108246643FEC48A43419189DF9C63E8",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 24 [OWNED]",
+      "guid": "11396A774AA907A6A3A44BA5243AD63A",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Candle 06 [OWNED]",
+      "guid": "13E2BC274A4835477AD9A097EA49B58B",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Flame 33 [OWNED]",
+      "guid": "13FF68C249A9474E768ED1B77F849719",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 42 [OWNED]",
+      "guid": "19178DB14ED58DBF6DEC01BC8F09F57E",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Practical L2",
+      "guid": "19A9858B485AF614B6B014BC4D5A1305",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 07 [OWNED]",
+      "guid": "1A929FE44CEB90743044CA809CBFEA80",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 29 [OWNED]",
+      "guid": "1C5CDC97450E493CBE14A39B512A4423",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 02 [OWNED]",
+      "guid": "1D3B60114A1CFE6E2879278BF673AAF7",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Bulb 3-8",
+      "guid": "1E7BDD934B5E1AA2E930E09DF32265FA",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 26 [OWNED]",
+      "guid": "1F279B4A43CBE5644E300E842D8C59A6",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 29 [OWNED]",
+      "guid": "1F742C2041BA1C44450C65AC84C4CF90",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Flame 21 [OWNED]",
+      "guid": "2426C5E3426E494B8D8519B093E85648",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 1-6",
+      "guid": "266B6E9445875BBC49A56E9F30292310",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 28 [OWNED]",
+      "guid": "2739BE7E49FC9C33A24590A9CB1D631C",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 04 [OWNED]",
+      "guid": "2E36EB55495403632D567CB4FB4E4F33",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 24 [OWNED]",
+      "guid": "32DD15A74873221C555FF0B1F9D48D6A",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 01 [OWNED]",
+      "guid": "3485EC14411D2C91F3938EB2E0BC89F1",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 44 [OWNED]",
+      "guid": "34B21F6C49E437FCCD0FD9BA9EC0CB65",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 2-5",
+      "guid": "356B18454AF1B4E22D9B81B9EA64431A",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 1-7",
+      "guid": "35893B734E0C29F4D59E7B9475396B2C",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 3-5",
+      "guid": "3B5DD1F94BFC25CA54C062BA57C254CA",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 1-5",
+      "guid": "408C23AA46FB7733FF39178E5E7A5E61",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Uplight 2",
+      "guid": "42E3B1C5471715A77DFFF2A8695DA617",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 41 [OWNED]",
+      "guid": "43107BC242269D3E1C8228BE373CB658",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Glow 1-8",
+      "guid": "43F4599A47D189993D2C9DBB418842C0",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 18 [OWNED]",
+      "guid": "4459A541479102B42C1BC6B9A11914FE",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Candle 37 [OWNED]",
+      "guid": "45589C03478CD5301C5450AFFDD60A85",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Candle 14 [OWNED]",
+      "guid": "4740B9884EFEB58890F77B9AB73F211F",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Bulb 2-5",
+      "guid": "47E4B35F4BC1B54EB57DD599D2418935",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 12 [OWNED]",
+      "guid": "481E95DE44613BB5E56468B7D97A5BE2",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 04 [OWNED]",
+      "guid": "4A9EA96B4046908036008B8CA1D0F25D",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Candle 26 [OWNED]",
+      "guid": "4AC75BF34AFDD042E53A2F93D6B80574",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Practical L1",
+      "guid": "4B70AB03491346AC235CDA8451ADDBB8",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 23 [OWNED]",
+      "guid": "4EA5D13B41D337C58249F78D85CD20A8",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Candle 03 [OWNED]",
+      "guid": "50B5C2EB404D5B37EE435C99290961CD",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Candle 22 [OWNED]",
+      "guid": "50D14A564EACE0C640A49B9D1DCF0C22",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Candle 21 [OWNED]",
+      "guid": "5326BDD64145132383FB86AA003E64BA",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Practical R4",
+      "guid": "5578A1B44D942ACA4B163A85E32C9C2D",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 25 [OWNED]",
+      "guid": "559335384BC26C4DCDACE2828BE4D72A",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 41 [OWNED]",
+      "guid": "5AB62F9A4F6E5412B86DBDAC3890B933",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 23 [OWNED]",
+      "guid": "5BE95C9C41AB44C14321B8A7D48D9F43",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 1-2",
+      "guid": "5C8D2F6A43552A7E3DEDF38E40C93C66",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 1-1",
+      "guid": "5D11A8E64B366C7D9EC4188461FF6E43",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 08 [OWNED]",
+      "guid": "5E0B84A44363C5ABA1433AB038F5BD17",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Flame 36 [OWNED]",
+      "guid": "5E14A7C5461993E6B2ADCCAF4A383947",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 38 [OWNED]",
+      "guid": "60EA828241B84479CCDC32984DC7880B",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 02 [OWNED]",
+      "guid": "61146D054B366F93A1DB52A59F77686A",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "S4 Ghost Light Bulb",
+      "guid": "6203106B45206D40FA44AA9F69C95AC2",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 17 [OWNED]",
+      "guid": "626A0694412ADFE5C246F7BC2205CD40",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 3-6",
+      "guid": "63B1FF5547E1DA158D2E3CA2CB3DFC70",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Practical L6",
+      "guid": "64AFDF9248F2723952819A9682ABAAF0",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 16 [OWNED]",
+      "guid": "654F2A854A1EFA9628AAA79FCA42E780",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 19 [OWNED]",
+      "guid": "65A5F91A407C93BBCF5C81BDE96775C4",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Candle 31 [OWNED]",
+      "guid": "67EE88664822BBC5B73EB1992CF83D50",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Practical R5",
+      "guid": "68008DF3491CED43295EB2B00BDC995C",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 27 [OWNED]",
+      "guid": "680532924E82BE6702D3F79477CBA7FD",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Candle 40 [OWNED]",
+      "guid": "6A7C393B4EB788481544859FAA7DEA67",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Practical R2",
+      "guid": "6C62E4684AB34564F9E66D918E85255A",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 2-6",
+      "guid": "6FE4BCC04867BD1DC2FEF9964F3005BC",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 01 [OWNED]",
+      "guid": "72FEE5D24B11CDC23163B3BE6D4E6327",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Glow 3-1",
+      "guid": "7736A76448564D0FEEEB7B9ED501C069",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 2-3",
+      "guid": "78363408484CCDE1C42118B579301087",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 15 [OWNED]",
+      "guid": "79E3777949DA4EF7613EF8B15A1DF63A",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 28 [OWNED]",
+      "guid": "7AD7130A4ABD2B4A683859B3F0CBD67D",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Uplight 1",
+      "guid": "7B5738234DEE3603E529FBB90208D804",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 1-6",
+      "guid": "7BBB83EB4B1DA8457289378572DACFFD",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 1-2",
+      "guid": "7CC37AD0484A7AEEED86F88A9C95F7D5",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 12 [OWNED]",
+      "guid": "7CF5E4F343061EB870A8BA801C3E30EA",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Bulb 3-5",
+      "guid": "7CFE1A124F79B862DE941782F909F4DA",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 1-3",
+      "guid": "8026E0554321CEAAE32A2D9B74233525",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 32 [OWNED]",
+      "guid": "81BEAB2240D0645ADB7E27A1106EC2FA",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 30 [OWNED]",
+      "guid": "81F8015E4759A831B0E6F1B386AB5CE5",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 3-3",
+      "guid": "869F122643E37355C31638BDCC80A7CB",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 2-4",
+      "guid": "8717571C4B3DFECE04719A80C694795B",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 3-4",
+      "guid": "883159B944A23AA2FB1EB4910DD85D9A",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 36 [OWNED]",
+      "guid": "8A05046743AE9C9F3E756EA5CDB47E76",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Glow 2-8",
+      "guid": "8AABC3004090A141276CE0B1C91C3798",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Practical L5",
+      "guid": "8B2B69244E7D6488233E07ABD69F9E3F",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 1-3",
+      "guid": "8C51D493417FCEDC7A1EE3954D3675F4",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 3-2",
+      "guid": "8DA625CF4920A77A2E7A9EA36B1DCEDD",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 3-7",
+      "guid": "8E883EBE4C70EDB83C83B2ACAFC59104",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 2-7",
+      "guid": "8E9E81EB4E62599DB0686EA308F6C0B7",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 1-8",
+      "guid": "8F29E2A346189A57144167BDF301E0A3",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 03 [OWNED]",
+      "guid": "90D89A144CFA2459F7694080F9ABC45D",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "S4 Uplight 3",
+      "guid": "93342E5C415842ED57A630B137E17219",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 32 [OWNED]",
+      "guid": "9AEE857447A47C8425253E9A38EA4CFA",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Glow 3-3",
+      "guid": "9BD9ACF9406013B188CA4584F562D70A",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 3-6",
+      "guid": "9C46FC774E900636126C99BDD4B1F09D",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 09 [OWNED]",
+      "guid": "9CD5AC9147DFD44817CA4386263D12A3",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 15 [OWNED]",
+      "guid": "9D6F29014A51F7C28F2144BF074D714D",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Bulb 2-8",
+      "guid": "9D7B67CC4112726BF0286CB873FED55C",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 18 [OWNED]",
+      "guid": "9F07E1B14F3CB0B2300932A02209633D",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 44 [OWNED]",
+      "guid": "A48AAE0A4F4C4CC18C0FB0989BF18BBC",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Candle 10 [OWNED]",
+      "guid": "A4DB9FF1441449F77D9258AC439464C5",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Bulb 1-5",
+      "guid": "A5A589674ECFC47841A65296553C36E6",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 31 [OWNED]",
+      "guid": "A8FE572346E2EFB9936B21A9BA0ADED4",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 27 [OWNED]",
+      "guid": "A9C476904436A77962D9AFBDEF09634F",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 2-6",
+      "guid": "A9F0B2A2440B60CB77C8E18355959E08",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 35 [OWNED]",
+      "guid": "AB8F5E1F4666C8E6FCA8E3A81055B833",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 11 [OWNED]",
+      "guid": "AE14C598489FC0E1D0BADBA45AF5AA90",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 05 [OWNED]",
+      "guid": "AFAC31194D7A21E8A14EEBB083005488",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 39 [OWNED]",
+      "guid": "B0AF112A4275B3F4C9DAD184EDA279C6",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Practical L3",
+      "guid": "B1B7D6FB48831A67357A36B0C50E4341",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 2-1",
+      "guid": "B25C1A43429CD33C47E85CA56D3330A1",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Practical L4",
+      "guid": "B3DF9BEC41D108123396E0B77123F61B",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 2-2",
+      "guid": "B4B3E73F496F9C1F332AEC9828E7F31E",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 16 [OWNED]",
+      "guid": "B78B0D874F0F0FD1460D12B06A15C8BB",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Flame 20 [OWNED]",
+      "guid": "B916370B4D50AF8C930E2BA9C4549CD5",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 13 [OWNED]",
+      "guid": "BF637FC14635A163F31CFC8573AE46B5",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Glow 1-7",
+      "guid": "C2196BF84DCFC3BAC62F2EA86E926ED1",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 25 [OWNED]",
+      "guid": "C22F4F364CED7D8709CEE9BB897A2C2B",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Practical R1",
+      "guid": "C420F64A4BBF251D85AEF4A8835621F8",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 42 [OWNED]",
+      "guid": "C4C8FA8D405DA1FF4E2CE6AC8D0F9E32",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 3-4",
+      "guid": "C5AFDFCC458935C065A757B6982BB23F",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 3-7",
+      "guid": "C7D7E4C2420458D4C29DA8BA7CE38F70",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Practical R6",
+      "guid": "C88ADC3A44F534402F388FBDBE56B41B",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 2-7",
+      "guid": "C8C1FF5049E6EEF8B1F20180AE1CF9EF",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 05 [OWNED]",
+      "guid": "C9C6FB0B4CC6F636DAE9AC8419C876D5",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Candle 20 [OWNED]",
+      "guid": "CA0BD30047DA638373A14387B3D8145A",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Flame 34 [OWNED]",
+      "guid": "CB6DEA0345D187500E2214A4AFFB1889",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 34 [OWNED]",
+      "guid": "CBA2F5534247D7BA2B5BCFA330C676F5",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Bulb 2-1",
+      "guid": "CC31330B4ADF0B0E50D3DDABC5CA5B21",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 1-4",
+      "guid": "CCDBF4924ADD6BF5337CC38EE3B856FD",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 38 [OWNED]",
+      "guid": "CDDAE29642F3179D061FA7BC0C143881",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Glow 2-2",
+      "guid": "D0B2B8424BA129C1280A9B94F68EC5B1",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "S4 Practical R3",
+      "guid": "D243452348DD727D33C3249840C5D952",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 22 [OWNED]",
+      "guid": "D423F2B54961086259C00A827F58764D",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 30 [OWNED]",
+      "guid": "D4E7178F4711D8A9F7AD18A0B1124BA5",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Candle 43 [OWNED]",
+      "guid": "D8978EF2407A586CC641009442D491D4",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Flame 06 [OWNED]",
+      "guid": "D91782D7497D51327B354FBF49640EFE",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 43 [OWNED]",
+      "guid": "DC005BE24AFF333FB434A3A1006509F3",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 19 [OWNED]",
+      "guid": "DC428D14476E831D21A927A6630E1B88",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 11 [OWNED]",
+      "guid": "DD771E494AC78FCAB0C8D1949BFCECA1",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Ghost Light",
+      "guid": "E6E91FFF4A56F0D7325B23B238DB109F",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 14 [OWNED]",
+      "guid": "E79BDE064F968275A49D5C9BD18C53DF",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 09 [OWNED]",
+      "guid": "E7BEE7D44E93E7A392FB61A6EFD6C4AE",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Candle 35 [OWNED]",
+      "guid": "EEDC089A4CC7977EB10E2D87342EFA3C",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "P56 P06 Flame 40 [OWNED]",
+      "guid": "F154D2A54A4E057AC78AC699E75E082B",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Bulb 2-3",
+      "guid": "F40EA162499660FAC83EA0944F9DC3FA",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 39 [OWNED]",
+      "guid": "F44B0DE34B0C05DE01C23484A560D997",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 08 [OWNED]",
+      "guid": "F51EBC3F494EDD6306D90CA6210647AF",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "S4 Practical R7",
+      "guid": "F70BFFE84B590D1E895D7FBA0BD5093E",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 10 [OWNED]",
+      "guid": "F8310BEA470F1DAE6E41DD8535F0A686",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Flame 37 [OWNED]",
+      "guid": "F92F04B445DDD66A05ED758D99102F3F",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneParticleTrack"
+      ]
+    },
+    {
+      "name": "S4 Lattice Glow 3-2",
+      "guid": "FC0B04384D83672F52CBC88BA977AA83",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    },
+    {
+      "name": "P56 P06 Candle 07 [OWNED]",
+      "guid": "FCE3E12C49E711F598BE5596B66C10BA",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": []
+    },
+    {
+      "name": "S4 Lattice Bulb 1-4",
+      "guid": "FD4E911F45DFC8D2FDE811A87781F62F",
+      "old_match": true,
+      "guid_match": false,
+      "tracks": [
+        "MovieSceneVisibilityTrack"
+      ]
+    }
+  ],
+  "old_count": 155,
+  "guid_count": 0,
+  "exact_name_count": 0
+}

@@ -394,19 +394,31 @@ def _report(args):
     lo, hi = [float(v) for v in args["camera_fraction_limits"]]
     if not (lo - 1.0e-6 <= fraction <= hi + 1.0e-6):
         raise Refusal("WING_FRAME_FRACTION|%.4f" % fraction)
+    # Job 177 uses the approved transform-only fallback: hold the source focal
+    # length constant and dolly along the target ray to preserve the reviewed
+    # framing fraction.  No CurrentFocalLength property track is authored.
+    constant_focal = float(source_camera["focal_mm"])
+    end_distance = constant_focal * height / (float(args["camera_target_fraction"]) * sensor[1])
+    direction = [(camera_loc[i] - target[i]) / distance for i in range(3)]
+    camera_end = [target[i] + direction[i] * end_distance for i in range(3)]
+    transform_fraction = projected_fraction(end_distance, height, sensor[1], constant_focal)
     fire_loc = [base[i] + float(args["fire_offset_cm"][i]) for i in range(3)]
     light_loc = [fire_loc[0], fire_loc[1], fire_loc[2] + 70.0]
     plan.update({"source_frame": int(round(source_frame_exact)), "tail_bias": int(args["camera_hierarchical_bias"]),
-                 "camera": {"start_location": camera_loc, "start_rotation": source_camera["rotation"],
+                 "camera": {"framing_mode": "TRANSFORM_ONLY_CONSTANT_FOCAL",
+                            "start_location": camera_loc, "end_location": camera_end,
+                            "start_rotation": source_camera["rotation"],
                             "start_scale": source_camera["scale"],
-                            "end_rotation": look_rotation(camera_loc, target),
+                            "end_rotation": look_rotation(camera_end, target),
                             "start_focal_mm": source_camera["focal_mm"], "end_focal_mm": focal_end,
+                            "constant_focal_mm": constant_focal,
                             "start_focus_cm": source_camera["focus_cm"], "end_focus_cm": distance,
                             "sensor_mm": sensor},
                  "fire": {"location": fire_loc, "light_location": light_loc,
                           "scale": float(args["fire_scale"]), "system": args["fire_system"]},
                  "framing": {"target": target, "distance_cm": distance, "wing_height_cm": height,
-                             "projected_height_fraction": fraction, "requested_fraction": args["camera_target_fraction"]}})
+                             "projected_height_fraction": transform_fraction,
+                             "requested_fraction": args["camera_target_fraction"]}})
     guards = {}
     for asset, ext in ((KLARA, ".uasset"), (KLARA_LEVEL, ".umap")):
         path = _asset_file(asset, ext)
@@ -549,25 +561,20 @@ def _make_camera(seq, plan):
     filmback.set_editor_property("sensor_width", plan["camera"]["sensor_mm"][0])
     filmback.set_editor_property("sensor_height", plan["camera"]["sensor_mm"][1])
     component.set_editor_property("filmback", filmback)
+    component.set_editor_property("current_focal_length", float(plan["camera"]["constant_focal_mm"]))
     _spawn_track(binding, plan["camera_pan"][0], plan["new_end"])
     start, pan_end, end = plan["camera_pan"][0], plan["camera_pan"][1], plan["new_end"]
     keys = {}
     for i, axis in enumerate("XYZ"):
         keys["Location." + axis] = [(start, plan["camera"]["start_location"][i], False),
-                                     (end, plan["camera"]["start_location"][i], False)]
+                                     (pan_end, plan["camera"]["end_location"][i], True),
+                                     (end, plan["camera"]["end_location"][i], False)]
         keys["Rotation." + axis] = [(start, plan["camera"]["start_rotation"][i], True),
                                      (pan_end, plan["camera"]["end_rotation"][i], True),
                                      (end, plan["camera"]["end_rotation"][i], False)]
         keys["Scale." + axis] = [(start, plan["camera"]["start_scale"][i], False),
                                   (end, plan["camera"]["start_scale"][i], False)]
     _transform_track(binding, [start, end], keys, CAMERA_NAME + " Transform")
-    child = _component_child_binding(seq, binding, component, CAMERA_COMPONENT_NAME)
-    _float_track(child, "CurrentFocalLength", "CurrentFocalLength", [start, end],
-                 [(start, plan["camera"]["start_focal_mm"]), (pan_end, plan["camera"]["end_focal_mm"]),
-                  (end, plan["camera"]["end_focal_mm"])], CAMERA_NAME + " Focal")
-    _float_track(child, "ManualFocusDistance", "FocusSettings.ManualFocusDistance", [start, end],
-                 [(start, plan["camera"]["start_focus_cm"]), (pan_end, plan["camera"]["end_focus_cm"]),
-                  (end, plan["camera"]["end_focus_cm"])], CAMERA_NAME + " Focus")
     return binding
 
 
@@ -594,6 +601,10 @@ def _make_fire(seq, args, plan):
     component.set_editor_property("temperature", float(args["fire_light_temperature_k"]))
     component.set_editor_property("attenuation_radius", float(args["fire_light_radius_cm"]))
     component.set_editor_property("cast_shadows", False)
+    # UE 5.8 refuses MovieSceneFloatTrack creation on this auto-generated
+    # component child binding.  Keep Gary's reviewed 650 lm value unchanged as
+    # the spawnable default; the spawn/visibility window remains sequenced.
+    component.set_editor_property("intensity", float(args["fire_light_intensity_lm"]))
     _spawn_track(light, plan["fire_window"][0], plan["new_end"]); _visibility_track(light, plan["fire_window"][0], plan["new_end"])
     light_keys = {}
     for i, axis in enumerate("XYZ"):
@@ -602,10 +613,6 @@ def _make_fire(seq, args, plan):
         light_keys["Rotation." + axis] = [(a, 0.0, False), (end, 0.0, False)]
         light_keys["Scale." + axis] = [(a, 1.0, False), (end, 1.0, False)]
     _transform_track(light, [a, end], light_keys, LIGHT_NAME + " Transform")
-    child = _component_child_binding(seq, light, component, LIGHT_COMPONENT_NAME)
-    _float_track(child, "Intensity", "Intensity", [a, end],
-                 [(a, 0.0), (b, float(args["fire_light_intensity_lm"])),
-                  (end, float(args["fire_light_intensity_lm"]))], LIGHT_NAME + " Intensity")
     return fire, light
 
 

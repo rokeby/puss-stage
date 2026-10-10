@@ -1,6 +1,6 @@
 {
  "failed": 0,
- "passed": 45,
+ "passed": 47,
  "tests": [
   {
    "control": "+",
@@ -15,6 +15,16 @@
   {
    "control": "+",
    "name": "+ UE 5.8 binding removal contract",
+   "ok": true
+  },
+  {
+   "control": "+",
+   "name": "+ camera binding-space regression contract",
+   "ok": true
+  },
+  {
+   "control": "-",
+   "name": "- malformed camera parent runtime measurement",
    "ok": true
   },
   {

@@ -27,6 +27,7 @@ DEFAULTS = {
     "camera_focal_mm": 35.0,
     "camera_sensor_width_mm": 23.76,
     "camera_distance_override_cm": None,
+    "camera_parent_runtime_world": None,
     "spot_side": "front",
     "spot_throw_cm": 3000.0,
     "spot_rear_min_clearance_cm": 3200.0,
@@ -86,6 +87,16 @@ def merged_params(raw):
         out[key] = float(out[key])
     if out["camera_distance_override_cm"] is not None:
         out["camera_distance_override_cm"] = float(out["camera_distance_override_cm"])
+    parent_world = out.get("camera_parent_runtime_world")
+    if parent_world is not None:
+        if not isinstance(parent_world, dict) or not str(parent_world.get("label", "")).strip():
+            raise PlanError("CAMERA_PARENT_RUNTIME_LABEL")
+        for key in ("location", "rotation"):
+            values = parent_world.get(key)
+            if not isinstance(values, list) or len(values) != 3:
+                raise PlanError("CAMERA_PARENT_RUNTIME_%s" % key.upper())
+            parent_world[key] = [float(x) for x in values]
+        parent_world["label"] = str(parent_world["label"])
     if out["spot_side"] not in ("front", "rear"):
         raise PlanError("SPOT_SIDE|%s" % out["spot_side"])
     out["visibility_conflict_policy"] = str(out["visibility_conflict_policy"]).upper()

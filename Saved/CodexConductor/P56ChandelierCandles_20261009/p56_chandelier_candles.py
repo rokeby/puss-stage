@@ -1,4 +1,4 @@
-"""Offline-importable Unreal DRY/APPLY/READBACK/REVERT tool for job 56.
+"""Offline-importable Unreal DRY/APPLY/READBACK/REPAIR/REVERT tool for job 56.
 
 APPLY creates (or verifies) one create-only child of BP_Effect_Candle, then
 places one tagged child actor at each declared Candle_NN socket.  The source
@@ -25,6 +25,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ARGS_PATH = os.path.join(HERE, "p56_chandelier_candles_args.json")
 RECORD_PATH = os.path.join(HERE, "p56_chandelier_originals.json")
 REPORT_PATH = os.path.join(HERE, "p56_chandelier_report.json")
+REPAIR_RECORD_PATH = os.path.join(HERE, "p56_chandelier_repair_record.json")
 
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SOURCE_BP = "/Game/Scenes/Effects/BP_Effect_Candle"
@@ -47,6 +48,11 @@ DEFAULTS = {
     "flame_height_cm": 3.5,
     "niagara_reference_height_cm": 100.0,
     "flame_z_offset_cm": 1.75,
+    # The imported FBX is 100x smaller than its authored centimetre socket data.
+    # Correct the level actor's unit scale and compensate attached candle actors
+    # so the 3.5 cm Niagara height remains unchanged in world space.
+    "body_units_scale": 100.0,
+    "attached_actor_scale_compensation": 0.01,
 }
 
 
@@ -104,7 +110,7 @@ def validate_args(raw: Any, source_exists: bool = True) -> dict[str, Any]:
     args = copy.deepcopy(DEFAULTS)
     args.update(raw)
     args["mode"] = str(args.get("mode", "DRY")).upper()
-    require(args["mode"] in ("DRY", "APPLY", "READBACK", "REVERT"), "MODE")
+    require(args["mode"] in ("DRY", "APPLY", "READBACK", "REPAIR", "REVERT"), "MODE")
     label = str(args.get("actor_label", "")).strip()
     require(label and "chandelier" in label.lower(), "ACTOR_NOT_CHANDELIER|" + label)
     require(str(args.get("socket_json", "")).lower().endswith(".json"), "SOCKET_JSON_PATH")
@@ -119,7 +125,15 @@ def validate_args(raw: Any, source_exists: bool = True) -> dict[str, Any]:
     args["flame_height_cm"] = height
     args["niagara_reference_height_cm"] = reference
     args["flame_z_offset_cm"] = float(args.get("flame_z_offset_cm", height / 2.0))
-    if args["mode"] in ("APPLY", "REVERT"):
+    args["body_units_scale"] = float(args.get("body_units_scale", 0.0))
+    args["attached_actor_scale_compensation"] = float(
+        args.get("attached_actor_scale_compensation", 0.0))
+    require(args["body_units_scale"] == 100.0, "BODY_UNITS_SCALE_100")
+    require(args["attached_actor_scale_compensation"] == 0.01,
+            "ATTACHED_ACTOR_SCALE_COMPENSATION_0_01")
+    require(abs(args["body_units_scale"] * args["attached_actor_scale_compensation"] - 1.0)
+            <= 1.0e-9, "WORLD_FLAME_SCALE_PRESERVATION")
+    if args["mode"] in ("APPLY", "REPAIR", "REVERT"):
         require(args.get("confirm") == "%s %s" % (args["mode"], CONFIRM_TOKEN),
                 "CONFIRM|want=%s %s" % (args["mode"], CONFIRM_TOKEN))
     return args
@@ -148,6 +162,8 @@ def build_plan(args: dict[str, Any], sockets: list[dict[str, Any]]) -> dict[str,
         "flame_height_cm": args["flame_height_cm"],
         "flame_scale": [scale, scale, scale],
         "flame_z_offset_cm": args["flame_z_offset_cm"],
+        "body_units_scale": args["body_units_scale"],
+        "attached_actor_scale_compensation": args["attached_actor_scale_compensation"],
         "uses_point_light": False,
         "placements": rows,
     }
@@ -343,6 +359,52 @@ def _create_child_blueprint(args: dict[str, Any], plan: dict[str, Any]) -> dict[
     return _verify_child_blueprint(args, plan)
 
 
+def _repair_child_blueprint(args: dict[str, Any], plan: dict[str, Any]) -> dict[str, Any]:
+    bp = unreal.load_asset(args["child_blueprint"])
+    require(bp is not None, "CHILD_BP_LOAD")
+    component = _subobject(bp, COMPONENT_NAME)
+    require(isinstance(component, unreal.NiagaraComponent), "CHILD_NIAGARA_COMPONENT")
+    component.set_editor_property("auto_activate", False)
+    require(unreal.BlueprintEditorLibrary.compile_blueprint(bp), "CHILD_BP_COMPILE")
+    require(unreal.EditorAssetLibrary.save_loaded_asset(bp, only_if_is_dirty=False), "CHILD_BP_SAVE")
+    return _verify_child_blueprint(args, plan)
+
+
+def _scale3(root: Any) -> list[float]:
+    scale = root.get_editor_property("relative_scale3d")
+    return [float(scale.x), float(scale.y), float(scale.z)]
+
+
+def _repair_scales(target: Any, owned: list[Any], plan: dict[str, Any]) -> dict[str, Any]:
+    body_root = target.get_editor_property("root_component")
+    require(body_root is not None, "TARGET_ROOT_COMPONENT")
+    before = {"body": _scale3(body_root), "candles": {}}
+    body_scale = float(plan["body_units_scale"])
+    body_root.set_editor_property("relative_scale3d", unreal.Vector(body_scale, body_scale, body_scale))
+    compensation = float(plan["attached_actor_scale_compensation"])
+    for actor in owned:
+        root = actor.get_editor_property("root_component")
+        require(root is not None, "ACTOR_ROOT_COMPONENT|" + str(actor.get_actor_label()))
+        before["candles"][str(actor.get_actor_label())] = _scale3(root)
+        root.set_editor_property("relative_scale3d", unreal.Vector(compensation, compensation, compensation))
+    return before
+
+
+def _verify_repair_state(target: Any, owned: list[Any], plan: dict[str, Any]) -> dict[str, Any]:
+    body = _scale3(target.get_editor_property("root_component"))
+    expected_body = [float(plan["body_units_scale"])] * 3
+    require(all(abs(a - b) <= 1.0e-6 for a, b in zip(body, expected_body)),
+            "BODY_SCALE_READBACK|" + json.dumps(body))
+    expected_child = [float(plan["attached_actor_scale_compensation"])] * 3
+    candle_scales = {}
+    for actor in owned:
+        got = _scale3(actor.get_editor_property("root_component"))
+        require(all(abs(a - b) <= 1.0e-6 for a, b in zip(got, expected_child)),
+                "CANDLE_SCALE_READBACK|%s|%s" % (actor.get_actor_label(), json.dumps(got)))
+        candle_scales[str(actor.get_actor_label())] = got
+    return {"body_scale": body, "candle_scales": candle_scales}
+
+
 def _actor_state(actor: Any) -> dict[str, Any]:
     parent = actor.get_attach_parent_actor()
     # StaticMeshActor.get_root_component is absent from UE 5.8's generated
@@ -442,6 +504,42 @@ def main() -> None:
         require(_census() == dirty_before, "READBACK_CHANGED_CENSUS")
         unreal.log("P56_CHANDELIER_READBACK_OK|run=%s|state=%s|actors=%d|child_bp=1|dirty=0+0" %
                    (run, state, len(rows)))
+        return
+
+    if args["mode"] == "REPAIR":
+        require(os.path.isfile(RECORD_PATH), "ORIGINALS_RECORD_MISSING")
+        record = _read_json(RECORD_PATH)
+        require(record.get("status") == "applied", "RECORD_NOT_APPLIED")
+        require(not os.path.exists(REPAIR_RECORD_PATH), "REPAIR_RECORD_EXISTS")
+        expected_labels = [row["actor_label"] for row in plan["placements"]]
+        actors_by_label = {str(actor.get_actor_label()): actor for actor in _all_actors()}
+        require(all(label in actors_by_label for label in expected_labels), "REPAIR_ACTOR_MISSING")
+        owned_actors = [actors_by_label[label] for label in expected_labels]
+        _readback(args, plan, expect_present=True)
+        backup = _backup(run, [EXPECTED_WORLD, CHILD_BP],
+                         "P56 Job 177 unit-scale and Niagara activation repair.")
+        repair_record = {
+            "schema": "p56_chandelier_repair_v1", "status": "prepared", "run": run,
+            "args": args, "plan": plan, "backup": backup,
+            "child_auto_activate_before": bool(
+                _subobject(unreal.load_asset(args["child_blueprint"]), COMPONENT_NAME)
+                .get_editor_property("auto_activate")),
+        }
+        _write_json(REPAIR_RECORD_PATH, repair_record, exclusive=True)
+        repair_record["scale_before"] = _repair_scales(target, owned_actors, plan)
+        child = _repair_child_blueprint(args, plan)
+        require(_census() == {"content": [], "maps": [EXPECTED_WORLD]},
+                "REPAIR_DIRTY_SCOPE|" + json.dumps(_census(), sort_keys=True))
+        _save_level()
+        state = _verify_repair_state(target, owned_actors, plan)
+        repair_record.update({"status": "applied", "child_readback": child,
+                              "scale_readback": state, "dirty_after": _census()})
+        _write_json(REPAIR_RECORD_PATH, repair_record)
+        _write_json(REPORT_PATH, {"ok": True, "run": run, "mode": "REPAIR",
+                                  "backup": backup, "child": child,
+                                  "scale_readback": state, "dirty_after": _census()})
+        unreal.log("P56_CHANDELIER_REPAIR_OK|run=%s|target=%s|actors=%d|body_scale=100|candle_scale=0.01|auto_activate=1|saved=1|dirty=0+0" %
+                   (run, args["actor_label"], len(owned_actors)))
         return
 
     if args["mode"] == "APPLY":

@@ -240,11 +240,15 @@ def _cue_times(ctx, start):
 
 
 def _bindings(ctx):
-    target = _path(ctx["actor"])
+    # Actor object paths must retain the PersistentLevel object suffix.  Using
+    # _path() here collapsed every level actor to the map package and made all
+    # unrelated bindings appear to target the chandelier.
+    target = str(ctx["actor"].get_path_name())
     found = []
     for binding in ctx["master"].get_bindings():
         try:
-            if any(_path(obj) == target for obj in ctx["master"].locate_bound_objects(binding, ctx["world"])):
+            if any(str(obj.get_path_name()) == target
+                   for obj in ctx["master"].locate_bound_objects(binding.get_id(), ctx["world"])):
                 found.append(binding)
         except Exception:
             pass

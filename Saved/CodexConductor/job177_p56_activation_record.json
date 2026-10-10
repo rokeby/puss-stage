@@ -1,0 +1,302 @@
+{
+  "schema": "job177_p56_activation_v1",
+  "status": "applied",
+  "run": "J177-P56-ACTIVATE-20261010",
+  "backup": {
+    "root": "E:/PussStage/Backups\\PreJob177P56Activation-J177-P56-ACTIVATE-20261010",
+    "packages": [
+      {
+        "package": "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master",
+        "source": "E:/PussStage/Content/InfinityStage\\Dev\\Sequences\\LS_InfinityStage_V1Master.uasset",
+        "backup": "E:/PussStage/Backups\\PreJob177P56Activation-J177-P56-ACTIVATE-20261010\\InfinityStage\\Dev\\Sequences\\LS_InfinityStage_V1Master.uasset",
+        "sha256": "1a1e1be0128f11abfc5edf5a09c3ca8104eba10d30b8e8262ae5210939e74940",
+        "bytes": 227313
+      },
+      {
+        "package": "/Game/Scenes/Effects/BP_Effect_ChandelierCandle",
+        "source": "E:/PussStage/Content/Scenes\\Effects\\BP_Effect_ChandelierCandle.uasset",
+        "backup": "E:/PussStage/Backups\\PreJob177P56Activation-J177-P56-ACTIVATE-20261010\\Scenes\\Effects\\BP_Effect_ChandelierCandle.uasset",
+        "sha256": "10e00aa049f47a18809b4ba681297a2b2a954f144d4da4801c43bd281b1f8920",
+        "bytes": 46139
+      }
+    ]
+  },
+  "span": [
+    40227840,
+    43227840
+  ],
+  "actor_labels": [
+    "P56_P75_P06_Chandelier_Body_Candle_01_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_02_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_03_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_04_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_05_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_06_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_07_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_08_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_09_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_10_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_11_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_12_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_13_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_14_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_15_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_16_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_17_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_18_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_19_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_20_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_21_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_22_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_23_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_24_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_25_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_26_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_27_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_28_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_29_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_30_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_31_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_32_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_33_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_34_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_35_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_36_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_37_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_38_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_39_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_40_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_41_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_42_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_43_Flame",
+    "P56_P75_P06_Chandelier_Body_Candle_44_Flame"
+  ],
+  "auto_activate_before": true,
+  "auto_activate_after": false,
+  "bindings": [
+    {
+      "name": "P56 P06 Flame 01 [OWNED]",
+      "guid": "3485EC14411D2C91F3938EB2E0BC89F1",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 02 [OWNED]",
+      "guid": "61146D054B366F93A1DB52A59F77686A",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 03 [OWNED]",
+      "guid": "90D89A144CFA2459F7694080F9ABC45D",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 04 [OWNED]",
+      "guid": "2E36EB55495403632D567CB4FB4E4F33",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 05 [OWNED]",
+      "guid": "AFAC31194D7A21E8A14EEBB083005488",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 06 [OWNED]",
+      "guid": "D91782D7497D51327B354FBF49640EFE",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 07 [OWNED]",
+      "guid": "1A929FE44CEB90743044CA809CBFEA80",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 08 [OWNED]",
+      "guid": "F51EBC3F494EDD6306D90CA6210647AF",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 09 [OWNED]",
+      "guid": "9CD5AC9147DFD44817CA4386263D12A3",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 10 [OWNED]",
+      "guid": "F8310BEA470F1DAE6E41DD8535F0A686",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 11 [OWNED]",
+      "guid": "AE14C598489FC0E1D0BADBA45AF5AA90",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 12 [OWNED]",
+      "guid": "481E95DE44613BB5E56468B7D97A5BE2",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 13 [OWNED]",
+      "guid": "09E9843549E06B97E28A6BBF7294164C",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 14 [OWNED]",
+      "guid": "E79BDE064F968275A49D5C9BD18C53DF",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 15 [OWNED]",
+      "guid": "79E3777949DA4EF7613EF8B15A1DF63A",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 16 [OWNED]",
+      "guid": "654F2A854A1EFA9628AAA79FCA42E780",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 17 [OWNED]",
+      "guid": "626A0694412ADFE5C246F7BC2205CD40",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 18 [OWNED]",
+      "guid": "9F07E1B14F3CB0B2300932A02209633D",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 19 [OWNED]",
+      "guid": "DC428D14476E831D21A927A6630E1B88",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 20 [OWNED]",
+      "guid": "B916370B4D50AF8C930E2BA9C4549CD5",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 21 [OWNED]",
+      "guid": "2426C5E3426E494B8D8519B093E85648",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 22 [OWNED]",
+      "guid": "D423F2B54961086259C00A827F58764D",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 23 [OWNED]",
+      "guid": "5BE95C9C41AB44C14321B8A7D48D9F43",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 24 [OWNED]",
+      "guid": "32DD15A74873221C555FF0B1F9D48D6A",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 25 [OWNED]",
+      "guid": "559335384BC26C4DCDACE2828BE4D72A",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 26 [OWNED]",
+      "guid": "1F279B4A43CBE5644E300E842D8C59A6",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 27 [OWNED]",
+      "guid": "A9C476904436A77962D9AFBDEF09634F",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 28 [OWNED]",
+      "guid": "2739BE7E49FC9C33A24590A9CB1D631C",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 29 [OWNED]",
+      "guid": "1C5CDC97450E493CBE14A39B512A4423",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 30 [OWNED]",
+      "guid": "81F8015E4759A831B0E6F1B386AB5CE5",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 31 [OWNED]",
+      "guid": "A8FE572346E2EFB9936B21A9BA0ADED4",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 32 [OWNED]",
+      "guid": "81BEAB2240D0645ADB7E27A1106EC2FA",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 33 [OWNED]",
+      "guid": "13FF68C249A9474E768ED1B77F849719",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 34 [OWNED]",
+      "guid": "CB6DEA0345D187500E2214A4AFFB1889",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 35 [OWNED]",
+      "guid": "AB8F5E1F4666C8E6FCA8E3A81055B833",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 36 [OWNED]",
+      "guid": "5E14A7C5461993E6B2ADCCAF4A383947",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 37 [OWNED]",
+      "guid": "F92F04B445DDD66A05ED758D99102F3F",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 38 [OWNED]",
+      "guid": "60EA828241B84479CCDC32984DC7880B",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 39 [OWNED]",
+      "guid": "F44B0DE34B0C05DE01C23484A560D997",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 40 [OWNED]",
+      "guid": "F154D2A54A4E057AC78AC699E75E082B",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 41 [OWNED]",
+      "guid": "5AB62F9A4F6E5412B86DBDAC3890B933",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 42 [OWNED]",
+      "guid": "C4C8FA8D405DA1FF4E2CE6AC8D0F9E32",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 43 [OWNED]",
+      "guid": "DC005BE24AFF333FB434A3A1006509F3",
+      "key_count": 2
+    },
+    {
+      "name": "P56 P06 Flame 44 [OWNED]",
+      "guid": "34B21F6C49E437FCCD0FD9BA9EC0CB65",
+      "key_count": 2
+    }
+  ],
+  "dirty_after": {
+    "content": [],
+    "maps": []
+  }
+}

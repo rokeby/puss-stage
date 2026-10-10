@@ -1,0 +1,69 @@
+{
+  "run": "J177-J144-RUNTIME-PARENT-20261010",
+  "rows": [
+    {
+      "passage": "I2",
+      "master_frame": 17528051,
+      "camera_label": "I2 Hangar Hold Camera",
+      "camera_world_location": [
+        10249.9912,
+        -0.0062,
+        -6185.0
+      ],
+      "camera_world_rotation": [
+        -0.0,
+        0.0,
+        0.0
+      ],
+      "camera_relative_location": [
+        10249.9912,
+        -0.0062,
+        -6185.0
+      ],
+      "camera_relative_rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent_label": null,
+      "parent_world_location": null,
+      "parent_world_rotation": null
+    },
+    {
+      "passage": "I3",
+      "master_frame": 26694245,
+      "camera_label": "S3 Sleight Hangar Camera",
+      "camera_world_location": [
+        5236.9727,
+        160000.0,
+        -10369.9912
+      ],
+      "camera_world_rotation": [
+        0.0,
+        -90.0,
+        -0.0
+      ],
+      "camera_relative_location": [
+        10249.9912,
+        0.0,
+        -6185.0
+      ],
+      "camera_relative_rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent_label": "S3 Hangar Root",
+      "parent_world_location": [
+        11421.9728,
+        160000.0,
+        -120.0
+      ],
+      "parent_world_rotation": [
+        0.0,
+        -90.0,
+        0.0
+      ]
+    }
+  ]
+}

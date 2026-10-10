@@ -1,8 +1,8 @@
 {
-  "passed": 11,
+  "passed": 12,
   "failed": 0,
-  "total": 11,
-  "positive_controls": 6,
+  "total": 12,
+  "positive_controls": 7,
   "negative_controls": 5,
   "offline_only": true,
   "unreal_started": false,

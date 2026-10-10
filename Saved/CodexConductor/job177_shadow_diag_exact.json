@@ -1,0 +1,807 @@
+{
+  "run": "J177-J144-SHADOW-EXACT-20261010",
+  "fraction": 0.3198562444,
+  "rows": [
+    {
+      "passage": "I1",
+      "master_frame": 10676076,
+      "camera": {
+        "label": "S1 Sleight Hangar Camera",
+        "name": "CineCameraActor_26",
+        "class": "CineCameraActor",
+        "location": [
+          29804.014,
+          0.0,
+          -2747.509
+        ],
+        "rotation": [
+          0.0,
+          -90.0,
+          -0.0
+        ],
+        "focal_mm": 35.0,
+        "post_process_blend_weight": 1.0,
+        "auto_exposure_bias": 1.0,
+        "override_auto_exposure_bias": false,
+        "auto_exposure_min": -10.0,
+        "auto_exposure_max": 20.0
+      },
+      "shadow_light_candidates": [
+        {
+          "label": "Spot Light2",
+          "name": "Spot Light2_0",
+          "location": [
+            78.841,
+            91443.867,
+            1536.06
+          ],
+          "camera_distance_cm": 96249.237,
+          "intensity_cd": 7482.8042,
+          "attenuation_radius_cm": 4500.0,
+          "visible": true,
+          "cast_shadows": true,
+          "affects_world": true
+        },
+        {
+          "label": "Spot Light",
+          "name": "Spot Light_0",
+          "location": [
+            32023.588,
+            -0.0,
+            1536.06
+          ],
+          "camera_distance_cm": 4824.467,
+          "intensity_cd": 7482.8042,
+          "attenuation_radius_cm": 4500.0,
+          "visible": true,
+          "cast_shadows": true,
+          "affects_world": true
+        }
+      ]
+    },
+    {
+      "passage": "I2",
+      "master_frame": 17528051,
+      "camera": {
+        "label": "I2 Hangar Hold Camera",
+        "name": "CineCameraActor_40",
+        "class": "CineCameraActor",
+        "location": [
+          10249.991,
+          -0.006,
+          -6185.0
+        ],
+        "rotation": [
+          -0.0,
+          0.0,
+          0.0
+        ],
+        "focal_mm": 38.6011,
+        "post_process_blend_weight": 1.0,
+        "auto_exposure_bias": 1.0,
+        "override_auto_exposure_bias": false,
+        "auto_exposure_min": -10.0,
+        "auto_exposure_max": 20.0
+      },
+      "shadow_light_candidates": [
+        {
+          "label": "Spot Light",
+          "name": "Spot Light_1",
+          "location": [
+            16874.418,
+            75465.023,
+            -6185.0
+          ],
+          "camera_distance_cm": 75755.222,
+          "intensity_cd": 7482.8042,
+          "attenuation_radius_cm": 4500.0,
+          "visible": true,
+          "cast_shadows": true,
+          "affects_world": true
+        }
+      ],
+      "planned_points": {
+        "spot": [
+          16874.417,
+          75465.02,
+          -6185.0
+        ],
+        "card": [
+          19046.476,
+          73398.582,
+          -6185.0
+        ],
+        "curtain": [
+          19047.925,
+          73397.204,
+          -6320.0
+        ],
+        "wall": [
+          19084.15,
+          73362.74,
+          -6320.0
+        ]
+      },
+      "nearest": {
+        "spot": [
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_1",
+            "class": "SpotLight",
+            "location": [
+              16874.418,
+              75465.023,
+              -6185.0
+            ],
+            "distance_cm": 0.003,
+            "bounds_origin": [
+              16961.358,
+              75382.311,
+              -6185.0
+            ],
+            "bounds_extent": [
+              142.082,
+              140.673,
+              80.0
+            ],
+            "components": [
+              "SpotLightComponent",
+              "ArrowComponent"
+            ]
+          },
+          {
+            "label": "S2 Hangar Far Wall Above Exit",
+            "name": "StaticMeshActor_267",
+            "class": "StaticMeshActor",
+            "location": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "distance_cm": 306.139,
+            "bounds_origin": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "bounds_extent": [
+              11526.284,
+              11553.588,
+              25.0
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          },
+          {
+            "label": "S2 Pit Liner Floor",
+            "name": "StaticMeshActor_250",
+            "class": "StaticMeshActor",
+            "location": [
+              15090.7,
+              77162.01,
+              -6310.0
+            ],
+            "distance_cm": 2465.167,
+            "bounds_origin": [
+              15090.7,
+              77162.01,
+              -6310.0
+            ],
+            "bounds_extent": [
+              4796.109,
+              4643.665,
+              10.0
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          }
+        ],
+        "card": [
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_0",
+            "class": "StaticMeshActor",
+            "location": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "distance_cm": 0.004,
+            "bounds_origin": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "bounds_extent": [
+              165.788,
+              174.225,
+              135.0
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          },
+          {
+            "label": "S2 Hangar Far Wall Above Exit",
+            "name": "StaticMeshActor_267",
+            "class": "StaticMeshActor",
+            "location": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "distance_cm": 2741.673,
+            "bounds_origin": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "bounds_extent": [
+              11526.284,
+              11553.588,
+              25.0
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_1",
+            "class": "SpotLight",
+            "location": [
+              16874.418,
+              75465.023,
+              -6185.0
+            ],
+            "distance_cm": 2998.002,
+            "bounds_origin": [
+              16961.358,
+              75382.311,
+              -6185.0
+            ],
+            "bounds_extent": [
+              142.082,
+              140.673,
+              80.0
+            ],
+            "components": [
+              "SpotLightComponent",
+              "ArrowComponent"
+            ]
+          }
+        ],
+        "curtain": [
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_0",
+            "class": "StaticMeshActor",
+            "location": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "distance_cm": 135.015,
+            "bounds_origin": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "bounds_extent": [
+              165.788,
+              174.225,
+              135.0
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          },
+          {
+            "label": "S2 Hangar Far Wall Above Exit",
+            "name": "StaticMeshActor_267",
+            "class": "StaticMeshActor",
+            "location": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "distance_cm": 2754.841,
+            "bounds_origin": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "bounds_extent": [
+              11526.284,
+              11553.588,
+              25.0
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_1",
+            "class": "SpotLight",
+            "location": [
+              16874.418,
+              75465.023,
+              -6185.0
+            ],
+            "distance_cm": 3003.038,
+            "bounds_origin": [
+              16961.358,
+              75382.311,
+              -6185.0
+            ],
+            "bounds_extent": [
+              142.082,
+              140.673,
+              80.0
+            ],
+            "components": [
+              "SpotLightComponent",
+              "ArrowComponent"
+            ]
+          }
+        ],
+        "wall": [
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_0",
+            "class": "StaticMeshActor",
+            "location": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "distance_cm": 144.669,
+            "bounds_origin": [
+              19046.477,
+              73398.586,
+              -6185.0
+            ],
+            "bounds_extent": [
+              165.788,
+              174.225,
+              135.0
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          },
+          {
+            "label": "S2 Hangar Far Wall Above Exit",
+            "name": "StaticMeshActor_267",
+            "class": "StaticMeshActor",
+            "location": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "distance_cm": 2804.558,
+            "bounds_origin": [
+              17063.517,
+              75285.125,
+              -6025.0
+            ],
+            "bounds_extent": [
+              11526.284,
+              11553.588,
+              25.0
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_1",
+            "class": "SpotLight",
+            "location": [
+              16874.418,
+              75465.023,
+              -6185.0
+            ],
+            "distance_cm": 3052.988,
+            "bounds_origin": [
+              16961.358,
+              75382.311,
+              -6185.0
+            ],
+            "bounds_extent": [
+              142.082,
+              140.673,
+              80.0
+            ],
+            "components": [
+              "SpotLightComponent",
+              "ArrowComponent"
+            ]
+          }
+        ]
+      },
+      "ordered_distances_from_planned_spot_cm": {
+        "spot": 0.0,
+        "card": 2998.0,
+        "curtain": 3003.036,
+        "wall": 3052.986
+      }
+    },
+    {
+      "passage": "I3",
+      "master_frame": 26694245,
+      "camera": {
+        "label": "S3 Sleight Hangar Camera",
+        "name": "CineCameraActor_30",
+        "class": "CineCameraActor",
+        "location": [
+          5236.973,
+          160000.0,
+          -10369.991
+        ],
+        "rotation": [
+          0.0,
+          -90.0,
+          -0.0
+        ],
+        "focal_mm": 35.0,
+        "post_process_blend_weight": 1.0,
+        "auto_exposure_bias": 1.0,
+        "override_auto_exposure_bias": false,
+        "auto_exposure_min": -10.0,
+        "auto_exposure_max": 20.0
+      },
+      "shadow_light_candidates": [
+        {
+          "label": "Spot Light",
+          "name": "Spot Light_2",
+          "location": [
+            19385.973,
+            160000.0,
+            -6305.0
+          ],
+          "camera_distance_cm": 14721.357,
+          "intensity_cd": 7482.8042,
+          "attenuation_radius_cm": 4500.0,
+          "visible": true,
+          "cast_shadows": true,
+          "affects_world": true
+        }
+      ],
+      "planned_points": {
+        "spot": [
+          19385.973,
+          160000.0,
+          -6305.0
+        ],
+        "card": [
+          22383.973,
+          160000.0,
+          -6305.0
+        ],
+        "curtain": [
+          22385.973,
+          160000.0,
+          -6440.0
+        ],
+        "wall": [
+          22435.973,
+          160000.0,
+          -6440.0
+        ]
+      },
+      "nearest": {
+        "spot": [
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_2",
+            "class": "SpotLight",
+            "location": [
+              19385.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 0.0,
+            "bounds_origin": [
+              19505.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              120.0,
+              80.0,
+              80.0
+            ],
+            "components": [
+              "SpotLightComponent",
+              "ArrowComponent"
+            ]
+          },
+          {
+            "label": "S3 Pit Liner Floor",
+            "name": "StaticMeshActor_223",
+            "class": "StaticMeshActor",
+            "location": [
+              16923.973,
+              160000.0,
+              -6430.0
+            ],
+            "distance_cm": 2465.171,
+            "bounds_origin": [
+              16923.973,
+              160000.0,
+              -6430.0
+            ],
+            "bounds_extent": [
+              5502.0,
+              1175.0,
+              10.0
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          },
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_1",
+            "class": "StaticMeshActor",
+            "location": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 2998.0,
+            "bounds_origin": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              0.5,
+              240.0,
+              135.0
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          }
+        ],
+        "card": [
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_1",
+            "class": "StaticMeshActor",
+            "location": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 0.0,
+            "bounds_origin": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              0.5,
+              240.0,
+              135.0
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_2",
+            "class": "SpotLight",
+            "location": [
+              19385.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 2998.0,
+            "bounds_origin": [
+              19505.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              120.0,
+              80.0,
+              80.0
+            ],
+            "components": [
+              "SpotLightComponent",
+              "ArrowComponent"
+            ]
+          },
+          {
+            "label": "S3 Pit Liner Far Wall",
+            "name": "StaticMeshActor_239",
+            "class": "StaticMeshActor",
+            "location": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "distance_cm": 3081.939,
+            "bounds_origin": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "bounds_extent": [
+              10.0,
+              1195.0,
+              3216.5
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          }
+        ],
+        "curtain": [
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_1",
+            "class": "StaticMeshActor",
+            "location": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 135.015,
+            "bounds_origin": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              0.5,
+              240.0,
+              135.0
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_2",
+            "class": "SpotLight",
+            "location": [
+              19385.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 3003.036,
+            "bounds_origin": [
+              19505.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              120.0,
+              80.0,
+              80.0
+            ],
+            "components": [
+              "SpotLightComponent",
+              "ArrowComponent"
+            ]
+          },
+          {
+            "label": "S3 Pit Liner Far Wall",
+            "name": "StaticMeshActor_239",
+            "class": "StaticMeshActor",
+            "location": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "distance_cm": 3216.889,
+            "bounds_origin": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "bounds_extent": [
+              10.0,
+              1195.0,
+              3216.5
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          }
+        ],
+        "wall": [
+          {
+            "label": "Static Mesh Actor",
+            "name": "Static Mesh Actor_1",
+            "class": "StaticMeshActor",
+            "location": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 144.669,
+            "bounds_origin": [
+              22383.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              0.5,
+              240.0,
+              135.0
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          },
+          {
+            "label": "Spot Light",
+            "name": "Spot Light_2",
+            "class": "SpotLight",
+            "location": [
+              19385.973,
+              160000.0,
+              -6305.0
+            ],
+            "distance_cm": 3052.986,
+            "bounds_origin": [
+              19505.973,
+              160000.0,
+              -6305.0
+            ],
+            "bounds_extent": [
+              120.0,
+              80.0,
+              80.0
+            ],
+            "components": [
+              "SpotLightComponent",
+              "ArrowComponent"
+            ]
+          },
+          {
+            "label": "S3 Pit Liner Far Wall",
+            "name": "StaticMeshActor_239",
+            "class": "StaticMeshActor",
+            "location": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "distance_cm": 3216.5,
+            "bounds_origin": [
+              22435.973,
+              160000.0,
+              -3223.5
+            ],
+            "bounds_extent": [
+              10.0,
+              1195.0,
+              3216.5
+            ],
+            "components": [
+              "StaticMeshComponent"
+            ]
+          }
+        ]
+      },
+      "ordered_distances_from_planned_spot_cm": {
+        "spot": 0.0,
+        "card": 2998.0,
+        "curtain": 3003.036,
+        "wall": 3052.986
+      }
+    }
+  ]
+}

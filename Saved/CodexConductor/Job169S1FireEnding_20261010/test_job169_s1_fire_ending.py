@@ -146,6 +146,11 @@ class SourceContract(unittest.TestCase):
         self.assertIn('"REVERT": namespace["run_revert"]', self.source("job169_stage_lights_out.py"))
         self.assertIn('"REVERT": namespace["run_revert"]', self.source("job169_stage_shrink.py"))
 
+    def test_lights_out_accepts_definition_only_legacy_shape(self):
+        source = self.source("job169_stage_lights_out.py")
+        self.assertIn('elif "def main(args):" not in source', source)
+        self.assertIn('namespace["merged_params"](_params(args))', source)
+
     def test_validator_checks_spawnables_and_bias(self):
         source = self.source("job169_validate.py")
         self.assertIn("OWNED_SPAWNABLES", source)
@@ -161,6 +166,21 @@ class SourceContract(unittest.TestCase):
         self.assertIn("FLOAT_TRACK_EXISTING_SECTIONS", source)
         self.assertIn("existing else binding.add_track(unreal.MovieSceneFloatTrack)", source)
         self.assertIn("unique_artifact_path", source)
+
+    def test_camera_uses_transform_only_constant_focal_fallback(self):
+        source = self.source("job169_s1_fire_ending.py")
+        block = source[source.index("def _make_camera"):source.index("def _make_fire")]
+        self.assertIn('"framing_mode": "TRANSFORM_ONLY_CONSTANT_FOCAL"', source)
+        self.assertIn('component.set_editor_property("current_focal_length"', block)
+        self.assertIn('["end_location"]', block)
+        self.assertNotIn('_float_track(', block)
+
+    def test_fire_light_uses_reviewed_constant_intensity_fallback(self):
+        source = self.source("job169_s1_fire_ending.py")
+        block = source[source.index("def _make_fire"):source.index("def _split_shot_and_add_cut")]
+        self.assertIn('component.set_editor_property("intensity", float(args["fire_light_intensity_lm"]))', block)
+        self.assertNotIn('_float_track(', block)
+        self.assertIn('_spawn_track(light, plan["fire_window"][0], plan["new_end"])', block)
 
 
 if __name__ == "__main__":

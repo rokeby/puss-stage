@@ -95,6 +95,13 @@ class PendulumControls(unittest.TestCase):
         self.assertIn('root.get_editor_property("relative_scale3d")', source)
         self.assertNotIn("root.get_relative_location()", source)
 
+    def test_positive_binding_guard_uses_full_actor_object_path(self):
+        source = open(os.path.join(HERE, "pendulum_swing.py"), encoding="utf-8").read()
+        self.assertIn('target = str(ctx["actor"].get_path_name())', source)
+        self.assertIn('locate_bound_objects(binding.get_id(), ctx["world"])', source)
+        self.assertIn('require(len(bindings) <= 1, "TARGET_BINDING_COUNT|%d" % len(bindings))', source)
+        self.assertNotIn('any(_path(obj) == target', source)
+
     def test_negative_hand_edited_keys_refuse_rebuild(self):
         applied = [[100, 1.0, 2.0], [200, 2.0, 3.0]]
         hand_edited = [[100, 1.0, 2.0], [200, 2.0, 3.25]]
@@ -156,12 +163,12 @@ if __name__ == "__main__":
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     passed = result.testsRun - len(result.failures) - len(result.errors)
     report = {"passed": passed, "failed": len(result.failures) + len(result.errors), "total": result.testsRun,
-              "positive_controls": 6, "negative_controls": 5, "offline_only": True,
+              "positive_controls": 7, "negative_controls": 5, "offline_only": True,
               "unreal_started": False, "blender_started": False}
     with open(os.path.join(HERE, "harness_result.json"), "w", encoding="utf-8") as handle:
         json.dump(report, handle, indent=2)
     write_preview(os.path.join(HERE, "pendulum_braking_preview.ppm"))
     print("P52_PENDULUM_HARNESS|PASS=%d|FAIL=%d|TOTAL=%d" %
           (passed, report["failed"], result.testsRun))
-    print("P52_PENDULUM_CONTROLS|POSITIVE=6|NEGATIVE=5|OFFLINE=1|UNREAL=0|BLENDER=0")
+    print("P52_PENDULUM_CONTROLS|POSITIVE=7|NEGATIVE=5|OFFLINE=1|UNREAL=0|BLENDER=0")
     sys.exit(1 if report["failed"] else 0)
