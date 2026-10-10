@@ -1,0 +1,8 @@
+{
+  "name": "call_tool",
+  "arguments": {
+    "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+    "tool_name": "ExecuteProjectPythonFile",
+    "arguments": {"relativeSavedPath": "CodexConductor/Job178StageFrontUplights_20261010/job178_stagefront_uplights_run.py"}
+  }
+}

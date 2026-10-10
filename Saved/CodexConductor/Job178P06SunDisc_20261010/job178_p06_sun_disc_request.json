@@ -1,0 +1,8 @@
+{
+  "name": "call_tool",
+  "arguments": {
+    "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+    "tool_name": "ExecuteProjectPythonFile",
+    "arguments": {"relativeSavedPath": "CodexConductor/Job178P06SunDisc_20261010/job178_p06_sun_disc_run.py"}
+  }
+}

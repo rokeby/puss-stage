@@ -1,0 +1,7 @@
+{
+  "mode": "DRY",
+  "confirm": "DRY JOB178A STAGE FRONT UPLIGHTS",
+  "stage_lip_x_cm": -440.0,
+  "stage_lip_z_cm": 45.0,
+  "max_y_cm": 1550.0
+}
