@@ -1,0 +1,67 @@
+{
+  "args": {
+    "ack_records": [],
+    "aim_policy": "own_side_wing",
+    "atmosphere": {
+      "beam_tag": "InfinityStage.BeamLook",
+      "footprint_half_y_cm": 6000.0,
+      "footprint_half_z_cm": 6000.0,
+      "footprint_x_cm": [
+        -2000.0,
+        20000.0
+      ],
+      "smoke_tag": "InfinityStage.SmokeTest",
+      "source_tag": "P01ATMOS",
+      "target_tag": "P02ATMOS"
+    },
+    "colour_policy": "target_role_then_dominant",
+    "confirm": "",
+    "density": "full",
+    "expected_added_lights": 414,
+    "expected_plan_sha256": "",
+    "expected_target_bays": 23,
+    "match_source_atmosphere": true,
+    "max_added_lights": 414,
+    "mode": "DRY",
+    "own_side_aim_height_cm": 600.0,
+    "own_side_aim_x_cm": 0.0,
+    "perf_probe": {
+      "max_p95_ms": 33.4,
+      "max_p99_ms": 50.0,
+      "relative_saved_path": "CodexFlatV3/p02lighting/passage_lighting_perf_probe.py",
+      "seconds": 60.0,
+      "skip_frames": 30
+    },
+    "preserve_nonlights": true,
+    "source_ordinal_policy": "same_ordinal_no_wrap",
+    "source_passage": "P01",
+    "special_label_tokens": [
+      "car",
+      "dead",
+      "event",
+      "fire",
+      "flash",
+      "fx",
+      "haze",
+      "meshy",
+      "mote",
+      "move",
+      "moving",
+      "polaroid",
+      "pyro",
+      "rain",
+      "smoke",
+      "spark"
+    ],
+    "target_passage": "P02"
+  },
+  "census_at_stop": {
+    "content": [],
+    "maps": []
+  },
+  "error": "PassageLightingError: ATMOS_TARGET_BEAMS_MISSING|need=4|have=0",
+  "mode": "DRY",
+  "ok": false,
+  "proof": "offline-authored; live results are measured only after conductor execution",
+  "run": "20261009-194749"
+}

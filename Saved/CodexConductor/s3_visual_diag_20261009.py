@@ -355,7 +355,7 @@ def mesh_triangles(component):
     require(mesh is not None, "DUNE_STATIC_MESH_MISSING")
     desc = mesh.get_static_mesh_description(0)
     require(desc is not None, "DUNE_MESH_DESCRIPTION_MISSING")
-    transform = component.get_component_transform()
+    transform = component.get_world_transform()
     polygon_method = (getattr(desc, "get_polygon_vertex_instances", None) or
                       getattr(desc, "get_polygon_perimeter_vertex_instances", None))
     require(polygon_method is not None, "DUNE_POLYGON_API_MISSING")
@@ -367,7 +367,7 @@ def mesh_triangles(component):
         points = []
         for vi in perimeter:
             local = desc.get_vertex_position(desc.get_vertex_instance_vertex(vi))
-            world = transform.transform_position(local)
+            world = unreal.MathLibrary.transform_location(transform, local)
             points.append((float(world.x), float(world.y), float(world.z)))
         for i in range(1, len(points) - 1):
             tri = (points[0], points[i], points[i + 1])
