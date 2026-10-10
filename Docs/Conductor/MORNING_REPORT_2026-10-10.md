@@ -77,3 +77,17 @@ Verdicts on stills are by the conductor's eye. "Applied" means saved and read ba
 - **P06 parcan + sun**: the tool (job 126) needs a PIE probe plus your pick of the parcan.
 - One-time Cue Book button setup: put your passcode into `Saved/CueBook/cuebook_pass.txt` (I created it empty), restart Unreal, then **Puss > Pull Cue Book**.
 - Later notes on file: S3 long unkempt hair; garment stains; girders everywhere (job 116 built); swarm (100); S6 old-lady cuts (direct them by hand first).
+
+## Early morning (offline, no GPU)
+- **Shadow-cat BUILT** (v4, commit 6fddad8a).
+  - All 7 new tests pass.
+  - The full headless suite: 259 Success / 4 Fail. All 4 are pre-existing and untouched by the patch:
+    - CrossingSettle expects a 1.0 s settle vs tonight's 3.0 s
+    - NestedSequencesFitTheirParents
+    - SavedFixturePIE
+    - ShadowCatPIE: the shadow cat has no direct idle/walk animation
+- **Ready for the first editor slot** (job 159):
+  - shadow radii (side-effect import isolated)
+  - fringe (5.8-safe texture settings)
+  - I2 track conflict (SAFE_SKIP default)
+- **Job 160: the opening (87) re-planned** against the 3D stage front: the wide camera fits the whole front, then the move-in, uplights on the new lip, bulb scatter clear of the pieces. Preview: `DerivedAssets/P87OpeningFixes/p87_stage_front_camera_frusta.svg`. It runs after the stage front is placed.
