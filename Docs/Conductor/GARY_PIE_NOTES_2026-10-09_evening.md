@@ -80,3 +80,11 @@
 - **The 12:19 local editor crash**: Python access violation during a Codex tool call (Codex's fault, not Gary's viewing).
 - **S1 ending (Gary ~13:30)**: NO shrinking animals. Instead, around ~3600 the CAMERA PANS over to a WING in the corner where a SMALL FIRE has started (the animals vanish off-camera during the pan), then lights out from ~3800. → Codex job 169 revises job 168.
   - Gary: "and then we close out": after the hold on the fire, S1 closes out (lights out, then the end). That matches job 169.
+- **Gary priorities (10 Oct ~14:00)**:
+  1. **I2/I3 back walls** (job 144).
+  2. **Chandelier** (the P06 part, candles, swing).
+  3. Ending: LOWER, it needs Gary in the studio.
+
+  If time after:
+  - **S3 MetaHumans: LONG, dark + grey hair, messy and unkempt, on ALL S3 figures** (incl. the crowd copies).
+  - **Fires turn a cool bluish grey** (the S3 fires).
