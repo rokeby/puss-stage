@@ -193,12 +193,13 @@ def _load_assets(args: dict[str, Any], parts: list[str]) -> dict[str, Any]:
     loaded = {key: unreal.load_asset(path) for key, path in paths.items()}
     for key, value in loaded.items():
         require(value is not None, "ASSET_MISSING|%s|%s" % (key, paths[key]))
-    sockets = list(loaded["body_mesh"].get_editor_property("sockets"))
-    names = [str(socket.get_editor_property("socket_name")) for socket in sockets]
-    candles = sorted(name for name in names if name.startswith("Candle_"))
+    body_mesh = loaded["body_mesh"]
+    candles = ["Candle_%02d" % index for index in range(100)
+               if body_mesh.find_socket("Candle_%02d" % index) is not None]
     require(candles == ["Candle_%02d" % index for index in range(1, 45)], "SOCKET_COUNT_44_REQUIRED")
-    require("ChainAttach" in names, "CHAIN_ATTACH_SOCKET_REQUIRED")
-    require(not any(name.startswith("SOCKET_Candle_") for name in names), "UNSTRIPPED_SOCKET_PREFIX")
+    require(body_mesh.find_socket("ChainAttach") is not None, "CHAIN_ATTACH_SOCKET_REQUIRED")
+    require(not any(body_mesh.find_socket("SOCKET_Candle_%02d" % index) is not None for index in range(100)),
+            "UNSTRIPPED_SOCKET_PREFIX")
     loaded["verified_socket_names"] = candles + ["ChainAttach"]
     return loaded
 
@@ -326,12 +327,13 @@ def _spawn_assembly(plan: dict[str, Any], assets: dict[str, Any], part: str) -> 
     socket_transform = component.get_socket_transform(unreal.Name("ChainAttach"),
                                                        unreal.RelativeTransformSpace.RTS_WORLD)
     rotation = body.get_actor_rotation()
-    attach_offset = rotation.rotate_vector(unreal.Vector(*plan["chain"]["body"]["attach_cm"]))
+    rotation_q = rotation.quaternion()  # UE 5.8: Rotator has no rotate_vector (live APPLY 9 Oct); Quat does
+    attach_offset = rotation_q.rotate_vector(unreal.Vector(*plan["chain"]["body"]["attach_cm"]))
     top = socket_transform.translation - attach_offset
     links = []
     for link in plan["chain"]["links"]:
         index = link["index"]
-        location = top + rotation.rotate_vector(unreal.Vector(*link["pivot_cm"]))
+        location = top + rotation_q.rotate_vector(unreal.Vector(*link["pivot_cm"]))
         transform = unreal.Transform(location, rotation, unreal.Vector(1.0, 1.0, 1.0))
         links.append(_spawn_mesh(labels["link_actor_labels"][index], assets["chain_%02d" % index],
                                  assets["material"], transform, row["hidden_in_game"],

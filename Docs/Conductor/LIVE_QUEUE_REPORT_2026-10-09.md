@@ -127,3 +127,40 @@ Both one-line changes passed `python -m py_compile` before their retry. No guard
 - **measured:** `Docs/Conductor/LIVE_QUEUE_REPORT_2026-10-09.md` - appended with this resume.
 
 **Measured:** resume 2 issued no Save All, asset save, level save, PIE start/stop, editor quit/restart, mutation APPLY, or commit command.
+
+---
+
+## Resume 3 from item 3 practicals (9 October 2026, 20:41-20:46 local tool run ids)
+
+**declaration-proven:** P02 lighting was not retried; the conductor deferred it to a separate offline job. This resume began with item 3's independent P02 practicals half, then followed the requested item order until the first stopped APPLY left a dirty map and a spawned actor.
+
+| item | run id | DRY verdict | APPLY marker | census after | stills | notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 3b. P02 practicals, `FLOOR` | **measured:** calibration attempt `20261009-204212`; final DRY `20261009-204248` | **measured:** **STOPPED** - `PLAN_REFUSED_ITEMS`; 38 row changes across 19 cues were planned, but P02 Wings 007, 013 and 018 were refused at `FLOOR_DISAGREES|120.50 cm` (`Saved/CodexConductor/P01FloorPracticals_20261008/p02_floor_report_DRY_20261009-204248.json:122,1919-1930,4299-4359`) | **measured:** NOT RUN | **measured:** content `[]`, maps `[]`, PIE false after the stop (`Saved/Logs/PussStage.log:3191`) | **measured:** none | **measured:** the first DRY used a reset 0 cm calibration and stopped on the common 100.50 cm offset; the documented 100.5 cm calibration was restored and the final DRY isolated three 120.5 cm outliers. The final report says `saved=false` (`...p02_floor_report_DRY_20261009-204248.json:14180-14182`). **declaration-proven:** the planner refuses an item when its floor disagreement differs from the reviewed calibration by more than the configured guard (`Saved/CodexConductor/P01FloorPracticals_20261008/p01_floor_common.py:593-596`). **measured:** this clean, no-save stop was skipped under the user's independent-item rule. |
+| 4a. Chandelier staging, Opening | **measured:** DRY `P75CHAN-20261009-204540`; stopped APPLY `P75CHAN-20261009-204553` | **measured:** `P75_CHANDELIER_DRY_OK`; plan `017e07a786ff771bac63311d310ed9c050baa3c9604015f13d428e2e5326c86f`, 24 links, 45 required socket names (44 candles plus `ChainAttach`), candidate budget 3 lights / 2 casters, clean start (`Saved/Logs/PussStage.log:3238`; `Saved/CodexConductor/P75ChandelierStaging_20261009/chandelier_staging_DRY_P75CHAN-20261009-204540.json:3-16,612,675-722`) | **measured:** **NO APPLY OK MARKER / STOPPED** - `AttributeError: 'Rotator' object has no attribute 'rotate_vector'` (`Saved/Logs/PussStage.log:3261`) | **measured:** content `[]`; map `[/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice]`; PIE false; one live owned actor, `P75 Opening Chandelier Body`, tagged `P75_PART_OPENING` / `P75_ROLE_BODY` (`Saved/Logs/PussStage.log:3275,3326`) | **measured:** none | **measured:** the APPLY wrote a `prepared` active record and backup, spawned the body, then failed before any link, light or sequence-track work (`Saved/CodexConductor/P75ChandelierStaging_20261009/chandelier_staging_opening_ACTIVE.json:2-30,689-691`; `Saved/CodexConductor/P75ChandelierStaging_20261009/chandelier_staging.py:325-334,570-579`). **declaration-proven:** because this chain mutated the level and left it dirty, the user's skip rule forbids continuing to candles, swing, or any later independent item. |
+| 4b-4c. Chandelier candles and swing | **measured:** none | **measured:** NOT RUN | **measured:** NOT RUN | **measured:** not applicable | **measured:** none | **declaration-proven:** not skipped within the staging -> candles -> swing dependency chain. |
+| 5, then 7, 8, then 6 | **measured:** none | **measured:** NOT RUN | **measured:** NOT RUN | **measured:** not applicable | **measured:** none | **declaration-proven:** not run because item 4's stopped APPLY left a dirty map and a live mutation, which does not satisfy the user's clean-census/no-mutation condition for moving to another independent item. |
+
+### Transport/API repairs made before the stopped APPLY
+
+- **measured:** the bundled P75 request initially returned HTTP 400 before Unreal execution. Its request JSON lacked the standard `call_tool` envelope; only that envelope was added (`Saved/CodexConductor/P75ChandelierStaging_20261009/chandelier_staging_request.json`).
+- **measured:** the next DRY stopped before mutation because UE 5.8 protects `StaticMesh.sockets`. The socket census was changed to the already-proven `StaticMesh.find_socket()` API while retaining the exact `Candle_01..44`, `ChainAttach`, and unstripped-prefix guards (`Saved/CodexConductor/P75ChandelierStaging_20261009/chandelier_staging.py:194-203`). The required offline harness then passed 20/20 before the successful live DRY.
+- **measured:** the subsequent error happened only after entering APPLY and spawning the body. It was not patched or retried.
+
+### First STOP and queue-terminating STOP for resume 3
+
+- **First STOP, measured:** P02 practicals DRY `20261009-204248` refused three fixtures whose floor disagreement was 120.5 cm rather than the reviewed 100.5 cm regime (`Saved/Logs/PussStage.log:3167`). Its post-stop census was clean and it saved nothing, so the resume moved to independent item 4 exactly as authorized (`Saved/Logs/PussStage.log:3191`).
+- **Queue-terminating STOP, measured:** Opening chandelier APPLY `P75CHAN-20261009-204553` failed at `rotation.rotate_vector(...)` after spawning one tagged body actor. The map is dirty, the active record remains `prepared`, and there is no APPLY success marker (`Saved/Logs/PussStage.log:3261,3275,3326`; `Saved/CodexConductor/P75ChandelierStaging_20261009/chandelier_staging_opening_ACTIVE.json:689-691`).
+- **measured:** recoverable pre-change copies exist at `Backups/PreP75ChandelierOpening-P75CHAN-20261009-204553/` for the level and Opening sequence. **measured:** neither package was saved by the failed call; their on-disk timestamps remained older than the run, and no matching save line appeared in the live log. The unsaved body remains live in the editor.
+- **UNCLEAR:** the intended recovery path for a `prepared` P75 record has not been exercised. The normal REVERT path requires an `applied` record (`Saved/CodexConductor/P75ChandelierStaging_20261009/chandelier_staging.py:610-614`), so no cleanup was attempted blind.
+
+### Files changed or generated by resume 3
+
+- **measured:** `Docs/Conductor/LIVE_QUEUE_REPORT_2026-10-09.md` - this appended resume record.
+- **measured:** `Saved/CodexConductor/P01FloorPracticals_20261008/p01_floor_args.json`; the two `p02_floor_items_DRY_20261009-{204212,204248}.csv` and matching `p02_floor_report_DRY_*.json` artifacts.
+- **measured:** `Saved/CodexConductor/P75ChandelierStaging_20261009/chandelier_staging_args.json`, `chandelier_staging_request.json`, and the narrow `find_socket()` repair in `chandelier_staging.py`; the refreshed harness outputs/plan and Python bytecode; `chandelier_staging_DRY_P75CHAN-20261009-204540.json`; and `chandelier_staging_opening_ACTIVE.json`.
+- **measured:** `Saved/CodexConductor/P75ChandelierStaging_20261009/p75_postfailure_census.py` and `_request.json` - read-only evidence for the live actor and dirty census.
+- **measured:** `Backups/PreP75ChandelierOpening-P75CHAN-20261009-204553/` - `prechange.json`, the level copy, and the Opening-sequence copy.
+- **measured:** `Saved/Logs/PussStage.log` - appended automatically by the open editor.
+
+**measured:** resume 3 did not start or end PIE, did not use Save All, did not save Klara's levels, did not quit or restart the editor, and did not commit. **measured:** one unsaved P75 body actor remains in the dirty production level; no later queue item was run.
