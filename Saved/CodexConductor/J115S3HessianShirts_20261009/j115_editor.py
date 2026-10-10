@@ -163,7 +163,7 @@ def figure_parent_plans(scope, cfg):
         parent_path = parent_paths[0]
         previous = parents.get(row["figure"])
         require(previous is None or previous["parent"] == parent_path,
-                "FIGURE_PARENT_DRIFT|%s|%s|%s" % (row["figure"], previous["parent"], parent_path))
+                "FIGURE_PARENT_DRIFT|%s|%s|%s" % (row["figure"], (previous or {}).get("parent"), parent_path))  # message was built eagerly: None["parent"] (live DRY 10 Oct)
         if previous is None:
             parent = unreal.load_asset(parent_path)
             require(parent is not None, "PARENT_LOAD|" + parent_path)
