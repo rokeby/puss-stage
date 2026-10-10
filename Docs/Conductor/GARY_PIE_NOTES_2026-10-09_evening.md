@@ -70,3 +70,4 @@
   1. S3: FRONT projection (the spot in front of the curtain).
   2. Tight framing on the curtain. The curtain must take a SIMILAR PROPORTION of the frame in ALL interactions (match I1/I4/I5: measure their curtain frame fraction and fit the I2/I3 camera distance to it).
   3. I3: reuse ANY existing gobo for now; real gobos are coming.
+- **P02 lighting (Gary, morning 10 Oct)**: needs an AUDIT: both too HEAVY (perf, haze, possibly the GPU hang) and SHOWING UP TOO LITTLE. → Codex job 161 (offline, from the records).
