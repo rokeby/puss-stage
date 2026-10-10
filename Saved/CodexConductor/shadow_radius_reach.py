@@ -1,4 +1,4 @@
-"""Job 111: passage shadow-light radius census / APPLY / REVERT.
+"""Jobs 111/163: passage shadow-light radius census / APPLY / REVERT.
 
 Offline-authored; run later through ExecuteProjectPythonFile.  DRY is read-only.
 APPLY writes only attenuation radius, never lowers it, and skips lights whose
@@ -51,7 +51,6 @@ DEFAULTS = {
     "margin_cm": 300.0,
     "cap_cm": None,
     "large_source_radius_cm": 20.0,
-    "membership_radius_cm": 5000.0,
     "sequence_roots": ["/Game"],
 }
 
@@ -95,6 +94,59 @@ def asset_id(value):
     return str(path).split(":", 1)[0].split(".", 1)[0]
 
 
+def actor_level_package(actor):
+    """Return the owning map package, not merely the actor's PersistentLevel token."""
+    try:
+        level = actor.get_level()
+        package = level.get_outermost() if level is not None else None
+        name = package.get_name() if package is not None else None
+        if name:
+            return str(name)
+    except Exception:
+        pass
+    return asset_id(actor)
+
+
+def assert_planned_scope(planned, expected_level=EXPECTED_WORLD):
+    """Last pre-mutation gate: every change is Passage-owned and persistent-level."""
+    bad = [{k: row.get(k) for k in ("id", "label", "passage", "source", "level_package")}
+           for row in planned if row.get("will_change") and
+           (row.get("level_package") != expected_level or
+            row.get("source") != "SHOW_ATTACHMENT" or
+            not row.get("passage_owned"))]
+    require(not bad, "PLANNED_CHANGE_OUTSIDE_PERSISTENT_PASSAGE_SCOPE|" + canonical(bad)[:4000])
+
+
+def level_scope_counts(inventory, planned=()):
+    """Build deterministic DRY counts for every level seen, including exclusions."""
+    levels = {}
+    for item in inventory:
+        level = item["level_package"]
+        row = levels.setdefault(level, {
+            "scanned_light_components": 0,
+            "passage_owned": 0,
+            "eligible_persistent_passage_owned": 0,
+            "excluded_unowned": 0,
+            "excluded_owned_nonpersistent": 0,
+            "planned_changes": 0,
+        })
+        row["scanned_light_components"] += 1
+        if item["passage_owned"]:
+            row["passage_owned"] += 1
+            if item["included"]:
+                row["eligible_persistent_passage_owned"] += 1
+            else:
+                row["excluded_owned_nonpersistent"] += 1
+        else:
+            row["excluded_unowned"] += 1
+    for item in planned:
+        if item.get("will_change"):
+            level = item["level_package"]
+            require(level in levels, "PLANNED_LEVEL_NOT_IN_INVENTORY|" + str(level))
+            levels[level]["planned_changes"] += 1
+    return {key: levels[key] for key in sorted(levels)}
+
+
 def vec(value):
     return [float(value.x), float(value.y), float(value.z)]
 
@@ -122,6 +174,9 @@ def check_args(raw):
                 "CONFIRM_MISSING|need='%s'" % CONFIRM[mode])
     params = copy.deepcopy(DEFAULTS)
     params.update(raw.get("params") or {})
+    # Job 163 removed proximity membership.  Discard the legacy shipped field so
+    # old DRY envelopes remain runnable without suggesting that distance owns a light.
+    params.pop("membership_radius_cm", None)
     require(isinstance(params["passages"], list) and params["passages"], "PASSAGES_EMPTY")
     require(all(p in PASSAGES for p in params["passages"]), "PASSAGES_INVALID")
     params["passages"] = sorted(set(params["passages"]))
@@ -129,8 +184,6 @@ def check_args(raw):
     require(params["margin_cm"] >= 0.0, "MARGIN_NEGATIVE")
     params["large_source_radius_cm"] = finite(params["large_source_radius_cm"], "SOURCE_THRESHOLD")
     require(params["large_source_radius_cm"] >= 0.0, "SOURCE_THRESHOLD_NEGATIVE")
-    params["membership_radius_cm"] = finite(params["membership_radius_cm"], "MEMBERSHIP_RADIUS")
-    require(params["membership_radius_cm"] > 0.0, "MEMBERSHIP_RADIUS_NONPOSITIVE")
     if params["cap_cm"] is not None:
         params["cap_cm"] = finite(params["cap_cm"], "CAP")
         require(params["cap_cm"] > 0.0, "CAP_NONPOSITIVE")
@@ -396,7 +449,8 @@ def prop(obj, name, default=None):
         return default
 
 
-def component_row(actor, comp, passage, owner, source, cue=None, attachment=None, editable=True):
+def component_row(actor, comp, passage, owner, source, cue=None, attachment=None, editable=True,
+                  level_package=None):
     radius = prop(comp, "attenuation_radius")
     material = prop(comp, "light_function_material")
     identity = ("SHOW|%s|%s|%s" % (passage, cue, attachment) if source == "SHOW_ATTACHMENT"
@@ -406,6 +460,8 @@ def component_row(actor, comp, passage, owner, source, cue=None, attachment=None
         "passage": passage, "label": actor.get_actor_label(), "class": comp.get_class().get_name(),
         "actor_path": actor.get_path_name(), "component_name": comp.get_name(),
         "source": source, "cue_guid": cue, "attachment_guid": attachment,
+        "level_package": level_package or actor_level_package(actor),
+        "passage_owned": source in ("SHOW_ATTACHMENT", "MANAGED_EXTRA_COMPONENT"),
         "radius_editable": bool(editable),
         "location": vec(comp.get_world_location()), "intensity": float(prop(comp, "intensity", 0.0)),
         "attenuation_radius_cm": None if radius is None else float(radius),
@@ -471,6 +527,9 @@ def gather_live(args):
     for actor in actors:
         key = passage_key(actor.get_actor_label())
         if key in args["params"]["passages"] and prop(actor, "materialized_panels") is not None:
+            require(actor_level_package(actor) == EXPECTED_WORLD,
+                    "PASSAGE_ACTOR_OUTSIDE_PERSISTENT_LEVEL|%s|%s" %
+                    (key, actor.get_path_name()))
             require(key not in passages, "PASSAGE_ACTOR_DUPLICATE|" + key)
             passages[key] = actor
     require(set(passages) == set(args["params"]["passages"]), "PASSAGE_ACTORS_MISSING|" + canonical(sorted(passages)))
@@ -480,38 +539,36 @@ def gather_live(args):
         for actor in passage.get_editor_property("managed_attachment_actors"):
             identity = parse_attachment_tag(actor)
             if identity:
+                require(actor.get_path_name() not in managed,
+                        "MANAGED_ATTACHMENT_DUPLICATE|" + actor.get_path_name())
                 managed[actor.get_path_name()] = (key, passage.get_actor_label(), identity[0], identity[1])
     rows = []
+    inventory = []
     for actor in actors:
         comps = light_components(actor)
         if not comps:
             continue
-        if actor.get_path_name() in managed:
-            key, owner, cue, attachment = managed[actor.get_path_name()]
+        actor_path = actor.get_path_name()
+        level_package = actor_level_package(actor)
+        ownership = managed.get(actor_path)
+        included = ownership is not None and level_package == EXPECTED_WORLD
+        for comp in comps:
+            inventory.append({"actor_path": actor_path, "component_name": comp.get_name(),
+                              "level_package": level_package,
+                              "passage_owned": ownership is not None, "included": included})
+        if ownership is not None and level_package == EXPECTED_WORLD:
+            key, owner, cue, attachment = ownership
             for index, comp in enumerate(comps):
                 # The C++ contract applies Show settings to the first Light Component only
                 # (InfinityStageTypes.h:189-191). Extra custom-class components are censused
                 # but cannot be durably edited here without changing their Blueprint authority.
                 source = "SHOW_ATTACHMENT" if index == 0 else "MANAGED_EXTRA_COMPONENT"
                 rows.append(component_row(actor, comp, key, owner, source, cue, attachment,
-                                          editable=index == 0))
-            continue
-        for comp in comps:
-            explicit = passage_key(actor.get_actor_label())
-            candidates = [(dist(vec(comp.get_world_location()), s["center"]), key)
-                          for key, values in stations.items() for s in values]
-            if not candidates:
-                continue
-            nearest_distance, key = min(candidates)
-            if explicit in stations:
-                key = explicit
-            elif nearest_distance > args["params"]["membership_radius_cm"]:
-                continue
-            rows.append(component_row(actor, comp, key, passages[key].get_actor_label(), "LEVEL_ACTOR"))
+                                          editable=index == 0, level_package=level_package))
     tracks = scan_radius_tracks(args["params"]["sequence_roots"])
     keyed = attach_tracks(rows, tracks)
     return {"world": world, "census": census, "passages": passages, "stations": stations,
-            "rows": rows, "tracks": tracks, "keyed": keyed}
+            "rows": rows, "tracks": tracks, "keyed": keyed, "inventory": inventory}
 
 
 def report_paths(mode, run):
@@ -519,7 +576,8 @@ def report_paths(mode, run):
     return stem + ".json", stem + ".csv"
 
 
-CSV_FIELDS = ("passage", "label", "class", "intensity", "cast_shadows", "attenuation_radius_cm", "needed_radius_cm",
+CSV_FIELDS = ("level_package", "passage", "label", "class", "source", "passage_owned",
+              "intensity", "cast_shadows", "attenuation_radius_cm", "needed_radius_cm",
               "planned_radius_cm", "volumetric_scattering_intensity", "cast_volumetric_shadow",
               "use_inverse_squared_falloff", "light_function", "radius_keyed_by_sequencer",
               "source_radius_cm", "likely_milky_fog_contributor", "milky_fog_reasons", "decision")
@@ -552,14 +610,6 @@ def show_index(show):
     return out
 
 
-def resolve_level_component(row, actors):
-    hits = [a for a in actors if a.get_path_name() == row["actor_path"]]
-    require(len(hits) == 1, "LEVEL_ACTOR_RESOLVE|" + row["actor_path"])
-    comps = [c for c in hits[0].get_components_by_class(unreal.ActorComponent) if c.get_name() == row["component_name"]]
-    require(len(comps) == 1, "LEVEL_COMPONENT_RESOLVE|" + row["id"])
-    return comps[0]
-
-
 def set_show_radius(show, target, value, expected, strict=True):
     index = show_index(show)
     key = (target["cue_guid"], target["attachment_guid"])
@@ -583,21 +633,14 @@ def set_show_radius(show, target, value, expected, strict=True):
 
 
 def apply_values(live, targets, side, strict=True):
+    assert_planned_scope(targets)
     show = unreal.EditorAssetLibrary.load_asset(SHOW_PATH)
     require(show is not None, "SHOW_MISSING")
-    actors = list(unreal.GameplayStatics.get_all_actors_of_class(live["world"], unreal.Actor))
     for target in targets:
         before, after = target["attenuation_radius_cm"], target["planned_radius_cm"]
         want, expected = (after, before) if side == "after" else (before, after)
-        if target["source"] == "SHOW_ATTACHMENT":
-            set_show_radius(show, target, want, expected, strict)
-        else:
-            comp = resolve_level_component(target, actors)
-            current = float(comp.get_editor_property("attenuation_radius"))
-            if strict:
-                require(abs(current - float(expected)) <= FLOAT_TOL,
-                        "LEVEL_RADIUS_DRIFT|%s|%s|%s" % (target["label"], current, expected))
-            comp.set_editor_property("attenuation_radius", float(want))
+        require(target["source"] == "SHOW_ATTACHMENT", "NON_SHOW_TARGET|" + target["id"])
+        set_show_radius(show, target, want, expected, strict)
     affected = sorted({t["passage"] for t in targets if t["source"] == "SHOW_ATTACHMENT"})
     for key in affected:
         require(bool(live["passages"][key].materialize_passage()), "MATERIALIZE_FAILED|" + key)
@@ -665,16 +708,22 @@ def run(raw):
         live["args"] = args
         planned = plan_census(live["rows"], live["stations"], args["params"], live["keyed"])
         tiers = tiered_report(planned, live["stations"], live["tracks"])
-        report.update({"tiers": tiers, "dirty_before": live["census"]})
+        level_counts = level_scope_counts(live["inventory"], planned)
+        report.update({"tiers": tiers, "dirty_before": live["census"],
+                       "persistent_level": EXPECTED_WORLD,
+                       "scope_policy": "PERSISTENT_PASSAGE_OWNED_ONLY",
+                       "level_counts": level_counts})
+        assert_planned_scope(planned)
         changes = [r for r in planned if r["will_change"]]
         if mode == "DRY":
             require(dirty_census() == live["census"], "DRY_DIRTY_CHANGED")
             report["ok"] = True
             paths = write_report(report, mode, run_id)
-            unreal.log("%s_DRY_OK|run=%s|shadow=%d|raise=%d|keyed=%d|fog=%d|reports=%s" %
+            unreal.log("%s_DRY_OK|run=%s|shadow=%d|raise=%d|keyed=%d|fog=%d|levels=%s|reports=%s" %
                        (MARK, run_id, tiers["tier_0_verdict"]["shadow_casters"], len(changes),
                         tiers["tier_0_verdict"]["sequencer_keyed_report_only"],
-                        tiers["tier_0_verdict"]["likely_milky_fog_contributors"], paths[0]))
+                        tiers["tier_0_verdict"]["likely_milky_fog_contributors"],
+                        canonical(level_counts), paths[0]))
             return report
         require(len(changes) == args["expected_changes"],
                 "EXPECTED_CHANGES|expected=%d|live=%d" % (args["expected_changes"], len(changes)))

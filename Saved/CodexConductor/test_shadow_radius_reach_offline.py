@@ -41,6 +41,8 @@ def row(identity, x, radius, **updates):
              "attenuation_radius_cm": radius, "volumetric_scattering_intensity": 1.0,
              "cast_shadows": True, "cast_volumetric_shadow": True,
              "use_inverse_squared_falloff": True, "source_radius_cm": 0.0, "light_function": None}
+    value.update({"level_package": m.EXPECTED_WORLD, "passage_owned": True,
+                  "source": "SHOW_ATTACHMENT"})
     value.update(updates)
     return value
 
@@ -86,13 +88,41 @@ rejects("negative bad passage", lambda: m.check_args({"params": {"passages": ["P
 rejects("negative negative margin", lambda: m.check_args({"params": {"margin_cm": -1}}), "MARGIN_NEGATIVE")
 rejects("negative zero cap", lambda: m.check_args({"params": {"cap_cm": 0}}), "CAP_NONPOSITIVE")
 
+inventory = [
+    {"level_package": m.EXPECTED_WORLD, "passage_owned": True, "included": True},
+    {"level_package": m.EXPECTED_WORLD, "passage_owned": False, "included": False},
+    {"level_package": "/Game/Klara/L_Animals", "passage_owned": False, "included": False},
+]
+scoped_plan = m.plan_census([row("owned", 0.0, 500.0)], stations, params)
+m.assert_planned_scope(scoped_plan)
+counts = m.level_scope_counts(inventory, scoped_plan)
+check("positive persistent Passage-owned change accepted",
+      counts[m.EXPECTED_WORLD]["planned_changes"] == 1)
+check("positive DRY counts every scanned level",
+      set(counts) == {m.EXPECTED_WORLD, "/Game/Klara/L_Animals"})
+check("positive unowned persistent light excluded",
+      counts[m.EXPECTED_WORLD]["excluded_unowned"] == 1)
+streamed = m.plan_census([row("klara", 0.0, 500.0,
+                              level_package="/Game/Klara/L_Animals")], stations, params)
+rejects("negative streamed-level light refused",
+        lambda: m.assert_planned_scope(streamed),
+        "PLANNED_CHANGE_OUTSIDE_PERSISTENT_PASSAGE_SCOPE")
+unowned = m.plan_census([row("foreign", 0.0, 500.0,
+                             passage_owned=False, source="LEVEL_ACTOR")], stations, params)
+rejects("negative unowned persistent light refused",
+        lambda: m.assert_planned_scope(unowned),
+        "PLANNED_CHANGE_OUTSIDE_PERSISTENT_PASSAGE_SCOPE")
+
 source = open(TOOL, encoding="utf-8").read()
-check("static apply setter only radius component", 'set_editor_property("attenuation_radius", float(want))' in source)
+check("static no direct level-component radius mutation",
+      'set_editor_property("attenuation_radius", float(want))' not in source)
 check("static show setter only radius field", 'set_editor_property("attenuation_radius_cm", float(value))' in source)
 check("static no fog mutation", 'set_editor_property("cast_volumetric_shadow"' not in source)
 check("static backup before apply", source.index('backup_assets("PreShadowRadiusReach-"') < source.index('apply_values(live, changes, "after")'))
 check("negative unrelated live tool is never imported", "lighting_looks_apply.py" not in source)
 check("static success markers", all(x in source for x in ("_DRY_OK", "_APPLY_OK", "_REVERT_OK")))
+check("static proximity membership removed", 'source, "LEVEL_ACTOR"' not in source and
+      'nearest_distance > args["params"]["membership_radius_cm"]' not in source)
 
 with tempfile.TemporaryDirectory() as temp:
     content = os.path.join(temp, "Content")
