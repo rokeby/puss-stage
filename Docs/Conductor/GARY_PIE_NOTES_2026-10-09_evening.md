@@ -103,3 +103,8 @@
 ## Gary, 10 Oct ~19:50: lighting workflow
 - He will NOT use replication across all bays any more: there are too many lights, and they carry movements, to tune by hand.
 - WANTED: he moves a few parcans (light actors), and their fixture bodies **rebuild automatically**, with no Codex step. Job 180.
+
+## Gary, 10 Oct ~20:10: interaction transitions (NOTE ONLY, do not build)
+- He likes the I2 shadow still as it is (`Saved/CodexConductor/ApplyPass_20261010/stills/177_01_job144_I2_shadow_frame712.png`): the boy's profile in the lit window on the bare back wall. Parked.
+- CURRENT aim is unchanged: the curtain-based transition (the curtain falls again, revealing the next scene).
+- LATER idea: a DOORWAY-based transition. The back-wall surface has no curtain on it; now that the right wall is set up, build a doorway in it that opens through onto the next scene. Not now.

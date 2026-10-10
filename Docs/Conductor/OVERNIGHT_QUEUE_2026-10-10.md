@@ -177,3 +177,5 @@ Stills are in `Saved/CodexConductor/ApplyPass_20261010/stills/`. Verdicts are by
 - 19:50 Job 180 (offline) launched: auto-rebuild parcans when Gary moves a light (C++ patch, needs an editor-closed build window), per-light no-parcan flag (P06), Puss > Rebuild Passage Fixtures menu fallback. Replication extension DROPPED (Gary).
 
 - 20:00 Job 180 imported (2ccc7ca4): auto-rebuild C++ held in Scripts/patches/job180_fixture_autorebuild.patch (applies to main), Python 11/11; menu item works only after the build (calls rebuild_fixtures_only). NEEDS an editor-closed build window (Gary), then the P06 no-parcan APPLY.
+
+- 20:10 Gary NOTE (not to build): doorway-in-back-wall transition as a later alternative to the curtain; he likes the I2 shadow still. Curtain transition stays the aim.
