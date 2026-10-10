@@ -1,0 +1,118 @@
+{
+  "ok": true,
+  "pass": 21,
+  "fail": 0,
+  "total": 21,
+  "positive": 12,
+  "negative": 9,
+  "passed": [
+    {
+      "name": "+ default proposal is explicitly Gary-tunable",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ eight shadowless group lights plus one fill",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ groups cover all 44 sockets in 5/6-candle sectors",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ vector mean places a light at its candle-tip centroid",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ exact socket actors pass placement assessment",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ placement assessment identifies an offset candle",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ bounds-fit margin moves the review camera farther away",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ exact saved light read-back matches",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "- seven grouped lights are refused",
+      "control": "negative",
+      "passed": true
+    },
+    {
+      "name": "- grouped shadow caster is refused",
+      "control": "negative",
+      "passed": true
+    },
+    {
+      "name": "- cool candle temperature is refused",
+      "control": "negative",
+      "passed": true
+    },
+    {
+      "name": "- broad candle attenuation is refused",
+      "control": "negative",
+      "passed": true
+    },
+    {
+      "name": "- strong fill is refused",
+      "control": "negative",
+      "passed": true
+    },
+    {
+      "name": "- fill not below/front is refused",
+      "control": "negative",
+      "passed": true
+    },
+    {
+      "name": "- duplicate scan fractions are refused",
+      "control": "negative",
+      "passed": true
+    },
+    {
+      "name": "- APPLY without exact confirmation is refused",
+      "control": "negative",
+      "passed": true
+    },
+    {
+      "name": "- REVERT without exact confirmation is refused",
+      "control": "negative",
+      "passed": true
+    },
+    {
+      "name": "+ source contract excludes child actors from mesh bounds",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ source contract uses no exposure-value override",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ APPLY binds the reviewed proposal digest",
+      "control": "positive",
+      "passed": true
+    },
+    {
+      "name": "+ REVERT owns actors by exact Job 182 tags",
+      "control": "positive",
+      "passed": true
+    }
+  ],
+  "failed": [],
+  "offline": true,
+  "unreal": false
+}
