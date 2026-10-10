@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "measurement": "Offline parse of the dated S1Snap semantic JSON; current live DRY remains authoritative",
+  "source_wrapper": "Saved/CodexConductor/S1Snap/LS_DevScene_01_sem.json",
+  "source_wrapper_sha256": "47586ab4a63ead149bf09b3865b7b0e9ff92afe0f0f250609c56a69f34219d61",
+  "source_klara_copy": "Saved/CodexConductor/S1Snap/LS_Animals_1_S1Hangar_sem.json",
+  "source_klara_copy_sha256": "7d0e9eaa74aaec782ac762aaca9c2d063bcb61bad50148cf37db1e8cf9f998bf",
+  "new_wrapper_end_exclusive": 3900,
+  "klara_shot_end_for_handoff": 3875,
+  "klara_first_excluded_source_frame": 4046,
+  "wrapper_counts_at_or_past_3900": {
+    "sections_crossing_end": 80,
+    "sections_starting_at_or_after_end": 18,
+    "decoded_keys_at_or_after_end": 314,
+    "markers_at_or_after_end": 0
+  },
+  "sections_starting_at_or_after_end": [
+    ["SpotLight5/LightComponent0", "Intensity", 5769, 6176],
+    ["RectLight_Merged2/LightComponent0", "Intensity", 5769, 6176],
+    ["SpotLight9/LightComponent0", "Intensity", 5769, 6176],
+    ["SkyLight/SkyLightComponent0", "Intensity", 5782, 6176],
+    ["SpotLight2/LightComponent0", "Intensity", 5769, 6176],
+    ["SpotLight10/LightComponent0", "Intensity", 5769, 6176],
+    ["SpotLight11/LightComponent0", "Intensity", 5769, 6176],
+    ["DirectionalLight/LightComponent0", "Intensity", 5782, 6176],
+    ["SpotLight3/LightComponent0", "Intensity", 5769, 6176],
+    ["ExponentialHeightFog/HeightFogComponent0", "FogDensity", 5782, 6176],
+    ["SpotLight8/LightComponent0", "Intensity", 5769, 6176],
+    ["SpotLight6/LightComponent0", "Intensity", 5769, 6176],
+    ["SpotLight7/LightComponent0", "Intensity", 5769, 6176],
+    ["RectLight_Merged3/LightComponent0", "Intensity", 5769, 6176],
+    ["RectLight_Merged/LightComponent0", "Intensity", 5769, 6176],
+    ["SpotLight4/LightComponent0", "Intensity", 5769, 6176],
+    ["animals/LightComponent0", "Intensity", 5769, 6176],
+    ["<master>", "CameraCut", 6151, 6176]
+  ],
+  "late_key_groups": [
+    {
+      "description": "All 24 S1 Lattice Glow LightColor tracks, RGB plus alpha at frames 6001 and 6039",
+      "key_count": 192
+    },
+    {
+      "description": "The 17 late Intensity/FogDensity tail sections listed above",
+      "key_count": 122
+    }
+  ],
+  "klara_copy_at_or_past_source_4046": {
+    "sections_crossing_cutoff": 57,
+    "sections_starting_at_or_after_cutoff": 0,
+    "decoded_keys_at_or_after_cutoff": 0,
+    "markers_at_or_after_cutoff": 0,
+    "limitation": "The dated semantic dump does not decode SkeletalAnimationTrack AnimationSections; Job168 live DRY inventories all Unreal-exposed sections and keys directly"
+  }
+}

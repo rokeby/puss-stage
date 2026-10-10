@@ -1,0 +1,23 @@
+{
+  "stage": "ANIMALS",
+  "mode": "DRY",
+  "confirm": "DRY JOB168",
+  "run_id": "JOB168-SET-UNIQUE-ID",
+  "decided_by": "Gary, Codex job 168, 10 Oct 2026",
+  "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
+  "klara_copy": "/Game/InfinityStage/KlaraHookin/LS_Animals_1_S1Hangar",
+  "cue_label": "Scene 1 — External Sound",
+  "animal_labels": [
+    "Pig_anim_RM",
+    "medhue_raccoon",
+    "RedDeer_Calf_anim_IP"
+  ],
+  "animal_fade_end_frame": 3600,
+  "animal_fade_seconds": 3.0,
+  "animal_fade_strategy": "ADDITIVE_SCALE_AND_BHIDDEN_FALLBACK",
+  "lights_out_start_frame": 3800,
+  "lights_out_fade_seconds": 1.52,
+  "exit_handoff_frames": 25,
+  "new_end_frame": 3900,
+  "stills_frames": [3500, 3600, 3700, 3800, 3900]
+}

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360">
+  <rect width="1200" height="360" fill="#11151b"/>
+  <text x="70" y="55" fill="#f4f0e6" font-family="Segoe UI, sans-serif" font-size="30">Job 168 — S1 ending (25 fps, analytical)</text>
+  <line x1="90" y1="180" x2="1110" y2="180" stroke="#8792a2" stroke-width="4"/>
+  <rect x="140" y="135" width="375" height="90" rx="10" fill="#c7772f" opacity="0.9"/>
+  <text x="160" y="170" fill="white" font-family="Segoe UI, sans-serif" font-size="22">Animals: additive scale fade</text>
+  <text x="160" y="202" fill="white" font-family="Segoe UI, sans-serif" font-size="20">3525 → 3600 (3.0 s)</text>
+  <rect x="760" y="135" width="190" height="90" rx="10" fill="#4e6b97" opacity="0.95"/>
+  <text x="780" y="170" fill="white" font-family="Segoe UI, sans-serif" font-size="22">Lights out</text>
+  <text x="780" y="202" fill="white" font-family="Segoe UI, sans-serif" font-size="20">3800 → 3838</text>
+  <rect x="1010" y="135" width="100" height="90" rx="10" fill="#664a7d" opacity="0.95"/>
+  <text x="1025" y="170" fill="white" font-family="Segoe UI, sans-serif" font-size="18">Exit</text>
+  <text x="1018" y="202" fill="white" font-family="Segoe UI, sans-serif" font-size="17">3875→3900</text>
+  <g fill="#dfe6ef" font-family="Segoe UI, sans-serif" font-size="17">
+    <text x="120" y="265">3500 still</text><text x="470" y="265">3600 still</text>
+    <text x="635" y="265">3700 still</text><text x="755" y="265">3800 still</text>
+    <text x="1030" y="265">new end</text>
+  </g>
+  <text x="70" y="325" fill="#aab4c2" font-family="Segoe UI, sans-serif" font-size="18">Not rendered acceptance. Frame 3900 is exclusive; capture 3899 plus the next-cue boundary.</text>
+</svg>
