@@ -1,0 +1,50 @@
+{
+  "interaction": "I5",
+  "display_fps": 25.0,
+  "length_s": 49.0,
+  "rows": [
+    {
+      "id": "plate_in",
+      "label": "opening still plate",
+      "start_s": 0.0,
+      "duration_s": 1.5
+    },
+    {
+      "id": "B1",
+      "label": "crown falls, then boots pop in",
+      "start_s": 1.5,
+      "duration_s": 6
+    },
+    {
+      "id": "B2",
+      "label": "Puss admires boots",
+      "start_s": 7.5,
+      "duration_s": 8
+    },
+    {
+      "id": "B3",
+      "label": "Puss pulls boots on",
+      "start_s": 15.5,
+      "duration_s": 14
+    },
+    {
+      "id": "B4",
+      "label": "Puss struts",
+      "start_s": 29.5,
+      "duration_s": 10
+    },
+    {
+      "id": "whimper",
+      "label": "mournful sag and whimper",
+      "start_s": 39.5,
+      "duration_s": 8
+    },
+    {
+      "id": "plate_out",
+      "label": "closing still plate",
+      "start_s": 47.5,
+      "duration_s": 1.5
+    }
+  ],
+  "source": "Docs/Conductor/SHADOW_SHOTLIST_INTERACTIONS_2026-10-11.md:68-82"
+}

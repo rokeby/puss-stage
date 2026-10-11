@@ -1,0 +1,600 @@
+{
+  "schema_version": 1,
+  "positive": {
+    "passed": 45,
+    "total": 45
+  },
+  "negative": {
+    "passed": 5,
+    "total": 5
+  },
+  "total": {
+    "passed": 50,
+    "total": 50
+  },
+  "results": [
+    {
+      "kind": "positive",
+      "label": "jaw_zero_identity_pout",
+      "passed": true,
+      "detail": {
+        "expected_pre_change_sha256": "756f898c6bbf39a5f94e2e87eeebd046b923084ac9f4ea349c4d504a6a1ce12d",
+        "actual_sha256": "756f898c6bbf39a5f94e2e87eeebd046b923084ac9f4ea349c4d504a6a1ce12d"
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "jaw_zero_identity_blubber",
+      "passed": true,
+      "detail": {
+        "expected_pre_change_sha256": "74445a22406d8f8a9d1c703d3c2738982faec393621937e3bdb6c20d921dcdeb",
+        "actual_sha256": "74445a22406d8f8a9d1c703d3c2738982faec393621937e3bdb6c20d921dcdeb"
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "jaw_zero_identity_surprised",
+      "passed": true,
+      "detail": {
+        "expected_pre_change_sha256": "68cc9a78ac50876a8108ada4b028ec14a3d793440a42407f83243f80532754f6",
+        "actual_sha256": "68cc9a78ac50876a8108ada4b028ec14a3d793440a42407f83243f80532754f6"
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "jaw_zero_identity_sad",
+      "passed": true,
+      "detail": {
+        "expected_pre_change_sha256": "7d9b0f80313eac148f7de442cf3d23cc4593ea2f6de05befaee4c0a34a415691",
+        "actual_sha256": "7d9b0f80313eac148f7de442cf3d23cc4593ea2f6de05befaee4c0a34a415691"
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "moved_jaw_zero_control_is_detected",
+      "passed": true,
+      "detail": {
+        "moved_sha256": "04845458fa714c5564fbd0105126a86916324d4b21e382f30606e126045d3173"
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "open_jaw_reveals_mouth_light",
+      "passed": true,
+      "detail": {
+        "revealed_light_pixels": 508,
+        "changed_pixels": 1839
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I1_timing_and_order",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "kind": "positive",
+      "label": "I1_whimper_last",
+      "passed": true,
+      "detail": {
+        "id": "whimper",
+        "label": "small whimper",
+        "start_s": 39.5,
+        "duration_s": 5
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I1_prop_present_in_authored_beats",
+      "passed": true,
+      "detail": {
+        "expected": [
+          "B2"
+        ],
+        "missing": []
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I1_cell_cap",
+      "passed": true,
+      "detail": {
+        "cells": 166,
+        "cap": 196,
+        "part": null
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I1_sdf_8192_blur_zero",
+      "passed": true,
+      "detail": {
+        "atlas_px": [
+          8192,
+          8192
+        ],
+        "encoding": "signed_distance",
+        "BlurUV": 0.0
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I1_curtain_gif_under_4mb",
+      "passed": true,
+      "detail": 420382
+    },
+    {
+      "kind": "positive",
+      "label": "I1_six_frame_strip_per_beat",
+      "passed": true,
+      "detail": {
+        "strip_B1_6.png": [
+          1320,
+          220
+        ],
+        "strip_B2_6.png": [
+          1320,
+          220
+        ],
+        "strip_B3_6.png": [
+          1320,
+          220
+        ],
+        "strip_B4_6.png": [
+          1320,
+          220
+        ],
+        "strip_whimper_6.png": [
+          1320,
+          220
+        ]
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I1_rendered_frame_count",
+      "passed": true,
+      "detail": {
+        "rendered": 1150,
+        "expected": 1150
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I2_timing_and_order",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "kind": "positive",
+      "label": "I2_whimper_last",
+      "passed": true,
+      "detail": {
+        "id": "whimper",
+        "label": "small whimper",
+        "start_s": 35.5,
+        "duration_s": 5
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I2_prop_present_in_authored_beats",
+      "passed": true,
+      "detail": {
+        "expected": [
+          "B1",
+          "B2",
+          "B3"
+        ],
+        "missing": []
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I2_cell_cap",
+      "passed": true,
+      "detail": {
+        "cells": 160,
+        "cap": 196,
+        "part": null
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I2_sdf_8192_blur_zero",
+      "passed": true,
+      "detail": {
+        "atlas_px": [
+          8192,
+          8192
+        ],
+        "encoding": "signed_distance",
+        "BlurUV": 0.0
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I2_curtain_gif_under_4mb",
+      "passed": true,
+      "detail": 353661
+    },
+    {
+      "kind": "positive",
+      "label": "I2_six_frame_strip_per_beat",
+      "passed": true,
+      "detail": {
+        "strip_B1_6.png": [
+          1320,
+          220
+        ],
+        "strip_B2_6.png": [
+          1320,
+          220
+        ],
+        "strip_B3_6.png": [
+          1320,
+          220
+        ],
+        "strip_B4_6.png": [
+          1320,
+          220
+        ],
+        "strip_whimper_6.png": [
+          1320,
+          220
+        ]
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I2_rendered_frame_count",
+      "passed": true,
+      "detail": {
+        "rendered": 1050,
+        "expected": 1050
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I3_timing_and_order",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "kind": "positive",
+      "label": "I3_whimper_last",
+      "passed": true,
+      "detail": {
+        "id": "whimper",
+        "label": "BIG snivelling whimper",
+        "start_s": 41.5,
+        "duration_s": 8
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I3_prop_present_in_authored_beats",
+      "passed": true,
+      "detail": {
+        "expected": [
+          "B1",
+          "B2",
+          "B3",
+          "B4"
+        ],
+        "missing": []
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I3_cell_cap",
+      "passed": true,
+      "detail": {
+        "cells": 163,
+        "cap": 196,
+        "part": null
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I3_sdf_8192_blur_zero",
+      "passed": true,
+      "detail": {
+        "atlas_px": [
+          8192,
+          8192
+        ],
+        "encoding": "signed_distance",
+        "BlurUV": 0.0
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I3_curtain_gif_under_4mb",
+      "passed": true,
+      "detail": 589546
+    },
+    {
+      "kind": "positive",
+      "label": "I3_six_frame_strip_per_beat",
+      "passed": true,
+      "detail": {
+        "strip_B1_6.png": [
+          1320,
+          220
+        ],
+        "strip_B2_6.png": [
+          1320,
+          220
+        ],
+        "strip_B3_6.png": [
+          1320,
+          220
+        ],
+        "strip_B4_6.png": [
+          1320,
+          220
+        ],
+        "strip_whimper_6.png": [
+          1320,
+          220
+        ]
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I3_rendered_frame_count",
+      "passed": true,
+      "detail": {
+        "rendered": 1275,
+        "expected": 1275
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I4_timing_and_order",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "kind": "positive",
+      "label": "I4_whimper_last",
+      "passed": true,
+      "detail": {
+        "id": "whimper",
+        "label": "small whimper",
+        "start_s": 33.5,
+        "duration_s": 5
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I4_prop_present_in_authored_beats",
+      "passed": true,
+      "detail": {
+        "expected": [
+          "B1",
+          "B2",
+          "B3",
+          "B4"
+        ],
+        "missing": []
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I4_cell_cap",
+      "passed": true,
+      "detail": {
+        "cells": 110,
+        "cap": 196,
+        "part": null
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I4_sdf_8192_blur_zero",
+      "passed": true,
+      "detail": {
+        "atlas_px": [
+          8192,
+          8192
+        ],
+        "encoding": "signed_distance",
+        "BlurUV": 0.0
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I4_curtain_gif_under_4mb",
+      "passed": true,
+      "detail": 363785
+    },
+    {
+      "kind": "positive",
+      "label": "I4_six_frame_strip_per_beat",
+      "passed": true,
+      "detail": {
+        "strip_B1_6.png": [
+          1320,
+          220
+        ],
+        "strip_B2_6.png": [
+          1320,
+          220
+        ],
+        "strip_B3_6.png": [
+          1320,
+          220
+        ],
+        "strip_B4_6.png": [
+          1320,
+          220
+        ],
+        "strip_whimper_6.png": [
+          1320,
+          220
+        ]
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I4_rendered_frame_count",
+      "passed": true,
+      "detail": {
+        "rendered": 1000,
+        "expected": 1000
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I5_timing_and_order",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "kind": "positive",
+      "label": "I5_whimper_last",
+      "passed": true,
+      "detail": {
+        "id": "whimper",
+        "label": "mournful sag and whimper",
+        "start_s": 39.5,
+        "duration_s": 8
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I5_prop_present_in_authored_beats",
+      "passed": true,
+      "detail": {
+        "expected": [
+          "B1",
+          "B2",
+          "B3",
+          "B4"
+        ],
+        "missing": []
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I5_cell_cap",
+      "passed": true,
+      "detail": {
+        "cells": 169,
+        "cap": 196,
+        "part": null
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I5_sdf_8192_blur_zero",
+      "passed": true,
+      "detail": {
+        "atlas_px": [
+          8192,
+          8192
+        ],
+        "encoding": "signed_distance",
+        "BlurUV": 0.0
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I5_curtain_gif_under_4mb",
+      "passed": true,
+      "detail": 332967
+    },
+    {
+      "kind": "positive",
+      "label": "I5_six_frame_strip_per_beat",
+      "passed": true,
+      "detail": {
+        "strip_B1_6.png": [
+          1320,
+          220
+        ],
+        "strip_B2_6.png": [
+          1320,
+          220
+        ],
+        "strip_B3_6.png": [
+          1320,
+          220
+        ],
+        "strip_B4_6.png": [
+          1320,
+          220
+        ],
+        "strip_whimper_6.png": [
+          1320,
+          220
+        ]
+      }
+    },
+    {
+      "kind": "positive",
+      "label": "I5_rendered_frame_count",
+      "passed": true,
+      "detail": {
+        "rendered": 1225,
+        "expected": 1225
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "duration_mutation_is_rejected",
+      "passed": true,
+      "detail": [
+        "B2_duration_s"
+      ]
+    },
+    {
+      "kind": "negative",
+      "label": "beat_order_mutation_is_rejected",
+      "passed": true,
+      "detail": [
+        "order",
+        "B1_start_s",
+        "B1_duration_s",
+        "B2_start_s",
+        "B2_duration_s"
+      ]
+    },
+    {
+      "kind": "negative",
+      "label": "missing_prop_mutation_is_rejected",
+      "passed": true,
+      "detail": {
+        "sample_frame": 312
+      }
+    },
+    {
+      "kind": "negative",
+      "label": "cell_overflow_mutation_is_rejected",
+      "passed": true,
+      "detail": {
+        "cells": 197,
+        "cap": 196
+      }
+    }
+  ],
+  "claims": [
+    {
+      "tier": "measured",
+      "claim": "All listed PG8 positive and negative controls ran offline.",
+      "evidence": "Tools/ShadowGobo/Puppets/test_pg8_interactions_offline.py"
+    },
+    {
+      "tier": "declaration-proven",
+      "claim": "Jaw-zero hashes were captured from the pre-change rig for all mouth cards.",
+      "evidence": "Tools/ShadowGobo/Puppets/test_pg8_interactions_offline.py:19-24"
+    },
+    {
+      "tier": "inferred",
+      "claim": "Pixel controls establish mechanical continuity, not Gary's creative approval.",
+      "evidence": "Tools/ShadowGobo/Puppets/interaction_clips/*/curtain_preview.gif"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "interaction": "I3",
+  "display_fps": 25.0,
+  "length_s": 51.0,
+  "rows": [
+    {
+      "id": "plate_in",
+      "label": "opening still plate",
+      "start_s": 0.0,
+      "duration_s": 1.5
+    },
+    {
+      "id": "B1",
+      "label": "Puss sings and gives pearl",
+      "start_s": 1.5,
+      "duration_s": 14
+    },
+    {
+      "id": "B2",
+      "label": "boy sways",
+      "start_s": 15.5,
+      "duration_s": 10
+    },
+    {
+      "id": "B3",
+      "label": "tongue lolls",
+      "start_s": 25.5,
+      "duration_s": 10
+    },
+    {
+      "id": "B4",
+      "label": "boy coughs",
+      "start_s": 35.5,
+      "duration_s": 6
+    },
+    {
+      "id": "whimper",
+      "label": "BIG snivelling whimper",
+      "start_s": 41.5,
+      "duration_s": 8
+    },
+    {
+      "id": "plate_out",
+      "label": "closing still plate",
+      "start_s": 49.5,
+      "duration_s": 1.5
+    }
+  ],
+  "source": "Docs/Conductor/SHADOW_SHOTLIST_INTERACTIONS_2026-10-11.md:68-82"
+}

@@ -1,0 +1,50 @@
+{
+  "interaction": "I2",
+  "display_fps": 25.0,
+  "length_s": 42.0,
+  "rows": [
+    {
+      "id": "plate_in",
+      "label": "opening still plate",
+      "start_s": 0.0,
+      "duration_s": 1.5
+    },
+    {
+      "id": "B1",
+      "label": "Puss brings turnip",
+      "start_s": 1.5,
+      "duration_s": 6
+    },
+    {
+      "id": "B2",
+      "label": "boy grabs",
+      "start_s": 7.5,
+      "duration_s": 6
+    },
+    {
+      "id": "B3",
+      "label": "boy eats all",
+      "start_s": 13.5,
+      "duration_s": 12
+    },
+    {
+      "id": "B4",
+      "label": "sad stillness and slow head down",
+      "start_s": 25.5,
+      "duration_s": 10
+    },
+    {
+      "id": "whimper",
+      "label": "small whimper",
+      "start_s": 35.5,
+      "duration_s": 5
+    },
+    {
+      "id": "plate_out",
+      "label": "closing still plate",
+      "start_s": 40.5,
+      "duration_s": 1.5
+    }
+  ],
+  "source": "Docs/Conductor/SHADOW_SHOTLIST_INTERACTIONS_2026-10-11.md:68-82"
+}

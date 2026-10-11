@@ -1,0 +1,50 @@
+{
+  "interaction": "I4",
+  "display_fps": 25.0,
+  "length_s": 40.0,
+  "rows": [
+    {
+      "id": "plate_in",
+      "label": "opening still plate",
+      "start_s": 0.0,
+      "duration_s": 1.5
+    },
+    {
+      "id": "B1",
+      "label": "scroll arrives",
+      "start_s": 1.5,
+      "duration_s": 8
+    },
+    {
+      "id": "B2",
+      "label": "boy holds Cagliuso up",
+      "start_s": 9.5,
+      "duration_s": 8
+    },
+    {
+      "id": "B3",
+      "label": "boy turns scroll over",
+      "start_s": 17.5,
+      "duration_s": 10
+    },
+    {
+      "id": "B4",
+      "label": "pause and lower",
+      "start_s": 27.5,
+      "duration_s": 6
+    },
+    {
+      "id": "whimper",
+      "label": "small whimper",
+      "start_s": 33.5,
+      "duration_s": 5
+    },
+    {
+      "id": "plate_out",
+      "label": "closing still plate",
+      "start_s": 38.5,
+      "duration_s": 1.5
+    }
+  ],
+  "source": "Docs/Conductor/SHADOW_SHOTLIST_INTERACTIONS_2026-10-11.md:68-82"
+}

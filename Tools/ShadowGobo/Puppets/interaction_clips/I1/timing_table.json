@@ -1,0 +1,50 @@
+{
+  "interaction": "I1",
+  "display_fps": 25.0,
+  "length_s": 46.0,
+  "rows": [
+    {
+      "id": "plate_in",
+      "label": "opening still plate",
+      "start_s": 0.0,
+      "duration_s": 1.5
+    },
+    {
+      "id": "B1",
+      "label": "boy hunched",
+      "start_s": 1.5,
+      "duration_s": 6
+    },
+    {
+      "id": "B2",
+      "label": "bucket emerges, tips and drains",
+      "start_s": 7.5,
+      "duration_s": 10
+    },
+    {
+      "id": "B3",
+      "label": "Puss licks/washes",
+      "start_s": 17.5,
+      "duration_s": 14
+    },
+    {
+      "id": "B4",
+      "label": "boy straightens",
+      "start_s": 31.5,
+      "duration_s": 8
+    },
+    {
+      "id": "whimper",
+      "label": "small whimper",
+      "start_s": 39.5,
+      "duration_s": 5
+    },
+    {
+      "id": "plate_out",
+      "label": "closing still plate",
+      "start_s": 44.5,
+      "duration_s": 1.5
+    }
+  ],
+  "source": "Docs/Conductor/SHADOW_SHOTLIST_INTERACTIONS_2026-10-11.md:68-82"
+}

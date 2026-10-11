@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "source_timing": "Docs/Conductor/SHADOW_SHOTLIST_INTERACTIONS_2026-10-11.md:68-82",
+  "display_fps": 25.0,
+  "interactions": {
+    "I1": {
+      "title": "Washing the Boy",
+      "length_s": 46.0,
+      "rendered_frames": 1150,
+      "unique_cells": 166,
+      "cell_budget": {
+        "4096": {
+          "atlas_px": 4096,
+          "cells": 166,
+          "cols": 13,
+          "rows": 13,
+          "cell_px": 315
+        },
+        "8192": {
+          "atlas_px": 8192,
+          "cells": 166,
+          "cols": 13,
+          "rows": 13,
+          "cell_px": 630
+        }
+      },
+      "atlas": {
+        "file": "T_Gobo_PG8_I1_13x13.png",
+        "px": [
+          8192,
+          8192
+        ],
+        "cols": 13,
+        "rows": 13,
+        "cell_px": 630,
+        "gutter_px": 8,
+        "order": "row-major from the top-left",
+        "channels": {
+          "R": "SDF: 0.5 + signed_distance_px / (2 * 6.000), positive in light",
+          "G": "SDF: 0.5 + signed_distance_px / (2 * 6.000 * 4.000), same 0.5 edge",
+          "B": "unused"
+        },
+        "inner_px": 614,
+        "encoding": {
+          "type": "signed_distance",
+          "edge": 0.5,
+          "positive": "light",
+          "spread_px": 6.0,
+          "wide_multiplier": 4.0,
+          "minimum_source_scale": 2.0,
+          "source_px": [
+            1228,
+            1228
+          ]
+        }
+      },
+      "gif_bytes": 420382
+    },
+    "I2": {
+      "title": "Turnips",
+      "length_s": 42.0,
+      "rendered_frames": 1050,
+      "unique_cells": 160,
+      "cell_budget": {
+        "4096": {
+          "atlas_px": 4096,
+          "cells": 160,
+          "cols": 13,
+          "rows": 13,
+          "cell_px": 315
+        },
+        "8192": {
+          "atlas_px": 8192,
+          "cells": 160,
+          "cols": 13,
+          "rows": 13,
+          "cell_px": 630
+        }
+      },
+      "atlas": {
+        "file": "T_Gobo_PG8_I2_13x13.png",
+        "px": [
+          8192,
+          8192
+        ],
+        "cols": 13,
+        "rows": 13,
+        "cell_px": 630,
+        "gutter_px": 8,
+        "order": "row-major from the top-left",
+        "channels": {
+          "R": "SDF: 0.5 + signed_distance_px / (2 * 6.000), positive in light",
+          "G": "SDF: 0.5 + signed_distance_px / (2 * 6.000 * 4.000), same 0.5 edge",
+          "B": "unused"
+        },
+        "inner_px": 614,
+        "encoding": {
+          "type": "signed_distance",
+          "edge": 0.5,
+          "positive": "light",
+          "spread_px": 6.0,
+          "wide_multiplier": 4.0,
+          "minimum_source_scale": 2.0,
+          "source_px": [
+            1228,
+            1228
+          ]
+        }
+      },
+      "gif_bytes": 353661
+    },
+    "I3": {
+      "title": "Forgets His Name",
+      "length_s": 51.0,
+      "rendered_frames": 1275,
+      "unique_cells": 163,
+      "cell_budget": {
+        "4096": {
+          "atlas_px": 4096,
+          "cells": 163,
+          "cols": 13,
+          "rows": 13,
+          "cell_px": 315
+        },
+        "8192": {
+          "atlas_px": 8192,
+          "cells": 163,
+          "cols": 13,
+          "rows": 13,
+          "cell_px": 630
+        }
+      },
+      "atlas": {
+        "file": "T_Gobo_PG8_I3_13x13.png",
+        "px": [
+          8192,
+          8192
+        ],
+        "cols": 13,
+        "rows": 13,
+        "cell_px": 630,
+        "gutter_px": 8,
+        "order": "row-major from the top-left",
+        "channels": {
+          "R": "SDF: 0.5 + signed_distance_px / (2 * 6.000), positive in light",
+          "G": "SDF: 0.5 + signed_distance_px / (2 * 6.000 * 4.000), same 0.5 edge",
+          "B": "unused"
+        },
+        "inner_px": 614,
+        "encoding": {
+          "type": "signed_distance",
+          "edge": 0.5,
+          "positive": "light",
+          "spread_px": 6.0,
+          "wide_multiplier": 4.0,
+          "minimum_source_scale": 2.0,
+          "source_px": [
+            1228,
+            1228
+          ]
+        }
+      },
+      "gif_bytes": 589546
+    },
+    "I4": {
+      "title": "Gets a Name",
+      "length_s": 40.0,
+      "rendered_frames": 1000,
+      "unique_cells": 110,
+      "cell_budget": {
+        "4096": {
+          "atlas_px": 4096,
+          "cells": 110,
+          "cols": 11,
+          "rows": 10,
+          "cell_px": 372
+        },
+        "8192": {
+          "atlas_px": 8192,
+          "cells": 110,
+          "cols": 11,
+          "rows": 10,
+          "cell_px": 744
+        }
+      },
+      "atlas": {
+        "file": "T_Gobo_PG8_I4_11x10.png",
+        "px": [
+          8192,
+          8192
+        ],
+        "cols": 11,
+        "rows": 10,
+        "cell_px": 744,
+        "gutter_px": 8,
+        "order": "row-major from the top-left",
+        "channels": {
+          "R": "SDF: 0.5 + signed_distance_px / (2 * 6.000), positive in light",
+          "G": "SDF: 0.5 + signed_distance_px / (2 * 6.000 * 4.000), same 0.5 edge",
+          "B": "unused"
+        },
+        "inner_px": 728,
+        "encoding": {
+          "type": "signed_distance",
+          "edge": 0.5,
+          "positive": "light",
+          "spread_px": 6.0,
+          "wide_multiplier": 4.0,
+          "minimum_source_scale": 2.0,
+          "source_px": [
+            1456,
+            1456
+          ]
+        }
+      },
+      "gif_bytes": 363785
+    },
+    "I5": {
+      "title": "Becomes King",
+      "length_s": 49.0,
+      "rendered_frames": 1225,
+      "unique_cells": 169,
+      "cell_budget": {
+        "4096": {
+          "atlas_px": 4096,
+          "cells": 169,
+          "cols": 13,
+          "rows": 13,
+          "cell_px": 315
+        },
+        "8192": {
+          "atlas_px": 8192,
+          "cells": 169,
+          "cols": 13,
+          "rows": 13,
+          "cell_px": 630
+        }
+      },
+      "atlas": {
+        "file": "T_Gobo_PG8_I5_13x13.png",
+        "px": [
+          8192,
+          8192
+        ],
+        "cols": 13,
+        "rows": 13,
+        "cell_px": 630,
+        "gutter_px": 8,
+        "order": "row-major from the top-left",
+        "channels": {
+          "R": "SDF: 0.5 + signed_distance_px / (2 * 6.000), positive in light",
+          "G": "SDF: 0.5 + signed_distance_px / (2 * 6.000 * 4.000), same 0.5 edge",
+          "B": "unused"
+        },
+        "inner_px": 614,
+        "encoding": {
+          "type": "signed_distance",
+          "edge": 0.5,
+          "positive": "light",
+          "spread_px": 6.0,
+          "wide_multiplier": 4.0,
+          "minimum_source_scale": 2.0,
+          "source_px": [
+            1228,
+            1228
+          ]
+        }
+      },
+      "gif_bytes": 332967
+    }
+  },
+  "harness_stdout": "PG8_INTERACTIONS_HARNESS|positive=45/45|negative=5/5|total=50/50",
+  "claims": [
+    {
+      "tier": "measured",
+      "claim": "Five interaction clips were rendered, SDF-packed, read back and tested offline.",
+      "evidence": "Tools/ShadowGobo/Puppets/interaction_clips/PG8_INTERACTIONS_REPORT.json"
+    },
+    {
+      "tier": "inferred",
+      "claim": "First-pass staging and look require Gary's review before Unreal application.",
+      "evidence": "Tools/ShadowGobo/Puppets/interaction_clips/*/curtain_preview.gif"
+    }
+  ]
+}

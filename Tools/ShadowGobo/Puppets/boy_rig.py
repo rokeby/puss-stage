@@ -1,9 +1,9 @@
 """Jointed cut-paper shadow puppet: the poor boy (Cagliuso), full body, side profile facing right.
 
 Parts (each an outline + its own knife cuts, in local coordinates with a pivot):
-  body (torso + legs, root, pivots at the feet), head (neck pivot), near/far upper arm (shoulder), near/far forearm
-  (elbow).  A part only lets light through where ITS cut is not covered by another part, so overlapping parts are
-  combined as a product of transmissions, like real card.
+  body (torso + legs, root, pivots at the feet), head (neck pivot), lower jaw (hinge below the ear), near/far upper
+  arm (shoulder), near/far forearm (elbow).  A part only lets light through where ITS cut is not covered by another
+  part, so overlapping parts are combined as a product of transmissions, like real card.
 
 Face = replacement parts: eyes {open, squint, shut, wide}, brows {neutral, worried, raised},
 mouth {pout, blubber, surprised, sad} (the lips are part of the head OUTLINE), tears = list of 0..1 positions
@@ -108,6 +108,21 @@ MOUTH_CUTS = {
 }
 TEAR_PATH = ((672, 466), (668, 500), (682, 560), (694, 612))       # from under the eye down the cheek
 
+# The closed card stays on the historical code path at jaw == 0, which makes every
+# established mouth silhouette pixel-identical.  Once the hinge moves, this small
+# aperture is cut from the head card and the separate chin card rotates over it.
+JAW_HINGE = (520.0, 535.0)  # immediately below the ear curl
+OPEN_MOUTH_APERTURE = [
+    [699.0, 544.0], [724.0, 529.0], [741.0, 538.0],
+    [744.0, 553.0], [731.0, 570.0], [706.0, 579.0], [693.0, 564.0],
+]
+LOWER_JAW_OUTLINE = [
+    [516.0, 531.0], [699.0, 545.0], [724.0, 554.0], [729.0, 574.0],
+    [723.0, 594.0], [707.0, 619.0], [690.0, 653.0], [670.0, 670.0],
+    [642.0, 678.0], [620.0, 680.0], [585.0, 650.0], [548.0, 595.0],
+]
+LOWER_JAW_CUTS = [slit((707, 566), (700, 574), (694, 582), (687, 590), 5)]
+
 
 def bez1(p0, p1, p2, p3, t):
     p0, p1, p2, p3 = map(np.array, (p0, p1, p2, p3))
@@ -128,12 +143,19 @@ def teardrop(cx, cy, r=8.0, n=28):
     return pts
 
 
-def head_part(face):
+def head_part(face, jaw=0.0):
     cuts = list(HEAD_FIXED_CUTS) + EYES[face["eyes"]] + BROWS[face["brows"]] + MOUTH_CUTS[face["mouth"]]
+    if abs(float(jaw)) > 1e-9:
+        cuts.append(OPEN_MOUTH_APERTURE)
     for t in face.get("tears", []):
         x, y = bez1(*TEAR_PATH, min(max(t, 0.0), 1.0))
         cuts.append(teardrop(x, y))
     return head_outline(face["mouth"]), cuts
+
+
+def lower_jaw_part():
+    """Separate chin card in head-local coordinates; rotation is about ``JAW_HINGE``."""
+    return LOWER_JAW_OUTLINE, LOWER_JAW_CUTS
 
 
 # ------------------------------------------------------------------------------------------------ body (local)
@@ -247,8 +269,15 @@ def pose_parts(pose):
     # head
     neck_w = to_world(NECK)
     Rh = rot(lean + pose.get("neck", 0.0))
-    ho, hc = head_part(pose["face"])
+    jaw = float(pose.get("jaw", 0.0))
+    ho, hc = head_part(pose["face"], jaw)
     parts.append((place(np.asarray(ho) - NECK, Rh, neck_w), [place(np.asarray(c) - NECK, Rh, neck_w) for c in hc], 2))
+    if abs(jaw) > 1e-9:
+        hinge_w = (np.asarray(JAW_HINGE) - NECK) @ Rh.T + neck_w
+        Rj = rot(lean + pose.get("neck", 0.0) + jaw)
+        jo, jc = lower_jaw_part()
+        parts.append((place(np.asarray(jo) - JAW_HINGE, Rj, hinge_w),
+                      [place(np.asarray(c) - JAW_HINGE, Rj, hinge_w) for c in jc], 4))
     rods = [[to_world((440, 1000)).tolist(), (to_world((440, 1000)) + np.array([-60, 900])).tolist()]]
     for side, shoulder, z in (("far", SHOULDER_FAR, 0), ("near", SHOULDER_NEAR, 3)):
         sh_w = to_world(shoulder)
@@ -309,7 +338,7 @@ def projected(img, blur=1.4):
 
 
 # ------------------------------------------------------------------------------------------------ motion
-REST = {"near_hand_on_head": None, "far_hand_on_head": None, "lean": 0.0, "neck": 0.0, "near_shoulder": 4.0, "near_elbow": -6.0, "far_shoulder": 8.0, "far_elbow": -10.0,
+REST = {"near_hand_on_head": None, "far_hand_on_head": None, "lean": 0.0, "neck": 0.0, "jaw": 0.0, "near_shoulder": 4.0, "near_elbow": -6.0, "far_shoulder": 8.0, "far_elbow": -10.0,
         "face": {"eyes": "open", "brows": "neutral", "mouth": "pout", "tears": []}}
 
 
