@@ -113,3 +113,9 @@ Earlier on 10 Oct: S4 blackout, pearl fade, S3 arrival and garments, P04 smoke p
 - **P06 chandelier:** 9 lights saved and read back. The flame mass obscures the body. Next: smaller and fewer flames, then re-frame.
 - **P06 sun disc:** tracks saved and read back, but no disc is visible in the end window. Next: probe why the SkyAtmosphere disc does not render (hidden sky policy? exposure?).
 - **S1 lights-out:** a 213-target extension was saved in `LS_DevScene_01`, but the stage stays bright. Fire/emissive materials and other sources keep it lit. Next: identify which sources remain (emissives, the sky, Lumen GI, Klara's level lights) before adding more targets. Consider a post-process/exposure fade to black as the actual "lights out".
+
+## Metamall night run: DONE 21:31
+- Build Succeeded (168 actions). The soak ran the full 3 h with no crash. The report (`D:\Metamall_Backups\slot_logs
+ight_20261010_1800eport\`) flags 7 GROWING series. 4 are cumulative janitor counters (expected to rise). DroppedExperience, FlushFailures and DroppedBackpressure need a look. ObservationKeys/CooldownKeys (the 27 Sep leak) are NOT flagged.
+- The backup is on F:\Metamall_UE58_Proving_backup_20261010_1800 (37.6 GB, robocopy exit 1 = all copied).
+- The Puss editor is CLOSED.
