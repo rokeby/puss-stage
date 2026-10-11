@@ -1,4 +1,5 @@
 #include "Editor.h"
+#include "Containers/Ticker.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -23,12 +24,14 @@
 #include "InfinityStageAttachmentBinding.h"
 #include "InfinityStageShadowCatComponent.h"
 #include "InfinityStageShowAsset.h"
+#include "InfinityStageStructureActor.h"
 #include "InfinityStageTrackEditor.h"
 #include "InfinityStageWingAssetAuditor.h"
 #include "InfinityStageWingLibraryAsset.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
 #include "HAL/IConsoleManager.h"
+#include "HAL/PlatformTime.h"
 
 namespace
 {
@@ -194,6 +197,12 @@ public:
             GEditor->OnActorsMoved().Remove(ActorsMovedHandle);
         }
         FCoreUObjectDelegates::OnObjectPropertyChanged.Remove(ObjectPropertyChangedHandle);
+        if (FixtureRebuildTickerHandle.IsValid())
+        {
+            FTSTicker::GetCoreTicker().RemoveTicker(FixtureRebuildTickerHandle);
+            FixtureRebuildTickerHandle.Reset();
+        }
+        PendingFixturePassages.Reset();
         if (GEngine && LevelActorDeletedHandle.IsValid())
         {
             GEngine->OnLevelActorDeleted().Remove(LevelActorDeletedHandle);
@@ -245,6 +254,7 @@ private:
         }
 
         int32 Updated = 0;
+        TSet<TWeakObjectPtr<AInfinityStagePassageActor>> UpdatedPassages;
         for (AActor* Moved : MovedActors)
         {
             if (!IsValid(Moved))
@@ -297,10 +307,15 @@ private:
             Owner->ShowAsset->Modify();
             Attachment->RelativeTransform = Moved->GetActorTransform().GetRelativeTransform(AnchorWorld);
             ++Updated;
+            UpdatedPassages.Add(Owner);
         }
 
         if (Updated > 0)
         {
+            for (const TWeakObjectPtr<AInfinityStagePassageActor>& Passage : UpdatedPassages)
+            {
+                QueueFixtureRebuild(Passage.Get());
+            }
             UE_LOG(
                 LogTemp,
                 Display,
@@ -414,6 +429,85 @@ private:
             *Attachment->Label.ToString(),
             Event.Property ? *Event.Property->GetName() : TEXT("?"),
             Captured.Intensity);
+        QueueFixtureRebuild(Owner);
+    }
+
+    void QueueFixtureRebuild(AInfinityStagePassageActor* Passage)
+    {
+        if (!IsValid(Passage) || !Passage->GetWorld() || Passage->GetWorld()->IsGameWorld())
+        {
+            return;
+        }
+        PendingFixturePassages.Add(Passage);
+        FixtureRebuildDeadlineSeconds = FPlatformTime::Seconds() + 0.3;
+        if (!FixtureRebuildTickerHandle.IsValid())
+        {
+            FixtureRebuildTickerHandle = FTSTicker::GetCoreTicker().AddTicker(
+                FTickerDelegate::CreateRaw(this, &FInfinityStageEditorModule::TickFixtureRebuild),
+                0.05f);
+        }
+    }
+
+    bool TickFixtureRebuild(float)
+    {
+        if (FPlatformTime::Seconds() < FixtureRebuildDeadlineSeconds)
+        {
+            return true;
+        }
+
+        FixtureRebuildTickerHandle.Reset();
+        TSet<TWeakObjectPtr<AInfinityStagePassageActor>> Passages = MoveTemp(PendingFixturePassages);
+        PendingFixturePassages.Reset();
+
+        // A drag completed just before PIE began must not mutate authoring data
+        // while the game world is running. Discard it; the next edit queues anew.
+        if (GEditor && GEditor->PlayWorld)
+        {
+            UE_LOG(LogTemp, Display,
+                TEXT("INFINITY_STAGE_FIXTURES_REBUILD_SKIPPED reason=PIE passages=%d"),
+                Passages.Num());
+            return false;
+        }
+
+        for (const TWeakObjectPtr<AInfinityStagePassageActor>& WeakPassage : Passages)
+        {
+            AInfinityStagePassageActor* Passage = WeakPassage.Get();
+            UWorld* World = IsValid(Passage) ? Passage->GetWorld() : nullptr;
+            if (!World || World->IsGameWorld())
+            {
+                continue;
+            }
+
+            const double Started = FPlatformTime::Seconds();
+            int32 Bodies = 0;
+            int32 Structures = 0;
+            bool bAllSucceeded = true;
+            for (TActorIterator<AInfinityStageStructureActor> It(World); It; ++It)
+            {
+                if (It->Passage != Passage)
+                {
+                    continue;
+                }
+                ++Structures;
+                bAllSucceeded &= It->RebuildFixturesOnly();
+                Bodies += It->FixtureBodyCount;
+            }
+            bAllSucceeded &= Structures > 0;
+            const double ElapsedMs = (FPlatformTime::Seconds() - Started) * 1000.0;
+            if (bAllSucceeded)
+            {
+                UE_LOG(LogTemp, Display,
+                    TEXT("INFINITY_STAGE_FIXTURES_REBUILT passage=%s bodies=%d ms=%.2f"),
+                    *Passage->GetActorNameOrLabel(), Bodies, ElapsedMs);
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error,
+                    TEXT("INFINITY_STAGE_FIXTURES_REBUILD_FAILED passage=%s structures=%d ms=%.2f"),
+                    *Passage->GetActorNameOrLabel(), Structures, ElapsedMs);
+            }
+        }
+        return false;
     }
 
     /**
@@ -597,6 +691,9 @@ private:
     FDelegateHandle LevelActorDeletedHandle;
     FDelegateHandle EndPIEHandle;
     FDelegateHandle MapOpenedHandle;
+    TSet<TWeakObjectPtr<AInfinityStagePassageActor>> PendingFixturePassages;
+    double FixtureRebuildDeadlineSeconds = 0.0;
+    FTSTicker::FDelegateHandle FixtureRebuildTickerHandle;
 };
 
 IMPLEMENT_MODULE(FInfinityStageEditorModule, InfinityStageEditor)

@@ -1164,6 +1164,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage")
     bool MaterializeStructure();
 
+    /** Rebuilds only generated fixture housings and their hanging lines from the
+     * Show. Other structure layers and their instance transforms are untouched.
+     * Editor authoring only; refuses in PIE/game worlds. */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage")
+    bool RebuildFixturesOnly();
+
     /** Details-panel button; Unreal buttons need a void, parameterless function. */
     UFUNCTION(CallInEditor, Category = "Infinity Stage", meta = (DisplayName = "Materialize Structure"))
     void MaterializeStructureInEditor();
@@ -1199,6 +1205,9 @@ private:
         UStaticMesh* Mesh,
         UMaterialInterface* Material,
         bool bCastShadow);
+
+    /** Removes only components tagged as fixture housings or fixture lines. */
+    void ClearFixtureComponents();
 
     void BuildGridiron(
         const TArray<FInfinityStructureStation>& Stations,

@@ -464,6 +464,13 @@ struct INFINITYSTAGE_API FInfinityCueAttachment
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attachment")
     bool bEnabled = true;
 
+    /** Light attachments only: keep the authored light but omit the generated
+     * parcan housing and its hanging line. Off by default, so existing lights
+     * retain their fixture bodies until an artist opts out explicitly. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lighting",
+        meta = (EditCondition = "Kind == EInfinityAttachmentKind::Light", EditConditionHides))
+    bool bSuppressFixtureBody = false;
+
     /** Optional placed-actor override. Light attachments may leave this empty:
      * a native actor is then created from Lighting.Type. A custom light actor
      * receives the same persistent settings on its first Light Component. */

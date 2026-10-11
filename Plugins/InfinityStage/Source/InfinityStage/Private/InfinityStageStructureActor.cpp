@@ -161,7 +161,9 @@ TArray<FFixturePlacement> GatherFixturePlacements(
         const FTransform PairWorld = (*Cue)->WingPair.OccurrenceOffset * Stations[StationIndex].StationWorld;
         for (const FInfinityCueAttachment& Attachment : (*Cue)->WingPair.Attachments)
         {
-            if (!Attachment.bEnabled || Attachment.Kind != EInfinityAttachmentKind::Light)
+            if (!Attachment.bEnabled
+                || Attachment.Kind != EInfinityAttachmentKind::Light
+                || Attachment.bSuppressFixtureBody)
             {
                 continue;
             }
@@ -483,6 +485,118 @@ void AInfinityStageStructureActor::ClearStructure()
     UnderpassFencePostCount = 0;
     StationSignature = 0;
     MarkPackageDirty();
+}
+
+void AInfinityStageStructureActor::ClearFixtureComponents()
+{
+    TSet<UInstancedStaticMeshComponent*> ComponentsToDestroy;
+    for (UInstancedStaticMeshComponent* Component : ManagedComponents)
+    {
+        if (IsValid(Component)
+            && (Component->ComponentTags.Contains(FixtureLayerTag)
+                || Component->ComponentTags.Contains(LineLayerTag)))
+        {
+            ComponentsToDestroy.Add(Component);
+        }
+    }
+
+    // Recover fixture components whose serialized ownership-array reference was
+    // lost through undo or reinstancing, without touching any other layer.
+    TInlineComponentArray<UInstancedStaticMeshComponent*> AttachedComponents(this);
+    for (UInstancedStaticMeshComponent* Component : AttachedComponents)
+    {
+        if (IsValid(Component)
+            && (Component->ComponentTags.Contains(FixtureLayerTag)
+                || Component->ComponentTags.Contains(LineLayerTag)))
+        {
+            ComponentsToDestroy.Add(Component);
+        }
+    }
+
+    for (UInstancedStaticMeshComponent* Component : ComponentsToDestroy)
+    {
+        ManagedComponents.Remove(Component);
+        Component->Modify();
+        RemoveInstanceComponent(Component);
+        Component->DestroyComponent();
+    }
+    FixtureBodyCount = 0;
+    HangingLineCount = 0;
+    MovingLightsWithoutHousing = 0;
+}
+
+bool AInfinityStageStructureActor::RebuildFixturesOnly()
+{
+    if (GetWorld() && GetWorld()->IsGameWorld())
+    {
+        UE_LOG(LogInfinityStageStructure, Warning,
+            TEXT("RebuildFixturesOnly is editor authoring only; refusing in a game world."));
+        return false;
+    }
+
+    TArray<FInfinityStructureStation> Stations;
+    FString Error;
+    if (!GatherStations(Stations, Error))
+    {
+        UE_LOG(LogInfinityStageStructure, Error, TEXT("%s Keeping the previous fixtures."), *Error);
+        return false;
+    }
+
+    UStaticMesh* BodyMesh = nullptr;
+    UStaticMesh* LineMesh = nullptr;
+    UMaterialInterface* BodyMaterial = nullptr;
+    UMaterialInterface* LineMaterial = nullptr;
+    if (Fixtures.bEnabled)
+    {
+        BodyMesh = Fixtures.BodyMesh.LoadSynchronous();
+        if (!BodyMesh)
+        {
+            UE_LOG(LogInfinityStageStructure, Error,
+                TEXT("Fixture body mesh '%s' does not load. Keeping the previous fixtures."),
+                *Fixtures.BodyMesh.ToSoftObjectPath().ToString());
+            return false;
+        }
+        BodyMaterial = Fixtures.BodyMaterial.LoadSynchronous();
+        if (!BodyMaterial && !Fixtures.BodyMaterial.IsNull())
+        {
+            UE_LOG(LogInfinityStageStructure, Warning,
+                TEXT("Fixture body material '%s' does not load; using the mesh's own."),
+                *Fixtures.BodyMaterial.ToSoftObjectPath().ToString());
+        }
+
+        const bool bFixtureLines = Fixtures.bHangFromGrid && Gridiron.bEnabled;
+        if (bFixtureLines)
+        {
+            LineMesh = Fixtures.LineMesh.LoadSynchronous();
+            if (!LineMesh)
+            {
+                UE_LOG(LogInfinityStageStructure, Error,
+                    TEXT("Hanging line mesh '%s' does not load. Keeping the previous fixtures."),
+                    *Fixtures.LineMesh.ToSoftObjectPath().ToString());
+                return false;
+            }
+            LineMaterial = Fixtures.LineMaterial.LoadSynchronous();
+            if (!LineMaterial && !Fixtures.LineMaterial.IsNull())
+            {
+                UE_LOG(LogInfinityStageStructure, Warning,
+                    TEXT("Hanging line material '%s' does not load; using the mesh's own."),
+                    *Fixtures.LineMaterial.ToSoftObjectPath().ToString());
+            }
+        }
+    }
+
+    Modify();
+    ClearFixtureComponents();
+    if (BodyMesh)
+    {
+        BuildFixtures(Stations, *BodyMesh, BodyMaterial, LineMesh, LineMaterial);
+    }
+
+    int32 MovingLights = 0;
+    StationSignature = ComputeStructureSignature(
+        Stations,
+        GatherFixturePlacements(*Passage->ShowAsset, Stations, MovingLights));
+    return true;
 }
 
 bool AInfinityStageStructureActor::MaterializeStructure()

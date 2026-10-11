@@ -91,6 +91,30 @@ TArray<FTransform> ReadInstances(const UInstancedStaticMeshComponent& Component)
     }
     return Transforms;
 }
+
+bool InstanceTransformsBitIdentical(const TArray<FTransform>& A, const TArray<FTransform>& B)
+{
+    if (A.Num() != B.Num())
+    {
+        return false;
+    }
+    for (int32 Index = 0; Index < A.Num(); ++Index)
+    {
+        const FVector ALocation = A[Index].GetLocation();
+        const FVector BLocation = B[Index].GetLocation();
+        const FQuat ARotation = A[Index].GetRotation();
+        const FQuat BRotation = B[Index].GetRotation();
+        const FVector AScale = A[Index].GetScale3D();
+        const FVector BScale = B[Index].GetScale3D();
+        if (FMemory::Memcmp(&ALocation, &BLocation, sizeof(FVector)) != 0
+            || FMemory::Memcmp(&ARotation, &BRotation, sizeof(FQuat)) != 0
+            || FMemory::Memcmp(&AScale, &BScale, sizeof(FVector)) != 0)
+        {
+            return false;
+        }
+    }
+    return true;
+}
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
@@ -310,6 +334,7 @@ bool FInfinityStageStructureFixturesTest::RunTest(const FString& Parameters)
     UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
     AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 2);
     AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+    Structure->Ground.bEnabled = true;
 
     const auto MakeLight = [](const FTransform& Offset)
     {
@@ -327,14 +352,19 @@ bool FInfinityStageStructureFixturesTest::RunTest(const FString& Parameters)
     Off.bEnabled = false;
     FInfinityCueAttachment Riding = MakeLight(FTransform(FVector(0.0, -200.0, 1000.0)));
     Riding.Anchor = EInfinityAttachmentAnchor::LeftPanel;
+    FInfinityCueAttachment Suppressed = MakeLight(FTransform(FVector(0.0, 50.0, 900.0)));
+    Suppressed.bSuppressFixtureBody = true;
     TArray<FInfinityCueAttachment>& Attachments = Passage->ShowAsset->Cues[0].WingPair.Attachments;
-    Attachments.Append({ Hung, Outside, Off, Riding });
+    Attachments.Append({ Hung, Outside, Off, Riding, Suppressed });
 
     TestTrue(TEXT("Structure with lights materializes"), Structure->MaterializeStructure());
     TestEqual(TEXT("A housing for each enabled station light"), Structure->FixtureBodyCount, 2);
+    TestTrue(TEXT("Fixture suppression defaults off"), !Hung.bSuppressFixtureBody);
+    TestTrue(TEXT("A suppressed station light gets no additional housing"), Suppressed.bSuppressFixtureBody);
     TestEqual(TEXT("A line only where the grid is overhead"), Structure->HangingLineCount, 1);
     TestEqual(TEXT("A panel-riding light is reported, not housed"), Structure->MovingLightsWithoutHousing, 1);
-    TestEqual(TEXT("Gridiron, housings and lines are separate layers"), Structure->ManagedComponents.Num(), 3);
+    TestTrue(TEXT("Gridiron, ground, grooves, understage, housings and lines are separate layers"),
+        Structure->ManagedComponents.Num() >= 6);
 
     UInstancedStaticMeshComponent* Housings = FindLayer(*Structure, TEXT("InfinityStage.Structure.Fixtures"));
     UInstancedStaticMeshComponent* Lines = FindLayer(*Structure, TEXT("InfinityStage.Structure.Lines"));
@@ -357,6 +387,15 @@ bool FInfinityStageStructureFixturesTest::RunTest(const FString& Parameters)
         Housing.GetLocation().Equals(LightWorld.GetLocation() - Throw * (HousingLength * 0.5), 0.1));
     TestTrue(TEXT("The housing points along the throw"),
         FVector::DotProduct(Housing.GetRotation().GetAxisX(), Throw) > 0.999);
+    const FTransform SuppressedWorld = Suppressed.RelativeTransform * Stations[0].StationWorld;
+    const FVector SuppressedCentre = SuppressedWorld.GetLocation()
+        - SuppressedWorld.GetUnitAxis(EAxis::X) * (HousingLength * 0.5);
+    bool bFoundSuppressedHousing = false;
+    for (const FTransform& Candidate : ReadInstances(*Housings))
+    {
+        bFoundSuppressedHousing |= Candidate.GetLocation().Equals(SuppressedCentre, 0.1);
+    }
+    TestFalse(TEXT("A suppressed attachment has no body instance"), bFoundSuppressedHousing);
 
     const FTransform Line = ReadInstances(*Lines)[0];
     const double GridTopZ = Stations[0].StationWorld.GetLocation().Z
@@ -369,9 +408,62 @@ bool FInfinityStageStructureFixturesTest::RunTest(const FString& Parameters)
         && FMath::IsNearlyEqual(Line.GetLocation().Y, Housing.GetLocation().Y, 0.1));
 
     TestTrue(TEXT("A fresh build with lights is current"), Structure->IsStructureCurrent());
+    TMap<UInstancedStaticMeshComponent*, TArray<FTransform>> OtherLayersBefore;
+    for (UInstancedStaticMeshComponent* Component : Structure->ManagedComponents)
+    {
+        if (Component
+            && !Component->ComponentTags.Contains(TEXT("InfinityStage.Structure.Fixtures"))
+            && !Component->ComponentTags.Contains(TEXT("InfinityStage.Structure.Lines")))
+        {
+            OtherLayersBefore.Add(Component, ReadInstances(*Component));
+        }
+    }
+    TestTrue(TEXT("Fixture test covers multiple non-fixture layers"), OtherLayersBefore.Num() >= 4);
+    const FVector HousingBefore = Housing.GetLocation();
     Attachments[0].RelativeTransform.AddToTranslation(FVector(0.0, 0.0, -50.0));
     TestFalse(TEXT("Moving a light in the Show leaves its housing stale"), Structure->IsStructureCurrent());
+    TestTrue(TEXT("Fixture-only rebuild succeeds"), Structure->RebuildFixturesOnly());
+    UInstancedStaticMeshComponent* HousingsAfter = FindLayer(*Structure, TEXT("InfinityStage.Structure.Fixtures"));
+    TestNotNull(TEXT("Fixture-only rebuild creates housings"), HousingsAfter);
+    bool bOtherLayersUntouched = true;
+    for (const TPair<UInstancedStaticMeshComponent*, TArray<FTransform>>& Pair : OtherLayersBefore)
+    {
+        const bool bStillManaged = Structure->ManagedComponents.ContainsByPredicate(
+            [&Pair](const TObjectPtr<UInstancedStaticMeshComponent>& Candidate)
+            {
+                return Candidate.Get() == Pair.Key;
+            });
+        bOtherLayersUntouched &= bStillManaged
+            && InstanceTransformsBitIdentical(Pair.Value, ReadInstances(*Pair.Key));
+    }
+    TestTrue(TEXT("Every other layer component and its instance transforms are bit-identical"),
+        bOtherLayersUntouched);
+    const TArray<FTransform> HousingsAfterTransforms = HousingsAfter
+        ? ReadInstances(*HousingsAfter)
+        : TArray<FTransform>();
+    TestTrue(TEXT("Fixture-only rebuild makes the housing follow the moved light"),
+        !HousingsAfterTransforms.IsEmpty() && HousingsAfterTransforms[0].GetLocation().Equals(
+            HousingBefore + FVector(0.0, 0.0, -50.0), 0.1));
+    TestEqual(TEXT("Suppression still omits one body after a rebuild"), Structure->FixtureBodyCount, 2);
+    TestTrue(TEXT("Fixture-only rebuild refreshes the structure signature"), Structure->IsStructureCurrent());
 
+    World->DestroyWorld(false);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageFixtureOnlyRebuildRefusesPIETest,
+    "InfinityStage.Structure.FixtureOnlyRebuildRefusesPIE",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageFixtureOnlyRebuildRefusesPIETest::RunTest(const FString& Parameters)
+{
+    UWorld* World = UWorld::CreateWorld(EWorldType::PIE, false);
+    AInfinityStageStructureActor* Structure = World->SpawnActor<AInfinityStageStructureActor>();
+    Structure->FixtureBodyCount = 17;
+    AddExpectedError(TEXT("RebuildFixturesOnly is editor authoring only"), EAutomationExpectedErrorFlags::Contains, 1);
+    TestFalse(TEXT("Fixture-only rebuild refuses in PIE"), Structure->RebuildFixturesOnly());
+    TestEqual(TEXT("PIE refusal leaves the fixture layer untouched"), Structure->FixtureBodyCount, 17);
     World->DestroyWorld(false);
     return true;
 }
