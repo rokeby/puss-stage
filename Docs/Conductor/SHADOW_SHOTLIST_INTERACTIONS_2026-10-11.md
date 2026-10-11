@@ -64,3 +64,22 @@ The stage note says the light turns red here. If that holds, the gobo frames rea
 - **The whimper is reusable:** it's the same action in every interaction, so one good whimper take can be used in all five. Film a small, a big and a mournful version.
 - **Shared props:** each prop is a cut-out (turnip ×3, clam, a torn page, boots, abacus).
 - **Shared bodies:** Puss and the boy are the same two puppets throughout.
+
+## Timed filming plan (added 11 Oct)
+
+**Lengths:** read from the 6 Oct saved records (`Saved/CodexConductor/interaction_shadow_transition_record_I*.json`, `plan.end`, at 25 fps). They have not been re-measured since, so re-check if any interaction was retimed.
+
+**Timing used:**
+- a 1.5 s still plate at each end;
+- beats weighted 15 / 20 / 25 / 22 / 18 %;
+- flipbook at 8 fps, so frames = seconds × 8.
+
+**Timing caveat:** the shadow may only occupy the part of the interaction after the curtain (a 6 Oct probe split I1 at about frame 1250). If so, scale the beats to that window. Check this with Gary.
+
+| Interaction | Length | B1 | B2 | B3 | B4 | Whimper |
+|---|---|---|---|---|---|---|
+| I1 WashingTheBoy | 87.4 s (2184 f) | 12.7 s | 16.9 s | 21.1 s | 18.6 s | 15.2 s |
+| I2 Turnips | 89.1 s (2227 f) | 12.9 s | 17.2 s | 21.5 s | 18.9 s | 15.5 s |
+| I3 ForgetsHisName | 89.6 s (2239 f) | 13.0 s | 17.3 s | 21.6 s | 19.0 s | 15.6 s |
+| I4 GetsAName | 73.5 s (1838 f) | 10.6 s | 14.1 s | 17.6 s | 15.5 s | 12.7 s |
+| I5 BecomesKing | 73.5 s (1838 f) | 10.6 s | 14.1 s | 17.6 s | 15.5 s | 12.7 s |
