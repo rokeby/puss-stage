@@ -1,0 +1,15 @@
+{
+  "confirm": "ENFORCE JOB186 P04 SHADOW REACH PERF",
+  "expected_apply_run": "COPY_FROM_JOB186_P04_SHADOW_REACH_APPLY_OK",
+  "max_regression": 0.10,
+  "before_reports": [
+    "CodexConductor/COPY_P04_10_PERCENT_BEFORE.json",
+    "CodexConductor/COPY_P04_50_PERCENT_BEFORE.json",
+    "CodexConductor/COPY_P04_90_PERCENT_BEFORE.json"
+  ],
+  "after_reports": [
+    "CodexConductor/COPY_P04_10_PERCENT_AFTER.json",
+    "CodexConductor/COPY_P04_50_PERCENT_AFTER.json",
+    "CodexConductor/COPY_P04_90_PERCENT_AFTER.json"
+  ]
+}

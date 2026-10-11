@@ -1,0 +1,22 @@
+JOB186_OFFLINE_HARNESS 20/21
+PASS positive: identity tag round trips
+PASS positive: untagged P04 light plans repair
+PASS positive: exact Show identity is a no-op
+PASS positive: non-light managed prop does not enter light identity set
+PASS positive: APPLY args require reviewed hash and count
+PASS positive: restore args are separately confirmed
+PASS negative: stale actor identity rejected
+PASS negative: duplicate actor identity rejected
+PASS negative: missing expected Show light rejected
+PASS negative: APPLY confirmation exact
+PASS negative: APPLY hash mandatory
+PASS positive: P04 middle-point rule is max(2 pitches,gap)+1m
+PASS positive: adapter scope is P04 only
+PASS negative: adapter rejects P01 scope
+PASS positive: three-spot perf gate passes at threshold
+PASS positive: perf regression requests auto-revert
+PASS negative: perf requires all three spots
+PASS positive: perf gate loads three P04 probe reports
+PASS negative: perf gate rejects non-P04 report
+PASS positive: Show materializer, backup, readback and safe restore contracts present
+FAIL negative: malformed identity ignored :: AssertionError: wanted 'AssertionError' in AssertionError()
