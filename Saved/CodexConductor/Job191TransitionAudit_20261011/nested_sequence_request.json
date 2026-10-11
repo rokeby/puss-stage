@@ -1,7 +1,10 @@
 {
-  "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
-  "tool_name": "ExecuteProjectPythonFile",
+  "name": "call_tool",
   "arguments": {
-    "relativeSavedPath": "CodexConductor/Job191TransitionAudit_20261011/nested_sequence_repair.py"
+    "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+    "tool_name": "ExecuteProjectPythonFile",
+    "arguments": {
+      "relativeSavedPath": "CodexConductor/Job191TransitionAudit_20261011/nested_sequence_repair.py"
+    }
   }
 }

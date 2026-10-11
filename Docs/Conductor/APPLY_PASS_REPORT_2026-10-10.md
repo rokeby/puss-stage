@@ -1156,3 +1156,82 @@
 ### Handoff
 
 **Measured:** Phase A is green; P06 fixture suppression, the P06 sun intensity fix, and the S1 Fade are durably saved/read back. **Measured:** the fixture rebuild callback fires, but the moved-body acceptance probe failed and must not be represented as a complete auto-follow repair. **Measured visual boundary:** the sun and S1 ending pass; the chandelier fails; the no-parcan still is qualified because of chandelier contamination. **Mandatory stop:** the editor encountered a late DXGI device reset/removal after the final clean census; no recovery was attempted. Commit nothing remains satisfied.
+
+## Job 193
+
+### Mandatory pre-attempt stop
+
+- **Measured:** Job 193 made zero live attempts. Before its required API preflight or census, the active PussStage log was found to end in a GPU crash: `DXGI_ERROR_DEVICE_RESET` followed by `DXGI_ERROR_DEVICE_REMOVED` (`Saved/Logs/PussStage.log:3569-3595`).
+- **Declaration-proven:** the self-recovery brief requires any `DXGI` / `D3D12` / `DEVICE_REMOVED` / `DEVICE_RESET` marker to stop everything, close the editor without saving and leave recovery until Gary has rebooted (`Docs/Conductor/codex_briefs/p165_self_recovering_slot.md:33`). That mandatory stop superseded the normal leave-open requirement.
+- **Measured:** the sole `UnrealEditor` process, PID 6948, was force-closed without a save after the DXGI stop. No restart was attempted; a subsequent OS process census found zero `UnrealEditor` processes.
+- **Measured:** the last valid pre-crash Unreal state had 13 sky actors hidden and a clean census with `content=[]`, `maps=[]`, `pie=false` (`Saved/Logs/PussStage.log:3556,3568`). This is only pre-crash evidence; no post-DXGI Unreal read-back is claimed.
+
+### Requested item and acceptance boundary
+
+| item | attempts | DRY / APPLY / read-back | stills / recording | visual verdict |
+|---|---:|---|---|---|
+| S6 live-3D post-process warp, preset `both`, void off; P06 to S6 move-in | 0 | **NOT RUN:** no preflight, DRY, APPLY, save or read-back | none | **NOT CAPTURED / NOT ACCEPTED:** neither warp progression nor move-in readability was judged |
+
+- **Declaration-proven / not executed:** the shipped Job-190 tool still names six saves including `/Game/InfinityStage/KlaraHookin/LS_Void_S6` and proposes changing the nested shot camera (`Docs/Conductor/JOB190_REPORT_2026-10-11.md:26,36`). Job 193's hard override therefore still requires an offline tool/harness revision before any future live attempt: saves must be limited to Master, `LS_DevScene_06`, P06 and owned effect/map packages; the harness must refuse every KlaraHookin save; and the move-in sub-part must stop rather than modify the nested shot camera.
+- **Measured:** no Job-190 tool, args, request, harness, Unreal package, still, screen recording or backup was changed or created by Job 193. No PIE was started or ended, no Save All was used, no KlaraHookin package was saved, no permanent deletion occurred and no git commit was made. The only file changed by Job 193 is this report.
+
+### Handoff
+
+**Mandatory stop:** reboot Windows before opening Unreal. After reboot, Job 193 must start from the offline ownership repair and harness case, then run `Scripts/ue58_api_preflight.py` before every live attempt. Nothing from Job 193 is applied or visually accepted.
+
+## Job 196
+
+### Phase A - build window
+
+- **Measured:** the opening process census found no `UnrealEditor` or `LiveCodingConsole`. A narrow source snapshot was taken at `Backups/PreJob196BuildPatches-20261011-150702/`. In the requested order, `job187_failing_tests.patch`, `2026-10-11_job195_room_tone.patch`, and `2026-10-11_job192_s5_fade_from_white.patch` each passed `git apply --check --whitespace=error-all` and applied cleanly. `git diff --check` was clean for the combined Job-196 change set. No patch rollback was required.
+- **Measured / binary-proven:** build attempt 1 through `Saved/CodexConductor/job185_build.cmd` succeeded (26 actions). The rebuilt unnumbered DLLs are timestamped 15:08 on 11 Oct; zero numbered hot-reload DLLs exist. UTF-16 inspection found exactly one copy of each new marker in its expected DLL: `INFINITY_ROOM_TONE_STARTED` and `InfinityStage.VideoFallback.WhiteFadeSchema` in `UnrealEditor-InfinityStage.dll`; the 3.0-second settle, -30 dB Full Weird and optional white-fade assertions in `UnrealEditor-InfinityStageTests.dll`; and the fixture-settle and Master-timed-walk assertions in `UnrealEditor-InfinityStageEditor.dll`. The source declarations are at `Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowRoot.cpp:98`, `Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageVideoFallback.cpp:35`, `Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBreathTests.cpp:58`, `Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCrossingSettleTests.cpp:170`, `Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageVideoFallbackTests.cpp:32`, `Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCameraPilotTests.cpp:307`, and `Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp:1536`.
+- **Measured:** the patch-focused tests passed and exited 0: Crossing Settle (`Saved/Logs/Job196-CrossingSettle-20261011.log:2732-2739`), Camera Pilot (`Saved/Logs/Job196-CameraPilot-20261011.log:2730-2737`), Shadow Cat PIE (`Saved/Logs/Job196-ShadowCatPIE-20261011.log:2865-2875`), room tone (`Saved/Logs/Job196-RoomTone-20261011.log:2722-2728`), and the S5 white-fade render contract (`Saved/Logs/Job196-S5WhiteFade-20261011.log:2723-2729`).
+- **Measured, not waived:** the first nested-sequence run failed specifically because `LS_Clams` ended at 263.04 s inside `LS_DevScene_03`, whose parent ended at 260.00 s (`Saved/Logs/Job196-NestedSequences-20261011.log:2723-2731`). `SavedFixturePIE` still fails the pre-existing transport-count assertion, expected 19 but found 20 (`Saved/Logs/Job196-SavedFixturePIE-20261011.log:2863-2940`). The applied Job-187 patch did not change that assertion, so it was not rolled back. After the live nested repair below, `NestedSequencesFitTheirParents` passed and exited 0 (`Saved/Logs/Job196-NestedSequences-PostRepair-20261011.log:2723-2729`).
+- **Declaration-proven / input limitation:** `Docs/Conductor/JOB191_REPORT_2026-10-11.md` and its committed blob are 12,075 NUL bytes, so that report contained no readable contract. Job 196 used the delivered Job-191 tools, harnesses and live guards instead and records this source as **UNCLEAR / corrupt**, not silently reconstructed.
+
+### Phase B - editor preflight
+
+- **Measured:** the first ScriptedSafe launch exited cleanly after an external `QUIT_EDITOR` before project Python ran; it produced no mutation and no device-loss signature. The second launch succeeded, loaded `/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice`, transiently hid 13 sky actors and reached a clean PIE-off census. The safe profile logged Realtime OFF (`Saved/Logs/PussStage-backup-2026.10.11-19.19.05.log:2442,2947`).
+
+### Phase C - ordered live outcomes
+
+1. **S6 move-in + warp - guarded DRY refusal; no APPLY.** **Measured:** attempt 1 was rejected by MCP with HTTP 400 because the delivered request JSON used the wrong envelope, before Unreal execution. The request and harness were repaired offline. Attempt 2 reached Unreal but stopped before mutation because the tool named the obsolete Master asset path (`Saved/Logs/PussStage-backup-2026.10.11-19.19.05.log:2983-2994`); the Master path and regression test were repaired offline, and the harness passed 75/75. Attempt 3 passed API preflight (`deny=0`), but DRY returned `apply_ready=0`: the permitted Master-only move could not match the read-only nested Klara camera within the measured 240 cm delta (`:3012-3013`; record `Saved/CodexConductor/Job190S6WarpPP_20261011/records/job190_J190-J196-A1_dry.json`). The ownership guard was not weakened. **Visual verdict: NOT CAPTURED / NOT ACCEPTED.** No `196_` S6 still or ten-second seam recording exists because APPLY never became legal.
+
+2. **Nested-sequence repair - saved, read back and headless-proven.** **Measured:** preflight returned `deny=0`. DRY checked 36 sections, found one offender, planned one repair, found zero Klara offenders/skips, and emitted plan SHA-256 `31a632f3ec3d65195c59521fd9589dc8f55d45599d1067343b40538f86eab8e7` (`Saved/Logs/PussStage-backup-2026.10.11-19.27.04.log:2958`). APPLY trimmed only the `LS_Clams` shot section in `/Game/InfinityStage/Dev/Sequences/LS_DevScene_03` from `[-1,6313]` to `[-1,6240]`, saved that sequence, read it back, and finished clean (`:2978`; record `Saved/CodexConductor/Job191TransitionAudit_20261011/records/job191_nested_J191-NEST-J196A1_apply.json`; backup `Backups/PreJob191NestedRepair-J191-NEST-J196A1-20261011-152037/`). No `/Game/InfinityStage/KlaraHookin/` package was selected or saved. The post-repair focused headless test passed as recorded above. **Authoring verdict: PASS.** This is invariant/read-back acceptance, not a rendered-look claim.
+
+3. **P05 -> S5 whiteout - guarded DRY refusal; no APPLY.** **Measured:** attempt 1 stopped before mutation on the same obsolete Master path (`Saved/Logs/PussStage-backup-2026.10.11-19.27.04.log:3015-3026`). The path and harness were repaired offline; the harness passed 8/8. Attempt 2 passed API preflight (`deny=0`) and produced a complete 3D-presentation plan, but `apply_ready=0` because no `cue_director/current.json` authority existed to determine S5 mode (`:3040-3041`; record `Saved/CodexConductor/Job192P05S5Whiteout_20261011/records/job192_J192-J196-A1_dry.json`). A read-only search of `Content`, `Config`, `Saved/CueBook` and the active log found no equivalent authority. The guard was not weakened. **Visual verdict: NOT CAPTURED / NOT ACCEPTED.** There are no `196_` P05/S5 stills, measured seam luminance or 15-second recording because no whiteout was applied.
+
+4. **Whole-show seam audit - completed read-only; 15 of 16 seams flagged.** **Measured:** attempt 1 owned and ended its PIE cleanly but captured zero frames because the planner incorrectly required Interaction 4 to be followed directly by P5; the real spine contains the Nap Interlude (`Saved/Logs/PussStage-backup-2026.10.11-19.27.04.log:3187,3209`). The planner was repaired offline to retain the immediate Interlude target and a logical P5 target, final failure evidence was made durable, and the harness passed 14/14. Attempt 2 passed preflight (`deny=0`), owned and ended its PIE, captured 64 PNGs and 16 HTML contact sheets, and returned `errors=0`, `dirty_maps=0`, `dirty_content=0` (`:3784`). Evidence index: `Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/index.html`; machine result: `.../seam_audit_result.json`.
+
+### Seam flags and visual verdict
+
+**Measured:** seam 09, I3 -> P4, is the sole unflagged boundary. The flagged list from `seam_audit_result.json` is:
+
+- 01 P1 -> S1: black at +1 s.
+- 02 S1 -> I1: 858.18 cm / 14.62 degree camera jump; all four samples black.
+- 03 I1 -> P2: 2,883.90 cm camera jump; all four samples black.
+- 04 P2 -> S2: all four samples black.
+- 05 S2 -> I2: 9,677.33 cm / 176.00 degree camera jump; all four samples black.
+- 06 I2 -> P3: 2,195.06 cm camera jump.
+- 07 P3 -> S3: black at +1 frame and +1 s.
+- 08 S3 -> I3: all four samples black.
+- 10 P4 -> S4: black at +1 frame and +1 s.
+- 11 S4 -> I4: black at -1 s and -1 frame.
+- 12 I4 -> Nap Interlude (logical next passage P5): 320,000.20 cm / 41.53 degree camera jump.
+- 13 P5 -> S5: black at -1 frame, +1 frame and +1 s. Direct review confirms the boundary remains essentially black (`Saved/Logs/PussStage-backup-2026.10.11-19.27.04.log:3675-3691`).
+- 14 S5 -> I5: 726.89 cm / 86.30 degree camera jump; black at +1 frame and +1 s.
+- 15 I5 -> P6: luminance pop, absolute mean-code-value delta 108.47 (ratio 0.595). Direct review confirms a strongly overexposed I5 view cuts to a much darker orange P6 view (`:3720-3738`).
+- 16 P6 -> S6: black at +1 frame and +1 s; luminance delta 24.22 (ratio 0.989). Direct review confirms the lit P6 ceiling cuts to an almost-black S6 view (`:3743-3759`).
+
+**Measured visual verdict: FAIL overall.** Contact-sheet generation and flagging succeeded, but the whole-show transition set is not visually accepted: 15/16 seams violate the audit thresholds, including the requested P05 -> S5 and P06 -> S6 boundaries.
+
+### Safeguards, save scope and final state
+
+- **Measured:** every live-attempt tool directory passed `Scripts/ue58_api_preflight.py` with `deny=0` immediately before execution. Attempts stayed within the three-attempt cap. The Job-190 cap triggered a clean ScriptedSafe recovery before Job 191. No Job-196-era log (19:13 UTC onward, including all focused/headless logs) contains `DXGI_ERROR_DEVICE_REMOVED`, `DXGI_ERROR_DEVICE_RESET`, `DEVICE_REMOVED` or `DEVICE_RESET`. The earlier Job-185 device-loss log remains historical and was not treated as a Job-196 event.
+- **Measured:** the only durable Unreal authoring save made by Job 196 is `/Game/InfinityStage/Dev/Sequences/LS_DevScene_03` for the exact nested-section trim. No Save All, no Klara level or `/Game/InfinityStage/KlaraHookin/` save, no permanent deletion, no room-tone APPLY, and no git commit occurred. The room-tone APPLY was intentionally not attempted because its delivery file is absent.
+- **Declaration-proven file changes:** the three requested patches; request-envelope, current-Master-path, interlude-planner, failure-finalization and harness repairs under `Saved/CodexConductor/Job190S6WarpPP_20261011/`, `Job191TransitionAudit_20261011/` and `Job192P05S5Whiteout_20261011/`; Job-196 result records and seam evidence; `Saved/CodexConductor/Job196Final/`; and this report. Unrelated pre-existing dirty files are not claimed.
+- **Measured final state:** the editor was reopened through `PussStage_ScriptedSafe.ps1` after the post-repair headless test. It remains open on the vertical-slice show level. The final transient sky pass hid 13 actors (`Saved/Logs/PussStage.log:2941`); Realtime was explicitly set OFF (`:2952`); and the final read-back is `pie=false`, `dirty_maps=0`, `dirty_content=0` (`:2953`).
+
+### Handoff
+
+**Measured:** Phase A is green for all three patches; the nested sequence repair is saved and its invariant now passes. **Not accepted:** the S6 move-in/warp and P05 -> S5 whiteout did not pass their DRY safety gates, so neither has stills, luminance acceptance or recordings. The read-only seam audit is complete and identifies 15 flagged seams; it is diagnostic evidence, not a rendered acceptance pass. `SavedFixturePIE` remains independently red on its 19-versus-20 transport-count assertion. Commit nothing remains satisfied.

@@ -144,23 +144,23 @@ def finalize(state):
     state["dirty_after"] = census()
     if state["dirty_after"] != state["dirty_before"]:
         state["errors"].append("dirty census changed %r -> %r" % (state["dirty_before"], state["dirty_after"]))
+    if "plan" in state and "captured_frames" not in state:
+        try:
+            finish_files(state)
+        except Exception:
+            state["errors"].append("final evidence write failed: " + traceback.format_exc())
     state["status"] = "passed" if not state["errors"] and state.get("captured_frames") == 64 else "failed"
-    try:
-        finish_files(state) if "captured_frames" not in state else write_json(
-            pathlib.Path(state["run_dir"]) / "seam_audit_result.json",
-            {key: value for key, value in state.items() if not key.startswith("_")})
-    except Exception:
-        state["errors"].append("final evidence write failed: " + traceback.format_exc())
-        state["status"] = "failed"
+    write_json(pathlib.Path(state["run_dir"]) / "seam_audit_result.json",
+               {key: value for key, value in state.items() if not key.startswith("_")})
     write_owner(state, False, "owned PIE ended; seam audit finalized with status %s" % state["status"])
     handle = getattr(builtins, HANDLE_NAME, None)
     if handle is not None:
         unreal.unregister_slate_post_tick_callback(handle)
         delattr(builtins, HANDLE_NAME)
     marker = "JOB191_SEAM_AUDIT_OK" if state["status"] == "passed" else "JOB191_SEAM_AUDIT_FAILED"
-    unreal.log(("%s|run=%s|seams=%d|frames=%d|flagged=%d|dirty_maps=%d|dirty_content=%d|dir=%s" %
+    unreal.log(("%s|run=%s|seams=%d|frames=%d|flagged=%d|errors=%d|dirty_maps=%d|dirty_content=%d|dir=%s" %
                 (marker, state["run"], len(state.get("plan", {}).get("seams", [])), state.get("captured_frames", 0),
-                 state.get("flagged_seams", 0), len(state["dirty_after"]["maps"]),
+                 state.get("flagged_seams", 0), len(state["errors"]), len(state["dirty_after"]["maps"]),
                  len(state["dirty_after"]["content"]), state["run_dir"])))
 
 

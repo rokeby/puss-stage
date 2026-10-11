@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pathlib
+import json
 import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -49,6 +50,11 @@ def base(**updates):
 
 
 plan = core.build_plan([base()])
+request = json.loads((HERE / "nested_sequence_request.json").read_text(encoding="utf-8"))
+check("+ nested request uses call_tool envelope",
+      request.get("name") == "call_tool" and
+      request.get("arguments", {}).get("arguments", {}).get("relativeSavedPath") ==
+      "CodexConductor/Job191TransitionAudit_20261011/nested_sequence_repair.py")
 repair = plan["repairs"][0]
 check("+ S3 overrun is found", plan["offender_count"] == 1)
 check("+ only the end is trimmed 6313 -> 6240", repair["section_range"] == [-1, 6313] and repair["new_range"] == [-1, 6240])

@@ -1,7 +1,10 @@
 {
-  "toolset": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
-  "tool": "ExecuteProjectPythonFile",
-  "args": {
-    "project_relative_path": "Saved/CodexConductor/Job192P05S5Whiteout_20261011/job192_run.py"
+  "name": "call_tool",
+  "arguments": {
+    "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+    "tool_name": "ExecuteProjectPythonFile",
+    "arguments": {
+      "relativeSavedPath": "CodexConductor/Job192P05S5Whiteout_20261011/job192_run.py"
+    }
   }
 }

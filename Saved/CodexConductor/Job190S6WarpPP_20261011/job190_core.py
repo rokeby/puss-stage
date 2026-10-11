@@ -30,7 +30,7 @@ CONFIRM = {
     "APPLY": "APPLY JOB190 S6 WARP PP",
     "REVERT": "REVERT JOB190 S6 WARP PP",
 }
-MASTER_PATH = "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_Master"
+MASTER_PATH = "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master"
 S6_PATH = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_06"
 NESTED_SHOT_PATH = "/Game/InfinityStage/KlaraHookin/LS_Void_S6"
 MPC_PATH = "/Game/InfinityStage/Effects/S6/MPC_S6Warp"

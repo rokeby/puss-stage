@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pathlib
+import json
 import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -25,6 +26,11 @@ def check(name, condition):
 
 
 segments = [{"label": "Opening - Curtain", "start": 0, "end": 100}]
+request = json.loads((HERE / "seam_audit_request.json").read_text(encoding="utf-8"))
+check("+ seam request uses call_tool envelope",
+      request.get("name") == "call_tool" and
+      request.get("arguments", {}).get("arguments", {}).get("relativeSavedPath") ==
+      "CodexConductor/Job191TransitionAudit_20261011/seam_audit_runner.py")
 cursor = 100
 for number in range(1, 7):
     segments.append({"label": "Passage %d" % number, "start": cursor, "end": cursor + 100})
@@ -41,6 +47,26 @@ check("+ exact 16-seam census", len(plan["seams"]) == 16 and plan["counts"] == {
       "passage_to_scene": 6, "interaction_start": 5, "interaction_end": 5})
 check("+ seams stay in Master order", [s["boundary"] for s in plan["seams"]] == sorted(s["boundary"] for s in plan["seams"]))
 check("+ four requested sample offsets", [s["target_frame"] - plan["seams"][0]["boundary"] for s in plan["seams"][0]["samples"]] == [-24, -1, 1, 24])
+
+with_interlude = [dict(row) for row in segments]
+i4 = next(i for i, row in enumerate(with_interlude) if row["label"].startswith("Interaction 4"))
+interlude_start = with_interlude[i4]["end"]
+for row in with_interlude[i4 + 1:]:
+    row["start"] += 100
+    row["end"] += 100
+with_interlude.insert(i4 + 1, {"label": "Interlude: Puss Sleep/Wet Tennis Ball/Battery",
+                               "start": interlude_start, "end": interlude_start + 100})
+interlude_plan = core.plan_seams(with_interlude, ticks_per_second=24, display_fps=24)
+i4_end = next(row for row in interlude_plan["seams"]
+              if row.get("interaction", "").startswith("Interaction 4") and row["kind"].endswith("interaction_end"))
+check("+ Interlude between I4 and P5 preserves the logical transition",
+      len(interlude_plan["seams"]) == 16 and i4_end["to"].startswith("Interlude") and
+      i4_end["logical_to"] == "Passage 5")
+
+runner_source = (HERE / "seam_audit_runner.py").read_text(encoding="utf-8")
+check("+ failed audit always rewrites its result evidence",
+      'if "plan" in state and "captured_frames" not in state' in runner_source and
+      'errors=%d' in runner_source)
 
 seam = plan["seams"][0]
 for index, sample in enumerate(seam["samples"]):

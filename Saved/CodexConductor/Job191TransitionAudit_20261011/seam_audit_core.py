@@ -74,14 +74,25 @@ def plan_seams(segments, ticks_per_second=24000, display_fps=24):
             continue
         if index == 0 or index + 1 >= len(ordered):
             raise ValueError("interaction is not bracketed in Master order: %s" % interaction["label"])
-        before, after = ordered[index - 1], ordered[index + 1]
-        if segment_kind(before["label"]) != "scene" or segment_kind(after["label"]) != "passage":
-            raise ValueError("interaction is not Scene -> Interaction -> Passage: %s" % interaction["label"])
+        before, immediate_after = ordered[index - 1], ordered[index + 1]
+        after = None
+        for candidate in ordered[index + 1:]:
+            kind = segment_kind(candidate["label"])
+            if kind == "passage":
+                after = candidate
+                break
+            if kind != "other":
+                raise ValueError("interaction is not Scene -> Interaction -> optional other -> Passage: %s" %
+                                 interaction["label"])
+        if segment_kind(before["label"]) != "scene" or after is None:
+            raise ValueError("interaction is not Scene -> Interaction -> optional other -> Passage: %s" %
+                             interaction["label"])
         seams.append({"kind": "scene_to_passage_interaction_start", "boundary": int(interaction["start"]),
                       "from": before["label"], "to": interaction["label"], "logical_to": after["label"],
                       "interaction": interaction["label"], "master_indices": [index - 1, index]})
         seams.append({"kind": "scene_to_passage_interaction_end", "boundary": int(interaction["end"]),
-                      "from": interaction["label"], "logical_from": before["label"], "to": after["label"],
+                      "from": interaction["label"], "logical_from": before["label"],
+                      "to": immediate_after["label"], "logical_to": after["label"],
                       "interaction": interaction["label"], "master_indices": [index, index + 1]})
     seams.sort(key=lambda row: (row["boundary"], row["kind"]))
     for order, seam in enumerate(seams, start=1):

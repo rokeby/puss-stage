@@ -34,10 +34,19 @@ def rejects(label, fn, needle=""):
 
 def main():
     args = core.validate_args({})
+    request = json.loads((HERE / "job190_request.json").read_text(encoding="utf-8"))
+    check("MCP request uses call_tool envelope",
+          request == {"name": "call_tool", "arguments": {
+              "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+              "tool_name": "ExecuteProjectPythonFile",
+              "arguments": {"relativeSavedPath":
+                            "CodexConductor/Job190S6WarpPP_20261011/job190_run.py"}}})
     check("DRY is default", args["mode"] == "DRY")
     check("default preset is lowercase both", args["preset"] == "both")
     check("move defaults", (args["move_seconds"], args["push_cm"], args["ease_fraction"]) == (2.8, 240.0, 0.35))
     check("void proposal is off", args["void_mode"] == "off")
+    check("production Master identity",
+          core.MASTER_PATH == "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master")
     rejects("bad mode negative", lambda: core.validate_args({"mode": "GO"}), "mode")
     rejects("bad run negative", lambda: core.validate_args({"run": "bad"}), "run")
     rejects("APPLY confirm negative", lambda: core.validate_args({"mode": "APPLY", "run": "J190-ABC"}), "confirm")

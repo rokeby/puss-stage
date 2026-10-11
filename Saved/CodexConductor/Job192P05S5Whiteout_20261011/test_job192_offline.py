@@ -52,11 +52,20 @@ class Job192OfflineTests(unittest.TestCase):
         with open(os.path.join(HERE, "job192_p05_s5_whiteout.py"), encoding="utf-8") as handle:
             text = handle.read()
         for token in ("JOB192_DRY_OK", "JOB192_APPLY_OK", "JOB192_REVERT_OK",
-                      '"save_packages": [MASTER, WORLD]', "save_current_level()"):
+                      '"save_packages": [MASTER, WORLD]', "save_current_level()",
+                      'MASTER = "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master"'):
             self.assertIn(token, text)
         self.assertNotIn("save_asset(SHOW", text)
         self.assertNotIn("save_asset(S5", text)
         self.assertNotIn("delete_asset", text)
+
+    def test_positive_mcp_request_uses_call_tool_envelope(self):
+        with open(os.path.join(HERE, "job192_request.json"), encoding="utf-8") as handle:
+            request = json.load(handle)
+        self.assertEqual("call_tool", request.get("name"))
+        self.assertEqual(
+            "CodexConductor/Job192P05S5Whiteout_20261011/job192_run.py",
+            request.get("arguments", {}).get("arguments", {}).get("relativeSavedPath"))
 
     def test_positive_held_patch_has_capability_and_timed_alpha(self):
         patch = os.path.abspath(os.path.join(HERE, "..", "..", "..", "Scripts", "patches",
