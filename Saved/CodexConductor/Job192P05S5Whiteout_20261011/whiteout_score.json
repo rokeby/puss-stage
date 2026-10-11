@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "seam_mean_luminance_threshold": 0.95,
+  "fade_from_white_seconds": 1.8,
+  "whiteout_keys": [
+    {"seconds_from_seam": -6.0, "amount": 0.0},
+    {"seconds_from_seam": -4.5, "amount": 0.08},
+    {"seconds_from_seam": -3.0, "amount": 0.28},
+    {"seconds_from_seam": -1.6, "amount": 0.62},
+    {"seconds_from_seam": -0.6, "amount": 0.92},
+    {"seconds_from_seam": -0.08, "amount": 1.0},
+    {"seconds_from_seam": 0.0, "amount": 1.0},
+    {"seconds_from_seam": 1.8, "amount": 0.0}
+  ]
+}

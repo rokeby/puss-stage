@@ -1,0 +1,128 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageVideoFallback.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageVideoFallback.h
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageVideoFallback.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageVideoFallback.h
+@@ -31,4 +31,5 @@ struct INFINITYSTAGE_API FInfinityFallbackClip
+     FString MuxedPath;    // absolute, may be empty
+     int32 Frames = 0;
+     double Fps = 25.0;
++    double FadeFromWhiteSeconds = 0.0; // optional registry field; zero preserves the old presentation
+ };
+@@ -84,5 +85,6 @@ private:
+     TMap<int32, FInfinityFallbackClip> Clips;
+     TSharedPtr<SWidget> Overlay;
+     TSharedPtr<SImage> Image;
++    TSharedPtr<SImage> WhiteImage;
+     TSharedPtr<FSlateBrush> Brush;
+     TWeakObjectPtr<AInfinityStageShowRoot> Root;
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageVideoFallback.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageVideoFallback.cpp
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageVideoFallback.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageVideoFallback.cpp
+@@ -31,6 +31,12 @@ TAutoConsoleVariable<FString> CVarFallbackRoot(
+     TEXT(""),
+     TEXT("Folder holding current.json and the Scene fallback videos. Empty: <Project>/Renders/Fallbacks"));
+ 
++TAutoConsoleVariable<int32> CVarWhiteFadeSchema(
++    TEXT("InfinityStage.VideoFallback.WhiteFadeSchema"),
++    1,
++    TEXT("Read-only capability marker: current.json scenes may specify fade_from_white_seconds."),
++    ECVF_ReadOnly);
++
+ /** Live overlay order: under the rehearsal bar (20), over the show. */
+ constexpr int32 OverlayZOrder = 5;
+ }
+@@ -92,6 +98,17 @@ TMap<int32, FInfinityFallbackClip> ParseRegistry(const FString& Json, const FStri
+         {
+             Clip.Fps = Number;
+         }
++        if (Scene->TryGetNumberField(TEXT("fade_from_white_seconds"), Number))
++        {
++            if (Number < 0.0 || !FMath::IsFinite(Number))
++            {
++                OutWarnings.Add(FString::Printf(TEXT("%s has invalid fade_from_white_seconds; using 0"), *Key));
++            }
++            else
++            {
++                Clip.FadeFromWhiteSeconds = Number;
++            }
++        }
+         Clips.Add(Ordinal, Clip);
+     }
+     return Clips;
+@@ -187,8 +202,10 @@ void UInfinityStageVideoFallbackSubsystem::EnsureOverlay()
+             SNew(SScaleBox).Stretch(EStretch::ScaleToFit)
+             [
+                 SAssignNew(Image, SImage).Image(Brush.Get())
+             ]
+-        ];
++        ]
++        + SOverlay::Slot()
++        [ SAssignNew(WhiteImage, SImage).ColorAndOpacity(FLinearColor::Transparent) ];
+     Viewport->AddViewportWidgetContent(Overlay.ToSharedRef(), OverlayZOrder);
+     bOverlayAdded = true;
+ }
+@@ -258,11 +275,17 @@ void UInfinityStageVideoFallbackSubsystem::Enter(const int32 Ordinal)
+     Sound->SetVolumeMultiplier(Path == Clip->MuxedPath ? 1.0f : 0.0f);
+     ActiveOrdinal = Ordinal;
+     bOpen = false;
+     bPictureUp = false;
++    if (WhiteImage.IsValid())
++    {
++        WhiteImage->SetColorAndOpacity(Clip->FadeFromWhiteSeconds > 0.0
++            ? FLinearColor::White : FLinearColor::Transparent);
++    }
+     Player->SetLooping(false);
+     Player->OpenFile(Path);
+-    UE_LOG(LogInfinityStageVideoFallback, Display, TEXT("INFINITY_VIDEO_FALLBACK_OPEN scene=S%d file=%s ue_sound=%d"),
+-        Ordinal, *Path, Path == Clip->MuxedPath ? 1 : 0);
++    UE_LOG(LogInfinityStageVideoFallback, Display,
++        TEXT("INFINITY_VIDEO_FALLBACK_OPEN scene=S%d file=%s ue_sound=%d fade_from_white_s=%.3f"),
++        Ordinal, *Path, Path == Clip->MuxedPath ? 1 : 0, Clip->FadeFromWhiteSeconds);
+ }
+ 
+ void UInfinityStageVideoFallbackSubsystem::Leave(const TCHAR* Why)
+@@ -272,6 +295,10 @@ void UInfinityStageVideoFallbackSubsystem::Leave(const TCHAR* Why)
+         return;
+     }
+     SetLiveSuppressed(false);
++    if (WhiteImage.IsValid())
++    {
++        WhiteImage->SetColorAndOpacity(FLinearColor::Transparent);
++    }
+     if (Player)
+     {
+         Player->Close();
+@@ -359,6 +386,12 @@ void UInfinityStageVideoFallbackSubsystem::Tick(const float DeltaTime)
+     // Follow the Master: its rate while playing (fast-forward included), its frame while paused.
+     const double Ticks = ShowRoot->ShowAsset->TickResolution.AsDecimal();
+     const double Wanted = InfinityStageVideoFallback::MediaSecondsForLocalFrame(Frame - ActiveStartFrame, Ticks, Clips[Found]);
++    if (WhiteImage.IsValid())
++    {
++        const double Duration = Clips[Found].FadeFromWhiteSeconds;
++        const float Alpha = Duration > 0.0 ? static_cast<float>(FMath::Clamp(1.0 - Wanted / Duration, 0.0, 1.0)) : 0.0f;
++        WhiteImage->SetColorAndOpacity(FLinearColor(1.0f, 1.0f, 1.0f, Alpha));
++    }
+     const double Now = FPlatformTime::Seconds();
+     const bool bPlaying = ShowRoot->SequencePlayer->IsPlaying() && !ShowRoot->SequencePlayer->IsReversed();
+     const float Rate = bPlaying ? ShowRoot->SequencePlayer->GetPlayRate() : 0.0f;
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageVideoFallbackTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageVideoFallbackTests.cpp
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageVideoFallbackTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageVideoFallbackTests.cpp
+@@ -17,6 +17,6 @@ bool FInfinityStageVideoRegistryTest::RunTest(const FString& Parameters)
+     const FString Root = TEXT("E:/Show/Renders/Fallbacks");
+     const FString Json = TEXT(R"({"schema":1,"scenes":{
+-        "S1":{"video":"S1/PussFB_S1_P_v01.mp4","audio":"S1/PussFB_S1_P_v01.wav","frames":5000,"fps":25},
++        "S1":{"video":"S1/PussFB_S1_P_v01.mp4","audio":"S1/PussFB_S1_P_v01.wav","frames":5000,"fps":25,"fade_from_white_seconds":1.8},
+         "S3":{"video":"S3/PussFB_S3_P_v01.mp4","muxed":"S3/PussFB_S3_P_v01_muxed.mp4","frames":6500,"fps":25},
+         "S4":{"audio":"S4/only_audio.wav"},
+         "Opening":{"video":"x.mp4"}}})");
+@@ -29,6 +29,10 @@ bool FInfinityStageVideoRegistryTest::RunTest(const FString& Parameters)
+     TestTrue(TEXT("No muxed file: empty (UE plays it silent; desk WAV)"), Clips.Contains(1) && Clips[1].MuxedPath.IsEmpty());
+     TestTrue(TEXT("S3 keeps its muxed file for UE sound"), Clips.Contains(3) && !Clips[3].MuxedPath.IsEmpty());
+     TestEqual(TEXT("Frames read"), Clips.Contains(3) ? Clips[3].Frames : 0, 6500);
++    TestTrue(TEXT("Optional white fade duration is read"),
++        Clips.Contains(1) && FMath::IsNearlyEqual(Clips[1].FadeFromWhiteSeconds, 1.8, 1.0e-6));
++    TestEqual(TEXT("White fade remains opt-in"),
++        Clips.Contains(3) ? Clips[3].FadeFromWhiteSeconds : -1.0, 0.0);
+     TestEqual(TEXT("Control: an entry with no video and a non-Scene key both warn"), Warnings.Num(), 2);
+ 
+     TArray<FString> BadWarnings;
