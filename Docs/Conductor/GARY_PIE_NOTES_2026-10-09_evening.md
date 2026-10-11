@@ -136,3 +136,6 @@
 - REMOVE the hangar at the P05->S5 arrival.
 - As we approach the P05 curtain drop, we enter a cloud space that thickens to near-pure WHITE.
 - Then the S5 video cross-dissolves in out of the white.
+
+## Gary, 11 Oct: interaction lengths
+- Interaction lengths follow the script and animation pace, not the current sequence lengths. Probably about 60 s or less each. Still waiting on Cameron's track lengths, which will set the final lengths.

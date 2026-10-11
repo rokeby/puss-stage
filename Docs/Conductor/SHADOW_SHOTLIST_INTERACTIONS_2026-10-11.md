@@ -65,21 +65,18 @@ The stage note says the light turns red here. If that holds, the gobo frames rea
 - **Shared props:** each prop is a cut-out (turnip ×3, clam, a torn page, boots, abacus).
 - **Shared bodies:** Puss and the boy are the same two puppets throughout.
 
-## Timed filming plan (added 11 Oct)
+## Timed filming plan (revised 11 Oct, Gary)
 
-**Lengths:** read from the 6 Oct saved records (`Saved/CodexConductor/interaction_shadow_transition_record_I*.json`, `plan.end`, at 25 fps). They have not been re-measured since, so re-check if any interaction was retimed.
+**Gary:** the lengths follow the rate of the script and the animation, NOT the current sequence lengths (74–90 s, which were set arbitrarily). Expect about **60 s or less** per interaction. Cameron's track lengths are still pending; when they arrive, they set the final length, and the sequences are relengthed to match.
 
-**Timing used:**
-- a 1.5 s still plate at each end;
-- beats weighted 15 / 20 / 25 / 22 / 18 %;
-- flipbook at 8 fps, so frames = seconds × 8.
+**Working beat durations** (natural action pace, at 8 fps in the flipbook; each interaction has 1.5 s still plates at both ends):
 
-**Timing caveat:** the shadow may only occupy the part of the interaction after the curtain (a 6 Oct probe split I1 at about frame 1250). If so, scale the beats to that window. Check this with Gary.
-
-| Interaction | Length | B1 | B2 | B3 | B4 | Whimper |
+| Interaction | B1 | B2 | B3 | B4 | Whimper | Total |
 |---|---|---|---|---|---|---|
-| I1 WashingTheBoy | 87.4 s (2184 f) | 12.7 s | 16.9 s | 21.1 s | 18.6 s | 15.2 s |
-| I2 Turnips | 89.1 s (2227 f) | 12.9 s | 17.2 s | 21.5 s | 18.9 s | 15.5 s |
-| I3 ForgetsHisName | 89.6 s (2239 f) | 13.0 s | 17.3 s | 21.6 s | 19.0 s | 15.6 s |
-| I4 GetsAName | 73.5 s (1838 f) | 10.6 s | 14.1 s | 17.6 s | 15.5 s | 12.7 s |
-| I5 BecomesKing | 73.5 s (1838 f) | 10.6 s | 14.1 s | 17.6 s | 15.5 s | 12.7 s |
+| I1 Washing the Boy | 6 s (boy hunched) | 10 s (fountain drained) | 14 s (licking) | 8 s (straightens) | 5 s | ~46 s |
+| I2 Turnips | 6 s (Puss brings) | 6 s (grab) | 12 s (eats all) | 10 s (sad stillness) | 5 s | ~42 s |
+| I3 Forgets His Name | 14 s (Puss sings) | 10 s (sways) | 10 s (tongue lolls) | 6 s (coughs) | 8 s (BIG whimper) | ~51 s |
+| I4 Gets a Name | 8 s (page arrives) | 8 s (holds it up) | 10 s (turns it) | 6 s (pause) | 5 s | ~40 s |
+| I5 Becomes King | 6 s (boots pop) | 8 s (admires) | 14 s (pulls on) | 10 s (struts) | 8 s (mournful) | ~49 s |
+
+These are proposals for rehearsal. Because each beat is its own take keyed by one MPC scalar, retiming means changing keys, not re-filming. Once Cameron's tracks arrive, stretch or trim beat 3 or beat 4 first: they are the "action" beats.
