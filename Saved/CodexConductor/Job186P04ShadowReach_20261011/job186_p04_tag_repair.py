@@ -77,6 +77,15 @@ def parse_identity_tag_text(tag):
     return cue, attachment
 
 
+def managed_identity_tag_text(tag):
+    """Parse our tag namespace, refusing malformed identities by name."""
+    text = str(tag)
+    parsed = parse_identity_tag_text(text)
+    if text.startswith(TAG_PREFIX):
+        require(parsed is not None, "MALFORMED_IDENTITY_TAG|" + text)
+    return parsed
+
+
 def identity_tag(cue, attachment):
     return TAG_PREFIX + guid_text(cue) + "|" + guid_text(attachment)
 
@@ -227,7 +236,8 @@ def managed_rows(passage):
     for actor in passage.get_editor_property("managed_attachment_actors"):
         if actor is None:
             continue
-        identities = [parsed for parsed in (parse_identity_tag_text(tag) for tag in actor.tags) if parsed]
+        identities = [parsed for parsed in (managed_identity_tag_text(tag) for tag in actor.tags)
+                      if parsed]
         require(len(identities) <= 1, "MULTIPLE_IDENTITY_TAGS|" + actor.get_actor_label())
         rows.append({"label": str(actor.get_actor_label()), "path": str(actor.get_path_name()),
                      "identity": identities[0] if identities else None,
@@ -238,7 +248,7 @@ def managed_rows(passage):
 
 def gather():
     world = world_guard()
-    show = unreal.EditorAssetLibrary.load_asset(SHOW_PATH)
+    show = unreal.load_asset(SHOW_PATH)
     require(show is not None, "SHOW_MISSING")
     passage = find_p04(world, show)
     expected = expected_show_light_ids(show, passage)

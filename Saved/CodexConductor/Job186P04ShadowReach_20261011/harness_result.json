@@ -1,13 +1,8 @@
 {
-  "failed": 1,
-  "failures": [
-    [
-      "negative: malformed identity ignored",
-      "AssertionError: wanted 'AssertionError' in AssertionError()"
-    ]
-  ],
+  "failed": 0,
+  "failures": [],
   "negative_controls": 9,
-  "passed": 20,
+  "passed": 21,
   "passes": [
     "positive: identity tag round trips",
     "positive: untagged P04 light plans repair",
@@ -15,6 +10,7 @@
     "positive: non-light managed prop does not enter light identity set",
     "positive: APPLY args require reviewed hash and count",
     "positive: restore args are separately confirmed",
+    "negative: malformed managed identity rejected",
     "negative: stale actor identity rejected",
     "negative: duplicate actor identity rejected",
     "negative: missing expected Show light rejected",

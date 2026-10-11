@@ -65,9 +65,8 @@ check("positive: APPLY args require reviewed hash and count", lambda: T.check_ar
 check("positive: restore args are separately confirmed", lambda: T.check_args({
     "mode": "REVERT", "confirm": T.CONFIRM["REVERT"]}))
 
-rejects("negative: malformed identity ignored", lambda: (_ for _ in ()).throw(
-    AssertionError()) if T.parse_identity_tag_text(T.TAG_PREFIX + "bad|tag") is None else None,
-        "AssertionError")
+rejects("negative: malformed managed identity rejected", lambda: T.managed_identity_tag_text(
+    T.TAG_PREFIX + "bad|tag"), "MALFORMED_IDENTITY_TAG")
 rejects("negative: stale actor identity rejected", lambda: T.validate_readback(
     [TAG], [{"label": "lamp", "path": "x", "identity": ("C" * 32, GUID_B), "has_light": True}]),
         "TAG_READBACK_MISMATCH")

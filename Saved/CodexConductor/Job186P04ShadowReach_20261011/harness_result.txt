@@ -1,10 +1,11 @@
-JOB186_OFFLINE_HARNESS 20/21
+JOB186_OFFLINE_HARNESS 21/21
 PASS positive: identity tag round trips
 PASS positive: untagged P04 light plans repair
 PASS positive: exact Show identity is a no-op
 PASS positive: non-light managed prop does not enter light identity set
 PASS positive: APPLY args require reviewed hash and count
 PASS positive: restore args are separately confirmed
+PASS negative: malformed managed identity rejected
 PASS negative: stale actor identity rejected
 PASS negative: duplicate actor identity rejected
 PASS negative: missing expected Show light rejected
@@ -19,4 +20,3 @@ PASS negative: perf requires all three spots
 PASS positive: perf gate loads three P04 probe reports
 PASS negative: perf gate rejects non-P04 report
 PASS positive: Show materializer, backup, readback and safe restore contracts present
-FAIL negative: malformed identity ignored :: AssertionError: wanted 'AssertionError' in AssertionError()
