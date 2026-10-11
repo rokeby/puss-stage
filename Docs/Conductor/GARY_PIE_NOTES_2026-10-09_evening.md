@@ -130,3 +130,9 @@
 
 ## Gary, 11 Oct: room tone
 - Cameron provided a ROOM TONE track. It should loop under the ENTIRE show at all times, with no cues, except perhaps when we enter the void (S6 warp). File location: asked Gary; not found on G: Sound, Downloads or Content/Audio as of this note.
+
+## Gary, 11 Oct: P05 -> S5 whiteout (confirmed by questionnaire)
+- Target: P05 into Scene 5 (the mountains). P05 and that seam can be changed radically.
+- REMOVE the hangar at the P05->S5 arrival.
+- As we approach the P05 curtain drop, we enter a cloud space that thickens to near-pure WHITE.
+- Then the S5 video cross-dissolves in out of the white.
