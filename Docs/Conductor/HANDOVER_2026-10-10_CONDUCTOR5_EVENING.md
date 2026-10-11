@@ -119,3 +119,36 @@ Earlier on 10 Oct: S4 blackout, pearl fade, S3 arrival and garments, P04 smoke p
 ight_20261010_1800eport\`) flags 7 GROWING series. 4 are cumulative janitor counters (expected to rise). DroppedExperience, FlushFailures and DroppedBackpressure need a look. ObservationKeys/CooldownKeys (the 27 Sep leak) are NOT flagged.
 - The backup is on F:\Metamall_UE58_Proving_backup_20261010_1800 (37.6 GB, robocopy exit 1 = all copied).
 - The Puss editor is CLOSED.
+
+## 11 Oct, PC pack-down: state for the laptop (via git)
+**Done today (committed and pushed):**
+- The build includes:
+  - job 180 (parcan auto-rebuild + per-light no-parcan flag);
+  - job 187 (the 2 stale tests fixed);
+  - job 195 (room tone on the Show Root; waiting on Cameron's file);
+  - job 192 (the S5 fade-from-white overlay).
+- Live and applied:
+  - S1 fade to black;
+  - P06 no-parcan;
+  - the nested `LS_Clams` trim;
+  - the P05->S5 whiteout (3D route; S5 is dark until its video exists);
+  - the S6 warp WITHOUT the move-in (job 198; check its stills, the warp may not show in captures).
+
+**Waiting on the PC (needs Unreal):**
+- The S6 move-in that ends exactly at the nested `CineCameraActor5` pose (job 198b, DRY only, for review).
+- Seam faults from the job 196 audit:
+  - 06 I2->P3: 29 m camera jump;
+  - 12 I4->Nap Interlude: 3.2 km / 42 deg;
+  - 14 S5->I5: 7 m / 86 deg;
+  - 15 I5->P6: brightness pop.
+- P04 shadow reach (job 186): ready, lower priority.
+- Room tone APPLY: once Cameron's wav arrives.
+- Scene videos: none rendered yet. When they are, write `Content/InfinityStage/CueSheet/cue_director.txt` with `use_video = S<n>`.
+
+**Laptop-safe (no Unreal needed):**
+- The gobo PG8 first pass (Gobo session).
+- Offline Codex tool prep for the seam fixes (06/12/14/15) from the job 196 contact sheets.
+- Script/shot-list edits.
+- Cue Book surtitles.
+
+**Lost:** `Docs/Conductor/JOB191_REPORT_2026-10-11.md` is NUL bytes. The tools are fine.
