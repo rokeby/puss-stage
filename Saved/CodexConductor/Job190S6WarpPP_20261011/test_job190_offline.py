@@ -43,19 +43,21 @@ def main():
                             "CodexConductor/Job190S6WarpPP_20261011/job190_run.py"}}})
     check("DRY is default", args["mode"] == "DRY")
     check("default preset is lowercase both", args["preset"] == "both")
-    check("move defaults", (args["move_seconds"], args["push_cm"], args["ease_fraction"]) == (2.8, 240.0, 0.35))
+    check("move-in is safely off by default", args["move_in"] == "off")
+    check("move timing defaults", (args["move_seconds"], args["ease_fraction"]) == (2.8, 0.35))
     check("void proposal is off", args["void_mode"] == "off")
     check("production Master identity",
           core.MASTER_PATH == "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master")
     current_master = "/Game/InfinityStage/Current/LS_RuntimeMaster"
-    dynamic_saves = (current_master,) + tuple(path for path in core.ALLOWED_NAMED_SAVES
-                                               if path != core.MASTER_PATH)
+    dynamic_saves = core.expected_named_saves("match_nested", current_master)
     check("current Show Root Master accepted dynamically",
           core.validate_named_saves(dynamic_saves, require_apply_set=True,
-                                    current_master_path=current_master) == dynamic_saves)
+                                    current_master_path=current_master,
+                                    move_in="match_nested") == dynamic_saves)
     rejects("obsolete Master rejected when current differs",
             lambda: core.validate_named_saves(core.ALLOWED_NAMED_SAVES, require_apply_set=True,
-                                              current_master_path=current_master), "allowlist")
+                                              current_master_path=current_master,
+                                              move_in="match_nested"), "allowlist")
     check("dynamic Master is sole camera edit target",
           core.validate_camera_edit_targets((current_master,), current_master_path=current_master)
           == (current_master,))
@@ -66,14 +68,24 @@ def main():
                                                                    "confirm": core.CONFIRM["REVERT"]}), "record")
     check("exact APPLY accepted", core.validate_args({"mode": "APPLY", "run": "J190-ABC",
                                                        "confirm": core.CONFIRM["APPLY"]})["mode"] == "APPLY")
-    rejects("push low negative", lambda: core.validate_args({"push_cm": 0}), "push")
+    rejects("legacy fixed push rejected", lambda: core.validate_args({"push_cm": 240}), "obsolete")
+    rejects("bad move-in mode negative", lambda: core.validate_args({"move_in": "offset"}), "move_in")
+    check("nested-match move accepted", core.validate_args({"move_in": "match_nested"})["move_in"] == "match_nested")
     rejects("move high negative", lambda: core.validate_args({"move_seconds": 9}), "move")
     rejects("ease negative", lambda: core.validate_args({"ease_fraction": 0}), "ease")
     rejects("priority negative", lambda: core.validate_args({"volume_priority": 0}), "priority")
     rejects("void mode negative", lambda: core.validate_args({"void_mode": "do_it"}), "void")
     check("source preset alias accepted", core.validate_args({"preset": "Both"})["preset"] == "both")
     check("Job 194 APPLY save allowlist exact",
-          core.validate_named_saves(core.ALLOWED_NAMED_SAVES, require_apply_set=True) == core.ALLOWED_NAMED_SAVES)
+          core.validate_named_saves(core.ALLOWED_NAMED_SAVES, require_apply_set=True,
+                                    move_in="match_nested") == core.ALLOWED_NAMED_SAVES)
+    check("warp-only save set excludes Master",
+          core.validate_named_saves(core.WARP_ONLY_NAMED_SAVES, require_apply_set=True,
+                                    move_in="off") == core.WARP_ONLY_NAMED_SAVES
+          and core.MASTER_PATH not in core.WARP_ONLY_NAMED_SAVES)
+    rejects("warp-only cannot save Master",
+            lambda: core.validate_named_saves(core.ALLOWED_NAMED_SAVES, require_apply_set=True,
+                                              move_in="off"), "move_in=off")
     rejects("KlaraHookin save negative",
             lambda: core.validate_named_saves((core.MASTER_PATH, core.NESTED_SHOT_PATH)), "KlaraHookin")
     rejects("extra named save negative",
@@ -118,6 +130,17 @@ def main():
 
     check("move frame plan", core.move_frames(100000, 24000, 2.8, 0.35) == [32800, 56320, 100000])
     rejects("move underflow negative", lambda: core.move_frames(10, 24000, 2.8, 0.35), "invalid")
+    start_pose = {"transform": {"location": [10.0, 20.0, 30.0], "rotation": [0.0, 0.0, 0.0],
+                                "scale": [1.0, 1.0, 1.0]}, "focal_mm": 35.0, "focus_cm": 1000.0}
+    target_pose = {"transform": {"location": [40.0, 60.0, 30.0], "rotation": [1.0, 2.0, 3.0],
+                                 "scale": [1.0, 1.0, 1.0]}, "focal_mm": 50.0, "focus_cm": 2000.0}
+    target_keys = core.move_to_target_keys([100, 200, 300], start_pose, target_pose)
+    check("nested-match path starts unchanged and ends exactly at target",
+          target_keys[0]["transform"] == start_pose["transform"] and
+          target_keys[-1]["transform"] == target_pose["transform"])
+    check("nested-match path distance reported", abs(core.path_distance_cm(target_keys) - 50.0) < 1e-9)
+    rejects("nested-match frame order negative",
+            lambda: core.move_to_target_keys([100, 100, 300], start_pose, target_pose), "increasing")
     midpoint = core.evaluate_score(core.compile_score(SCORES, "both"), 80.0)
     check("score interpolation", 0.30 < midpoint["Weird"] < 0.40)
     check("digest changes with void proposal", core.plan_digest(args, core.compile_score(SCORES, "both")) !=
@@ -132,6 +155,9 @@ def main():
           "MATERIAL_PATH = core.MATERIAL_PATH" in source)
     check("post-process domain", "MaterialDomain.MD_POST_PROCESS" in source)
     check("three PostProcessInput0 samples", "PPI_POST_PROCESS_INPUT0" in source and "MaterialExpressionSceneTexture" in source)
+    check("UE5.8 SceneTexture connection uses documented first-input fallback",
+          'connect_material_expressions(uv, "", scene, "")' in source and
+          'scene, "Coordinates"' not in source)
     check("screen UV source", "MaterialExpressionScreenPosition" in source)
     check("all effects in shader", all(token in source for token in
           ("Weird", "Invert", "HueDrift", "Solarize", "ChromaSplit", "Warp", "Mirror", "Phase")))
@@ -142,7 +168,9 @@ def main():
     check("create-only material guard", "CREATE_ONLY_MATERIAL_PATH_ALREADY_EXISTS" in source)
     check("never deletes material expressions", all(token not in source for token in
           ("delete_material_expression", "delete_all_material_expressions")))
-    check("S6-only PPV blend track", 'set_property_name_and_path("BlendWeight", "blend_weight")' in source)
+    check("S6-only PPV blend track uses reflected runtime path",
+          'set_property_name_and_path("BlendWeight", "BlendWeight")' in source and
+          'set_property_name_and_path("BlendWeight", "blend_weight")' not in source)
     check("PPV default off", 'volume.set_editor_property("blend_weight", 0.0)' in source)
     check("PPV restore state", "MovieSceneCompletionMode.RESTORE_STATE" in source)
     check("live 3D identities read-only guarded", all(token in source for token in
@@ -151,11 +179,13 @@ def main():
     check("nested and entry cameras are never edited", "set_first_camera_transform" not in source and
           "def set_camera_actor" not in source and
           'ctx["shot"].remove_track' not in source and 'ctx["shot"].add_track' not in source)
-    check("move-in becomes DRY-only when nested edit would be required",
-          "MOVE_IN_DRY_ONLY|P06_MASTER_ONLY_CANNOT_MATCH_READ_ONLY_NESTED_CAMERA" in source)
+    check("nested-matched move-in remains conductor-review DRY-only",
+          "MOVE_IN_DRY_ONLY|CONDUCTOR_REVIEW_REQUIRED" in source)
     check("named saves exclude KlaraHookin",
-          '"named_saves": [ctx["master_path"], S6_PATH, MATERIAL_PATH, MPC_PATH, WORLD_PATH]' in source
+          'core.expected_named_saves(args["move_in"], ctx["master_path"])' in source
           and '"named_saves": [MASTER_PATH' not in source)
+    check("warp-only APPLY never keys Master camera",
+          'if args["move_in"] == "off" and after["camera_channels"] != before["camera_channels"]' in source)
     check("MPC target explicitly guarded", "validate_mpc_key_sequence" in source and
           '"mpc_key_sequence": S6_PATH' in source)
     check("binding lookup precedes add", "BINDING_LOOKUP_CHANGED_BEFORE_ADD" in source)

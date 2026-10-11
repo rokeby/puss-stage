@@ -609,34 +609,48 @@ def snapshot(ctx):
 def proposal(ctx, args, rows):
     tick = ctx["show"].get_editor_property("tick_resolution")
     tick_rate = tick.numerator / float(tick.denominator)
-    frames = core.move_frames(ctx["end"], tick_rate, args["move_seconds"], args["ease_fraction"])
     lib = unreal.InfinityStageCameraPilotLibrary
-    poses = [pose_row(unwrap(lib.get_passage_camera_pose(ctx["show"], ctx["guid"], frame), 3,
-                                 "P06_POSE_%d" % frame)) for frame in frames]
-    fractions = [0.0, 0.18, 1.0]
+    frames = []
     desired = []
-    for frame, pose, fraction in zip(frames, poses, fractions):
-        transform = make_transform(pose["transform"])
-        forward = unreal.MathLibrary.get_forward_vector(transform.rotation.rotator())
-        moved = dict(pose["transform"])
-        moved["location"] = vec(transform.translation + forward * (args["push_cm"] * fraction))
-        desired.append({"frame": frame, "fraction": fraction, "transform": moved,
-                        "focal_mm": pose["focal_mm"], "focus_cm": pose["focus_cm"]})
+    move_report = {"mode": args["move_in"], "status": "disabled", "path_distance_cm": 0.0}
+    if args["move_in"] == "match_nested":
+        frames = core.move_frames(ctx["end"], tick_rate, args["move_seconds"], args["ease_fraction"])
+        start_pose = pose_row(unwrap(lib.get_passage_camera_pose(ctx["show"], ctx["guid"], frames[0]), 3,
+                                     "P06_POSE_%d" % frames[0]))
+        end_pose = pose_row(unwrap(lib.get_passage_camera_pose(ctx["show"], ctx["guid"], ctx["end"]), 3,
+                                   "P06_END_POSE"))
+        nested_transform = first_camera_transform_state(ctx).get("pose")
+        if nested_transform is None:
+            stop(args["run"], "NESTED_FIRST_CAMERA_POSE_UNAVAILABLE")
+        target_pose = {
+            "transform": nested_transform,
+            "focal_mm": end_pose["focal_mm"],
+            "focus_cm": end_pose["focus_cm"],
+        }
+        desired = core.move_to_target_keys(frames, start_pose, target_pose)
+        move_report = {
+            "mode": args["move_in"],
+            "status": "dry_review_only",
+            "path_distance_cm": core.path_distance_cm(desired),
+            "start_pose": start_pose,
+            "target_source": "%s:%s:first-frame-static-transform" % (SHOT_PATH, FIRST_CAMERA_BINDING),
+            "target_pose": target_pose,
+        }
     fps = ctx["s6"].get_display_rate().numerator / float(ctx["s6"].get_display_rate().denominator)
     plan = {
-        "camera_frames": frames, "camera_keys": desired, "tick_rate": tick_rate,
+        "camera_frames": frames, "camera_keys": desired, "move_in": move_report, "tick_rate": tick_rate,
         "score_rows": rows, "score_keys": core.score_keys(rows, fps), "display_fps": fps,
         "volume": {"label": VOLUME_LABEL, "tag": VOLUME_TAG, "priority": args["volume_priority"],
                    "default_blend_weight": 0.0, "s6_blend_weight": 1.0},
         "void": read_json(VOID_PROPOSAL),
-        "named_saves": [ctx["master_path"], S6_PATH, MATERIAL_PATH, MPC_PATH, WORLD_PATH],
+        "named_saves": list(core.expected_named_saves(args["move_in"], ctx["master_path"])),
         "mpc_key_sequence": S6_PATH,
-        "camera_edit_targets": [ctx["master_path"]],
+        "camera_edit_targets": [ctx["master_path"]] if args["move_in"] != "off" else [],
         "nested_shot_policy": "read_only_never_save_never_edit",
         "runtime_prerequisite": "none; post-process route requires no C++ patch and no build",
     }
     core.validate_named_saves(plan["named_saves"], require_apply_set=True,
-                              current_master_path=ctx["master_path"])
+                              current_master_path=ctx["master_path"], move_in=args["move_in"])
     core.validate_mpc_key_sequence(plan["mpc_key_sequence"])
     core.validate_camera_edit_targets(plan["camera_edit_targets"],
                                       current_master_path=ctx["master_path"])
@@ -704,8 +718,11 @@ def create_material(tools, mpc, run):
                                                -500, -350 + index * 260)
         scene.set_editor_property("scene_texture_id", unreal.SceneTextureId.PPI_POST_PROCESS_INPUT0)
         scene.set_editor_property("filtered", True)
-        if not mel.connect_material_expressions(uv, "", scene, "Coordinates"):
-            stop(run, "MATERIAL_CONNECT|UV%s->Scene%s.Coordinates" % (suffix, suffix))
+        # UE 5.8 exposes Coordinates in the C++ header, but the Python material
+        # connector rejected that named pin live. The documented empty name
+        # selects the expression's first (Coordinates) input.
+        if not mel.connect_material_expressions(uv, "", scene, ""):
+            stop(run, "MATERIAL_CONNECT|UV%s->Scene%s.first_input" % (suffix, suffix))
         scene_nodes[suffix] = scene
 
     colour = mel.create_material_expression(material, unreal.MaterialExpressionCustom, -80, -80)
@@ -792,7 +809,9 @@ def create_volume_and_track(ctx, material, plan, run):
     if len(volume_bindings(ctx["s6"])) != 1:
         stop(run, "VOLUME_BINDING_READBACK")
     track = binding.add_track(unreal.MovieSceneFloatTrack)
-    track.set_property_name_and_path("BlendWeight", "blend_weight")
+    # Sequencer resolves reflected C++ property paths, not Python's snake_case
+    # editor alias. The snake_case path serialized but was inert in PIE.
+    track.set_property_name_and_path("BlendWeight", "BlendWeight")
     track.set_display_name("S6 Warp Enabled (Job190)")
     section = track.add_section()
     section.set_range(int(ctx["s6"].get_playback_start()), int(ctx["s6"].get_playback_end()))
@@ -809,13 +828,16 @@ def content_file(package, extension=".uasset"):
     return os.path.join(root, package[len("/Game/"):].replace("/", os.sep) + extension)
 
 
-def backup(ctx, run, existing_assets):
+def backup(ctx, run, existing_assets, named_saves):
     project = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     directory = os.path.join(project, "Backups", "PreJob190S6WarpPP-%s-%s" % (run, stamp))
     os.makedirs(directory, exist_ok=False)
-    packages = [(ctx["master_path"], ".uasset"), (S6_PATH, ".uasset"), (WORLD_PATH, ".umap")]
-    packages.extend((path, ".uasset") for path in existing_assets)
+    packages = []
+    for path in named_saves:
+        if path in (MPC_PATH, MATERIAL_PATH) and path not in existing_assets:
+            continue
+        packages.append((path, ".umap" if path == WORLD_PATH else ".uasset"))
     rows = []
     for package, extension in packages:
         source = content_file(package, extension)
@@ -829,9 +851,10 @@ def backup(ctx, run, existing_assets):
     return {"directory": directory, "files": rows}
 
 
-def assert_dirty_scope(paths, run, stage):
+def assert_dirty_scope(paths, run, stage, ctx, move_in):
     try:
-        core.validate_named_saves(paths, require_apply_set=(stage == "APPLY"))
+        core.validate_named_saves(paths, require_apply_set=(stage == "APPLY"),
+                                  current_master_path=ctx["master_path"], move_in=move_in)
     except ValueError as exc:
         stop(run, "%s_NAMED_SAVE_POLICY|%s" % (stage, exc))
     census = dirty_census()
@@ -843,9 +866,9 @@ def assert_dirty_scope(paths, run, stage):
     return census
 
 
-def save_named(paths, run):
+def save_named(paths, run, current_master_path, move_in):
     try:
-        core.validate_named_saves(paths)
+        core.validate_named_saves(paths, current_master_path=current_master_path, move_in=move_in)
     except ValueError as exc:
         stop(run, "NAMED_SAVE_POLICY|%s" % exc)
     for path in paths:
@@ -914,12 +937,14 @@ def run_dry(ctx, args, rows, plan):
         refusals.append("PYTHON_API_MISSING|%s" % name)
     refusals.extend(route_problems(before["route"]))
     nested_pose = (before["route"].get("first_camera_transform") or {}).get("pose")
-    predicted_nested_cut = transform_delta(plan["camera_keys"][-1]["transform"], nested_pose)
+    predicted_endpoint = (plan["camera_keys"][-1]["transform"] if plan["camera_keys"]
+                          else before["p06_end"]["transform"])
+    predicted_nested_cut = transform_delta(predicted_endpoint, nested_pose)
     if (predicted_nested_cut is None or predicted_nested_cut["position_cm"] > 0.01
             or predicted_nested_cut["rotation_deg_euler_max"] > 0.001):
-        refusals.append(
-            "MOVE_IN_DRY_ONLY|P06_MASTER_ONLY_CANNOT_MATCH_READ_ONLY_NESTED_CAMERA|%r"
-            % predicted_nested_cut)
+        refusals.append("MOVE_IN_SEAM_MISMATCH|%r" % predicted_nested_cut)
+    if args["move_in"] == "match_nested":
+        refusals.append("MOVE_IN_DRY_ONLY|CONDUCTOR_REVIEW_REQUIRED")
     if before["score_track"] is not None or before["mpc_track_conflicts"]:
         refusals.append("S6_MPC_TRACK_ALREADY_EXISTS|%r" % before["mpc_track_conflicts"])
     if before["volume"]["actor_count"] or before["volume"]["binding_count"]:
@@ -939,9 +964,10 @@ def run_dry(ctx, args, rows, plan):
     write_new(dry_path(args["run"]), report)
     if dirty_census() != {"content": [], "maps": []}:
         stop(args["run"], "DRY_DIRTIED_EDITOR")
-    unreal.log("JOB190_DRY_OK|run=%s|apply_ready=%d|refusals=%d|preset=%s|move_s=%.3f|push_cm=%.1f|route=live3d|build=none|digest=%s|record=%s" %
-               (args["run"], int(not refusals), len(refusals), args["preset"], args["move_seconds"],
-                args["push_cm"], report["plan_digest"], dry_path(args["run"])))
+    unreal.log("JOB190_DRY_OK|run=%s|apply_ready=%d|refusals=%d|preset=%s|move_in=%s|move_s=%.3f|path_cm=%.3f|seam_cm=%.6f|route=live3d|build=none|digest=%s|record=%s" %
+               (args["run"], int(not refusals), len(refusals), args["preset"], args["move_in"],
+                args["move_seconds"], plan["move_in"]["path_distance_cm"], predicted_nested_cut["position_cm"],
+                report["plan_digest"], dry_path(args["run"])))
     for refusal in refusals:
         unreal.log_warning("JOB190_REFUSAL|run=%s|%s" % (args["run"], refusal))
 
@@ -953,7 +979,7 @@ def run_apply(ctx, args, rows, plan):
         stop(args["run"], "CURRENT_GREEN_DRY_REQUIRED_WITH_SAME_RUN_AND_ARGS")
     try:
         core.validate_named_saves(plan["named_saves"], require_apply_set=True,
-                                  current_master_path=ctx["master_path"])
+                                  current_master_path=ctx["master_path"], move_in=args["move_in"])
         core.validate_mpc_key_sequence(plan["mpc_key_sequence"])
         core.validate_camera_edit_targets(plan["camera_edit_targets"],
                                           current_master_path=ctx["master_path"])
@@ -968,7 +994,7 @@ def run_apply(ctx, args, rows, plan):
         stop(args["run"], "OWNED_VOLUME_OR_BINDING_EXISTS")
     existing_assets = [path for path in (MPC_PATH, MATERIAL_PATH)
                        if unreal.EditorAssetLibrary.does_asset_exist(path)]
-    backup_row = backup(ctx, args["run"], existing_assets)
+    backup_row = backup(ctx, args["run"], existing_assets, plan["named_saves"])
     record_path = apply_path(args["run"])
     record = {
         "schema": 1, "status": "PREPARED_BEFORE_MUTATION", "run": args["run"],
@@ -989,8 +1015,8 @@ def run_apply(ctx, args, rows, plan):
                                              make_transform(item["transform"]), False,
                                              float(item["focal_mm"]), float(item["focus_cm"]))
         camera_reports.append(str(unwrap(result, 1, "KEY_CAMERA_%d" % item["frame"])[0]))
-    dirty_before_save = assert_dirty_scope(plan["named_saves"], args["run"], "APPLY")
-    save_named(plan["named_saves"], args["run"])
+    dirty_before_save = assert_dirty_scope(plan["named_saves"], args["run"], "APPLY", ctx, args["move_in"])
+    save_named(plan["named_saves"], args["run"], ctx["master_path"], args["move_in"])
     after = snapshot(ctx)
     track_after = verify_score_track(ctx["s6"], plan)
     if not material_state_valid(after["assets"]):
@@ -1004,7 +1030,7 @@ def run_apply(ctx, args, rows, plan):
             or abs(actor_after.get("blend_weight", -1.0)) > FLOAT_TOL
             or actor_after.get("blendables") != [{"object": MATERIAL_PATH, "weight": 1.0}]):
         stop(args["run"], "POSTSAVE_VOLUME_STATE|%r" % actor_after)
-    if binding_after.get("property") != ["BlendWeight", "blend_weight"] or binding_after.get("default") != 1.0:
+    if binding_after.get("property") != ["BlendWeight", "BlendWeight"] or binding_after.get("default") != 1.0:
         stop(args["run"], "POSTSAVE_S6_SCOPE_TRACK|%r" % binding_after)
     end_after = pose_row(unwrap(lib.get_passage_camera_pose(ctx["show"], ctx["guid"], ctx["end"]), 3,
                                 "END_READBACK"))
@@ -1013,6 +1039,8 @@ def run_apply(ctx, args, rows, plan):
     nested_before = (before["route"].get("first_camera_transform") or {}).get("channels")
     if nested_after != nested_before:
         stop(args["run"], "FORBIDDEN_NESTED_CAMERA_CHANGED")
+    if args["move_in"] == "off" and after["camera_channels"] != before["camera_channels"]:
+        stop(args["run"], "MOVE_IN_OFF_CHANGED_MASTER_CAMERA")
     record.update({
         "status": "APPLIED_AND_READ_BACK", "created_assets": created,
         "created_volume_path": volume.get_path_name(), "created_binding_guid": guid_text(binding.get_id()),
@@ -1021,9 +1049,10 @@ def run_apply(ctx, args, rows, plan):
         "dirty_before_save": dirty_before_save, "after": after, "dirty_after": dirty_census(),
     })
     replace_json(record_path, record)
-    unreal.log("JOB190_APPLY_OK|run=%s|preset=%s|route=live3d|build=none|score_keys=%d|volume_s6_only=1|nested_camera=unchanged|saved=5|created=%d|record=%s|backup=%s" %
-               (args["run"], args["preset"], sum(len(value) for value in plan["score_keys"].values()),
-                 len(created), record_path, backup_row["directory"]))
+    unreal.log("JOB190_APPLY_OK|run=%s|preset=%s|move_in=%s|route=live3d|build=none|score_keys=%d|volume_s6_only=1|nested_camera=unchanged|saved=%d|created=%d|record=%s|backup=%s" %
+               (args["run"], args["preset"], args["move_in"],
+                sum(len(value) for value in plan["score_keys"].values()),
+                len(plan["named_saves"]), len(created), record_path, backup_row["directory"]))
 
 
 def run_revert(ctx, args):
@@ -1043,7 +1072,10 @@ def run_revert(ctx, args):
              (len(tracks), len(bindings), len(actors)))
     existing_assets = [path for path in (MPC_PATH, MATERIAL_PATH)
                        if unreal.EditorAssetLibrary.does_asset_exist(path)]
-    backup_row = backup(ctx, args["run"], existing_assets)
+    source_move_in = source.get("args", {}).get("move_in", "match_nested")
+    source_saves = source.get("plan", {}).get(
+        "named_saves", list(core.expected_named_saves(source_move_in, ctx["master_path"])))
+    backup_row = backup(ctx, args["run"], existing_assets, source_saves)
     revert_path = os.path.join(RECORDS, "job190_%s_revert.json" % args["run"])
     record = {
         "schema": 1, "status": "PREPARED_BEFORE_MUTATION", "run": args["run"],
@@ -1057,22 +1089,25 @@ def run_revert(ctx, args):
     bindings[0].remove()
     if not ctx["actor_sub"].destroy_actor(actors[0]):
         stop(args["run"], "DESTROY_OWNED_VOLUME_FAILED")
-    restore_channels(ctx["section"], source["before"]["camera_channels"])
-    revert_saves = [ctx["master_path"], S6_PATH, WORLD_PATH]
-    dirty_before_save = assert_dirty_scope(revert_saves, args["run"], "REVERT")
-    save_named(revert_saves, args["run"])
+    camera_restored = 0
+    if source_move_in != "off":
+        restore_channels(ctx["section"], source["before"]["camera_channels"])
+        camera_restored = 1
+    revert_saves = ([ctx["master_path"]] if source_move_in != "off" else []) + [S6_PATH, WORLD_PATH]
+    dirty_before_save = assert_dirty_scope(revert_saves, args["run"], "REVERT", ctx, source_move_in)
+    save_named(revert_saves, args["run"], ctx["master_path"], source_move_in)
     after = snapshot(ctx)
     if after["score_track"] is not None or after["volume"]["actor_count"] or after["volume"]["binding_count"]:
         stop(args["run"], "REVERT_OWNED_STATE_REMAINS|%r" % after)
-    if after["camera_channels"] != source["before"]["camera_channels"]:
+    if source_move_in != "off" and after["camera_channels"] != source["before"]["camera_channels"]:
         stop(args["run"], "CAMERA_CHANNEL_REVERT_READBACK")
     if after["route"]["first_camera_transform"]["channels"] != source["before"]["route"]["first_camera_transform"]["channels"]:
         stop(args["run"], "FORBIDDEN_NESTED_CAMERA_CHANGED_DURING_REVERT")
     record.update({"status": "REVERTED_AND_READ_BACK", "after": after,
                    "dirty_before_save": dirty_before_save, "dirty_after": dirty_census()})
     replace_json(revert_path, record)
-    unreal.log("JOB190_REVERT_OK|run=%s|source=%s|score_removed=1|volume_removed=1|camera_restored=1|nested_camera=unchanged|assets_retained=%d|record=%s|backup=%s" %
-               (args["run"], path, len(existing_assets), revert_path, backup_row["directory"]))
+    unreal.log("JOB190_REVERT_OK|run=%s|source=%s|score_removed=1|volume_removed=1|camera_restored=%d|nested_camera=unchanged|assets_retained=%d|record=%s|backup=%s" %
+               (args["run"], path, camera_restored, len(existing_assets), revert_path, backup_row["directory"]))
 
 
 def main():

@@ -13,6 +13,7 @@ PARAMETERS = (
 )
 UNIT_PARAMETERS = set(PARAMETERS) - {"Phase"}
 PRESETS = ("gentle_to_invert", "gentle_to_liquid", "both")
+MOVE_IN_MODES = ("off", "match_nested")
 SOURCE_PRESET_NAMES = {
     "gentle_to_invert": "Gentle->Invert",
     "gentle_to_liquid": "Gentle->Liquid",
@@ -39,6 +40,12 @@ WORLD_PATH = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 KLARA_HOOKIN_PREFIX = "/Game/InfinityStage/KlaraHookin/"
 ALLOWED_NAMED_SAVES = (
     MASTER_PATH,
+    S6_PATH,
+    MATERIAL_PATH,
+    MPC_PATH,
+    WORLD_PATH,
+)
+WARP_ONLY_NAMED_SAVES = (
     S6_PATH,
     MATERIAL_PATH,
     MPC_PATH,
@@ -78,15 +85,17 @@ def validate_args(raw):
     if mode in CONFIRM and args.get("confirm") != CONFIRM[mode]:
         raise ValueError("%s requires exact confirm %r" % (mode, CONFIRM[mode]))
     preset = normalize_preset(args.get("preset", "both"))
+    move_in = str(args.get("move_in", "off")).strip().lower()
+    if "push_cm" in args:
+        raise ValueError("push_cm is obsolete; use move_in=off or move_in=match_nested")
     move_seconds = _finite(args.get("move_seconds", 2.8), "move_seconds")
-    push_cm = _finite(args.get("push_cm", 240.0), "push_cm")
     ease_fraction = _finite(args.get("ease_fraction", 0.35), "ease_fraction")
     volume_priority = _finite(args.get("volume_priority", 190.0), "volume_priority")
     void_mode = str(args.get("void_mode", "off")).strip().lower()
     if not 0.5 <= move_seconds <= 8.0:
         raise ValueError("move_seconds must be in [0.5, 8]")
-    if not 10.0 <= push_cm <= 800.0:
-        raise ValueError("push_cm must be in [10, 800]")
+    if move_in not in MOVE_IN_MODES:
+        raise ValueError("move_in must be one of %r" % (MOVE_IN_MODES,))
     if not 0.1 <= ease_fraction <= 0.9:
         raise ValueError("ease_fraction must be in [0.1, 0.9]")
     if not 1.0 <= volume_priority <= 10000.0:
@@ -99,8 +108,8 @@ def validate_args(raw):
         "mode": mode,
         "run": run,
         "preset": preset,
+        "move_in": move_in,
         "move_seconds": move_seconds,
-        "push_cm": push_cm,
         "ease_fraction": ease_fraction,
         "volume_priority": volume_priority,
         "void_mode": void_mode,
@@ -108,7 +117,17 @@ def validate_args(raw):
     }
 
 
-def validate_named_saves(paths, require_apply_set=False, current_master_path=MASTER_PATH):
+def expected_named_saves(move_in, current_master_path=MASTER_PATH):
+    mode = str(move_in).strip().lower()
+    if mode not in MOVE_IN_MODES:
+        raise ValueError("move_in must be one of %r" % (MOVE_IN_MODES,))
+    if mode == "off":
+        return WARP_ONLY_NAMED_SAVES
+    return (current_master_path,) + WARP_ONLY_NAMED_SAVES
+
+
+def validate_named_saves(paths, require_apply_set=False, current_master_path=MASTER_PATH,
+                         move_in="match_nested"):
     rows = tuple(str(path) for path in paths)
     if len(rows) != len(set(rows)):
         raise ValueError("named_saves contains duplicates")
@@ -119,8 +138,9 @@ def validate_named_saves(paths, require_apply_set=False, current_master_path=MAS
     unknown = sorted(set(rows) - set(allowed))
     if unknown:
         raise ValueError("named_saves outside Job 194 allowlist: %r" % unknown)
-    if require_apply_set and set(rows) != set(allowed):
-        raise ValueError("APPLY named_saves must equal the Job 194 allowlist")
+    expected = expected_named_saves(move_in, current_master_path=current_master_path)
+    if require_apply_set and set(rows) != set(expected):
+        raise ValueError("APPLY named_saves must equal the move_in=%s allowlist" % move_in)
     return rows
 
 
@@ -197,6 +217,41 @@ def move_frames(end_tick, tick_rate, move_seconds, ease_fraction):
     return [start, middle, end_tick]
 
 
+def move_to_target_keys(frames, start_pose, target_pose, middle_fraction=0.18):
+    if len(frames) != 3 or not frames[0] < frames[1] < frames[2]:
+        raise ValueError("move-to-target requires three increasing frames")
+    fraction = _finite(middle_fraction, "middle_fraction")
+    if not 0.0 < fraction < 1.0:
+        raise ValueError("middle_fraction must be in (0, 1)")
+    result = []
+    for frame, alpha in zip(frames, (0.0, fraction, 1.0)):
+        transform = {
+            "location": [lerp(a, b, alpha) for a, b in
+                         zip(start_pose["transform"]["location"], target_pose["transform"]["location"])],
+            "rotation": [lerp(a, b, alpha) for a, b in
+                         zip(start_pose["transform"]["rotation"], target_pose["transform"]["rotation"])],
+            "scale": [lerp(a, b, alpha) for a, b in
+                      zip(start_pose["transform"].get("scale", [1.0, 1.0, 1.0]),
+                          target_pose["transform"].get("scale", [1.0, 1.0, 1.0]))],
+        }
+        result.append({
+            "frame": int(frame),
+            "fraction": alpha,
+            "transform": transform,
+            "focal_mm": lerp(start_pose["focal_mm"], target_pose["focal_mm"], alpha),
+            "focus_cm": lerp(start_pose["focus_cm"], target_pose["focus_cm"], alpha),
+        })
+    return result
+
+
+def path_distance_cm(keys):
+    total = 0.0
+    for left, right in zip(keys, keys[1:]):
+        total += math.sqrt(sum((a - b) ** 2 for a, b in
+                               zip(left["transform"]["location"], right["transform"]["location"])))
+    return total
+
+
 def lerp(a, b, alpha):
     return float(a) + (float(b) - float(a)) * float(alpha)
 
@@ -216,7 +271,7 @@ def evaluate_score(rows, second):
 
 def plan_digest(args, rows):
     visible = {key: args[key] for key in (
-        "preset", "move_seconds", "push_cm", "ease_fraction", "volume_priority", "void_mode",
+        "preset", "move_in", "move_seconds", "ease_fraction", "volume_priority", "void_mode",
     )}
     return stable_digest({
         "args": visible,
