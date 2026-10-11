@@ -114,3 +114,12 @@
 - APPROVED: a little light on the P06 chandelier. IDEALLY the chandelier is lit BY its candles: small flame lights at the candle tips.
 - Fallback: Gary can place them by hand, at least in one frame.
 - Swarm placement: note for later (job 100 swarm).
+
+## Gary, 11 Oct: PRIORITY SHIFT + S6 warp
+- **Repairs now focus overwhelmingly on the TRANSITIONAL MOMENTS and the functioning of REHEARSAL.** No additional effects for now (chandelier, sun and the like are on hold).
+- **Last segment, into Scene 6:** a camera MOVE that takes us into S6, which currently shows video of the old lady. It is set to sound.
+- **Then a WARP of that image:** gentle and slow at first, then more intense, in two possible directions:
+  1. uncanny colour changes, e.g. inverting the black and white of the image;
+  2. visual warping, like Grace Jones' "Corporate Cannibal" video.
+- The result is the old lady in the void: a strange hyperdimensional space.
+- The effects must be interesting, relatively CHEAP TO BUILD and CHEAP TO TIME. They play over slow, melodic, live cello that grows in intensity.
