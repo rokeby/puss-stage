@@ -304,7 +304,7 @@ bool FInfinityStageCameraPilotCrossingSettleTest::RunTest(const FString& Paramet
         Fixture.Destroy();
         return false;
     }
-    TestTrue(TEXT("Fixture: the rig settles (default 1 s)"), Fixture.Rig->GetCrossingSettleFrames() > 0.0);
+    TestTrue(TEXT("Fixture: the rig settles (default 3 s)"), Fixture.Rig->GetCrossingSettleFrames() > 0.0);
 
     // Halfway through the final second: inside the settle window.
     const FFrameNumber Frame = FFrameNumber(Fixture.EndFrame.Value - 12000);

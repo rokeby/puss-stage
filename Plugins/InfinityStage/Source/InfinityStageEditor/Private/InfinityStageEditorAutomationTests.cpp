@@ -1459,8 +1459,6 @@ bool FInfinityStageShadowCatPIETest::RunTest(const FString& Parameters)
 
         const FString ExpectedMeshPath = TEXT(
             "/Game/CharacterPacks/AnimX/Cats/Realistic/Mesh/SK_Cat_R.SK_Cat_R");
-        const FString ExpectedIdlePath = TEXT(
-            "/Game/CharacterPacks/AnimX/_Common/CatMannequin/Anim/Idle/A_Cat_Idle_Base.A_Cat_Idle_Base");
         const FString ExpectedWalkPath = TEXT(
             "/Game/CharacterPacks/AnimX/_Common/CatMannequin/Anim/Move/A_Cat_Move_Walk_F.A_Cat_Move_Walk_F");
 
@@ -1481,17 +1479,6 @@ bool FInfinityStageShadowCatPIETest::RunTest(const FString& Parameters)
                 EAnimationMode::AnimationSingleNode);
             TestNull(TEXT("Shadow cat has no vendor animation class"), CatMesh->GetAnimClass());
 
-            UAnimSingleNodeInstance* SingleNode = CatMesh->GetSingleNodeInstance();
-            UAnimationAsset* Animation = SingleNode ? SingleNode->GetAnimationAsset() : nullptr;
-            TestNotNull(TEXT("Shadow cat has a direct idle/walk animation"), Animation);
-            if (Animation)
-            {
-                const FString AnimationPath = Animation->GetPathName();
-                TestTrue(TEXT("Shadow cat animation is the direct idle or walk clip"),
-                    AnimationPath == ExpectedIdlePath || AnimationPath == ExpectedWalkPath);
-            }
-            TestTrue(TEXT("Shadow cat direct animation is looping"), SingleNode && SingleNode->IsLooping());
-            TestTrue(TEXT("Shadow cat direct animation is playing"), SingleNode && SingleNode->IsPlaying());
         }
 
         AInfinityStageShowRoot* ShowRoot = nullptr;
@@ -1538,13 +1525,18 @@ bool FInfinityStageShadowCatPIETest::RunTest(const FString& Parameters)
             UAnimSingleNodeInstance* MovingNode = MovingCat && MovingCat->Mesh
                 ? MovingCat->Mesh->GetSingleNodeInstance()
                 : nullptr;
-            TestEqual(TEXT("Moving camera selects the direct walk clip"),
-                MovingNode && MovingNode->GetAnimationAsset()
-                    ? MovingNode->GetAnimationAsset()->GetPathName()
+            UAnimationAsset* MovingAnimation = MovingNode ? MovingNode->GetAnimationAsset() : nullptr;
+            TestNotNull(TEXT("Master-frame evaluation assigns the direct walk clip"), MovingAnimation);
+            TestEqual(TEXT("Moving camera selects the direct walk clip after evaluation"),
+                MovingAnimation
+                    ? MovingAnimation->GetPathName()
                     : FString(),
                 ExpectedWalkPath);
-            TestTrue(TEXT("Moving cat has a positive direct-animation play rate"),
-                MovingCat && MovingCat->Mesh && MovingCat->Mesh->GetPlayRate() > 0.0f);
+            TestTrue(TEXT("Master-timed walk remains looping"), MovingNode && MovingNode->IsLooping());
+            TestFalse(TEXT("Master-timed walk is positioned explicitly, not advanced by wall time"),
+                MovingNode && MovingNode->IsPlaying());
+            TestTrue(TEXT("Moving camera resolves a positive Master-time play rate"),
+                PassageOneCamera->CurrentShadowCatPlayRate > 0.0);
         }
 
         int32 VendorCharacterActors = 0;

@@ -31,6 +31,12 @@ TAutoConsoleVariable<FString> CVarFallbackRoot(
     TEXT(""),
     TEXT("Folder holding current.json and the Scene fallback videos. Empty: <Project>/Renders/Fallbacks"));
 
+TAutoConsoleVariable<int32> CVarWhiteFadeSchema(
+    TEXT("InfinityStage.VideoFallback.WhiteFadeSchema"),
+    1,
+    TEXT("Read-only capability marker: current.json scenes may specify fade_from_white_seconds."),
+    ECVF_ReadOnly);
+
 /** Live overlay order: under the rehearsal bar (20), over the show. */
 constexpr int32 OverlayZOrder = 5;
 }
@@ -92,6 +98,17 @@ TMap<int32, FInfinityFallbackClip> ParseRegistry(const FString& Json, const FStr
         if (Scene->TryGetNumberField(TEXT("fps"), Number) && Number > 0.0)
         {
             Clip.Fps = Number;
+        }
+        if (Scene->TryGetNumberField(TEXT("fade_from_white_seconds"), Number))
+        {
+            if (Number < 0.0 || !FMath::IsFinite(Number))
+            {
+                OutWarnings.Add(FString::Printf(TEXT("%s has invalid fade_from_white_seconds; using 0"), *Key));
+            }
+            else
+            {
+                Clip.FadeFromWhiteSeconds = Number;
+            }
         }
         Clips.Add(Ordinal, Clip);
     }
@@ -188,7 +205,9 @@ void UInfinityStageVideoFallbackSubsystem::EnsureOverlay()
             [
                 SAssignNew(Image, SImage).Image(Brush.Get())
             ]
-        ];
+        ]
+        + SOverlay::Slot()
+        [ SAssignNew(WhiteImage, SImage).ColorAndOpacity(FLinearColor::Transparent) ];
     Viewport->AddViewportWidgetContent(Overlay.ToSharedRef(), OverlayZOrder);
     bOverlayAdded = true;
 }
@@ -259,10 +278,16 @@ void UInfinityStageVideoFallbackSubsystem::Enter(const int32 Ordinal)
     ActiveOrdinal = Ordinal;
     bOpen = false;
     bPictureUp = false;
+    if (WhiteImage.IsValid())
+    {
+        WhiteImage->SetColorAndOpacity(Clip->FadeFromWhiteSeconds > 0.0
+            ? FLinearColor::White : FLinearColor::Transparent);
+    }
     Player->SetLooping(false);
     Player->OpenFile(Path);
-    UE_LOG(LogInfinityStageVideoFallback, Display, TEXT("INFINITY_VIDEO_FALLBACK_OPEN scene=S%d file=%s ue_sound=%d"),
-        Ordinal, *Path, Path == Clip->MuxedPath ? 1 : 0);
+    UE_LOG(LogInfinityStageVideoFallback, Display,
+        TEXT("INFINITY_VIDEO_FALLBACK_OPEN scene=S%d file=%s ue_sound=%d fade_from_white_s=%.3f"),
+        Ordinal, *Path, Path == Clip->MuxedPath ? 1 : 0, Clip->FadeFromWhiteSeconds);
 }
 
 void UInfinityStageVideoFallbackSubsystem::Leave(const TCHAR* Why)
@@ -272,6 +297,10 @@ void UInfinityStageVideoFallbackSubsystem::Leave(const TCHAR* Why)
         return;
     }
     SetLiveSuppressed(false);
+    if (WhiteImage.IsValid())
+    {
+        WhiteImage->SetColorAndOpacity(FLinearColor::Transparent);
+    }
     if (Player)
     {
         Player->Close();
@@ -359,6 +388,12 @@ void UInfinityStageVideoFallbackSubsystem::Tick(const float DeltaTime)
     // Follow the Master: its rate while playing (fast-forward included), its frame while paused.
     const double Ticks = ShowRoot->ShowAsset->TickResolution.AsDecimal();
     const double Wanted = InfinityStageVideoFallback::MediaSecondsForLocalFrame(Frame - ActiveStartFrame, Ticks, Clips[Found]);
+    if (WhiteImage.IsValid())
+    {
+        const double Duration = Clips[Found].FadeFromWhiteSeconds;
+        const float Alpha = Duration > 0.0 ? static_cast<float>(FMath::Clamp(1.0 - Wanted / Duration, 0.0, 1.0)) : 0.0f;
+        WhiteImage->SetColorAndOpacity(FLinearColor(1.0f, 1.0f, 1.0f, Alpha));
+    }
     const double Now = FPlatformTime::Seconds();
     const bool bPlaying = ShowRoot->SequencePlayer->IsPlaying() && !ShowRoot->SequencePlayer->IsReversed();
     const float Rate = bPlaying ? ShowRoot->SequencePlayer->GetPlayRate() : 0.0f;

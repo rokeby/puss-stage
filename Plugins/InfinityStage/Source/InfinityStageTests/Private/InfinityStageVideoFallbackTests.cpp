@@ -16,7 +16,7 @@ bool FInfinityStageVideoRegistryTest::RunTest(const FString& Parameters)
 {
     const FString Root = TEXT("E:/Show/Renders/Fallbacks");
     const FString Json = TEXT(R"({"schema":1,"scenes":{
-        "S1":{"video":"S1/PussFB_S1_P_v01.mp4","audio":"S1/PussFB_S1_P_v01.wav","frames":5000,"fps":25},
+        "S1":{"video":"S1/PussFB_S1_P_v01.mp4","audio":"S1/PussFB_S1_P_v01.wav","frames":5000,"fps":25,"fade_from_white_seconds":1.8},
         "S3":{"video":"S3/PussFB_S3_P_v01.mp4","muxed":"S3/PussFB_S3_P_v01_muxed.mp4","frames":6500,"fps":25},
         "S4":{"audio":"S4/only_audio.wav"},
         "Opening":{"video":"x.mp4"}}})");
@@ -29,6 +29,10 @@ bool FInfinityStageVideoRegistryTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("No muxed file: empty (UE plays it silent; desk WAV)"), Clips.Contains(1) && Clips[1].MuxedPath.IsEmpty());
     TestTrue(TEXT("S3 keeps its muxed file for UE sound"), Clips.Contains(3) && !Clips[3].MuxedPath.IsEmpty());
     TestEqual(TEXT("Frames read"), Clips.Contains(3) ? Clips[3].Frames : 0, 6500);
+    TestTrue(TEXT("Optional white fade duration is read"),
+        Clips.Contains(1) && FMath::IsNearlyEqual(Clips[1].FadeFromWhiteSeconds, 1.8, 1.0e-6));
+    TestEqual(TEXT("White fade remains opt-in"),
+        Clips.Contains(3) ? Clips[3].FadeFromWhiteSeconds : -1.0, 0.0);
     TestEqual(TEXT("Control: an entry with no video and a non-Scene key both warn"), Warnings.Num(), 2);
 
     TArray<FString> BadWarnings;

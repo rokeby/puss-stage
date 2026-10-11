@@ -31,6 +31,7 @@ struct INFINITYSTAGE_API FInfinityFallbackClip
     FString MuxedPath;    // absolute, may be empty
     int32 Frames = 0;
     double Fps = 25.0;
+    double FadeFromWhiteSeconds = 0.0; // optional registry field; zero preserves the old presentation
 };
 
 namespace InfinityStageVideoFallback
@@ -84,6 +85,7 @@ private:
     TMap<int32, FInfinityFallbackClip> Clips;
     TSharedPtr<SWidget> Overlay;
     TSharedPtr<SImage> Image;
+    TSharedPtr<SImage> WhiteImage;
     TSharedPtr<FSlateBrush> Brush;
     TWeakObjectPtr<AInfinityStageShowRoot> Root;
     int32 ActiveOrdinal = INDEX_NONE;

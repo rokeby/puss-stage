@@ -1,3 +1,4 @@
+#include "InfinityStageShowRoot.h"
 #include "InfinityStageTransportController.h"
 #include "Misc/AutomationTest.h"
 
@@ -39,6 +40,29 @@ bool FInfinityStageBreathAudioRampTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Exit restores full volume"), UpEnd.Volume, 1.0f);
     TestEqual(TEXT("Exit restores natural pitch"), UpEnd.Pitch, 1.0f);
     TestFalse(TEXT("Exit never asks for mute"), UpEnd.bMute);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageRoomToneGainTest,
+    "InfinityStage.CueDirector.RoomToneIndependentGain",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageRoomToneGainTest::RunTest(const FString& Parameters)
+{
+    using Root = AInfinityStageShowRoot;
+    TestEqual(TEXT("Outside S6 the low base level is unchanged"),
+        Root::ComputeRoomToneGainDb(-18.0f, -12.0f, 0.0f, true), -18.0f);
+    TestEqual(TEXT("Half Weird applies half the additional dip"),
+        Root::ComputeRoomToneGainDb(-18.0f, -12.0f, 0.5f, true), -24.0f);
+    TestEqual(TEXT("Full Weird reaches -30 dB rather than silence"),
+        Root::ComputeRoomToneGainDb(-18.0f, -12.0f, 1.0f, true), -30.0f);
+    TestEqual(TEXT("The operator can disable the optional dip"),
+        Root::ComputeRoomToneGainDb(-18.0f, -12.0f, 1.0f, false), -18.0f);
+    TestEqual(TEXT("Weird is clamped above one"),
+        Root::ComputeRoomToneGainDb(-18.0f, -12.0f, 4.0f, true), -30.0f);
+    TestEqual(TEXT("A positive dip value cannot make room tone louder"),
+        Root::ComputeRoomToneGainDb(-18.0f, 12.0f, 1.0f, true), -18.0f);
     return true;
 }
 

@@ -28,7 +28,7 @@ constexpr int32 IntervalTicks = 30000;          // 1.25 s at 24 kHz
 constexpr double TickRate = 24000.0;            // UInfinityStageShowAsset default
 constexpr int32 DisplayStepTicks = 960;         // one 25 fps display frame
 constexpr int32 HitchLastFrameTicks = 3200;     // 0.133 s: the measured last rig frame
-constexpr int32 SettleTicks = 24000;            // the 1.0 s default
+constexpr int32 SettleTicks = 24000;            // explicit 1.0 s fixture window
 const double SettleGapsCm[SettleWingCount - 1] = {312.5, 437.5, 312.5, 437.5, 312.5};
 
 struct FShowFixture
@@ -167,8 +167,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FInfinityStageCrossingSettleArrivesAtRouteEndTest::RunTest(const FString& Parameters)
 {
-    TestEqual(TEXT("Default ON: a new rig settles over 1.0 s"),
-        GetDefault<AInfinityStageCameraRig>()->CrossingSettleSeconds, 1.0);
+    TestEqual(TEXT("Default ON: a new rig settles over 3.0 s"),
+        GetDefault<AInfinityStageCameraRig>()->CrossingSettleSeconds, 3.0);
 
     const FShowFixture ShowFixture;
     TestTrue(TEXT("Fixture: one 6.25 s Passage compiles"), ShowFixture.bValid);

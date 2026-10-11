@@ -4,15 +4,42 @@
 #include "InfinityStageCurtainRig.h"
 #include "InfinityStageShowAsset.h"
 
+#include "Components/AudioComponent.h"
+#include "Engine/World.h"
+#include "HAL/IConsoleManager.h"
 #include "InfinityStageTransportController.h"
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
+#include "Materials/MaterialParameterCollection.h"
+#include "Materials/MaterialParameterCollectionInstance.h"
+#include "Sound/SoundBase.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageRoomTone, Log, All);
+
+static TAutoConsoleVariable<float> CVarInfinityStageRoomToneVolumeDb(
+    TEXT("InfinityStage.RoomTone.VolumeDb"),
+    -18.0f,
+    TEXT("Whole-show room-tone level in dB. Default -18 dB."));
+
+static TAutoConsoleVariable<int32> CVarInfinityStageRoomToneEnableS6Dip(
+    TEXT("InfinityStage.RoomTone.EnableS6Dip"),
+    1,
+    TEXT("When non-zero, MPC_S6Warp Weird applies the S6 room-tone dip."));
+
+static TAutoConsoleVariable<float> CVarInfinityStageRoomToneS6DipDb(
+    TEXT("InfinityStage.RoomTone.S6DipDb"),
+    -12.0f,
+    TEXT("Additional dB at Weird=1. Default -12 dB (not silence)."));
 
 AInfinityStageShowRoot::AInfinityStageShowRoot()
 {
     PrimaryActorTick.bCanEverTick = true;
     PrimaryActorTick.TickGroup = TG_PostUpdateWork;
     Transport = CreateDefaultSubobject<UInfinityStageTransportController>(TEXT("Transport"));
+    RoomToneAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("RoomToneAudio"));
+    RoomToneAudio->bAutoActivate = false;
+    RoomToneAudio->bAllowSpatialization = false;
+    RoomToneAudio->bStopWhenOwnerDestroyed = true;
     CurtainRigClass = AInfinityStageCurtainRig::StaticClass();
     PlaybackSettings.bAutoPlay = false;
     PlaybackSettings.LoopCount.Value = 0;
@@ -62,10 +89,23 @@ void AInfinityStageShowRoot::BeginPlay()
     }
     EnsureCurtainRig();
     UpdateCurtainForCurrentFrame();
+    if (RoomToneAudio && RoomToneSound)
+    {
+        RoomToneAudio->SetSound(RoomToneSound);
+        UpdateRoomToneMix();
+        RoomToneAudio->Play();
+        UE_LOG(LogInfinityStageRoomTone, Display,
+            TEXT("INFINITY_ROOM_TONE_STARTED sound=%s component=%s"),
+            *RoomToneSound->GetPathName(), *RoomToneAudio->GetPathName());
+    }
 }
 
 void AInfinityStageShowRoot::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    if (RoomToneAudio)
+    {
+        RoomToneAudio->Stop();
+    }
     if (SequencePlayer)
     {
         SequencePlayer->StopAtCurrentTime();
@@ -82,6 +122,7 @@ void AInfinityStageShowRoot::Tick(const float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     UpdateCurtainForCurrentFrame();
+    UpdateRoomToneMix();
 }
 
 bool AInfinityStageShowRoot::GetCurtainStateAtFrame(
@@ -228,6 +269,39 @@ void AInfinityStageShowRoot::UpdateCurtainForCurrentFrame()
     const FFrameNumber Frame = Transport ? Transport->GetCurrentMasterFrame() : FFrameNumber(0);
     const bool bActive = GetCurtainStateAtFrame(Frame, Progress);
     CurtainRig->SetCurtainState(Progress, bActive);
+}
+
+float AInfinityStageShowRoot::ComputeRoomToneGainDb(
+    const float BaseDb,
+    const float S6DipDb,
+    const float Weird,
+    const bool bEnableS6Dip)
+{
+    const float Dip = bEnableS6Dip ? FMath::Min(0.0f, S6DipDb) * FMath::Clamp(Weird, 0.0f, 1.0f) : 0.0f;
+    return FMath::Clamp(BaseDb + Dip, -80.0f, 12.0f);
+}
+
+void AInfinityStageShowRoot::UpdateRoomToneMix()
+{
+    if (!RoomToneAudio || !RoomToneSound)
+    {
+        return;
+    }
+    float Weird = 0.0f;
+    if (RoomToneWarpParameters && GetWorld())
+    {
+        if (UMaterialParameterCollectionInstance* Instance =
+                GetWorld()->GetParameterCollectionInstance(RoomToneWarpParameters))
+        {
+            Instance->GetScalarParameterValue(RoomToneWarpParameter, Weird);
+        }
+    }
+    const float GainDb = ComputeRoomToneGainDb(
+        CVarInfinityStageRoomToneVolumeDb.GetValueOnGameThread(),
+        CVarInfinityStageRoomToneS6DipDb.GetValueOnGameThread(),
+        Weird,
+        CVarInfinityStageRoomToneEnableS6Dip.GetValueOnGameThread() != 0);
+    RoomToneAudio->SetVolumeMultiplier(GainDb <= -80.0f ? 0.0f : FMath::Pow(10.0f, GainDb / 20.0f));
 }
 
 EInfinityCameraOwner AInfinityStageShowRoot::GetCameraOwnerAtFrame(const FFrameNumber MasterFrame) const

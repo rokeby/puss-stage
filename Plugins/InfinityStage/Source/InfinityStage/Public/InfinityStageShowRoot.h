@@ -8,10 +8,13 @@
 
 class ALevelSequenceActor;
 class AInfinityStageCurtainRig;
+class UAudioComponent;
 class UInfinityStageShowAsset;
 class UInfinityStageTransportController;
 class ULevelSequence;
 class ULevelSequencePlayer;
+class UMaterialParameterCollection;
+class USoundBase;
 
 UCLASS(BlueprintType)
 class INFINITYSTAGE_API AInfinityStageShowRoot : public AActor
@@ -82,6 +85,31 @@ public:
     UFUNCTION(BlueprintPure, Category = "Infinity Stage|Curtain")
     bool GetCurtainStateAtFrame(FFrameNumber MasterFrame, float& OutProgress) const;
 
+    /** Cameron's whole-show room tone. Runtime-owned: never follows the Master playhead. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Room Tone")
+    TObjectPtr<USoundBase> RoomToneSound;
+
+    /** Job 190's MPC; Weird optionally fades the room tone by the configured dip. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Room Tone")
+    TObjectPtr<UMaterialParameterCollection> RoomToneWarpParameters;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Room Tone")
+    FName RoomToneWarpParameter = TEXT("Weird");
+
+    /** The single non-spatial runtime player, owned by the Show Root. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Infinity Stage|Room Tone")
+    TObjectPtr<UAudioComponent> RoomToneAudio;
+
+    /**
+     * Pure gain rule for tests. S6DipDb is an additional negative offset:
+     * -18 dB base plus the default -12 dB dip reaches -30 dB at Weird=1.
+     */
+    static float ComputeRoomToneGainDb(
+        float BaseDb,
+        float S6DipDb,
+        float Weird,
+        bool bEnableS6Dip);
+
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage")
     bool PrepareShow();
 
@@ -94,4 +122,5 @@ private:
     bool ShouldUseLegacyAutomaticCurtain() const;
     void EnsureCurtainRig();
     void UpdateCurtainForCurrentFrame();
+    void UpdateRoomToneMix();
 };
