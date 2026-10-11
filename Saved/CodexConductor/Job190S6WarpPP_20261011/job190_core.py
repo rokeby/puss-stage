@@ -30,6 +30,22 @@ CONFIRM = {
     "APPLY": "APPLY JOB190 S6 WARP PP",
     "REVERT": "REVERT JOB190 S6 WARP PP",
 }
+MASTER_PATH = "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_Master"
+S6_PATH = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_06"
+NESTED_SHOT_PATH = "/Game/InfinityStage/KlaraHookin/LS_Void_S6"
+MPC_PATH = "/Game/InfinityStage/Effects/S6/MPC_S6Warp"
+MATERIAL_PATH = "/Game/InfinityStage/Effects/S6/M_PP_S6Warp"
+WORLD_PATH = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+KLARA_HOOKIN_PREFIX = "/Game/InfinityStage/KlaraHookin/"
+ALLOWED_NAMED_SAVES = (
+    MASTER_PATH,
+    S6_PATH,
+    MATERIAL_PATH,
+    MPC_PATH,
+    WORLD_PATH,
+)
+ALLOWED_MPC_KEY_SEQUENCES = (S6_PATH, MASTER_PATH)
+ALLOWED_CAMERA_EDIT_TARGETS = (MASTER_PATH,)
 
 
 def stable_digest(value):
@@ -90,6 +106,39 @@ def validate_args(raw):
         "void_mode": void_mode,
         "record": str(args.get("record", "")),
     }
+
+
+def validate_named_saves(paths, require_apply_set=False):
+    rows = tuple(str(path) for path in paths)
+    if len(rows) != len(set(rows)):
+        raise ValueError("named_saves contains duplicates")
+    forbidden = [path for path in rows if path.startswith(KLARA_HOOKIN_PREFIX)]
+    if forbidden:
+        raise ValueError("named_saves must never include KlaraHookin: %r" % forbidden)
+    unknown = sorted(set(rows) - set(ALLOWED_NAMED_SAVES))
+    if unknown:
+        raise ValueError("named_saves outside Job 194 allowlist: %r" % unknown)
+    if require_apply_set and set(rows) != set(ALLOWED_NAMED_SAVES):
+        raise ValueError("APPLY named_saves must equal the Job 194 allowlist")
+    return rows
+
+
+def validate_mpc_key_sequence(sequence_path):
+    path = str(sequence_path)
+    if path not in ALLOWED_MPC_KEY_SEQUENCES:
+        raise ValueError("MPC keys may exist only in LS_DevScene_06 or the Master, not %s" % path)
+    return path
+
+
+def validate_camera_edit_targets(paths):
+    rows = tuple(str(path) for path in paths)
+    forbidden = [path for path in rows if path == NESTED_SHOT_PATH or path.startswith(KLARA_HOOKIN_PREFIX)]
+    if forbidden:
+        raise ValueError("nested-shot camera edits are forbidden: %r" % forbidden)
+    unknown = sorted(set(rows) - set(ALLOWED_CAMERA_EDIT_TARGETS))
+    if unknown:
+        raise ValueError("move-in camera edits must target only the P06/Master camera: %r" % unknown)
+    return rows
 
 
 def compile_score(score_document, preset):
@@ -168,5 +217,9 @@ def plan_digest(args, rows):
     visible = {key: args[key] for key in (
         "preset", "move_seconds", "push_cm", "ease_fraction", "volume_priority", "void_mode",
     )}
-    return stable_digest({"args": visible, "score": rows})
+    return stable_digest({
+        "args": visible,
+        "score": rows,
+        "ownership_policy": "job194_no_klarahookin_save_or_camera_edit_v1",
+    })
 

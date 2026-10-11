@@ -51,6 +51,20 @@ def main():
     rejects("priority negative", lambda: core.validate_args({"volume_priority": 0}), "priority")
     rejects("void mode negative", lambda: core.validate_args({"void_mode": "do_it"}), "void")
     check("source preset alias accepted", core.validate_args({"preset": "Both"})["preset"] == "both")
+    check("Job 194 APPLY save allowlist exact",
+          core.validate_named_saves(core.ALLOWED_NAMED_SAVES, require_apply_set=True) == core.ALLOWED_NAMED_SAVES)
+    rejects("KlaraHookin save negative",
+            lambda: core.validate_named_saves((core.MASTER_PATH, core.NESTED_SHOT_PATH)), "KlaraHookin")
+    rejects("extra named save negative",
+            lambda: core.validate_named_saves((core.MASTER_PATH, "/Game/Foreign/Asset")), "allowlist")
+    check("MPC keys accepted in S6", core.validate_mpc_key_sequence(core.S6_PATH) == core.S6_PATH)
+    check("MPC keys accepted in Master", core.validate_mpc_key_sequence(core.MASTER_PATH) == core.MASTER_PATH)
+    rejects("MPC keys in nested shot negative",
+            lambda: core.validate_mpc_key_sequence(core.NESTED_SHOT_PATH), "only")
+    check("P06 Master camera target accepted",
+          core.validate_camera_edit_targets((core.MASTER_PATH,)) == (core.MASTER_PATH,))
+    rejects("nested camera edit negative",
+            lambda: core.validate_camera_edit_targets((core.NESTED_SHOT_PATH,)), "forbidden")
 
     digests = set()
     for preset in core.PRESETS:
@@ -89,7 +103,8 @@ def main():
           core.plan_digest({**args, "void_mode": "proposal"}, core.compile_score(SCORES, "both")))
 
     source = (HERE / "job190_s6_warp_pp.py").read_text(encoding="utf-8")
-    check("post-process material path", 'MATERIAL_PATH = "/Game/InfinityStage/Effects/S6/M_PP_S6Warp"' in source)
+    check("post-process material path", core.MATERIAL_PATH == "/Game/InfinityStage/Effects/S6/M_PP_S6Warp" and
+          "MATERIAL_PATH = core.MATERIAL_PATH" in source)
     check("post-process domain", "MaterialDomain.MD_POST_PROCESS" in source)
     check("three PostProcessInput0 samples", "PPI_POST_PROCESS_INPUT0" in source and "MaterialExpressionSceneTexture" in source)
     check("screen UV source", "MaterialExpressionScreenPosition" in source)
@@ -105,12 +120,17 @@ def main():
     check("S6-only PPV blend track", 'set_property_name_and_path("BlendWeight", "blend_weight")' in source)
     check("PPV default off", 'volume.set_editor_property("blend_weight", 0.0)' in source)
     check("PPV restore state", "MovieSceneCompletionMode.RESTORE_STATE" in source)
-    check("live 3D identities guarded", all(token in source for token in
-          ("BP_MHC_Elder_Female", "CineCameraActor5", "LS_Void_S6", "LS_DevScene_06")))
-    check("3D first camera retaken and reverted", all(token in source for token in
-          ("set_first_camera_transform", "first_camera_channels_before", "FIRST_CAMERA_REVERT_READBACK")))
-    check("3D first camera alignment gated", "S6_FIRST_CAMERA_NOT_ALIGNED_TO_ENTRY" in source and
-          "SHOT_CAMERA_ALIGNMENT_READBACK" in source)
+    check("live 3D identities read-only guarded", all(token in source for token in
+          ("BP_MHC_Elder_Female", "CineCameraActor5")) and
+          core.NESTED_SHOT_PATH.endswith("/LS_Void_S6") and core.S6_PATH.endswith("/LS_DevScene_06"))
+    check("nested and entry cameras are never edited", "set_first_camera_transform" not in source and
+          "def set_camera_actor" not in source and
+          'ctx["shot"].remove_track' not in source and 'ctx["shot"].add_track' not in source)
+    check("move-in becomes DRY-only when nested edit would be required",
+          "MOVE_IN_DRY_ONLY|P06_MASTER_ONLY_CANNOT_MATCH_READ_ONLY_NESTED_CAMERA" in source)
+    check("named saves exclude KlaraHookin", '"named_saves": [MASTER_PATH, S6_PATH, MATERIAL_PATH, MPC_PATH, WORLD_PATH]' in source)
+    check("MPC target explicitly guarded", "validate_mpc_key_sequence" in source and
+          '"mpc_key_sequence": S6_PATH' in source)
     check("binding lookup precedes add", "BINDING_LOOKUP_CHANGED_BEFORE_ADD" in source)
     check("dirty scope guarded", "assert_dirty_scope" in source and "FOREIGN_DIRTY" in source)
     check("success markers", all(marker in source for marker in
