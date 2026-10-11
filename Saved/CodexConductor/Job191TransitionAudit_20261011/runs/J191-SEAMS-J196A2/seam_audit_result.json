@@ -1,0 +1,2494 @@
+{
+  "captured_frames": 64,
+  "dirty_after": {
+    "content": [],
+    "maps": []
+  },
+  "dirty_before": {
+    "content": [],
+    "maps": []
+  },
+  "errors": [],
+  "file_started": 8404.312,
+  "finished_utc": "2026-10-11T19:27:03.954819+00:00",
+  "flagged_seams": 15,
+  "last_size": 91174,
+  "phase": "wait_end",
+  "phase_started": 8404.984,
+  "plan": {
+    "counts": {
+      "interaction_end": 5,
+      "interaction_start": 5,
+      "passage_to_scene": 6
+    },
+    "display_fps": 24,
+    "display_frame_ticks": 1000,
+    "seams": [
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 10.441703537760418,
+            "luminance_ratio": 0.5725285111395297,
+            "position_cm": 0.0034313217984163202,
+            "rotation_deg": 0.0,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "black_frame:plus_1s"
+          ]
+        },
+        "boundary": 4077120,
+        "from": "Passage 1",
+        "id": "01_passage_to_scene",
+        "kind": "passage_to_scene",
+        "master_indices": [
+          1,
+          2
+        ],
+        "order": 1,
+        "samples": [
+          {
+            "actual_frame": 4053120,
+            "bytes": 618195,
+            "camera": {
+              "fov_deg": 50.834129333496094,
+              "location": [
+                28753.008076217415,
+                0.0,
+                150.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:23:17.747600+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/01_passage_to_scene_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 16.11589109418403,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/01_passage_to_scene_minus_1s.png",
+            "target_frame": 4053120,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 01 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_0"
+            }
+          },
+          {
+            "actual_frame": 4076120,
+            "bytes": 605998,
+            "camera": {
+              "fov_deg": 50.834129333496094,
+              "location": [
+                28784.010068678203,
+                0.0,
+                150.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:23:21.982316+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/01_passage_to_scene_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 18.237875205512154,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/01_passage_to_scene_minus_1f.png",
+            "target_frame": 4076120,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 01 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_0"
+            }
+          },
+          {
+            "actual_frame": 4078120,
+            "bytes": 582951,
+            "camera": {
+              "fov_deg": 50.834129333496094,
+              "location": [
+                28784.0135,
+                0.0,
+                150.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:23:25.704520+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/01_passage_to_scene_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 7.796171667751737,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/01_passage_to_scene_plus_1f.png",
+            "target_frame": 4078120,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 1 \u2014 External Sound \u2014 Entry Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_5"
+            }
+          },
+          {
+            "actual_frame": 4101120,
+            "bytes": 386881,
+            "camera": {
+              "fov_deg": 50.834129333496094,
+              "location": [
+                28784.0135,
+                0.0,
+                150.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:23:29.404084+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/01_passage_to_scene_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 3.843038170138889,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/01_passage_to_scene_plus_1s.png",
+            "target_frame": 4101120,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 1 \u2014 External Sound \u2014 Entry Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_5"
+            }
+          }
+        ],
+        "to": "Scene 1 \u2014 External Sound"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 0.0,
+            "luminance_ratio": 0.0,
+            "position_cm": 858.1760258944109,
+            "rotation_deg": 14.622170317233522,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "camera_position_jump",
+            "camera_rotation_jump",
+            "black_frame:minus_1s",
+            "black_frame:minus_1f",
+            "black_frame:plus_1f",
+            "black_frame:plus_1s"
+          ]
+        },
+        "boundary": 7821120,
+        "from": "Scene 1 \u2014 External Sound",
+        "id": "02_scene_to_passage_interaction_start",
+        "interaction": "Interaction 1 \u2014 Washing the Boy",
+        "kind": "scene_to_passage_interaction_start",
+        "logical_to": "Passage 2",
+        "master_indices": [
+          2,
+          3
+        ],
+        "order": 2,
+        "samples": [
+          {
+            "actual_frame": 7797120,
+            "bytes": 734178,
+            "camera": {
+              "fov_deg": 52.89066696166992,
+              "location": [
+                29634.4453125,
+                58.67778396606445,
+                51.06193161010742
+              ],
+              "rotation": {
+                "pitch": -2.3399357795715328,
+                "roll": -0.0,
+                "yaw": -14.433730125427253
+              }
+            },
+            "captured_utc": "2026-10-11T19:23:32.939319+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/02_scene_to_passage_interaction_start_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 4.758082982638889,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/02_scene_to_passage_interaction_start_minus_1s.png",
+            "target_frame": 7797120,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Cine Camera Actor",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Cine Camera Actor_0"
+            }
+          },
+          {
+            "actual_frame": 7820120,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 52.89066696166992,
+              "location": [
+                29634.4453125,
+                58.67778396606445,
+                51.06193161010742
+              ],
+              "rotation": {
+                "pitch": -2.3399357795715328,
+                "roll": -0.0,
+                "yaw": -14.433730125427253
+              }
+            },
+            "captured_utc": "2026-10-11T19:23:36.747194+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/02_scene_to_passage_interaction_start_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/02_scene_to_passage_interaction_start_minus_1f.png",
+            "target_frame": 7820120,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Cine Camera Actor",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.Cine Camera Actor_0"
+            }
+          },
+          {
+            "actual_frame": 7822120,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 45.981632232666016,
+              "location": [
+                28784.0135,
+                0.0,
+                150.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:23:39.913052+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/02_scene_to_passage_interaction_start_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/02_scene_to_passage_interaction_start_plus_1f.png",
+            "target_frame": 7822120,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "S1 Sleight Hangar Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_26"
+            }
+          },
+          {
+            "actual_frame": 7845120,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 45.981632232666016,
+              "location": [
+                28784.0135,
+                0.0,
+                150.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:23:42.871948+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/02_scene_to_passage_interaction_start_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/02_scene_to_passage_interaction_start_plus_1s.png",
+            "target_frame": 7845120,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "S1 Sleight Hangar Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_26"
+            }
+          }
+        ],
+        "to": "Interaction 1 \u2014 Washing the Boy"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 0.0,
+            "luminance_ratio": 0.0,
+            "position_cm": 2883.896144544098,
+            "rotation_deg": 0.00026702880859375,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "camera_position_jump",
+            "black_frame:minus_1s",
+            "black_frame:minus_1f",
+            "black_frame:plus_1f",
+            "black_frame:plus_1s"
+          ]
+        },
+        "boundary": 9916800,
+        "from": "Interaction 1 \u2014 Washing the Boy",
+        "id": "03_scene_to_passage_interaction_end",
+        "interaction": "Interaction 1 \u2014 Washing the Boy",
+        "kind": "scene_to_passage_interaction_end",
+        "logical_from": "Scene 1 \u2014 External Sound",
+        "logical_to": "Passage 2",
+        "master_indices": [
+          3,
+          4
+        ],
+        "order": 3,
+        "samples": [
+          {
+            "actual_frame": 9892800,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                84.592529296875,
+                91438.3984375,
+                520.0
+              ],
+              "rotation": {
+                "pitch": -0.0,
+                "roll": -0.0,
+                "yaw": -43.572254180908196
+              }
+            },
+            "captured_utc": "2026-10-11T19:23:45.999480+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/03_scene_to_passage_interaction_end_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/03_scene_to_passage_interaction_end_minus_1s.png",
+            "target_frame": 9892800,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "I1 Sleight Mouth Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_27"
+            }
+          },
+          {
+            "actual_frame": 9915800,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                84.592529296875,
+                91438.3984375,
+                520.0
+              ],
+              "rotation": {
+                "pitch": -0.0,
+                "roll": -0.0,
+                "yaw": -43.572254180908196
+              }
+            },
+            "captured_utc": "2026-10-11T19:23:48.979656+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/03_scene_to_passage_interaction_end_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/03_scene_to_passage_interaction_end_minus_1f.png",
+            "target_frame": 9915800,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "I1 Sleight Mouth Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_27"
+            }
+          },
+          {
+            "actual_frame": 9917800,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                2159.419068137091,
+                89464.48055515518,
+                180.0
+              ],
+              "rotation": {
+                "pitch": -0.0,
+                "roll": -0.0,
+                "yaw": -43.5725212097168
+              }
+            },
+            "captured_utc": "2026-10-11T19:23:51.909441+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/03_scene_to_passage_interaction_end_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/03_scene_to_passage_interaction_end_plus_1f.png",
+            "target_frame": 9917800,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 02 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_1"
+            }
+          },
+          {
+            "actual_frame": 9940800,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                2348.4345563224565,
+                89284.65631727983,
+                180.0
+              ],
+              "rotation": {
+                "pitch": -0.0,
+                "roll": -0.0,
+                "yaw": -43.5725212097168
+              }
+            },
+            "captured_utc": "2026-10-11T19:23:54.836072+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/03_scene_to_passage_interaction_end_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/03_scene_to_passage_interaction_end_plus_1s.png",
+            "target_frame": 9940800,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 02 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_1"
+            }
+          }
+        ],
+        "to": "Passage 2"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 0.0,
+            "luminance_ratio": 0.0,
+            "position_cm": 0.00424069208073945,
+            "rotation_deg": 1.8088885553879663e-06,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "black_frame:minus_1s",
+            "black_frame:minus_1f",
+            "black_frame:plus_1f",
+            "black_frame:plus_1s"
+          ]
+        },
+        "boundary": 11009280,
+        "from": "Passage 2",
+        "id": "04_passage_to_scene",
+        "kind": "passage_to_scene",
+        "master_indices": [
+          4,
+          5
+        ],
+        "order": 4,
+        "samples": [
+          {
+            "actual_frame": 10985280,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                10727.093253692543,
+                81313.42639777911,
+                180.0
+              ],
+              "rotation": {
+                "pitch": -0.0,
+                "roll": -0.0,
+                "yaw": -43.5725212097168
+              }
+            },
+            "captured_utc": "2026-10-11T19:23:57.845765+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/04_passage_to_scene_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/04_passage_to_scene_minus_1s.png",
+            "target_frame": 10985280,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 02 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_1"
+            }
+          },
+          {
+            "actual_frame": 11008280,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                10742.228881223557,
+                81299.0267699409,
+                180.0
+              ],
+              "rotation": {
+                "pitch": -0.0,
+                "roll": -0.0,
+                "yaw": -43.5725212097168
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:00.822841+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/04_passage_to_scene_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/04_passage_to_scene_minus_1f.png",
+            "target_frame": 11008280,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 02 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_1"
+            }
+          },
+          {
+            "actual_frame": 11010280,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                10742.23195361564,
+                81299.02384694993,
+                180.0
+              ],
+              "rotation": {
+                "pitch": -0.0,
+                "roll": -0.0,
+                "yaw": -43.57251940082824
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:03.356545+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/04_passage_to_scene_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/04_passage_to_scene_plus_1f.png",
+            "target_frame": 11010280,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 2 \u2014 External Sound \u2014 Entry Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_7"
+            }
+          },
+          {
+            "actual_frame": 11033280,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                10742.23195361564,
+                81299.02384694993,
+                180.0
+              ],
+              "rotation": {
+                "pitch": -0.0,
+                "roll": -0.0,
+                "yaw": -43.57251940082824
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:06.357790+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/04_passage_to_scene_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/04_passage_to_scene_plus_1s.png",
+            "target_frame": 11033280,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 2 \u2014 External Sound \u2014 Entry Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_7"
+            }
+          }
+        ],
+        "to": "Scene 2 \u2014 External Sound"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 0.001440567925347222,
+            "luminance_ratio": 0.001440567925347222,
+            "position_cm": 9677.333477754099,
+            "rotation_deg": 175.99748029399598,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "camera_position_jump",
+            "camera_rotation_jump",
+            "black_frame:minus_1s",
+            "black_frame:minus_1f",
+            "black_frame:plus_1f",
+            "black_frame:plus_1s"
+          ]
+        },
+        "boundary": 14744640,
+        "from": "Scene 2 \u2014 External Sound",
+        "id": "05_scene_to_passage_interaction_start",
+        "interaction": "Interaction 2 \u2014 Turnips",
+        "kind": "scene_to_passage_interaction_start",
+        "logical_to": "Passage 3",
+        "master_indices": [
+          5,
+          6
+        ],
+        "order": 5,
+        "samples": [
+          {
+            "actual_frame": 14720640,
+            "bytes": 762504,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                20255.581788329495,
+                71968.08821485178,
+                998.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": -0.0,
+                "yaw": 132.42748059917176
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:09.417824+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/05_scene_to_passage_interaction_start_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 4.024115419270833,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/05_scene_to_passage_interaction_start_minus_1s.png",
+            "target_frame": 14720640,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "CineCameraActor2",
+              "path": "/Game/Japanese_Alley/Maps/UEDPIE_0_Japanese_Alley.Japanese_Alley:PersistentLevel.CineCameraActor_2"
+            }
+          },
+          {
+            "actual_frame": 14743640,
+            "bytes": 19889,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                20255.581788329495,
+                71968.08821485178,
+                998.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": -0.0,
+                "yaw": 132.42748059917176
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:13.364555+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/05_scene_to_passage_interaction_start_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 0.001440567925347222,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/05_scene_to_passage_interaction_start_minus_1f.png",
+            "target_frame": 14743640,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "CineCameraActor2",
+              "path": "/Game/Japanese_Alley/Maps/UEDPIE_0_Japanese_Alley.Japanese_Alley:PersistentLevel.CineCameraActor_2"
+            }
+          },
+          {
+            "actual_frame": 14745640,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 49.999996185302734,
+              "location": [
+                13394.720906665956,
+                78775.36621085135,
+                507.7577259156751
+              ],
+              "rotation": {
+                "pitch": -0.0,
+                "roll": -0.0,
+                "yaw": -43.56999969482422
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:16.342310+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/05_scene_to_passage_interaction_start_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/05_scene_to_passage_interaction_start_plus_1f.png",
+            "target_frame": 14745640,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "I2 Hangar Hold Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_40"
+            }
+          },
+          {
+            "actual_frame": 14768640,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 49.999996185302734,
+              "location": [
+                14195.75390625,
+                78013.3046875,
+                -536.09375
+              ],
+              "rotation": {
+                "pitch": -0.0,
+                "roll": -0.0,
+                "yaw": -43.57039260864257
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:19.193062+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/05_scene_to_passage_interaction_start_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/05_scene_to_passage_interaction_start_plus_1s.png",
+            "target_frame": 14768640,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "I2 Hangar Hold Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_40"
+            }
+          }
+        ],
+        "to": "Interaction 2 \u2014 Turnips"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 1.232789049262152,
+            "luminance_ratio": 0.014676890982222706,
+            "position_cm": 2195.061454195036,
+            "rotation_deg": 0.0,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "camera_position_jump"
+          ]
+        },
+        "boundary": 16616640,
+        "from": "Interaction 2 \u2014 Turnips",
+        "id": "06_scene_to_passage_interaction_end",
+        "interaction": "Interaction 2 \u2014 Turnips",
+        "kind": "scene_to_passage_interaction_end",
+        "logical_from": "Scene 2 \u2014 External Sound",
+        "logical_to": "Passage 3",
+        "master_indices": [
+          6,
+          7
+        ],
+        "order": 6,
+        "samples": [
+          {
+            "actual_frame": 16592640,
+            "bytes": 1151368,
+            "camera": {
+              "fov_deg": 49.999996185302734,
+              "location": [
+                -2167.135009765625,
+                160000.0,
+                444.86566162109375
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:22.116493+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/06_scene_to_passage_interaction_end_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 84.07925379947916,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/06_scene_to_passage_interaction_end_minus_1s.png",
+            "target_frame": 16592640,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "I2 Sleight Mouth Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_29"
+            }
+          },
+          {
+            "actual_frame": 16615640,
+            "bytes": 1187500,
+            "camera": {
+              "fov_deg": 49.999996185302734,
+              "location": [
+                -2167.135009765625,
+                160000.0,
+                444.86566162109375
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:26.111182+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/06_scene_to_passage_interaction_end_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 83.99524468467881,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/06_scene_to_passage_interaction_end_minus_1f.png",
+            "target_frame": 16615640,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "I2 Sleight Mouth Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_29"
+            }
+          },
+          {
+            "actual_frame": 16617640,
+            "bytes": 1233790,
+            "camera": {
+              "fov_deg": 26.73128318786621,
+              "location": [
+                11.887929302902835,
+                160000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:30.207576+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/06_scene_to_passage_interaction_end_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 85.22803373394096,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/06_scene_to_passage_interaction_end_plus_1f.png",
+            "target_frame": 16617640,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 03 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_2"
+            }
+          },
+          {
+            "actual_frame": 16640640,
+            "bytes": 1218825,
+            "camera": {
+              "fov_deg": 26.73128318786621,
+              "location": [
+                285.30948951928553,
+                160000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:34.351064+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/06_scene_to_passage_interaction_end_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 74.20889004687501,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/06_scene_to_passage_interaction_end_plus_1s.png",
+            "target_frame": 16640640,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 03 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_2"
+            }
+          }
+        ],
+        "to": "Passage 3"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 13.73688606076389,
+            "luminance_ratio": 0.9441992111601201,
+            "position_cm": 0.002604001223517116,
+            "rotation_deg": 0.0,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "black_frame:plus_1f",
+            "black_frame:plus_1s"
+          ]
+        },
+        "boundary": 17582400,
+        "from": "Passage 3",
+        "id": "07_passage_to_scene",
+        "kind": "passage_to_scene",
+        "master_indices": [
+          7,
+          8
+        ],
+        "order": 7,
+        "samples": [
+          {
+            "actual_frame": 17558400,
+            "bytes": 744712,
+            "camera": {
+              "fov_deg": 26.73128318786621,
+              "location": [
+                10899.838088595347,
+                160000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:39.005794+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/07_passage_to_scene_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 23.001413949435765,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/07_passage_to_scene_minus_1s.png",
+            "target_frame": 17558400,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 03 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_2"
+            }
+          },
+          {
+            "actual_frame": 17581400,
+            "bytes": 667077,
+            "camera": {
+              "fov_deg": 26.73128318786621,
+              "location": [
+                10921.970145998777,
+                160000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:42.966939+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/07_passage_to_scene_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 14.548715883680556,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/07_passage_to_scene_minus_1f.png",
+            "target_frame": 17581400,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 03 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_2"
+            }
+          },
+          {
+            "actual_frame": 17583400,
+            "bytes": 167274,
+            "camera": {
+              "fov_deg": 26.73128318786621,
+              "location": [
+                10921.97275,
+                160000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:46.810659+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/07_passage_to_scene_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 0.8118298229166666,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/07_passage_to_scene_plus_1f.png",
+            "target_frame": 17583400,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 3 \u2014 External Sound \u2014 Entry Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_9"
+            }
+          },
+          {
+            "actual_frame": 17606400,
+            "bytes": 118032,
+            "camera": {
+              "fov_deg": 26.73128318786621,
+              "location": [
+                10921.97275,
+                160000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:49.934532+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/07_passage_to_scene_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 0.03841250911458333,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/07_passage_to_scene_plus_1s.png",
+            "target_frame": 17606400,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 3 \u2014 External Sound \u2014 Entry Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_9"
+            }
+          }
+        ],
+        "to": "Scene 3 \u2014 External Sound"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 0.0,
+            "luminance_ratio": 0.0,
+            "position_cm": 4.014684159060642,
+            "rotation_deg": 0.03014250180478939,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "black_frame:minus_1s",
+            "black_frame:minus_1f",
+            "black_frame:plus_1f",
+            "black_frame:plus_1s"
+          ]
+        },
+        "boundary": 23822400,
+        "from": "Scene 3 \u2014 External Sound",
+        "id": "08_scene_to_passage_interaction_start",
+        "interaction": "Interaction 3 \u2014 Forgets His Name",
+        "kind": "scene_to_passage_interaction_start",
+        "logical_to": "Passage 4",
+        "master_indices": [
+          8,
+          9
+        ],
+        "order": 8,
+        "samples": [
+          {
+            "actual_frame": 23798400,
+            "bytes": 460525,
+            "camera": {
+              "fov_deg": 26.73128318786621,
+              "location": [
+                10921.97275,
+                160000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:53.327945+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/08_scene_to_passage_interaction_start_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 3.473915599392361,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/08_scene_to_passage_interaction_start_minus_1s.png",
+            "target_frame": 23798400,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 3 \u2014 External Sound \u2014 Exit Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_10"
+            }
+          },
+          {
+            "actual_frame": 23821400,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 26.73128318786621,
+              "location": [
+                10921.97275,
+                160000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:24:57.423852+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/08_scene_to_passage_interaction_start_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/08_scene_to_passage_interaction_start_minus_1f.png",
+            "target_frame": 23821400,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 3 \u2014 External Sound \u2014 Exit Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_10"
+            }
+          },
+          {
+            "actual_frame": 23823400,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 45.981632232666016,
+              "location": [
+                10924.211664607425,
+                160000.0,
+                183.3324090801816
+              ],
+              "rotation": {
+                "pitch": 0.030142501804778968,
+                "roll": -0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:00.721871+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/08_scene_to_passage_interaction_start_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/08_scene_to_passage_interaction_start_plus_1f.png",
+            "target_frame": 23823400,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "S3 Sleight Hangar Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_30"
+            }
+          },
+          {
+            "actual_frame": 23846400,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 45.981632232666016,
+              "location": [
+                11966.504,
+                160000.0,
+                1734.68603515625
+              ],
+              "rotation": {
+                "pitch": 14.062500000000005,
+                "roll": -0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:03.829655+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/08_scene_to_passage_interaction_start_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/08_scene_to_passage_interaction_start_plus_1s.png",
+            "target_frame": 23846400,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "S3 Sleight Hangar Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_30"
+            }
+          }
+        ],
+        "to": "Interaction 3 \u2014 Forgets His Name"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 0.20398823459203186,
+            "luminance_ratio": 0.0010587838405787446,
+            "position_cm": 11.978924304341463,
+            "rotation_deg": 0.0,
+            "view_target_changed": true
+          },
+          "flagged": false,
+          "flags": []
+        },
+        "boundary": 25970880,
+        "from": "Interaction 3 \u2014 Forgets His Name",
+        "id": "09_scene_to_passage_interaction_end",
+        "interaction": "Interaction 3 \u2014 Forgets His Name",
+        "kind": "scene_to_passage_interaction_end",
+        "logical_from": "Scene 3 \u2014 External Sound",
+        "logical_to": "Passage 4",
+        "master_indices": [
+          9,
+          10
+        ],
+        "order": 9,
+        "samples": [
+          {
+            "actual_frame": 25946880,
+            "bytes": 1110954,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                -57.306880950927734,
+                240000.0,
+                195.7593994140625
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:06.959716+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/09_scene_to_passage_interaction_end_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 179.14679130447044,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/09_scene_to_passage_interaction_end_minus_1s.png",
+            "target_frame": 25946880,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "I3 Sleight Mouth Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_31"
+            }
+          },
+          {
+            "actual_frame": 25969880,
+            "bytes": 1137903,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                -2.3877870871444884,
+                240000.0,
+                180.65663724187107
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:11.107319+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/09_scene_to_passage_interaction_end_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 192.66277664431422,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/09_scene_to_passage_interaction_end_minus_1f.png",
+            "target_frame": 25969880,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "I3 Sleight Mouth Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_31"
+            }
+          },
+          {
+            "actual_frame": 25971880,
+            "bytes": 1085929,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                9.573126549435727,
+                240000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:15.277662+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/09_scene_to_passage_interaction_end_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 192.86676487890625,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/09_scene_to_passage_interaction_end_plus_1f.png",
+            "target_frame": 25971880,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 04 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_3"
+            }
+          },
+          {
+            "actual_frame": 25994880,
+            "bytes": 1012256,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                229.75502725067085,
+                240000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:19.529496+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/09_scene_to_passage_interaction_end_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 200.10290000390623,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/09_scene_to_passage_interaction_end_plus_1s.png",
+            "target_frame": 25994880,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 04 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_3"
+            }
+          }
+        ],
+        "to": "Passage 4"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 12.630503798611112,
+            "luminance_ratio": 1.0,
+            "position_cm": 0.003179451674441225,
+            "rotation_deg": 0.0,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "black_frame:plus_1f",
+            "black_frame:plus_1s"
+          ]
+        },
+        "boundary": 27132480,
+        "from": "Passage 4",
+        "id": "10_passage_to_scene",
+        "kind": "passage_to_scene",
+        "master_indices": [
+          10,
+          11
+        ],
+        "order": 10,
+        "samples": [
+          {
+            "actual_frame": 27108480,
+            "bytes": 553762,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                10651.507761208357,
+                240000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:23.905454+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/10_passage_to_scene_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 10.270206757161457,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/10_passage_to_scene_minus_1s.png",
+            "target_frame": 27108480,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 04 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_3"
+            }
+          },
+          {
+            "actual_frame": 27131480,
+            "bytes": 648134,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                10668.466320548327,
+                240000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:27.431879+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/10_passage_to_scene_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 12.630503798611112,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/10_passage_to_scene_minus_1f.png",
+            "target_frame": 27131480,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 04 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_3"
+            }
+          },
+          {
+            "actual_frame": 27133480,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                10668.469500000001,
+                240000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:31.195949+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/10_passage_to_scene_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/10_passage_to_scene_plus_1f.png",
+            "target_frame": 27133480,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 4 \u2014 External Sound \u2014 Entry Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_11"
+            }
+          },
+          {
+            "actual_frame": 27156480,
+            "bytes": 17709,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                10668.469500000001,
+                240000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:34.122442+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/10_passage_to_scene_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 0.0,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/10_passage_to_scene_plus_1s.png",
+            "target_frame": 27156480,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 4 \u2014 External Sound \u2014 Entry Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_11"
+            }
+          }
+        ],
+        "to": "Scene 4 \u2014 External Sound"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 18.671689344618052,
+            "luminance_ratio": 18.671689344618052,
+            "position_cm": 0.0,
+            "rotation_deg": 0.0,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "black_frame:minus_1s",
+            "black_frame:minus_1f"
+          ]
+        },
+        "boundary": 31826880,
+        "from": "Scene 4 \u2014 External Sound",
+        "id": "11_scene_to_passage_interaction_start",
+        "interaction": "Interaction 4 \u2014 Gets a Name",
+        "kind": "scene_to_passage_interaction_start",
+        "logical_to": "Passage 5",
+        "master_indices": [
+          11,
+          12
+        ],
+        "order": 11,
+        "samples": [
+          {
+            "actual_frame": 31802880,
+            "bytes": 20976,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                10668.469500000001,
+                240000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:37.466406+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/11_scene_to_passage_interaction_start_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 0.0005024570312500001,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/11_scene_to_passage_interaction_start_minus_1s.png",
+            "target_frame": 31802880,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 4 \u2014 External Sound \u2014 Exit Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_12"
+            }
+          },
+          {
+            "actual_frame": 31825880,
+            "bytes": 28998,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                10668.469500000001,
+                240000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:40.545325+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/11_scene_to_passage_interaction_start_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 0.0050947154947916665,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/11_scene_to_passage_interaction_start_minus_1f.png",
+            "target_frame": 31825880,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 4 \u2014 External Sound \u2014 Exit Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_12"
+            }
+          },
+          {
+            "actual_frame": 31827880,
+            "bytes": 515547,
+            "camera": {
+              "fov_deg": 45.981632232666016,
+              "location": [
+                10668.469500000001,
+                240000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:43.635908+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/11_scene_to_passage_interaction_start_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 18.676784060112844,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/11_scene_to_passage_interaction_start_plus_1f.png",
+            "target_frame": 31827880,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "S4 Sleight Hangar Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_32"
+            }
+          },
+          {
+            "actual_frame": 31850880,
+            "bytes": 515822,
+            "camera": {
+              "fov_deg": 45.981632232666016,
+              "location": [
+                10668.469500000001,
+                240000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:47.060136+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/11_scene_to_passage_interaction_start_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 18.67880744900173,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/11_scene_to_passage_interaction_start_plus_1s.png",
+            "target_frame": 31850880,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "S4 Sleight Hangar Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_32"
+            }
+          }
+        ],
+        "to": "Interaction 4 \u2014 Gets a Name"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 55.93730450021701,
+            "luminance_ratio": 0.29819900314906383,
+            "position_cm": 320000.20221868803,
+            "rotation_deg": 41.53397274803544,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "camera_position_jump",
+            "camera_rotation_jump"
+          ]
+        },
+        "boundary": 33590400,
+        "from": "Interaction 4 \u2014 Gets a Name",
+        "id": "12_scene_to_passage_interaction_end",
+        "interaction": "Interaction 4 \u2014 Gets a Name",
+        "kind": "scene_to_passage_interaction_end",
+        "logical_from": "Scene 4 \u2014 External Sound",
+        "logical_to": "Passage 5",
+        "master_indices": [
+          12,
+          13
+        ],
+        "order": 12,
+        "samples": [
+          {
+            "actual_frame": 33566400,
+            "bytes": 1305701,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                -241.69979858398438,
+                320000.0,
+                246.46743774414062
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:50.645379+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/12_scene_to_passage_interaction_end_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 193.20996963194443,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/12_scene_to_passage_interaction_end_minus_1s.png",
+            "target_frame": 33566400,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "I4 Sleight Mouth Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_33"
+            }
+          },
+          {
+            "actual_frame": 33589400,
+            "bytes": 1325020,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                -10.070825391450853,
+                320000.0,
+                182.76947106192165
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:54.942892+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/12_scene_to_passage_interaction_end_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 187.58380782465275,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/12_scene_to_passage_interaction_end_minus_1f.png",
+            "target_frame": 33589400,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "I4 Sleight Mouth Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_33"
+            }
+          },
+          {
+            "actual_frame": 33591400,
+            "bytes": 1280435,
+            "camera": {
+              "fov_deg": 20.71516990661621,
+              "location": [
+                -350.0,
+                0.0,
+                65.00632957213114
+              ],
+              "rotation": {
+                "pitch": 10.000000000000004,
+                "roll": 35.001012731556074,
+                "yaw": -19.99999999999999
+              }
+            },
+            "captured_utc": "2026-10-11T19:25:59.263738+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/12_scene_to_passage_interaction_end_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 131.64650332443574,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/12_scene_to_passage_interaction_end_plus_1f.png",
+            "target_frame": 33591400,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "P79_Nap_Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_41"
+            }
+          },
+          {
+            "actual_frame": 33614400,
+            "bytes": 1281316,
+            "camera": {
+              "fov_deg": 20.71516990661621,
+              "location": [
+                -350.0,
+                0.0,
+                66.25
+              ],
+              "rotation": {
+                "pitch": 10.000000000000002,
+                "roll": 35.20000000298023,
+                "yaw": -19.999999999999996
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:03.451156+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/12_scene_to_passage_interaction_end_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 131.5528784203559,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/12_scene_to_passage_interaction_end_plus_1s.png",
+            "target_frame": 33614400,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "P79_Nap_Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_41"
+            }
+          }
+        ],
+        "to": "Interlude: Puss Sleep/Wet Tennis Ball/Battery"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 5.022135416664353e-06,
+            "luminance_ratio": 5.022135416664353e-06,
+            "position_cm": 0.018851224535067494,
+            "rotation_deg": 0.0,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "black_frame:minus_1f",
+            "black_frame:plus_1f",
+            "black_frame:plus_1s"
+          ]
+        },
+        "boundary": 35103360,
+        "from": "Passage 5",
+        "id": "13_passage_to_scene",
+        "kind": "passage_to_scene",
+        "master_indices": [
+          14,
+          15
+        ],
+        "order": 13,
+        "samples": [
+          {
+            "actual_frame": 35079360,
+            "bytes": 187127,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                46484.213153225035,
+                320000.0,
+                90.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:07.730433+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/13_passage_to_scene_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 6.644039194227431,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/13_passage_to_scene_minus_1s.png",
+            "target_frame": 35079360,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 05 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_4"
+            }
+          },
+          {
+            "actual_frame": 35102360,
+            "bytes": 20647,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                46590.88458779529,
+                320000.0,
+                179.99118299366882
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:11.033461+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/13_passage_to_scene_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 0.030805368706597218,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/13_passage_to_scene_minus_1f.png",
+            "target_frame": 35102360,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 05 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_4"
+            }
+          },
+          {
+            "actual_frame": 35104360,
+            "bytes": 22119,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                46590.90125,
+                320000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:13.998616+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/13_passage_to_scene_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 0.030800346571180554,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/13_passage_to_scene_plus_1f.png",
+            "target_frame": 35104360,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 5 \u2014 External Sound \u2014 Entry Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_13"
+            }
+          },
+          {
+            "actual_frame": 35127360,
+            "bytes": 21585,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                46590.90125,
+                320000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:16.987824+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/13_passage_to_scene_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 0.03262283355034722,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/13_passage_to_scene_plus_1s.png",
+            "target_frame": 35127360,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 5 \u2014 External Sound \u2014 Entry Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_13"
+            }
+          }
+        ],
+        "to": "Scene 5 \u2014 External Sound"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 6.886283880425347,
+            "luminance_ratio": 0.6608558451818947,
+            "position_cm": 726.8893538311149,
+            "rotation_deg": 86.3016245076493,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "camera_position_jump",
+            "camera_rotation_jump",
+            "black_frame:plus_1f",
+            "black_frame:plus_1s"
+          ]
+        },
+        "boundary": 36279360,
+        "from": "Scene 5 \u2014 External Sound",
+        "id": "14_scene_to_passage_interaction_start",
+        "interaction": "Interaction 5 \u2014 Becomes King",
+        "kind": "scene_to_passage_interaction_start",
+        "logical_to": "Passage 6",
+        "master_indices": [
+          15,
+          16
+        ],
+        "order": 14,
+        "samples": [
+          {
+            "actual_frame": 36255360,
+            "bytes": 797978,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                46590.90125,
+                320000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:20.118803+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/14_scene_to_passage_interaction_start_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 10.255659348090276,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/14_scene_to_passage_interaction_start_minus_1s.png",
+            "target_frame": 36255360,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 5 \u2014 External Sound \u2014 Exit Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_14"
+            }
+          },
+          {
+            "actual_frame": 36278360,
+            "bytes": 799745,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                46590.90125,
+                320000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:23.537463+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/14_scene_to_passage_interaction_start_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 10.420251149522569,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/14_scene_to_passage_interaction_start_minus_1f.png",
+            "target_frame": 36278360,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 5 \u2014 External Sound \u2014 Exit Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_14"
+            }
+          },
+          {
+            "actual_frame": 36280360,
+            "bytes": 240539,
+            "camera": {
+              "fov_deg": 45.981632232666016,
+              "location": [
+                47238.27438340094,
+                320000.0,
+                510.5694463553317
+              ],
+              "rotation": {
+                "pitch": -86.3016245076493,
+                "roll": -0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:26.997735+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/14_scene_to_passage_interaction_start_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 3.5339672690972224,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/14_scene_to_passage_interaction_start_plus_1f.png",
+            "target_frame": 36280360,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "S5 Sleight Hangar Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_34"
+            }
+          },
+          {
+            "actual_frame": 36303360,
+            "bytes": 235489,
+            "camera": {
+              "fov_deg": 45.981632232666016,
+              "location": [
+                47238.27438340094,
+                320000.0,
+                510.5694463553317
+              ],
+              "rotation": {
+                "pitch": -86.3016245076493,
+                "roll": -0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:30.231102+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/14_scene_to_passage_interaction_start_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 3.4939964127604166,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/14_scene_to_passage_interaction_start_plus_1s.png",
+            "target_frame": 36303360,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "S5 Sleight Hangar Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_34"
+            }
+          }
+        ],
+        "to": "Interaction 5 \u2014 Becomes King"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 108.47450366840278,
+            "luminance_ratio": 0.5951758840687892,
+            "position_cm": 20.902170483203758,
+            "rotation_deg": 0.0,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "luminance_pop"
+          ]
+        },
+        "boundary": 38042880,
+        "from": "Interaction 5 \u2014 Becomes King",
+        "id": "15_scene_to_passage_interaction_end",
+        "interaction": "Interaction 5 \u2014 Becomes King",
+        "kind": "scene_to_passage_interaction_end",
+        "logical_from": "Scene 5 \u2014 External Sound",
+        "logical_to": "Passage 6",
+        "master_indices": [
+          16,
+          17
+        ],
+        "order": 15,
+        "samples": [
+          {
+            "actual_frame": 38018880,
+            "bytes": 1445528,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                -242.1464385986328,
+                400000.0,
+                246.59027099609375
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:33.525456+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/15_scene_to_passage_interaction_end_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 177.3463861391059,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/15_scene_to_passage_interaction_end_minus_1s.png",
+            "target_frame": 38018880,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "I5 Sleight Mouth Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_35"
+            }
+          },
+          {
+            "actual_frame": 38041880,
+            "bytes": 1537828,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                -10.089435949791095,
+                400000.0,
+                182.77458911447684
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:37.879100+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/15_scene_to_passage_interaction_end_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 182.2562146282552,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/15_scene_to_passage_interaction_end_minus_1f.png",
+            "target_frame": 38041880,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "I5 Sleight Mouth Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_35"
+            }
+          },
+          {
+            "actual_frame": 38043880,
+            "bytes": 1118221,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                10.627764299150385,
+                400000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:42.152972+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/15_scene_to_passage_interaction_end_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 73.78171095985243,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/15_scene_to_passage_interaction_end_plus_1f.png",
+            "target_frame": 38043880,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 06 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_5"
+            }
+          },
+          {
+            "actual_frame": 38066880,
+            "bytes": 1158010,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                255.0662466470394,
+                400000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:46.373000+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/15_scene_to_passage_interaction_end_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 65.54976459006078,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/15_scene_to_passage_interaction_end_plus_1s.png",
+            "target_frame": 38066880,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 06 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_5"
+            }
+          }
+        ],
+        "to": "Passage 6"
+      },
+      {
+        "analysis": {
+          "across_boundary": {
+            "luminance_abs": 24.220886367621524,
+            "luminance_ratio": 0.9885643136773674,
+            "position_cm": 0.0,
+            "rotation_deg": 0.0,
+            "view_target_changed": true
+          },
+          "flagged": true,
+          "flags": [
+            "black_frame:plus_1f",
+            "black_frame:plus_1s"
+          ]
+        },
+        "boundary": 41042880,
+        "from": "Passage 6",
+        "id": "16_passage_to_scene",
+        "kind": "passage_to_scene",
+        "master_indices": [
+          17,
+          18
+        ],
+        "order": 16,
+        "samples": [
+          {
+            "actual_frame": 41018880,
+            "bytes": 711500,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                27638.113756618885,
+                400000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:50.741895+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/16_passage_to_scene_minus_1s.png\"",
+            "key": "minus_1s",
+            "label": "seam - 1 s",
+            "mean_luminance": 25.511759192925346,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/16_passage_to_scene_minus_1s.png",
+            "target_frame": 41018880,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 06 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_5"
+            }
+          },
+          {
+            "actual_frame": 41041880,
+            "bytes": 745953,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                27640.283499999998,
+                400000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:54.915345+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/16_passage_to_scene_minus_1f.png\"",
+            "key": "minus_1f",
+            "label": "seam - 1 frame",
+            "mean_luminance": 24.501072952473955,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/16_passage_to_scene_minus_1f.png",
+            "target_frame": 41041880,
+            "view_target": {
+              "class": "InfinityStageCameraRig",
+              "label": "Passage 06 \u2014 Camera + Shadow Figures",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageCameraRig_5"
+            }
+          },
+          {
+            "actual_frame": 41043880,
+            "bytes": 147463,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                27640.283499999998,
+                400000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:26:58.906751+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/16_passage_to_scene_plus_1f.png\"",
+            "key": "plus_1f",
+            "label": "seam + 1 frame",
+            "mean_luminance": 0.28018658485243053,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/16_passage_to_scene_plus_1f.png",
+            "target_frame": 41043880,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 6 \u2014 External Sound \u2014 Entry Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_18"
+            }
+          },
+          {
+            "actual_frame": 41066880,
+            "bytes": 91174,
+            "camera": {
+              "fov_deg": 37.49735641479492,
+              "location": [
+                27640.283499999998,
+                400000.0,
+                180.0
+              ],
+              "rotation": {
+                "pitch": 0.0,
+                "roll": 0.0,
+                "yaw": 0.0
+              }
+            },
+            "captured_utc": "2026-10-11T19:27:01.997027+00:00",
+            "command": "HighResShot 1280x720 filename=\"E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/16_passage_to_scene_plus_1s.png\"",
+            "key": "plus_1s",
+            "label": "seam + 1 s",
+            "mean_luminance": 0.3326348157552083,
+            "path": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2/shots/16_passage_to_scene_plus_1s.png",
+            "target_frame": 41066880,
+            "view_target": {
+              "class": "CineCameraActor",
+              "label": "Scene 6 \u2014 External Sound \u2014 Entry Handoff Camera",
+              "path": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.CineCameraActor_18"
+            }
+          }
+        ],
+        "to": "Scene 6 \u2014 External Sound"
+      }
+    ],
+    "segments": [
+      {
+        "end": 2312640,
+        "label": "Opening \u2014 Curtain",
+        "start": 0
+      },
+      {
+        "end": 4077120,
+        "label": "Passage 1",
+        "start": 2312640
+      },
+      {
+        "end": 7821120,
+        "label": "Scene 1 \u2014 External Sound",
+        "start": 4077120
+      },
+      {
+        "end": 9916800,
+        "label": "Interaction 1 \u2014 Washing the Boy",
+        "start": 7821120
+      },
+      {
+        "end": 11009280,
+        "label": "Passage 2",
+        "start": 9916800
+      },
+      {
+        "end": 14744640,
+        "label": "Scene 2 \u2014 External Sound",
+        "start": 11009280
+      },
+      {
+        "end": 16616640,
+        "label": "Interaction 2 \u2014 Turnips",
+        "start": 14744640
+      },
+      {
+        "end": 17582400,
+        "label": "Passage 3",
+        "start": 16616640
+      },
+      {
+        "end": 23822400,
+        "label": "Scene 3 \u2014 External Sound",
+        "start": 17582400
+      },
+      {
+        "end": 25970880,
+        "label": "Interaction 3 \u2014 Forgets His Name",
+        "start": 23822400
+      },
+      {
+        "end": 27132480,
+        "label": "Passage 4",
+        "start": 25970880
+      },
+      {
+        "end": 31826880,
+        "label": "Scene 4 \u2014 External Sound",
+        "start": 27132480
+      },
+      {
+        "end": 33590400,
+        "label": "Interaction 4 \u2014 Gets a Name",
+        "start": 31826880
+      },
+      {
+        "end": 34094400,
+        "label": "Interlude: Puss Sleep/Wet Tennis Ball/Battery",
+        "start": 33590400
+      },
+      {
+        "end": 35103360,
+        "label": "Passage 5",
+        "start": 34094400
+      },
+      {
+        "end": 36279360,
+        "label": "Scene 5 \u2014 External Sound",
+        "start": 35103360
+      },
+      {
+        "end": 38042880,
+        "label": "Interaction 5 \u2014 Becomes King",
+        "start": 36279360
+      },
+      {
+        "end": 41042880,
+        "label": "Passage 6",
+        "start": 38042880
+      },
+      {
+        "end": 46312320,
+        "label": "Scene 6 \u2014 External Sound",
+        "start": 41042880
+      },
+      {
+        "end": 46672320,
+        "label": "Closing \u2014 Sweeping Up",
+        "start": 46312320
+      }
+    ],
+    "ticks_per_second": 24000
+  },
+  "resolution": [
+    1280,
+    720
+  ],
+  "run": "J191-SEAMS-J196A2",
+  "run_dir": "E:/PussStage/Saved/CodexConductor/Job191TransitionAudit_20261011/runs/J191-SEAMS-J196A2",
+  "sample_index": 64,
+  "schema": 1,
+  "screen_messages_disabled": false,
+  "stable_ticks": 4,
+  "started_utc": "2026-10-11T19:23:11.514685+00:00",
+  "status": "passed",
+  "thresholds": {
+    "black": 5.0,
+    "luma_abs": 32.0,
+    "luma_ratio": 0.4,
+    "position_cm": 25.0,
+    "rotation_deg": 2.0,
+    "white": 250.0
+  },
+  "wait_ticks": 0
+}
