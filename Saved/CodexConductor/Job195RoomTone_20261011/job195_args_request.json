@@ -1,0 +1,11 @@
+{
+  "mode": "DRY",
+  "run": "J195-DRY-001",
+  "confirm": "",
+  "source_wav": "Content/InfinityStage/Audio/RoomTone/",
+  "destination_path": "/Game/InfinityStage/Audio/RoomTone",
+  "asset_name": "SW_Cameron_RoomTone",
+  "mpc_path": "/Game/InfinityStage/Effects/S6/MPC_S6Warp",
+  "enable_s6_dip": true,
+  "record": ""
+}

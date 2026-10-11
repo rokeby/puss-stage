@@ -1,0 +1,214 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowRoot.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowRoot.h
+index 9667185..26ff803 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowRoot.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowRoot.h
+@@ -7,11 +7,14 @@
+ #include "InfinityStageShowRoot.generated.h"
+ 
+ class ALevelSequenceActor;
+ class AInfinityStageCurtainRig;
++class UAudioComponent;
+ class UInfinityStageShowAsset;
+ class UInfinityStageTransportController;
+ class ULevelSequence;
+ class ULevelSequencePlayer;
++class UMaterialParameterCollection;
++class USoundBase;
+ 
+ UCLASS(BlueprintType)
+ class INFINITYSTAGE_API AInfinityStageShowRoot : public AActor
+@@ -81,5 +84,30 @@ public:
+     UFUNCTION(BlueprintPure, Category = "Infinity Stage|Curtain")
+     bool GetCurtainStateAtFrame(FFrameNumber MasterFrame, float& OutProgress) const;
+ 
++    /** Cameron's whole-show room tone. Runtime-owned: never follows the Master playhead. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Room Tone")
++    TObjectPtr<USoundBase> RoomToneSound;
++
++    /** Job 190's MPC; Weird optionally fades the room tone by the configured dip. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Room Tone")
++    TObjectPtr<UMaterialParameterCollection> RoomToneWarpParameters;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Room Tone")
++    FName RoomToneWarpParameter = TEXT("Weird");
++
++    /** The single non-spatial runtime player, owned by the Show Root. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Infinity Stage|Room Tone")
++    TObjectPtr<UAudioComponent> RoomToneAudio;
++
++    /**
++     * Pure gain rule for tests. S6DipDb is an additional negative offset:
++     * -18 dB base plus the default -12 dB dip reaches -30 dB at Weird=1.
++     */
++    static float ComputeRoomToneGainDb(
++        float BaseDb,
++        float S6DipDb,
++        float Weird,
++        bool bEnableS6Dip);
++
+     UFUNCTION(BlueprintCallable, Category = "Infinity Stage")
+     bool PrepareShow();
+@@ -94,4 +124,5 @@ private:
+     bool ShouldUseLegacyAutomaticCurtain() const;
+     void EnsureCurtainRig();
+     void UpdateCurtainForCurrentFrame();
++    void UpdateRoomToneMix();
+ };
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowRoot.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowRoot.cpp
+index 292570a..85b2a1f 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowRoot.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowRoot.cpp
+@@ -4,15 +4,42 @@
+ #include "InfinityStageCurtainRig.h"
+ #include "InfinityStageShowAsset.h"
+ 
++#include "Components/AudioComponent.h"
++#include "Engine/World.h"
++#include "HAL/IConsoleManager.h"
+ #include "InfinityStageTransportController.h"
+ #include "LevelSequenceActor.h"
+ #include "LevelSequencePlayer.h"
++#include "Materials/MaterialParameterCollection.h"
++#include "Materials/MaterialParameterCollectionInstance.h"
++#include "Sound/SoundBase.h"
++
++DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageRoomTone, Log, All);
++
++static TAutoConsoleVariable<float> CVarInfinityStageRoomToneVolumeDb(
++    TEXT("InfinityStage.RoomTone.VolumeDb"),
++    -18.0f,
++    TEXT("Whole-show room-tone level in dB. Default -18 dB."));
++
++static TAutoConsoleVariable<int32> CVarInfinityStageRoomToneEnableS6Dip(
++    TEXT("InfinityStage.RoomTone.EnableS6Dip"),
++    1,
++    TEXT("When non-zero, MPC_S6Warp Weird applies the S6 room-tone dip."));
++
++static TAutoConsoleVariable<float> CVarInfinityStageRoomToneS6DipDb(
++    TEXT("InfinityStage.RoomTone.S6DipDb"),
++    -12.0f,
++    TEXT("Additional dB at Weird=1. Default -12 dB (not silence)."));
+ 
+ AInfinityStageShowRoot::AInfinityStageShowRoot()
+ {
+     PrimaryActorTick.bCanEverTick = true;
+     PrimaryActorTick.TickGroup = TG_PostUpdateWork;
+     Transport = CreateDefaultSubobject<UInfinityStageTransportController>(TEXT("Transport"));
++    RoomToneAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("RoomToneAudio"));
++    RoomToneAudio->bAutoActivate = false;
++    RoomToneAudio->bAllowSpatialization = false;
++    RoomToneAudio->bStopWhenOwnerDestroyed = true;
+     CurtainRigClass = AInfinityStageCurtainRig::StaticClass();
+     PlaybackSettings.bAutoPlay = false;
+     PlaybackSettings.LoopCount.Value = 0;
+@@ -62,10 +90,23 @@ void AInfinityStageShowRoot::BeginPlay()
+     }
+     EnsureCurtainRig();
+     UpdateCurtainForCurrentFrame();
++    if (RoomToneAudio && RoomToneSound)
++    {
++        RoomToneAudio->SetSound(RoomToneSound);
++        UpdateRoomToneMix();
++        RoomToneAudio->Play();
++        UE_LOG(LogInfinityStageRoomTone, Display,
++            TEXT("INFINITY_ROOM_TONE_STARTED sound=%s component=%s"),
++            *RoomToneSound->GetPathName(), *RoomToneAudio->GetPathName());
++    }
+ }
+ 
+ void AInfinityStageShowRoot::EndPlay(const EEndPlayReason::Type EndPlayReason)
+ {
++    if (RoomToneAudio)
++    {
++        RoomToneAudio->Stop();
++    }
+     if (SequencePlayer)
+     {
+         SequencePlayer->StopAtCurrentTime();
+@@ -82,6 +121,7 @@ void AInfinityStageShowRoot::Tick(const float DeltaSeconds)
+ {
+     Super::Tick(DeltaSeconds);
+     UpdateCurtainForCurrentFrame();
++    UpdateRoomToneMix();
+ }
+ 
+ bool AInfinityStageShowRoot::GetCurtainStateAtFrame(
+@@ -230,6 +270,39 @@ void AInfinityStageShowRoot::UpdateCurtainForCurrentFrame()
+     CurtainRig->SetCurtainState(Progress, bActive);
+ }
+ 
++float AInfinityStageShowRoot::ComputeRoomToneGainDb(
++    const float BaseDb,
++    const float S6DipDb,
++    const float Weird,
++    const bool bEnableS6Dip)
++{
++    const float Dip = bEnableS6Dip ? FMath::Min(0.0f, S6DipDb) * FMath::Clamp(Weird, 0.0f, 1.0f) : 0.0f;
++    return FMath::Clamp(BaseDb + Dip, -80.0f, 12.0f);
++}
++
++void AInfinityStageShowRoot::UpdateRoomToneMix()
++{
++    if (!RoomToneAudio || !RoomToneSound)
++    {
++        return;
++    }
++    float Weird = 0.0f;
++    if (RoomToneWarpParameters && GetWorld())
++    {
++        if (UMaterialParameterCollectionInstance* Instance =
++                GetWorld()->GetParameterCollectionInstance(RoomToneWarpParameters))
++        {
++            Instance->GetScalarParameterValue(RoomToneWarpParameter, Weird);
++        }
++    }
++    const float GainDb = ComputeRoomToneGainDb(
++        CVarInfinityStageRoomToneVolumeDb.GetValueOnGameThread(),
++        CVarInfinityStageRoomToneS6DipDb.GetValueOnGameThread(),
++        Weird,
++        CVarInfinityStageRoomToneEnableS6Dip.GetValueOnGameThread() != 0);
++    RoomToneAudio->SetVolumeMultiplier(GainDb <= -80.0f ? 0.0f : FMath::Pow(10.0f, GainDb / 20.0f));
++}
++
+ EInfinityCameraOwner AInfinityStageShowRoot::GetCameraOwnerAtFrame(const FFrameNumber MasterFrame) const
+ {
+     // Forcing Timeline is the dog-failure drill (F.4): it wins everywhere.
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBreathTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBreathTests.cpp
+index d5a67c8..b94f13f 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBreathTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBreathTests.cpp
+@@ -1,3 +1,4 @@
++#include "InfinityStageShowRoot.h"
+ #include "InfinityStageTransportController.h"
+ #include "Misc/AutomationTest.h"
+ 
+@@ -43,6 +44,29 @@ bool FInfinityStageBreathAudioRampTest::RunTest(const FString& Parameters)
+     return true;
+ }
+ 
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageRoomToneGainTest,
++    "InfinityStage.CueDirector.RoomToneIndependentGain",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageRoomToneGainTest::RunTest(const FString& Parameters)
++{
++    using Root = AInfinityStageShowRoot;
++    TestEqual(TEXT("Outside S6 the low base level is unchanged"),
++        Root::ComputeRoomToneGainDb(-18.0f, -12.0f, 0.0f, true), -18.0f);
++    TestEqual(TEXT("Half Weird applies half the additional dip"),
++        Root::ComputeRoomToneGainDb(-18.0f, -12.0f, 0.5f, true), -24.0f);
++    TestEqual(TEXT("Full Weird reaches -30 dB rather than silence"),
++        Root::ComputeRoomToneGainDb(-18.0f, -12.0f, 1.0f, true), -30.0f);
++    TestEqual(TEXT("The operator can disable the optional dip"),
++        Root::ComputeRoomToneGainDb(-18.0f, -12.0f, 1.0f, false), -18.0f);
++    TestEqual(TEXT("Weird is clamped above one"),
++        Root::ComputeRoomToneGainDb(-18.0f, -12.0f, 4.0f, true), -30.0f);
++    TestEqual(TEXT("A positive dip value cannot make room tone louder"),
++        Root::ComputeRoomToneGainDb(-18.0f, 12.0f, 1.0f, true), -18.0f);
++    return true;
++}
++
+ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+     FInfinityStageBreathClockTest,
+     "InfinityStage.CueDirector.BreathClockFrozenMasterAdvancesMechanisms",
