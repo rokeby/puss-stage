@@ -307,8 +307,18 @@ def find_context(run):
     census = dirty_census()
     if census["content"] or census["maps"]:
         stop(run, "DIRTY_BEFORE|%s" % json.dumps(census, sort_keys=True))
-    show = unreal.load_asset(SHOW_PATH)
-    master = unreal.load_asset(MASTER_PATH)
+    actor_sub = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    roots = [actor for actor in actor_sub.get_all_level_actors()
+             if isinstance(actor, unreal.InfinityStageShowRoot)]
+    if len(roots) != 1:
+        stop(run, "SHOW_ROOT_COUNT|%d" % len(roots))
+    master = roots[0].get_editor_property("master_sequence")
+    master_path = asset_id(master)
+    if master is None or not master_path.startswith("/Game/InfinityStage/"):
+        stop(run, "CURRENT_MASTER_FROM_SHOW_ROOT|%r" % master_path)
+    show = roots[0].get_editor_property("show_asset")
+    if asset_id(show) != SHOW_PATH:
+        stop(run, "SHOW_ROOT_SHOW_ASSET|%r" % asset_id(show))
     s6 = unreal.load_asset(S6_PATH)
     shot = unreal.load_asset(SHOT_PATH)
     if show is None or master is None or s6 is None or shot is None:
@@ -329,7 +339,6 @@ def find_context(run):
     if len(sections) != 1:
         stop(run, "P06_SECTION_COUNT|%d" % len(sections))
     entries = []
-    actor_sub = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     for actor in actor_sub.get_all_level_actors():
         if isinstance(actor, unreal.CineCameraActor) and actor.actor_has_tag("InfinityStage.SceneEntry"):
             if str(actor.get_actor_label()).startswith("Scene 6 "):
@@ -338,6 +347,7 @@ def find_context(run):
         stop(run, "S6_ENTRY_COUNT|%d" % len(entries))
     frame_range = unwrap(unreal.InfinityStageCameraPilotLibrary.get_passage_frame_range(show, guid), 2, "P06_RANGE")
     return {"editor": editor, "actor_sub": actor_sub, "world": world, "show": show, "master": master,
+            "master_path": master_path,
             "s6": s6, "shot": shot, "guid": guid, "section": sections[0], "entry": entries[0],
             "start": int(frame_range[0]), "end": int(frame_range[1]), "dirty": census}
 
@@ -619,15 +629,17 @@ def proposal(ctx, args, rows):
         "volume": {"label": VOLUME_LABEL, "tag": VOLUME_TAG, "priority": args["volume_priority"],
                    "default_blend_weight": 0.0, "s6_blend_weight": 1.0},
         "void": read_json(VOID_PROPOSAL),
-        "named_saves": [MASTER_PATH, S6_PATH, MATERIAL_PATH, MPC_PATH, WORLD_PATH],
+        "named_saves": [ctx["master_path"], S6_PATH, MATERIAL_PATH, MPC_PATH, WORLD_PATH],
         "mpc_key_sequence": S6_PATH,
-        "camera_edit_targets": [MASTER_PATH],
+        "camera_edit_targets": [ctx["master_path"]],
         "nested_shot_policy": "read_only_never_save_never_edit",
         "runtime_prerequisite": "none; post-process route requires no C++ patch and no build",
     }
-    core.validate_named_saves(plan["named_saves"], require_apply_set=True)
+    core.validate_named_saves(plan["named_saves"], require_apply_set=True,
+                              current_master_path=ctx["master_path"])
     core.validate_mpc_key_sequence(plan["mpc_key_sequence"])
-    core.validate_camera_edit_targets(plan["camera_edit_targets"])
+    core.validate_camera_edit_targets(plan["camera_edit_targets"],
+                                      current_master_path=ctx["master_path"])
     return plan
 
 
@@ -802,7 +814,7 @@ def backup(ctx, run, existing_assets):
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     directory = os.path.join(project, "Backups", "PreJob190S6WarpPP-%s-%s" % (run, stamp))
     os.makedirs(directory, exist_ok=False)
-    packages = [(MASTER_PATH, ".uasset"), (S6_PATH, ".uasset"), (WORLD_PATH, ".umap")]
+    packages = [(ctx["master_path"], ".uasset"), (S6_PATH, ".uasset"), (WORLD_PATH, ".umap")]
     packages.extend((path, ".uasset") for path in existing_assets)
     rows = []
     for package, extension in packages:
@@ -940,9 +952,11 @@ def run_apply(ctx, args, rows, plan):
     if not dry.get("apply_ready") or dry.get("plan_digest") != digest:
         stop(args["run"], "CURRENT_GREEN_DRY_REQUIRED_WITH_SAME_RUN_AND_ARGS")
     try:
-        core.validate_named_saves(plan["named_saves"], require_apply_set=True)
+        core.validate_named_saves(plan["named_saves"], require_apply_set=True,
+                                  current_master_path=ctx["master_path"])
         core.validate_mpc_key_sequence(plan["mpc_key_sequence"])
-        core.validate_camera_edit_targets(plan["camera_edit_targets"])
+        core.validate_camera_edit_targets(plan["camera_edit_targets"],
+                                          current_master_path=ctx["master_path"])
     except ValueError as exc:
         stop(args["run"], "JOB194_OWNERSHIP_POLICY|%s" % exc)
     before = snapshot(ctx)
@@ -1044,7 +1058,7 @@ def run_revert(ctx, args):
     if not ctx["actor_sub"].destroy_actor(actors[0]):
         stop(args["run"], "DESTROY_OWNED_VOLUME_FAILED")
     restore_channels(ctx["section"], source["before"]["camera_channels"])
-    revert_saves = [MASTER_PATH, S6_PATH, WORLD_PATH]
+    revert_saves = [ctx["master_path"], S6_PATH, WORLD_PATH]
     dirty_before_save = assert_dirty_scope(revert_saves, args["run"], "REVERT")
     save_named(revert_saves, args["run"])
     after = snapshot(ctx)

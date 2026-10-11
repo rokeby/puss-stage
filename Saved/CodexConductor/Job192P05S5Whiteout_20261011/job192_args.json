@@ -1,7 +1,7 @@
 {
-  "mode": "DRY",
-  "run": "J192-J196-A1",
-  "confirm": "",
-  "decided_by": "",
+  "mode": "APPLY",
+  "run": "J192-J197-A1",
+  "confirm": "APPLY JOB192 P05 S5 WHITEOUT",
+  "decided_by": "Gary, Job 197",
   "record": ""
 }

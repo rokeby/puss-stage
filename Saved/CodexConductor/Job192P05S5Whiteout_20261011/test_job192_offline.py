@@ -52,9 +52,13 @@ class Job192OfflineTests(unittest.TestCase):
         with open(os.path.join(HERE, "job192_p05_s5_whiteout.py"), encoding="utf-8") as handle:
             text = handle.read()
         for token in ("JOB192_DRY_OK", "JOB192_APPLY_OK", "JOB192_REVERT_OK",
-                      '"save_packages": [MASTER, WORLD]', "save_current_level()",
+                      '"save_packages": [ctx["master_path"], WORLD]', "save_current_level()",
                       'MASTER = "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master"'):
             self.assertIn(token, text)
+        self.assertIn('get_editor_property("master_sequence")', text)
+        self.assertNotIn('show, master = unreal.load_asset(SHOW), unreal.load_asset(MASTER)', text)
+        self.assertIn('missing_settings_policy', text)
+        self.assertNotIn('CUE_DIRECTOR_MISSING_CANNOT_DETERMINE_S5_MODE', text)
         self.assertNotIn("save_asset(SHOW", text)
         self.assertNotIn("save_asset(S5", text)
         self.assertNotIn("delete_asset", text)

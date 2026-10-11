@@ -108,17 +108,18 @@ def validate_args(raw):
     }
 
 
-def validate_named_saves(paths, require_apply_set=False):
+def validate_named_saves(paths, require_apply_set=False, current_master_path=MASTER_PATH):
     rows = tuple(str(path) for path in paths)
     if len(rows) != len(set(rows)):
         raise ValueError("named_saves contains duplicates")
     forbidden = [path for path in rows if path.startswith(KLARA_HOOKIN_PREFIX)]
     if forbidden:
         raise ValueError("named_saves must never include KlaraHookin: %r" % forbidden)
-    unknown = sorted(set(rows) - set(ALLOWED_NAMED_SAVES))
+    allowed = (current_master_path,) + tuple(path for path in ALLOWED_NAMED_SAVES if path != MASTER_PATH)
+    unknown = sorted(set(rows) - set(allowed))
     if unknown:
         raise ValueError("named_saves outside Job 194 allowlist: %r" % unknown)
-    if require_apply_set and set(rows) != set(ALLOWED_NAMED_SAVES):
+    if require_apply_set and set(rows) != set(allowed):
         raise ValueError("APPLY named_saves must equal the Job 194 allowlist")
     return rows
 
@@ -130,12 +131,12 @@ def validate_mpc_key_sequence(sequence_path):
     return path
 
 
-def validate_camera_edit_targets(paths):
+def validate_camera_edit_targets(paths, current_master_path=MASTER_PATH):
     rows = tuple(str(path) for path in paths)
     forbidden = [path for path in rows if path == NESTED_SHOT_PATH or path.startswith(KLARA_HOOKIN_PREFIX)]
     if forbidden:
         raise ValueError("nested-shot camera edits are forbidden: %r" % forbidden)
-    unknown = sorted(set(rows) - set(ALLOWED_CAMERA_EDIT_TARGETS))
+    unknown = sorted(set(rows) - {current_master_path})
     if unknown:
         raise ValueError("move-in camera edits must target only the P06/Master camera: %r" % unknown)
     return rows

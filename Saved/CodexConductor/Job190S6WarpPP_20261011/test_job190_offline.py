@@ -47,6 +47,18 @@ def main():
     check("void proposal is off", args["void_mode"] == "off")
     check("production Master identity",
           core.MASTER_PATH == "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master")
+    current_master = "/Game/InfinityStage/Current/LS_RuntimeMaster"
+    dynamic_saves = (current_master,) + tuple(path for path in core.ALLOWED_NAMED_SAVES
+                                               if path != core.MASTER_PATH)
+    check("current Show Root Master accepted dynamically",
+          core.validate_named_saves(dynamic_saves, require_apply_set=True,
+                                    current_master_path=current_master) == dynamic_saves)
+    rejects("obsolete Master rejected when current differs",
+            lambda: core.validate_named_saves(core.ALLOWED_NAMED_SAVES, require_apply_set=True,
+                                              current_master_path=current_master), "allowlist")
+    check("dynamic Master is sole camera edit target",
+          core.validate_camera_edit_targets((current_master,), current_master_path=current_master)
+          == (current_master,))
     rejects("bad mode negative", lambda: core.validate_args({"mode": "GO"}), "mode")
     rejects("bad run negative", lambda: core.validate_args({"run": "bad"}), "run")
     rejects("APPLY confirm negative", lambda: core.validate_args({"mode": "APPLY", "run": "J190-ABC"}), "confirm")
@@ -112,6 +124,10 @@ def main():
           core.plan_digest({**args, "void_mode": "proposal"}, core.compile_score(SCORES, "both")))
 
     source = (HERE / "job190_s6_warp_pp.py").read_text(encoding="utf-8")
+    check("live Master follows the single Show Root",
+          'get_editor_property("master_sequence")' in source and
+          '"master_path": master_path' in source and
+          'unreal.load_asset(MASTER_PATH)' not in source)
     check("post-process material path", core.MATERIAL_PATH == "/Game/InfinityStage/Effects/S6/M_PP_S6Warp" and
           "MATERIAL_PATH = core.MATERIAL_PATH" in source)
     check("post-process domain", "MaterialDomain.MD_POST_PROCESS" in source)
@@ -137,7 +153,9 @@ def main():
           'ctx["shot"].remove_track' not in source and 'ctx["shot"].add_track' not in source)
     check("move-in becomes DRY-only when nested edit would be required",
           "MOVE_IN_DRY_ONLY|P06_MASTER_ONLY_CANNOT_MATCH_READ_ONLY_NESTED_CAMERA" in source)
-    check("named saves exclude KlaraHookin", '"named_saves": [MASTER_PATH, S6_PATH, MATERIAL_PATH, MPC_PATH, WORLD_PATH]' in source)
+    check("named saves exclude KlaraHookin",
+          '"named_saves": [ctx["master_path"], S6_PATH, MATERIAL_PATH, MPC_PATH, WORLD_PATH]' in source
+          and '"named_saves": [MASTER_PATH' not in source)
     check("MPC target explicitly guarded", "validate_mpc_key_sequence" in source and
           '"mpc_key_sequence": S6_PATH' in source)
     check("binding lookup precedes add", "BINDING_LOOKUP_CHANGED_BEFORE_ADD" in source)

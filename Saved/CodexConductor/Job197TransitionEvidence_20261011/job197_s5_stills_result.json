@@ -1,0 +1,89 @@
+{
+  "captures": [
+    {
+      "actual_frame": 34863360,
+      "bytes": 1690754,
+      "key": "minus10s",
+      "mean_luminance": 69.89262802319443,
+      "path": "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/197_P05_S5_minus10s.png",
+      "target_frame": 34863360
+    },
+    {
+      "actual_frame": 34983360,
+      "bytes": 1704148,
+      "key": "minus5s",
+      "mean_luminance": 104.59234728527777,
+      "path": "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/197_P05_S5_minus5s.png",
+      "target_frame": 34983360
+    },
+    {
+      "actual_frame": 35079360,
+      "bytes": 587933,
+      "key": "minus1s",
+      "mean_luminance": 231.1546075783333,
+      "path": "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/197_P05_S5_minus1s.png",
+      "target_frame": 35079360
+    },
+    {
+      "actual_frame": 35103360,
+      "bytes": 27181,
+      "key": "seam",
+      "mean_luminance": 255.0,
+      "path": "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/197_P05_S5_seam.png",
+      "target_frame": 35103360
+    },
+    {
+      "actual_frame": 35127360,
+      "bytes": 30118,
+      "key": "plus1s",
+      "mean_luminance": 178.00689362611112,
+      "path": "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/197_P05_S5_plus1s.png",
+      "target_frame": 35127360
+    },
+    {
+      "actual_frame": 35175360,
+      "bytes": 41084,
+      "key": "plus3s",
+      "mean_luminance": 0.045027044861111115,
+      "path": "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/197_P05_S5_plus3s.png",
+      "target_frame": 35175360
+    }
+  ],
+  "dirty_after": {
+    "content": [],
+    "maps": []
+  },
+  "dirty_before": {
+    "content": [],
+    "maps": []
+  },
+  "errors": [],
+  "file_started": 9765.375,
+  "finished_utc": "2026-10-11T19:49:44.795983+00:00",
+  "inside": true,
+  "last_size": 41084,
+  "paths": [
+    "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/197_P05_S5_minus10s.png",
+    "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/197_P05_S5_minus5s.png",
+    "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/197_P05_S5_minus1s.png",
+    "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/197_P05_S5_seam.png",
+    "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/197_P05_S5_plus1s.png",
+    "E:/PussStage/Saved/CodexConductor/ApplyPass_20261010/stills/197_P05_S5_plus3s.png"
+  ],
+  "phase_started": 9766.078,
+  "run": "J197-S5-STILLS-A1",
+  "sample_index": 6,
+  "screen_messages_disabled": false,
+  "seam_frame": 35103360,
+  "stable": 4,
+  "status": "passed",
+  "targets": [
+    34863360,
+    34983360,
+    35079360,
+    35103360,
+    35127360,
+    35175360
+  ],
+  "wait": 0
+}

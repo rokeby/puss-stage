@@ -1,0 +1,25 @@
+{
+  "actual_end": 35224208,
+  "actual_start": 34863360,
+  "dirty_after": {
+    "content": [],
+    "maps": []
+  },
+  "dirty_before": {
+    "content": [],
+    "maps": []
+  },
+  "errors": [],
+  "finished_utc": "2026-10-11T19:53:17.430419+00:00",
+  "from": 34863360,
+  "go": true,
+  "phase_started": 9978.828,
+  "play_started_monotonic": 9963.812,
+  "run": "J197-S5-RECORD-A1",
+  "screen_messages_disabled": false,
+  "seam": 35103360,
+  "started_utc": "2026-10-11T19:51:56.915180+00:00",
+  "status": "passed",
+  "to": 35223360,
+  "wait": 0
+}

@@ -1,6 +1,6 @@
 {
   "mode": "DRY",
-  "run": "J190-J196-A1",
+  "run": "J190-J197-A1",
   "preset": "both",
   "move_seconds": 2.8,
   "push_cm": 240.0,

@@ -113,11 +113,22 @@ def content_file(package, extension):
 
 def cue_video_contract():
     project = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
-    cue = os.path.join(project, "Content", "InfinityStage", "CueSheet", "cue_director.txt")
+    getter = getattr(unreal.SystemLibrary, "get_console_variable_string_value", None)
+    override = ""
+    if callable(getter):
+        try:
+            override = str(getter("InfinityStage.CueDirector.SettingsPath") or "").strip()
+        except Exception:
+            override = ""
+    cue = (override if override else
+           os.path.join(project, "Content", "InfinityStage", "CueSheet", "cue_director.txt"))
     registry = os.path.join(project, "Renders", "Fallbacks", "current.json")
     result = {"cue_path": cue, "registry_path": registry, "cue_exists": os.path.isfile(cue),
               "registry_exists": os.path.isfile(registry), "s5_use_video": False,
-              "s5_registry": None, "compiled_white_fade_schema": None}
+              "s5_registry": None, "compiled_white_fade_schema": None,
+              "cue_settings_override": override,
+              "cue_settings_source": "console_override" if override else "project_default",
+              "missing_settings_policy": "engine_defaults_no_use_video"}
     if result["cue_exists"]:
         for raw in open(cue, encoding="utf-8-sig"):
             clean = raw.split("#", 1)[0].strip()
@@ -130,7 +141,6 @@ def cue_video_contract():
             result["s5_registry"] = read_json(registry).get("scenes", {}).get("S5")
         except Exception as exc:
             result["registry_error"] = repr(exc)
-    getter = getattr(unreal.SystemLibrary, "get_console_variable_string_value", None)
     if callable(getter):
         try:
             result["compiled_white_fade_schema"] = str(getter(PATCH_CVAR))
@@ -174,7 +184,16 @@ def find_context(run):
         stop(run, "SEQUENCER_IS_OPEN")
     if dirty_census() != {"content": [], "maps": []}:
         stop(run, "DIRTY_BEFORE|%s" % json.dumps(dirty_census(), sort_keys=True))
-    show, master = unreal.load_asset(SHOW), unreal.load_asset(MASTER)
+    actor_sub = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    roots = [actor for actor in actor_sub.get_all_level_actors()
+             if isinstance(actor, unreal.InfinityStageShowRoot)]
+    if len(roots) != 1:
+        stop(run, "SHOW_ROOT_COUNT|%d" % len(roots))
+    show = roots[0].get_editor_property("show_asset")
+    master = roots[0].get_editor_property("master_sequence")
+    master_path = asset_id(master)
+    if asset_id(show) != SHOW or master is None or not master_path.startswith("/Game/InfinityStage/"):
+        stop(run, "SHOW_ROOT_AUTHORITY|show=%r|master=%r" % (asset_id(show), master_path))
     if show is None or master is None:
         stop(run, "ASSET_LOAD")
     passages = [row for row in show.get_editor_property("passage_settings")
@@ -197,7 +216,7 @@ def find_context(run):
             cues.append(cue)
     if len(cues) != 1:
         stop(run, "S5_CUE_COUNT|%d" % len(cues))
-    actors = list(unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors())
+    actors = list(actor_sub.get_all_level_actors())
     arrivals = [actor for actor in actors if str(actor.get_actor_label()) == ARRIVAL_LABEL]
     if len(arrivals) != 1:
         stop(run, "S5_ARRIVAL_COUNT|%d" % len(arrivals))
@@ -212,7 +231,8 @@ def find_context(run):
     display_rate = rate(master.get_display_rate())
     if abs(tick_rate - rate(show.get_editor_property("tick_resolution"))) > 1.0e-6:
         stop(run, "MASTER_SHOW_TICK_RATE_MISMATCH")
-    return {"editor": editor, "world": world, "show": show, "master": master, "arrival": arrival,
+    return {"editor": editor, "world": world, "show": show, "master": master,
+            "master_path": master_path, "arrival": arrival,
             "cue_guid": cue_guid, "arrival_guid": guid_text(arrival.get_editor_property("scene_cue_guid")),
             "passage_guid": guid_text(pguid), "p05_start_tick": int(frame_range[0]),
             "seam_tick": int(frame_range[1]), "tick_rate": tick_rate, "display_rate": display_rate,
@@ -230,7 +250,9 @@ def proposal(ctx, score):
             "display_rate": ctx["display_rate"], "threshold": score["threshold"],
             "fade_from_white_seconds": score["release_seconds"],
             "presentation": "video" if ctx["media"]["s5_use_video"] else "3d",
-            "save_packages": [MASTER, WORLD]}
+            "presentation_reason": ("Cue Director use_video includes S5" if ctx["media"]["s5_use_video"]
+                                    else "Cue Director settings are absent or do not include S5; engine defaults to 3D"),
+            "save_packages": [ctx["master_path"], WORLD]}
 
 
 def snapshot(ctx):
@@ -263,12 +285,12 @@ def apply_path(run):
     return os.path.join(RECORDS, "job192_%s_apply.json" % run)
 
 
-def backup(run, media, force_registry=False):
+def backup(run, media, master_path, force_registry=False):
     project = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     root = os.path.join(project, "Backups", "PreJob192P05S5Whiteout-%s-%s" % (run, stamp))
     os.makedirs(root, exist_ok=False)
-    sources = [(MASTER, content_file(MASTER, ".uasset")), (WORLD, content_file(WORLD, ".umap"))]
+    sources = [(master_path, content_file(master_path, ".uasset")), (WORLD, content_file(WORLD, ".umap"))]
     if media["s5_use_video"] or force_registry:
         sources.append(("current.json", media["registry_path"]))
     rows = []
@@ -320,11 +342,11 @@ def add_fade(master, plan):
                             interpolation=unreal.MovieSceneKeyInterpolation.LINEAR)
 
 
-def save_named(run):
+def save_named(run, master_path):
     census = dirty_census()
-    if census != {"content": [MASTER], "maps": [WORLD]}:
+    if census != {"content": [master_path], "maps": [WORLD]}:
         stop(run, "DIRTY_SCOPE|%s" % json.dumps(census, sort_keys=True))
-    if not unreal.EditorAssetLibrary.save_asset(MASTER, only_if_is_dirty=True):
+    if not unreal.EditorAssetLibrary.save_asset(master_path, only_if_is_dirty=True):
         stop(run, "SAVE_MASTER")
     if not unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level():
         stop(run, "SAVE_LEVEL")
@@ -342,8 +364,6 @@ def run_dry(ctx, args, score, plan):
     for hit in overlapping_fades(ctx["master"], plan["section_range_display"]):
         refusals.append("MASTER_FADE_OVERLAP|%s" % json.dumps(hit, sort_keys=True))
     media = before["media"]
-    if not media["cue_exists"]:
-        refusals.append("CUE_DIRECTOR_MISSING_CANNOT_DETERMINE_S5_MODE")
     if media["s5_use_video"]:
         if not media["registry_exists"] or not media["s5_registry"]:
             refusals.append("S5_VIDEO_REGISTER_MISSING")
@@ -372,11 +392,11 @@ def run_apply(ctx, args, score, plan):
         stop(args["run"], "STATE_DRIFT_SINCE_DRY")
     if before["media"] != dry.get("before", {}).get("media"):
         stop(args["run"], "MEDIA_CONTRACT_DRIFT_SINCE_DRY")
-    back = backup(args["run"], before["media"])
+    back = backup(args["run"], before["media"], ctx["master_path"])
     path = apply_path(args["run"])
     record = {"schema": 1, "status": "PREPARED_BEFORE_MUTATION", "run": args["run"],
               "args": args, "plan": plan, "plan_digest": digest, "before": before,
-              "backup": back, "save_packages": [MASTER, WORLD], "registry_original_b64": None}
+              "backup": back, "save_packages": [ctx["master_path"], WORLD], "registry_original_b64": None}
     write_new(path, record)
     if before["media"]["s5_use_video"]:
         record["registry_original_b64"] = update_registry(before["media"], plan["fade_from_white_seconds"])
@@ -389,7 +409,7 @@ def run_apply(ctx, args, score, plan):
                 "fade_audio": False}
     if track_state(ctx["master"]) != expected or guid_text(ctx["arrival"].get_editor_property("scene_cue_guid")) != ZERO_GUID:
         stop(args["run"], "PRE_SAVE_READBACK|NOTHING_SAVED_DONT_SAVE_RESTART")
-    save_named(args["run"])
+    save_named(args["run"], ctx["master_path"])
     after = snapshot(ctx)
     if after["fade_track"] != expected or after["arrival"]["scene_cue_guid"] != ZERO_GUID:
         stop(args["run"], "POST_SAVE_READBACK")
@@ -412,7 +432,8 @@ def run_revert(ctx, args):
     if len(owned_tracks(ctx["master"])) != 1 or current["arrival"]["scene_cue_guid"] != ZERO_GUID:
         stop(args["run"], "APPLIED_STATE_DRIFT")
     original_b64 = source.get("registry_original_b64")
-    back = backup(args["run"] + "-Revert", current["media"], force_registry=original_b64 is not None)
+    back = backup(args["run"] + "-Revert", current["media"], ctx["master_path"],
+                  force_registry=original_b64 is not None)
     out = os.path.join(RECORDS, "job192_%s_revert.json" % args["run"])
     record = {"schema": 1, "status": "PREPARED_BEFORE_MUTATION", "run": args["run"],
               "source_record": path, "before_revert": current, "backup": back}
@@ -427,7 +448,7 @@ def run_revert(ctx, args):
             handle.write(original)
     if track_state(ctx["master"]) is not None or guid_text(ctx["arrival"].get_editor_property("scene_cue_guid")) != source["before"]["arrival"]["scene_cue_guid"]:
         stop(args["run"], "PRE_SAVE_REVERT_READBACK|NOTHING_SAVED_DONT_SAVE_RESTART")
-    save_named(args["run"])
+    save_named(args["run"], ctx["master_path"])
     after = snapshot(ctx)
     if after["fade_track"] is not None or after["arrival"]["scene_cue_guid"] != source["before"]["arrival"]["scene_cue_guid"]:
         stop(args["run"], "POST_SAVE_REVERT_READBACK")
