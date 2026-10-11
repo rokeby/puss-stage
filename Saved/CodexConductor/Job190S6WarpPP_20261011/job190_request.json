@@ -1,0 +1,8 @@
+{
+  "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+  "tool_name": "ExecuteProjectPythonFile",
+  "arguments": {
+    "relativeSavedPath": "CodexConductor/Job190S6WarpPP_20261011/job190_run.py"
+  }
+}
+

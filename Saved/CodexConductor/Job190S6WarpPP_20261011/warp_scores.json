@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "units": "seconds from S6 sequence start; all look controls 0..1; Phase is deterministic shader phase",
+  "presets": {
+    "Gentle->Invert": [
+      {"time": 0.0, "Weird": 0.0, "Invert": 0.0, "HueDrift": 0.0, "Solarize": 0.0, "ChromaSplit": 0.0, "Warp": 0.0, "Mirror": 0.0, "Phase": 0.0},
+      {"time": 4.16, "Weird": 0.04, "HueDrift": 0.02, "Phase": 0.4},
+      {"time": 54.96, "Weird": 0.25, "Invert": 0.18, "HueDrift": 0.12, "Solarize": 0.04, "Phase": 5.5},
+      {"time": 120.12, "Weird": 0.34, "Invert": 0.44, "HueDrift": 0.18, "Solarize": 0.10, "Phase": 12.0},
+      {"time": 160.0, "Weird": 0.78, "Invert": 0.92, "HueDrift": 0.46, "Solarize": 0.34, "ChromaSplit": 0.06, "Warp": 0.10, "Phase": 16.0},
+      {"time": 177.92, "Weird": 0.40, "Invert": 0.62, "HueDrift": 0.20, "Solarize": 0.12, "ChromaSplit": 0.02, "Warp": 0.03, "Phase": 17.8},
+      {"time": 194.0, "Weird": 0.08, "Invert": 0.12, "HueDrift": 0.04, "Solarize": 0.0, "ChromaSplit": 0.0, "Warp": 0.0, "Phase": 19.4}
+    ],
+    "Gentle->Liquid": [
+      {"time": 0.0, "Weird": 0.0, "Invert": 0.0, "HueDrift": 0.0, "Solarize": 0.0, "ChromaSplit": 0.0, "Warp": 0.0, "Mirror": 0.0, "Phase": 0.0},
+      {"time": 4.16, "Weird": 0.04, "HueDrift": 0.02, "Warp": 0.02, "Phase": 0.4},
+      {"time": 54.96, "Weird": 0.28, "HueDrift": 0.10, "ChromaSplit": 0.05, "Warp": 0.22, "Phase": 5.5},
+      {"time": 120.12, "Weird": 0.38, "HueDrift": 0.16, "ChromaSplit": 0.08, "Warp": 0.38, "Mirror": 0.08, "Phase": 12.0},
+      {"time": 160.0, "Weird": 0.88, "Invert": 0.10, "HueDrift": 0.42, "Solarize": 0.18, "ChromaSplit": 0.24, "Warp": 0.92, "Mirror": 0.58, "Phase": 16.0},
+      {"time": 177.92, "Weird": 0.46, "Invert": 0.04, "HueDrift": 0.22, "Solarize": 0.06, "ChromaSplit": 0.10, "Warp": 0.46, "Mirror": 0.18, "Phase": 17.8},
+      {"time": 194.0, "Weird": 0.08, "Invert": 0.0, "HueDrift": 0.04, "Solarize": 0.0, "ChromaSplit": 0.0, "Warp": 0.04, "Mirror": 0.0, "Phase": 19.4}
+    ],
+    "Both": [
+      {"time": 0.0, "Weird": 0.0, "Invert": 0.0, "HueDrift": 0.0, "Solarize": 0.0, "ChromaSplit": 0.0, "Warp": 0.0, "Mirror": 0.0, "Phase": 0.0},
+      {"time": 4.16, "Weird": 0.05, "Invert": 0.0, "HueDrift": 0.03, "Warp": 0.02, "Phase": 0.4},
+      {"time": 54.96, "Weird": 0.30, "Invert": 0.16, "HueDrift": 0.14, "Solarize": 0.05, "ChromaSplit": 0.05, "Warp": 0.22, "Phase": 5.5},
+      {"time": 120.12, "Weird": 0.40, "Invert": 0.38, "HueDrift": 0.20, "Solarize": 0.12, "ChromaSplit": 0.08, "Warp": 0.40, "Mirror": 0.10, "Phase": 12.0},
+      {"time": 160.0, "Weird": 0.94, "Invert": 0.90, "HueDrift": 0.58, "Solarize": 0.52, "ChromaSplit": 0.30, "Warp": 0.94, "Mirror": 0.72, "Phase": 16.0},
+      {"time": 177.92, "Weird": 0.52, "Invert": 0.48, "HueDrift": 0.26, "Solarize": 0.14, "ChromaSplit": 0.12, "Warp": 0.50, "Mirror": 0.20, "Phase": 17.8},
+      {"time": 194.0, "Weird": 0.10, "Invert": 0.08, "HueDrift": 0.05, "Solarize": 0.0, "ChromaSplit": 0.0, "Warp": 0.04, "Mirror": 0.0, "Phase": 19.4}
+    ]
+  }
+}

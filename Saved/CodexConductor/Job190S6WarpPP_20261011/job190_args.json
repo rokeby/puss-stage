@@ -1,0 +1,12 @@
+{
+  "mode": "DRY",
+  "run": "J190-001",
+  "preset": "both",
+  "move_seconds": 2.8,
+  "push_cm": 240.0,
+  "ease_fraction": 0.35,
+  "volume_priority": 190.0,
+  "void_mode": "off",
+  "record": "records/job190_J190-001_apply.json"
+}
+

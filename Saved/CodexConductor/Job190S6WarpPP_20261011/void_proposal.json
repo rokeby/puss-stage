@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "enabled_by_default": false,
+  "status": "proposal_only",
+  "preferred_route": "CustomStencil mask authored on the S6 MetaHuman Body and Face spawnable templates, preserving stencil 190 while the post-process material fades non-stencil scene colour toward black",
+  "reason_not_in_apply": "Offline records prove the MetaHuman binding but do not prove the live Body and Face render-custom-depth state, stencil conflicts, translucency coverage, hair coverage, or lighting isolation. Enabling it without those live checks could erase the performer or leak the set.",
+  "candidate_timing_seconds": [120.12, 160.0, 177.92, 194.0],
+  "candidate_amounts": [0.0, 0.35, 0.75, 0.9],
+  "acceptance": "Gary approves stills proving face, body and hair remain intact while the environment falls away"
+}
+
