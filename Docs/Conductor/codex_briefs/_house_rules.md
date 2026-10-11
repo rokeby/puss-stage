@@ -13,3 +13,4 @@
    - channel.evaluate_keys(range, rate): build the range with sequence.make_range(start, duration) (display rate). A default SequencerScriptingRange() is 60000 fps and returns ~1 value for ~2000 frames. Assert the count.
    - Channel values are float32 in practice: read back numerically (0.01 cm / 0.001 deg), never by hashing rounded values.
    - New visibility/property tracks get UE default names ("Visibility"), not your display name; match by class + property.
+10. Before any `--unreal` attempt, run `python Scripts/ue58_api_preflight.py <tool-directory>` and clear every DENY finding.
