@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="520" viewBox="0 0 1280 520">
+<rect width="100%%" height="100%%" fill="#090b12"/>
+<text x="100" y="30" fill="#fff" font-family="Segoe UI, sans-serif" font-size="20">Job 189 — Gentle->Invert</text>
+<line x1="100" y1="450" x2="1250" y2="450" stroke="#303745" stroke-width="1"/>
+<text x="55" y="454" fill="#8d96a8" font-family="monospace" font-size="12">0.00</text>
+<line x1="100" y1="351.25" x2="1250" y2="351.25" stroke="#303745" stroke-width="1"/>
+<text x="55" y="355.25" fill="#8d96a8" font-family="monospace" font-size="12">0.25</text>
+<line x1="100" y1="252.5" x2="1250" y2="252.5" stroke="#303745" stroke-width="1"/>
+<text x="55" y="256.5" fill="#8d96a8" font-family="monospace" font-size="12">0.50</text>
+<line x1="100" y1="153.75" x2="1250" y2="153.75" stroke="#303745" stroke-width="1"/>
+<text x="55" y="157.75" fill="#8d96a8" font-family="monospace" font-size="12">0.75</text>
+<line x1="100" y1="55" x2="1250" y2="55" stroke="#303745" stroke-width="1"/>
+<text x="55" y="59" fill="#8d96a8" font-family="monospace" font-size="12">1.00</text>
+<line x1="100" y1="55" x2="100" y2="450" stroke="#252b36" stroke-width="1"/>
+<text x="100" y="472" fill="#8d96a8" text-anchor="middle" font-family="monospace" font-size="11">0.0s</text>
+<line x1="124.66" y1="55" x2="124.66" y2="450" stroke="#252b36" stroke-width="1"/>
+<text x="124.66" y="472" fill="#8d96a8" text-anchor="middle" font-family="monospace" font-size="11">4.2s</text>
+<line x1="425.794" y1="55" x2="425.794" y2="450" stroke="#252b36" stroke-width="1"/>
+<text x="425.794" y="472" fill="#8d96a8" text-anchor="middle" font-family="monospace" font-size="11">55.0s</text>
+<line x1="812.052" y1="55" x2="812.052" y2="450" stroke="#252b36" stroke-width="1"/>
+<text x="812.052" y="472" fill="#8d96a8" text-anchor="middle" font-family="monospace" font-size="11">120.1s</text>
+<line x1="1048.45" y1="55" x2="1048.45" y2="450" stroke="#252b36" stroke-width="1"/>
+<text x="1048.45" y="472" fill="#8d96a8" text-anchor="middle" font-family="monospace" font-size="11">160.0s</text>
+<line x1="1154.68" y1="55" x2="1154.68" y2="450" stroke="#252b36" stroke-width="1"/>
+<text x="1154.68" y="472" fill="#8d96a8" text-anchor="middle" font-family="monospace" font-size="11">177.9s</text>
+<line x1="1250" y1="55" x2="1250" y2="450" stroke="#252b36" stroke-width="1"/>
+<text x="1250" y="472" fill="#8d96a8" text-anchor="middle" font-family="monospace" font-size="11">194.0s</text>
+<polyline points="100.00,450.00 124.66,434.20 425.79,351.25 812.05,315.70 1048.45,141.90 1154.68,292.00 1250.00,418.40" fill="none" stroke="#ffffff" stroke-width="3"/>
+<rect x="100" y="498" width="12" height="4" fill="#ffffff"/>
+<text x="118" y="504" fill="#cdd4df" font-family="Segoe UI, sans-serif" font-size="12">Weird</text>
+<polyline points="100.00,450.00 124.66,450.00 425.79,378.90 812.05,276.20 1048.45,86.60 1154.68,205.10 1250.00,402.60" fill="none" stroke="#ffcf4a" stroke-width="3"/>
+<rect x="245" y="498" width="12" height="4" fill="#ffcf4a"/>
+<text x="263" y="504" fill="#cdd4df" font-family="Segoe UI, sans-serif" font-size="12">Invert</text>
+<polyline points="100.00,450.00 124.66,442.10 425.79,402.60 812.05,378.90 1048.45,268.30 1154.68,371.00 1250.00,434.20" fill="none" stroke="#e45cff" stroke-width="3"/>
+<rect x="390" y="498" width="12" height="4" fill="#e45cff"/>
+<text x="408" y="504" fill="#cdd4df" font-family="Segoe UI, sans-serif" font-size="12">HueDrift</text>
+<polyline points="100.00,450.00 124.66,450.00 425.79,434.20 812.05,410.50 1048.45,315.70 1154.68,402.60 1250.00,450.00" fill="none" stroke="#ff6d4a" stroke-width="3"/>
+<rect x="535" y="498" width="12" height="4" fill="#ff6d4a"/>
+<text x="553" y="504" fill="#cdd4df" font-family="Segoe UI, sans-serif" font-size="12">Solarize</text>
+<polyline points="100.00,450.00 124.66,450.00 425.79,450.00 812.05,450.00 1048.45,426.30 1154.68,442.10 1250.00,450.00" fill="none" stroke="#3be6ff" stroke-width="3"/>
+<rect x="680" y="498" width="12" height="4" fill="#3be6ff"/>
+<text x="698" y="504" fill="#cdd4df" font-family="Segoe UI, sans-serif" font-size="12">ChromaSplit</text>
+<polyline points="100.00,450.00 124.66,450.00 425.79,450.00 812.05,450.00 1048.45,410.50 1154.68,438.15 1250.00,450.00" fill="none" stroke="#63ff82" stroke-width="3"/>
+<rect x="825" y="498" width="12" height="4" fill="#63ff82"/>
+<text x="843" y="504" fill="#cdd4df" font-family="Segoe UI, sans-serif" font-size="12">Warp</text>
+<polyline points="100.00,450.00 124.66,450.00 425.79,450.00 812.05,450.00 1048.45,450.00 1154.68,450.00 1250.00,450.00" fill="none" stroke="#7794ff" stroke-width="3"/>
+<rect x="970" y="498" width="12" height="4" fill="#7794ff"/>
+<text x="988" y="504" fill="#cdd4df" font-family="Segoe UI, sans-serif" font-size="12">Mirror</text>
+</svg>

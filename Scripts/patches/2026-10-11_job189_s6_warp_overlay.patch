@@ -1,0 +1,75 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageVideoFallback.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageVideoFallback.h
+index 884696e..fca86f7 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageVideoFallback.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageVideoFallback.h
+@@ -7,6 +7,7 @@
+ class AInfinityStageShowRoot;
+ class SImage;
+ class SWidget;
++class UMaterialInstanceDynamic;
+ class UMediaPlayer;
+ class UMediaSoundComponent;
+ class UMediaTexture;
+@@ -79,6 +80,8 @@ private:
+     UPROPERTY(Transient)
+     TObjectPtr<UMediaTexture> Texture;
+     UPROPERTY(Transient)
++    TObjectPtr<UMaterialInstanceDynamic> WarpMaterial;
++    UPROPERTY(Transient)
+     TObjectPtr<UMediaSoundComponent> Sound;
+ 
+     TMap<int32, FInfinityFallbackClip> Clips;
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageVideoFallback.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageVideoFallback.cpp
+index 8fc39fd..b936449 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageVideoFallback.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageVideoFallback.cpp
+@@ -11,6 +11,8 @@
+ #include "InfinityStageShowRoot.h"
+ #include "InfinityStageTransportController.h"
+ #include "LevelSequencePlayer.h"
++#include "Materials/MaterialInstanceDynamic.h"
++#include "Materials/MaterialInterface.h"
+ #include "MediaPlayer.h"
+ #include "MediaSoundComponent.h"
+ #include "MediaTexture.h"
+@@ -31,6 +33,11 @@ TAutoConsoleVariable<FString> CVarFallbackRoot(
+     TEXT(""),
+     TEXT("Folder holding current.json and the Scene fallback videos. Empty: <Project>/Renders/Fallbacks"));
+ 
++TAutoConsoleVariable<FString> CVarWarpMaterial(
++    TEXT("InfinityStage.VideoFallback.WarpMaterial"),
++    TEXT("/Game/InfinityStage/Effects/S6/M_S6Warp_UI.M_S6Warp_UI"),
++    TEXT("Optional one-pass UI material for the fallback MediaTexture. Empty or missing: direct texture."));
++
+ /** Live overlay order: under the rehearsal bar (20), over the show. */
+ constexpr int32 OverlayZOrder = 5;
+ }
+@@ -176,8 +184,27 @@ void UInfinityStageVideoFallbackSubsystem::EnsureOverlay()
+     {
+         return;
+     }
++
++    UObject* BrushResource = Texture;
++    const FString WarpPath = CVarWarpMaterial.GetValueOnGameThread();
++    if (!WarpPath.IsEmpty())
++    {
++        if (UMaterialInterface* WarpBase = LoadObject<UMaterialInterface>(nullptr, *WarpPath))
++        {
++            WarpMaterial = UMaterialInstanceDynamic::Create(WarpBase, this);
++            WarpMaterial->SetTextureParameterValue(TEXT("VideoTexture"), Texture);
++            BrushResource = WarpMaterial;
++            UE_LOG(LogInfinityStageVideoFallback, Display,
++                TEXT("INFINITY_VIDEO_FALLBACK_WARP_READY material=%s parameter=VideoTexture"), *WarpPath);
++        }
++        else
++        {
++            Warn(FString::Printf(TEXT("warp material missing %s; using the direct MediaTexture"), *WarpPath));
++        }
++    }
++
+     Brush = MakeShared<FSlateBrush>();
+-    Brush->SetResourceObject(Texture);
++    Brush->SetResourceObject(BrushResource);
+     Brush->ImageSize = FVector2D(1920.0, 1080.0);
+     Overlay = SNew(SOverlay)
+         .Visibility(EVisibility::Collapsed)

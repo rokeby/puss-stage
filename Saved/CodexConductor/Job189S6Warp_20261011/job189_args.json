@@ -1,0 +1,9 @@
+{
+  "mode": "DRY",
+  "run": "J189-001",
+  "preset": "Both",
+  "move_seconds": 2.8,
+  "push_cm": 240.0,
+  "ease_fraction": 0.35,
+  "record": "records/job189_J189-001_apply.json"
+}
