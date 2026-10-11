@@ -1,0 +1,176 @@
+{
+  "backup": {
+    "bytes": 1464157,
+    "file": "E:/PussStage\\Backups\\PreJob185S1Fade-J185S1-20261011-125130\\LS_DevScene_01.uasset",
+    "root": "E:/PussStage\\Backups\\PreJob185S1Fade-J185S1-20261011-125130",
+    "sha256": "dbb602192dbef66a8bca9ae6cbdeb5f039ef1f7fb55e97469a86c17bd56c5452"
+  },
+  "dirty_after": {
+    "content": [],
+    "maps": []
+  },
+  "keys": [
+    [
+      0,
+      0.0
+    ],
+    [
+      3800,
+      0.0
+    ],
+    [
+      3850,
+      0.5
+    ],
+    [
+      3870,
+      0.9
+    ],
+    [
+      3880,
+      0.985
+    ],
+    [
+      3899,
+      1.0
+    ],
+    [
+      3900,
+      1.0
+    ]
+  ],
+  "package": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
+  "run": "J185S1-20261011-125130",
+  "status": "applied",
+  "track": {
+    "class": "MovieSceneFadeTrack",
+    "completion": "<MovieSceneCompletionMode.RESTORE_STATE: 1>",
+    "display": "JOB185 S1 Lights Out Fade [OWNED]",
+    "keys": [
+      [
+        0,
+        0.0
+      ],
+      [
+        3800,
+        0.0
+      ],
+      [
+        3850,
+        0.5
+      ],
+      [
+        3870,
+        0.8999999761581421
+      ],
+      [
+        3880,
+        0.9850000143051147
+      ],
+      [
+        3899,
+        1.0
+      ],
+      [
+        3900,
+        1.0
+      ]
+    ],
+    "range": [
+      0,
+      3901
+    ],
+    "track_index": 6
+  },
+  "tune_history": [
+    {
+      "after": {
+        "class": "MovieSceneFadeTrack",
+        "completion": "<MovieSceneCompletionMode.RESTORE_STATE: 1>",
+        "display": "JOB185 S1 Lights Out Fade [OWNED]",
+        "keys": [
+          [
+            0,
+            0.0
+          ],
+          [
+            3800,
+            0.0
+          ],
+          [
+            3850,
+            0.5
+          ],
+          [
+            3870,
+            0.8999999761581421
+          ],
+          [
+            3880,
+            0.9850000143051147
+          ],
+          [
+            3899,
+            1.0
+          ],
+          [
+            3900,
+            1.0
+          ]
+        ],
+        "range": [
+          0,
+          3901
+        ],
+        "track_index": 6
+      },
+      "backup": {
+        "bytes": 1465832,
+        "file": "E:/PussStage\\Backups\\PreJob185S1Fade-J185S1-20261011-125426-Tune\\LS_DevScene_01.uasset",
+        "root": "E:/PussStage\\Backups\\PreJob185S1Fade-J185S1-20261011-125426-Tune",
+        "sha256": "50bbe4ddeb504c56a5b9b6423ea81efcf84af9094204f0174b74c6e56ab5ba1f"
+      },
+      "before": {
+        "class": "MovieSceneFadeTrack",
+        "completion": "<MovieSceneCompletionMode.RESTORE_STATE: 1>",
+        "display": "JOB185 S1 Lights Out Fade [OWNED]",
+        "keys": [
+          [
+            0,
+            0.0
+          ],
+          [
+            3800,
+            0.0
+          ],
+          [
+            3850,
+            0.3499999940395355
+          ],
+          [
+            3870,
+            0.550000011920929
+          ],
+          [
+            3880,
+            0.8500000238418579
+          ],
+          [
+            3899,
+            1.0
+          ],
+          [
+            3900,
+            1.0
+          ]
+        ],
+        "range": [
+          0,
+          3901
+        ],
+        "track_index": 6
+      },
+      "run": "J185S1-20261011-125426"
+    }
+  ]
+}

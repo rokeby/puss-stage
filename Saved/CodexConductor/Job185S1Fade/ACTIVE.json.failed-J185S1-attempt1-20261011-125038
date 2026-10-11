@@ -1,0 +1,41 @@
+{
+  "backup": {
+    "bytes": 1464157,
+    "file": "E:/PussStage\\Backups\\PreJob185S1Fade-J185S1-20261011-124931\\LS_DevScene_01.uasset",
+    "root": "E:/PussStage\\Backups\\PreJob185S1Fade-J185S1-20261011-124931",
+    "sha256": "dbb602192dbef66a8bca9ae6cbdeb5f039ef1f7fb55e97469a86c17bd56c5452"
+  },
+  "keys": [
+    [
+      0,
+      0.0
+    ],
+    [
+      3800,
+      0.0
+    ],
+    [
+      3850,
+      0.35
+    ],
+    [
+      3870,
+      0.55
+    ],
+    [
+      3880,
+      0.85
+    ],
+    [
+      3899,
+      1.0
+    ],
+    [
+      3900,
+      1.0
+    ]
+  ],
+  "package": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
+  "run": "J185S1-20261011-124931",
+  "status": "prepared"
+}

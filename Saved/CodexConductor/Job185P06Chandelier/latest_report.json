@@ -1,0 +1,1257 @@
+{
+  "after": [
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_01_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_02_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_03_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_04_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_05_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_06_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_07_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_08_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_09_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_10_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_11_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_12_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_13_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_14_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_15_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_16_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_17_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_18_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_19_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_20_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_21_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_22_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_23_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_24_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_25_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_26_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_27_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_28_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_29_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_30_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_31_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_32_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_33_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_34_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_35_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_36_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_37_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_38_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_39_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_40_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_41_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_42_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_43_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_44_Flame",
+      "sprite_scale": 0.03999999910593033
+    }
+  ],
+  "backup": null,
+  "before": [
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_01_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_02_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_03_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_04_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_05_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_06_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_07_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_08_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_09_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_10_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_11_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_12_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_13_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_14_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_15_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_16_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_17_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_18_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_19_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_20_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_21_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_22_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_23_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_24_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_25_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_26_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_27_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_28_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_29_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_30_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_31_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_32_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_33_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_34_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_35_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_36_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_37_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_38_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_39_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_40_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_41_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_42_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_43_Flame",
+      "sprite_scale": 0.03999999910593033
+    },
+    {
+      "actor_scale": [
+        0.04,
+        0.039999999999999994,
+        0.039999999999999994
+      ],
+      "component_scale": [
+        0.0014000000000000002,
+        0.0014,
+        0.0014
+      ],
+      "label": "P56_P75_P06_Chandelier_Body_Candle_44_Flame",
+      "sprite_scale": 0.03999999910593033
+    }
+  ],
+  "dirty_after": {
+    "content": [],
+    "maps": []
+  },
+  "job182_lights": [
+    "JOB182 P06 Candle Light 01",
+    "JOB182 P06 Candle Light 02",
+    "JOB182 P06 Candle Light 03",
+    "JOB182 P06 Candle Light 04",
+    "JOB182 P06 Candle Light 05",
+    "JOB182 P06 Candle Light 06",
+    "JOB182 P06 Candle Light 07",
+    "JOB182 P06 Candle Light 08",
+    "JOB182 P06 Iron Fill"
+  ],
+  "mode": "READBACK",
+  "ok": true,
+  "run": "J185-20261011-123637"
+}

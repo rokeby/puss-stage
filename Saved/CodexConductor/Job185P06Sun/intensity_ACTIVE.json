@@ -1,0 +1,30 @@
+{
+  "backup": {
+    "bytes": 430814,
+    "file": "E:/PussStage\\Backups\\PreJob185P06SunIntensity-J185SUN-20261011-124421\\LS_InfinityStage_V1Master.uasset",
+    "root": "E:/PussStage\\Backups\\PreJob185P06SunIntensity-J185SUN-20261011-124421",
+    "sha256": "57477a071e6697372c081ab4ee37075f416c2f7f573bce9dc62b5ffda1469dd8"
+  },
+  "dirty_after": {
+    "content": [],
+    "maps": []
+  },
+  "run": "J185SUN-20261011-124421",
+  "source_job178": "E:/PussStage/Saved/CodexConductor\\Job178P06SunDisc_20261010\\job178b_ACTIVE.json",
+  "status": "applied",
+  "track": {
+    "binding": "C59EEA344CB877DD7B3FDA92EE09C876",
+    "class": "MovieSceneFloatTrack",
+    "completion": "<MovieSceneCompletionMode.RESTORE_STATE: 1>",
+    "default": 1.5,
+    "display": "JOB185 P06 Sun Disc [OWNED]",
+    "property": [
+      "Intensity",
+      "Intensity"
+    ],
+    "range": [
+      39628,
+      42753
+    ]
+  }
+}

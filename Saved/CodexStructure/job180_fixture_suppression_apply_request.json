@@ -1,7 +1,10 @@
 {
-  "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
-  "tool_name": "ExecuteProjectPythonFile",
+  "name": "call_tool",
   "arguments": {
-    "relativeSavedPath": "CodexStructure/job180_suppress_p06_fixture_body_apply_run.py"
+    "toolset_name": "MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset",
+    "tool_name": "ExecuteProjectPythonFile",
+    "arguments": {
+      "relativeSavedPath": "CodexStructure/job180_suppress_p06_fixture_body_apply_run.py"
+    }
   }
 }

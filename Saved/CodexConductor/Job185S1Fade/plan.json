@@ -1,0 +1,44 @@
+{
+  "dirty_after": {
+    "content": [],
+    "maps": []
+  },
+  "intent": "fade begins at 3800, bright corner fire should remain last readable source near 3870, black by 3899",
+  "keys": [
+    [
+      0,
+      0.0
+    ],
+    [
+      3800,
+      0.0
+    ],
+    [
+      3850,
+      0.35
+    ],
+    [
+      3870,
+      0.55
+    ],
+    [
+      3880,
+      0.85
+    ],
+    [
+      3899,
+      1.0
+    ],
+    [
+      3900,
+      1.0
+    ]
+  ],
+  "mode": "DRY",
+  "package": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
+  "playback": [
+    0,
+    3900
+  ],
+  "run": "J185S1-20261011-124911"
+}

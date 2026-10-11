@@ -1,0 +1,71 @@
+{
+  "camera_post_process_blend_weight": 1.0,
+  "directionals": [
+    {
+      "actor_hidden_method": null,
+      "atmosphere_sun_light": true,
+      "atmosphere_sun_light_index": 0,
+      "class": "/Script/Engine.DirectionalLight",
+      "component_active": false,
+      "component_visible": true,
+      "forward": "<Struct 'Vector' (0x0000028A11D9AE50) {x: -0.999893, y: 0.000000, z: -0.014648}>",
+      "hidden": false,
+      "hidden_in_game": "ERROR:Exception(\"DirectionalLight: Failed to find property 'hidden_in_game' for attribute 'hidden_in_game' on 'DirectionalLight'\")",
+      "intensity": 1.4268730878829956,
+      "label": "Infinity Stage - Dusk Sun",
+      "light_source_angle": 65.74079895019531,
+      "rotation": "<Struct 'Rotator' (0x0000028A11D9AE50) {pitch: -0.839325, yaw: 180.000000, roll: 180.000000}>",
+      "temperature": 6500.0
+    },
+    {
+      "actor_hidden_method": null,
+      "atmosphere_sun_light": true,
+      "atmosphere_sun_light_index": 1,
+      "class": "/Script/Engine.DirectionalLight",
+      "component_active": false,
+      "component_visible": true,
+      "forward": "<Struct 'Vector' (0x0000028A11D9AE00) {x: 0.999893, y: 0.000000, z: 0.014648}>",
+      "hidden": false,
+      "hidden_in_game": "ERROR:Exception(\"DirectionalLight: Failed to find property 'hidden_in_game' for attribute 'hidden_in_game' on 'DirectionalLight'\")",
+      "intensity": 0.0,
+      "label": "Infinity Stage - Moon",
+      "light_source_angle": 0.5357000231742859,
+      "rotation": "<Struct 'Rotator' (0x0000028A11D9AE00) {pitch: 0.839325, yaw: 0.000000, roll: -0.000000}>",
+      "temperature": 6500.0
+    }
+  ],
+  "exposure": {
+    "auto_exposure_bias": 1.0,
+    "auto_exposure_high_percent": 90.0,
+    "auto_exposure_low_percent": 10.0,
+    "auto_exposure_max_brightness": 20.0,
+    "auto_exposure_method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+    "auto_exposure_min_brightness": -10.0,
+    "override_auto_exposure_bias": false,
+    "override_auto_exposure_high_percent": false,
+    "override_auto_exposure_low_percent": false,
+    "override_auto_exposure_max_brightness": false,
+    "override_auto_exposure_method": false,
+    "override_auto_exposure_min_brightness": false
+  },
+  "frame": 38048880,
+  "segment": [
+    38042880,
+    41042880
+  ],
+  "skies": [
+    {
+      "actor_hidden_method": null,
+      "bottom_radius": 6360.0,
+      "class": "/Script/Engine.SkyAtmosphere",
+      "component_active": false,
+      "component_visible": true,
+      "hidden": false,
+      "hidden_in_game": "ERROR:Exception(\"SkyAtmosphere: Failed to find property 'hidden_in_game' for attribute 'hidden_in_game' on 'SkyAtmosphere'\")",
+      "label": "Infinity Stage - Dusk Sky Atmosphere",
+      "transform_mode": "<SkyAtmosphereTransformMode.PLANET_TOP_AT_ABSOLUTE_WORLD_ORIGIN: 0>"
+    }
+  ],
+  "sky_hidden_policy_note": "P18 editor-only temporary hide is not expected to set PIE bHidden; runtime values above decide.",
+  "view_target": "Passage 06 \u2014 Camera + Shadow Figures"
+}
