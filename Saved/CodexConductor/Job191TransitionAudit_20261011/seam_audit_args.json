@@ -1,0 +1,11 @@
+{
+  "run": "J191-SEAMS-RUN001",
+  "confirm": "CONFIRM_JOB191_SEAM_AUDIT",
+  "resolution": [1280, 720],
+  "position_jump_cm": 25.0,
+  "rotation_jump_deg": 2.0,
+  "luma_pop_abs": 32.0,
+  "luma_pop_ratio": 0.4,
+  "black_mean_luma": 5.0,
+  "white_mean_luma": 250.0
+}
