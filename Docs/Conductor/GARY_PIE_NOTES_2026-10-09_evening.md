@@ -123,3 +123,7 @@
   2. visual warping, like Grace Jones' "Corporate Cannibal" video.
 - The result is the old lady in the void: a strange hyperdimensional space.
 - The effects must be interesting, relatively CHEAP TO BUILD and CHEAP TO TIME. They play over slow, melodic, live cello that grows in intensity.
+
+## Gary, 11 Oct: S6 is a MetaHuman
+- The old lady currently EXISTS as an animated MetaHuman in Scene 6. She "needs to become the video later". Warping the video is also acceptable if it is easier.
+- Conductor recommendation: warp the live 3D render with a post-process material (no build), and keep the video-overlay patch (job 189) as the fallback for when S6 becomes video.
