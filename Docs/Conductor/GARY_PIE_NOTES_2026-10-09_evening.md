@@ -139,3 +139,6 @@
 
 ## Gary, 11 Oct: interaction lengths
 - Interaction lengths follow the script and animation pace, not the current sequence lengths. Probably about 60 s or less each. Still waiting on Cameron's track lengths, which will set the final lengths.
+
+## Gary, 11 Oct: scene videos
+- ALL scenes should be able to play as video (use_video), but the videos are NOT RENDERED yet. Until then the scenes play as 3D. The P05->S5 whiteout already handles both routes: the 3D route now, and the overlay fade from white (job 192 patch, built in job 196) once the S5 video exists and Content/InfinityStage/CueSheet/cue_director.txt sets use_video = S5.
