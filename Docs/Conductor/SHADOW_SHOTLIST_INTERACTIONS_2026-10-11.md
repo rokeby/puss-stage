@@ -7,7 +7,7 @@
 
 **Pipeline:** `Docs/ShadowGoboPipeline_2026-10-06.md`. Film hand or puppet shadows on a sheet with an iPhone (1080p30, HDR off). Then `Tools/ShadowGobo/make_gobo_flipbook.py` builds a flipbook light function, and the frame is keyed by an MPC scalar.
 
-**Cast:** two silhouettes throughout: **PUSS** (the cat) and **THE BOY**. In each interaction one object arrives (the dog "offloads" it, in the running order): turnip, clam, scroll, boots, abacus.
+**Cast:** two silhouettes throughout: **PUSS** (the cat) and **THE BOY**. In each interaction one object arrives (the dog "offloads" it, in the running order): turnip, pearl, scroll, crown then boots, abacus (ending).
 
 **Not yet measured:** the duration of each `LS_Interaction_0N` sequence. Time each clip to its sequence length, and leave a 1–2 s plate at each end so the curtain/shadow hand-over has a still frame.
 
@@ -33,7 +33,7 @@ The stage note says the light turns red here. If that holds, the gobo frames rea
 5. **The boy whimpers.** Optionally, "Dog happy move" (running order 22).
 
 ## I3, Forgets His Name (`LS_Interaction_03_ForgetsHisName`), after Story 3, The Song of Forgetting
-1. Puss sits beside the boy and sings (live with pedal?, running order 29). The cat's head is raised and its mouth opens rhythmically. The prop is a **clam**, offloaded.
+1. Puss sits beside the boy and sings (live with pedal?, running order 29). The cat's head is raised and its mouth opens rhythmically. The prop is the **pearl** (pearl only, no clam: Gary, 11 Oct).
 2. The boy sways, soothed, and his head lolls.
 3. Forgetting: the boy's outline goes slack. His tongue "lolls like a wet tennis ball": a floppy tongue shape.
 4. The boy coughs, in sharp jerks.
@@ -47,7 +47,8 @@ The stage note says the light turns red here. If that holds, the gobo frames rea
 5. **The boy whimpers.**
 
 ## I5, Becomes King (`LS_Interaction_05_BecomesKing`), after Story 5, Mountains: the "Puss-boy curtain scene"
-1. A pair of **boots** pops in (squeezed out from between the mountains). The prop is the **boots**.
+0. A **crown** is given to the boy first: he is proclaimed King (Gary, 11 Oct).
+1. A pair of **boots** pops in (squeezed out from between the mountains). The props are the **crown**, then the **boots**.
 2. Puss admires them ("This is a fine pair of boots") and holds them up.
 3. Puss pulls the boots on, one leg and then the other, with a comic struggle.
 4. Puss struts and shows them to the boy: "Now you are king and I have boots!"
@@ -62,7 +63,7 @@ The stage note says the light turns red here. If that holds, the gobo frames rea
 ## For the Gobo task: the cheapest way to film it
 - **One take per beat:** about 3–8 s each at 8 fps in the flipbook. A whole interaction is then 5 short takes stitched by the MPC key, so each beat can be retimed in rehearsal without re-filming.
 - **The whimper is reusable:** it's the same action in every interaction, so one good whimper take can be used in all five. Film a small, a big and a mournful version.
-- **Shared props:** each prop is a cut-out (turnip ×3, clam, a torn page, boots, abacus).
+- **Shared props:** each prop is a cut-out (turnip ×3, pearl, a torn page, crown, boots, abacus).
 - **Shared bodies:** Puss and the boy are the same two puppets throughout.
 
 ## Timed filming plan (revised 11 Oct, Gary)
@@ -80,3 +81,9 @@ The stage note says the light turns red here. If that holds, the gobo frames rea
 | I5 Becomes King | 6 s (boots pop) | 8 s (admires) | 14 s (pulls on) | 10 s (struts) | 8 s (mournful) | ~49 s |
 
 These are proposals for rehearsal. Because each beat is its own take keyed by one MPC scalar, retiming means changing keys, not re-filming. Once Cameron's tracks arrive, stretch or trim beat 3 or beat 4 first: they are the "action" beats.
+
+## Gary's decisions (11 Oct, via the Gobo session; PG8 brief 8e0d9542)
+- **Digital puppets**, not filmed shadows.
+- **No music from Cameron for the interactions**, only room tone. Use the natural timings in the table above, and edit them after the first pass of gobo animations.
+- **I3 is the pearl only.** I5 is the crown, then the boots.
+- **The boy gets a HINGED JAW.** His closed-mouth profile is unchanged, but the jaw opens for the wailing whimpers.
