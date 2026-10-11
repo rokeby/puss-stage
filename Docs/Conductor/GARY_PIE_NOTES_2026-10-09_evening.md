@@ -127,3 +127,6 @@
 ## Gary, 11 Oct: S6 is a MetaHuman
 - The old lady currently EXISTS as an animated MetaHuman in Scene 6. She "needs to become the video later". Warping the video is also acceptable if it is easier.
 - Conductor recommendation: warp the live 3D render with a post-process material (no build), and keep the video-overlay patch (job 189) as the fallback for when S6 becomes video.
+
+## Gary, 11 Oct: room tone
+- Cameron provided a ROOM TONE track. It should loop under the ENTIRE show at all times, with no cues, except perhaps when we enter the void (S6 warp). File location: asked Gary; not found on G: Sound, Downloads or Content/Audio as of this note.
