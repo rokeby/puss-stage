@@ -9,6 +9,7 @@ Prepared for Gary and the main project-PC agent. This stage defines the visual c
 - **User-directed:** Gary describes current P01 as very dark golden amber with occasional red and chooses a brighter, more muted, cooler rose/grey-blue direction, with upper parcans aimed down at the ground, wing uplighting, and fewer lower forward-diagonal beams. The Opening uplights should share that direction. This supersedes the first draft's grey-gold P01/Opening palette. The current-look description is user-reported, not an independent cloud measurement.
 - **User-directed:** P02 follows the same softening and ground/wing lighting approach as P01, with cooler lavenders and light blues at a slightly dimmer overall level. Gary explicitly retains the driveby light for its hint of exteriority.
 - **User-directed:** P03 follows the same softened ground/wing lighting approach, with light greens, pale yellow and orange forming a sickly set of hues. This supersedes the first draft's grey/olive P03 palette. No separate P03 brightness level is specified.
+- **User-directed:** all Passages should have a soft spotlight aimed at their end curtain, making the imagery on it more legible. The actual receiving curtain and its sequence state must be identified on the PC, including P06's separately documented end state.
 - **Inferred proposal:** the other palettes and emotional descriptions below remain design recommendations for review. None is a measured production colour or an approved numerical preset. The approved P01/Opening/P02/P03 directions do not identify fixture bindings or establish live implementation.
 
 ## Shared colour language
@@ -109,6 +110,22 @@ The Scene subtitles are descriptive names from the project notes; their saved cu
 
 **Recommended live review:** require distinct but pale green/yellow/orange contributions, a sickly overall tone, readable painted wings and floor, and reduced obstructive low beams. Retain the previously protected P03 special effects during base-rig tuning; this palette instruction is not a blanket recolouring of effect sources, fire, materials or the subsequent Shore scene.
 
+## All Passages — soft end-curtain legibility spot
+
+**User-directed:** provide a **soft spotlight pointing at the curtain at the end of each Passage**, so what is on that curtain becomes more legible. This is a shared lighting requirement alongside the individual Passage palettes, including those not otherwise being relit.
+
+**Recommended implementation:** identify the actual end-curtain surface and a suitable existing spotlight first; retarget/tune that fixture where possible. If a dedicated light is required, use the established authoring path after confirming the target, mounting position and controller. Aim and coverage should come from the actual curtain geometry and the audience's view, not assumed end-of-route coordinates or a fixed cone angle.
+
+**Recommended visual treatment:** a soft-edged pool that reveals the relevant curtain image/material without a distracting hot centre or thick beam obscuring it. A near-neutral visibility colour is a proposal to try, not an approved RGB/temperature setting. Tune colour and output against the curtain so the Passage palette does not overwhelm its content.
+
+**Recommended scope:** give this light an explicit curtain-legibility purpose and exclude it from indiscriminate reduction of the low cross-lighting. Evaluate it while the end curtain is present and visible; coordinate its fade/visibility with the existing curtain state and subsequent reveal/darkness. No new cue times or always-on rule are specified. Check legibility from the intended approach/ending views, not just a close editor view.
+
+**Declaration-proven distinction:** `Saved/CodexConductor/shadow_play_spot.py:1` targets paired shadow-play spots inside an Interaction. That is a different sequence/receiving-surface contract; do not assume those lights already provide the Passage-end requirement or automatically repurpose them. This request adds no new gobo animation or curtain artwork.
+
+**Document-stated P06 exception requiring live resolution:** `Docs/ShowCreativeTodo.md:54` records P06 with no painted upright end curtain, only a fallen burning drop and darkness before S6. The latest request is for all Passages; confirm the actual current P06 receiving surface and how this spotlight should work with that end state. Do not silently omit P06, fabricate an upright curtain, or lift the Void's black entry to reconcile the two descriptions.
+
+**Unspecified:** exact fixtures, placement, aim, cone/penumbra, intensity/units, colour, active window and P06's particular treatment. The PC agent should record these after checking the actual curtain and transition. Acceptance is visibly improved curtain-content legibility with soft coverage and intact transition behavior.
+
 **Inferred proposal:** give all five Interactions a common neutral parchment/pearl shadow surface, so the audience recognises the storytelling mode. Their subtle accents distinguish them; the shadow itself remains black and readable. A palette target does not authorize replacing the current curtain, canvas, material or animation.
 
 ## Continuity requirements for the PC agent
@@ -121,7 +138,7 @@ The Scene subtitles are descriptive names from the project notes; their saved cu
 
 ## Implementation boundary
 
-This is the colour-and-tone section of the plan, with explicit P01/Opening/P02/P03 lighting intent and a retained P02 driveby exception. The next stage should identify the selected fixtures/roles, visibility versus mood lighting, and the existing sequence controls that will carry each target.
+This is the colour-and-tone section of the plan, with explicit P01/Opening/P02/P03 lighting intent, a retained P02 driveby exception and a shared soft end-curtain spotlight requirement. The next stage should identify the selected fixtures/roles, visibility versus mood lighting, and the existing sequence controls that will carry each target.
 
 - **Declaration-proven:** passage lamps have authored colour, temperature, intensity/units and transform controls in `FInfinityStageLightSettings` / `FInfinityCueAttachment` (`Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h:194`, `:434`). Runtime Drama/movers/bulb bodies can subsequently own intensity or aim (`Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp:1843`).
 - **Declaration-proven:** some scene lighting has both rise keys and Scene hold values (`Saved/CodexConductor/s3_light_levels.py:1`). Passage colour presets must not be assumed to control every Scene.
