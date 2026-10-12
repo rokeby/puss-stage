@@ -11,7 +11,7 @@ Prepared for Gary and the main project-PC agent. This document combines the 19-s
 | Opening + P01 | Softer, brighter cool rose/grey-blue; more upper light down onto the ground; wing uplighting; fewer low forward-diagonal beams; magical traditional-theatre entry. | Directed. Match Opening uplights to P01. |
 | P02 | Same arrangement, cooler lavender/light blue, a little dimmer than revised P01. | Directed. Preserve the existing driveby light. |
 | P03 | Same softened arrangement, light green/pale yellow/orange, sickly tone. | Directed. Preserve its intentional special effects. No comparative brightness ratio specified. |
-| P05 | Preserve the successful overall look; remove the domestic half-moon fence practicals. | Directed cleanup. Its curtain falls into a **very bright space ready for a white-out transition**. |
+| P05 | Preserve the successful overall look; remove the domestic half-moon fence practicals. | Directed cleanup. Its curtain falls into a **very bright space ready for a white-out transition**, with bloom and lens flare to distract from the incoming transition. |
 | End-curtain legibility spots | Soft spotlight on each upright Passage-end curtain. | **P01–P05 only. P06 has no curtain and gets no curtain spot.** |
 | Smoke machines | Remove any remaining Passage smoke machines and their emitted smoke; verify prior removals remain effective. | Identified machine effects, separate from fog, shafts and intentional fire/candle effects. |
 | P06 | Leave its current look and curtain-free ending alone. | No new end-curtain fixture or general relight from the palette reference. |
@@ -138,6 +138,8 @@ The Scene subtitles are descriptive names from the project notes; their saved cu
 
 **User-directed transition exception:** P05's curtain **does fall**, revealing a **very bright space ready for a white-out transition**. Preserve that bright destination and readiness for white-out. Do not apply a generic post-curtain blackout, dim the destination to match another Passage, or treat this as P06's curtain-free ending. Read the actual timing and identify any existing white-out controls before adjusting them; if the mechanism is not established, report that rather than inventing one. This direction does not specify a new exposure ramp, white overlay, material fade or video-processing mechanism.
 
+**User-directed white-out treatment:** add **some bloom and lens flare** to the white-out, drawing attention away from the incoming transition. Tune their strength and timing against the actual handover so the bright optical effect masks the arrival rather than exposing it. Keep this treatment scoped to the transition, with the established passage look outside it; identify the actual camera/postprocess authoring controls and record their before/after values rather than applying a permanent global effect. No numerical bloom/flare values or new transition mechanism are specified.
+
 ## All Passages — remove remaining smoke machines
 
 **User-directed:** check all Passages and remove any remaining smoke-machine placements and their smoke effects if they have not already been removed. Existing disabled/removed machines should stay that way.
@@ -239,7 +241,7 @@ This is the colour-and-tone section of the plan, with explicit P01/Opening/P02/P
 | P01/Opening achieve the revised look | Comparable views showing brighter, softer cool rose/grey-blue, readable ground/wings, reduced low beam obstruction and continuous entry colour. |
 | P02 remains distinct and its driveby intact | Comparable base-state views plus before/during/after driveby, with its retained path/timing/colour/output. |
 | P03 reads as sickly and remains clear | Representative views showing light green/pale yellow/orange and intact special effects. |
-| P05 cleanup preserves its success and transition | Half-moon fixtures absent after regeneration; curtain before/during/after fall; very bright revealed space and existing white-out readiness. |
+| P05 cleanup preserves its success and transition | Half-moon fixtures absent after regeneration; curtain before/during/after fall; very bright revealed space; bloom/lens flare drawing attention away from the incoming transition, with the normal look restored outside that state. |
 | Curtain spots meet their purpose | Approach/end views showing legible content and soft coverage for P01–P05; no new curtain light in P06. |
 | Removal and runtime states survive playback | Smoke machines remain absent; fixture aims/levels behave correctly under their actual runtime writers and relevant pause/scrub/reveal states. |
 
