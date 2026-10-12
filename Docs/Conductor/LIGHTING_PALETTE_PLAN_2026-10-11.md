@@ -110,6 +110,14 @@ The Scene subtitles are descriptive names from the project notes; their saved cu
 
 **Recommended live review:** require distinct but pale green/yellow/orange contributions, a sickly overall tone, readable painted wings and floor, and reduced obstructive low beams. Retain the previously protected P03 special effects during base-rig tuning; this palette instruction is not a blanket recolouring of effect sources, fire, materials or the subsequent Shore scene.
 
+## All Passages — remove remaining smoke machines
+
+**User-directed:** check all Passages and remove any remaining smoke-machine placements and their smoke effects if they have not already been removed. Existing disabled/removed machines should stay that way.
+
+**Document-stated historical reference:** `Docs/Conductor/MORNING_SUMMARY_2026-10-09.md:38` records P01 smoke pots hidden through Show `enabled=false`. Verify the current state rather than assuming this covers every Passage or remains true on the PC.
+
+**Recommended implementation:** identify the actual machine and its emitter/controller, disable or remove its placement through the established authoring path, and verify both the visible machine and emitted smoke are gone in playback. This is a smoke-machine cleanup, separate from height-fog tuning, light shafts and the intentional fire/candle effects.
+
 ## All Passages — soft end-curtain legibility spot
 
 **User-directed:** provide a **soft spotlight pointing at the curtain at the end of each Passage**, so what is on that curtain becomes more legible. This is a shared lighting requirement alongside the individual Passage palettes, including those not otherwise being relit.
