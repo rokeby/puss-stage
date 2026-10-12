@@ -1,13 +1,14 @@
 # Lighting plan — first pass: colour and tone
 
-Prepared for Gary and the main project-PC agent. This stage defines the visual colour families for the 19 segments, before fixture selection, numerical values or implementation scripts. The P01 and Opening direction below incorporates Gary's subsequent colour, brightness and aiming clarification.
+Prepared for Gary and the main project-PC agent. This stage defines the visual colour families for the 19 segments, before fixture selection, numerical values or implementation scripts. The P01, Opening and P02 directions below incorporate Gary's subsequent colour, brightness, aiming and retained-effect clarifications.
 
 ## Evidence and status
 
 - **Declaration-proven:** the saved show snapshot lists the 19 segments in the order used below (`Tools/MusicAnalysis/p11_timing_snapshot.json:15`). Its own evidence block says it is an offline saved read-back, not a fresh Unreal census (`:3`). Use its order and names here; do not copy its absolute timing into lighting keys.
 - **Document-stated:** Klara's lighting email of 10 October, supplied by Gary on 11 October, asks for muted colours, readable wings/floor, warm/grey P01, cold whites/lavender/pale blue P02, grey/faint off-green P03, cold Shore lighting, a coherent warm-or-cold choice for P04, and preservation of the qualities she likes in P05/P06. It proposes mild golden/grey, silver/blue, olive/grey and rose/cold-white combinations. It also asks for theatrical black around P01–P04 and continuity from the Opening into P01.
 - **User-directed:** Gary describes current P01 as very dark golden amber with occasional red and chooses a brighter, more muted, cooler rose/grey-blue direction, with upper parcans aimed down at the ground, wing uplighting, and fewer lower forward-diagonal beams. The Opening uplights should share that direction. This supersedes the first draft's grey-gold P01/Opening palette. The current-look description is user-reported, not an independent cloud measurement.
-- **Inferred proposal:** the other palettes and emotional descriptions below remain design recommendations for review. None is a measured production colour or an approved numerical preset. The approved P01/Opening direction does not identify fixture bindings or establish live implementation.
+- **User-directed:** P02 follows the same softening and ground/wing lighting approach as P01, with cooler lavenders and light blues at a slightly dimmer overall level. Gary explicitly retains the driveby light for its hint of exteriority.
+- **Inferred proposal:** the other palettes and emotional descriptions below remain design recommendations for review. None is a measured production colour or an approved numerical preset. The approved P01/Opening/P02 directions do not identify fixture bindings or establish live implementation.
 
 ## Shared colour language
 
@@ -36,7 +37,7 @@ The Scene subtitles are descriptive names from the project notes; their saved cu
 | 2 | **P01** | Muted cool rose-grey and soft near-white | Pale grey-blue | Magical, welcoming and materially readable. Brighter overall than the reported dark amber/red state: downward upper-rig light reveals the ground, uplights reveal the wings, and fewer low forward-diagonal lights fill the view with thick beams. | user-directed |
 | 3 | **S1 — Animals** | Natural ivory and pale straw-white | Soft warm-grey shadows | Living, tactile and intimate. Animal colours and surfaces carry the scene; illumination feels gentle rather than gilded or strongly gelled. | inferred proposal |
 | 4 | **I1 — Washing the Boy** | Parchment and chalk-white | A faint warm-grey surround | Plain, intimate storytelling. The boy's dark silhouette is the central contrast; supporting colour does not compete with it. | inferred proposal |
-| 5 | **P02** | Silver-white and lavender-grey | Very pale blue | Cooler, stranger and more brittle than P01. The green/painted wings retain their own colour; the light does not make the whole passage blue or green. | inferred proposal |
+| 5 | **P02** | Muted cool lavender and silver-white | Light blue; retain the existing driveby light | The same softened, readable theatre space as P01, a little dimmer and cooler. Ground-facing upper lights and wing uplights carry the base state; the driveby provides a fleeting hint of exteriority. | user-directed |
 | 6 | **S2 — Shrine** | Ash-white and mineral grey-green | Local candle/fire warmth where it already belongs | Still, ritual and material. Cool surroundings make any actual flame warmth meaningful; the shrine's authored colours remain readable. | inferred proposal |
 | 7 | **I2 — Turnips** | Warm parchment and flax-grey | A faint earthy sage-grey outside the shadow image | A dry, earthy fairy tale. Keep the shadow surface clear and neutral enough for the action; any green is a minor contextual accent. | inferred proposal |
 | 8 | **P03** | Stone-grey and very faint olive | Cool-white visibility | Weathered and earthbound, preparing the Shore. Distinct from P02's lavender/silver; no acid-green cast or dense coloured veil. | inferred proposal |
@@ -59,13 +60,13 @@ The Scene subtitles are descriptive names from the project notes; their saved cu
 | Passage | Short name | Main distinction | Evidence tier |
 |---|---|---|---|
 | P01 | **Cool rose and grey-blue** | A softened, brighter, magical theatre invitation | user-directed |
-| P02 | **Lavender silver** | Cool, faintly strange | inferred proposal |
+| P02 | **Lavender and light blue** | Softer and slightly dimmer than P01, with a retained driveby hint of exteriority | user-directed |
 | P03 | **Olive stone** | Earthy, weathered and muted | inferred proposal |
 | P04 | **Platinum white** | Clear and crystalline; the least tinted Passage | inferred proposal |
 | P05 | **Pearl houselight** | Neutral, settled and open | inferred proposal |
 | P06 | **Smoked gold** | A darker, concentrated return to warmth | inferred proposal |
 
-**User-directed P01, inferred contrast with other proposals:** P01's cool rose/grey-blue should feel soft and inviting, distinct from P06's proposed concentrated smoked gold. Its stronger ground/wing readability also distinguishes it from the reported dark amber state. P02 remains a stranger, more metallic lavender/silver register rather than a duplicate of P01. Distinguish P02 from P04 by tint versus clarity: lavender/blue traces in P02, nearly uncoloured cool light in P04. Distinguish P04 from P05 by theatrical contrast versus settled houselight character. Exact brightness is a later visual tuning step.
+**User-directed P01/P02, inferred contrast with other proposals:** P01's cool rose/grey-blue should feel soft and inviting, distinct from P06's proposed concentrated smoked gold. Its stronger ground/wing readability also distinguishes it from the reported dark amber state. P02 carries the same softened approach into cooler lavender/light blue at a slightly dimmer level, with its retained driveby light. Distinguish P02 from P04 by tint versus clarity: lavender/light blue in P02, nearly uncoloured cool light in P04. Distinguish P04 from P05 by theatrical contrast versus settled houselight character. Exact brightness is a later visual tuning step.
 
 ## P01 and Opening — implementation intent from Gary's clarification
 
@@ -87,6 +88,16 @@ The Scene subtitles are descriptive names from the project notes; their saved cu
 
 **Recommended live review:** compare the same entry and passage views before/after: visible floor and painted wings, brighter stage without amber/red dominance, muted cool rose/grey-blue, reduced low diagonal beam obstruction, and continuity from Opening uplights into P01. Exact values, fixture IDs, ground/wing targets and any residual fog tuning remain to be recorded by the PC agent. This is not an instruction to guess a new fog-density value.
 
+## P02 — same softened rig, cooler and slightly dimmer
+
+**User-directed:** apply the P01 approach to P02: muted cooler lavenders and light blues, more upper-rig parcans directed down at the ground, uplights revealing the wings, and fewer low forward-diagonal lamps producing thick beams. Keep the stage and its materials readable, at a slightly dimmer overall level than the revised P01. No numerical brightness ratio is specified.
+
+**User-directed retained exception:** keep the existing **driveby light**. Its passing light gives the space a hint of exteriority and remains part of the intended P02 look. Exclude it from the general reduction of low cross-lighting and blanket palette/level changes; preserving it does not request a new exterior lighting system or broad visibility of the surrounding space.
+
+**Declaration-proven candidate, live identity unresolved:** `Saved/CodexConductor/place_p02_car_light.py:1` describes a placed `AInfinityStageSweepLight`, and `:16` declares the actor label `P02 Car Light (trial, Gary to tune)`. These identify an existing implementation to inspect, not proof of the current actor's identity or values. Confirm the actual driveby on the PC before changing the base rig; preserve its current path, timing, colour, output and shadow behavior through this pass.
+
+**Recommended live review:** compare P01/P02 at representative views and compare P02 immediately before, during and after the driveby. Require a visibly cooler lavender/light-blue base and a modest dimming relative to P01, readable ground/wing surfaces, fewer obstructive low beams, and the existing driveby gesture intact. Do not satisfy the dimmer target by restoring unreadable black gaps or dimming the retained driveby indiscriminately.
+
 **Inferred proposal:** give all five Interactions a common neutral parchment/pearl shadow surface, so the audience recognises the storytelling mode. Their subtle accents distinguish them; the shadow itself remains black and readable. A palette target does not authorize replacing the current curtain, canvas, material or animation.
 
 ## Continuity requirements for the PC agent
@@ -99,7 +110,7 @@ The Scene subtitles are descriptive names from the project notes; their saved cu
 
 ## Implementation boundary
 
-This is the colour-and-tone section of the plan, with explicit P01/Opening aiming and brightness intent. The next stage should identify the selected fixtures/roles, visibility versus mood lighting, and the existing sequence controls that will carry each target.
+This is the colour-and-tone section of the plan, with explicit P01/Opening/P02 aiming and brightness intent and a retained P02 driveby exception. The next stage should identify the selected fixtures/roles, visibility versus mood lighting, and the existing sequence controls that will carry each target.
 
 - **Declaration-proven:** passage lamps have authored colour, temperature, intensity/units and transform controls in `FInfinityStageLightSettings` / `FInfinityCueAttachment` (`Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h:194`, `:434`). Runtime Drama/movers/bulb bodies can subsequently own intensity or aim (`Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp:1843`).
 - **Declaration-proven:** some scene lighting has both rise keys and Scene hold values (`Saved/CodexConductor/s3_light_levels.py:1`). Passage colour presets must not be assumed to control every Scene.
