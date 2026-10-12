@@ -10,6 +10,7 @@ Prepared for Gary and the main project-PC agent. This stage defines the visual c
 - **User-directed:** P02 follows the same softening and ground/wing lighting approach as P01, with cooler lavenders and light blues at a slightly dimmer overall level. Gary explicitly retains the driveby light for its hint of exteriority.
 - **User-directed:** P03 follows the same softened ground/wing lighting approach, with light greens, pale yellow and orange forming a sickly set of hues. This supersedes the first draft's grey/olive P03 palette. No separate P03 brightness level is specified.
 - **User-directed:** all Passages should have a soft spotlight aimed at their end curtain, making the imagery on it more legible. The actual receiving curtain and its sequence state must be identified on the PC, including P06's separately documented end state.
+- **User-directed:** P05 is pretty good overall. Preserve its existing look, but remove the half-moon-shaped, domestic-looking practicals lining the fence if they are still present; Gary says these were intended to have been removed earlier.
 - **Inferred proposal:** the other palettes and emotional descriptions below remain design recommendations for review. None is a measured production colour or an approved numerical preset. The approved P01/Opening/P02/P03 directions do not identify fixture bindings or establish live implementation.
 
 ## Shared colour language
@@ -48,7 +49,7 @@ The Scene subtitles are descriptive names from the project notes; their saved cu
 | 11 | **P04** | Clean cool white and platinum-grey | Pearl-white variation, with very little coloured tint | Clear, bright and dazzling through texture, direction and contrast. Choose a coherent cool register here; avoid pink and dark-blue washes. | inferred proposal |
 | 12 | **S4 — Children** | Daylight ivory and pale warm grey | A little rose-grey, with cool-white clarity retained | Poised, luminous and slightly unsettling. Warmer human detail sits inside a clear scene; no cheerful pink wash. | inferred proposal |
 | 13 | **I4 — Gets a Name** | Pearl-parchment and soft rose-grey | Neutral-white clarity on the shadow surface | Recognition and a little returning warmth. Different from I3's ash tone, while retaining the same legible shadow-play language. | inferred proposal |
-| 14 | **P05** | Pearl-white and stone-grey | Mild straw/brass warmth only where it complements the existing look | Open, calm, almost houselit. Preserve the successful existing character; avoid turning a spatial/camera concern into a colour correction. | inferred proposal |
+| 14 | **P05** | Retain the current successful palette | Remove the half-moon-shaped domestic fence practicals | Pretty good overall: preserve the existing lighting character while removing that specific fixture group. The earlier pearl/houselight description remains a qualitative reference, not a recolouring instruction. | user-directed preservation/removal; palette values unmeasured |
 | 15 | **S5 — Village / video scene** | Weathered ivory and pale stone | Muted honey/gold if compatible with the actual scene image | A familiar, inhabited world. This is a palette target for the handover; the authored video remains the colour reference rather than footage to automatically tint or grade. | inferred proposal |
 | 16 | **I5 — Becomes King** | Ivory and pale old gold | Pewter-grey restraint | Modest fairy-tale ceremony, not a saturated royal-gold finale. The boy's final shadow action remains the focus. | inferred proposal |
 | 17 | **P06** | Smoked gold, warm grey and charcoal | Local fire/candle warmth | One deliberate, beautiful state with a darker weight than P01. Preserve its successful opening; movement toward the Void is primarily withdrawal of light, not a tour of new gel colours. | inferred proposal |
@@ -65,7 +66,7 @@ The Scene subtitles are descriptive names from the project notes; their saved cu
 | P02 | **Lavender and light blue** | Softer and slightly dimmer than P01, with a retained driveby hint of exteriority | user-directed |
 | P03 | **Sickly green, yellow and orange** | Pale, uneasy hues over the softened ground/wing lighting approach | user-directed |
 | P04 | **Platinum white** | Clear and crystalline; the least tinted Passage | inferred proposal |
-| P05 | **Pearl houselight** | Neutral, settled and open | inferred proposal |
+| P05 | **Existing look retained** | Preserve the successful overall state; remove the domestic half-moon fence practicals | user-directed |
 | P06 | **Smoked gold** | A darker, concentrated return to warmth | inferred proposal |
 
 **User-directed P01/P02, inferred contrast with other proposals:** P01's cool rose/grey-blue should feel soft and inviting, distinct from P06's proposed concentrated smoked gold. Its stronger ground/wing readability also distinguishes it from the reported dark amber state. P02 carries the same softened approach into cooler lavender/light blue at a slightly dimmer level, with its retained driveby light. Distinguish P02 from P04 by tint versus clarity: lavender/light blue in P02, nearly uncoloured cool light in P04. Distinguish P04 from P05 by theatrical contrast versus settled houselight character. Exact brightness is a later visual tuning step.
@@ -109,6 +110,14 @@ The Scene subtitles are descriptive names from the project notes; their saved cu
 **Declaration-proven tooling limitation:** the earlier `p03_lighting_as_p01.py:1` tool copies P01's lighting structure while keeping P03 colour. Reusing that old colour-preservation behavior alone will not implement this new palette. Map the new direction to the identified P03 authoring controls; do not blindly reapply the older whole lighting/atmosphere copy as a colour adjustment.
 
 **Recommended live review:** require distinct but pale green/yellow/orange contributions, a sickly overall tone, readable painted wings and floor, and reduced obstructive low beams. Retain the previously protected P03 special effects during base-rig tuning; this palette instruction is not a blanket recolouring of effect sources, fire, materials or the subsequent Shore scene.
+
+## P05 — remove the domestic fence practicals
+
+**User-directed:** P05 is **pretty good overall**. Remove the practicals lining the fence that Gary identifies as **half-moon-shaped and domestic-looking**, if they are still present. This is a specific cleanup, not a general P05 relight. Gary says they should have been removed a while ago; that is an operator report of earlier intent, not a verified removal record.
+
+**Recommended implementation:** identify the exact fixture assemblies in the live scene, including their visible bodies and associated light sources. Remove/disable the identified group through its actual authoring controller and confirm it stays absent after materialization/playback; deleting a generated actor alone may not remove its authored source. Do not target every PRACTICAL role or every fence-mounted light by name alone.
+
+**Recommended live review:** the half-moon domestic fittings and their associated illumination are gone, the remainder of P05 retains its successful lighting, and regeneration does not bring those fittings back. The shared smoke-machine cleanup and end-curtain legibility requirement still apply separately.
 
 ## All Passages — remove remaining smoke machines
 
